@@ -1,8 +1,8 @@
 import Link from 'next/link';
-import Box, { BoxProps } from './box/box';
-import { Button } from './ui/button';
+import Box, { BoxProps } from '../box/box';
+import { Button } from '../ui/button';
 import { allRoutes } from '@/constants/routes.constant';
-import Text from './text/text';
+import Text from '../text/text';
 import { getSession } from '@/lib/session';
 import SignOutRefreshButton from './signout-refresh-button';
 

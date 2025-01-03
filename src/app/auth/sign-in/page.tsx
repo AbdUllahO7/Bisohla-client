@@ -25,9 +25,9 @@ const SignInPage = () => {
           placeholder="Enter Your Email"
           type="email"
           name="email"
-          error={state.errors?.email}
+          error={state?.errors?.email}
           caption="Email"
-          value={state.fileds?.email}
+          value={state?.fileds?.email}
         />
 
         {/* Password Input */}
@@ -36,9 +36,9 @@ const SignInPage = () => {
           placeholder="Enter Your Password"
           type="password"
           name="password"
-          error={state.errors?.password}
+          error={state?.errors?.password}
           caption="Password"
-          value={state.fileds?.password}
+          value={state?.fileds?.password}
         />
 
         {/* Submit Button */}

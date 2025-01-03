@@ -1,8 +1,8 @@
 import Box from '@/components/box/box';
-import SignOutLink from '@/components/signout-link';
+import SignOutLink from '@/components/auth/signout-link';
 import Text from '@/components/text/text';
 
-const Dashboard = () => {
+const Dashboard = async () => {
   return (
     <Box>
       <Text variant="h1">User Dashboard</Text>

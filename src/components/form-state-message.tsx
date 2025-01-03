@@ -21,7 +21,7 @@ const FormStateMessage = ({
         )}
         {...props}
       >
-        {state.message ?? 'An error occurred'}
+        {state?.message ?? 'An error occurred'}
       </Text>
     )
   );
