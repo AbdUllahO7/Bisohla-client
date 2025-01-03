@@ -1,6 +1,5 @@
 import { BACKEND_URL } from '@/constants/constants';
 import { createSession, deleteSession } from '@/lib/session';
-import { getSession } from '@/lib/session';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
@@ -17,6 +16,9 @@ export async function POST(req: NextRequest) {
     });
 
     if (!backendRes.ok) {
+      // Clear the session cookie in the response
+      await deleteSession();
+
       return NextResponse.json(
         { error: 'Failed to refresh token' },
         { status: 401 },
@@ -24,29 +26,33 @@ export async function POST(req: NextRequest) {
     }
 
     const { data } = await backendRes.json();
-    const { accessToken, refreshToken, userId, name } = data;
-
-    // Get current session
-    const currentSession = await getSession();
+    const { accessToken, refreshToken, id, name, roles, permissions } = data;
 
     // Create new session with updated tokens
     await createSession({
       user: {
-        id: userId || currentSession?.user.id,
-        name: name || currentSession?.user.name,
+        id: id,
+        name: name,
+        roles: roles,
+        permissions: permissions,
       },
       accessToken,
       refreshToken,
     });
 
     // Return new tokens
+    // revalidatePath(allRoutes.auth.children.signIn.path, 'layout');
+    // revalidatePath(allRoutes.auth.children.signIn.path, 'page');
     return NextResponse.json({ accessToken, refreshToken }, { status: 200 });
   } catch (error) {
     console.error('Token refresh failed:', error);
     await deleteSession();
+    // revalidatePath(allRoutes.auth.children.signIn.path, 'layout');
+    // revalidatePath(allRoutes.auth.children.signIn.path, 'page');
+
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 },
+      { error: 'Failed to refresh token' },
+      { status: 401 },
     );
   }
 }

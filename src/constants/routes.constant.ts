@@ -14,11 +14,11 @@ export const allRoutes = {
   auth: {
     children: {
       signIn: {
-        path: '/sign-in',
+        path: '/auth/sign-in',
         pageName: 'SignIn',
       },
       register: {
-        path: '/register',
+        path: '/auth/register',
         pageName: 'Register',
       },
     },

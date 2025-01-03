@@ -11,11 +11,11 @@ export const api = axios.create({
   validateStatus: (status) => {
     if (status >= 500) {
       console.error(`API request failed with status code ${status}`);
-      return false;
+      return true;
     }
     if (status === 401) {
       console.log('Unauthorized. Refreshing token...');
-      return false;
+      return true;
     }
     return true;
   },

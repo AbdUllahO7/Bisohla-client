@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, ButtonProps } from './ui/button';
+import { Button, ButtonProps } from '../ui/button';
 import { useRouter } from 'next/navigation';
 import { allRoutes } from '@/constants/routes.constant';
 

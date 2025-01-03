@@ -32,7 +32,7 @@ export const getReq = async ({
       url: BACKEND_URL + path,
     });
     if (afterReq) afterReq();
-    return response.data;
+    return response;
   } catch (error: unknown) {
     handleRequestError(error, errorDefaultMessage, onError);
   }
@@ -61,10 +61,6 @@ export const postReq = async ({
     }
 
     const response = await axiosInstance.post(path, data);
-
-    if (!response.data.success) {
-      throw new Error(errorDefaultMessage);
-    }
 
     if (afterReq) afterReq();
 

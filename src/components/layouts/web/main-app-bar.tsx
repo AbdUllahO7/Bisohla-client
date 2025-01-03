@@ -1,4 +1,4 @@
-import AuthButtons from '../../auth-buttons';
+import AuthButtons from '../../auth/auth-buttons';
 import Box from '../../box/box';
 import Logo from '../../logo';
 

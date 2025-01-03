@@ -1,38 +1,42 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession } from './lib/session';
 import { allRoutes } from './constants/routes.constant';
+import { getAdminRole, getUserRole } from './services/permission.service';
+import { checkRole } from './lib/permission';
 
 export default async function middleware(req: NextRequest) {
-  const session = await getSession();
+  // check auth pages
+  if (req.nextUrl.pathname.startsWith('/auth')) {
+    // if (session && session.user) {
+    //   return NextResponse.redirect(
+    //     new URL(allRoutes.profile.path, req.nextUrl),
+    //   );
+    // }
+    return NextResponse.next();
+  }
 
-  if (
-    req.nextUrl.pathname.startsWith('/register') ||
-    req.nextUrl.pathname.startsWith('/sign-in') ||
-    req.nextUrl.pathname.startsWith('/forgot-password')
-  ) {
-    if (session && session.user) {
-      return NextResponse.redirect(
-        new URL(allRoutes.profile.path, req.nextUrl),
-      );
+  // check admin pages
+  if (req.nextUrl.pathname.startsWith('/admin')) {
+    if (req.nextUrl.pathname.startsWith('/admin/auth')) {
+      return NextResponse.next();
+    }
+
+    const isAdmin = await checkRole(getAdminRole()?.name || 'admin');
+    if (!isAdmin) {
+      return NextResponse.redirect(new URL(allRoutes.home.path, req.nextUrl));
     }
     return NextResponse.next();
   }
 
-  if (!session || !session.user) {
-    return NextResponse.redirect(
-      new URL(allRoutes.auth.children.signIn.path, req.nextUrl),
-    );
+  // check session for profiel pages
+  const isUser = await checkRole(getUserRole()?.name || 'admin');
+
+  if (!isUser) {
+    return NextResponse.redirect(new URL(allRoutes.home.path, req.nextUrl));
   }
 
   NextResponse.next();
 }
 
 export const config = {
-  matcher: [
-    '/admin/:path*',
-    '/profile/:path*',
-    '/sign-in',
-    '/register',
-    '/forgot-password',
-  ],
+  matcher: ['/admin/:path*', '/profile/:path*', '/auth/:path*'],
 };

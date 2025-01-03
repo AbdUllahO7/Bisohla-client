@@ -7,6 +7,7 @@ export interface ApiResponse<T = Record<string, unknown>> {
   errors?: string[] | Record<string, unknown>;
   stack?: string;
   fields?: Record<string, undefined | string | number>;
+  status?: number;
 }
 
 export const defaultActionState: ApiResponse = {
