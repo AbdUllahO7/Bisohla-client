@@ -49,7 +49,7 @@ export const handleLogin = async (state: ApiResponse, formData: FormData) => {
       accessToken: res.data.accessToken,
       refreshToken: res.data.refreshToken,
     });
-    redirect(allRoutes.profile.path);
+    redirect(allRoutes.user.children.dashboard.path);
   }
   return res;
 };
@@ -83,7 +83,7 @@ export const handleAdminLogin = async (
       accessToken: res.data.accessToken,
       refreshToken: res.data.refreshToken,
     });
-    redirect(allRoutes.admin.dashboard.path);
+    redirect(allRoutes.admin.children.dashboard.path);
   }
   return res;
 };

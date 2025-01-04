@@ -5,6 +5,7 @@ import { allRoutes } from '@/constants/routes.constant';
 import Text from '../text/text';
 import { getSession } from '@/lib/session';
 import SignOutRefreshButton from './signout-refresh-button';
+import { checkRole } from '@/lib/permission';
 
 const AuthButtons = async (props: BoxProps) => {
   const session = await getSession();
@@ -19,7 +20,15 @@ const AuthButtons = async (props: BoxProps) => {
         <>
           <Text>Welcome, {session.user.name}!</Text>
           <Button variant="link" asChild>
-            <Link href={allRoutes.profile.path}>Profile</Link>
+            {(await checkRole('admin')) ? (
+              <Link href={allRoutes.admin.children.dashboard.path}>
+                Dashboard
+              </Link>
+            ) : (
+              <Link href={allRoutes.user.children.dashboard.path}>
+                Dashboard
+              </Link>
+            )}
           </Button>
           <SignOutRefreshButton />
         </>
