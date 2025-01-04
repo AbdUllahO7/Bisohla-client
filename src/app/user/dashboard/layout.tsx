@@ -3,7 +3,7 @@ import { fetchAuth } from '@/lib/fetch-auth';
 import { redirect } from 'next/navigation';
 import { PropsWithChildren } from 'react';
 
-const UserPanelLayout = async ({ children }: PropsWithChildren) => {
+const UserDashboardLayout = async ({ children }: PropsWithChildren) => {
   const res = await fetchAuth({
     url: '/auth/check/user',
     method: 'GET',
@@ -15,4 +15,4 @@ const UserPanelLayout = async ({ children }: PropsWithChildren) => {
   return <>{children}</>;
 };
 
-export default UserPanelLayout;
+export default UserDashboardLayout;

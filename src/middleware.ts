@@ -28,7 +28,7 @@ export default async function middleware(req: NextRequest) {
   }
 
   // check session for profiel pages
-  const isUser = await checkRole(getUserRole()?.name || 'admin');
+  const isUser = await checkRole(getUserRole()?.name || 'user');
 
   if (!isUser) {
     return NextResponse.redirect(new URL(allRoutes.home.path, req.nextUrl));
@@ -38,5 +38,5 @@ export default async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/profile/:path*', '/auth/:path*'],
+  matcher: ['/admin/:path*', '/user/:path*', '/auth/:path*'],
 };

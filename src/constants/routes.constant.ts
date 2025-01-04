@@ -23,33 +23,35 @@ export const allRoutes = {
       },
     },
   },
-  profile: {
-    path: '/profile',
+  user: {
+    // path: '/user',
     children: {
       dashboard: {
-        path: '/dashboard',
+        path: 'user/dashboard',
         pageName: 'User Dashboard',
       },
     },
   },
   admin: {
-    path: '/admin',
+    // path: '/admin',
     pageName: 'Admin',
-    auth: {
-      children: {
-        signIn: {
-          path: '/admin/sign-in',
-          pageName: 'Admin SignIn',
-        },
-        register: {
-          path: '/admin/register',
-          pageName: 'Admin Register',
+    children: {
+      auth: {
+        children: {
+          signIn: {
+            path: '/admin/sign-in',
+            pageName: 'Admin SignIn',
+          },
+          register: {
+            path: '/admin/register',
+            pageName: 'Admin Register',
+          },
         },
       },
-    },
-    dashboard: {
-      path: '/admin/dashboard',
-      pageName: 'Admin Dashboard',
+      dashboard: {
+        path: '/admin/dashboard',
+        pageName: 'Admin Dashboard',
+      },
     },
   },
   api: {
