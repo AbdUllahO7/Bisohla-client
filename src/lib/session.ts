@@ -1,5 +1,6 @@
 'use server';
 
+import { COOKIE_DOMAIN } from '@/constants/constants';
 import { allRoutes } from '@/constants/routes.constant';
 import { sessionConfig } from '@/constants/session.constant';
 import { Session } from '@/interfaces/session.interface';
@@ -31,6 +32,7 @@ export const createSession = async (payload: Session): Promise<void> => {
       ),
       sameSite: 'lax',
       path: '/',
+      domain: COOKIE_DOMAIN,
     });
   } catch (error) {
     console.error('Error creating session:', error);

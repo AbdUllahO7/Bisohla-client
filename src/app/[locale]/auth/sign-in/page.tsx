@@ -5,40 +5,48 @@ import DetailedInput from '@/components/detailed-input';
 import FormStateMessage from '@/components/form-state-message';
 import SubmitButton from '@/components/submit-button';
 import Text from '@/components/text/text';
-import { defaultActionState } from '@/interfaces/api-response.interface';
-import { handleAdminLogin } from '@/services/auth.service';
+import { allRoutes } from '@/constants/routes.constant';
+import {
+  ApiResponse,
+  defaultActionState,
+} from '@/interfaces/api-response.interface';
+
+import { handleLogin } from '@/services/auth/auth.service';
 import Link from 'next/link';
 import { useActionState } from 'react';
-// import { ApiSuccessResponse} from '@/interfaces/api-response.interface';
 
-const AdminSignInPage = () => {
-  const [state, action] = useActionState(handleAdminLogin, defaultActionState);
+const SignInPage = () => {
+  const [state, action] = useActionState<ApiResponse<LoginResponse>, FormData>(
+    handleLogin,
+    defaultActionState,
+  );
+
+  console.log(state);
 
   return (
     <form action={action} className="w-full">
       <Box className="flex-col w-full gap-4 items-start">
         {/* Status Message */}
         <FormStateMessage state={state} />
+
         {/* Email Input */}
         <DetailedInput
-          // register={register('email')}
           placeholder="Enter Your Email"
           type="email"
           name="email"
           error={state?.errors?.email}
           caption="Email"
-          value={state?.fileds?.email}
+          // value={state?.fields?.email}
         />
 
         {/* Password Input */}
         <DetailedInput
-          // register={register('password')}
           placeholder="Enter Your Password"
           type="password"
           name="password"
           error={state?.errors?.password}
           caption="Password"
-          value={state?.fileds?.password}
+          // value={state?.fields?.password}
         />
 
         {/* Submit Button */}
@@ -50,7 +58,10 @@ const AdminSignInPage = () => {
         </Text>
         <Text>
           New to Bishola?{' '}
-          <Link href="/register" className="text-primary-light">
+          <Link
+            href={allRoutes.auth.children.register.path}
+            className="text-primary-light"
+          >
             Register Now
           </Link>
         </Text>
@@ -59,4 +70,4 @@ const AdminSignInPage = () => {
   );
 };
 
-export default AdminSignInPage;
+export default SignInPage;

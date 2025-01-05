@@ -1,44 +1,64 @@
 'use server';
 
 import { ApiResponse } from '@/interfaces/api-response.interface';
-import { postReq } from '@/lib/api.utils';
-import { api } from '@/lib/axios';
 import { loginFormSchema } from '@/zod-schemas/auth/login-form-schema';
-import { RegisterFormSchema } from './../zod-schemas/auth/register-form-schema';
+import {
+  RegisterFormSchema,
+  RegisterFormValues,
+} from '../../zod-schemas/auth/register-form-schema';
 import { redirect } from 'next/navigation';
-import { createSession } from '@/lib/session';
+import { createSession, deleteSession } from '@/lib/session';
 import { allRoutes } from '@/constants/routes.constant';
 import { APP_URL } from '@/constants/constants';
+import { fetchAuth } from '@/lib/fetch-auth';
+import { revalidatePath } from 'next/cache';
+import { postReq } from '@/lib/fetch';
 
-export const handleRegister = async (state: ApiResponse, data: FormData) =>
-  postReq({
-    axiosInstance: api,
-    path: '/auth/register',
-    data: {
-      email: data.get('email'),
-      password: data.get('password'),
-      name: data.get('name'),
-    },
+export const handleRegister = async (
+  state: ApiResponse<RegisterFormValues>,
+  data: FormData,
+) => {
+  const fields = {
+    email: data.get('email'),
+    password: data.get('password'),
+    passwordConfirmation: data.get('passwordConfirmation'),
+    name: data.get('name'),
+  };
+
+  const res = await postReq<typeof fields, RegisterFormValues>({
+    url: '/auth/register',
+    body: fields,
     validationSchema: RegisterFormSchema,
     errorDefaultMessage: 'Failed to register.',
   });
 
-export const handleLogin = async (state: ApiResponse, formData: FormData) => {
+  if (res.success) {
+    //TODO: send verification email
+  }
+
+  return res;
+};
+
+// services/auth/auth.service.ts
+export const handleLogin = async (
+  state: ApiResponse<LoginResponse>,
+  formData: FormData,
+): Promise<ApiResponse<LoginResponse>> => {
   const fields = {
     email: formData.get('email'),
     password: formData.get('password'),
   };
 
-  const res = await postReq({
-    axiosInstance: api,
-    path: '/auth/login',
-    data: fields,
+  const res = await postReq<typeof fields, LoginResponse>({
+    url: '/auth/login',
+    body: fields,
     validationSchema: loginFormSchema,
     errorDefaultMessage: 'Failed to login.',
   });
 
-  if (res.success) {
-    console.log(res.data);
+  console.log(res);
+
+  if (res.success && res.data) {
     await createSession({
       user: {
         id: res.data.id,
@@ -53,41 +73,54 @@ export const handleLogin = async (state: ApiResponse, formData: FormData) => {
   }
   return res;
 };
+// export const handleAdminLogin = async (
+//   state: ApiResponse,
+//   formData: FormData,
+// ) => {
+//   const fields = {
+//     email: formData.get('email'),
+//     password: formData.get('password'),
+//   };
 
-export const handleAdminLogin = async (
-  state: ApiResponse,
-  formData: FormData,
-) => {
-  const fields = {
-    email: formData.get('email'),
-    password: formData.get('password'),
-  };
+//   const res = await postReq({
+//     axiosInstance: api,
+//     path: '/admin/auth/login',
+//     data: fields,
+//     validationSchema: loginFormSchema,
+//     errorDefaultMessage: 'Failed to login.',
+//   });
 
-  const res = await postReq({
-    axiosInstance: api,
-    path: '/admin/auth/login',
-    data: fields,
-    validationSchema: loginFormSchema,
-    errorDefaultMessage: 'Failed to login.',
+//   if (res.success) {
+//     console.log(res.data);
+//     await createSession({
+//       user: {
+//         id: res.data.id,
+//         name: res.data.name,
+//         roles: res.data.roles,
+//         permissions: res.data.permissions,
+//       },
+//       accessToken: res.data.accessToken,
+//       refreshToken: res.data.refreshToken,
+//     });
+//     redirect(allRoutes.admin.children.dashboard.path);
+//   }
+//   return res;
+// };
+
+export const handleSignout = async () => {
+  const res = await fetchAuth({
+    url: '/auth/signout',
+    method: 'POST',
   });
 
   if (res.success) {
-    console.log(res.data);
-    await createSession({
-      user: {
-        id: res.data.id,
-        name: res.data.name,
-        roles: res.data.roles,
-        permissions: res.data.permissions,
-      },
-      accessToken: res.data.accessToken,
-      refreshToken: res.data.refreshToken,
-    });
-    redirect(allRoutes.admin.children.dashboard.path);
+    await deleteSession();
   }
-  return res;
-};
 
+  revalidatePath('/', 'layout');
+  revalidatePath('/', 'page');
+  redirect(allRoutes.home.path);
+};
 // export const handleRefreshToken = async (oldRefreshToken: string) => {
 //   try {
 //     const res = await fetch(BACKEND_URL + '/auth/refresh', {
@@ -142,7 +175,8 @@ export const handleRefreshToken = async (oldRefreshToken: string) => {
     const data = await res.json();
     return data.accessToken; // Return the new access token
   } catch (error) {
-    console.error('Refresh token error:', error);
+    console.warn('Refresh token error:', error);
+    await deleteSession();
 
     throw error;
   }
