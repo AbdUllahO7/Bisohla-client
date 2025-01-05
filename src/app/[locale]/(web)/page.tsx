@@ -1,4 +1,3 @@
-'use client';
 import Box from '@/components/box/box';
 import Text from '@/components/text/text';
 

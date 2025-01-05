@@ -1,6 +1,6 @@
 'use server';
 
-import { handleRefreshToken } from '@/services/auth.service';
+import { handleRefreshToken } from '@/services/auth/auth.service';
 import { getSession } from './session';
 import { BACKEND_URL } from '@/constants/constants';
 import { allRoutes } from '@/constants/routes.constant';

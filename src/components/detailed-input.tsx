@@ -1,4 +1,3 @@
-import { FieldError } from 'react-hook-form';
 import Box from './box/box';
 import Text from './text/text';
 import { Input } from './ui/input';
@@ -9,7 +8,7 @@ interface DetailedInputProps {
   placeholder: string;
   name: string;
   register?: Record<string, unknown>; // Accept the result of register() directly
-  error: FieldError | undefined;
+  error: unknown;
   caption: string;
   className?: string;
   value?: string | number | undefined;
@@ -37,13 +36,13 @@ const DetailedInput = (props: DetailedInputProps) => {
         className={cn(className, error ? 'border-red-500' : '')}
         value={value}
       />
-      {error && (
+      {error ? (
         <Text className="text-sm text-red-500 mt-1">
           {
             Array.isArray(error) ? error[0] : error // Assuming error is a FieldError
           }
         </Text>
-      )}
+      ) : null}
     </Box>
   );
 };

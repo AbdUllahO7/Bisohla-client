@@ -27,7 +27,7 @@ export const allRoutes = {
     // path: '/user',
     children: {
       dashboard: {
-        path: 'user/dashboard',
+        path: '/user/dashboard',
         pageName: 'User Dashboard',
       },
     },

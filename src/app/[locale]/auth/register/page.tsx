@@ -5,13 +5,21 @@ import DetailedInput from '@/components/detailed-input';
 import FormStateMessage from '@/components/form-state-message';
 import SubmitButton from '@/components/submit-button';
 import Text from '@/components/text/text';
-import { defaultActionState } from '@/interfaces/api-response.interface';
-import { handleRegister } from '@/services/auth.service';
+import { allRoutes } from '@/constants/routes.constant';
+import {
+  ApiResponse,
+  defaultActionState,
+} from '@/interfaces/api-response.interface';
+import { handleRegister } from '@/services/auth/auth.service';
+import { RegisterFormValues } from '@/zod-schemas/auth/register-form-schema';
 import Link from 'next/link';
 import { useActionState } from 'react';
 
 const RegisterPage = () => {
-  const [state, action] = useActionState(handleRegister, defaultActionState);
+  const [state, action] = useActionState<
+    ApiResponse<RegisterFormValues>,
+    FormData
+  >(handleRegister, defaultActionState);
 
   return (
     <form action={action} className="w-full">
@@ -45,13 +53,25 @@ const RegisterPage = () => {
           caption="Password"
         />
 
+        {/* Password Input */}
+        <DetailedInput
+          name="passwordConfirmation"
+          placeholder="Enter Your Password Again"
+          type="password"
+          error={state.errors?.passwordConfirmation}
+          caption="Password Confirmation"
+        />
+
         {/* Submit Button */}
         <SubmitButton title="Register" submittingTitle="Loading..." />
       </Box>
       <Box variant={'column'} className="items-start m-2">
         <Text>
           Alreay have an account?{' '}
-          <Link href="/sign-in" className="text-primary-light">
+          <Link
+            href={allRoutes.auth.children.signIn.path}
+            className="text-primary-light"
+          >
             Sign in Now
           </Link>
         </Text>

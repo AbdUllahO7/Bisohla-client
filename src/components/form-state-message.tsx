@@ -3,7 +3,7 @@ import Text, { TextProps } from '@/components/text/text';
 import { cn } from '@/lib/utils';
 
 interface FormStateMessageProps extends TextProps {
-  state: ApiResponse;
+  state: ApiResponse<unknown>;
 }
 
 const FormStateMessage = ({
