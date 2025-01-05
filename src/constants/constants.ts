@@ -6,3 +6,5 @@ export const BACKEND_URL = env(
 );
 
 export const APP_URL = env('APP_URL', 'http://localhost:3000');
+
+export const COOKIE_DOMAIN = env('COOKIE_DOMAIN', '');

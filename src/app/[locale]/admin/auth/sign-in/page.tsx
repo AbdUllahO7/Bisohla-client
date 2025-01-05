@@ -6,13 +6,13 @@ import FormStateMessage from '@/components/form-state-message';
 import SubmitButton from '@/components/submit-button';
 import Text from '@/components/text/text';
 import { defaultActionState } from '@/interfaces/api-response.interface';
-import { handleLogin } from '@/services/auth.service';
+import { handleAdminLogin } from '@/services/auth/auth.service';
 import Link from 'next/link';
 import { useActionState } from 'react';
 // import { ApiSuccessResponse} from '@/interfaces/api-response.interface';
 
-const SignInPage = () => {
-  const [state, action] = useActionState(handleLogin, defaultActionState);
+const AdminSignInPage = () => {
+  const [state, action] = useActionState(handleAdminLogin, defaultActionState);
 
   return (
     <form action={action} className="w-full">
@@ -59,4 +59,4 @@ const SignInPage = () => {
   );
 };
 
-export default SignInPage;
+export default AdminSignInPage;
