@@ -13,6 +13,8 @@ import { APP_URL } from '@/constants/constants';
 import { fetchAuth } from '@/lib/fetch-auth';
 import { revalidatePath } from 'next/cache';
 import { postReq } from '@/lib/fetch';
+import { sendVerificationEmailSchema } from '@/zod-schemas/auth/send-verification-email.schema';
+import { ResetPasswordSchema } from '@/zod-schemas/auth/reset-password.schem';
 
 export const handleRegister = async (
   state: ApiResponse<RegisterFormValues>,
@@ -56,8 +58,6 @@ export const handleLogin = async (
     errorDefaultMessage: 'Failed to login.',
   });
 
-  console.log(res);
-
   if (res.success && res.data) {
     await createSession({
       user: {
@@ -73,39 +73,72 @@ export const handleLogin = async (
   }
   return res;
 };
-// export const handleAdminLogin = async (
-//   state: ApiResponse,
-//   formData: FormData,
-// ) => {
-//   const fields = {
-//     email: formData.get('email'),
-//     password: formData.get('password'),
-//   };
 
-//   const res = await postReq({
-//     axiosInstance: api,
-//     path: '/admin/auth/login',
-//     data: fields,
-//     validationSchema: loginFormSchema,
-//     errorDefaultMessage: 'Failed to login.',
-//   });
+export const handleSendVerificationEmail = async (
+  state: ApiResponse<SendEmailVerificationResponse>,
+  data: FormData,
+) => {
+  const fields = {
+    email: data.get('email'),
+  };
 
-//   if (res.success) {
-//     console.log(res.data);
-//     await createSession({
-//       user: {
-//         id: res.data.id,
-//         name: res.data.name,
-//         roles: res.data.roles,
-//         permissions: res.data.permissions,
-//       },
-//       accessToken: res.data.accessToken,
-//       refreshToken: res.data.refreshToken,
-//     });
-//     redirect(allRoutes.admin.children.dashboard.path);
-//   }
-//   return res;
-// };
+  const res = await postReq<typeof fields, SendEmailVerificationResponse>({
+    url: '/auth/send-verification-email',
+    body: fields,
+    validationSchema: sendVerificationEmailSchema,
+    errorDefaultMessage: 'Failed to send verification email.',
+  });
+
+  return res;
+};
+
+export const handleSendResetPasswordEmail = async (
+  state: ApiResponse<SendEmailResponse>,
+  data: FormData,
+) => {
+  const fields = {
+    email: data.get('email'),
+  };
+
+  const res = await postReq<typeof fields, SendEmailResponse>({
+    url: '/auth/send-reset-password-email',
+    body: fields,
+    validationSchema: sendVerificationEmailSchema,
+    errorDefaultMessage: 'Failed to send verification email.',
+  });
+
+  return res;
+};
+
+export const validateResetPasswordToken = async (token: string) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const fields = {};
+  const res = await postReq<typeof fields, ResetPasswordResponse>({
+    url: `/auth/check-reset-password-token?token=${token}`,
+    errorDefaultMessage: 'Failed to send verification email.',
+  });
+
+  return res;
+};
+
+export const handleResetPassword = async (
+  state: ApiResponse<ResetPasswordResponse>,
+  data: FormData,
+) => {
+  const fields = {
+    password: data.get('password') as string,
+    passwordConfirmation: data.get('passwordConfirmation') as string,
+  };
+
+  const res = await postReq<typeof fields, ResetPasswordResponse>({
+    url: `/auth/reset-password-from-client?token=${data.get('token')}`,
+    body: fields,
+    validationSchema: ResetPasswordSchema,
+    errorDefaultMessage: 'Failed to send verification email.',
+  });
+
+  return res;
+};
 
 export const handleSignout = async () => {
   const res = await fetchAuth({
@@ -121,6 +154,7 @@ export const handleSignout = async () => {
   revalidatePath('/', 'page');
   redirect(allRoutes.home.path);
 };
+
 // export const handleRefreshToken = async (oldRefreshToken: string) => {
 //   try {
 //     const res = await fetch(BACKEND_URL + '/auth/refresh', {
