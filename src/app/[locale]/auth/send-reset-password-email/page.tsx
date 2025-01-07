@@ -6,22 +6,19 @@ import FormStateMessage from '@/components/form-state-message';
 import SubmitButton from '@/components/submit-button';
 import Text from '@/components/text/text';
 import { allRoutes } from '@/constants/routes.constant';
+import { Link } from '@/i18n/routing';
 import {
   ApiResponse,
   defaultActionState,
 } from '@/interfaces/api-response.interface';
-
-import { handleLogin } from '@/services/auth/auth.service';
-import Link from 'next/link';
+import { handleSendResetPasswordEmail } from '@/services/auth/auth.service';
 import { useActionState } from 'react';
 
-const SignInPage = () => {
-  const [state, action] = useActionState<ApiResponse<LoginResponse>, FormData>(
-    handleLogin,
-    defaultActionState,
-  );
-
-  console.log(state);
+const SendResetPasswordEmailPage = () => {
+  const [state, action] = useActionState<
+    ApiResponse<SendEmailResponse>,
+    FormData
+  >(handleSendResetPasswordEmail, defaultActionState);
 
   return (
     <form action={action} className="w-full">
@@ -39,18 +36,11 @@ const SignInPage = () => {
           // value={state?.fields?.email}
         />
 
-        {/* Password Input */}
-        <DetailedInput
-          placeholder="Enter Your Password"
-          type="password"
-          name="password"
-          error={state?.errors?.password}
-          caption="Password"
-          // value={state?.fields?.password}
-        />
-
         {/* Submit Button */}
-        <SubmitButton title="Login" />
+        <SubmitButton
+          title="Send Reset Password Email"
+          submittingTitle="Sending"
+        />
       </Box>
       <Box variant={'column'} className="items-start m-2">
         <Text>
@@ -63,12 +53,12 @@ const SignInPage = () => {
           </Link>
         </Text>
         <Text>
-          Forgot your password?{' '}
+          Had reset your password?{' '}
           <Link
-            href={allRoutes.auth.children.sendResetPasswordEmail.path}
+            href={allRoutes.auth.children.signIn.path}
             className="text-primary-light"
           >
-            Reset password
+            Sign in Now
           </Link>
         </Text>
       </Box>
@@ -76,4 +66,4 @@ const SignInPage = () => {
   );
 };
 
-export default SignInPage;
+export default SendResetPasswordEmailPage;

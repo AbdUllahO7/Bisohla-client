@@ -3,7 +3,7 @@ import Logo from '@/components/logo';
 import Text from '@/components/text/text';
 
 import Image from 'next/image';
-import { PropsWithChildren } from 'react';
+import { PropsWithChildren, Suspense } from 'react';
 
 const AuthLayout = ({ children }: PropsWithChildren) => {
   return (
@@ -25,7 +25,9 @@ const AuthLayout = ({ children }: PropsWithChildren) => {
           <Box className="px-8">
             <Text variant="lead">Login to control and manage everything</Text>
           </Box>
-          <Box className="w-full p-8">{children}</Box>
+          <Box className="w-full p-8">
+            <Suspense fallback={<Text>Loading...</Text>}>{children}</Suspense>
+          </Box>
         </Box>
       </Box>
 

@@ -21,6 +21,18 @@ export const allRoutes = {
         path: '/auth/register',
         pageName: 'Register',
       },
+      verifyEmail: {
+        path: '/auth/verify-email',
+      },
+      emailVerified: {
+        path: '/auth/email-verified',
+      },
+      resetPassword: {
+        path: '/auth/reset-password',
+      },
+      sendResetPasswordEmail: {
+        path: '/auth/send-reset-password-email',
+      },
     },
   },
   user: {
