@@ -21,6 +21,15 @@ const textVariants = cva('', {
       mid: 'text-base font-psemibold',
       small: 'text-sm font-pmedium leading-none',
       muted: 'text-sm text-muted-foreground',
+      link: 'text-primary underline-offset-4 hover:underline cursor-pointer',
+      'link-muted':
+        'text-muted-foreground underline-offset-4 hover:underline cursor-pointer',
+      'link-subtle':
+        'text-foreground hover:text-primary transition-colors duration-200 cursor-pointer',
+      'link-nav':
+        'text-foreground hover:text-primary transition-colors duration-200 font-psemibold cursor-pointer',
+      'link-button':
+        'inline-flex items-center justify-center rounded-md text-sm font-pmedium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background hover:bg-accent hover:text-accent-foreground h-10 py-2 px-4 cursor-pointer',
     },
   },
   defaultVariants: {

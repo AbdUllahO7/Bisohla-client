@@ -6,20 +6,29 @@ import FormStateMessage from '@/components/form-state-message';
 import SubmitButton from '@/components/submit-button';
 import Text from '@/components/text/text';
 import { allRoutes } from '@/constants/routes.constant';
+import { Link } from '@/i18n/routing';
 import {
   ApiResponse,
   defaultActionState,
 } from '@/interfaces/api-response.interface';
-import { handleRegister } from '@/services/auth/auth.service';
-import { RegisterFormValues } from '@/zod-schemas/auth/register-form-schema';
-import Link from 'next/link';
+import { handleResetPassword } from '@/services/auth/auth.service';
+import { redirect, useSearchParams } from 'next/navigation';
 import { useActionState } from 'react';
 
-const RegisterPage = () => {
+const ResetPasswordForm = () => {
+  const searchParams = useSearchParams();
+  console.log('Client searchParams:', searchParams.toString()); // Debug log
+
+  const token = searchParams.get('token');
+
   const [state, action] = useActionState<
-    ApiResponse<RegisterFormValues>,
+    ApiResponse<ResetPasswordResponse>,
     FormData
-  >(handleRegister, defaultActionState);
+  >(handleResetPassword, defaultActionState);
+
+  if (!token) {
+    redirect(allRoutes.auth.children.signIn.path);
+  }
 
   return (
     <form action={action} className="w-full">
@@ -27,42 +36,18 @@ const RegisterPage = () => {
         {/* Status Message */}
         <FormStateMessage state={state} />
 
-        {state.success && state.data && (
-          <Text variant="link" className="text-alert">
-            <Link href={allRoutes.auth.children.verifyEmail.path}>
-              resend email verification
-            </Link>
-          </Text>
-        )}
-
-        {/* Email Input */}
-        <DetailedInput
-          name="email"
-          placeholder="Enter Your Email"
-          type="email"
-          error={state.errors?.email}
-          caption="Email"
-        />
-
+        <input type="hidden" name="token" readOnly value={token} />
         {/* Password Input */}
         <DetailedInput
-          name="name"
-          placeholder="Enter Your Name"
-          type="text"
-          error={state.errors?.name}
-          caption="Name"
-        />
-
-        {/* Password Input */}
-        <DetailedInput
-          name="password"
-          placeholder="Enter Your Password"
+          placeholder="Enter your new password"
           type="password"
-          error={state.errors?.password}
-          caption="Password"
+          name="password"
+          error={state?.errors?.password}
+          caption="New Password"
+          // value={state?.fields?.email}
         />
 
-        {/* Password Input */}
+        {/* Password Confirmation Input */}
         <DetailedInput
           name="passwordConfirmation"
           placeholder="Enter Your Password Again"
@@ -72,11 +57,11 @@ const RegisterPage = () => {
         />
 
         {/* Submit Button */}
-        <SubmitButton title="Register" submittingTitle="Loading..." />
+        <SubmitButton title="Reset Password" submittingTitle="Resetting..." />
       </Box>
       <Box variant={'column'} className="items-start m-2">
         <Text>
-          Alreay have an account?{' '}
+          Had reset your password?{' '}
           <Link
             href={allRoutes.auth.children.signIn.path}
             className="text-primary-light"
@@ -89,4 +74,4 @@ const RegisterPage = () => {
   );
 };
 
-export default RegisterPage;
+export default ResetPasswordForm;
