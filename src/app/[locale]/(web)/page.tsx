@@ -3,7 +3,7 @@ import Text from '@/components/text/text';
 
 const WebPage = () => {
   return (
-    <Box>
+    <Box >
       <Text>Web Page</Text>
     </Box>
   );
