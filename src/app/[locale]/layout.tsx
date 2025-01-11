@@ -6,6 +6,7 @@ import { Locale, routing } from '@/i18n/routing';
 import { notFound } from 'next/navigation';
 import { getMessages } from 'next-intl/server';
 import { NextIntlClientProvider } from 'next-intl';
+import NextTopLoader from 'nextjs-toploader';
 
 export default async function RootLayout({
   children,
@@ -30,7 +31,11 @@ export default async function RootLayout({
     >
       <body>
         <NextIntlClientProvider messages={messages}>
-          <GlobalProvider>{children}</GlobalProvider>
+          <GlobalProvider>
+            <NextTopLoader color="red" showSpinner={false} />
+
+            {children}
+          </GlobalProvider>
         </NextIntlClientProvider>
       </body>
     </html>

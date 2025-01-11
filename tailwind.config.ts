@@ -221,9 +221,10 @@ const config: Config = {
             rotate: '-5deg',
           },
         },
-        loading: {
-          '0%': { transform: 'translateX(-100%)' },
-          '100%': { transform: 'translateX(400%)' },
+        'progress-bar': {
+          '0%': { width: '0%' },
+          '50%': { width: '70%' },
+          '100%': { width: '100%' },
         },
       },
       animation: {
@@ -236,6 +237,7 @@ const config: Config = {
         'accorion-right': 'accorion-right 4s ease-out',
         projectImageAnimation: 'projectImageAnimation 6s ease-in-out infinite',
         testimonial: 'testimonial 4s ease-in-out infinite',
+        'progress-bar': 'progress-bar 2s ease-out',
       },
       fontFamily: {
         pthin: ['Poppins-Thin', 'sans-serif'],

@@ -74,6 +74,38 @@ export const handleLogin = async (
   return res;
 };
 
+export const handleAdminLogin = async (
+  state: ApiResponse<LoginResponse>,
+  formData: FormData,
+): Promise<ApiResponse<LoginResponse>> => {
+  const fields = {
+    email: formData.get('email'),
+    password: formData.get('password'),
+  };
+
+  const res = await postReq<typeof fields, LoginResponse>({
+    url: '/admin/auth/login',
+    body: fields,
+    validationSchema: loginFormSchema,
+    errorDefaultMessage: 'Failed to login.',
+  });
+
+  if (res.success && res.data) {
+    await createSession({
+      user: {
+        id: res.data.id,
+        name: res.data.name,
+        roles: res.data.roles,
+        permissions: res.data.permissions,
+      },
+      accessToken: res.data.accessToken,
+      refreshToken: res.data.refreshToken,
+    });
+    redirect(allRoutes.user.children.dashboard.path);
+  }
+  return res;
+};
+
 export const handleSendVerificationEmail = async (
   state: ApiResponse<SendEmailVerificationResponse>,
   data: FormData,

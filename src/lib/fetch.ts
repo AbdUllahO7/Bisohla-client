@@ -3,7 +3,9 @@
 import { BACKEND_URL } from '@/constants/constants';
 import { ApiResponse } from '@/interfaces/api-response.interface';
 import { verifyZodFields } from './validation';
-import { ZodError, ZodTypeAny } from 'zod';
+import { ZodTypeAny } from 'zod';
+import { ValidationError } from '@/interfaces/errors/validation.error';
+import { AppError } from '@/interfaces/errors/app-error';
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 
@@ -127,9 +129,6 @@ export async function makeRequest<
     let validatedBody = body;
     if (validationSchema && body) {
       const validationResult = await verifyZodFields(validationSchema, body);
-      if (!validationResult.success) {
-        return validationResult as ApiResponse<R>;
-      }
       validatedBody = validationResult.data;
     }
 
@@ -152,41 +151,49 @@ export async function makeRequest<
 
     return await handleResponse<R>(response);
   } catch (error) {
-    if (error instanceof ZodError) {
-      // Convert Zod errors to simple object format
-      const formattedErrors = error.errors.reduce((acc, curr) => {
-        const field = curr.path[0].toString();
-        acc[field] = curr.message;
-        return acc;
-      }, {} as Record<string, string>);
+    return await catchActionRequest(error, errorDefaultMessage);
+  }
+}
 
-      return {
-        success: false,
-        message: 'Validation failed',
-        errors: formattedErrors,
-        status: 400,
-      };
-    }
-
-    if (error instanceof Error) {
-      const fetchError = error as FetchError;
-      return {
-        success: false,
-        message: fetchError.message || errorDefaultMessage,
-        errors: fetchError.errors,
-        status: fetchError.status || 500,
-        path: fetchError.path,
-        timestamp: fetchError.timestamp,
-        fields: fetchError.fields,
-      };
-    }
-
+export async function catchActionRequest<T>(
+  error: unknown,
+  errorDefaultMessage: string,
+): Promise<ApiResponse<T>> {
+  if (error instanceof ValidationError) {
     return {
       success: false,
-      message: errorDefaultMessage,
+      message: error.message || errorDefaultMessage,
+      errors: error.errors,
+      status: 400,
+    };
+  }
+
+  if (error instanceof AppError) {
+    return {
+      success: false,
+      message: error.message || errorDefaultMessage,
+      errors: error.errors,
+      status: error.status,
+      path: error.path,
+      timestamp: error.timestamp,
+      fields: error.fields,
+    };
+  }
+
+  if (error instanceof Error) {
+    return {
+      success: false,
+      message: error.message || errorDefaultMessage,
       status: 500,
     };
   }
+
+  // Handle unknown errors
+  return {
+    success: false,
+    message: errorDefaultMessage || 'An unexpected error occurred',
+    status: 500,
+  };
 }
 
 // Type-safe convenience methods
