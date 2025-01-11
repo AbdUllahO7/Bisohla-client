@@ -8,6 +8,10 @@ interface LoginResponse {
   refreshToken: string;
 }
 
+interface SignoutResponse {
+  message: string;
+}
+
 interface SendEmailVerificationResponse {
   message: string;
   success: boolean;

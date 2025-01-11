@@ -4,7 +4,7 @@ import { Button } from '../ui/button';
 import { allRoutes } from '@/constants/routes.constant';
 import Text from '../text/text';
 import { getSession } from '@/lib/session';
-import SignOutRefreshButton from './signout-refresh-button';
+import SignOutFormButton from './signout-form-button';
 import { checkRole } from '@/lib/permission';
 
 const AuthButtons = async (props: BoxProps) => {
@@ -30,7 +30,7 @@ const AuthButtons = async (props: BoxProps) => {
               </Link>
             )}
           </Button>
-          <SignOutRefreshButton />
+          <SignOutFormButton />
         </>
       )}
     </Box>

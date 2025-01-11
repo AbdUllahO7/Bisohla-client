@@ -5,14 +5,20 @@ import DetailedInput from '@/components/detailed-input';
 import FormStateMessage from '@/components/form-state-message';
 import SubmitButton from '@/components/submit-button';
 import Text from '@/components/text/text';
-import { defaultActionState } from '@/interfaces/api-response.interface';
+import {
+  ApiResponse,
+  defaultActionState,
+} from '@/interfaces/api-response.interface';
 import { handleAdminLogin } from '@/services/auth/auth.service';
 import Link from 'next/link';
 import { useActionState } from 'react';
 // import { ApiSuccessResponse} from '@/interfaces/api-response.interface';
 
 const AdminSignInPage = () => {
-  const [state, action] = useActionState(handleAdminLogin, defaultActionState);
+  const [state, action] = useActionState<ApiResponse<LoginResponse>, FormData>(
+    handleAdminLogin,
+    defaultActionState,
+  );
 
   return (
     <form action={action} className="w-full">
@@ -27,7 +33,6 @@ const AdminSignInPage = () => {
           name="email"
           error={state?.errors?.email}
           caption="Email"
-          value={state?.fileds?.email}
         />
 
         {/* Password Input */}
@@ -38,7 +43,6 @@ const AdminSignInPage = () => {
           name="password"
           error={state?.errors?.password}
           caption="Password"
-          value={state?.fileds?.password}
         />
 
         {/* Submit Button */}
