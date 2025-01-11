@@ -1,4 +1,5 @@
-import MainAppBar from '@/components/layouts/web/main-app-bar';
+import HeaderOne from '@/components/web/HeaderOne';
+import HeaderTow from '@/components/web/HeaderTow';
 import { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { PropsWithChildren } from 'react';
@@ -15,8 +16,10 @@ export async function generateMetadata(): Promise<Metadata> {
 const WebLayout = ({ children }: PropsWithChildren) => {
   return (
     <>
-      <MainAppBar />
+      <HeaderOne /> {/*  check if user login or not  */}
+      <HeaderTow />
       {children}
+ 
     </>
   );
 };

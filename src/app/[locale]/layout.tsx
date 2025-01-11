@@ -29,7 +29,7 @@ export default async function RootLayout({
       dir={locale === 'ar' ? 'rtl' : 'ltr'}
       suppressHydrationWarning
     >
-      <body>
+      <body className='bg-white text-primary'>
         <NextIntlClientProvider messages={messages}>
           <GlobalProvider>
             <NextTopLoader color="red" showSpinner={false} />
