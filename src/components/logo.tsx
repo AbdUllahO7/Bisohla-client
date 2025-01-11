@@ -1,11 +1,11 @@
 'use client';
 
-import { Images } from '@/assets';
 import { cn } from '@/lib/utils';
 import { useTheme } from 'next-themes';
 import Image from 'next/image';
 import Box from './box/box';
 import { useEffect, useState } from 'react';
+import { Images } from '@/assets';
 
 const Logo = (props: { size?: 'sm' | 'md' | 'lg'; className?: string }) => {
   const { size = 'md', className } = props;

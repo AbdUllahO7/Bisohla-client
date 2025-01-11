@@ -122,7 +122,7 @@
     --info-light: 210 60% 60%; /* Lighter info */ --sidebar-background: 240 5.9% 10%; --sidebar-foreground: 240 4.8% 95.9%; --sidebar-primary: 224.3 76.3% 48%; --sidebar-primary-foreground: 0 0% 100%; --sidebar-accent: 240 3.7% 15.9%; --sidebar-accent-foreground: 240 4.8% 95.9%; --sidebar-border: 240 3.7% 15.9%; --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
-
+/* 
 @font-face {
   font-family: 'Poppins-Thin';
   src: url('./assets/fonts/Poppins-Thin.ttf') format('truetype');
@@ -184,7 +184,7 @@
   src: url('./assets/fonts/Poppins-Black.ttf') format('truetype');
   font-weight: 900;
   font-style: normal;
-}
+} */
 
 /* styles.css */
 @layer components {
@@ -198,7 +198,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply  text-foreground;
   }
 }
 
@@ -209,17 +209,17 @@
   height: 8px;
 }
 
-::-webkit-scrollbar-track {
+/* ::-webkit-scrollbar-track {
   background: hsl(var(--background));
-}
+} */
 
-::-webkit-scrollbar-thumb {
+/* ::-webkit-scrollbar-thumb {
   background-color: hsl(var(--primary));
-}
+} */
 
-::-webkit-scrollbar-thumb:hover {
+/* ::-webkit-scrollbar-thumb:hover {
   background-color: hsl(var(--primary-dark));
-}
+} */
 
 .scrollbar {
   scrollbar-width: thin;
