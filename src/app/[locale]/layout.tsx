@@ -33,7 +33,7 @@ export default async function RootLayout({
         <NextIntlClientProvider messages={messages}>
           <GlobalProvider>
             <NextTopLoader color="red" showSpinner={false} />
-
+            
             {children}
           </GlobalProvider>
         </NextIntlClientProvider>

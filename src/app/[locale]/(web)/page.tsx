@@ -1,10 +1,14 @@
 import Box from '@/components/box/box';
-import Text from '@/components/text/text';
+import Hero from '@/components/web/Home/Hero';
+import LatestOffers from '@/components/web/Home/LatestOffers';
 
-const WebPage = () => {
+const WebPage = async () => {
+
   return (
-    <Box >
-      <Text>Web Page</Text>
+    <Box variant='column'>
+        <Hero />
+        {/* <Filter/> */}
+        <LatestOffers/>
     </Box>
   );
 };

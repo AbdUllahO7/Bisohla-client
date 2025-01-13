@@ -6,8 +6,8 @@ const withNextIntl = createNextIntlPlugin();
 const nextConfig: NextConfig = {
   
   images: {
-    unoptimized: true,
-    domains : [],
+    domains: ['example.com'],
+
     remotePatterns: [
       {
         protocol: 'https',
@@ -29,10 +29,7 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "img.freepik.com",
       },
-      {
-        protocol: "https",
-        hostname: "cloud.appwrite.io",
-      },
+
       {
         protocol: "https",
         hostname: "cdn-icons-png.flaticon.com", // Add this entry
@@ -40,5 +37,8 @@ const nextConfig: NextConfig = {
     ],
   },
 };
+
+
+
 
 export default withNextIntl(nextConfig);

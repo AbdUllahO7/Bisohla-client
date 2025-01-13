@@ -1,8 +1,121 @@
 {
   "homePage": {
+    "lang" :"en",
     "metadata": {
       "title": "Bishola",
       "description": "A mobile app for Bishola, a community of practitioners sharing their stories and experiences."
-    }
+    },
+    "headerOne" :  {
+      "adsButton" : "create Ads",
+      "loginButton" : "Login / SignUp" 
+    },
+    "headerTow" : {
+      "home" : "Home",
+      "rent" : "Rent",
+      "sale" : "Sale",
+      "news" : "news",
+      "join" : "Join"
+    },
+    "hero" : {
+      "title" : "Bishola" ,
+      "description" :"Sell . Buy . Rent . Hire"
+    },
+    
+      "filter": {
+        "Buy" : "Buy",
+        "Hire" : "Hire",
+        "cartype": "Car Type",
+        "selectCarType": "Select Car Type",
+        "state": "State",
+        "selectState": "Select State",
+        "controltype": "Control Type",
+        "selectControlType": "Select Control Type",
+        "priceHigh": "Price High",
+        "priceLow": "Price Low",
+        "selectPrice": "Select Price",
+        "search": "Search",
+        "options": {
+          "cartype": {
+            "sedan": "Sedan",
+            "suv": "SUV",
+            "truck": "Truck",
+            "coupe": "Coupe"
+          },
+          "state": {
+            "new": "New",
+            "used": "Used",
+            "certified": "Certified"
+          },
+          "controltype": {
+            "manual": "Manual",
+            "automatic": "Automatic"
+          },
+          "priceRanges": {
+            "15000_20000": "15,000 to 20,000",
+            "20000_30000": "20,000 to 30,000",
+            "30000_40000": "30,000 to 40,000"
+          }
+        }
+      },
+      "latestOffers": {
+        "title": "Latest Offers",
+        "showMore": "Show More",
+        "cars": {
+          "car1" : {
+            "title": "Car 1",
+            "marka": "Brand A",
+            "price": "$80.00"
+          },
+          "car2" : {
+            "title": "Car 2",
+            "marka": "Brand B",
+            "price": "$85.00"
+          },
+          "car3" : {
+            "title": "Car 3",
+            "marka": "Brand C",
+            "price": "$90.00"
+          },
+          "car4" : {
+            "title": "Car 4",
+            "marka": "Brand D",
+            "price": "$95.00"
+          },
+          "car5" : {
+            "title": "Car 5",
+            "marka": "Brand E",
+            "price": "$100.00"
+          },
+          "car6" : {
+            "title": "Car 6",
+            "marka": "Brand F",
+            "price": "$105.00"
+          },
+          "car7" : {
+            "title": "Car 7",
+            "marka": "Brand G",
+            "price": "$110.00"
+          },
+          "car8" : {
+            "title": "Car 8",
+            "marka": "Brand H",
+            "price": "$115.00"
+          },
+          "car9" : {
+            "title": "Car 9",
+            "marka": "Brand I",
+            "price": "$120.00"
+          }
+
+        }
+      },
+      "cardAds": {
+        "title" : "Your ad here reaches hundreds of thousands daily.",
+        "description" : "Contact us now"
+      }
+
+      
+      
+
   }
 }
