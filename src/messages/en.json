@@ -60,6 +60,7 @@
       "latestOffers": {
         "title": "Latest Offers",
         "showMore": "Show More",
+        "price" :"Price",
         "cars": {
           "car1" : {
             "title": "Car 1",

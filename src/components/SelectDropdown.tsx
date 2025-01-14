@@ -30,10 +30,10 @@ const SelectDropdown: React.FC<SelectDropdownProps> = ({
   const t = useTranslations('homePage');
 
   return (
-    <div className={`flex flex-col  ${className}`}>
+    <div className={`flex flex-col   ${className}`}>
       {label && (
         <label
-          className={`mb-1 text-sm font-medium text-gray-700 ${labelStyle}`}
+          className={`mb-1 text-sm  text-gray-700 font-cairo font-[700] ${labelStyle}`}
         >
           {label}
         </label>
@@ -48,7 +48,7 @@ const SelectDropdown: React.FC<SelectDropdownProps> = ({
         <SelectContent className="bg-primary">
           {options.map((option) => (
             <SelectItem
-              className=" focus:bg-primary-light hover:text-white transition-all duration-200"
+              className=" focus:bg-primary-light hover:text-white transition-all duration-200 font-cairo font-[700]"
               key={option.value}
               value={option.value}
             >

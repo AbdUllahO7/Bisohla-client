@@ -3,12 +3,11 @@ import Link from 'next/link';
 import Box from '@/components/box/box';
 import Text from '@/components/text/text';
 import { CarCardItem } from '../design/CarCardItem';
-import { getTranslations } from 'next-intl/server';
+import { useTranslations } from 'next-intl';
+import CardAds from '../design/CardAds';
 
-const LatestOffers = async () => {
-    const t = await getTranslations('homePage');
-
-    console.log(t('latestOffers.cars.car1.title'));
+const LatestOffers = () => {
+    const t = useTranslations('homePage');
 
     const cardsData = [
         { title: t('latestOffers.cars.car1.title'), marka: t('latestOffers.cars.car1.marka'), price: t('latestOffers.cars.car1.price'), imageSrc: '/assets/images/car-card.png' },
@@ -20,28 +19,32 @@ const LatestOffers = async () => {
         { title: t('latestOffers.cars.car7.title'), marka: t('latestOffers.cars.car7.marka'), price: t('latestOffers.cars.car7.price'), imageSrc: '/assets/images/car-card.png' },
         { title: t('latestOffers.cars.car8.title'), marka: t('latestOffers.cars.car8.marka'), price: t('latestOffers.cars.car8.price'), imageSrc: '/assets/images/car-card.png' },
         { title: t('latestOffers.cars.car9.title'), marka: t('latestOffers.cars.car9.marka'), price: t('latestOffers.cars.car9.price'), imageSrc: '/assets/images/car-card.png' },
+
     ];
 
     return (
-        <Box variant="container" className='mt-20'>
+        <Box variant="container" className="mt-20">
             <Box variant="column">
                 <Box variant="column">
-                    <Text variant="h3" className="font-bold">
+                    <Text variant="h3" className="font-bold text-[20px] font-cairo">
                         {t('latestOffers.title')}
                     </Text>
                     <Link href="/AllLatestOffers">
-                        <Text variant="mid">{t('latestOffers.showMore')}</Text>
+                        <Text variant="mid" className='text-[20px] font-cairo text-primary-light'>{t('latestOffers.showMore')}</Text>
                     </Link>
                 </Box>
-                <Box className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 ">
+                <Box className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:w-[80%] xs:w-[80%] " variant="center">
                     {cardsData.map((card, index) => (
-                        <CarCardItem
-                            key={index}
-                            title={card.title}
-                            marka={card.marka}
-                            price={card.price}
-                            imageSrc={card.imageSrc}
-                        />
+                        <React.Fragment key={index}>
+                            <CarCardItem
+                                title={card.title}
+                                marka={card.marka}
+                                price={card.price}
+                                imageSrc={card.imageSrc}
+                                priceWord = {t('latestOffers.price')}
+                            />
+                            {index === 1 && <Box variant="center" className='justify-center items-center'><CardAds /></Box>} {/* Render CardAds only after the first two cards */}
+                        </React.Fragment>
                     ))}
                 </Box>
             </Box>

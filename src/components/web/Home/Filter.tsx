@@ -31,100 +31,107 @@ const Filter = () => {
   const handleButtonClick = (button: 'buy' | 'hire') => {
     setActiveButton(button);
   };
+
+  
   return (
     <Box variant="container">
       {/* TOP */}
-      <Box variant="row" className="gap-0">
-        <Button
-          className={`w-[155px] h-[50px] ${
-            activeButton === 'buy' ? 'bg-primary-foreground' : 'bg-transparent'
-          } rounded-none`}
-          onClick={() => handleButtonClick('buy')}
-        >
-          <span className="text-[20px] text-primary">{t('filter.Buy')}</span>
-        </Button>
-        <Button
-          className={`w-[155px] h-[50px] ${
-            activeButton === 'hire' ? 'bg-primary-foreground' : 'bg-transparent'
-          } rounded-none`}
-          onClick={() => handleButtonClick('hire')}
-        >
-          <span className="text-[20px] text-primary">{t('filter.Hire')}</span>
-        </Button>
-      </Box>
-      <Box
-        variant="row"
-        className="pb-10 pt-10 shadow-2xl rounded-xl justify-between"
-      >
-        {/* Right */}
-        <Box className="justify-start flex-row gap-10 flex pl-5 pr-5">
-          {/* Car Type */}
-          <Box>
-            <SelectDropdown
-              label={t('filter.cartype')}
-              options={[
-                { value: 'sedan', label: t('filter.options.cartype.sedan') },
-                { value: 'suv', label: t('filter.options.cartype.suv') },
-                { value: 'truck', label: t('filter.options.cartype.truck') },
-                { value: 'coupe', label: t('filter.options.cartype.coupe') },
-              ]}
-              placeholder={t('filter.selectCarType')}
-              SelectTriggerStyle="border-0 outline-none shadow-none p-0 "
-            />
-          </Box>
-          {/* State */}
-          <Box>
-            <SelectDropdown
-              label={t('filter.state')}
-              options={[
-                { value: 'new', label: t('filter.options.state.new') },
-                { value: 'used', label: t('filter.options.state.used') },
-                {
-                  value: 'certified',
-                  label: t('filter.options.state.certified'),
-                },
-              ]}
-              placeholder={t('filter.selectState')}
-              SelectTriggerStyle="border-0 outline-none shadow-none p-0"
-            />
-          </Box>
-          {/* Control Type */}
-          <Box>
-            <SelectDropdown
-              label={t('filter.controltype')}
-              options={[
-                {
-                  value: 'manual',
-                  label: t('filter.options.controltype.manual'),
-                },
-                {
-                  value: 'automatic',
-                  label: t('filter.options.controltype.automatic'),
-                },
-              ]}
-              placeholder={t('filter.selectControlType')}
-              SelectTriggerStyle="border-0 outline-none shadow-none p-0"
-            />
-          </Box>
-          {/* Price Range */}
-          <Box>
-            <SelectDropdown
-              label={t('filter.selectPrice')}
-              options={priceRanges}
-              placeholder={t('filter.selectPrice')}
-              SelectTriggerStyle="border-0 outline-none shadow-none p-0"
-            />
-          </Box>
-        </Box>
-
-        {/* Left */}
-        <Box className="pl-10 pr-10">
-          <Button className="bg-primary-foreground w-[127px] h-[55px]">
-            <span className="text-primary">{t('filter.search')}</span>
-            <SearchIcon className="text-primary" />
+      <Box variant="row" className="gap-0 xs:w-full sm:w-full">
+          <Button
+            className={`h-[50px] ${
+              activeButton === 'hire' ? 'bg-primary-foreground' : 'bg-transparent'
+            } rounded-none w-full sm:w-[155px]`}
+            onClick={() => handleButtonClick('hire')}
+          >
+            <span className="text-[20px] text-primary font-cairo font-[800]">
+              {t('filter.Hire')}
+            </span>
+          </Button>
+          <Button
+            className={`h-[50px] ${
+              activeButton === 'buy' ? 'bg-primary-foreground' : 'bg-transparent'
+            } rounded-none w-full sm:w-[155px]`}
+            onClick={() => handleButtonClick('buy')}
+          >
+            <span className="text-[20px] text-primary font-cairo font-[800]">
+              {t('filter.Buy')}
+            </span>
           </Button>
         </Box>
-      </Box>
+
+        <Box
+            variant="rowBetween"
+            className="pb-10 pt-10 shadow-2xl rounded-xl w-full flex 2xs:flex-wrap sm:flex-wrap lg:flex-nowrap"
+
+          >
+            {/* Right */}
+            <Box
+              className="grid  gap-5 pl-5 pr-5 md:grid-cols-1 lg:grid-cols-4 w-full"
+            >
+              {/* Car Type */}
+              <Box className="w-full">
+                <SelectDropdown
+                  label={t('filter.cartype')}
+                  options={[
+                    { value: 'sedan', label: t('filter.options.cartype.sedan') },
+                    { value: 'suv', label: t('filter.options.cartype.suv') },
+                    { value: 'truck', label: t('filter.options.cartype.truck') },
+                    { value: 'coupe', label: t('filter.options.cartype.coupe') },
+                  ]}
+                  placeholder={t('filter.selectCarType')}
+                  SelectTriggerStyle="border-0 outline-none shadow-none p-0"
+                />
+              </Box>
+              {/* State */}
+              <Box className="w-full">
+                <SelectDropdown
+                  label={t('filter.state')}
+                  options={[
+                    { value: 'new', label: t('filter.options.state.new') },
+                    { value: 'used', label: t('filter.options.state.used') },
+                    {
+                      value: 'certified',
+                      label: t('filter.options.state.certified'),
+                    },
+                  ]}
+                  placeholder={t('filter.selectState')}
+                  SelectTriggerStyle="border-0 outline-none shadow-none p-0"
+                />
+              </Box>
+              {/* Control Type */}
+              <Box className="w-full">
+                <SelectDropdown
+                  label={t('filter.controltype')}
+                  options={[
+                    { value: 'manual', label: t('filter.options.controltype.manual') },
+                    { value: 'automatic', label: t('filter.options.controltype.automatic') },
+                  ]}
+                  placeholder={t('filter.selectControlType')}
+                  SelectTriggerStyle="border-0 outline-none shadow-none p-0"
+                />
+              </Box>
+              {/* Price Range */}
+              <Box className="w-full">
+                <SelectDropdown
+                  label={t('filter.selectPrice')}
+                  options={priceRanges}
+                  placeholder={t('filter.selectPrice')}
+                  SelectTriggerStyle="border-0 outline-none shadow-none p-0"
+                />
+              </Box>
+            </Box>
+
+            {/* Left */}
+            <Box
+              className="flex justify-center items-center pt-5 md:pt-0 xs:w-full sm:w-full w-full "
+            >
+              <Button className="bg-primary-foreground w-full md:w-[127px] h-[55px]">
+                <span className="text-primary">{t('filter.search')}</span>
+                <SearchIcon className="text-primary ml-2" />
+              </Button>
+            </Box>
+        </Box>
+
     </Box>
   );
 };

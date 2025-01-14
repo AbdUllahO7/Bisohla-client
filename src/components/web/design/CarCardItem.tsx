@@ -8,7 +8,6 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import Image from 'next/image';
-import CardAds from './CardAds';
 
 // CardItem Component
 interface CarCardItemProps {
@@ -16,9 +15,10 @@ interface CarCardItemProps {
     marka: string;
     price: string;
     imageSrc: string;
+    priceWord: string;
 }
 
-export const CarCardItem: React.FC<CarCardItemProps> = ({ title, marka, price, imageSrc }) => {
+export const CarCardItem: React.FC<CarCardItemProps> = ({ title, marka, price, imageSrc , priceWord }) => {
     return (
         <Card className=" border-none rounded-t-[10px] bg-white ">
             <CardHeader className="p-0">
@@ -42,7 +42,7 @@ export const CarCardItem: React.FC<CarCardItemProps> = ({ title, marka, price, i
             </CardHeader>
 
             <CardFooter className="bg-background flex justify-between p-[8px]">
-                <Text className="mid text-primary">Price</Text>
+                <Text className="mid text-primary">{priceWord}</Text>
                 <Text className="mid text-primary-light font-bold">{price}</Text>
             </CardFooter>
         </Card>
@@ -60,21 +60,20 @@ interface CarCardGridProps {
 
 export const CarCardGrid: React.FC<CarCardGridProps> = ({ cardsData }) => {
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            {cardsData.map((card, index) => {
-                return (
-                    <React.Fragment key={index}>
-                        <CarCardItem
-                            title={card.title}
-                            marka={card.marka}
-                            price={card.price}
-                            imageSrc={card.imageSrc}
-                        />
-                        {index === 1 && <CardAds />}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 max-h-[340px] h-[340px] min-h-[340px]">
+            {cardsData.map((card, index) => (
+                <React.Fragment key={index}>
+                    <CarCardItem
+                        title={card.title}
+                        marka={card.marka}
+                        price={card.price}
+                        priceWord = {card.price}
+                        imageSrc={card.imageSrc}
+                    />
+                </React.Fragment>
+            ))}
 
-                    </React.Fragment>
-                );
-            })}
         </div>
     );
 };
+

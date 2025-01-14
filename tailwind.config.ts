@@ -239,21 +239,14 @@ const config: Config = {
         testimonial: 'testimonial 4s ease-in-out infinite',
         'progress-bar': 'progress-bar 2s ease-out',
       },
-      fontFamily: {
-        pthin: ['Poppins-Thin', 'sans-serif'],
-        pextralight: ['Poppins-ExtraLight', 'sans-serif'],
-        plight: ['Poppins-Light', 'sans-serif'],
-        pregular: ['Poppins-Regular', 'sans-serif'],
-        pmedium: ['Poppins-Medium', 'sans-serif'],
-        psemibold: ['Poppins-SemiBold', 'sans-serif'],
-        pbold: ['Poppins-Bold', 'sans-serif'],
-        pextrabold: ['Poppins-ExtraBold', 'sans-serif'],
-        pblack: ['Poppins-Black', 'sans-serif'],
+    fontFamily: {
+        cairo: ['Cairo', 'sans-serif'],
       },
       screens: {
         '2xs': '360px',
-        xs: '480px',
+        xs: '200px', // Ensure correct unit for `xs`
         sm: '640px',
+        lg: '800px',
       },
       fontSize: {
         xs: '0.75rem',
