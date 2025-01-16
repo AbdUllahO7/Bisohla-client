@@ -40,7 +40,7 @@ const SelectDropdown: React.FC<SelectDropdownProps> = ({
       )}
       <Select>
         <SelectTrigger
-          className={`w-44   ${SelectTriggerStyle}`}
+          className={`w-30   ${SelectTriggerStyle}`}
           dir={`${t('lang') === 'ar' ? 'rtl' : 'ltr'}`}
         >
           <SelectValue placeholder={placeholder} />

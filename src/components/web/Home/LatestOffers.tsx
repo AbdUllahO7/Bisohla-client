@@ -23,7 +23,7 @@ const LatestOffers = () => {
     ];
 
     return (
-        <Box variant="container" className="mt-20">
+        <Box variant="container" className="mt-20 mb-[100px]">
             <Box variant="column">
                 <Box variant="column">
                     <Text variant="h3" className="font-bold text-[20px] font-cairo">
@@ -33,6 +33,7 @@ const LatestOffers = () => {
                         <Text variant="mid" className='text-[20px] font-cairo text-primary-light'>{t('latestOffers.showMore')}</Text>
                     </Link>
                 </Box>
+                
                 <Box className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:w-[80%] xs:w-[80%] " variant="center">
                     {cardsData.map((card, index) => (
                         <React.Fragment key={index}>
