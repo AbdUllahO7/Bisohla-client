@@ -1,19 +1,26 @@
 import Box from '@/components/box/box';
 import Text from '@/components/text/text';
+import { useTranslations, useLocale } from 'next-intl'; // Import useLocale
 import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
 
 const AdsSection = () => {
+    const t = useTranslations('homePage');
+    const locale = useLocale(); // Get the current language
+
+    // Determine direction based on the language
+    const isRTL = locale === 'ar';
+
     return (
-        <Box variant="container" className="mb-[100px] w-[80%] lg:w-[65%]">
-            <Box variant="center" className="bg-primary h-[300px] text-white relative overflow-hidden rounded-lg">
+        <Box variant="container" className="mb-[100px] flex justify-center" dir="rtl">
+            <Box variant="center" className="bg-primary w-[80%]  h-[300px]  text-white relative overflow-hidden rounded-lg">
                 {/* Green Circular Background Design */}
                 <Box className="hidden lg:block">
                     <Box className="absolute top-0 left-[807px]">
                         {/* Foreground Box */}
                         <Box
-                            className="absolute top-0 h-[1000px] w-[440px] bg-transparent border-dotted border-r-[809px] border-primary-foreground rounded-br-3xl"
+                            className="absolute top-0 h-[350px] w-[440px] bg-transparent border-dotted border-r-[809px] border-primary-foreground rounded-br-3xl"
                             style={{ zIndex: 1 }}
                         ></Box>
                         <Box
@@ -37,7 +44,8 @@ const AdsSection = () => {
 
                 {/* Text and Button Section */}
                 <Box
-                    className="absolute right-4 lg:right-6 flex flex-col lg:flex-row justify-center lg:justify-between items-center w-full lg:w-[600px] space-y-4 lg:space-y-0 "
+                    className="absolute right-4 lg:right-6 flex flex-col lg:flex-row justify-center lg:justify-between items-center w-full lg:w-[600px] space-y-4 lg:space-y-0"
+                    dir={isRTL ? 'rtl' : 'ltr'} // Set direction based on language
                     variant="row"
                 >
                     <Box
@@ -48,13 +56,13 @@ const AdsSection = () => {
                             variant="h4"
                             className="text-primary-foreground font-bold text-[24px] font-cairo"
                         >
-                            أنشىء أعلانك معنا
+                            {t('adsSection.title')}
                         </Text>
                         <Text
                             variant="h4"
                             className="font-bold text-[36px] lg:text-[64px] font-cairo"
                         >
-                            بسـهولـــة
+                            {t('adsSection.bishola')}
                         </Text>
                     </Box>
                     <Box
@@ -66,7 +74,7 @@ const AdsSection = () => {
                             className="bg-primary-foreground px-6 py-3 rounded-lg text-center"
                         >
                             <Text className="text-primary font-bold font-cairo text-[15px]">
-                                Start Now
+                                {t('adsSection.startNow')}
                             </Text>
                         </Link>
                     </Box>
