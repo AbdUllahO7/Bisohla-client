@@ -2,6 +2,7 @@ import Box from '@/components/box/box';
 import AdsSection from '@/components/web/Home/AdsSection';
 import FAQ from '@/components/web/Home/FAQ';
 import Filter from '@/components/web/Home/Filter';
+import Footer from '@/components/web/Home/Footer';
 import Hero from '@/components/web/Home/Hero';
 import LatestOffers from '@/components/web/Home/LatestOffers';
 import RentCar from '@/components/web/Home/RentCar';
@@ -19,6 +20,7 @@ const WebPage = async () => {
       <RentCar/>
       <SpaceAds/>
       <FAQ/>
+      <Footer/>
     </Box>
   );
 };

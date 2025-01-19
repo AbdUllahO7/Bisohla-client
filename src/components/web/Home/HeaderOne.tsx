@@ -48,7 +48,7 @@ const HeaderOne = async () => {
                 
                 </div>
                 {/* local  */}
-                <div>
+                <div >
                     <LocaleSwitcher/>
                 </div>
             </div>

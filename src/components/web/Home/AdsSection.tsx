@@ -25,12 +25,12 @@ const AdsSection = () => {
                         ></Box>
                         <Box
                             className="absolute top-[-100px] w-[500px] h-[324px] right-[242px] bg-transparent border-dotted border-r-[809px] border-primary rounded-br-3xl"
-                            style={{ zIndex: 99 }}
+                            style={{ zIndex: 10 }}
                         ></Box>
                         {/* Image */}
                         <Box
-                            className="absolute top-[50px] left-[-800px] w-[500px] z-50"
-                            style={{ zIndex: 100 }}
+                            className="absolute top-[50px] left-[-800px] w-[500px] z-[10]"
+                            style={{ zIndex: 10 }}
                         >
                             <Image
                                 src="/assets/images/3-car.png"
@@ -50,7 +50,7 @@ const AdsSection = () => {
                 >
                     <Box
                         variant="column"
-                        className="z-[200] text-center lg:text-start justify-center lg:gap-0 lg:justify-start items-center lg:items-start w-full lg:w-[300px]"
+                        className="z-[10] text-center lg:text-start justify-center lg:gap-0 lg:justify-start items-center lg:items-start w-full lg:w-[300px]"
                     >
                         <Text
                             variant="h4"
@@ -67,7 +67,7 @@ const AdsSection = () => {
                     </Box>
                     <Box
                         variant="row"
-                        className="z-[200] flex justify-center items-center w-full lg:w-auto"
+                        className="z-[10] flex justify-center items-center w-full lg:w-auto"
                     >
                         <Link
                             href="#"

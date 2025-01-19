@@ -8,8 +8,8 @@ import {
     AccordionContent,
     AccordionItem,
     AccordionTrigger,
-  } from "@/components/ui/accordion"
-  
+    } from "@/components/ui/accordion"
+    
 const FAQ = () => {
         const t = useTranslations('homePage');
         const data = [
@@ -35,7 +35,7 @@ const FAQ = () => {
                 
             </Box>
             <Box variant="container" className='w-[83%]'>
-                <Box variant='column' className='justify-start items-start '>
+                <Box variant='column' className='justify-start items-start w-full'>
                     {
                         data.map((item, index) => (
                     <Accordion key={index} type="single" collapsible className='shadow-xl bg-white p-6 rounded-3xl w-full '>
