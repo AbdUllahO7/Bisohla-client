@@ -23,7 +23,7 @@ const HeaderTow: React.FC<HeaderTowProps> = ({ translations }) => {
                 <div className="flex items-center justify-center h-16">
                     <div className="hidden md:block">
                         <div className="flex space-x-4">
-                            <Link href="#home" className="hover:bg-primary-light transition-all px-3 py-2 rounded">
+                            <Link href="/" className="hover:bg-primary-light transition-all px-3 py-2 rounded">
                                 {translations.home}
                             </Link>
                             <Link href="#rent" className="hover:bg-primary-light transition-all px-3 py-2 rounded">

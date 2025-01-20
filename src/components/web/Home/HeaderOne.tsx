@@ -22,8 +22,8 @@ const HeaderOne = async () => {
             
             {/* left */}
             <div className='flex lg:gap-5 items-center'>
-                <div className=''>
-                        <Button variant="default" className='text-white hover:none rounded-3xl pb-[5px] pr-[23px]  pt-[5px]' size="lg" >
+                <Box className='xs:w-[120px]'>
+                        <Button variant="default" className='text-white hover:none rounded-3xl pb-[5px] pr-[23px]  pt-[5px] ' size="lg" >
                             <span>{t('headerOne.adsButton')}</span>
                             <Image 
                             src="/assets/icons/Glyph.png" // Default image included in Next.js projects
@@ -34,8 +34,8 @@ const HeaderOne = async () => {
                         </Button>
                     
 
-                </div>
-                <div className=''>
+                </Box>
+                <Box  className='xs:w-[120px]'>
                             <Button variant="default" className='text-primary hover:none bg-transparent shadow-none rounded-3xl pb-[5px] pr-[23px]  pt-[5px]  border-2 border-primary' size="lg" >
                             <span>{t('headerOne.loginButton')}</span>
                         <Image 
@@ -46,7 +46,7 @@ const HeaderOne = async () => {
                         />
                         </Button>
                 
-                </div>
+                </Box>
                 {/* local  */}
                 <div >
                     <LocaleSwitcher/>
