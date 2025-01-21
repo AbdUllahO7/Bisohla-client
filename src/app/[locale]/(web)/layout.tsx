@@ -22,7 +22,7 @@ const WebLayout = async({ children }: PropsWithChildren) => {
       </div>
 
     {/* HeaderTwo */}
-    <div className="fixed top-[48px] z-[20]  w-full bg-primary shadow-md">
+    <div className="fixed top-[55px] z-[20]  w-full bg-primary shadow-md">
       <HeaderTow   translations={{
               home: t('headerTow.home'),
               rent: t('headerTow.rent'),
