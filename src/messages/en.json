@@ -285,6 +285,38 @@
           "priceHigh": "Price High",
           "priceLow": "Price Low"
       }
+    },
+    "filter" : {
+      "title" : "What are you looking for",
+      "searchInput" : "Search",
+      "filterOptions" : {
+        "address" : {
+          "filterOptionsTitle" : "Address",
+          "placeHolder" : "City",
+          "options" : {
+            "Damascus": "Damascus",
+            "Idlib": "Idlib",
+            "Aleppo": "Aleppo",
+            "Homs": "Homs"
+          }
+        },
+        "states" : {
+          "placeHolder" : "State",
+          "options" : {
+            "Damascus": "دمشق",
+            "Idlib": "إدلب",
+            "Aleppo": "حلب",
+            "Homs": "حمص"
+          }
+        },
+        "CarMarka" : {
+          "filterOptionsTitle" : "Car Marka",
+          "Mercedes" : "Mercedes",
+          "BMW" : "BMW"
+
+        }
+      }
+
     }
   }
 }

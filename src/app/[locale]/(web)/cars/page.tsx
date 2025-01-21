@@ -1,14 +1,20 @@
 import Box from '@/components/box/box'
+import Filter from '@/components/web/CarsPage/Filter'
 import Header from '@/components/web/CarsPage/Header'
 import React from 'react'
 
 const page = () => {
     return (
-        <Box className='mt-[50px] bg-[##D9D9D9]'>
-                <Box className=' w-full'>
+        <Box variant="column" className='mt-[50px]  bg-background'>
+                <Box className='mt-[50px] w-full'>
                     <Header/>
                 </Box>
-
+                <Box variant='container' className='flex justify-between mt-10' > 
+                    <Box className='bg-white w-[300px] rounded-lg'>
+                        <Filter/>
+                    </Box>
+                    <Box>CarsPage</Box>
+                </Box>
         </Box>
     )
 }
