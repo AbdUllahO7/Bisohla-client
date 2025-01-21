@@ -29,7 +29,7 @@ const LatestOffers = () => {
                     <Text variant="h3" className="font-bold text-[20px] font-cairo">
                         {t('latestOffers.title')}
                     </Text>
-                    <Link href="/AllLatestOffers">
+                    <Link href="/cars">
                         <Text variant="mid" className='text-[20px] font-cairo text-primary-light'>{t('latestOffers.showMore')}</Text>
                     </Link>
                 </Box>

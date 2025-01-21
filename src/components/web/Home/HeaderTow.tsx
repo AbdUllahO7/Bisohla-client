@@ -1,5 +1,6 @@
 'use client';
 
+import LocaleSwitcher from '@/components/local/LocalSwitcher';
 import { MenuIcon, XCircleIcon } from 'lucide-react';
 import Link from 'next/link';
 import React, { useState } from 'react';
@@ -23,7 +24,7 @@ const HeaderTow: React.FC<HeaderTowProps> = ({ translations }) => {
                 <div className="flex items-center justify-center h-16">
                     <div className="hidden md:block">
                         <div className="flex space-x-4">
-                            <Link href="#home" className="hover:bg-primary-light transition-all px-3 py-2 rounded">
+                            <Link href="/" className="hover:bg-primary-light transition-all px-3 py-2 rounded">
                                 {translations.home}
                             </Link>
                             <Link href="#rent" className="hover:bg-primary-light transition-all px-3 py-2 rounded">
@@ -73,6 +74,9 @@ const HeaderTow: React.FC<HeaderTowProps> = ({ translations }) => {
                             <Link href="#join" className="hover:bg-primary-light transition-all px-3 py-2 rounded">
                                 {translations.join}
                             </Link>
+                            <div className='xs:block hidden'>
+                                <LocaleSwitcher/>
+                            </div>
                     </div>
                 </div>
             )}

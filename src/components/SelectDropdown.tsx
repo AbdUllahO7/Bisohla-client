@@ -40,12 +40,12 @@ const SelectDropdown: React.FC<SelectDropdownProps> = ({
       )}
       <Select>
         <SelectTrigger
-          className={`w-30   ${SelectTriggerStyle}`}
+          className={`w-30   ${SelectTriggerStyle} p-1`}
           dir={`${t('lang') === 'ar' ? 'rtl' : 'ltr'}`}
         >
-          <SelectValue placeholder={placeholder} />
+          <SelectValue placeholder={placeholder}  />
         </SelectTrigger>
-        <SelectContent className="bg-primary">
+        <SelectContent className="bg-primary  ">
           {options.map((option) => (
             <SelectItem
               className=" focus:bg-primary-light hover:text-white transition-all duration-200 font-cairo font-[700]"

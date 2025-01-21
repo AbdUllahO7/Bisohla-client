@@ -275,5 +275,16 @@
       }
 
 
+  },
+  "carsPage" : {
+    "header" : {
+      "adCounter"  : "250 ad",
+      "orderBy"  : "Short by:",
+      "selectPrice": "Select Price",
+      "options" : {
+          "priceHigh": "Price High",
+          "priceLow": "Price Low"
+      }
+    }
   }
 }

@@ -9,9 +9,9 @@ const HeaderOne = async () => {
     const t = await getTranslations('homePage');
 
     return (
-        <Box variant="container" className='flex justify-between mt-2'>
+        <Box className='flex md:justify-around xs:justify-center mt-2 pb-2'>
              {/* right */}
-            <div className='pr-[50px] hidden lg:block lg:pr-[90px]'>
+            <div className='pr-[50px] hidden md:block lg:block lg:pr-[90px]'>
                 <Image 
                     src="/assets/images/logo/bishola.png"// Default image included in Next.js projects
                     alt="Test Image"
@@ -21,9 +21,9 @@ const HeaderOne = async () => {
             </div>
             
             {/* left */}
-            <div className='flex lg:gap-5 items-center'>
-                <div className=''>
-                        <Button variant="default" className='text-white hover:none rounded-3xl pb-[5px] pr-[23px]  pt-[5px]' size="lg" >
+            <div className='flex lg:gap-5 items-center  xs:gap-8 justify-evenly'>
+                <Box className='xs:w-[120px] lg:w-full'>
+                        <Button variant="default" className='text-white hover:none rounded-3xl pb-[5px] pr-[23px]  pt-[5px] ' size="lg" >
                             <span>{t('headerOne.adsButton')}</span>
                             <Image 
                             src="/assets/icons/Glyph.png" // Default image included in Next.js projects
@@ -34,8 +34,8 @@ const HeaderOne = async () => {
                         </Button>
                     
 
-                </div>
-                <div className=''>
+                </Box>
+                <Box  className='xs:w-[120px] lg:w-full'>
                             <Button variant="default" className='text-primary hover:none bg-transparent shadow-none rounded-3xl pb-[5px] pr-[23px]  pt-[5px]  border-2 border-primary' size="lg" >
                             <span>{t('headerOne.loginButton')}</span>
                         <Image 
@@ -46,14 +46,13 @@ const HeaderOne = async () => {
                         />
                         </Button>
                 
-                </div>
+                </Box>
                 {/* local  */}
-                <div >
+                <div className='xs:hidden lg:block md:block'>
                     <LocaleSwitcher/>
                 </div>
             </div>
 
-           
             
         </Box>
     )
