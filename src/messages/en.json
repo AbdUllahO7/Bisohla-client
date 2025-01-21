@@ -1,8 +1,279 @@
 {
   "homePage": {
+    "lang" :"en",
     "metadata": {
       "title": "Bishola",
       "description": "A mobile app for Bishola, a community of practitioners sharing their stories and experiences."
-    }
+    },
+    "headerOne" :  {
+      "adsButton" : "create Ads",
+      "loginButton" : "Login / SignUp" 
+    },
+    "headerTow" : {
+      "home" : "Home",
+      "rent" : "Rent",
+      "sale" : "Sale",
+      "news" : "news",
+      "join" : "Join"
+    },
+    "hero" : {
+      "title" : "Bishola" ,
+      "description" :"Sell . Buy . Rent . Hire"
+    },
+    
+      "filter": {
+        "Buy" : "Buy",
+        "Hire" : "Hire",
+        "cartype": "Car Type",
+        "selectCarType": "Select Car Type",
+        "state": "State",
+        "selectState": "Select State",
+        "controltype": "Control Type",
+        "selectControlType": "Select Control Type",
+        "priceHigh": "Price High",
+        "priceLow": "Price Low",
+        "selectPrice": "Select Price",
+        "search": "Search",
+        "options": {
+          "cartype": {
+            "sedan": "Sedan",
+            "suv": "SUV",
+            "truck": "Truck",
+            "coupe": "Coupe"
+          },
+          "state": {
+            "new": "New",
+            "used": "Used",
+            "certified": "Certified"
+          },
+          "controltype": {
+            "manual": "Manual",
+            "automatic": "Automatic"
+          },
+          "priceRanges": {
+            "15000_20000": "15,000 to 20,000",
+            "20000_30000": "20,000 to 30,000",
+            "30000_40000": "30,000 to 40,000"
+          }
+        }
+      },
+      "latestOffers": {
+        "title": "Latest Offers",
+        "showMore": "Show More",
+        "price" :"Price",
+        "cars": {
+          "car1" : {
+            "title": "Car 1",
+            "marka": "Brand A",
+            "price": "$80.00"
+          },
+          "car2" : {
+            "title": "Car 2",
+            "marka": "Brand B",
+            "price": "$85.00"
+          },
+          "car3" : {
+            "title": "Car 3",
+            "marka": "Brand C",
+            "price": "$90.00"
+          },
+          "car4" : {
+            "title": "Car 4",
+            "marka": "Brand D",
+            "price": "$95.00"
+          },
+          "car5" : {
+            "title": "Car 5",
+            "marka": "Brand E",
+            "price": "$100.00"
+          },
+          "car6" : {
+            "title": "Car 6",
+            "marka": "Brand F",
+            "price": "$105.00"
+          },
+          "car7" : {
+            "title": "Car 7",
+            "marka": "Brand G",
+            "price": "$110.00"
+          },
+          "car8" : {
+            "title": "Car 8",
+            "marka": "Brand H",
+            "price": "$115.00"
+          },
+          "car9" : {
+            "title": "Car 9",
+            "marka": "Brand I",
+            "price": "$120.00"
+          }
+
+        }
+      },
+      "cardAds": {
+        "title" : "Your ad here reaches hundreds of thousands daily.",
+        "description" : "Contact us now"
+      },
+      "adsSection" : {
+      "title" : "Create your ad with us",
+      "bishola": "Bishola",
+      "startNow" : "Start Now"
+      },
+      "worldOfCars" : {
+        "title" : "Discover a world of cars",
+        "showMore" : "Show all",
+        "cities" : {
+          "city1" : {"title" : "Idlib" , "carCount" : "250" },
+          "city2" :{"title" : "Aleppo" , "carCount" : "250" },
+          "city3" :{"title" : "Damascus" , "carCount" : "250" },
+          "city4" :{"title" : "Hama" , "carCount" : "250"},
+          "city5" :{"title" : "Homs" , "carCount" : "250"}
+         }
+        
+      },
+      "rentCar" : {
+        "title":"Rent your order with us",
+        "showMore" :"Show all",
+        "price" :"Today Price",
+        "cars": {
+          "car1" : {
+            "title": "Car 1",
+            "marka": "Brand A",
+            "price": "$80.00",
+            "details" : {
+              "basic" : {
+                "gaz" :"Benzin",
+                "type" : "Normal"
+              }
+
+            }
+          },
+          "car2" : {
+            "title": "Car 2",
+            "marka": "Brand B",
+            "price": "$85.00",
+            "details" : {
+              "gaz" : "Benzin",
+              "type" :"Normal"
+            }
+          },
+          "car3" : {
+            "title": "Car 3",
+            "marka": "Brand C",
+            "price": "$90.00",
+            "details" : {
+              "basic" : {
+                "gaz" :"Benzin",
+                "type" : "Normal"
+              }
+            }
+          },
+          "car4" : {
+            "title": "Car 4",
+            "marka": "Brand D",
+            "price": "$95.00",
+            "details" : {
+              "basic" : {
+                "gaz" :"Benzin",
+                "type" : "Normal"
+              }
+            }
+          },
+          "car5" : {
+            "title": "Car 5",
+            "marka": "Brand E",
+            "price": "$100.00",
+            "details" : {
+              "basic" : {
+                "gaz" :"Benzin",
+                "type" : "Normal"
+              }
+            }
+          },
+          "car6" : {
+            "title": "Car 6",
+            "marka": "Brand F",
+            "price": "$105.00",
+            "details" : {
+              "basic" : {
+                "gaz" :"Benzin",
+                "type" : "Normal"
+              }
+            }
+          },
+          "car7" : {
+            "title": "Car 7",
+            "marka": "Brand G",
+            "price": "$110.00",
+            "details" : {
+              "basic" : {
+                "gaz" :"Benzin",
+                "type" : "Normal"
+              }
+            }
+          },
+          "car8" : {
+            "title": "Car 8",
+            "marka": "Brand H",
+            "price": "$115.00",
+            "details" : {
+              "basic" : {
+                "gaz" :"Benzin",
+                "type" : "Normal"
+              }
+            }
+          },
+          "car9" : {
+            "title": "Car 9",
+            "marka": "Brand I",
+            "price": "$120.00",
+            "details" : {
+              "basic" : {
+                "gaz" :"Benzin",
+                "type" : "Normal"
+              }
+            }
+          }
+
+        }
+      },
+      "spaceAds" : {
+        "box1": {
+          "title" : "Create your ad with us 1",
+          "bishola": "Bishola"
+        },
+        "box2": {
+          "title" : "Create your ad with us 2",
+          "bishola": "Bishola"
+        }
+      },
+      "faq" : {
+        "title" : "FAQ",
+        "showMore":"Show all",
+        "questions" : {
+            "question1" : {
+              "question" : "It is a long established fact that the readable content of a page?",
+              "answer" : "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like)."
+            },
+            "question2" : {
+              "question" : "It is a long established fact that the readable content of a page?",
+              "answer" : "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like)."
+            },
+            "question3" : {
+              "question" : "It is a long established fact that the readable content of a page?",
+              "answer" : "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like)."
+            },
+            "question4" : {
+              "question" : "It is a long established fact that the readable content of a page?",
+              "answer" : "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like)."
+            },    
+            "question5" : {
+              "question" : "It is a long established fact that the readable content of a page?",
+              "answer" : "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like)."
+            }
+          }
+      }
+
+
   }
 }
