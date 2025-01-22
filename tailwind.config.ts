@@ -32,7 +32,7 @@ const config: Config = {
   			border: 'hsl(var(--border))',
   			input: 'hsl(var(--input))',
   			ring: 'hsl(var(--ring))',
-  			background: '#E4E4E4',
+  			background: '#D9D9D9',
   			foreground: 'hsl(var(--foreground))',
   			primary: {
   				DEFAULT: '#2C3C39',

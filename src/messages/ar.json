@@ -286,6 +286,39 @@
             "priceLow": "السعر المنخفض"
           
         }
+    },
+    "filter" : {
+      "title" : "عن ماذا تبحث",
+      "searchInput" : "بحث",
+      "filterOptions" : {
+        "address" : {
+          "filterOptionsTitle" : "العنوان",
+          "placeHolder" : "المدينة",
+          "options" : {
+            "Damascus": "دمشق",
+            "Idlib": "إدلب",
+            "Aleppo": "حلب",
+            "Homs": "حمص"
+          }
+        },
+        "states" : {
+          "placeHolder" : "المنطقة",
+          "options" : {
+            "Damascus": "دمشق",
+            "Idlib": "إدلب",
+            "Aleppo": "حلب",
+            "Homs": "حمص"
+          }
+        },
+        "CarsMarka" : {
+          "filterOptionsTitle" : "ماركة السيارة",
+          "Mercedes" : "مرسيدس",
+          "Bmw" : "بي أم دبليو"
+        }
+
+      }
+
     }
+
   }
 }
