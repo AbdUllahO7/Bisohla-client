@@ -34,7 +34,7 @@ const FAQ = () => {
                 </Box>
                 
             </Box>
-            <Box variant="container" className='w-[83%]'>
+            <Box variant="container" className='w-[83%] w-full'>
                 <Box variant='column' className='justify-start items-start w-full'>
                     {
                         data.map((item, index) => (

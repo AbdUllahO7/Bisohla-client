@@ -17,6 +17,7 @@ import Text from '@/components/text/text';
 import { useTranslations } from 'next-intl';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
+import { getCarMarkaItems, getCarModelsOptions, getCitiesOptions, getControlType, getFuelType, getPriceRanges, getStatesOptions } from '@/constants/filterData';
 
 type FilterOptionDropdownProps = {
     title?: string;
@@ -71,145 +72,18 @@ const Filter: React.FC = () => {
     const t = useTranslations('carsPage')
     // State management for filters
     const [searchText, setSearchText] = useState('');
-    const [selectedCity, setSelectedCity] = useState('');
-    const [selectedState, setSelectedState] = useState('');
-    const [selectedCarMarka, setSelectedCarMarka] = useState<string[]>([]);
-    const [selectedCarModelMin, setSelectedCarModelMin] = useState('');
-    const [selectedCarModelMax, setSelectedCarModelMax] = useState('');
-    const [selectedPriceMin, setSelectedPriceMin] = useState('');
-    const [selectedPriceMax, setSelectedPriceMax] = useState('');
-    const [selectedCurrency, setSelectedCurrency] = useState('');
-    const [selectedControlType, setSelectedControlType] = useState('');
-    const [selectedFuelType, setSelectedFuelType] = useState('');
 
-    // Reset function
-    const resetFilters = () => {
-        setSearchText('');
-        setSelectedCity('');
-        setSelectedState('');
-        setSelectedCarMarka([]);
-        setSelectedCarModelMin('');
-        setSelectedCarModelMax('');
-        setSelectedPriceMin('');
-        setSelectedPriceMax('');
-        setSelectedCurrency('');
-        setSelectedControlType('');
-        setSelectedFuelType('');
-    };
 
-    const citiesOptions = [
-        { value: 'Damascus', label: t('filter.filterOptions.address.options.Damascus') },
-        { value: 'Idlib', label: t('filter.filterOptions.address.options.Idlib') },
-        { value: 'Aleppo', label: t('filter.filterOptions.address.options.Aleppo') },
-        { value: 'Homs', label: t('filter.filterOptions.address.options.Homs') },
-    ];
+    const citiesOptions = getCitiesOptions(t);
+    const ControlType = getControlType(t);
+    const statesOptions = getStatesOptions(t);
+    const carMarkaItems = getCarMarkaItems(t);
+    const priceRanges = getPriceRanges; 
+    const CarModelsOptions = getCarModelsOptions;
+    const FuelType = getFuelType(t);
 
-    const statesOptions = [
-        { value: 'dm', label: t('filter.filterOptions.states.options.Damascus') },
-        { value: 'ds', label: t('filter.filterOptions.states.options.Idlib') },
-        { value: 'as', label: t('filter.filterOptions.states.options.Aleppo') },
-        { value: 'ho', label: t('filter.filterOptions.states.options.Homs') },
-    ];
 
-    const carMarkaItems = [
-        {
-            id: 'mercedes',
-            imageSrc: '/assets/icons/BMW.png',
-            label: t('filter.filterOptions.CarMarka.Mercedes'),
-        },
-        {
-            id: 'bmw',
-            imageSrc: '/assets/icons/BMW.png',
-            label: t('filter.filterOptions.CarMarka.Bmw'),
-        },
-        {
-            id: 'bmw1',
-            imageSrc: '/assets/icons/BMW.png',
-            label: t('filter.filterOptions.CarMarka.Bmw'),
-        },
-        {
-            id: 'bmw2',
-            imageSrc: '/assets/icons/BMW.png',
-            label: t('filter.filterOptions.CarMarka.Bmw'),
-        },
-        {
-            id: 'bmw3',
-            imageSrc: '/assets/icons/BMW.png',
-            label: t('filter.filterOptions.CarMarka.Bmw'),
-        },
-        {
-            id: 'bmw5',
-            imageSrc: '/assets/icons/BMW.png',
-            label: t('filter.filterOptions.CarMarka.Bmw'),
-        },
-        {
-            id: 'bmw6',
-            imageSrc: '/assets/icons/BMW.png',
-            label: t('filter.filterOptions.CarMarka.Bmw'),
-        },
-        {
-            id: 'bmw7',
-            imageSrc: '/assets/icons/BMW.png',
-            label: t('filter.filterOptions.CarMarka.Bmw'),
-        },
-        {
-            id: 'bmw8',
-            imageSrc: '/assets/icons/BMW.png',
-            label: t('filter.filterOptions.CarMarka.Bmw'),
-        },
-        {
-            id: 'bmw9',
-            imageSrc: '/assets/icons/BMW.png',
-            label: t('filter.filterOptions.CarMarka.Bmw'),
-        },
-    ];
 
-    const CarModelsOptions = [
-        { value: '2020' , label: '2020'},
-        { value: '2021', label: '2021'},
-        { value: '2022' , label: '2022'},
-        { value: '2023' , label: '2023'},
-    ];
-    const priceRanges = [
-        {
-            value: '20000',
-            label:'10000',
-        },
-        {
-            value: '30000',
-            label: '30000',
-        },
-        {
-            value: '40000',
-            label: '40000',
-        },
-    ];
-    const ControlType = [
-        {
-            id :'1',
-            value: 'Auto',
-            label: t('filter.filterOptions.ControlType.auto'),
-        },
-        {
-            id:'2',
-            value: 'Normal',
-            label: t('filter.filterOptions.ControlType.normal'),
-        },
-
-    ];
-    const FuelType = [
-        {
-            id :'1',
-            value: 'Gasoline',
-            label: t('filter.filterOptions.FuelType.gasoline'),
-        },
-        {
-            id:'2',
-            value: 'Diesel',
-            label: t('filter.filterOptions.FuelType.diesel'),
-        },
-
-    ];
 
 return (
     <Box variant="column" className="w-full">

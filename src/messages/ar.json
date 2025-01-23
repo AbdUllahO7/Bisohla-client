@@ -341,6 +341,15 @@
 
       }
 
+    },
+    "categories" : {
+      "cat_name_one" : "اقتصادي",
+      "cat_name_tow" : "اقتصادي" ,
+      "cat_name_three" : "اقتصادي" ,
+      "cat_name_four" : "اقتصادي" ,
+      "cat_name_five" : "اقتصادي" ,
+      "cat_name_six" : "اقتصادي" 
+
     }
 
   }

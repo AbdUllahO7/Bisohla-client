@@ -30,7 +30,7 @@ const SelectDropdown: React.FC<SelectDropdownProps> = ({
   const t = useTranslations('homePage');
 
   return (
-    <div className={`flex flex-col   ${className}`}>
+    <div className={`flex flex-col w-full    ${className}`}>
       {label && (
         <label
           className={`mb-1 text-sm  text-gray-700 font-cairo font-[700] ${labelStyle}`}
@@ -40,7 +40,7 @@ const SelectDropdown: React.FC<SelectDropdownProps> = ({
       )}
       <Select>
         <SelectTrigger
-          className={`w-30   ${SelectTriggerStyle} p-1`}
+          className={`w-50   ${SelectTriggerStyle} p-1`}
           dir={`${t('lang') === 'ar' ? 'rtl' : 'ltr'}`}
         >
           <SelectValue placeholder={placeholder}  />

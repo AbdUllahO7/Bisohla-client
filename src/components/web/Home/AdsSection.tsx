@@ -14,7 +14,7 @@ const AdsSection = () => {
 
     return (
         <Box variant="container" className="mb-[100px] flex justify-center" dir="rtl">
-            <Box variant="center" className="bg-primary w-[80%]  h-[300px]  text-white relative overflow-hidden rounded-lg">
+            <Box variant="center" className="bg-primary w-[80%] lg:w-full  h-[300px]  text-white relative overflow-hidden rounded-lg">
                 {/* Green Circular Background Design */}
                 <Box className="hidden lg:block">
                     <Box className="absolute top-0 left-[807px]">

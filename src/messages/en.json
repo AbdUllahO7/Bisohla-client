@@ -340,6 +340,15 @@
 
       }
 
+    },
+    "categories" : {
+      "cat_name_one" : "Economy",
+      "cat_name_tow" : "Economy" ,
+      "cat_name_three" : "Economy" ,
+      "cat_name_four" : "Economy" ,
+      "cat_name_five" : "Economy" ,
+      "cat_name_six" : "Economy" 
+
     }
   }
 }
