@@ -312,9 +312,32 @@
         "CarMarka" : {
           "filterOptionsTitle" : "Car Marka",
           "Mercedes" : "Mercedes",
-          "BMW" : "BMW"
+          "Bmw" : "BMW"
+        },
+        "CarModels" : {
+          "title" : "Car model",
+          "lessYear" : "Less Year",
+          "highestYear" : "Highest year"
+        },
+        "CarPrice" : {
+          "title" : "Car Price",
+          "currency" : "SYP",
+          "lessPrice" : "Less Price",
+          "highestPrice" : "Highest Price"
+        },
+        "ControlType" : {
+          "title" : "Control Type",
+          "auto" :"Automatic",
+          "normal" : "Normal"
+        },
+        "FuelType" : {
+          "title" : "Fuel Type",
+          "gasoline" :"Gasoline",
+          "diesel" : "Diesel"
+        },
+        "search" :"Search",
+        "resetSearch" : "reset Search"
 
-        }
       }
 
     }

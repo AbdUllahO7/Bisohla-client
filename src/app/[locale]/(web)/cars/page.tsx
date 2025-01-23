@@ -10,7 +10,7 @@ const page = () => {
                     <Header/>
                 </Box>
                 <Box variant='container' className='flex justify-between mt-10' > 
-                    <Box className='bg-white w-[300px] rounded-lg'>
+                    <Box className=' w-[300px] rounded-lg'>
                         <Filter/>
                     </Box>
                     <Box>CarsPage</Box>
