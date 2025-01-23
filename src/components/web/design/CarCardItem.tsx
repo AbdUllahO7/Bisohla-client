@@ -14,7 +14,7 @@ import { CarCardItemProps } from '@/types/homePageTypes';
 
 export const CarCardItem: React.FC<CarCardItemProps> = ({ title, marka, price, imageSrc , priceWord }) => {
     return (
-        <Card className="border-none rounded-t-[10px] bg-white ">
+        <Card className="border-none rounded-lg bg-white ">
             <CardHeader className="p-0">
                 <CardTitle className="w-full">
                     <Image
@@ -35,7 +35,7 @@ export const CarCardItem: React.FC<CarCardItemProps> = ({ title, marka, price, i
                 </CardDescription>
             </CardHeader>
 
-            <CardFooter className="bg-background flex justify-between p-[8px]">
+            <CardFooter className="bg-[#E4E4E4] flex justify-between p-[8px] rounded-lg">
                 <Text className="mid text-primary">{priceWord}</Text>
                 <Text className="mid text-primary-light font-bold">{price}</Text>
             </CardFooter>

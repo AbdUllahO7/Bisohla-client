@@ -310,13 +310,45 @@
             "Homs": "حمص"
           }
         },
-        "CarsMarka" : {
+        "CarMarka" : {
           "filterOptionsTitle" : "ماركة السيارة",
           "Mercedes" : "مرسيدس",
           "Bmw" : "بي أم دبليو"
-        }
+        },
+        "CarModels" : {
+          "title" : "موديل السيارة",
+          "lessYear" : "أقل سنة",
+          "highestYear" : " أعلى سنة"
+          },
+          "CarPrice" : {
+            "title" : "سعر السيارة",
+            "lessPrice" : "أقل سعر",
+            "currency" : "SYP",
+            "highestPrice" : " أعلى سعر"
+            },
+            "ControlType" : {
+              "title" : "نوع التحكم",
+              "auto" :"أتوماتيك",
+              "normal" : "عادي"
+            },
+            "FuelType" : {
+              "title" : "نوع الوقود",
+              "gasoline" :"بانزين",
+              "diesel" : "مازوت"
+            },
+            "search" :"بحث",
+            "resetSearch" : "إعادة ضبط خيارات البحث"
 
       }
+
+    },
+    "categories" : {
+      "cat_name_one" : "اقتصادي",
+      "cat_name_tow" : "اقتصادي" ,
+      "cat_name_three" : "اقتصادي" ,
+      "cat_name_four" : "اقتصادي" ,
+      "cat_name_five" : "اقتصادي" ,
+      "cat_name_six" : "اقتصادي" 
 
     }
 

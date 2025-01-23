@@ -1,8 +1,9 @@
+'use client'
 import Box from '@/components/box/box';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Search } from 'lucide-react';
-import React from 'react';
+import React, { useState } from 'react';
 import {
     Accordion,
     AccordionContent,
@@ -14,6 +15,9 @@ import { Checkbox } from '@/components/ui/checkbox';
 import Image from 'next/image';
 import Text from '@/components/text/text';
 import { useTranslations } from 'next-intl';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
+import { getCarMarkaItems, getCarModelsOptions, getCitiesOptions, getControlType, getFuelType, getPriceRanges, getStatesOptions } from '@/constants/filterData';
 
 type FilterOptionDropdownProps = {
     title?: string;
@@ -23,7 +27,7 @@ type FilterOptionDropdownProps = {
 
 type FilterCheckboxItemProps = {
     id: string;
-    imageSrc: string;
+    imageSrc?: string;
     label: string;
 };
 
@@ -43,69 +47,68 @@ const FilterCheckboxItem: React.FC<FilterCheckboxItemProps> = ({ id, imageSrc, l
     <AccordionContent className="flex items-center">
         <Checkbox id={id} />
         <Label
-        htmlFor={id}
-        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 pl-2 pr-2 flex"
+            htmlFor={id}
+            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 pl-2 pr-2 flex"
         >
-        <Image src={imageSrc} alt={label} width={20} height={20} />
-        <Text variant="mid" className="pl-2 pr-2">
+            {/* Render Image conditionally */}
+            {imageSrc && (
+            <Image 
+                src={imageSrc} 
+                alt={label} 
+                width={20} 
+                height={20} 
+                className="block" 
+            />
+            )}
+            <Text variant="mid" className="pl-2 pr-2">
             {label}
-        </Text>
+            </Text>
         </Label>
     </AccordionContent>
 );
 
+
 const Filter: React.FC = () => {
     const t = useTranslations('carsPage')
+    // State management for filters
+    const [searchText, setSearchText] = useState('');
 
-    const citiesOptions = [
-        { value: 'Damascus', label: t('filter.filterOptions.address.options.Damascus') },
-        { value: 'Idlib', label: t('filter.filterOptions.address.options.Idlib') },
-        { value: 'Aleppo', label: t('filter.filterOptions.address.options.Aleppo') },
-        { value: 'Homs', label: t('filter.filterOptions.address.options.Homs') },
-    ];
 
-    const statesOptions = [
-        { value: 'dm', label: t('filter.filterOptions.states.options.Damascus') },
-        { value: 'ds', label: t('filter.filterOptions.states.options.Idlib') },
-        { value: 'as', label: t('filter.filterOptions.states.options.Aleppo') },
-        { value: 'ho', label: t('filter.filterOptions.states.options.Homs') },
-    ];
+    const citiesOptions = getCitiesOptions(t);
+    const ControlType = getControlType(t);
+    const statesOptions = getStatesOptions(t);
+    const carMarkaItems = getCarMarkaItems(t);
+    const priceRanges = getPriceRanges; 
+    const CarModelsOptions = getCarModelsOptions;
+    const FuelType = getFuelType(t);
 
-    const carMarkaItems = [
-        {
-        id: 'mercedes',
-        imageSrc: '/assets/icons/BMW.png',
-        label: t('filter.filterOptions.CarsMarka.Mercedes'),
-        },
-        {
-        id: 'bmw',
-        imageSrc: '/assets/icons/BMW.png',
-        label: t('filter.filterOptions.CarsMarka.Bmw'),
-        },
-    ];
+
+
 
 return (
     <Box variant="column" className="w-full">
-        <Box variant="column" className="w-full p-4">
-            {/* Search */}
+        <Box variant="column" className="w-full p-4 bg-white rounded-lg">
+           {/* Search */}
             <Box variant="column" className="justify-start items-start w-full">
-            <Label className="text-xl font-bold" htmlFor="search">
-                {t('filter.title')}
-            </Label>
-            <Box className="bg-background w-full rounded-2xl pr-2 pl-2 flex items-center">
-                <Input
-                type="text"
-                id="search"
-                placeholder={t('filter.searchInput')}
-                className="border-none flex-1"
-                />
-                <Search />
-            </Box>
-            </Box>
+                    <Label className="text-xl font-bold" htmlFor="search">
+                        {t('filter.title')}
+                    </Label>
+                    <Box className="bg-background w-full rounded-2xl pr-2 pl-2 flex items-center">
+                        <Input
+                            type="text"
+                            id="search"
+                            placeholder={t('filter.searchInput')}
+                            value={searchText}
+                            onChange={(e) => setSearchText(e.target.value)}
+                            className="border-none flex-1"
+                        />
+                        <Search />
+                    </Box>
+                </Box>
 
             {/* Address Filter */}
             <div className="justify-start items-start w-full">
-            <Accordion type="single" collapsible>
+            <Accordion type="single" collapsible className='pr-4 pl-4'>
                 <AccordionItem value="address" className="border-none">
                 <AccordionTrigger className="hover:no-underline font-cairo font-bold text-primary">
                     {t('filter.filterOptions.address.filterOptionsTitle')}
@@ -125,23 +128,140 @@ return (
             </div>
 
             {/* Car Marka Filter */}
+            <ScrollArea className="h-[250px]  justify-start items-start w-full text-primary border-b border-gray-200" dir='tlr'>
+           {/* Car Marka Filter */}
+                    <ScrollArea className="h-[250px] justify-start items-start w-full text-primary border-b border-gray-200" dir="tlr">
+                        <Accordion 
+                            type="single" 
+                            collapsible 
+                            defaultValue="car-marka"  // Set the default open accordion item
+                            className="pr-4 pl-4"
+                        >
+                            <AccordionItem value="car-marka" className="border-none">
+                            <AccordionTrigger className="hover:no-underline font-cairo font-bold text-primary">
+                                {t('filter.filterOptions.CarMarka.filterOptionsTitle')}
+                            </AccordionTrigger>
+                            {carMarkaItems.map((item) => (
+                                <FilterCheckboxItem
+                                key={item.id}
+                                id={item.id}
+                                imageSrc={item.imageSrc}
+                                label={item.label}
+                                />
+                            ))}
+                            </AccordionItem>
+                        </Accordion>
+                    </ScrollArea>
+
+            </ScrollArea>
+
+
+            {/* Car models */}
             <div className="justify-start items-start w-full">
-            <Accordion type="single" collapsible>
+            <Accordion type="single" collapsible className='pr-4 pl-4'>
+                <AccordionItem value="address" className="border-none">
+                <AccordionTrigger className="hover:no-underline font-cairo font-bold text-primary">
+                    {t('filter.filterOptions.CarModels.title')}
+                </AccordionTrigger>
+                <AccordionContent className='w-full flex'>
+                    <FilterOptionDropdown
+                        options={CarModelsOptions}
+                        placeholder={t('filter.filterOptions.CarModels.lessYear')}
+                    />
+                    <FilterOptionDropdown
+                        options={CarModelsOptions}
+                        placeholder={t('filter.filterOptions.CarModels.highestYear')}
+                    />
+                </AccordionContent>
+                </AccordionItem>
+            </Accordion>
+            </div>
+
+
+            {/* Car models */}
+            <div className="justify-start items-start w-full">
+                <Accordion type="single" collapsible className='pr-4 pl-4'>
+                    <AccordionItem value="address" className="border-none">
+                    <AccordionTrigger className="hover:no-underline font-cairo font-bold text-primary">
+                        {t('filter.filterOptions.CarPrice.title')}
+                    </AccordionTrigger>
+                    <AccordionContent className='w-full flex flex-wrap'>
+                            <Box className='w-full'>
+                                <FilterOptionDropdown
+                                options={priceRanges}
+                                placeholder={t('filter.filterOptions.CarPrice.lessPrice')}
+                                    />
+                                <FilterOptionDropdown
+                                    options={priceRanges}
+                                    placeholder={t('filter.filterOptions.CarPrice.highestPrice')}
+                                />
+                            </Box>
+                        <Box className='block w-full'>
+                        <FilterOptionDropdown
+                            options={priceRanges}
+                            placeholder={t('filter.filterOptions.CarPrice.currency')}
+                        />
+                        </Box>
+                    </AccordionContent>
+                    </AccordionItem>
+                </Accordion>
+            </div>
+                            
+            {/* Control type  */}
+            <div className="justify-start items-start w-full">
+            <Accordion 
+                type="single" 
+                collapsible 
+                defaultValue="car-marka"  // Set the default open accordion item
+                className="pr-4 pl-4"
+            >
                 <AccordionItem value="car-marka" className="border-none">
                 <AccordionTrigger className="hover:no-underline font-cairo font-bold text-primary">
-                    {t('filter.filterOptions.CarsMarka.filterOptionsTitle')}
+                    {t('filter.filterOptions.ControlType.title')}
                 </AccordionTrigger>
-                {carMarkaItems.map((item) => (
+                {ControlType.map((item) => (
                     <FilterCheckboxItem
-                    key={item.id}
-                    id={item.id}
-                    imageSrc={item.imageSrc}
-                    label={item.label}
+                        key={item.id}
+                        id={item.id}
+                        label={item.label}
                     />
                 ))}
                 </AccordionItem>
             </Accordion>
             </div>
+
+                 {/* Fuel type  */}
+            <div className="justify-start items-start w-full">
+            <Accordion 
+                type="single" 
+                collapsible 
+                defaultValue="car-marka"  // Set the default open accordion item
+                className="pr-4 pl-4"
+            >
+                <AccordionItem value="car-marka" className="border-none">
+                <AccordionTrigger className="hover:no-underline font-cairo font-bold text-primary">
+                    {t('filter.filterOptions.FuelType.title')}
+                </AccordionTrigger>
+                {FuelType.map((item) => (
+                    <FilterCheckboxItem
+                        key={item.id}
+                        id={item.id}
+                        label={item.label}
+                    />
+                ))}
+                </AccordionItem>
+            </Accordion>
+            </div>
+        </Box>
+
+        <Box variant="column" className='bg-white w-full p-4 rounded-lg'>
+                <Button className='w-full bg-primary-foreground text-primary font-bold'>
+                    {t('filter.filterOptions.search')}
+                </Button>
+                <Button className='bg-transparent text-primary shadow-none'>
+                    {t('filter.filterOptions.resetSearch')}
+
+                </Button>
         </Box>
     </Box>
     );

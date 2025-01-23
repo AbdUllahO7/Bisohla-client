@@ -34,9 +34,9 @@ const Filter = () => {
 
   
   return (
-    <Box variant="container" className=''>
+    <Box variant="container" className='relative w-full m-0'>
       {/* TOP */}
-      <Box variant="row" className="gap-0  mx-auto w-[80%]">
+      <Box variant="row" className="gap-0  mx-auto">
           <Button
             className={`h-[50px] ${
               activeButton === 'hire' ? 'bg-primary-foreground' : 'bg-transparent'
@@ -61,7 +61,7 @@ const Filter = () => {
 
         <Box
             variant="rowBetween"
-            className="pb-10 pt-10 shadow-2xl rounded-xl flex 2xs:flex-wrap sm:flex-wrap lg:flex-nowrap w-[80%] mx-auto"
+            className="pb-10 pt-10 shadow-2xl rounded-xl flex 2xs:flex-wrap sm:flex-wrap lg:flex-nowrap  mx-auto"
 
           >
             {/* Right */}

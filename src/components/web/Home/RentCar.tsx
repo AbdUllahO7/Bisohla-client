@@ -107,7 +107,7 @@ const RentCar = () => {
                     </Text>
                 </Link>
             </Box>
-            <Box className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:w-[80%] xs:w-[80%] " variant="center">
+            <Box className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:w-[80%] xs:w-[80%] lg:w-full " variant="center">
                         {cardsData.map((card, index) => (
                             <React.Fragment key={index}>
                                 <RentCarCard

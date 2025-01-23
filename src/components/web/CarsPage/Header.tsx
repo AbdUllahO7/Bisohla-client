@@ -20,7 +20,7 @@ const Header = () => {
     ];
 
     return (
-        <Box variant="center" className='w-full shadow-xl pt-3 pb-3  '>
+        <Box variant="center" className='w-full shadow-xl pt-3 pb-3  bg-white'>
             <Box variant="container">
                     <Box variant="rowBetween" className='justify-between items-center'>
                         <Box className='justify-center items-center ' variant="center">
