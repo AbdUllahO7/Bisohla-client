@@ -28,13 +28,14 @@ const CategoryCarousel: React.FC<CarouselComponentProps> = ({ data, direction })
             align: "center",
             }}
             dir='ltr'
+            className='xs:w-[100%] lg:w-full '
         >
         <CarouselContent>
             {data.map((item, index) => (
-                <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/6">
+                <CarouselItem key={index} className="xs:basis-1/2 md:basis-1/4 lg:basis-1/6">
                 <div className="p-1">
-                    <Card className='bg-white border-none rounded-3xl'>
-                    <CardContent className="flex aspect-square items-start justify-center p-0 flex-wrap gap-0 ">
+                    <Card className='bg-white border-none rounded-3xl '>
+                    <CardContent className="flex  items-start justify-center p-0 flex-wrap gap-0 md:w-[90%] h-fit">
                         <Image
                             src={item.image}
                             alt={`${item.title} image`}

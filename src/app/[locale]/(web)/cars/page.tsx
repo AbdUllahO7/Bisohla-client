@@ -10,26 +10,32 @@ import React from 'react';
 const Page = () => {
     return (
         <Box variant="column" className="mt-[50px] bg-background">
+            {/* Header Section */}
             <Box className="mt-[50px] w-full">
                 <Header />
             </Box>
-            <Box variant="container" className="flex justify-between items-start mt-10 flex-wrap">
+
+            {/* Main Content Section */}
+            <Box 
+                variant="container" 
+                className="flex flex-col lg:flex-row justify-between items-start gap-6 mt-10"
+            >
                 {/* Filter Section */}
-                <Box className="w-[300px] rounded-lg">
+                <Box className="w-full lg:w-[25%] bg-white rounded-lg shadow-md p-4">
                     <Filter />
                 </Box>
 
-                {/* Categories Section */}
-                <Box className="w-full lg:w-[1100px]" variant="column">
+                {/* Categories and Content Section */}
+                <Box className="w-full lg:w-[70%] xs:w-[100%]" variant="column">
                     <Categories />
-                    <LatestOffers showTitle={false}/>
-                    <AdsSection/>
-                    <LatestOffers count={4} showTitle={false}/>
+                    <LatestOffers showTitle={false} />
+                    <AdsSection />
+                    <LatestOffers count={4} showTitle={false} />
                 </Box>
-
             </Box>
-            <Footer />
 
+            {/* Footer Section */}
+            <Footer />
         </Box>
     );
 };

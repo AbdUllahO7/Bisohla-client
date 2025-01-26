@@ -232,12 +232,12 @@ return (
 
                  {/* Fuel type  */}
             <div className="justify-start items-start w-full">
-            <Accordion 
-                type="single" 
-                collapsible 
-                defaultValue="car-marka"  // Set the default open accordion item
-                className="pr-4 pl-4"
-            >
+                <Accordion 
+                    type="single" 
+                    collapsible 
+                    defaultValue="car-marka"  // Set the default open accordion item
+                    className="pr-4 pl-4"
+                >
                 <AccordionItem value="car-marka" className="border-none">
                 <AccordionTrigger className="hover:no-underline font-cairo font-bold text-primary">
                     {t('filter.filterOptions.FuelType.title')}
