@@ -1,5 +1,7 @@
 import type { Config } from 'tailwindcss';
 import animate from 'tailwindcss-animate';
+import scrollbar from 'tailwind-scrollbar';
+import scrollbarHide from 'tailwind-scrollbar-hide';
 
 // import scrollbar from 'tailwind-scrollbar';
 // import animate from 'tailwindcss-animate'
@@ -28,6 +30,24 @@ const config: Config = {
   		}
   	},
   	extend: {
+		 // Add custom scrollbar styling
+		 scrollbar: {
+			width: '8px',
+			thumb: {
+			  backgroundColor: '#198341',
+			  borderRadius: '9999px',
+			},
+			track: {
+			  backgroundColor: '#e5e7eb',
+			  borderRadius: '9999px',
+			},
+	
+		  colors: {
+			primary: '#198341', // Example color
+			secondary: '#e5e7eb', // Example color
+		  },
+		},
+
   		colors: {
   			border: 'hsl(var(--border))',
   			input: 'hsl(var(--input))',
@@ -275,6 +295,10 @@ const config: Config = {
   		}
   	}
   },
-  plugins: [animate],
+  plugins: [
+	animate,
+	require('tailwind-scrollbar'),
+	require('tailwind-scrollbar-hide'),
+	],
 } satisfies Config;
 export default config;

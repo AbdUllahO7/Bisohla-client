@@ -65,47 +65,128 @@
           "product1" : {
             "title": "product 1",
             "marka": "Brand A",
-            "price": "$80.00"
+            "price": "$80.00",
+            "carType" :"Economy",
+            "model" : "2002020",
+            "controlType" : "Automatic",
+            "distance" : "1000",
+            "passengers" : "5",
+            "adsNumber":"123123",
+            "dateOfAds" : "2020-12-12",
+            "gaz" :"Benzin"
+           
           },
           "product2" : {
             "title": "product 2",
             "marka": "Brand B",
-            "price": "$85.00"
+            "price": "$85.00",
+            "carType" :"Economy",
+            "model" : "2002020",
+            "controlType" : "Automatic",
+            "distance" : "1000",
+            "passengers" : "5",
+            "adsNumber":"123123",
+            "dateOfAds" : "2020-12-12",
+            "gaz" :"Benzin"
+
           },
           "product3" : {
             "title": "product 3",
             "marka": "Brand C",
-            "price": "$90.00"
+            "price": "$90.00",
+            "carType" :"Economy",
+            "model" : "2002020",
+            "controlType" : "Automatic",
+            "distance" : "1000",
+            "passengers" : "5",
+            "adsNumber":"123123",
+            "dateOfAds" : "2020-12-12",
+            "gaz" :"Benzin"
+
           },
           "product4" : {
             "title": "product 4",
             "marka": "Brand D",
-            "price": "$95.00"
+            "price": "$95.00",
+            "carType" :"Economy",
+            "model" : "2002020",
+            "controlType" : "Automatic",
+            "distance" : "1000",
+            "passengers" : "5",
+            "adsNumber":"123123",
+            "dateOfAds" : "2020-12-12",
+            "gaz" :"Benzin"
+
           },
           "product5" : {
             "title": "product 5",
             "marka": "Brand E",
-            "price": "$100.00"
+            "price": "$100.00",
+            "carType" :"Economy",
+            "model" : "2002020",
+            "controlType" : "Automatic",
+            "distance" : "1000",
+            "passengers" : "5",
+            "adsNumber":"123123",
+            "dateOfAds" : "2020-12-12",
+            "gaz" :"Benzin"
+
           },
           "product6" : {
             "title": "product 6",
             "marka": "Brand F",
-            "price": "$105.00"
+            "price": "$105.00",
+            "carType" :"Economy",
+            "model" : "2002020",
+            "controlType" : "Automatic",
+            "distance" : "1000",
+            "passengers" : "5",
+            "adsNumber":"123123",
+            "dateOfAds" : "2020-12-12",
+            "gaz" :"Benzin"
+
           },
           "product7" : {
             "title": "product 7",
             "marka": "Brand G",
-            "price": "$110.00"
+            "price": "$110.00",
+            "carType" :"Economy",
+            "model" : "2002020",
+            "controlType" : "Automatic",
+            "distance" : "1000",
+            "passengers" : "5",
+            "adsNumber":"123123",
+            "dateOfAds" : "2020-12-12",
+            "gaz" :"Benzin"
+
           },
           "product8" : {
             "title": "product 8",
             "marka": "Brand H",
-            "price": "$115.00"
+            "price": "$115.00",
+            "carType" :"Economy",
+            "model" : "2002020",
+            "controlType" : "Automatic",
+            "distance" : "1000",
+            "passengers" : "5",
+            "adsNumber":"123123",
+            "dateOfAds" : "2020-12-12",
+            "gaz" :"Benzin"
+
           },
           "product9" : {
             "title": "product 9",
             "marka": "Brand I",
-            "price": "$120.00"
+            "price": "$120.00",
+            "carType" :"Economy",
+            "model" : "2002020",
+            "controlType" : "Automatic",
+            "distance" : "1000",
+            "passengers" : "5",
+            "adsNumber":"123123",
+            "dateOfAds" : "2020-12-12",
+            "gaz" :"Benzin"
+
           }
 
         }
@@ -349,6 +430,22 @@
       "cat_name_five" : "Economy" ,
       "cat_name_six" : "Economy" 
 
+    }
+  },
+  "product" : {
+    "header" : {
+      "whatsApp" : "Text us on WhatsApp"
+    },
+    "BasicInfo" : {
+      "price" : "Price",
+      "carType" : "Car Type",
+      "model" : "Model",
+      "controlType" : "Control Type",
+      "distance" : "Distance",
+      "passengers" : "Passengers",
+      "adsNumber" : "Ads Number",
+      "dateOfAds" : "Date Of Ads",
+      "gaz" : "Gaz"
     }
   }
 }

@@ -64,49 +64,130 @@
       "price" :"السعر",
       "products": {
         "product1": {
+      
           "title": "سيارة 1",
           "marka": "العلامة التجارية أ",
-          "price": "110,00 $"
+          "price": "110,00 $",
+          "carType" :"إقتصادي",
+          "model" : "2002020",
+          "controlType" : "اوتوماتيك",
+          "distance" : "1000",
+          "passengers" : "5",
+          "adsNumber":"123123",
+          "dateOfAds" : "2020-12-12",
+          "gaz" : "بانزين"
         },
         "product2": {
           "title": "سيارة 2",
           "marka": "العلامة التجارية ب",
-          "price": "110,00 $"
+          "price": "110,00 $",
+          "carType" :"إقتصادي",
+          "model" : "2002020",
+          "controlType" : "اوتوماتيك",
+          "distance" : "1000",
+          "passengers" : "5",
+          "adsNumber":"123123",
+          "dateOfAds" : "2020-12-12",
+          "gaz" : "بانزين"
+
         },
         "product3": {
           "title": "سيارة 3",
           "marka": "العلامة التجارية ت",
-          "price": "110,00 $"
+          "price": "110,00 $",
+          "carType" :"إقتصادي",
+          "model" : "2002020",
+          "controlType" : "اوتوماتيك",
+          "distance" : "1000",
+          "passengers" : "5",
+          "adsNumber":"123123",
+          "dateOfAds" : "2020-12-12",
+          "gaz" : "بانزين"
+
         },
         "product4": {
           "title": "سيارة 4",
           "marka": "العلامة التجارية ث",
-          "price": "110,00 $"
+          "price": "110,00 $",
+          "carType" :"إقتصادي",
+          "model" : "2002020",
+          "controlType" : "اوتوماتيك",
+          "distance" : "1000",
+          "passengers" : "5",
+          "adsNumber":"123123",
+          "dateOfAds" : "2020-12-12",
+          "gaz" : "بانزين"
+
         },
         "product5": {
           "title": "سيارة 5",
           "marka": "العلامة التجارية ج",
-          "price": "110,00 $"
+          "price": "110,00 $",
+          "carType" :"إقتصادي",
+          "model" : "2002020",
+          "controlType" : "اوتوماتيك",
+          "distance" : "1000",
+          "passengers" : "5",
+          "adsNumber":"123123",
+          "dateOfAds" : "2020-12-12",
+          "gaz" : "بانزين"
+
         },
         "product6": {
           "title": "سيارة 6",
           "marka": "العلامة التجارية ح",
-          "price": "110,00 $"
+          "price": "110,00 $",
+          "carType" :"إقتصادي",
+          "model" : "2002020",
+          "controlType" : "اوتوماتيك",
+          "distance" : "1000",
+          "passengers" : "5",
+          "adsNumber":"123123",
+          "dateOfAds" : "2020-12-12",
+          "gaz" : "بانزين"
+
         },
         "product7": {
           "title": "سيارة 7",
           "marka": "العلامة التجارية خ",
-          "price": "110,00 $"
+          "price": "110,00 $",
+          "carType" :"إقتصادي",
+          "model" : "2002020",
+          "controlType" : "اوتوماتيك",
+          "distance" : "1000",
+          "passengers" : "5",
+          "adsNumber":"123123",
+          "dateOfAds" : "2020-12-12",
+          "gaz" : "بانزين"
+
         },
         "product8": {
           "title": "سيارة 8",
           "marka": "العلامة التجارية د",
-          "price": "110,00 $"
+          "price": "110,00 $",
+          "carType" :"إقتصادي",
+          "model" : "2002020",
+          "controlType" : "اوتوماتيك",
+          "distance" : "1000",
+          "passengers" : "5",
+          "adsNumber":"123123",
+          "dateOfAds" : "2020-12-12",
+          "gaz" : "بانزين"
+
         },
         "product9": {
           "title": "سيارة 9",
           "marka": "العلامة التجارية ذ",
-          "price": "110,00 $"
+          "price": "110,00 $",
+          "carType" :"إقتصادي",
+          "model" : "2002020",
+          "controlType" : "اوتوماتيك",
+          "distance" : "1000",
+          "passengers" : "5",
+          "adsNumber":"123123",
+          "dateOfAds" : "2020-12-12",
+          "gaz" : "بانزين"
+
         }
       }
     },
@@ -352,5 +433,21 @@
 
     }
 
+  },
+  "product" : {
+    "header" : {
+      "whatsApp" : "مراسة عبر الواتس"
+    },
+    "BasicInfo" : {
+      "price" : "السعر",
+      "carType" : "نوع السيارة",
+      "model" : "الموديل",
+      "controlType" : "نوع التحكم",
+      "distance" : "المسافة",
+      "passengers" : "عدد الركاب",
+      "adsNumber" : "رقم الإعلان",
+      "dateOfAds" : "تاريخ الاعلان",
+      "gaz" : "الوقود"
+    }
   }
 }

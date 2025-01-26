@@ -5,6 +5,7 @@ import Text from '@/components/text/text';
 import { useTranslations } from 'next-intl';
 import CardAds from '../design/CardAds';
 import { ProductCardItem } from '../design/ProductCardItem';
+import { getProductsData } from '@/constants/ProductsData';
 
 interface LatestOffersProps {
     count?: number; // Optional count of cards to display
@@ -14,20 +15,11 @@ interface LatestOffersProps {
 const LatestOffers: React.FC<LatestOffersProps> = ({ count, showTitle = true }) => {
     const t = useTranslations('homePage');
 
-    const cardsData = [
-        { title: t('latestOffers.products.product1.title'), marka: t('latestOffers.products.product1.marka'), price: t('latestOffers.products.product1.price'), imageSrc: '/assets/images/car-card.png' },
-        { title: t('latestOffers.products.product2.title'), marka: t('latestOffers.products.product2.marka'), price: t('latestOffers.products.product2.price'), imageSrc: '/assets/images/car-card.png' },
-        { title: t('latestOffers.products.product3.title'), marka: t('latestOffers.products.product3.marka'), price: t('latestOffers.products.product3.price'), imageSrc: '/assets/images/car-card.png' },
-        { title: t('latestOffers.products.product4.title'), marka: t('latestOffers.products.product4.marka'), price: t('latestOffers.products.product4.price'), imageSrc: '/assets/images/car-card.png' },
-        { title: t('latestOffers.products.product5.title'), marka: t('latestOffers.products.product5.marka'), price: t('latestOffers.products.product5.price'), imageSrc: '/assets/images/car-card.png' },
-        { title: t('latestOffers.products.product6.title'), marka: t('latestOffers.products.product6.marka'), price: t('latestOffers.products.product6.price'), imageSrc: '/assets/images/car-card.png' },
-        { title: t('latestOffers.products.product7.title'), marka: t('latestOffers.products.product7.marka'), price: t('latestOffers.products.product7.price'), imageSrc: '/assets/images/car-card.png' },
-        { title: t('latestOffers.products.product8.title'), marka: t('latestOffers.products.product8.marka'), price: t('latestOffers.products.product8.price'), imageSrc: '/assets/images/car-card.png' },
-        { title: t('latestOffers.products.product9.title'), marka: t('latestOffers.products.product9.marka'), price: t('latestOffers.products.product9.price'), imageSrc: '/assets/images/car-card.png' },
-    ];
+    const ProductsData = getProductsData(t);
+
 
     // Slice cardsData based on count or display all cards
-    const displayedCards = count ? cardsData.slice(0, count) : cardsData;
+    const displayedCards = count ? ProductsData.slice(0, count) : ProductsData;
 
     return (
         <Box variant="container" className="mt-20 mb-[100px]">
@@ -54,6 +46,7 @@ const LatestOffers: React.FC<LatestOffersProps> = ({ count, showTitle = true }) 
                                 marka={card.marka}
                                 price={card.price}
                                 imageSrc={card.imageSrc}
+                                ProductId = {card.id}
                                 priceWord={t('latestOffers.price')}
                             />
                             {/* Render CardAds only after the first two cards */}
