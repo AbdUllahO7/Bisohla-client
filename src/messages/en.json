@@ -24,8 +24,8 @@
       "filter": {
         "Buy" : "Buy",
         "Hire" : "Hire",
-        "cartype": "Car Type",
-        "selectCarType": "Select Car Type",
+        "productType": "product Type",
+        "selectproductType": "Select product Type",
         "state": "State",
         "selectState": "Select State",
         "controltype": "Control Type",
@@ -35,7 +35,7 @@
         "selectPrice": "Select Price",
         "search": "Search",
         "options": {
-          "cartype": {
+          "productType": {
             "sedan": "Sedan",
             "suv": "SUV",
             "truck": "Truck",
@@ -61,56 +61,56 @@
         "title": "Latest Offers",
         "showMore": "Show More",
         "price" :"Price",
-        "cars": {
-          "car1" : {
-            "title": "Car 1",
+        "products": {
+          "product1" : {
+            "title": "product 1",
             "marka": "Brand A",
             "price": "$80.00"
           },
-          "car2" : {
-            "title": "Car 2",
+          "product2" : {
+            "title": "product 2",
             "marka": "Brand B",
             "price": "$85.00"
           },
-          "car3" : {
-            "title": "Car 3",
+          "product3" : {
+            "title": "product 3",
             "marka": "Brand C",
             "price": "$90.00"
           },
-          "car4" : {
-            "title": "Car 4",
+          "product4" : {
+            "title": "product 4",
             "marka": "Brand D",
             "price": "$95.00"
           },
-          "car5" : {
-            "title": "Car 5",
+          "product5" : {
+            "title": "product 5",
             "marka": "Brand E",
             "price": "$100.00"
           },
-          "car6" : {
-            "title": "Car 6",
+          "product6" : {
+            "title": "product 6",
             "marka": "Brand F",
             "price": "$105.00"
           },
-          "car7" : {
-            "title": "Car 7",
+          "product7" : {
+            "title": "product 7",
             "marka": "Brand G",
             "price": "$110.00"
           },
-          "car8" : {
-            "title": "Car 8",
+          "product8" : {
+            "title": "product 8",
             "marka": "Brand H",
             "price": "$115.00"
           },
-          "car9" : {
-            "title": "Car 9",
+          "product9" : {
+            "title": "product 9",
             "marka": "Brand I",
             "price": "$120.00"
           }
 
         }
       },
-      "cardAds": {
+      "productAds": {
         "title" : "Your ad here reaches hundreds of thousands daily.",
         "description" : "Contact us now"
       },
@@ -119,25 +119,25 @@
       "bishola": "Bishola",
       "startNow" : "Start Now"
       },
-      "worldOfCars" : {
-        "title" : "Discover a world of cars",
+      "worldOfProducts" : {
+        "title" : "Discover a world of products",
         "showMore" : "Show all",
         "cities" : {
-          "city1" : {"title" : "Idlib" , "carCount" : "250" },
-          "city2" :{"title" : "Aleppo" , "carCount" : "250" },
-          "city3" :{"title" : "Damascus" , "carCount" : "250" },
-          "city4" :{"title" : "Hama" , "carCount" : "250"},
-          "city5" :{"title" : "Homs" , "carCount" : "250"}
-         }
+          "city1" : {"title" : "Idlib" , "productCount" : "250" },
+          "city2" :{"title" : "Aleppo" , "productCount" : "250" },
+          "city3" :{"title" : "Damascus" , "productCount" : "250" },
+          "city4" :{"title" : "Hama" , "productCount" : "250"},
+          "city5" :{"title" : "Homs" , "productCount" : "250"}
+          }
         
       },
-      "rentCar" : {
+      "rentProduct" : {
         "title":"Rent your order with us",
         "showMore" :"Show all",
         "price" :"Today Price",
-        "cars": {
-          "car1" : {
-            "title": "Car 1",
+        "products": {
+          "product1" : {
+            "title": "product 1",
             "marka": "Brand A",
             "price": "$80.00",
             "details" : {
@@ -148,8 +148,8 @@
 
             }
           },
-          "car2" : {
-            "title": "Car 2",
+          "product2" : {
+            "title": "product 2",
             "marka": "Brand B",
             "price": "$85.00",
             "details" : {
@@ -157,8 +157,8 @@
               "type" :"Normal"
             }
           },
-          "car3" : {
-            "title": "Car 3",
+          "product3" : {
+            "title": "product 3",
             "marka": "Brand C",
             "price": "$90.00",
             "details" : {
@@ -168,8 +168,8 @@
               }
             }
           },
-          "car4" : {
-            "title": "Car 4",
+          "product4" : {
+            "title": "product 4",
             "marka": "Brand D",
             "price": "$95.00",
             "details" : {
@@ -179,8 +179,8 @@
               }
             }
           },
-          "car5" : {
-            "title": "Car 5",
+          "product5" : {
+            "title": "product 5",
             "marka": "Brand E",
             "price": "$100.00",
             "details" : {
@@ -190,8 +190,8 @@
               }
             }
           },
-          "car6" : {
-            "title": "Car 6",
+          "product6" : {
+            "title": "product 6",
             "marka": "Brand F",
             "price": "$105.00",
             "details" : {
@@ -201,8 +201,8 @@
               }
             }
           },
-          "car7" : {
-            "title": "Car 7",
+          "product7" : {
+            "title": "product 7",
             "marka": "Brand G",
             "price": "$110.00",
             "details" : {
@@ -212,8 +212,8 @@
               }
             }
           },
-          "car8" : {
-            "title": "Car 8",
+          "product8" : {
+            "title": "product 8",
             "marka": "Brand H",
             "price": "$115.00",
             "details" : {
@@ -223,8 +223,8 @@
               }
             }
           },
-          "car9" : {
-            "title": "Car 9",
+          "product9" : {
+            "title": "product 9",
             "marka": "Brand I",
             "price": "$120.00",
             "details" : {
@@ -276,7 +276,7 @@
 
 
   },
-  "carsPage" : {
+  "productsPage" : {
     "header" : {
       "adCounter"  : "250 ad",
       "orderBy"  : "Short by:",
@@ -309,18 +309,18 @@
             "Homs": "حمص"
           }
         },
-        "CarMarka" : {
-          "filterOptionsTitle" : "Car Marka",
+        "productMarka" : {
+          "filterOptionsTitle" : "product Marka",
           "Mercedes" : "Mercedes",
           "Bmw" : "BMW"
         },
-        "CarModels" : {
-          "title" : "Car model",
+        "productModels" : {
+          "title" : "product model",
           "lessYear" : "Less Year",
           "highestYear" : "Highest year"
         },
-        "CarPrice" : {
-          "title" : "Car Price",
+        "productPrice" : {
+          "title" : "product Price",
           "currency" : "SYP",
           "lessPrice" : "Less Price",
           "highestPrice" : "Highest Price"

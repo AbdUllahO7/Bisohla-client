@@ -14,10 +14,10 @@ const CardAds = () => {
         <CardHeader className="p-0 w-full h-full flex justify-center items-center">
           <CardDescription className="flex flex-col justify-center items-center h-full w-full font-bold font-cairo text-[20px]">
             <Text variant="h4" className=" p-[8px] text-white">
-              {t('cardAds.title')}
+              {t('productAds.title')}
             </Text>
             <Text variant="mid" className="y p-[8px] text-primary-foreground font-[800] font-cairo text-[14px]">
-              {t('cardAds.description')}
+              {t('productAds.description')}
             </Text>
           </CardDescription>
         </CardHeader>

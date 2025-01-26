@@ -12,7 +12,7 @@ import { CarCardItemProps } from '@/types/homePageTypes';
 
 // CardItem Component
 
-export const CarCardItem: React.FC<CarCardItemProps> = ({ title, marka, price, imageSrc , priceWord }) => {
+export const ProductCardItem: React.FC<CarCardItemProps> = ({ title, marka, price, imageSrc , priceWord }) => {
     return (
         <Card className="border-none rounded-lg bg-white ">
             <CardHeader className="p-0">

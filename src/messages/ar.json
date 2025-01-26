@@ -25,8 +25,8 @@
     "filter": {
       "Buy": "شراء",
       "Hire": "اســــتئجار",
-      "cartype": "نوع السيارة",
-      "selectCarType": "اختر نوع السيارة",
+      "productType": "نوع السيارة",
+      "selectproductType": "اختر نوع السيارة",
       "state": "المحافظة",
       "selectState": "اختر المحافظة",
       "controltype": "نوع التحكم",
@@ -36,7 +36,7 @@
       "selectPrice": "اختر السعر",
       "search": "بحث",
       "options": {
-        "cartype": {
+        "productType": {
           "sedan": "سيدان",
           "suv": "شاحنات",
           "truck": "شاحنة",
@@ -62,55 +62,55 @@
       "title": "أحدث العروض",
       "showMore": "عرض المزيد",
       "price" :"السعر",
-      "cars": {
-        "car1": {
+      "products": {
+        "product1": {
           "title": "سيارة 1",
           "marka": "العلامة التجارية أ",
           "price": "110,00 $"
         },
-        "car2": {
+        "product2": {
           "title": "سيارة 2",
           "marka": "العلامة التجارية ب",
           "price": "110,00 $"
         },
-        "car3": {
+        "product3": {
           "title": "سيارة 3",
           "marka": "العلامة التجارية ت",
           "price": "110,00 $"
         },
-        "car4": {
+        "product4": {
           "title": "سيارة 4",
           "marka": "العلامة التجارية ث",
           "price": "110,00 $"
         },
-        "car5": {
+        "product5": {
           "title": "سيارة 5",
           "marka": "العلامة التجارية ج",
           "price": "110,00 $"
         },
-        "car6": {
+        "product6": {
           "title": "سيارة 6",
           "marka": "العلامة التجارية ح",
           "price": "110,00 $"
         },
-        "car7": {
+        "product7": {
           "title": "سيارة 7",
           "marka": "العلامة التجارية خ",
           "price": "110,00 $"
         },
-        "car8": {
+        "product8": {
           "title": "سيارة 8",
           "marka": "العلامة التجارية د",
           "price": "110,00 $"
         },
-        "car9": {
+        "product9": {
           "title": "سيارة 9",
           "marka": "العلامة التجارية ذ",
           "price": "110,00 $"
         }
       }
     },
-    "cardAds": {
+    "productAds": {
       "title": "اعلانك هنا يصل لمئات الآلاف يومياً",
       "description": "تواصل معنا الآن"
     },
@@ -119,25 +119,25 @@
       "bishola": "بسـهولـــة",
       "startNow" : "إبدأ الآن"
     },
-    "worldOfCars" : {
+    "worldOfProducts" : {
       "title" : "اكتشف عالم السيارات",
       "showMore" : "عرض المزيد",
       "cities" : 
         {
-          "city1" : {"title" : "إدلب", "carCount" : "250" },
-          "city2" :{"title" : "حلب", "carCount" : "250" },
-          "city3" : {"title" : "دمشق", "carCount" : "250" },
-          "city4" :{"title" : "حماة", "carCount" : "250" },
-          "city5" :{"title" : "حمص", "carCount" : "250" }
+          "city1" : {"title" : "إدلب", "productCount" : "250" },
+          "city2" :{"title" : "حلب", "productCount" : "250" },
+          "city3" : {"title" : "دمشق", "productCount" : "250" },
+          "city4" :{"title" : "حماة", "productCount" : "250" },
+          "city5" :{"title" : "حمص", "productCount" : "250" }
         }
       
     },
-    "rentCar" : {
+    "rentProduct" : {
       "title":"أستأجر طلبك معنا",
       "showMore" :"عرض المزيد",
       "price" :"سعر اليوم",
-      "cars": {
-        "car1": {
+      "products": {
+        "product1": {
           "title": "سيارة 1",
           "marka": "العلامة التجارية أ",
           "price": "110,00 $",
@@ -149,7 +149,7 @@
           
           }
         },
-        "car2": {
+        "product2": {
           "title": "سيارة 2",
           "marka": "العلامة التجارية ب",
           "price": "110,00 $",
@@ -160,7 +160,7 @@
           }
           }
         },
-        "car3": {
+        "product3": {
           "title": "سيارة 3",
           "marka": "العلامة التجارية ت",
           "price": "110,00 $",
@@ -171,7 +171,7 @@
           }
           }
         },
-        "car4": {
+        "product4": {
           "title": "سيارة 4",
           "marka": "العلامة التجارية ث",
           "price": "110,00 $",
@@ -182,7 +182,7 @@
           }
           }
         },
-        "car5": {
+        "product5": {
           "title": "سيارة 5",
           "marka": "العلامة التجارية ج",
           "price": "110,00 $",
@@ -193,7 +193,7 @@
           }
           }
         },
-        "car6": {
+        "product6": {
           "title": "سيارة 6",
           "marka": "العلامة التجارية ح",
           "price": "110,00 $",
@@ -204,7 +204,7 @@
           }
           }
         },
-        "car7": {
+        "product7": {
           "title": "سيارة 7",
           "marka": "العلامة التجارية خ",
           "price": "110,00 $",
@@ -215,7 +215,7 @@
           }
           }
         },
-        "car8": {
+        "product8": {
           "title": "سيارة 8",
           "marka": "العلامة التجارية د",
           "price": "110,00 $",
@@ -226,7 +226,7 @@
           }
           }
         },
-        "car9": {
+        "product9": {
           "title": "سيارة 9",
           "marka": "العلامة التجارية ذ",
           "price": "110,00 $",
@@ -276,7 +276,7 @@
         }      }
     }
   },
-  "carsPage" : {
+  "productsPage" : {
     "header" : {
       "adCounter"  : "250 اعلان",
       "orderBy" : "ترتيب حسب:",
@@ -310,17 +310,17 @@
             "Homs": "حمص"
           }
         },
-        "CarMarka" : {
+        "productMarka" : {
           "filterOptionsTitle" : "ماركة السيارة",
           "Mercedes" : "مرسيدس",
           "Bmw" : "بي أم دبليو"
         },
-        "CarModels" : {
+        "productModels" : {
           "title" : "موديل السيارة",
           "lessYear" : "أقل سنة",
           "highestYear" : " أعلى سنة"
           },
-          "CarPrice" : {
+          "productPrice" : {
             "title" : "سعر السيارة",
             "lessPrice" : "أقل سعر",
             "currency" : "SYP",

@@ -1,13 +1,13 @@
 import Box from '@/components/box/box';
-import Categories from '@/components/web/CarsPage/Categories';
-import Filter from '@/components/web/CarsPage/Filter';
-import Header from '@/components/web/CarsPage/Header';
+import Categories from '@/components/web/ProductsPage/Categories';
+import Filter from '@/components/web/ProductsPage/Filter';
+import Header from '@/components/web/ProductsPage/Header';
 import AdsSection from '@/components/web/Home/AdsSection';
 import Footer from '@/components/web/Home/Footer';
 import LatestOffers from '@/components/web/Home/LatestOffers';
 import React from 'react';
 
-const Page = () => {
+const products = () => {
     return (
         <Box variant="column" className="mt-[50px] bg-background">
             {/* Header Section */}
@@ -40,4 +40,4 @@ const Page = () => {
     );
 };
 
-export default Page;
+export default products;

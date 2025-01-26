@@ -16,52 +16,52 @@ export const getCarMarkaItems = (t) =>   [
     {
         id: 'mercedes',
         imageSrc: '/assets/icons/BMW.png',
-        label: t('filter.filterOptions.CarMarka.Mercedes'),
+        label: t('filter.filterOptions.productMarka.Mercedes'),
     },
     {
         id: 'bmw',
         imageSrc: '/assets/icons/BMW.png',
-        label: t('filter.filterOptions.CarMarka.Bmw'),
+        label: t('filter.filterOptions.productMarka.Bmw'),
     },
     {
         id: 'bmw1',
         imageSrc: '/assets/icons/BMW.png',
-        label: t('filter.filterOptions.CarMarka.Bmw'),
+        label: t('filter.filterOptions.productMarka.Bmw'),
     },
     {
         id: 'bmw2',
         imageSrc: '/assets/icons/BMW.png',
-        label: t('filter.filterOptions.CarMarka.Bmw'),
+        label: t('filter.filterOptions.productMarka.Bmw'),
     },
     {
         id: 'bmw3',
         imageSrc: '/assets/icons/BMW.png',
-        label: t('filter.filterOptions.CarMarka.Bmw'),
+        label: t('filter.filterOptions.productMarka.Bmw'),
     },
     {
         id: 'bmw5',
         imageSrc: '/assets/icons/BMW.png',
-        label: t('filter.filterOptions.CarMarka.Bmw'),
+        label: t('filter.filterOptions.productMarka.Bmw'),
     },
     {
         id: 'bmw6',
         imageSrc: '/assets/icons/BMW.png',
-        label: t('filter.filterOptions.CarMarka.Bmw'),
+        label: t('filter.filterOptions.productMarka.Bmw'),
     },
     {
         id: 'bmw7',
         imageSrc: '/assets/icons/BMW.png',
-        label: t('filter.filterOptions.CarMarka.Bmw'),
+        label: t('filter.filterOptions.productMarka.Bmw'),
     },
     {
         id: 'bmw8',
         imageSrc: '/assets/icons/BMW.png',
-        label: t('filter.filterOptions.CarMarka.Bmw'),
+        label: t('filter.filterOptions.productMarka.Bmw'),
     },
     {
         id: 'bmw9',
         imageSrc: '/assets/icons/BMW.png',
-        label: t('filter.filterOptions.CarMarka.Bmw'),
+        label: t('filter.filterOptions.productMarka.Bmw'),
     },
 ];
 

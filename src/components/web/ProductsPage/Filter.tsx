@@ -69,7 +69,7 @@ const FilterCheckboxItem: React.FC<FilterCheckboxItemProps> = ({ id, imageSrc, l
 
 
 const Filter: React.FC = () => {
-    const t = useTranslations('carsPage')
+    const t = useTranslations('productsPage')
     // State management for filters
     const [searchText, setSearchText] = useState('');
 
@@ -139,7 +139,7 @@ return (
                         >
                             <AccordionItem value="car-marka" className="border-none">
                             <AccordionTrigger className="hover:no-underline font-cairo font-bold text-primary">
-                                {t('filter.filterOptions.CarMarka.filterOptionsTitle')}
+                                {t('filter.filterOptions.productMarka.filterOptionsTitle')}
                             </AccordionTrigger>
                             {carMarkaItems.map((item) => (
                                 <FilterCheckboxItem
@@ -161,16 +161,16 @@ return (
             <Accordion type="single" collapsible className='pr-4 pl-4'>
                 <AccordionItem value="address" className="border-none">
                 <AccordionTrigger className="hover:no-underline font-cairo font-bold text-primary">
-                    {t('filter.filterOptions.CarModels.title')}
+                    {t('filter.filterOptions.productModels.title')}
                 </AccordionTrigger>
                 <AccordionContent className='w-full flex'>
                     <FilterOptionDropdown
                         options={CarModelsOptions}
-                        placeholder={t('filter.filterOptions.CarModels.lessYear')}
+                        placeholder={t('filter.filterOptions.productModels.lessYear')}
                     />
                     <FilterOptionDropdown
                         options={CarModelsOptions}
-                        placeholder={t('filter.filterOptions.CarModels.highestYear')}
+                        placeholder={t('filter.filterOptions.productModels.highestYear')}
                     />
                 </AccordionContent>
                 </AccordionItem>
@@ -183,23 +183,23 @@ return (
                 <Accordion type="single" collapsible className='pr-4 pl-4'>
                     <AccordionItem value="address" className="border-none">
                     <AccordionTrigger className="hover:no-underline font-cairo font-bold text-primary">
-                        {t('filter.filterOptions.CarPrice.title')}
+                        {t('filter.filterOptions.productPrice.title')}
                     </AccordionTrigger>
                     <AccordionContent className='w-full flex flex-wrap'>
                             <Box className='w-full'>
                                 <FilterOptionDropdown
                                 options={priceRanges}
-                                placeholder={t('filter.filterOptions.CarPrice.lessPrice')}
+                                placeholder={t('filter.filterOptions.productPrice.lessPrice')}
                                     />
                                 <FilterOptionDropdown
                                     options={priceRanges}
-                                    placeholder={t('filter.filterOptions.CarPrice.highestPrice')}
+                                    placeholder={t('filter.filterOptions.productPrice.highestPrice')}
                                 />
                             </Box>
                         <Box className='block w-full'>
                         <FilterOptionDropdown
                             options={priceRanges}
-                            placeholder={t('filter.filterOptions.CarPrice.currency')}
+                            placeholder={t('filter.filterOptions.productPrice.currency')}
                         />
                         </Box>
                     </AccordionContent>

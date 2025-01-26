@@ -4,7 +4,7 @@ import React from 'react';
 import CategoryCarousel from '../design/CategoryCarousel';
 
 const Categories = () => {
-    const t = useTranslations('carsPage');
+    const t = useTranslations('productsPage');
     const locale = useLocale(); // Get current locale
     const direction = locale === 'ar' ? 'rtl' : 'ltr'; // Determine direction
 
