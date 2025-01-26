@@ -9,11 +9,14 @@ import {
 } from '@/components/ui/card';
 import Image from 'next/image';
 import { CarCardItemProps } from '@/types/homePageTypes';
+import Link from 'next/link';
 
 // CardItem Component
 
-export const ProductCardItem: React.FC<CarCardItemProps> = ({ title, marka, price, imageSrc , priceWord }) => {
+export const ProductCardItem: React.FC<CarCardItemProps> = ({title, marka, price, imageSrc , priceWord , ProductId }) => {
     return (
+        <Link href={`/products/product/${ProductId}`}>
+
         <Card className="border-none rounded-lg bg-white ">
             <CardHeader className="p-0">
                 <CardTitle className="w-full">
@@ -40,6 +43,8 @@ export const ProductCardItem: React.FC<CarCardItemProps> = ({ title, marka, pric
                 <Text className="mid text-primary-light font-bold">{price}</Text>
             </CardFooter>
         </Card>
+        
+        </Link>
     );
 };
 

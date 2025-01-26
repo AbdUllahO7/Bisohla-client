@@ -8,7 +8,8 @@ export interface CarCardItemProps {
     details? : {
         gaz : string,
         type:string
-    }
+    },
+    ProductId : number
 }
 export interface CitiesDataType {
     title : string , 
