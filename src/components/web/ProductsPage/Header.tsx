@@ -7,7 +7,7 @@ import Link from 'next/link';
 import React from 'react'
 
 const Header = () => {
-    const t  = useTranslations('carsPage');
+    const t  = useTranslations('productsPage');
     const priceRanges = [
         {
             value: 'high',

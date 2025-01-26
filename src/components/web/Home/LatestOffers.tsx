@@ -2,9 +2,9 @@ import React from 'react';
 import Link from 'next/link';
 import Box from '@/components/box/box';
 import Text from '@/components/text/text';
-import { CarCardItem } from '../design/CarCardItem';
 import { useTranslations } from 'next-intl';
 import CardAds from '../design/CardAds';
+import { ProductCardItem } from '../design/ProductCardItem';
 
 interface LatestOffersProps {
     count?: number; // Optional count of cards to display
@@ -15,15 +15,15 @@ const LatestOffers: React.FC<LatestOffersProps> = ({ count, showTitle = true }) 
     const t = useTranslations('homePage');
 
     const cardsData = [
-        { title: t('latestOffers.cars.car1.title'), marka: t('latestOffers.cars.car1.marka'), price: t('latestOffers.cars.car1.price'), imageSrc: '/assets/images/car-card.png' },
-        { title: t('latestOffers.cars.car2.title'), marka: t('latestOffers.cars.car2.marka'), price: t('latestOffers.cars.car2.price'), imageSrc: '/assets/images/car-card.png' },
-        { title: t('latestOffers.cars.car3.title'), marka: t('latestOffers.cars.car3.marka'), price: t('latestOffers.cars.car3.price'), imageSrc: '/assets/images/car-card.png' },
-        { title: t('latestOffers.cars.car4.title'), marka: t('latestOffers.cars.car4.marka'), price: t('latestOffers.cars.car4.price'), imageSrc: '/assets/images/car-card.png' },
-        { title: t('latestOffers.cars.car5.title'), marka: t('latestOffers.cars.car5.marka'), price: t('latestOffers.cars.car5.price'), imageSrc: '/assets/images/car-card.png' },
-        { title: t('latestOffers.cars.car6.title'), marka: t('latestOffers.cars.car6.marka'), price: t('latestOffers.cars.car6.price'), imageSrc: '/assets/images/car-card.png' },
-        { title: t('latestOffers.cars.car7.title'), marka: t('latestOffers.cars.car7.marka'), price: t('latestOffers.cars.car7.price'), imageSrc: '/assets/images/car-card.png' },
-        { title: t('latestOffers.cars.car8.title'), marka: t('latestOffers.cars.car8.marka'), price: t('latestOffers.cars.car8.price'), imageSrc: '/assets/images/car-card.png' },
-        { title: t('latestOffers.cars.car9.title'), marka: t('latestOffers.cars.car9.marka'), price: t('latestOffers.cars.car9.price'), imageSrc: '/assets/images/car-card.png' },
+        { title: t('latestOffers.products.product1.title'), marka: t('latestOffers.products.product1.marka'), price: t('latestOffers.products.product1.price'), imageSrc: '/assets/images/car-card.png' },
+        { title: t('latestOffers.products.product2.title'), marka: t('latestOffers.products.product2.marka'), price: t('latestOffers.products.product2.price'), imageSrc: '/assets/images/car-card.png' },
+        { title: t('latestOffers.products.product3.title'), marka: t('latestOffers.products.product3.marka'), price: t('latestOffers.products.product3.price'), imageSrc: '/assets/images/car-card.png' },
+        { title: t('latestOffers.products.product4.title'), marka: t('latestOffers.products.product4.marka'), price: t('latestOffers.products.product4.price'), imageSrc: '/assets/images/car-card.png' },
+        { title: t('latestOffers.products.product5.title'), marka: t('latestOffers.products.product5.marka'), price: t('latestOffers.products.product5.price'), imageSrc: '/assets/images/car-card.png' },
+        { title: t('latestOffers.products.product6.title'), marka: t('latestOffers.products.product6.marka'), price: t('latestOffers.products.product6.price'), imageSrc: '/assets/images/car-card.png' },
+        { title: t('latestOffers.products.product7.title'), marka: t('latestOffers.products.product7.marka'), price: t('latestOffers.products.product7.price'), imageSrc: '/assets/images/car-card.png' },
+        { title: t('latestOffers.products.product8.title'), marka: t('latestOffers.products.product8.marka'), price: t('latestOffers.products.product8.price'), imageSrc: '/assets/images/car-card.png' },
+        { title: t('latestOffers.products.product9.title'), marka: t('latestOffers.products.product9.marka'), price: t('latestOffers.products.product9.price'), imageSrc: '/assets/images/car-card.png' },
     ];
 
     // Slice cardsData based on count or display all cards
@@ -37,7 +37,7 @@ const LatestOffers: React.FC<LatestOffersProps> = ({ count, showTitle = true }) 
                         <Text variant="h3" className="font-bold text-[20px] font-cairo">
                             {t('latestOffers.title')}
                         </Text>
-                        <Link href="/cars">
+                        <Link href="/products">
                             <Text variant="mid" className="text-[20px] font-cairo text-primary-light">
                                 {t('latestOffers.showMore')}
                             </Text>
@@ -49,7 +49,7 @@ const LatestOffers: React.FC<LatestOffersProps> = ({ count, showTitle = true }) 
                 <Box className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:w-[80%] xs:w-[80%] lg:w-full" variant="center">
                     {displayedCards.map((card, index) => (
                         <React.Fragment key={index}>
-                            <CarCardItem
+                            <ProductCardItem
                                 title={card.title}
                                 marka={card.marka}
                                 price={card.price}

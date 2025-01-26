@@ -5,9 +5,9 @@ import Filter from '@/components/web/Home/Filter';
 import Footer from '@/components/web/Home/Footer';
 import Hero from '@/components/web/Home/Hero';
 import LatestOffers from '@/components/web/Home/LatestOffers';
-import RentCar from '@/components/web/Home/RentCar';
+import RentCar from '@/components/web/Home/RentProduct';
 import SpaceAds from '@/components/web/Home/SpaceAds';
-import WorldOfCar from '@/components/web/Home/WorldOfCar';
+import WorldOfCar from '@/components/web/Home/WorldOfProduct';
 
 const WebPage = async () => {
   return (

@@ -2,10 +2,9 @@ import Box from '@/components/box/box';
 import { useLocale, useTranslations } from 'next-intl';
 import React from 'react';
 import CategoryCarousel from '../design/CategoryCarousel';
-import LatestOffers from '../Home/LatestOffers';
 
 const Categories = () => {
-    const t = useTranslations('carsPage');
+    const t = useTranslations('productsPage');
     const locale = useLocale(); // Get current locale
     const direction = locale === 'ar' ? 'rtl' : 'ltr'; // Determine direction
 
@@ -25,11 +24,8 @@ const Categories = () => {
     ];
 
     return (
-        <Box className="w-full">
-            <Box  variant="column">
+        <Box className="xs:w-[300px] md:w-[600px]  lg:w-full xs:mt-10">
                 <CategoryCarousel data={categories} direction={direction} />
-
-            </Box>
         </Box>
     );
 };

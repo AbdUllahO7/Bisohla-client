@@ -14,7 +14,7 @@ import { Fuel, LifeBuoy } from 'lucide-react';
 
 // CardItem Component
 
-export const RentCarCard: React.FC<CarCardItemProps> = ({ title, marka, price, imageSrc, priceWord, details }) => {
+export const RentProductCard: React.FC<CarCardItemProps> = ({ title, marka, price, imageSrc, priceWord, details }) => {
     return (
         <Card className="border-none bg-white">
             <Box className="flex justify-between p-[8px] rounded-t-[10px] bg-primary-light">
