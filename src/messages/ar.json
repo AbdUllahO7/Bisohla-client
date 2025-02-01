@@ -448,6 +448,12 @@
       "adsNumber" : "رقم الإعلان",
       "dateOfAds" : "تاريخ الاعلان",
       "gaz" : "الوقود"
+    },
+    "tabs" : {
+      "adsInfo" : "معلومات الاعلان",
+      "location" : "الموقع",
+      "productInfo" : "سمات السيارة",
+      "productDetails": "المواصفات"
     }
   }
 }
