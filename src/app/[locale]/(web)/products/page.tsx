@@ -18,7 +18,7 @@ const products = () => {
             {/* Main Content Section */}
             <Box 
                 variant="container" 
-                className="flex flex-col lg:flex-row justify-between items-start gap-6 mt-10"
+                className="flex flex-col lg:flex-row justify-between items-start gap-6 "
             >
                 {/* Filter Section */}
                 <Box className="w-full lg:w-[25%] bg-white rounded-lg shadow-md p-4">

@@ -24,7 +24,7 @@ const Categories = () => {
     ];
 
     return (
-        <Box className="xs:w-[300px] md:w-[600px]  lg:w-full xs:mt-10">
+        <Box className="xs:w-[300px] md:w-[600px]  lg:w-full lg:mt-0 xs:mt-10">
                 <CategoryCarousel data={categories} direction={direction} />
         </Box>
     );
