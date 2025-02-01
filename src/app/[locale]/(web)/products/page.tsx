@@ -9,7 +9,7 @@ import React from 'react';
 
 const products = () => {
     return (
-        <Box variant="column" className="mt-[50px] bg-background">
+        <Box variant="column" className="mt-[30px] bg-background">
             {/* Header Section */}
             <Box className="mt-[50px] w-full">
                 <Header />
