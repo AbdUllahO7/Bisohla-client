@@ -1,20 +1,11 @@
 import Box from '@/components/box/box';
 import Text from '@/components/text/text';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { ProductInfoProps } from '@/types/ProductsPageTypes';
 import { useLocale, useTranslations } from 'next-intl';
 import React from 'react';
 
-interface ProductInfoProps {
-  carType: string;
-  model: string;
-  controlType: string;
-  distance: string;
-  passengers: string;
-  gaz: string;
-  price: string;
-  adsNumber: string;
-  adsDate: string;
-}
+
 
 const ProductInfo = ({
   carType,

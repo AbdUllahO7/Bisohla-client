@@ -1,18 +1,11 @@
 import Box from '@/components/box/box';
 import Text from '@/components/text/text';
 import { Card, CardContent } from '@/components/ui/card';
+import { ProductBasicInfoProps } from '@/types/ProductsPageTypes';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import React from 'react';
 
-interface ProductBasicInfoProps {
-  carType: string;
-  model: string;
-  controlType: string;
-  distance: string;
-  passengers: string;
-  gaz: string;
-}
 
 const ProductBasicInfo = ({
   carType,

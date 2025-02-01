@@ -11,15 +11,12 @@ import {
 
 } from "@/components/ui/carousel";
 import Image from 'next/image';
-import { CitiesDataType } from '@/types/homePageTypes';
+import { CarouselComponentProps} from '@/types/homePageTypes';
 import Box from '@/components/box/box';
 import Text from '@/components/text/text';
 
 // Define the type for props
-interface CarouselComponentProps {
-    data: CitiesDataType[];
-    direction: 'ltr' | 'rtl'; // Add direction as a prop
-}
+
 
 const CategoryCarousel: React.FC<CarouselComponentProps> = ({ data, direction }) => {
     return (

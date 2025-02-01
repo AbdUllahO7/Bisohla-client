@@ -1,19 +1,11 @@
 'use client';
 
 import LocaleSwitcher from '@/components/local/LocalSwitcher';
+import { HeaderTowProps } from '@/types/homePageTypes';
 import { MenuIcon, XCircleIcon } from 'lucide-react';
 import Link from 'next/link';
 import React, { useState } from 'react';
 
-interface HeaderTowProps {
-    translations: {
-        home: string;
-        rent: string;
-        sale: string;
-        news: string;
-        join: string;
-    };
-}
 
 const HeaderTow: React.FC<HeaderTowProps> = ({ translations }) => {
     const [isOpen, setIsOpen] = useState<boolean>(false);
