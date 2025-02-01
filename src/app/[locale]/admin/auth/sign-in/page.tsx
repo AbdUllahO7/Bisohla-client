@@ -9,14 +9,14 @@ import {
   ApiResponse,
   defaultActionState,
 } from '@/interfaces/api-response.interface';
-import { handleAdminLogin } from '@/services/auth/auth.service';
 import Link from 'next/link';
 import { useActionState } from 'react';
+import { signInAction } from '../actions';
 // import { ApiSuccessResponse} from '@/interfaces/api-response.interface';
 
 const AdminSignInPage = () => {
   const [state, action] = useActionState<ApiResponse<LoginResponse>, FormData>(
-    handleAdminLogin,
+    signInAction,
     defaultActionState,
   );
 
