@@ -71,14 +71,14 @@ const Filter = () => {
               {/* Car Type */}
               <Box className="w-full">
                 <SelectDropdown
-                  label={t('filter.cartype')}
+                  label={t('filter.productType')}
                   options={[
-                    { value: 'sedan', label: t('filter.options.cartype.sedan') },
-                    { value: 'suv', label: t('filter.options.cartype.suv') },
-                    { value: 'truck', label: t('filter.options.cartype.truck') },
-                    { value: 'coupe', label: t('filter.options.cartype.coupe') },
+                    { value: 'sedan', label: t('filter.options.productType.sedan') },
+                    { value: 'suv', label: t('filter.options.productType.suv') },
+                    { value: 'truck', label: t('filter.options.productType.truck') },
+                    { value: 'coupe', label: t('filter.options.productType.coupe') },
                   ]}
-                  placeholder={t('filter.selectCarType')}
+                  placeholder={t('filter.selectproductType')}
                   SelectTriggerStyle="border-0 outline-none shadow-none p-0"
                 />
               </Box>

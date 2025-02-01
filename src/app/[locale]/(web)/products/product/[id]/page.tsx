@@ -9,6 +9,7 @@ import { getProductsData } from '@/constants/ProductsData';
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
 import React from 'react';
+import TabsSection from '@/components/web/ProductsPage/product/TabsSection';
 
 const Product = () => {
     const { id } = useParams(); // Get the product ID from the URL params
@@ -37,7 +38,7 @@ const Product = () => {
             </Box>
 
             {/* Product Details Section */}
-            <Box className="mt-10 w-full ">
+            <Box className="mt-1 w-full ">
                 <ProductBasicInfo 
                     carType = {product.carType}
                     model = {product.model}
@@ -48,7 +49,8 @@ const Product = () => {
                 />
             </Box>
 
-            <Box variant="row" className='w-full gap-4 justify-evenly md:flex-wrap xs:flex-wrap' >
+                {/* images  */}
+            <Box variant="row" className='w-full gap-4 items-start justify-center md:flex-wrap xs:flex-wrap' >
                 <Box className='xs:w-[90%] lg:w-fit'>
                     <ProductInfo
                         carType = {product.carType}
@@ -67,6 +69,13 @@ const Product = () => {
                         <ProductImages/>
                 </Box>
                 
+            </Box>
+
+            {/* Tabs */}
+            <Box  className='w-full mt-2'>
+                <Box className='container'>
+                        <TabsSection />
+                </Box>
             </Box>
 
             {/* Footer Section */}

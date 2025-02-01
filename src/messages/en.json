@@ -446,6 +446,12 @@
       "adsNumber" : "Ads Number",
       "dateOfAds" : "Date Of Ads",
       "gaz" : "Gaz"
+    },
+    "tabs" : {
+      "adsInfo" : "Ads Info",
+      "location" : "Location",
+      "productInfo" : "Car Info",
+      "productDetails": "Details"
     }
   }
 }
