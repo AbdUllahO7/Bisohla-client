@@ -3,7 +3,6 @@ import Categories from '@/components/web/ProductsPage/Categories';
 import Filter from '@/components/web/ProductsPage/Filter';
 import Header from '@/components/web/ProductsPage/Header';
 import AdsSection from '@/components/web/Home/AdsSection';
-import Footer from '@/components/web/Home/Footer';
 import LatestOffers from '@/components/web/Home/LatestOffers';
 import React from 'react';
 
@@ -34,8 +33,7 @@ const products = () => {
                 </Box>
             </Box>
 
-            {/* Footer Section */}
-            <Footer />
+
         </Box>
     );
 };

@@ -527,5 +527,33 @@
       }
 
       }
-  }
+  },
+  "addProduct" : {
+    "steps" : {
+    "carType" : "Car Type",
+    "carInfo" : "Car Information",
+    "carImages" : "Car Images",
+    "adsDetails" : "Ad Details"
+    },
+    "enteredData" : {
+      "branda" : {
+      "title" : "Car Brand",
+      "description" : "Add Car Brand Not Found",
+      "options": {
+        "productMarka": {
+          "toyota": "Toyota",
+          "honda": "Honda",
+          "ford": "Ford",
+          "bmw": "BMW",
+          "mercedes": "Mercedes",
+          "audi": "Audi",
+          "nissan": "Nissan",
+          "chevrolet": "Chevrolet"
+        }
+      }
+
+      }
+
+}
+}
 }
