@@ -36,9 +36,8 @@ const ProductInfo = ({
 
   return (
     <Box variant="center" className="w-full">
-      <Box variant="container" className=''>
         <Box
-          className="lg:w-[300px] xs:w-full bg-white rounded-lg overflow-hidden border border-gray-200 shadow-sm justify-center"
+          className="2xl:w-[400px] lg:w-[300px] xs:w-full bg-white rounded-lg overflow-hidden border border-gray-200 shadow-sm justify-center"
           variant="column"
         >
           {/* Header */}
@@ -68,7 +67,6 @@ const ProductInfo = ({
 
         </Box>
       </Box>
-    </Box>
   );
 };
 
