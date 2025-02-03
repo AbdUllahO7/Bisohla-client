@@ -1,66 +1,108 @@
-import React from 'react'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import React from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useTranslations } from 'next-intl';
 import Box from '@/components/box/box';
-import {  CarFront, Info, LayoutGridIcon, MapPinIcon } from 'lucide-react';
+import { CarFront, Info, LayoutGridIcon, MapPinIcon } from 'lucide-react';
+import AccordionDetails from './AccordionDetails';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import AccordionProductDetails from './Tabs/AccordionProductDetails';
+import AccordionProductSafety from './Tabs/AccordionProductSafety';
+import LatestOffers from '../../Home/LatestOffers';
 
 const TabsSection = () => {
-        const t = useTranslations('product');
-    
-    return (
-        <Box className='' >
-                <Tabs defaultValue="account" className="w-full " >
-                <TabsList className='bg-transparent gap-8'>
+    const t = useTranslations('product');
+    // Hardcoded data (using translations for dynamic content)
+    const data = [
+        { question: t('accordionDetails.questions.question1.question'), answer: t('accordionDetails.questions.question1.answer') },
+        { question: t('accordionDetails.questions.question2.question'), answer: t('accordionDetails.questions.question2.answer') },
+    ];
 
+    return (
+        <Box variant='column' className='justify-start items-start w-full'>
+        <Tabs defaultValue="account" className="flex-wrap">
+            <TabsList className='bg-transparent gap-8 flex-wrap lg:min-h-[100%] md:min-h-[200px] xs:min-h-[400px]'>
+                <TabsTrigger 
+                className="bg-white font-bold px-10 py-5 min-w-[225px] flex gap-4 items-center transition-colors text-primary-light data-[state=active]:bg-primary-light data-[state=active]:text-white"
+                value="productDetails">
+                <LayoutGridIcon />
+                <span className="transition-colors data-[state=active]:text-white">
+                    {t('tabs.productDetails')}
+                </span>
+                </TabsTrigger>
 
                 <TabsTrigger 
-                    className="bg-white font-bold px-10 py-2 flex gap-8 transition-colors text-primary-light data-[state=active]:bg-primary-light data-[state=active]:text-white"
-                    value="productDetails"  >
-                        {t('tabs.productDetails')}
-                        <span className=" transition-colors data-[state=active]:text-white">
-                                    <LayoutGridIcon />
-                        </span>
+                className="bg-white font-bold px-10 py-5 min-w-[225px] flex gap-4 items-center transition-colors text-primary-light data-[state=active]:bg-primary-light data-[state=active]:text-white"
+                value="productInfo">
+                <CarFront />
+                <span className="transition-colors data-[state=active]:text-white">
+                    {t('tabs.productInfo')}
+                </span>
                 </TabsTrigger>
-            
-                <TabsTrigger                     
-                    className="bg-white font-bold px-10 py-2 flex gap-8 transition-colors text-primary-light data-[state=active]:bg-primary-light data-[state=active]:text-white"
-                    value="productInfo"  >
-                        {t('tabs.productInfo')}
-                        <span className=" transition-colors data-[state=active]:text-white">
-                                <CarFront />
-                        </span>
-                </TabsTrigger>
-            
+
                 <TabsTrigger
-                    className="bg-white font-bold px-10 py-2 flex gap-8 transition-colors text-primary-light data-[state=active]:bg-primary-light data-[state=active]:text-white"
-                    value="location"
-                    >
+                className="bg-white min-w-[225px] font-bold px-10 py-5 flex gap-4 items-center transition-colors text-primary-light data-[state=active]:bg-primary-light data-[state=active]:text-white"
+                value="location">
+                <MapPinIcon />
+                <span className="transition-colors data-[state=active]:text-white">
                     {t('tabs.location')}
-                    <span className=" transition-colors data-[state=active]:text-white">
-                        <MapPinIcon />
-                    </span>
+                </span>
                 </TabsTrigger>
 
-                <TabsTrigger                     
-                className="bg-white font-bold px-10 py-2 flex gap-8 transition-colors text-primary-light data-[state=active]:bg-primary-light data-[state=active]:text-white"
-                        value="adsInfo"  >
-                            {t('tabs.adsInfo')}
-                            <span className=" transition-colors data-[state=active]:text-white">
-                                <Info />
-                            </span>
+                <TabsTrigger 
+                className="bg-white min-w-[225px] font-bold px-10 py-5 flex gap-4 items-center transition-colors text-primary-light data-[state=active]:bg-primary-light data-[state=active]:text-white"
+                value="adsInfo">
+                <Info />
+                <span className="transition-colors data-[state=active]:text-white">
+                    {t('tabs.adsInfo')}
+                </span>
                 </TabsTrigger>
+            </TabsList>
 
+            {/* Tab Content */}
+            <TabsContent value="productDetails"></TabsContent>
+            <TabsContent value="productInfo"></TabsContent>
+            <TabsContent value="location"></TabsContent>
+            <TabsContent value="adsInfo" className=''>
+                {/* <AdsDetailsTab /> */}
+            </TabsContent>
+        </Tabs>
 
-                </TabsList>
-                <TabsContent value="location">Make changes to your account here.</TabsContent>
-                <TabsContent value="adsInfo">Change your password here.</TabsContent>
-                <TabsContent value="productInfo">Change your password here.</TabsContent>
-                <TabsContent value="productDetails">Change your password here.</TabsContent>
+            
+            {/* text accordion */}
+            <AccordionDetails data={data}/>
 
-                </Tabs>
+            {/* Product Details Accordion */}
+            <Accordion type="single" collapsible className='shadow-xl bg-white p-2 rounded-lg w-full ' value="item-1">
+                <AccordionItem value="item-1" className='border-none'>
+                    <AccordionTrigger className='hover:no-underline font-cairo font-bold text-primary'>
+                        <span className='border-b-2  pb-1 border-primary-light'>
+                            {t('tabs.productInfo')}
+                        </span>
+                    </AccordionTrigger>
+                    <AccordionContent className='font-cairo text-[400] text-secondary-text'>
+                        <AccordionProductDetails />
+                    </AccordionContent>
+                </AccordionItem>
+            </Accordion>
 
-    </Box>
-    )
-}
+            {/* Safety Accordion */}
+            <Accordion type="single" collapsible className='shadow-xl bg-white p-2 rounded-lg w-full' value="item-2">
+                <AccordionItem value="item-2" className='border-none'>
+                    <AccordionTrigger className='hover:no-underline font-cairo font-bold text-primary'>
+                        <span className='border-b-2  pb-1 border-primary-light'>
+                            {t('tabs.productSafety')}
+                        </span>
+                    </AccordionTrigger>
+                    <AccordionContent className='font-cairo text-[400] text-secondary-text'>
+                        <AccordionProductSafety />
+                    </AccordionContent>
+                </AccordionItem>
+            </Accordion>
 
-export default TabsSection
+            {/* Ads */}
+            <LatestOffers count={4} showTitle={false} />
+        </Box>
+    );
+};
+
+export default TabsSection;

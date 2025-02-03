@@ -19,7 +19,7 @@ const WebPage = async () => {
       <WorldOfCar/>
       <RentCar/>
       <SpaceAds/>
-      <FAQ/>
+        <FAQ/>
       <Footer/>
     </Box>
   );

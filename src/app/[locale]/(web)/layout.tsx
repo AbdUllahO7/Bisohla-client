@@ -1,3 +1,4 @@
+import Footer from '@/components/web/Home/Footer';
 import HeaderOne from '@/components/web/Home/HeaderOne';
 import HeaderTow from '@/components/web/Home/HeaderTow';
 import { Metadata } from 'next';
@@ -35,6 +36,10 @@ const WebLayout = async({ children }: PropsWithChildren) => {
     {/* Spacer for HeaderTwo height */}
     <div className="h-[65px]"></div>
       {children}
+
+
+      <Footer />
+
     </div>
   );
 };
