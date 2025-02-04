@@ -536,23 +536,73 @@
     "adsDetails" : "Ad Details"
     },
     "enteredData" : {
-      "branda" : {
-      "title" : "Car Brand",
-      "description" : "Add Car Brand Not Found",
-      "options": {
-        "productMarka": {
-          "toyota": "Toyota",
-          "honda": "Honda",
-          "ford": "Ford",
-          "bmw": "BMW",
-          "mercedes": "Mercedes",
-          "audi": "Audi",
-          "nissan": "Nissan",
-          "chevrolet": "Chevrolet"
+      "stepOne" : {
+        "branda" : {
+          "title" : "Car Brand",
+          "description" : "Add Car Brand Not Found",
+          "options": {
+            "productMarka": {
+              "toyota": "Toyota",
+              "honda": "Honda",
+              "ford": "Ford",
+              "bmw": "BMW",
+              "mercedes": "Mercedes",
+              "audi": "Audi",
+              "nissan": "Nissan",
+              "chevrolet": "Chevrolet"
+            }
+          }
+          },
+          "madeYear": {
+              "title": "Year of Manufacture",
+              "description": "Add Year of Manufacture Missing",
+              "options": {
+              "2020": "2020",
+              "2021": "2021",
+              "2022": "2022",
+              "2023": "2023",
+              "2024": "2024"
+              }
+        },
+          "model": {
+            "title": "Car Model",
+            "description": "Add Car Model Missing",
+            "options": {
+            "sedan": "Sedan",
+            "suv": "Truck",
+            "truck": "Truck",
+            "coupe": "Coupe"
+            }
+          }
+      },
+      "stepTow": {
+        "price": {
+          "options": {
+          "usd": "$ - USD",
+          "eur": "€ - EUR",
+          "try": "₺ - TRY",
+          "gbp": "£ - GBP"
         }
-      }
+        },
 
-      }
+        "color": {
+          "options": {
+          "red": "Red",
+          "green": "Green",
+          "yellow": "Yellow",
+          "blue": "Blue"
+        }
+        },
+
+        "gaz": {
+          "options": {
+          "petrol": "Petrol",
+          "diesel": "Diesel",
+          "electric": "Electric",
+          "hybrid": "Hybrid"
+        }
+        }
+    }
 
 }
 }
