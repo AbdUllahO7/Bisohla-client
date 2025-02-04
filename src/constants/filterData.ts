@@ -115,3 +115,8 @@ export const getPriceRanges = [
         label: '40000',
     },
 ];
+
+
+// add product page 
+
+

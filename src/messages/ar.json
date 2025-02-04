@@ -529,45 +529,73 @@
       "carImages" :"صور السيارة",
       "adsDetails" : "تفاصيل الاعلان"
     },
- "enteredData": {
-  "branda": {
-    "title": "ماركة السيارة",
-    "description": "إضافة ماركة السيارة غير موجود",
-    "options": {
-      "productMarka": {
-        "toyota": "تويوتا",
-        "honda": "هوندا",
-        "ford": "فورد",
-        "bmw": "بي إم دبليو",
-        "mercedes": "مرسيدس",
-        "audi": "أودي",
-        "nissan": "نيسان",
-        "chevrolet": "شيفروليه"
+  "enteredData": {
+    "stepOne" : {
+      "branda": {
+        "title": "ماركة السيارة",
+        "description": "إضافة ماركة السيارة غير موجود",
+        "options": {
+          "productMarka": {
+            "toyota": "تويوتا",
+            "honda": "هوندا",
+            "ford": "فورد",
+            "bmw": "بي إم دبليو",
+            "mercedes": "مرسيدس",
+            "audi": "أودي",
+            "nissan": "نيسان",
+            "chevrolet": "شيفروليه"
+          }
+        }
+      },
+      "madeYear": {
+        "title": "سنة الصنع",
+        "description": "إضافة سنة الصنع غير موجود",
+        "options": {
+          "2020": "2020",
+          "2021": "2021",
+          "2022": "2022",
+          "2023": "2023",
+          "2024": "2024"
+        }
+      },
+      "model": {
+        "title": "موديل السيارة",
+        "description": "إضافة موديل السيارة غير موجود",
+        "options": {
+          "sedan": "سيدان",
+          "suv": "شاحنة",
+          "truck": "شاحنة",
+          "coupe": "كوبيه"
+        }
       }
-    }
-  },
-  "madeYear": {
-    "title": "سنة الصنع",
-    "description": "إضافة سنة الصنع غير موجود",
-    "options": {
-      "2020": "2020",
-      "2021": "2021",
-      "2022": "2022",
-      "2023": "2023",
-      "2024": "2024"
-    }
-  },
-  "model": {
-    "title": "موديل السيارة",
-    "description": "إضافة موديل السيارة غير موجود",
-    "options": {
-      "sedan": "سيدان",
-      "suv": "شاحنة",
-      "truck": "شاحنة",
-      "coupe": "كوبيه"
-    }
-  }
-}
+    },
+    "stepTow": {
+        "price": {
+          "options": {
+            "usd": "$ - USD",
+            "eur": "€ - EUR",
+            "try": "₺ - TRY",
+            "gbp": "£ - GBP"
+          }
+        },
+        "color": {
 
+          "options": {
+            "red": "أحمر",
+            "green": "أخضر",
+            "yellow": "أصفر",
+            "blue": "أزرق"
+          }
+        },
+        "gaz": {
+          "options": {
+            "petrol": "بنزين",
+            "diesel": "ديزل",
+            "electric": "كهربائي",
+            "hybrid": "هايبرد"
+          }
+        }
+    }
+    }
   }
 }
