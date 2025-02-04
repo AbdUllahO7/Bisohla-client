@@ -1,20 +1,11 @@
 import Box from '@/components/box/box';
 import Text from '@/components/text/text';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { ProductInfoProps } from '@/types/ProductsPageTypes';
 import { useLocale, useTranslations } from 'next-intl';
 import React from 'react';
 
-interface ProductInfoProps {
-  carType: string;
-  model: string;
-  controlType: string;
-  distance: string;
-  passengers: string;
-  gaz: string;
-  price: string;
-  adsNumber: string;
-  adsDate: string;
-}
+
 
 const ProductInfo = ({
   carType,
@@ -45,9 +36,8 @@ const ProductInfo = ({
 
   return (
     <Box variant="center" className="w-full">
-      <Box variant="container" className=''>
         <Box
-          className="lg:w-[300px] xs:w-full bg-white rounded-lg overflow-hidden border border-gray-200 shadow-sm justify-center"
+          className="2xl:w-[400px] lg:w-[300px] xs:w-full bg-white rounded-lg overflow-hidden border border-gray-200 shadow-sm justify-center"
           variant="column"
         >
           {/* Header */}
@@ -55,7 +45,7 @@ const ProductInfo = ({
             {locale === 'en' ? 'Information' : 'معلومات'}
           </Text>
             <ScrollArea
-                className="h-[600px]  w-full overflow-y-auto scrollbar-thin scrollbar-thumb-[#198341] scrollbar-track-[#e5e7eb] scrollbar-thumb-rounded-full scrollbar-track-rounded-full"
+                className="h-[470px]  w-full overflow-y-auto scrollbar-thin scrollbar-thumb-[#198341] scrollbar-track-[#e5e7eb] scrollbar-thumb-rounded-full scrollbar-track-rounded-full"
                 dir="tlr"
                 >
               {productDetails.map((detail, index) => (
@@ -77,7 +67,6 @@ const ProductInfo = ({
 
         </Box>
       </Box>
-    </Box>
   );
 };
 

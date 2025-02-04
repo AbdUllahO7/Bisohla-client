@@ -9,15 +9,7 @@ import {
   SelectValue,
 } from './ui/select';
 import { useTranslations } from 'next-intl';
-
-interface SelectDropdownProps {
-  label?: string; // Optional label for the dropdown
-  options: { value: string; label: string }[]; // Define the structure of the options
-  placeholder?: string; // Placeholder text
-  className?: string; // Additional class names
-  SelectTriggerStyle?: string;
-  labelStyle?: string;
-}
+import { SelectDropdownProps } from '@/types/homePageTypes';
 
 const SelectDropdown: React.FC<SelectDropdownProps> = ({
   label,

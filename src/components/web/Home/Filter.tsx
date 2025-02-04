@@ -78,7 +78,7 @@ const Filter = () => {
                     { value: 'truck', label: t('filter.options.productType.truck') },
                     { value: 'coupe', label: t('filter.options.productType.coupe') },
                   ]}
-                  placeholder={t('filter.productType')}
+                  placeholder={t('filter.selectproductType')}
                   SelectTriggerStyle="border-0 outline-none shadow-none p-0"
                 />
               </Box>

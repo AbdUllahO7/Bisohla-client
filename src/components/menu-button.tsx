@@ -10,7 +10,6 @@ import {
 } from '@/components/ui/menubar';
 import { Fragment } from 'react';
 import Link from 'next/link';
-import { Button } from './ui/button';
 
 type BaseMenuItem = {
   label: string;

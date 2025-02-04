@@ -3,7 +3,6 @@ import Categories from '@/components/web/ProductsPage/Categories';
 import Filter from '@/components/web/ProductsPage/Filter';
 import Header from '@/components/web/ProductsPage/Header';
 import AdsSection from '@/components/web/Home/AdsSection';
-import Footer from '@/components/web/Home/Footer';
 import LatestOffers from '@/components/web/Home/LatestOffers';
 import React from 'react';
 
@@ -18,7 +17,7 @@ const products = () => {
             {/* Main Content Section */}
             <Box 
                 variant="container" 
-                className="flex flex-col lg:flex-row justify-between items-start gap-6 mt-10"
+                className="flex flex-col lg:flex-row justify-between items-start gap-6 "
             >
                 {/* Filter Section */}
                 <Box className="w-full lg:w-[25%] bg-white rounded-lg shadow-md p-4">
@@ -34,8 +33,7 @@ const products = () => {
                 </Box>
             </Box>
 
-            {/* Footer Section */}
-            <Footer />
+
         </Box>
     );
 };

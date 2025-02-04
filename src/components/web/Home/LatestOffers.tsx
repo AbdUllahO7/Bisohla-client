@@ -6,11 +6,9 @@ import { useTranslations } from 'next-intl';
 import CardAds from '../design/CardAds';
 import { ProductCardItem } from '../design/ProductCardItem';
 import { getProductsData } from '@/constants/ProductsData';
+import { LatestOffersProps } from '@/types/homePageTypes';
 
-interface LatestOffersProps {
-    count?: number; // Optional count of cards to display
-    showTitle?: boolean; // Control the visibility of the title and "Show More" link
-}
+
 
 const LatestOffers: React.FC<LatestOffersProps> = ({ count, showTitle = true }) => {
     const t = useTranslations('homePage');
