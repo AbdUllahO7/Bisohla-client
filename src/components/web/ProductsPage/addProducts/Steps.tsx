@@ -7,6 +7,8 @@ import AddProductStepOne from './AddProductStepOne';
 import { StepContent } from './StepContent';
 import { StepTrigger } from './StepTrigger';
 import AddProductStepTow from './AddProductStepTow';
+import AddProductStepThree from './AddProductStepThree';
+import AddProductStepFour from './AddProductStepFowr';
 
 const Steps = () => {
     const locale = useLocale();
@@ -48,14 +50,10 @@ const Steps = () => {
                         <AddProductStepTow />
                     </StepContent>
                     <StepContent handleBack={handleBack} handleNext={handleNext} direction = {direction} step="productInfo">
-                        <Box>
-                            3
-                        </Box>                    
+                            <AddProductStepThree />
                     </StepContent>
                     <StepContent handleBack={handleBack} handleNext={handleNext} direction = {direction} step="adsInfo">
-                        <Box>
-                            4 
-                        </Box>       
+                        <AddProductStepFour />    
                     </StepContent>
                 </div>
             </Tabs>
