@@ -41,6 +41,7 @@ export default async function RootLayout({
         <NextIntlClientProvider messages={messages}>
           <GlobalProvider>
             <NextTopLoader color="green" showSpinner={false} />
+
             
             {children}
           </GlobalProvider>

@@ -83,8 +83,6 @@ const Filter: React.FC = () => {
     const FuelType = getFuelType(t);
 
 
-
-
 return (
     <Box variant="column" className="w-full">
         <Box variant="column" className="w-full p-4 bg-white rounded-lg">
@@ -130,25 +128,27 @@ return (
             {/* Car Marka Filter */}
          {/* Car Marka Filter */}
             <div className="w-full ">
-                {/* Constant AccordionTrigger (placed outside ScrollArea but still inside Accordion) */}
-                <Accordion type="single" collapsible defaultValue="car-marka" className="">
-                    <AccordionItem value="car-marka" className="border-none">
-                    <AccordionTrigger className="hover:no-underline font-cairo font-bold text-primary">
-                        {t('filter.filterOptions.productMarka.filterOptionsTitle')}
-                    </AccordionTrigger>
+                        {/* Constant AccordionTrigger (placed outside ScrollArea but still inside Accordion) */}
+                        <Accordion type="single" collapsible defaultValue="car-marka" className="">
+                            <AccordionItem value="car-marka" className="border-none">
+                            <AccordionTrigger className="hover:no-underline font-cairo font-bold text-primary">
+                                {t('filter.filterOptions.productMarka.filterOptionsTitle')}
+                            </AccordionTrigger>
 
-                    {/* Scrollable Content (Items inside Accordion) */}
-                    <ScrollArea
-                        className="h-[250px]  w-full overflow-y-auto scrollbar-thin scrollbar-thumb-[#198341] scrollbar-track-[#e5e7eb] scrollbar-thumb-rounded-full scrollbar-track-rounded-full"
-                        dir="tlr"
-                    >
-                        {carMarkaItems.map((item) => (
-                            <FilterCheckboxItem key={item.id} id={item.id} imageSrc={item.imageSrc} label={item.label} />
-                        ))}
-                    </ScrollArea>
-                    </AccordionItem>
-                </Accordion>
+                            {/* Scrollable Content (Items inside Accordion) */}
+                            <ScrollArea
+                                className="h-[250px]  w-full overflow-y-auto scrollbar-thin scrollbar-thumb-[#198341] scrollbar-track-[#e5e7eb] scrollbar-thumb-rounded-full scrollbar-track-rounded-full"
+                                dir="tlr"
+                            >
+                                {carMarkaItems.map((item) => (
+                                <FilterCheckboxItem key={item.id} id={item.id} imageSrc={item.imageSrc} label={item.label} />
+                                ))}
+                            </ScrollArea>
+                            </AccordionItem>
+                        </Accordion>
                 </div>
+
+
 
 
             {/* Car models */}
