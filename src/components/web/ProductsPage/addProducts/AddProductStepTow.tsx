@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+'use client'
+import React, { useEffect, useState } from "react";
 import Box from "@/components/box/box";
 import Text from "@/components/text/text";
 import { Input } from "@/components/ui/input";
@@ -18,7 +19,9 @@ const AddProductStepTwo: React.FC = () => {
     const t = useTranslations("addProduct");
     const locale = useLocale();
     const direction = locale === "ar" ? "rtl" : "ltr";
-
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
     // Separate states for each box
     const [box1, setBox1] = useState<BoxState>({ price: "", currency: "", selectedColor: "", selectedGazType: "", selectedAdditional: "" });
     const [box2, setBox2] = useState<BoxState>({ selectedColor: "", selectedGazType: "" });
@@ -196,7 +199,7 @@ const AddProductStepTwo: React.FC = () => {
   
                         <Box className="w-full md:justify-center items-start bg-white rounded-lg flex-wrap xs:justify-center">
                             {Array(4).fill().map((_, colIndex) => (
-                            <Box key={colIndex} className="justify-start items-start min-w-[300px] px-5 py-5 gap-5" variant="column">
+                            <Box key={colIndex} className="justify-start items-start min-w-[200px] px-5 py-5 gap-5" variant="column">
                                 {carFeatures.slice(colIndex * 6, (colIndex + 1) * 6).map((feature, index) => (
                                 <Box key={index} className="">
                                     <Checkbox id={`feature-${colIndex}-${index}`} />
@@ -212,8 +215,8 @@ const AddProductStepTwo: React.FC = () => {
                             ))}
                         </Box>
                 </Box>
-                <Box className="w-full md:justify-center items-start bg-white rounded-lg flex-wrap xs:justify-center" variant="column" dir={direction}>
-                    <Box className="bg-gray-100 px-5 py-5 w-full flex justify-center">
+                <Box className="w-full md:justify-center items-start bg-white rounded-lg flex-wrap " variant="column" dir={direction}>
+                    <Box className="bg-gray-100 px-5 py-5 w-full flex justify-center ">
                         <Text className="font-bold text-primary">
                         {direction === "ltr" ? "Car Features" : "ميزات السيارة"}
                         </Text>
@@ -221,7 +224,7 @@ const AddProductStepTwo: React.FC = () => {
   
                         <Box className="w-full md:justify-center items-start bg-white rounded-lg flex-wrap xs:justify-center">
                             {Array(4).fill().map((_, colIndex) => (
-                            <Box key={colIndex} className="justify-start items-start min-w-[300px] px-5 py-5 gap-5" variant="column">
+                            <Box key={colIndex} className="justify-start items-start min-w-[200px] px-5 py-5 gap-5" variant="column">
                                 {carFeatures.slice(colIndex * 6, (colIndex + 1) * 6).map((feature, index) => (
                                 <Box key={index} className="">
                                     <Checkbox id={`feature-${colIndex}-${index}`} />

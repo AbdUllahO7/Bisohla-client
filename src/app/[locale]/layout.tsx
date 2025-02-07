@@ -40,7 +40,8 @@ export default async function RootLayout({
       <body className = {`bg-white text-primary ${cairo.className}` }>
         <NextIntlClientProvider messages={messages}>
           <GlobalProvider>
-            <NextTopLoader color="text-primary" showSpinner={false} />
+            <NextTopLoader color="green" showSpinner={false} />
+
             
             {children}
           </GlobalProvider>
