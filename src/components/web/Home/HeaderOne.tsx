@@ -10,7 +10,7 @@ const HeaderOne = async () => {
     const t = await getTranslations('homePage');
 
     return (
-        <Box className='flex md:justify-around xs:justify-center mt-2 pb-2'>
+        <Box className='flex md:justify-between xs:justify-center mt-2 pb-2'>
              {/* right */}
             <div className='pr-[50px] hidden md:block lg:block lg:pr-[90px]'>
                 <Image 

@@ -1,26 +1,27 @@
+'use client'
 import Box from '@/components/box/box';
 import Text from '@/components/text/text';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { useLocale } from 'next-intl';
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
     Select,
     SelectContent,
     SelectGroup,
     SelectItem,
-    SelectLabel,
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Calendar } from '@/components/ui/calendar';
+import { DatePickerForm } from '@/components/DatePicke';
 
 const AddProductStepFour = () => {
     const locale = useLocale();
     const direction = locale === "ar" ? "rtl" : "ltr";
-    const [date, setDate] = React.useState<Date | undefined>(new Date())
-
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
     return (
         <Box className="w-full bg-white rounded-lg pb-10" variant="column" dir={direction}>
             {/* Header */}
@@ -31,7 +32,7 @@ const AddProductStepFour = () => {
             </Box>
 
             {/* Main Content */}
-            <Box variant="row" className='flex-col md:flex-row justify-center items-center w-full pt-6 md:pt-10 gap-6 md:gap-10 px-4 md:px-0'>
+            <Box variant="row" className='flex-col md:flex-row justify-center items-center w-full pt-6 md:pt-10 gap-6 md:gap-10 px-4 md:px-4'>
                 {/* Left Section - Form Fields */}
                 <Box className='w-full md:w-[700px] justify-start items-start gap-4 md:gap-8' variant="column">
                     {/* Ad Title */}
@@ -100,14 +101,7 @@ const AddProductStepFour = () => {
 
                     {/* Calendar */}
                     <Box className='w-full overflow-x-auto pb-2'>
-                        <div className='min-w-[300px] mx-auto'>
-                            <Calendar
-                                mode="single"
-                                selected={date}
-                                onSelect={setDate}
-                                className="rounded-md border p-2"
-                            />
-                        </div>
+                        <DatePickerForm title={direction === "ltr" ? 'Specify publication date': 'تحديد تاريخ النشر'} placeHolder={direction === "ltr" ? 'Pick a date ' : 'اختر تاريخا'}/>
                     </Box>
                 </Box>
             </Box>

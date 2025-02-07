@@ -2,7 +2,7 @@
 import Box from '@/components/box/box'
 import Text from '@/components/text/text'
 import { useLocale, useTranslations } from 'next-intl';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
     Table,
     TableBody,
@@ -25,7 +25,9 @@ const AddProductStepThree = () => {
     const [uploadedImageUrl, setUploadedImageUrl] = useState('');
     const [imageLoadingState, setImageLoadingState] = useState(false);
     const [imageFiles, setImageFiles] = useState<File[]>([]);
-
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
     
     // Data array for table rows
     const carSections = [
