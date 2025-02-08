@@ -1,3 +1,5 @@
+import Box from '@/components/box/box';
+import Footer from '@/components/web/Home/Footer';
 import HeaderOne from '@/components/web/Home/HeaderOne';
 import HeaderTow from '@/components/web/Home/HeaderTow';
 import { Metadata } from 'next';
@@ -18,7 +20,9 @@ const WebLayout = async({ children }: PropsWithChildren) => {
   return (
     <div >
       <div className="fixed top-0 z-[20] w-full bg-white shadow-md">
+        <Box variant="container" >
         <HeaderOne />
+        </Box>
       </div>
 
     {/* HeaderTwo */}
@@ -35,6 +39,10 @@ const WebLayout = async({ children }: PropsWithChildren) => {
     {/* Spacer for HeaderTwo height */}
     <div className="h-[65px]"></div>
       {children}
+
+
+      <Footer />
+
     </div>
   );
 };

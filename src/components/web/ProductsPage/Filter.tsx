@@ -83,8 +83,6 @@ const Filter: React.FC = () => {
     const FuelType = getFuelType(t);
 
 
-
-
 return (
     <Box variant="column" className="w-full">
         <Box variant="column" className="w-full p-4 bg-white rounded-lg">
@@ -129,7 +127,7 @@ return (
 
             {/* Car Marka Filter */}
          {/* Car Marka Filter */}
-         <div className="w-full ">
+            <div className="w-full ">
                         {/* Constant AccordionTrigger (placed outside ScrollArea but still inside Accordion) */}
                         <Accordion type="single" collapsible defaultValue="car-marka" className="">
                             <AccordionItem value="car-marka" className="border-none">
@@ -148,7 +146,7 @@ return (
                             </ScrollArea>
                             </AccordionItem>
                         </Accordion>
-                        </div>
+                </div>
 
 
 

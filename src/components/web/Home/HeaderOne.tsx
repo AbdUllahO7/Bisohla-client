@@ -4,12 +4,13 @@ import { Button } from '../../ui/button'
 import Box from '../../box/box'
 import { getTranslations } from 'next-intl/server'
 import LocaleSwitcher from '../../local/LocalSwitcher'
+import Link from 'next/link'
 
 const HeaderOne = async () => {
     const t = await getTranslations('homePage');
 
     return (
-        <Box className='flex md:justify-around xs:justify-center mt-2 pb-2'>
+        <Box className='flex md:justify-between xs:justify-center mt-2 pb-2'>
              {/* right */}
             <div className='pr-[50px] hidden md:block lg:block lg:pr-[90px]'>
                 <Image 
@@ -23,6 +24,7 @@ const HeaderOne = async () => {
             {/* left */}
             <div className='flex lg:gap-5 items-center  xs:gap-8 justify-evenly'>
                 <Box className='xs:w-[120px] lg:w-full'>
+                        <Link href="/products/AddProducts">
                         <Button variant="default" className='text-white hover:none rounded-3xl pb-[5px] pr-[23px]  pt-[5px] ' size="lg" >
                             <span>{t('headerOne.adsButton')}</span>
                             <Image 
@@ -32,6 +34,7 @@ const HeaderOne = async () => {
                             height={18}
                         />
                         </Button>
+                        </Link>
                     
 
                 </Box>
