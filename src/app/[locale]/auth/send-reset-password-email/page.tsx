@@ -11,14 +11,15 @@ import {
   ApiResponse,
   defaultActionState,
 } from '@/interfaces/api-response.interface';
-import { handleSendResetPasswordEmail } from '@/services/auth/auth.service';
 import { useActionState } from 'react';
+import { sendResetpasswordEmailAction } from '../actions';
+import { SuccessResponseWithNoContent } from '@/core/entities/api/success.response';
 
 const SendResetPasswordEmailPage = () => {
   const [state, action] = useActionState<
-    ApiResponse<SendEmailResponse>,
+    ApiResponse<SuccessResponseWithNoContent>,
     FormData
-  >(handleSendResetPasswordEmail, defaultActionState);
+  >(sendResetpasswordEmailAction, defaultActionState);
 
   return (
     <form action={action} className="w-full">

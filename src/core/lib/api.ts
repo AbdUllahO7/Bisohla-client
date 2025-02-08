@@ -1,22 +1,25 @@
 'use server';
 
 import { BACKEND_URL } from '@/constants/constants';
-import { ApiResponse } from '@/interfaces/api-response.interface';
 import { verifyZodFields } from './validation';
-import { ZodTypeAny } from 'zod';
-import { ValidationError } from '@/interfaces/errors/validation.error';
-import { AppError } from '@/interfaces/errors/app-error';
+import { ZodError, ZodTypeAny } from 'zod';
+import { ApiResponse, BaseApiResponse } from '../entities/api/success.response';
+import { ValidationError } from '../entities/errors/validation-error';
+import { AppError } from '../entities/errors/app-error';
+import { getSession } from '@/lib/session';
+import { QueryParams } from '../entities/api/api';
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 
 interface RequestConfig<
   T = Record<string, FormDataEntryValue | null>,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _R = Record<string, unknown>,
+  R = Record<string, unknown>,
 > {
   url: string;
   method?: HttpMethod;
   body?: T;
+  params?: QueryParams;
   validationSchema?: ZodTypeAny;
   headers?: Record<string, string>;
   errorDefaultMessage?: string;
@@ -33,12 +36,37 @@ interface FetchError extends Error {
   path?: string;
   timestamp?: string;
   fields?: Record<string, undefined | string | number>;
+  message: string;
 }
 
 const DEFAULT_TIMEOUT = 10000;
 const DEFAULT_RETRY = { attempts: 3, delay: 1000 };
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const buildUrl = (baseUrl: string, params?: QueryParams): string => {
+  if (!params) return baseUrl;
+
+  const searchParams = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null) {
+      if (
+        key === 'search' &&
+        typeof value === 'object' &&
+        'key' in value &&
+        'term' in value
+      ) {
+        searchParams.append('search[key]', value.key);
+        searchParams.append('search[term]', value.term);
+      } else {
+        searchParams.append(key, value.toString());
+      }
+    }
+  });
+
+  const queryString = searchParams.toString();
+  return queryString ? `${baseUrl}?${queryString}` : baseUrl;
+};
 
 const createFetchError = (
   message: string,
@@ -47,7 +75,7 @@ const createFetchError = (
   path?: string,
   timestamp?: string,
   fields?: Record<string, undefined | string | number>,
-): FetchError => {
+): Error => {
   const error = new Error(message) as FetchError;
   error.status = status;
   error.errors = errors;
@@ -119,12 +147,13 @@ export async function makeRequest<
   url,
   method = 'POST',
   body,
+  params,
   validationSchema,
   headers = {},
   errorDefaultMessage = 'An unexpected error occurred',
   timeout = DEFAULT_TIMEOUT,
   retry = DEFAULT_RETRY,
-}: RequestConfig<T, R>): Promise<ApiResponse<R>> {
+}: RequestConfig<T, R>): Promise<BaseApiResponse> {
   try {
     let validatedBody = body;
     if (validationSchema && body) {
@@ -145,13 +174,46 @@ export async function makeRequest<
       ...(validatedBody && { body: JSON.stringify(validatedBody) }),
     };
 
-    const fullUrl = BACKEND_URL + url;
+    const fullUrl = buildUrl(BACKEND_URL + url, params);
+    console.log('URL from api.ts: ', fullUrl);
     const response = await fetchWithRetry(fullUrl, fetchOptions, retry);
     clearTimeout(timeoutId);
 
     return await handleResponse<R>(response);
   } catch (error) {
-    return await catchActionRequest(error, errorDefaultMessage);
+    if (error instanceof ZodError) {
+      const formattedErrors = error.errors.reduce((acc, curr) => {
+        const field = curr.path[0].toString();
+        acc[field] = curr.message;
+        return acc;
+      }, {} as Record<string, string>);
+
+      return {
+        success: false,
+        message: 'Validation failed',
+        errors: formattedErrors,
+        status: 400,
+      };
+    }
+
+    if (error instanceof Error) {
+      const fetchError = error as FetchError;
+      return {
+        success: false,
+        message: fetchError.message || errorDefaultMessage,
+        errors: fetchError.errors,
+        status: fetchError.status || 500,
+        path: fetchError.path,
+        timestamp: fetchError.timestamp,
+        fields: fetchError.fields,
+      };
+    }
+
+    return {
+      success: false,
+      message: errorDefaultMessage,
+      status: 500,
+    };
   }
 }
 
@@ -176,7 +238,6 @@ export const catchActionRequest = async <T>(
       status: error.status,
       path: error.path,
       timestamp: error.timestamp,
-      fields: error.fields,
     };
   }
 
@@ -188,13 +249,13 @@ export const catchActionRequest = async <T>(
     };
   }
 
-  // Handle unknown errors
   return {
     success: false,
     message: errorMessage || 'An unexpected error occurred',
     status: 500,
   };
 };
+
 // Type-safe convenience methods
 export const postReq = async <
   T extends Record<string, unknown>,
@@ -223,3 +284,52 @@ export const deleteReq = async <
 >(
   config: Omit<RequestConfig<T, R>, 'method'>,
 ) => makeRequest<T, R>({ ...config, method: 'DELETE' });
+
+// Helper function to create authenticated request config
+const withAuth = async <T, R>(
+  config: Omit<RequestConfig<T, R>, 'method'>,
+  method: HttpMethod,
+): Promise<RequestConfig<T, R>> => {
+  const session = await getSession();
+
+  if (!session?.accessToken) {
+    throw new Error('No authentication token available');
+  }
+
+  return {
+    ...config,
+    method,
+    headers: {
+      ...config.headers,
+      Authorization: `Bearer ${session.accessToken}`,
+    },
+  };
+};
+
+export const postAuthReq = async <
+  T extends Record<string, unknown>,
+  R = Record<string, unknown>,
+>(
+  config: Omit<RequestConfig<T, R>, 'method'>,
+) => makeRequest(await withAuth<T, R>(config, 'POST'));
+
+export const getAuthReq = async <
+  T extends Record<string, unknown>,
+  R = Record<string, unknown>,
+>(
+  config: Omit<RequestConfig<T, R>, 'method' | 'body'>,
+) => makeRequest(await withAuth<T, R>(config, 'GET'));
+
+export const putAuthReq = async <
+  T extends Record<string, unknown>,
+  R = Record<string, unknown>,
+>(
+  config: Omit<RequestConfig<T, R>, 'method'>,
+) => makeRequest(await withAuth<T, R>(config, 'PUT'));
+
+export const deleteAuthReq = async <
+  T extends Record<string, unknown>,
+  R = Record<string, unknown>,
+>(
+  config: Omit<RequestConfig<T, R>, 'method'>,
+) => makeRequest(await withAuth<T, R>(config, 'DELETE'));

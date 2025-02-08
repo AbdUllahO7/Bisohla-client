@@ -8,13 +8,18 @@ import {
   RegisterResponse,
 } from '@/core/entities/models/auth/register.dto';
 import { ResetPasswordDto } from '@/core/entities/models/auth/reset-password.dto';
-import { sendVerificationEmailDto } from '@/core/entities/models/auth/send-verification-email.dto';
+import { SendVerificationEmailDto } from '@/core/entities/models/auth/send-verification-email.dto';
 
 export interface IAuthStrategy {
   login(loginDto: LoginDto): Promise<ApiResponse<LoginResponse>>;
+  adminLogin(loginDto: LoginDto): Promise<ApiResponse<LoginResponse>>;
   register(registerDto: RegisterDto): Promise<ApiResponse<RegisterResponse>>;
+  sendVerificationEmail(
+    sendEmailDto: SendVerificationEmailDto,
+  ): Promise<ApiResponse<SuccessResponseWithNoContent>>;
+
   sendResetPasswordEmail(
-    sendEmailDto: sendVerificationEmailDto,
+    sendEmailDto: SendVerificationEmailDto,
   ): Promise<ApiResponse<SuccessResponseWithNoContent>>;
 
   validateResetPasswordToken(

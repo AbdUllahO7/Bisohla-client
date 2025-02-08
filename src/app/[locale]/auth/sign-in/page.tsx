@@ -11,13 +11,13 @@ import {
   defaultActionState,
 } from '@/interfaces/api-response.interface';
 
-import { handleLogin } from '@/services/auth/auth.service';
 import Link from 'next/link';
 import { useActionState } from 'react';
+import { signInAction } from '../actions';
 
 const SignInPage = () => {
   const [state, action] = useActionState<ApiResponse<LoginResponse>, FormData>(
-    handleLogin,
+    signInAction,
     defaultActionState,
   );
 

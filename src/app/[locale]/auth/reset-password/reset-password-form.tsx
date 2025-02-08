@@ -11,24 +11,15 @@ import {
   ApiResponse,
   defaultActionState,
 } from '@/interfaces/api-response.interface';
-import { handleResetPassword } from '@/services/auth/auth.service';
-import { redirect, useSearchParams } from 'next/navigation';
 import { useActionState } from 'react';
+import { resetPasswordAction } from '../actions';
+import { SuccessResponseWithNoContent } from '@/core/entities/api/success.response';
 
-const ResetPasswordForm = () => {
-  const searchParams = useSearchParams();
-  console.log('Client searchParams:', searchParams.toString()); // Debug log
-
-  const token = searchParams.get('token');
-
+const ResetPasswordForm = ({ token }: { token: string }) => {
   const [state, action] = useActionState<
-    ApiResponse<ResetPasswordResponse>,
+    ApiResponse<SuccessResponseWithNoContent>,
     FormData
-  >(handleResetPassword, defaultActionState);
-
-  if (!token) {
-    redirect(allRoutes.auth.children.signIn.path);
-  }
+  >(resetPasswordAction, defaultActionState);
 
   return (
     <form action={action} className="w-full">

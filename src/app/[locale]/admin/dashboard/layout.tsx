@@ -3,10 +3,10 @@ import AdminNavbar from '@/components/layouts/admin/admin-navbar';
 import AdminSidebar from '@/components/layouts/admin/admin-sidebar';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { allRoutes } from '@/constants/routes.constant';
-import { fetchAuth } from '@/lib/fetch-auth';
 import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { PropsWithChildren } from 'react';
+import { checkAdminRole } from './actions';
 
 export const metadata: Metadata = {
   title: 'Admin Dashboard',
@@ -15,17 +15,15 @@ export const metadata: Metadata = {
 
 const AdminDashboardLayout = async ({ children }: PropsWithChildren) => {
   // Check if user is authenticated and has admin privileges before rendering the layout
-  const res = await fetchAuth({
-    url: '/auth/check/admin',
-    method: 'GET',
-  });
-  if (!res.success) {
+  const isAdmin = await checkAdminRole();
+
+  if (!isAdmin) {
     redirect(allRoutes.home.path);
   }
 
   return (
     <SidebarProvider>
-      <Box className="w-full items-start">
+      <Box className="w-full items-start gap-0 bg-gray-bg ">
         <AdminSidebar />
         <Box className="w-full flex-col items-start">
           <AdminNavbar />

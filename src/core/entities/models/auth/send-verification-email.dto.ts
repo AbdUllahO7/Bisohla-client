@@ -7,11 +7,11 @@ export const sendVerificationEmailSchema = z
   .strict()
   .required();
 
-export type sendVerificationEmailDto = z.infer<
+export type SendVerificationEmailDto = z.infer<
   typeof sendVerificationEmailSchema
 >;
 
-export interface sendVerificationEmailResponse {
+export interface SendVerificationEmailResponse {
   message: string;
   success: boolean;
 }

@@ -1,5 +1,3 @@
-'use server';
-
 import { initZodConfig } from '@/config/zod.config';
 import { ValidationError } from '@/interfaces/errors/validation.error';
 import { z, ZodError, ZodSchema, ZodTypeAny } from 'zod';
@@ -15,7 +13,7 @@ export const verifyZodFields = async <T extends ZodTypeAny>(
   const validationResult = await zodSchema.parseAsync(fields);
 
   if (!validationResult.success) {
-    const formattedErrors = formatZodErrors(validationResult.error);
+    const formattedErrors = await formatZodErrors(validationResult.error);
     throw new ValidationError(formattedErrors);
   }
 
@@ -28,26 +26,18 @@ export async function validateSchema<T extends ZodSchema>(
 ): Promise<{
   success: boolean;
   data?: z.infer<typeof schema>;
-  error?: Record<string, string[]>;
+  errors?: Record<string, string>;
 }> {
   try {
-    const validatedData = await schema.parseAsync(data);
+    const validatedData = await schema.parse(data);
     return { success: true, data: validatedData };
   } catch (error) {
     if (error instanceof ZodError) {
-      const formattedErrors: Record<string, string[]> = {};
-
-      error.errors.forEach((err) => {
-        const path = err.path.join('.');
-        if (!formattedErrors[path]) {
-          formattedErrors[path] = [];
-        }
-        formattedErrors[path].push(err.message);
-      });
+      const formattedErrors = await formatZodErrors(error);
 
       return {
         success: false,
-        error: formattedErrors,
+        errors: formattedErrors,
       };
     }
 
@@ -56,7 +46,9 @@ export async function validateSchema<T extends ZodSchema>(
 }
 
 // Helper function to format Zod errors
-const formatZodErrors = (error: ZodError): Record<string, string> => {
+const formatZodErrors = async (
+  error: ZodError,
+): Promise<Record<string, string>> => {
   return error.errors.reduce((acc, curr) => {
     const field = curr.path[0].toString();
     acc[field] = curr.message;

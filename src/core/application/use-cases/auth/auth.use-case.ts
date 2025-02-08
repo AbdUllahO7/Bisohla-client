@@ -6,7 +6,7 @@ import {
 } from '@/core/entities/api/success.response';
 import { IAuthService } from '../../services/auth.service.interface';
 import { createSession } from '@/lib/session';
-import { sendVerificationEmailDto } from '@/core/entities/models/auth/send-verification-email.dto';
+import { SendVerificationEmailDto } from '@/core/entities/models/auth/send-verification-email.dto';
 import { ResetPasswordDto } from '@/core/entities/models/auth/reset-password.dto';
 import {
   RegisterDto,
@@ -45,8 +45,26 @@ export class AuthUseCase implements IAuthUseCase {
 
     return res;
   }
+  async adminLogin(loginDto: LoginDto): Promise<ApiResponse<LoginResponse>> {
+    const res = await this.authService.adminLogin(loginDto);
+
+    if (res.success && res.data) {
+      await createSession({
+        user: {
+          id: res.data.id,
+          name: res.data.name,
+          roles: res.data.roles,
+          permissions: res.data.permissions,
+        },
+        accessToken: res.data.accessToken,
+        refreshToken: res.data.refreshToken,
+      });
+    }
+
+    return res;
+  }
   async sendResetPasswordEmail(
-    sendEmailDto: sendVerificationEmailDto,
+    sendEmailDto: SendVerificationEmailDto,
   ): Promise<ApiResponse<SuccessResponseWithNoContent>> {
     // TODO: Implement AUTHORIZATION in use cases
 
@@ -58,6 +76,21 @@ export class AuthUseCase implements IAuthUseCase {
 
     return res;
   }
+
+  async sendVerificationEmail(
+    sendEmailDto: SendVerificationEmailDto,
+  ): Promise<ApiResponse<SuccessResponseWithNoContent>> {
+    // TODO: Implement AUTHORIZATION in use cases
+
+    const res = await this.authService.sendVerificationEmail(sendEmailDto);
+
+    if (res.success && res.data) {
+      //TODO: Implement something when response success
+    }
+
+    return res;
+  }
+
   async validateResetPasswordToken(
     token: string,
   ): Promise<ApiResponse<SuccessResponseWithNoContent>> {
@@ -65,7 +98,7 @@ export class AuthUseCase implements IAuthUseCase {
 
     const res = await this.authService.validateResetPasswordToken(token);
 
-    if (res.success && res.data) {
+    if (res.success) {
       //TODO: Implement something when response success
     }
 

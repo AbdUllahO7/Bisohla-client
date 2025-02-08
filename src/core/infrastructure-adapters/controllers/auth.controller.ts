@@ -4,6 +4,7 @@ import {
   ApiResponse,
   SuccessResponseWithNoContent,
 } from '@/core/entities/api/success.response';
+import { ValidationError } from '@/core/entities/errors/validation-error';
 import {
   LoginDto,
   LoginResponse,
@@ -16,14 +17,14 @@ import {
 } from '@/core/entities/models/auth/register.dto';
 import {
   ResetPasswordDto,
-  ResetPasswordSchema,
+  resetPasswordSchema,
 } from '@/core/entities/models/auth/reset-password.dto';
 import {
-  sendVerificationEmailDto,
+  SendVerificationEmailDto,
   sendVerificationEmailSchema,
 } from '@/core/entities/models/auth/send-verification-email.dto';
-import { catchActionRequest } from '@/core/lib/api';
-import { verifyZodFields } from '@/core/lib/validation';
+import { catchClientRequest } from '@/core/lib/error';
+import { validateSchema, verifyZodFields } from '@/core/lib/validation';
 
 export class AuthController implements IAuthController {
   constructor(protected readonly authUseCase: IAuthUseCase) {}
@@ -37,60 +38,113 @@ export class AuthController implements IAuthController {
 
       return res;
     } catch (error) {
-      return await catchActionRequest(error);
+      return catchClientRequest(error);
     }
   }
   async login(loginDto: LoginDto): Promise<ApiResponse<LoginResponse>> {
     try {
-      const validatedBody = await verifyZodFields(loginSchema, loginDto);
+      const validation = await validateSchema(loginSchema, loginDto);
 
-      const res = await this.authUseCase.login(validatedBody as RegisterDto);
+      if (!validation.success) {
+        throw new ValidationError(validation.errors || {});
+      }
 
+      const res = await this.authUseCase.login(loginDto as LoginDto);
       return res;
     } catch (error) {
-      console.log(error);
-      return await catchActionRequest(error);
+      return catchClientRequest(error);
+    }
+  }
+
+  async adminLogin(loginDto: LoginDto): Promise<ApiResponse<LoginResponse>> {
+    try {
+      const validation = await validateSchema(loginSchema, loginDto);
+
+      if (!validation.success) {
+        throw new ValidationError(validation.errors || {});
+      }
+
+      const res = await this.authUseCase.adminLogin(loginDto as LoginDto);
+      return res;
+    } catch (error) {
+      return catchClientRequest(error);
     }
   }
 
   async sendResetPasswordEmail(
-    sendEmailDto: sendVerificationEmailDto,
+    sendEmailDto: SendVerificationEmailDto,
   ): Promise<ApiResponse<SuccessResponseWithNoContent>> {
-    const validatedBody = await verifyZodFields(
-      sendVerificationEmailSchema,
-      sendEmailDto,
-    );
+    try {
+      const validatedBody = await validateSchema(
+        sendVerificationEmailSchema,
+        sendEmailDto,
+      );
 
-    const res = await this.authUseCase.sendResetPasswordEmail(
-      validatedBody as sendVerificationEmailDto,
-    );
+      const res = await this.authUseCase.sendResetPasswordEmail(
+        validatedBody.data as SendVerificationEmailDto,
+      );
 
-    return res;
+      return res;
+    } catch (err) {
+      return catchClientRequest(err);
+    }
   }
+
+  async sendVerificationEmail(
+    sendEmailDto: SendVerificationEmailDto,
+  ): Promise<ApiResponse<SuccessResponseWithNoContent>> {
+    try {
+      const validatedBody = await validateSchema(
+        sendVerificationEmailSchema,
+        sendEmailDto,
+      );
+
+      const res = await this.authUseCase.sendVerificationEmail(
+        validatedBody.data as SendVerificationEmailDto,
+      );
+
+      return res;
+    } catch (err) {
+      return catchClientRequest(err);
+    }
+  }
+
   async validateResetPasswordToken(
     token: string,
   ): Promise<ApiResponse<SuccessResponseWithNoContent>> {
-    const res = await this.authUseCase.validateResetPasswordToken(token);
+    try {
+      const res = await this.authUseCase.validateResetPasswordToken(token);
 
-    return res;
+      return res;
+    } catch (err) {
+      return catchClientRequest(err);
+    }
   }
   async resetPassword(
     resetPasswordDto: ResetPasswordDto,
   ): Promise<ApiResponse<SuccessResponseWithNoContent>> {
-    const validatedBody = await verifyZodFields(
-      ResetPasswordSchema,
-      resetPasswordDto,
-    );
+    try {
+      const validatedBody = await validateSchema(
+        resetPasswordSchema,
+        resetPasswordDto,
+      );
 
-    const res = await this.authUseCase.resetPassword(
-      validatedBody as ResetPasswordDto,
-    );
+      const res = await this.authUseCase.resetPassword(
+        validatedBody.data as ResetPasswordDto,
+      );
 
-    return res;
+      return res;
+    } catch (err) {
+      return catchClientRequest(err);
+    }
   }
   async signOut(): Promise<ApiResponse<SuccessResponseWithNoContent>> {
-    const res = await this.authUseCase.signOut();
+    try {
+      const res = await this.authUseCase.signOut();
 
-    return res;
+      return res;
+    } catch (err) {
+      return catchClientRequest(err);
+    }
   }
 }

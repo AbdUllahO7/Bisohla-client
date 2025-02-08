@@ -11,12 +11,12 @@ import {
 } from '@/interfaces/api-response.interface';
 import Link from 'next/link';
 import { useActionState } from 'react';
-import { signInAction } from '../actions';
+import { adminSignInAction } from '../actions';
 // import { ApiSuccessResponse} from '@/interfaces/api-response.interface';
 
 const AdminSignInPage = () => {
   const [state, action] = useActionState<ApiResponse<LoginResponse>, FormData>(
-    signInAction,
+    adminSignInAction,
     defaultActionState,
   );
 
