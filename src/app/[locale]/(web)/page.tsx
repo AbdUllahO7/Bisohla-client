@@ -12,15 +12,15 @@ import WorldOfCar from '@/components/web/Home/WorldOfProduct';
 const WebPage = async () => {
   return (
     <Box variant="column">
-      <Hero />
-      <Filter />
-      <LatestOffers />
-      <AdsSection />
-      <WorldOfCar/>
-      <RentCar/>
-      <SpaceAds/>
-        <FAQ/>
-      <Footer/>
+        <Hero />
+        <Filter />
+        <LatestOffers />
+        <AdsSection />
+        <WorldOfCar/>
+        <RentCar/>
+        <SpaceAds/>
+          <FAQ/>
+        <Footer/>
     </Box>
   );
 };

@@ -25,7 +25,6 @@ const ProductBasicInfo = ({
     { key: 'distance', label: t('BasicInfo.distance'), value: distance, icon: '/assets/icons/distance.png' },
     { key: 'passengers', label: t('BasicInfo.passengers'), value: passengers, icon: '/assets/icons/user-1.png' },
     { key: 'gaz', label: t('BasicInfo.gaz'), value: gaz, icon: '/assets/icons/gaz.png' },
-    { key: 'gaz1', label: t('BasicInfo.gaz'), value: gaz, icon: '/assets/icons/gaz.png' },
 
   ];
 
