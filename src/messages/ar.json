@@ -652,5 +652,26 @@
         "created_at": "تاريخ الإنشاء"
       }
     }
+  },
+  "UserProfile" : {
+    "SideBar" : {
+        "home" : "الصفحة الرئيسية",
+        "products" : "المنتجات",
+        "favorites" : "المفضلة",
+        "messages" : "الرسائل",
+        "userInfo" : "معلومات المستخدم",
+        "logout" : "تسجيل الخروج"
+    },
+    "profile" : {
+      "editProfile": "تعديل الملف الشخصي",
+      "resetPassword": "إعادة تعيين كلمة المرور",
+      "name": "الاسم",
+      "email": "البريد الإلكتروني",
+      "phoneNumber": "رقم الهاتف",
+      "location": "الموقع",
+      "oldPassword": "كلمة المرور القديمة",
+      "repeatPassword": "تكرار كلمة المرور",
+      "saveChanges": "حفظ التغييرات"
+    }
   }
 }

@@ -21,7 +21,7 @@ const WebLayout = async({ children }: PropsWithChildren) => {
     <div >
       <div className="fixed top-0 z-[20] w-full bg-white shadow-md">
         <Box variant="container" >
-        <HeaderOne />
+          <HeaderOne />
         </Box>
       </div>
 
@@ -39,8 +39,6 @@ const WebLayout = async({ children }: PropsWithChildren) => {
     {/* Spacer for HeaderTwo height */}
     <div className="h-[65px]"></div>
       {children}
-
-
       <Footer />
 
     </div>
