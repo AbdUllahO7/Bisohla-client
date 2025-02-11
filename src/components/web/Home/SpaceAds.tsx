@@ -8,7 +8,7 @@ const SpaceAds = () => {
     
         // Determine direction based on the language
     return (
-        <Box variant="container" className="mb-[100px] w-[80%] lg:w-full" >
+        <Box variant="container" className=" w-[80%] lg:w-full" >
             <Box variant="row" className='justify-evenly flex-wrap'>
                 <Box variant="center" className="w-[560px] h-[250px] relative overflow-hidden bg-primary-light rounded-md">
                 {/* border-l-t */}

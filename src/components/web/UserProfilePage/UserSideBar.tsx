@@ -52,7 +52,7 @@ const MenuItems: React.FC<MenuItemsProps> = ({ setOpen }) => {
         {
             id: 'userInfo',
             label: t('SideBar.userInfo'),
-            path: '/userProfile/Favorites',
+            path: '/userProfile/UserInfo',
             icon: <User />,
             notifications: 0,
         },
