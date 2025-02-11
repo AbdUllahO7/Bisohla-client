@@ -21,8 +21,8 @@ const WorldOfProduct = () => {
     ];
 
     return (
-        <Box variant="column" className="mb-[100px]">
-            <Box variant="column" className="mb-10">
+        <Box variant="column" className="">
+            <Box variant="column" className="">
                 <Text variant="h3" className="font-bold text-[20px] font-cairo">
                     {t('worldOfProducts.title')}
                 </Text>

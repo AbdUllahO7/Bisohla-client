@@ -20,10 +20,10 @@ const LatestOffers: React.FC<LatestOffersProps> = ({ count, showTitle = true }) 
     const displayedCards = count ? ProductsData.slice(0, count) : ProductsData;
 
     return (
-        <Box variant="container" className=" mb-[10px]">
+        <Box variant="container" className="">
             <Box variant="column">
                 {showTitle && (
-                    <Box variant="column" className="mb-10">
+                    <Box variant="column" className="">
                         <Text variant="h3" className="font-bold text-[20px] font-cairo">
                             {t('latestOffers.title')}
                         </Text>

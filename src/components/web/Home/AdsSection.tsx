@@ -13,7 +13,7 @@ const AdsSection = () => {
     const isRTL = locale === 'ar';
 
     return (
-        <Box variant="container" className="mb-[10px] flex justify-center" dir="rtl">
+        <Box variant="container" className="flex justify-center" dir="rtl">
             <Box variant="center" className="bg-primary w-[80%] lg:w-full  h-[300px]  text-white relative overflow-hidden rounded-lg">
                 {/* Green Circular Background Design */}
                 <Box className="hidden lg:block">
@@ -44,7 +44,7 @@ const AdsSection = () => {
 
                 {/* Text and Button Section */}
                 <Box
-                    className="absolute right-4 lg:right-6 flex flex-col lg:flex-row justify-center lg:justify-between items-center w-full lg:w-[600px] space-y-4 lg:space-y-0"
+                    className="absolute  lg:right-6 flex flex-col lg:flex-row justify-center lg:justify-between items-center w-full lg:w-[600px] space-y-4 lg:space-y-0"
                     dir={isRTL ? 'rtl' : 'ltr'} // Set direction based on language
                     variant="row"
                 >

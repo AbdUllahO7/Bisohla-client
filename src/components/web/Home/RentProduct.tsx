@@ -95,9 +95,9 @@ const RentProduct = () => {
         ];
 
     return (
-        <Box variant="container" className="mb-[100px]">
+        <Box variant="container" className="">
                 <Box variant="column" >
-            <Box variant="column" className="mb-10">
+            <Box variant="column" className="">
                 <Text variant="h3" className="font-bold text-[20px] font-cairo">
                     {t('rentProduct.title')}
                 </Text>

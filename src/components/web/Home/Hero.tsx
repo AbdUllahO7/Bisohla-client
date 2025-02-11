@@ -9,7 +9,7 @@ const Hero = async () => {
     const t = await getTranslations('homePage');
 
     return (
-        <div className="w-full h-[60vh] relative bg-cover bg-center" 
+        <div className="w-full h-screen relative bg-cover bg-center" 
             style={{ backgroundImage: `url('/assets/images/HeroBackRound.png')` ,  backgroundSize: 'cover', }} 
             >
                 <Box variant="container"  className='flex justify-center items-center flex-col relative'>
@@ -27,7 +27,7 @@ const Hero = async () => {
                         width={788}
                         height={327}
                     /> 
-                    <div className='absolute text-center top-10 '>
+                    <div className='absolute text-center top-10 pt-5 '>
                         <Text  className=' text-[43px] text-white pb-3 '>{t('hero.title')}</Text>
                         <Text className='text-[30px] text-white '>{t('hero.description')}</Text>
                     </div>
