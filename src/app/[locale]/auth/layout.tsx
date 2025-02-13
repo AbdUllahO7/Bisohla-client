@@ -1,47 +1,49 @@
 import Box from '@/components/box/box';
-import Logo from '@/components/logo';
 import Text from '@/components/text/text';
-
 import Image from 'next/image';
 import { PropsWithChildren, Suspense } from 'react';
+import Hero from './components/Hero';
+import { useLocale } from 'next-intl';
 
 const AuthLayout = ({ children }: PropsWithChildren) => {
+  const locale = useLocale();
+  const isRTL = locale === 'ar';
+
   return (
-    <Box className="w-full h-[100vh] flex-col md:flex-row">
+    <Box className={`w-full h-[100vh] flex-col md:flex-row ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>
+        
       {/* Left Section */}
-      <Box className="w-[90%] md:w-[35%]">
-        <Box className="flex-col w-full items-start">
-          <Box className="p-8 gap-2 items-center">
-            <Logo size="lg" />
-            <Box>
-              <Text
-                variant="h1"
-                className="text-primary-light tracking-wider capitalize text-2xl animate-typewriter overflow-hidden whitespace-nowrap border-r-4 border-primary lg:text-4xl"
-              >
-                Bishola
-              </Text>
-            </Box>
+      <Box className="lg:w-[90%]  md:w-[35%] justify-center items-center">
+        <Box className="flex-col w-full  items-center justify-center">
+          <Box className="p-8 gap-2 items-center justify-center">
+            <Image 
+              src="/assets/images/logo/bishola.png"
+              alt='logo'
+              width={100}
+              height={100}
+            />
           </Box>
+          <Image
+            src="/assets/images/3-car.png"
+            alt="login page image"
+            className="animate-fadeIn"
+            width={500}
+            height={500}
+          />
           <Box className="px-8">
-            <Text variant="lead">Login to control and manage everything</Text>
+            <Text variant="lead">
+              {isRTL ? 'تسجيل الدخول للتحكم وإدارة كل شيء' : 'Login to control and manage everything'}
+            </Text>
           </Box>
-          <Box className="w-full p-8">
+          <Box className="w-full p-8 items-center justify-center">
             <Suspense fallback={<Text>Loading...</Text>}>{children}</Suspense>
           </Box>
         </Box>
       </Box>
 
-      {/* Right Section */}
-      <Box className="w-[65%] h-[100vh] hidden md:flex">
-        <Box className="w-full h-full overflow-hidden">
-          <Image
-            src="https://picsum.photos/920/800?random=1"
-            alt="login page image"
-            className="object-cover w-[110%] h-[110%] animate-projectImageAnimation"
-            width={920}
-            height={800}
-          />
-        </Box>
+      {/* Right Section */} 
+      <Box className="w-[65%] h-[100vh] hidden md:flex bg-background">
+        <Hero />
       </Box>
     </Box>
   );
