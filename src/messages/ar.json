@@ -662,6 +662,7 @@
         "userInfo" : "معلومات المستخدم",
         "logout" : "تسجيل الخروج"
     },
+
     "profile" : {
       "editProfile": "تعديل الملف الشخصي",
       "resetPassword": "إعادة تعيين كلمة المرور",
@@ -669,6 +670,7 @@
       "email": "البريد الإلكتروني",
       "phoneNumber": "رقم الهاتف",
       "location": "الموقع",
+      "newPassword": "كلمة المرور الجديدة",
       "oldPassword": "كلمة المرور القديمة",
       "repeatPassword": "تكرار كلمة المرور",
       "saveChanges": "حفظ التغييرات"

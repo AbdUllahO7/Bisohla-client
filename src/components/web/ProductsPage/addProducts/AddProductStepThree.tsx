@@ -1,7 +1,7 @@
 'use client'
 import Box from '@/components/box/box'
 import Text from '@/components/text/text'
-import { useLocale, useTranslations } from 'next-intl';
+import { useLocale } from 'next-intl';
 import React, { useEffect, useState } from 'react'
 import {
     Table,
@@ -11,14 +11,13 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-import { Circle } from 'lucide-react';
+import { Circle, Plus } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import ImageUpload from '@/lib/ImageUpload';
 import { MultiImageUpload } from '@/lib/MlutiImageUpload';
 
 const AddProductStepThree = () => {
-    const t = useTranslations("addProduct");
     const locale = useLocale();
     const direction = locale === "ar" ? "rtl" : "ltr";
     const [imageFile, setImageFile] = useState<File | null>(null);
@@ -40,7 +39,7 @@ const AddProductStepThree = () => {
     ];
 
     return (
-        <Box variant="column" className=''>
+        <Box variant="container" className=''>
             {/* table */}
             <Box className="w-full md:justify-center items-start bg-white rounded-lg flex-wrap xs:justify-center" variant="row" dir={direction}>
                 <Box className="bg-gray-100 px-5 py-5 w-full flex justify-center">
@@ -56,7 +55,7 @@ const AddProductStepThree = () => {
                             <TableRow className="text-center hover:bg-transparent border-gray-200 border-1 mb-10">
                                 {/* Table Heads - Keep original styling */}
                                 <TableHead className="min-w-[150px]">{direction === "ltr" ? "Car section name" : "اسم قسم السيارة"}</TableHead>
-                                <TableHead className="min-w-[160px]">
+                                <TableHead className="min-w-[160px] ">
                                     <Text className="bg-primary-light text-white justify-center font-bold py-2 rounded-3xl flex gap-2 items-center mx-auto text-sm md:text-base">
                                         <Circle size={20} className="text-primary" />
                                         {direction === "ltr" ? 'No defect' : 'لا يوجد عيب'}
@@ -87,20 +86,20 @@ const AddProductStepThree = () => {
                                 </TableHead>
                             </TableRow>
                         </TableHeader>
-                        <TableBody>
+                        <TableBody >
                             {carSections.map((section) => (
-                                <TableRow key={section.id} className="text-center hover:bg-transparent border-gray-300">
-                                    <TableCell className="font-medium text-sm md:text-base">{section.name}</TableCell>
+                                <TableRow key={section.id} className="text-center hover:bg-transparent border-gray-300 hover:bg-background group duration-500">
+                                    <TableCell className="font-medium text-sm md:text-base ">{section.name}</TableCell>
                                     <TableCell> 
                                         <Checkbox 
                                             id={`no-defect-${section.id}`} 
-                                            className='rounded-full h-5 w-5'
+                                            className='rounded-full h-5 w-5 '
                                         /> 
                                     </TableCell>
                                     <TableCell> 
                                         <Checkbox 
                                             id={`just-boya-${section.id}`} 
-                                            className='rounded-full h-5 w-5'
+                                            className='rounded-full h-5 w-5 '
                                         /> 
                                     </TableCell>
                                     <TableCell> 
@@ -117,10 +116,12 @@ const AddProductStepThree = () => {
                                     </TableCell>
                                     <TableCell> 
                                         <Button 
-                                            className='bg-background text-primary-light border border-primary text-sm md:text-base px-3 py-2'
+                                            className='bg-background text-primary-light border hover:bg-primary duration-500 hover:text-white border-primary text-sm md:text-base px-3 py-2'
                                             size="sm"
                                         >
                                             {direction === 'ltr' ? 'Add' : 'إضافة'}
+                                                <Plus/>
+
                                         </Button>
                                     </TableCell>
                                 </TableRow>
@@ -139,9 +140,9 @@ const AddProductStepThree = () => {
                     </Text>
                 </Box>
 
-                <Box className='flex-wrap h-full justify-center' variant="row">
-                    <Box className='' variant="column">
-                        <ImageUpload
+                <Box className='flex-wrap h-full justify-center w-full gap-10' variant="row">
+                <Box className="xl:w-[600px] h-[200px] p-6 md:w-[100%] xs:w-[100%]" variant="column">
+                <ImageUpload
                             imageFile={imageFile}
                             setImageFile={setImageFile}
                             setUploadedImageUrl={setUploadedImageUrl}
@@ -149,46 +150,46 @@ const AddProductStepThree = () => {
                             imageLoadingState={imageLoadingState}
                             urlToUpload=''
                             isEditMode ={false}
-                            className="border  border-dashed border-primary xl:w-[600px] h-[200px] p-6 md:w-[100%] xs:w-[100%]"
+                            className="border  border-dashed border-primary px-5 py-5"
                             isCustomStyling={true}
                             labelText={direction === "ltr" ? "Cover image" : 'صورة الغلاف'}
                             labelDescription={direction === "ltr" ? "You can enter one image" : "يمكنك ادخال الى صورة واحد"}
                         />
                     </Box>
-                    <Box className='' variant="column">
+                    <Box className="xl:w-[600px] h-[200px] p-6 md:w-[100%] xs:w-[100%]" variant="column">
                     <MultiImageUpload
                             imageFiles={imageFiles}
                             setImageFiles={setImageFiles}
                             setImageLoadingState={setImageLoadingState}
                             imageLoadingState={imageLoadingState}
                             isEditMode ={false}
-                            className="border  border-dashed border-primary xl:w-[600px] h-[200px] p-6 md:w-[100%] xs:w-[100%]"
+                            className="border  border-dashed border-primary px-5 py-5"
                             isCustomStyling={true}
                             labelText={direction === "ltr" ? "Cover Files" : 'ملفات السيارة'}
                             labelDescription={direction === "ltr" ? "You can enter 10 file" : "يمكنك ادخال الى 10 ملف"}
                         />
                     </Box>
-                    <Box className='' variant="column">
-                        <MultiImageUpload
-                            imageFiles={imageFiles}
-                            setImageFiles={setImageFiles}
-                            setImageLoadingState={setImageLoadingState}
-                            imageLoadingState={imageLoadingState}
-                            isEditMode ={false}
-                            className="border  border-dashed border-primary xl:w-[600px] h-[200px] p-6 md:w-[100%] xs:w-[100%]"
-                            isCustomStyling={true}
-                            labelText={direction === "ltr" ? "Cover Files" : 'ملفات السيارة'}
-                            labelDescription={direction === "ltr" ? "You can enter 10 file" : "يمكنك ادخال الى 10 ملف"}
-                        />
-                    </Box>
-                    <Box className='' variant="column">
+                    <Box className="xl:w-[600px] h-[200px] p-6 md:w-[100%] xs:w-[100%]" variant="column">
                     <MultiImageUpload
                             imageFiles={imageFiles}
                             setImageFiles={setImageFiles}
                             setImageLoadingState={setImageLoadingState}
                             imageLoadingState={imageLoadingState}
                             isEditMode ={false}
-                            className="border  border-dashed border-primary xl:w-[600px] h-[200px] p-6 md:w-[100%] xs:w-[100%]"
+                            className="border  border-dashed border-primary px-5 py-5"
+                            isCustomStyling={true}
+                            labelText={direction === "ltr" ? "Cover Files" : 'ملفات السيارة'}
+                            labelDescription={direction === "ltr" ? "You can enter 10 file" : "يمكنك ادخال الى 10 ملف"}
+                        />
+                    </Box>
+                    <Box className="xl:w-[600px] h-[200px] p-6 md:w-[100%] xs:w-[100%]" variant="column">
+                    <MultiImageUpload
+                            imageFiles={imageFiles}
+                            setImageFiles={setImageFiles}
+                            setImageLoadingState={setImageLoadingState}
+                            imageLoadingState={imageLoadingState}
+                            isEditMode ={false}
+                            className="border  border-dashed border-primary px-5 py-5"
                             isCustomStyling={true}
                             labelText={direction === "ltr" ? "Car image" : 'صور السيارة'}
                             labelDescription={direction === "ltr" ? "You can enter 10 image" : "يمكنك ادخال الى 10 صور"}

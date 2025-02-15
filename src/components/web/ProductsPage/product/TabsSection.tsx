@@ -22,37 +22,37 @@ const TabsSection = () => {
         <Tabs defaultValue="account" className="flex-wrap">
             <TabsList className='bg-transparent gap-8 flex-wrap lg:min-h-[100%] md:min-h-[200px] xs:min-h-[400px]'>
                 <TabsTrigger 
-                className="bg-white font-bold px-10 py-5 min-w-[225px] flex gap-4 items-center transition-colors text-primary-light data-[state=active]:bg-primary-light data-[state=active]:text-white"
-                value="productDetails">
+                    className="bg-white hover:bg-primary group duration-500 font-bold px-10 py-5 min-w-[225px] flex gap-4 items-center transition-colors text-primary-light data-[state=active]:bg-primary-light data-[state=active]:text-white"
+                    value="productDetails">
                 <LayoutGridIcon />
-                <span className="transition-colors data-[state=active]:text-white">
+                <span className="transition-colors data-[state=active]:text-white group-hover:text-white duration-500">
                     {t('tabs.productDetails')}
                 </span>
                 </TabsTrigger>
 
                 <TabsTrigger 
-                className="bg-white font-bold px-10 py-5 min-w-[225px] flex gap-4 items-center transition-colors text-primary-light data-[state=active]:bg-primary-light data-[state=active]:text-white"
+                className="bg-white hover:bg-primary group duration-500 font-bold  px-10 py-5 min-w-[225px] flex gap-4 items-center transition-colors text-primary-light data-[state=active]:bg-primary-light data-[state=active]:text-white"
                 value="productInfo">
                 <CarFront />
-                <span className="transition-colors data-[state=active]:text-white">
+                <span className="transition-colors data-[state=active]:text-white group-hover:text-white duration-500">
                     {t('tabs.productInfo')}
                 </span>
                 </TabsTrigger>
 
                 <TabsTrigger
-                className="bg-white min-w-[225px] font-bold px-10 py-5 flex gap-4 items-center transition-colors text-primary-light data-[state=active]:bg-primary-light data-[state=active]:text-white"
+                className="bg-white hover:bg-primary group duration-500 min-w-[225px] font-bold px-10 py-5 flex gap-4 items-center transition-colors text-primary-light data-[state=active]:bg-primary-light data-[state=active]:text-white"
                 value="location">
                 <MapPinIcon />
-                <span className="transition-colors data-[state=active]:text-white">
+                <span className="transition-colors data-[state=active]:text-white group-hover:text-white duration-500">
                     {t('tabs.location')}
                 </span>
                 </TabsTrigger>
 
                 <TabsTrigger 
-                className="bg-white min-w-[225px] font-bold px-10 py-5 flex gap-4 items-center transition-colors text-primary-light data-[state=active]:bg-primary-light data-[state=active]:text-white"
+                className="bg-white hover:bg-primary group duration-500 min-w-[225px] font-bold px-10 py-5 flex gap-4 items-center transition-colors text-primary-light data-[state=active]:bg-primary-light data-[state=active]:text-white"
                 value="adsInfo">
                 <Info />
-                <span className="transition-colors data-[state=active]:text-white">
+                <span className="transition-colors data-[state=active]:text-white group-hover:text-white duration-500" >
                     {t('tabs.adsInfo')}
                 </span>
                 </TabsTrigger>

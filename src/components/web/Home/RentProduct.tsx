@@ -5,94 +5,12 @@ import Link from 'next/link'
 import React from 'react'
 import { RentProductCard } from '../design/RentProductCard'
 import CardAds from '../design/CardAds'
+import { getProductsRentData } from '@/constants/ProductsData'
 
 const RentProduct = () => {
         const t = useTranslations('homePage');
-        const productsData = [
-            { 
-                title: t('rentProduct.products.product1.title'), 
-                marka: t('rentProduct.products.product1.marka'),  
-                price: t('rentProduct.products.product1.price'),     
-                imageSrc: '/assets/images/car-card.png' ,
-                details: {
-                    gaz: t('rentProduct.products.product1.details.basic.gaz'),
-                    type: t('rentProduct.products.product1.details.basic.type'),
-                    }, 
-            },
-            { title: t('rentProduct.products.product2.title'), 
-                marka: t('rentProduct.products.product2.marka'), 
-                price: t('rentProduct.products.product2.price'),   
-                imageSrc: '/assets/images/car-card.png' ,
-                details: {
-                    gaz: t('rentProduct.products.product1.details.basic.gaz'),
-                    type: t('rentProduct.products.product1.details.basic.type'),
-                    },
-            },
-            { title: t('rentProduct.products.product3.title'), 
-                marka: t('rentProduct.products.product3.marka'), 
-                price: t('rentProduct.products.product3.price'),
-                imageSrc: '/assets/images/car-card.png' ,
-                details: {
-                gaz: t('rentProduct.products.product1.details.basic.gaz'),
-                type: t('rentProduct.products.product1.details.basic.type'),
-                }, 
-            },
-            { title: t('rentProduct.products.product4.title'), 
-                marka: t('rentProduct.products.product4.marka'), 
-                price: t('rentProduct.products.product4.price'), 
-                imageSrc: '/assets/images/car-card.png' ,
-                details: {
-                gaz: t('rentProduct.products.product1.details.basic.gaz'),
-                type: t('rentProduct.products.product1.details.basic.type'),
-                }, 
-            },
-            { title: t('rentProduct.products.product5.title'), 
-                marka: t('rentProduct.products.product5.marka'), 
-                price: t('rentProduct.products.product5.price'),   
-                imageSrc: '/assets/images/car-card.png' ,
-                details: {
-                gaz: t('rentProduct.products.product1.details.basic.gaz'),
-                type: t('rentProduct.products.product1.details.basic.type'),
-                }, 
-            },
-            { title: t('rentProduct.products.product6.title'), 
-                marka: t('rentProduct.products.product6.marka'), 
-                price: t('rentProduct.products.product6.price'),  
-                imageSrc: '/assets/images/car-card.png' ,
-                details: {
-                gaz: t('rentProduct.products.product1.details.basic.gaz'),
-                type: t('rentProduct.products.product1.details.basic.type'),
-                }, 
-            },
-            { title: t('rentProduct.products.product7.title'),
-                marka: t('rentProduct.products.product7.marka'), 
-                price: t('rentProduct.products.product7.price'), 
-                imageSrc: '/assets/images/car-card.png' ,
-                details: {
-                gaz: t('rentProduct.products.product1.details.basic.gaz'),
-                type: t('rentProduct.products.product1.details.basic.type'),
-                }, 
-            },
-            { title: t('rentProduct.products.product8.title'), 
-                marka: t('rentProduct.products.product8.marka'), 
-                price: t('rentProduct.products.product8.price'),
-                imageSrc: '/assets/images/car-card.png' ,
-                details: {
-                gaz: t('rentProduct.products.product1.details.basic.gaz'),
-                type: t('rentProduct.products.product1.details.basic.type'),
-                }, 
-            },
-            { title: t('rentProduct.products.product9.title'), 
-                marka: t('rentProduct.products.product9.marka'), 
-                price: t('rentProduct.products.product9.price'),  
-                imageSrc: '/assets/images/car-card.png' ,
-                details: {
-                gaz: t('rentProduct.products.product1.details.basic.gaz'),
-                type: t('rentProduct.products.product1.details.basic.type'),
-                }, 
-            },
-    
-        ];
+            const productsData = getProductsRentData(t);
+        
 
     return (
         <Box variant="container" className="">
@@ -117,8 +35,10 @@ const RentProduct = () => {
                                     imageSrc={product.imageSrc}
                                     priceWord={t('rentProduct.price')}
                                     details={product.details}
+                                    ProductId = {product.id}
+
                                 />
-                                {index === 3 && <Box variant="center" className='justify-center items-center'><CardAds /></Box>} {/* Render productdAds only after the first two productds */}
+                                {index === 3 && <Box variant="center" className='justify-center items-center'><CardAds  isRent ={true}/></Box>} {/* Render productdAds only after the first two productds */}
                             </React.Fragment>
                         ))}
             </Box>

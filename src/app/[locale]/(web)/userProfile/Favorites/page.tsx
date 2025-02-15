@@ -18,6 +18,7 @@ const UserFavorites= () => {
                                 imageSrc={card.imageSrc}
                                 ProductId = {card.id}
                                 priceWord={t('latestOffers.price')}
+                                isFavorites = {true}
                             />
                         </React.Fragment>
                     ))}

@@ -67,7 +67,7 @@ const AddProductStepOne: React.FC = () => {
 
         {/* Story of Car */}
         <Box className="min-w-[250px] py-5" variant="column">
-            <Text className="text-primary font-bold text-xl">{direction === "ltr" ? "Story of car" : "قصة السيارة"}</Text>
+            <Text className="text-primary font-bold text-xl border-b border-primary-foreground pb-2">{direction === "ltr" ? "Story of car" : "قصة السيارة"}</Text>
             <Textarea className="px-5 border-gray-100" placeholder={direction === "ltr" ? "Write your message here " : "اكتب رسالتك هنا"} id="message-2" cols={20} rows={17} />
         </Box>
         </Box>

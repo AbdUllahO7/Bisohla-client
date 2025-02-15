@@ -36,7 +36,7 @@ const Steps = () => {
     return (
         <Box variant="column" className="w-full flex flex-col justify-start items-start">
             <Tabs value={currentStep} className="w-full flex flex-col justify-start items-start">
-                <TabsList className="bg-transparent flex h-auto gap-4 md:gap-6 lg:gap-8 flex-wrap w-full justify-start items-center xs:justify-center" dir={direction}>
+                <TabsList className="bg-transparent flex h-auto gap-4 md:gap-6 lg:gap-8 flex-wrap w-full xs:w-full justify-start items-center xs:justify-center" dir={direction}>
                     {steps.map((step, index) => (
                         <StepTrigger totalSteps = {steps.length} key={step} step={step} index={index} />
                     ))}
