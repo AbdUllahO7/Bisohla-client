@@ -8,45 +8,57 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import Image from 'next/image';
-import { CarCardItemProps } from '@/types/homePageTypes';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { CarCardItemPropsProfile } from '@/types/homePageTypes';
 
 // CardItem Component
 
-export const ProductCardItem: React.FC<CarCardItemProps> = ({title, marka, price, imageSrc , priceWord , ProductId }) => {
-    return (
-        <Link href={`/products/product/${ProductId}`}>
+export const ProductCardItem: React.FC<CarCardItemPropsProfile> = ({ title, marka, imageSrc, ProductId, isFavorites, priceWord, price }) => {
+    const CardContent = (
+        <Card className={` group border-none rounded-lg bg-white w-full shadow-lg relative ${isFavorites ? 'cursor-pointer' : ''}`}>
+            {/* Heart Icon for Favorites */}
+            {isFavorites && (
+                <Button className="absolute top-2 left-2 bg-white p-2 rounded-full shadow-md">
+                    ❤️
+                </Button>
+            )}
 
-        <Card className="border-none rounded-lg bg-white ">
             <CardHeader className="p-0">
                 <CardTitle className="w-full">
                     <Image
                         src={imageSrc}
-                        alt="car"
+                        alt={title}
                         width={220}
                         height={300}
-                        className="w-full h-full rounded-t-[10px]"
+                        className="w-full h-48 object-cover rounded-t-lg"
                     />
                 </CardTitle>
-                <CardDescription>
-                    <Text variant="h4" className="text-primary p-[8px]">
+                <CardDescription className="p-4">
+                    <Text variant="h4" className="text-primary font-semibold">
                         {title}
                     </Text>
-                    <Text variant="mid" className="text-primary p-[8px]">
+                    <Text variant="mid" className="text-gray-600">
                         {marka}
                     </Text>
                 </CardDescription>
             </CardHeader>
 
-            <CardFooter className="bg-[#E4E4E4] flex justify-between p-[8px] rounded-lg">
-                <Text className="mid text-primary">{priceWord}</Text>
-                <Text className="mid text-primary-light font-bold">{price}</Text>
-            </CardFooter>
+            {/* Conditional Footer */}
+            {isFavorites ? (
+                <CardFooter className="bg-[#E4E4E4] flex justify-between p-4 rounded-b-lg group-hover:bg-primary-light duration-500">
+                    <Text className="text-primary group-hover:text-white duration-500">{priceWord}</Text>
+                    <Text className="text-primary-light font-bold group-hover:text-white duration-500">{price}</Text>
+                </CardFooter>
+            ) : (
+                <CardFooter className="bg-gray-100 w-full flex flex-wrap gap-2 justify-between p-4 rounded-b-lg">
+                    <Button className="bg-red-600 text-white flex-1 min-h-[40px]">Delete</Button>
+                    <Link href={`/products/product/${ProductId}`} className="bg-primary px-4 py-2 text-white rounded-lg flex-1 text-center">Details</Link>
+                    <Link href={`/products/product/${ProductId}`} className="bg-primary-light px-4 py-2 text-white rounded-lg flex-1 text-center">Edit</Link>
+                </CardFooter>
+            )}
         </Card>
-        
-        </Link>
     );
+
+    return isFavorites ?  <Link href={`/products/product/${ProductId}`} >{CardContent}</Link>:CardContent ;
 };
-
-
-

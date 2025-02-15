@@ -6,10 +6,8 @@ const AddProductsPage = () => {
     
     return (
         <Box variant="column" className="mt-[50px] bg-background ">
-            <Box variant="container">
                 <Box className="w-full  mt-10 " variant="column">
                     <Steps/>
-                </Box>
             </Box>
         </Box>
     )

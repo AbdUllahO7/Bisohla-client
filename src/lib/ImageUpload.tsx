@@ -1,4 +1,4 @@
-import { FileIcon, XIcon } from "lucide-react";
+import { FileIcon, Sparkles, XIcon } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -85,7 +85,9 @@ function ImageUpload({
 
     return (
         <div className={`w-full mt-4  max-w-md mx-auto `}>
-            <label className="text-lg font-semibold mb-2 block">{labelText}</label>
+            <label className="text-lg font-semibold mb-2  border-b border-primary-light w-fit pb-2 flex items-center gap-2">
+            <Sparkles className="text-primary-light"/>
+                {labelText}</label>
             <label className="text-md text-gray-50 mb-2 block">{labelDescription}</label>
 
             <div

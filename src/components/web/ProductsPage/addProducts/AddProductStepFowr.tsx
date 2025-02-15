@@ -32,7 +32,7 @@ const AddProductStepFour = () => {
             </Box>
 
             {/* Main Content */}
-            <Box variant="row" className='flex-col md:flex-row justify-center items-center w-full pt-6 md:pt-10 gap-6 md:gap-10 px-4 md:px-4'>
+            <Box variant="column" className='flex-col md:flex-row justify-center items-center w-full pt-6 md:pt-10 gap-6 md:gap-10 px-4 md:px-4'>
                 {/* Left Section - Form Fields */}
                 <Box className='w-full md:w-[700px] justify-start items-start gap-4 md:gap-8' variant="column">
                     {/* Ad Title */}

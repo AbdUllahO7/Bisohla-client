@@ -11,7 +11,7 @@ import WorldOfCar from '@/components/web/Home/WorldOfProduct';
 
 const WebPage = async () => {
   return (
-    <Box variant="column" className='gap-10'>
+    <Box variant="column" className='gap-10 w-full bg-background'>
         <Hero />
         <Filter />
         <LatestOffers />

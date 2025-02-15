@@ -37,13 +37,13 @@ const FAQ = () => {
             <Box variant="container" className='w-[83%] '>
                 <Box variant='column' className='justify-start items-start w-full'>
                     {
-                        data.map((item, index) => (
-                    <Accordion key={index} type="single" collapsible className='shadow-xl bg-white p-6 rounded-3xl w-full '>
+                data.map((item, index) => (
+                    <Accordion key={index} type="single" collapsible className='shadow-xl bg-white p-6 rounded-3xl w-full hover:bg-primary-light duration-500 group'>
                         <AccordionItem value="item-1" className='border-none'>
-                        <AccordionTrigger className='hover:no-underline font-cairo font-bold text-primary'>
+                        <AccordionTrigger className='hover:no-underline font-cairo font-bold text-primary group-hover:text-white duration-500'>
                             {item.question}
                         </AccordionTrigger>
-                            <AccordionContent className='font-cairo text-[400] text-secondary-text'>
+                            <AccordionContent className='font-cairo text-[400] text-secondary-text group-hover:text-white duration-500'>
                                 {item.answer}
                             </AccordionContent>
                         </AccordionItem>

@@ -18,12 +18,12 @@ export async function generateMetadata(): Promise<Metadata> {
 const WebLayout = async({ children }: PropsWithChildren) => {
   const t = await getTranslations('homePage');
   return (
-    <div >
-      <div className="fixed top-0 z-[20] w-full bg-white shadow-md">
+    <Box  className='w-full bg-background' variant="column">
+      <Box className="fixed z-[20] w-full bg-white shadow-md">
         <Box variant="container" >
-          <HeaderOne />
+            <HeaderOne />
         </Box>
-      </div>
+      </Box>
 
     {/* HeaderTwo */}
     <div className="fixed top-[55px] z-[20]  w-full bg-primary shadow-md">
@@ -38,10 +38,10 @@ const WebLayout = async({ children }: PropsWithChildren) => {
     </div>
     {/* Spacer for HeaderTwo height */}
     <div className="h-[65px]"></div>
-      {children}
+          {children}
       <Footer />
 
-    </div>
+    </Box>
   );
 };
 

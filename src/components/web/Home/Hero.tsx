@@ -28,7 +28,13 @@ const Hero = async () => {
                         height={327}
                     /> 
                     <div className='absolute text-center top-10 pt-5 '>
-                        <Text  className=' text-[43px] text-white pb-3 '>{t('hero.title')}</Text>
+                            <Image 
+                                src="/assets/images/logo/bishola.png"
+                                alt='logo'
+                                width={100}
+                                height={100}
+                                className='mx-auto animate-bounce mt-5 mb-5'
+                            />
                         <Text className='text-[30px] text-white '>{t('hero.description')}</Text>
                     </div>
                 </Box>

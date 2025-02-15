@@ -11,6 +11,19 @@ export interface CarCardItemProps {
     },
     ProductId : number
 }
+export interface CarCardItemPropsProfile {
+    title: string;
+    marka: string;
+    imageSrc: string;
+    priceWord : string;
+    price :string;
+    details? : {
+        gaz : string,
+        type:string
+    },
+    ProductId : number;
+    isFavorites : boolean
+}
 export interface CitiesDataType {
     title : string , 
     carCount :string,

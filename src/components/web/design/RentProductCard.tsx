@@ -11,13 +11,19 @@ import Image from 'next/image';
 import { CarCardItemProps } from '@/types/homePageTypes';
 import Box from '@/components/box/box';
 import { Fuel, LifeBuoy } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 // CardItem Component
 
-export const RentProductCard: React.FC<CarCardItemProps> = ({ title, marka, price, imageSrc, priceWord, details }) => {
+export const RentProductCard: React.FC<CarCardItemProps> = ({ title, marka, price, imageSrc, priceWord, details , ProductId }) => {
     return (
-        <Card className="border-none bg-white">
-            <Box className="flex justify-between p-[8px] rounded-t-[10px] bg-primary-light">
+        <Link href={`/products/product/${ProductId}`} className='hover:-translate-y-3 duration-500 group '>
+            <Card className="border-none bg-white relative ">
+            <Button className="absolute top-12 left-2 bg-white p-2 rounded-full shadow-md">
+                    ❤️
+                </Button>
+            <Box className="flex justify-between p-[8px] rounded-t-[10px] bg-primary-light group-hover:bg-primary duration-500">
                 <Text className="mid font-cairo text-[500] text-[#EFEFEF] text-[14px]">{priceWord}</Text>
                 <Text className="mid font-cairo text-white-light font-bold">{price}</Text>
             </Box>
@@ -40,7 +46,7 @@ export const RentProductCard: React.FC<CarCardItemProps> = ({ title, marka, pric
                     </Text>
                 </CardDescription>
             </CardHeader>
-            <CardFooter className="flex justify-start p-[8px] gap-4">
+            <CardFooter className="flex justify-start p-[8px] gap-4 ">
                    {/* Display details */}
                     <Text variant="small" className="text-gray-500 pr-2 pl-2 flex justify-center items-center gap-2">
                         <Fuel/>
@@ -52,6 +58,8 @@ export const RentProductCard: React.FC<CarCardItemProps> = ({ title, marka, pric
                     </Text>
             </CardFooter>
         </Card>
+        </Link>
+    
     );
 };
 

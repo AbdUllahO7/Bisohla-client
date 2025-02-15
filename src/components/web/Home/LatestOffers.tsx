@@ -20,7 +20,7 @@ const LatestOffers: React.FC<LatestOffersProps> = ({ count, showTitle = true }) 
     const displayedCards = count ? ProductsData.slice(0, count) : ProductsData;
 
     return (
-        <Box variant="container" className="">
+        <Box variant="container" className="mb-5">
             <Box variant="column">
                 {showTitle && (
                     <Box variant="column" className="">
@@ -46,11 +46,12 @@ const LatestOffers: React.FC<LatestOffersProps> = ({ count, showTitle = true }) 
                                 imageSrc={card.imageSrc}
                                 ProductId = {card.id}
                                 priceWord={t('latestOffers.price')}
+                                isFavorites = {true}
                             />
                             {/* Render CardAds only after the first two cards */}
                             {index === 1 && (
                                 <Box variant="center" className="justify-center items-center">
-                                    <CardAds />
+                                    <CardAds  isRent= {false}/>
                                 </Box>
                             )}
                         </React.Fragment>
