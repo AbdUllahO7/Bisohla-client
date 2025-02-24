@@ -60,4 +60,5 @@ export interface HeaderTowProps {
 export interface LatestOffersProps {
     count?: number; // Optional count of cards to display
     showTitle?: boolean; // Control the visibility of the title and "Show More" link
+    container?: boolean
 }

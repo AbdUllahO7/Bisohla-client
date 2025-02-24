@@ -34,9 +34,9 @@ const Filter = () => {
 
   
   return (
-    <Box variant="container" className='relative w-full m-0'>
+    <Box variant="column" className='mx-auto container relative w-full m-0  h-full justify-center items-center gap-0'>
       {/* TOP */}
-      <Box variant="row" className="gap-0  mx-auto">
+      <Box variant="row" className="gap-0 w-full mx-auto bg-background ">
           <Button
             className={`h-[50px] ${
               activeButton === 'hire' ? 'bg-primary-foreground' : 'bg-transparent'
@@ -61,12 +61,12 @@ const Filter = () => {
 
         <Box
             variant="rowBetween"
-            className="pb-10 pt-10 shadow-2xl rounded-xl flex 2xs:flex-wrap sm:flex-wrap lg:flex-nowrap  mx-auto"
+            className="pb-10 w-full  bg-background pt-10 shadow-2xl rounded-b-md flex 2xs:flex-wrap sm:flex-wrap lg:flex-nowrap  mx-auto"
 
           >
             {/* Right */}
             <Box
-              className="grid  gap-5 pl-5 pr-5 md:grid-cols-1 lg:grid-cols-4 w-full"
+              className="grid   gap-5 pl-5 pr-5 md:grid-cols-1 lg:grid-cols-4 w-full"
             >
               {/* Car Type */}
               <Box className="w-full">

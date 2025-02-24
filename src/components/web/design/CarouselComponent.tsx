@@ -17,10 +17,10 @@ const CarouselComponent: React.FC<CarouselComponentProps> = ({ data, direction }
     return (
         <Carousel
             opts={{ align: "start" }}
-            className={`bg-white w-full ${direction === 'rtl' ? 'rtl' : 'ltr'} cursor-pointer`}
+            className={`w-full ${direction === 'rtl' ? 'rtl' : 'ltr'} cursor-pointer`}
             dir="ltr" 
         >
-            <CarouselContent className="bg-white">
+            <CarouselContent className="">
                 {data.map((item, index) => (
                     <CarouselItem
                         key={index}

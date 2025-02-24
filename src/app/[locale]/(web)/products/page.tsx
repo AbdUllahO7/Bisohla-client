@@ -8,9 +8,9 @@ import React from 'react';
 
 const products = () => {
     return (
-        <Box variant="column" className="mt-[30px] bg-background">
+        <Box variant="row" className="mt-[30px] bg-background flex-wrap">
             {/* Header Section */}
-            <Box className="mt-[50px] w-full">
+            <Box className="mt-[50px] w-full" variant="center">
                 <Header />
             </Box>
 

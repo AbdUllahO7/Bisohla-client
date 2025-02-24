@@ -30,7 +30,7 @@ const Product = () => {
     }
 
     return (
-        <Box variant="column" className="mt-[50px] bg-background">
+        <Box variant="column" className="mt-[50px] bg-background ">
             {/* Header Section */}
                 <Box className='w-full mt-[50px]  bg-white' >
                     <Box variant="container">
@@ -79,7 +79,7 @@ const Product = () => {
 
             </Box>
             {/* Tabs */}
-            <Box  className='w-full xs:w-[90%] mt-5'>
+            <Box  className='lg:w-full xs:w-[90%] mt-5'>
                 <Box variant='container'>
                         <TabsSection />
                 </Box>

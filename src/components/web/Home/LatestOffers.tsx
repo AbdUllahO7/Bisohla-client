@@ -10,7 +10,7 @@ import { LatestOffersProps } from '@/types/homePageTypes';
 
 
 
-const LatestOffers: React.FC<LatestOffersProps> = ({ count, showTitle = true }) => {
+const LatestOffers: React.FC<LatestOffersProps> = ({ count, showTitle = true  , container = true}) => {
     const t = useTranslations('homePage');
 
     const ProductsData = getProductsData(t);
@@ -20,7 +20,7 @@ const LatestOffers: React.FC<LatestOffersProps> = ({ count, showTitle = true }) 
     const displayedCards = count ? ProductsData.slice(0, count) : ProductsData;
 
     return (
-        <Box variant="container" className="mb-5">
+        <Box variant={`${container ? "container" : 'center'}`} className="mb-5">
             <Box variant="column">
                 {showTitle && (
                     <Box variant="column" className="">
