@@ -3,16 +3,17 @@ import React from 'react'
 import { getTranslations } from 'next-intl/server'
 import Box from '@/components/box/box';
 import Text from '@/components/text/text';
+import Filter from './Filter';
 
 const Hero = async () => {
 
     const t = await getTranslations('homePage');
 
     return (
-        <div className="w-full h-screen relative bg-cover bg-center" 
+        <div className="w-full relative bg-cover bg-center h-[100vh]" 
             style={{ backgroundImage: `url('/assets/images/HeroBackRound.png')` ,  backgroundSize: 'cover', }} 
             >
-                <Box variant="container"  className='flex justify-center items-center flex-col relative'>
+                <Box variant="container"  className='flex justify-center items-center flex-col relative h-screen'>
                     <Image 
                         src="/assets/images/Rectangle.png"
                         alt='Rectangle'
@@ -37,6 +38,8 @@ const Hero = async () => {
                             />
                         <Text className='text-[30px] text-white '>{t('hero.description')}</Text>
                     </div>
+                    <Filter />
+
                 </Box>
         </div>
     )
