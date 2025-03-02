@@ -10,7 +10,7 @@ import {
 import Image from 'next/image';
 import { CarCardItemProps } from '@/types/homePageTypes';
 import Box from '@/components/box/box';
-import { Fuel, LifeBuoy } from 'lucide-react';
+import { Fuel, HeartIcon, LifeBuoy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
@@ -21,20 +21,20 @@ export const RentProductCard: React.FC<CarCardItemProps> = ({ title, marka, pric
         <Link href={`/products/product/${ProductId}`} className='hover:-translate-y-3 duration-500 group '>
             <Card className="border-none bg-white relative ">
             <Button className="absolute top-12 left-2 bg-white p-2 rounded-full shadow-md">
-                    ❤️
+                        <HeartIcon size={24} className='z-10 text-red-500'/>
                 </Button>
             <Box className="flex justify-between p-[8px] rounded-t-[10px] bg-primary-light group-hover:bg-primary duration-500">
                 <Text className="mid font-cairo text-[500] text-[#EFEFEF] text-[14px]">{priceWord}</Text>
                 <Text className="mid font-cairo text-white-light font-bold">{price}</Text>
             </Box>
             <CardHeader className="p-0">
-                <CardTitle className="w-full">
+                <CardTitle className="w-full ">
                     <Image
                         src={imageSrc}
                         alt="car"
                         width={220}
                         height={300}
-                        className="w-full h-full"
+                        className="w-full h-48"
                     />
                 </CardTitle>
                 <CardDescription className='p-[8px]'>

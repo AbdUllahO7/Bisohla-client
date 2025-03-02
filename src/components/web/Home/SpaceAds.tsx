@@ -9,8 +9,8 @@ const SpaceAds = () => {
         // Determine direction based on the language
     return (
         <Box variant="container" className=" w-[80%] lg:w-full" >
-            <Box variant="row" className='justify-evenly flex-wrap'>
-                <Box variant="center" className="w-[560px] h-[250px] relative overflow-hidden bg-primary-light rounded-md">
+            <Box variant="row" className='justify-between flex-wrap'>
+                <Box variant="center" className="w-[48%] h-[250px] relative overflow-hidden bg-primary-light rounded-md">
                 {/* border-l-t */}
                 <Box className='absolute top-0 left-0 bg-transparent w-[100px] h-[100px] border-r-[50px] border-b-[50px] border-primary  rounded-br-[100px] '>
                 </Box>
@@ -36,7 +36,7 @@ const SpaceAds = () => {
                     </Text>
                 </Box>
                 </Box>
-                <Box variant="center" className="w-[560px] h-[250px] relative overflow-hidden bg-primary-light rounded-md">
+                <Box variant="center" className="w-[48%] h-[250px] relative overflow-hidden bg-primary-light rounded-md">
                     {/* border-l-t */}
                     <Box className='absolute top-0 left-0 bg-transparent w-[100px] h-[100px] border-r-[50px] border-b-[50px] border-primary  rounded-br-[100px] '>
                     </Box>

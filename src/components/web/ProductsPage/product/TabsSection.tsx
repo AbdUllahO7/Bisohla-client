@@ -100,7 +100,7 @@ const TabsSection = () => {
             </Accordion>
 
             {/* Ads */}
-            <LatestOffers count={4} showTitle={false} container = {false}/>
+            <LatestOffers count={4} container = {false}/>
         </Box>
     );
 };

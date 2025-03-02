@@ -106,7 +106,7 @@ return (
 
             {/* Address Filter */}
             <div className="justify-start items-start w-full">
-            <Accordion type="single" collapsible className='pr-4 pl-4'>
+            <Accordion type="single" collapsible className=''>
                 <AccordionItem value="address" className="border-none">
                 <AccordionTrigger className="hover:no-underline font-cairo font-bold text-primary">
                     {t('filter.filterOptions.address.filterOptionsTitle')}

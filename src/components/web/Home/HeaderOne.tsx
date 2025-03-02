@@ -12,7 +12,7 @@ const HeaderOne = async () => {
     return (
         <Box className='flex md:justify-between xs:justify-center mt-2 pb-2'>
              {/* right */}
-            <div className=' hidden md:block lg:block lg:pr-[90px]'>
+            <div className=' hidden md:block lg:block '>
                 <Image 
                     src="/assets/images/logo/bishola.png"// Default image included in Next.js projects
                     alt="Test Image"

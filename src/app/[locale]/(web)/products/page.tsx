@@ -27,9 +27,9 @@ const products = () => {
                 {/* Categories and Content Section */}
                 <Box className="w-full lg:w-[70%] xs:w-[100%]" variant="column">
                     <Categories />
-                    <LatestOffers showTitle={false} />
+                    <LatestOffers  showTitle={false} />
                     <AdsSection />
-                    <LatestOffers count={4} showTitle={false} />
+                    <LatestOffers count={3} showTitle={false} />
                 </Box>
             </Box>
 
