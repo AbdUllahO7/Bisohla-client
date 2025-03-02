@@ -56,7 +56,7 @@ export function MultiImageUpload({
     const direction = locale === "ar" ? "rtl" : "ltr";
 
   return (
-    <div className={`w-full mt-4  max-w-md mx-auto `}>
+    <div className={`w-full mt-4   mx-auto `}>
             <label className="text-lg font-semibold mb-2  border-b border-primary-light w-fit pb-2 flex items-center gap-2">
               <Sparkles className="text-primary-light"/>
               {labelText}</label>

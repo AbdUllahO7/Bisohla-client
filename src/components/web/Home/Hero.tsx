@@ -13,7 +13,7 @@ const Hero = async () => {
         <div className="w-full relative bg-cover bg-center h-[100vh]" 
             style={{ backgroundImage: `url('/assets/images/HeroBackRound.png')` ,  backgroundSize: 'cover', }} 
             >
-                <Box variant="container"  className='flex justify-center items-center flex-col relative h-screen'>
+                <Box variant="container"  className='flex items-center flex-col '>
                     <Image 
                         src="/assets/images/Rectangle.png"
                         alt='Rectangle'
@@ -39,7 +39,6 @@ const Hero = async () => {
                         <Text className='text-[30px] text-white '>{t('hero.description')}</Text>
                     </div>
                     <Filter />
-
                 </Box>
         </div>
     )

@@ -30,16 +30,16 @@ const Product = () => {
     }
 
     return (
-        <Box variant="column" className="mt-[50px] bg-background ">
+        <div  className="mt-[50px] bg-background  w-full">
             {/* Header Section */}
-                <Box className='w-full mt-[50px]  bg-white' >
+                <div className='w-full mt-[50px] mb-3  bg-white' >
                     <Box variant="container">
                         <ProductHeader  productName={product.title}/>
                     </Box>
-                </Box>
+                </div>
 
             {/* Product Details Section */}
-            <Box className="mt-1 w-full ">
+            <Box className="mt-1 w-full mb-3">
                 <Box variant='container' >
                 <ProductBasicInfo 
                     carType = {product.carType}
@@ -86,7 +86,7 @@ const Product = () => {
 
             </Box>
 
-        </Box>
+        </div>
     );
 };
 

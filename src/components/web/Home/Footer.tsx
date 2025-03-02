@@ -81,8 +81,9 @@ const Footer = () => {
         
         </Box>
 
-        <Box variant="rowBetween" className='justify-evenly w-full'>
-            <Box className='m-10'>
+        <Box variant="rowBetween" className='justify-between container w-full mt-10'>
+
+            <Box className=''>
                 <Image 
                     src="/assets/images/logo/bishola.png"// Default image included in Next.js projects
                     alt="Test Image"
@@ -92,7 +93,7 @@ const Footer = () => {
                 </Box>
             
                 {/* social */}
-                <Box variant="row" className='m-10'>
+                <Box variant="row" className=''>
                     <Link href="#">
                         <Image 
                             src="/assets/icons/twitter.png"
@@ -118,8 +119,8 @@ const Footer = () => {
                         />
                     </Link>
                 </Box>        
+            </Box>
             
-        </Box>
     </Box>
     )
 }

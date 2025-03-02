@@ -25,7 +25,7 @@ const RentProduct = () => {
                     </Text>
                 </Link>
             </Box>
-            <Box className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:w-[80%] xs:w-[80%] lg:w-full " variant="center">
+            <Box className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:w-[80%] xs:w-[80%] lg:w-full" variant="center">
                         {productsData.map((product, index) => (
                             <React.Fragment key={index}>
                                 <RentProductCard
@@ -38,7 +38,9 @@ const RentProduct = () => {
                                     ProductId = {product.id}
 
                                 />
-                                {index === 3 && <Box variant="center" className='justify-center items-center'><CardAds  isRent ={true}/></Box>} {/* Render productdAds only after the first two productds */}
+                                {index === 3 && <Box variant="center" className='justify-center items-center'> <Box variant="center" className="justify-center items-center">
+                                    <CardAds  isRent= {false}/>
+                                </Box></Box>}
                             </React.Fragment>
                         ))}
             </Box>

@@ -11,16 +11,17 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { CarCardItemPropsProfile } from '@/types/homePageTypes';
+import { HeartIcon } from 'lucide-react';
 
 // CardItem Component
 
 export const ProductCardItem: React.FC<CarCardItemPropsProfile> = ({ title, marka, imageSrc, ProductId, isFavorites, priceWord, price }) => {
     const CardContent = (
-        <Card className={` group border-none rounded-lg bg-white w-full shadow-lg relative ${isFavorites ? 'cursor-pointer' : ''}`}>
+        <Card className={` group border-none rounded-lg bg-white  w-full shadow-lg relative ${isFavorites ? 'cursor-pointer' : ''}`}>
             {/* Heart Icon for Favorites */}
             {isFavorites && (
                 <Button className="absolute top-2 left-2 bg-white p-2 rounded-full shadow-md">
-                    ❤️
+                    <HeartIcon size={24} className='z-10 text-red-500'/>
                 </Button>
             )}
 

@@ -22,7 +22,7 @@ const FAQ = () => {
         ]
     
     return (
-        <Box variant="container" className="">
+        <Box  className="block w-full mb-10">
             <Box variant="column">
                 <Box variant="column" className='mb-10'>
                     <Text variant="h3" className="font-bold text-[20px] font-cairo">

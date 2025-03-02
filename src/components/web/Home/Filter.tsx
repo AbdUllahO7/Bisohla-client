@@ -34,12 +34,12 @@ const Filter = () => {
 
   
   return (
-    <Box variant="column" className='mx-auto container relative w-full m-0  h-full justify-center items-center gap-0'>
+    <Box variant="column" className='mx-auto container absolute bottom-[-100px] xs:mt-10 xs:mb-10  z-10 w-full   justify-center items-center gap-0'>
       {/* TOP */}
-      <Box variant="row" className="gap-0 w-full mx-auto bg-background ">
+      <Box variant="row" className="gap-0 w-full mx-auto  ">
           <Button
             className={`h-[50px] ${
-              activeButton === 'hire' ? 'bg-primary-foreground' : 'bg-transparent'
+              activeButton === 'hire' ? 'bg-primary-foreground' : 'bg-background'
             } rounded-none w-full sm:w-[155px]`}
             onClick={() => handleButtonClick('hire')}
           >
@@ -49,7 +49,7 @@ const Filter = () => {
           </Button>
           <Button
             className={`h-[50px] ${
-              activeButton === 'buy' ? 'bg-primary-foreground' : 'bg-transparent'
+              activeButton === 'buy' ? 'bg-primary-foreground' : 'bg-background'
             } rounded-none w-full sm:w-[155px]`}
             onClick={() => handleButtonClick('buy')}
           >
