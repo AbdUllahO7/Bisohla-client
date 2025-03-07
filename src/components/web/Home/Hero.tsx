@@ -10,7 +10,7 @@ const Hero = async () => {
     const t = await getTranslations('homePage');
 
     return (
-        <div className="w-full relative bg-cover bg-center h-[100vh]" 
+        <div className="w-full relative bg-cover bg-center h-[70vh]" 
             style={{ backgroundImage: `url('/assets/images/HeroBackRound.png')` ,  backgroundSize: 'cover', }} 
             >
                 <Box variant="container"  className='flex items-center flex-col '>
@@ -19,12 +19,12 @@ const Hero = async () => {
                         alt='Rectangle'
                         width={397}
                         height={350}
-                        className='lg:w-[397px] h-[350px]'
+                        className=' 2xl:w-[397px] xl:h-[230px]  2xl:h-[350px]'
                     />
                     <Image  
                         src="/assets/images/carHeader.png"
                         alt='cars'
-                        className="lg:w-[788px] lg:h-[327] absolute top-[200px]  xs:w-[500px]"
+                        className="xl:w-[500px] xl:h-[200px] 2xl:w-[788px] 2xl:h-[327] absolute xl:top-[150px] top-[200px]  xs:w-[500px]"
                         width={788}
                         height={327}
                     /> 
