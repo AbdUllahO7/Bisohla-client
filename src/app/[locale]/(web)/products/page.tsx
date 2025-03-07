@@ -20,9 +20,9 @@ const products = () => {
                 className="flex flex-col lg:flex-row justify-between items-start gap-6 "
             >
                 {/* Filter Section */}
-                <Box className="w-full lg:w-[25%] bg-white rounded-lg shadow-md p-4">
+                <div className="w-full lg:w-[300px] lg:flex-shrink-0">
                     <Filter />
-                </Box>
+                    </div>
 
                 {/* Categories and Content Section */}
                 <Box className="w-full lg:w-[70%] xs:w-[100%]" variant="column">
