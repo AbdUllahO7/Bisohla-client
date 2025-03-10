@@ -1,94 +1,214 @@
-'use client'
-import React, { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import Box from "@/components/box/box";
-import { useTranslations } from "next-intl";
+"use client"
 
-const EditProfile = () => {
-    const [avatar, setAvatar] = useState<string>("/default-avatar.png");
-    const [name, setName] = useState<string>("");
-    const [email, setEmail] = useState<string>("");
-    const [phoneNumber, setPhoneNumber] = useState<string>("");
-    const [location, setLocation] = useState<string>("");
-    const [oldPassword, setOldPassword] = useState<string>("");
-    const [newPassword, setNewPassword] = useState<string>("");
-    const [repeatPassword, setRepeatPassword] = useState<string>("");
+import { useState } from "react"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
+import { Button } from "@/components/ui/button"
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Separator } from "@/components/ui/separator"
+import {  User } from "lucide-react"
+
+const profileFormSchema = z.object({
+name: z
+    .string()
+    .min(2, {
+    message: "Name must be at least 2 characters.",
+    })
+    .max(30, {
+    message: "Name must not be longer than 30 characters.",
+    }),
+email: z.string().email({
+    message: "Please enter a valid email address.",
+}),
+bio: z.string().max(160).optional(),
+urls: z
+    .object({
+    website: z.string().url({ message: "Please enter a valid URL." }).optional(),
+    twitter: z.string().optional(),
+    linkedin: z.string().optional(),
+    })
+    .optional(),
+})
 
 
-    const t = useTranslations('UserProfile.profile');
-    
-    const handleAvatarChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (file) {
-            const imageUrl = URL.createObjectURL(file);
-            setAvatar(imageUrl);
-        }
-    };
+
+type ProfileFormValues = z.infer<typeof profileFormSchema>
+
+const UserInfoPage = () => {
+    const [isLoading, setIsLoading] = useState<boolean>(false)
+
+    // Profile form
+    const profileForm = useForm<ProfileFormValues>({
+        resolver: zodResolver(profileFormSchema),
+        defaultValues: {
+        name: "John Doe",
+        email: "john.doe@example.com",
+        bio: "I'm a software developer based in New York.",
+        urls: {
+            website: "https://example.com",
+            twitter: "johndoe",
+            linkedin: "johndoe",
+        },
+        },
+    })
+
+    function onProfileSubmit(data: ProfileFormValues) {
+        setIsLoading(true)
+
+        // Simulate API call
+        setTimeout(() => {
+        console.log(data)
+        setIsLoading(false)
+        }, 1000)
+    }
 
     return (
-        <Box variant="row" className="w-full shadow-lg flex-wrap justify-center items-center">
-            <Box variant="column" className="w-full max-w-md p-4 shadow-lg rounded-xl min-h-[600px]">
-                <CardHeader>
-                    <CardTitle className="text-center text-xl font-semibold">{t('editProfile')}</CardTitle>
-                </CardHeader>
-                <CardContent className="flex flex-col items-center gap-4 w-full">
-                    <Box className="relative">
-                        <Avatar className="w-24 h-24">
-                            <AvatarImage src={avatar} alt="User Avatar" />
-                            <AvatarFallback>U</AvatarFallback>
-                        </Avatar>
-                        <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleAvatarChange}
-                            className="absolute inset-0 opacity-0 cursor-pointer"
-                        />
-                    </Box>
-                    <Box variant="column" className="w-full items-start">
-                        <Label htmlFor="name"> {t('name')}</Label>
-                        <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder={t('name')}/>
-                    </Box>
-                    <Box variant="column" className="w-full items-start">
-                        <Label htmlFor="email"> {t('email')}</Label>
-                        <Input id="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder={t('email')}/>
-                    </Box>
-                    <Box variant="column" className="w-full items-start">
-                        <Label htmlFor="phoneNumber">{t('phoneNumber')}</Label>
-                        <Input id="phoneNumber" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} placeholder= {t('phoneNumber')} />
-                    </Box>
-                    <Box variant="column" className="w-full items-start">
-                        <Label htmlFor="location">{t('location')}</Label>
-                        <Input id="location" value={location} onChange={(e) => setLocation(e.target.value)} placeholder={t('location')}/>
-                    </Box>
-                    <Button className="w-full">{t('saveChanges')}</Button>
-                </CardContent>
-            </Box>
-            <Box variant="column" className="w-full max-w-md justify-center p-4 shadow-lg rounded-xl min-h-[600px]">
-                <CardHeader>
-                    <CardTitle className="text-center text-xl font-semibold"> {t('resetPassword')}</CardTitle>
-                </CardHeader>
-                <CardContent className="flex flex-col items-center gap-4 w-full">
-                    <Box variant="column" className="w-full items-start">
-                        <Label htmlFor="oldPassword">{t('oldPassword')}</Label>
-                        <Input id="oldPassword" value={oldPassword} onChange={(e) => setOldPassword(e.target.value)} placeholder= {t('oldPassword')} />
-                    </Box>
-                    <Box variant="column" className="w-full items-start">
-                        <Label htmlFor="newPassword">{t('newPassword')}</Label>
-                        <Input id="newPassword" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder={t('newPassword')}/>
-                    </Box>
-                    <Box variant="column" className="w-full items-start">
-                        <Label htmlFor="repeatPassword">{t('repeatPassword')}</Label>
-                        <Input id="repeatPassword" value={repeatPassword} onChange={(e) => setRepeatPassword(e.target.value)} placeholder={t('repeatPassword')}/>
-                    </Box>
-                    <Button className="w-full">{t('saveChanges')}</Button>
-                </CardContent>
-            </Box>
-        </Box>
-    );
-};
+        <Tabs defaultValue="profile" className="w-full container ">
+        <TabsList className="grid w-full grid-cols-4 bg-primary">
+            <TabsTrigger value="profile" className="flex items-center gap-2 ">
+            <User className="h-4 w-4 text-primary" />
+            <span className="hidden sm:inline text-primary">Profile</span>
+            </TabsTrigger>
+        </TabsList>
 
-export default EditProfile;
+        {/* Profile Tab */}
+        <TabsContent value="profile" className="space-y-6 bg-white">
+            <Card className="bg-primary">
+            <CardHeader>
+                <CardTitle>Profile</CardTitle>
+                <CardDescription>Manage your public profile information.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+                <div className="flex flex-col sm:flex-row gap-6 items-start">
+                <Avatar className="h-24 w-24">
+                    <AvatarImage src="/placeholder.svg?height=96&width=96" alt="Profile" />
+                    <AvatarFallback>JD</AvatarFallback>
+                </Avatar>
+                <div className="space-y-2">
+                    <h4 className="text-sm font-medium">Profile Picture</h4>
+                    <div className="flex flex-col sm:flex-row gap-2">
+                    <Button variant="outline" size="sm" className="text-primary"> 
+                        Upload new image
+                    </Button>
+                    <Button variant="outline" size="sm" className="text-destructive">
+                        Remove
+                    </Button>
+                    </div>
+                    <p className="text-xs text-muted-foreground">JPG, GIF or PNG. Max size of 3MB.</p>
+                </div>
+                </div>
+
+                <Separator />
+
+                <Form {...profileForm}>
+                <form onSubmit={profileForm.handleSubmit(onProfileSubmit)} className="space-y-6">
+                    <div className="grid gap-4 sm:grid-cols-2">
+                    <FormField
+                        control={profileForm.control}
+                        name="name"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Name</FormLabel>
+                            <FormControl>
+                            <Input placeholder="Your name" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={profileForm.control}
+                        name="email"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Email</FormLabel>
+                            <FormControl>
+                            <Input placeholder="Your email" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                    </div>
+
+                    <FormField
+                    control={profileForm.control}
+                    name="bio"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Bio</FormLabel>
+                        <FormControl>
+                            <Textarea
+                            placeholder="Tell us a little bit about yourself"
+                            className="resize-none"
+                            {...field}
+                            />
+                        </FormControl>
+                        <FormDescription>Brief description for your profile. URLs are hyperlinked.</FormDescription>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
+
+                    <div className="grid gap-4 sm:grid-cols-3">
+                    <FormField
+                        control={profileForm.control}
+                        name="urls.website"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Website</FormLabel>
+                            <FormControl>
+                            <Input placeholder="https://example.com" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={profileForm.control}
+                        name="urls.twitter"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Twitter</FormLabel>
+                            <FormControl>
+                            <Input placeholder="@username" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={profileForm.control}
+                        name="urls.linkedin"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>LinkedIn</FormLabel>
+                            <FormControl>
+                            <Input placeholder="username" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                    </div>
+
+                    <Button type="submit" disabled={isLoading} className="bg-primary-light text-white">
+                    {isLoading ? "Saving..." : "Save changes"}
+                    </Button>
+                </form>
+                </Form>
+            </CardContent>
+            </Card>
+        </TabsContent>
+
+        </Tabs>
+    )
+}
+
+export default UserInfoPage

@@ -1,14 +1,13 @@
 "use client"
 
 import {
-  BarChart2,
+  Heart,
   Home,
   Inbox,
   Layers,
   LayoutDashboard,
   MessageSquare,
   Settings,
-  ShoppingCart,
   Users,
 } from "lucide-react"
 import {
@@ -23,11 +22,14 @@ import {
 } from "@/components/ui/sidebar"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 
 export function DashboardSidebar() {
+  const pathname = usePathname()
+
   return (
-    <Sidebar>
-      <SidebarHeader className="flex h-14 items-center px-4 mt-20">
+    <Sidebar className="">
+      <SidebarHeader className="flex h-14 items-center px-4 mt-20 bg-primary" dir="ltr">
         <div className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary">
             <Layers className="h-5 w-5 text-primary-foreground" />
@@ -35,86 +37,40 @@ export function DashboardSidebar() {
           <span className="text-xl font-bold">Dashboard</span>
         </div>
       </SidebarHeader>
-      <SidebarContent className="px-2">
+      <SidebarContent className="px-2 bg-primary">
         <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive>
-              <Link href="/userProfile">
-                <LayoutDashboard className="h-5 w-5" />
-                <span>Dashboard</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild >
-              <Link href="/userProfile/Products">
-                <Home className="h-5 w-5" />
-                <span>Products</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild>
-              <a href="#">
-                <BarChart2 className="h-5 w-5" />
-                <span>Analytics</span>
-              </a>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild>
-              <a href="#">
-                <ShoppingCart className="h-5 w-5" />
-                <span>Products</span>
-              </a>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild>
-              <a href="#">
-                <Users className="h-5 w-5" />
-                <span>Customers</span>
-              </a>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild>
-              <a href="#">
-                <Inbox className="h-5 w-5" />
-                <span>Inbox</span>
-                <span className="ml-auto flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground">
-                  3
-                </span>
-              </a>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild>
-              <a href="#">
-                <MessageSquare className="h-5 w-5" />
-                <span>Messages</span>
-              </a>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild>
-              <a href="#">
-                <Settings className="h-5 w-5" />
-                <span>Settings</span>
-              </a>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
+          {[
+            { href: "/userProfile", icon: LayoutDashboard, label: "Dashboard" },
+            { href: "/userProfile/Products", icon: Home, label: "Products" },
+            { href: "/userProfile/Favorites", icon: Heart, label: "Favorites" },
+            { href: "#1", icon: Users, label: "Customers" },
+            { href: "#2", icon: Inbox, label: "Inbox", badge: 3 },
+            { href: "#3", icon: MessageSquare, label: "Messages" },
+            { href: "/userProfile/UserInfo", icon: Settings, label: "Settings" },
+          ].map(({ href, icon: Icon, label, badge }) => (
+            <SidebarMenuItem key={href}>
+              <SidebarMenuButton
+                asChild
+                className={`flex items-center gap-2 px-4 py-2 rounded-md ${
+                  pathname === href ? "bg-primary text-white" : "hover:bg-primary-light"
+                }`}
+              >
+                <Link href={href}>
+                  <Icon className="h-5 w-5" />
+                  <span>{label}</span>
+                  {badge && (
+                    <span className="ml-auto flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground">
+                      {badge}
+                    </span>
+                  )}
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
         </SidebarMenu>
       </SidebarContent>
 
-      <SidebarFooter className="p-4">
+      <SidebarFooter className="p-4 bg-primary">
         <div className="flex items-center gap-3">
           <Avatar className="h-9 w-9 border">
             <AvatarImage src="/placeholder-user.jpg" />
@@ -130,4 +86,3 @@ export function DashboardSidebar() {
     </Sidebar>
   )
 }
-

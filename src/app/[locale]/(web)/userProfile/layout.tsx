@@ -1,17 +1,17 @@
 "use client"
 
-import { SidebarProvider } from "@/components/ui/sidebar"
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
 import { DashboardSidebar } from "@/components/web/UserProfilePage/dashboard-sidebar"
-import { PropsWithChildren } from "react"
-
+import type { PropsWithChildren } from "react"
 
 export default function Dashboard({ children }: PropsWithChildren) {
-    return (
+  return (
         <SidebarProvider>
-            <div className="flex h-screen bg-background w-full">
-                <DashboardSidebar />
-                {children}
-            </div>
+        {/* Account for the fixed headers (55px + 65px = 120px) */}
+        <div className="flex pt-[120px] min-h-screen bg-background w-full" dir="ltr">
+            <DashboardSidebar />
+            <SidebarInset>{children}</SidebarInset>
+        </div>
         </SidebarProvider>
     )
 }
