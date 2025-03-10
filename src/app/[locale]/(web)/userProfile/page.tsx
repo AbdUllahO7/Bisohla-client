@@ -3,7 +3,7 @@ import UserHomePage from './Home/page'
 
 const UserProfilePage = () => {
     return (
-        <div>
+        <div className='w-full ' >
             <UserHomePage/>
             
         </div>

@@ -11,7 +11,7 @@ const Footer = () => {
         const locale = useLocale(); // Get the current language
     
     return (
-    <Box variant="column" className='bg-white pt-10 pb-10 justify-around w-full' >
+    <Box variant="column" className='relative z-[999] bg-white pt-10 pb-10 justify-around w-full' >
         <Box  variant='row' className='w-full justify-evenly md:flex-wrap xs:flex-wrap'>
 
                     {/*  create ad */}
