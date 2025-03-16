@@ -30,16 +30,25 @@ export class BaseRepo<
     throw new Error('Method not implemented.');
   }
   async findById(id: number): Promise<ApiResponse<S>> {
-    const res = await getAuthReq<Record<string, unknown>, PaginatedResponse<S>>(
-      {
-        url: '/' + this.path + '/' + id,
-      },
-    );
+    const res = await getAuthReq<Record<string, unknown>, ApiResponse<S>>({
+      url: '/' + this.path + '/' + id,
+    });
 
     return res;
   }
+
+  async search(params: QueryParams): Promise<PaginatedResponse<S>> {
+    // const locale = await getLocale();
+    const res = await postAuthReq<QueryParams, S>({
+      url: '/' + this.path + '/search',
+      body: params,
+    });
+
+    return res;
+  }
+
   async findAll(params: QueryParams): Promise<PaginatedResponse<S>> {
-    console.log('find all');
+    // const locale = await getLocale();
     const res = await getAuthReq<Record<string, unknown>, S>({
       url: '/' + this.path,
       params: params,
@@ -51,6 +60,7 @@ export class BaseRepo<
     const res = await postAuthReq<C, S>({
       url: '/' + this.path,
       body: createDto,
+      // params: { locale: locale },
     });
 
     return res;

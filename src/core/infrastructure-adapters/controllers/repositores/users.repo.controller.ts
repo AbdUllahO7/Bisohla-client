@@ -8,14 +8,15 @@ import {
 } from '@/core/entities/api/success.response';
 import {
   CreateUserDto,
-  SelectUserDto,
+  // SelectUserDto,
+  SelectUserWithTransformedRolesType,
   UpdateUserDto,
 } from '@/core/entities/models/users/users.dto';
 import { catchClientRequest } from '@/core/lib/error';
 
 export class UsersRepoController implements IUserRepoController {
   constructor(protected readonly userRepoUseCase: IUsersRepoUseCase) {}
-  async seed(items: SelectUserDto[]): Promise<void> {
+  async seed(items: SelectUserWithTransformedRolesType[]): Promise<void> {
     try {
       await this.userRepoUseCase.seed(items);
     } catch (e) {
@@ -29,23 +30,28 @@ export class UsersRepoController implements IUserRepoController {
       throw catchClientRequest(e);
     }
   }
-  async findById(id: number): Promise<ApiResponse<SelectUserDto>> {
+  async findById(
+    id: number,
+  ): Promise<ApiResponse<SelectUserWithTransformedRolesType>> {
     try {
       return await this.userRepoUseCase.findById(id);
     } catch (err) {
       return catchClientRequest(err);
     }
   }
+
   async findAll(
     params: QueryParams,
-  ): Promise<PaginatedResponse<SelectUserDto>> {
+  ): Promise<PaginatedResponse<SelectUserWithTransformedRolesType>> {
     try {
       return await this.userRepoUseCase.findAll(params);
     } catch (err) {
       return catchClientRequest(err);
     }
   }
-  async create(createDto: CreateUserDto): Promise<ApiResponse<SelectUserDto>> {
+  async create(
+    createDto: CreateUserDto,
+  ): Promise<ApiResponse<SelectUserWithTransformedRolesType>> {
     try {
       return await this.userRepoUseCase.create(createDto);
     } catch (err) {
@@ -55,7 +61,7 @@ export class UsersRepoController implements IUserRepoController {
   async update(
     id: number,
     updateDto: UpdateUserDto,
-  ): Promise<ApiResponse<SelectUserDto>> {
+  ): Promise<ApiResponse<SelectUserWithTransformedRolesType>> {
     try {
       return await this.userRepoUseCase.update(id, updateDto);
     } catch (err) {

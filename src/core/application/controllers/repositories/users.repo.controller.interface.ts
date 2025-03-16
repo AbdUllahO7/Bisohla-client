@@ -1,3 +1,4 @@
-import { IUserRepository } from '../../repositories/user.repo.interface';
+// import { IUserRepository } from '../../repositories/user.repo.interface';
+import { IUsersRepoUseCase } from '../../use-cases/repositories/users/users.repo.use-case.interface';
 
-export type IUserRepoController = IUserRepository;
+export type IUserRepoController = IUsersRepoUseCase; // this will return the same types of user repo use cases
