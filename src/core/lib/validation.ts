@@ -1,6 +1,6 @@
-import { initZodConfig } from '@/config/zod.config';
-import { ValidationError } from '@/interfaces/errors/validation.error';
 import { z, ZodError, ZodSchema, ZodTypeAny } from 'zod';
+import { initZodConfig } from '../config/zod.config';
+import { ValidationError } from '../entities/errors/validation-error';
 
 // Initialize Zod configuration (once in the app's entry point)
 initZodConfig();

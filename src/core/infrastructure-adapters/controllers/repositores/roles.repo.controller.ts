@@ -37,6 +37,15 @@ export class RolesRepoController implements IRolesRepoController {
       return catchClientRequest(err);
     }
   }
+
+  async search(params: QueryParams): Promise<PaginatedResponse<SelectRoleDto>> {
+    try {
+      return await this.userRepoUseCase.search(params);
+    } catch (err) {
+      return catchClientRequest(err);
+    }
+  }
+
   async findAll(
     params: QueryParams,
   ): Promise<PaginatedResponse<SelectRoleDto>> {

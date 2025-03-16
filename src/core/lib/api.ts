@@ -1,18 +1,19 @@
 'use server';
 
-import { BACKEND_URL } from '@/constants/constants';
 import { verifyZodFields } from './validation';
 import { ZodError, ZodTypeAny } from 'zod';
 import { ApiResponse, BaseApiResponse } from '../entities/api/success.response';
 import { ValidationError } from '../entities/errors/validation-error';
 import { AppError } from '../entities/errors/app-error';
-import { getSession } from '@/lib/session';
 import { QueryParams } from '../entities/api/api';
+import { getLocale } from 'next-intl/server';
+import { BACKEND_URL } from './web/constants';
+import { getSession } from './web/session';
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 
 interface RequestConfig<
-  T = Record<string, FormDataEntryValue | null>,
+  T = Record<string, FormDataEntryValue | null> | FormData,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   R = Record<string, unknown>,
 > {
@@ -141,7 +142,7 @@ async function fetchWithRetry(
 }
 
 export async function makeRequest<
-  T = Record<string, FormDataEntryValue | null>,
+  T = Record<string, FormDataEntryValue | null> | FormData,
   R = Record<string, unknown>,
 >({
   url,
@@ -164,14 +165,24 @@ export async function makeRequest<
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeout);
 
+    const locale = await getLocale();
+
     const fetchOptions: RequestInit = {
       method,
       headers: {
-        'Content-Type': 'application/json',
+        ...(!(validatedBody instanceof FormData) && {
+          'Content-Type': 'application/json',
+          'Accept-Language': locale,
+        }),
         ...headers,
       },
       signal: controller.signal,
-      ...(validatedBody && { body: JSON.stringify(validatedBody) }),
+      body:
+        validatedBody instanceof FormData
+          ? validatedBody
+          : validatedBody
+          ? JSON.stringify(validatedBody)
+          : undefined,
     };
 
     const fullUrl = buildUrl(BACKEND_URL + url, params);
@@ -258,7 +269,7 @@ export const catchActionRequest = async <T>(
 
 // Type-safe convenience methods
 export const postReq = async <
-  T extends Record<string, unknown>,
+  T = Record<string, FormDataEntryValue | null> | FormData,
   R = Record<string, unknown>,
 >(
   config: Omit<RequestConfig<T, R>, 'method'>,
@@ -272,7 +283,7 @@ export const getReq = async <
 ) => makeRequest<T, R>({ ...config, method: 'GET' });
 
 export const putReq = async <
-  T extends Record<string, unknown>,
+  T = Record<string, FormDataEntryValue | null> | FormData,
   R = Record<string, unknown>,
 >(
   config: Omit<RequestConfig<T, R>, 'method'>,
@@ -307,7 +318,7 @@ const withAuth = async <T, R>(
 };
 
 export const postAuthReq = async <
-  T extends Record<string, unknown>,
+  T = Record<string, FormDataEntryValue | null> | FormData,
   R = Record<string, unknown>,
 >(
   config: Omit<RequestConfig<T, R>, 'method'>,
@@ -321,7 +332,7 @@ export const getAuthReq = async <
 ) => makeRequest(await withAuth<T, R>(config, 'GET'));
 
 export const putAuthReq = async <
-  T extends Record<string, unknown>,
+  T = Record<string, FormDataEntryValue | null> | FormData,
   R = Record<string, unknown>,
 >(
   config: Omit<RequestConfig<T, R>, 'method'>,

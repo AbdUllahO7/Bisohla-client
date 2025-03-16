@@ -1,17 +1,18 @@
-import { LoginDto } from '@/core/entities/models/auth/login.dto';
+import { LoginDto, LoginResponse } from '@/core/entities/models/auth/login.dto';
 import { IAuthUseCase } from './auth.use-case.interface';
 import {
   ApiResponse,
   SuccessResponseWithNoContent,
 } from '@/core/entities/api/success.response';
 import { IAuthService } from '../../services/auth.service.interface';
-import { createSession } from '@/lib/session';
 import { SendVerificationEmailDto } from '@/core/entities/models/auth/send-verification-email.dto';
 import { ResetPasswordDto } from '@/core/entities/models/auth/reset-password.dto';
 import {
   RegisterDto,
   RegisterResponse,
 } from '@/core/entities/models/auth/register.dto';
+import { createSession } from '@/core/lib/web/session';
+import { env } from '@/core/lib/env';
 
 export class AuthUseCase implements IAuthUseCase {
   constructor(protected readonly authService: IAuthService) {}
@@ -49,16 +50,18 @@ export class AuthUseCase implements IAuthUseCase {
     const res = await this.authService.adminLogin(loginDto);
 
     if (res.success && res.data) {
-      await createSession({
-        user: {
-          id: res.data.id,
-          name: res.data.name,
-          roles: res.data.roles,
-          permissions: res.data.permissions,
-        },
-        accessToken: res.data.accessToken,
-        refreshToken: res.data.refreshToken,
-      });
+      if (env('environment', 'web') === 'web') {
+        await createSession({
+          user: {
+            id: res.data.id,
+            name: res.data.name,
+            roles: res.data.roles,
+            permissions: res.data.permissions,
+          },
+          accessToken: res.data.accessToken,
+          refreshToken: res.data.refreshToken,
+        });
+      }
     }
 
     return res;
