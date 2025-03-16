@@ -60,6 +60,7 @@ export enum SyriaCity {
   MAARRAT_AL_NUMAN = "Maarrat al-Nu'man",
   ARIHA = 'Ariha',
   JISR_AL_SHUGHUR = 'Jisr al-Shughur',
+  SARQEP = 'SARQEP',
 
   // Al-Hasakah cities
   AL_HASAKAH = 'Al-Hasakah',
