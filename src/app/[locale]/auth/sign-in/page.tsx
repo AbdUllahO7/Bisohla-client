@@ -11,64 +11,68 @@ import {
   defaultActionState,
 } from '@/interfaces/api-response.interface';
 
-import { handleLogin } from '@/services/auth/auth.service';
 import Link from 'next/link';
 import { useActionState } from 'react';
+import { signInAction } from '../actions';
+import { useLocale } from 'next-intl';
+import LocaleSwitcher from '@/components/local/LocalSwitcher';
 
 const SignInPage = () => {
+  const locale = useLocale();
+  const isRTL = locale === 'ar';
+
   const [state, action] = useActionState<ApiResponse<LoginResponse>, FormData>(
-    handleLogin,
+    signInAction,
     defaultActionState,
   );
 
-  console.log(state);
-
   return (
-    <form action={action} className="w-full">
-      <Box className="flex-col w-full gap-4 items-start">
+    <form action={action} className={`w-[50%] ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>
+      <Box className="flex-col w-full gap-4 ">
+      <div className='xs:hidden lg:block md:block'>
+                          <LocaleSwitcher/>
+          </div>
         {/* Status Message */}
         <FormStateMessage state={state} />
 
         {/* Email Input */}
         <DetailedInput
-          placeholder="Enter Your Email"
+          placeholder={isRTL ? 'أدخل بريدك الإلكتروني' : 'Enter Your Email'}
           type="email"
           name="email"
           error={state?.errors?.email}
-          caption="Email"
-          // value={state?.fields?.email}
+          caption={isRTL ? 'البريد الإلكتروني' : 'Email'}
         />
 
         {/* Password Input */}
         <DetailedInput
-          placeholder="Enter Your Password"
+          placeholder={isRTL ? 'أدخل كلمة المرور' : 'Enter Your Password'}
           type="password"
           name="password"
           error={state?.errors?.password}
-          caption="Password"
-          // value={state?.fields?.password}
+          caption={isRTL ? 'كلمة المرور' : 'Password'}
         />
 
         {/* Submit Button */}
-        <SubmitButton title="Login" />
+        <SubmitButton title={isRTL ? 'تسجيل الدخول' : 'Login'} />
       </Box>
       <Box variant={'column'} className="items-start m-2">
         <Text>
-          New to Bishola?{' '}
+          {isRTL ? 'جديد في Bishola؟' : 'New to Bishola?'}{' '}
           <Link
             href={allRoutes.auth.children.register.path}
             className="text-primary-light"
           >
-            Register Now
+            {isRTL ? 'سجل الآن' : 'Register Now'}
           </Link>
         </Text>
         <Text>
-          Forgot your password?{' '}
+          {isRTL ? 'هل نسيت كلمة المرور؟' : 'Forgot your password?'}{' '}
           <Link
             href={allRoutes.auth.children.sendResetPasswordEmail.path}
             className="text-primary-light"
           >
-            Reset password
+            {isRTL ? 'إعادة تعيين كلمة المرور' : 'Reset password'}
           </Link>
         </Text>
       </Box>

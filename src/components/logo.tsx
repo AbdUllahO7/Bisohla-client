@@ -5,7 +5,6 @@ import { useTheme } from 'next-themes';
 import Image from 'next/image';
 import Box from './box/box';
 import { useEffect, useState } from 'react';
-import { Images } from '@/assets';
 
 const Logo = (props: { size?: 'sm' | 'md' | 'lg'; className?: string }) => {
   const { size = 'md', className } = props;
@@ -24,7 +23,7 @@ const Logo = (props: { size?: 'sm' | 'md' | 'lg'; className?: string }) => {
     return (
       <Box variant="center" className={cn(sizeClasses, className)}>
         <Image
-          src={Images.lightLogo}
+          src="/assets/images/logo/lightLogo.png"
           alt={'website logo alt'}
           width={80}
           height={80}
@@ -36,7 +35,7 @@ const Logo = (props: { size?: 'sm' | 'md' | 'lg'; className?: string }) => {
   }
 
   const imageSrc =
-    resolvedTheme === 'dark' ? Images.darkLogo : Images.lightLogo;
+    resolvedTheme === 'dark' ?  '/assets/images/logo/darkLogo.png' : '/assets/images/logo/lightLogo.png';
 
   return (
     <Box variant="center" className={cn(sizeClasses, className)}>

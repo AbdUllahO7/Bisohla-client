@@ -11,14 +11,15 @@ import {
   ApiResponse,
   defaultActionState,
 } from '@/interfaces/api-response.interface';
-import { handleSendVerificationEmail } from '@/services/auth/auth.service';
 import { useActionState } from 'react';
+import { sendVerificationEmailAction } from '../actions';
+import { SuccessResponseWithNoContent } from '@/core/entities/api/success.response';
 
 const VerifyEmailPage = () => {
   const [state, action] = useActionState<
-    ApiResponse<SendEmailVerificationResponse>,
+    ApiResponse<SuccessResponseWithNoContent>,
     FormData
-  >(handleSendVerificationEmail, defaultActionState);
+  >(sendVerificationEmailAction, defaultActionState);
 
   return (
     <form action={action} className="w-full">

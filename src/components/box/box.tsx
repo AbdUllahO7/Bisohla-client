@@ -11,12 +11,7 @@ const boxVariants = cva('', {
       columnBetween: 'flex flex-col justify-between items-center',
       center: 'flex justify-center items-center',
       container: `
-                w-full mx-auto
-                sm:max-w-[100%]
-                md:max-w-[768px]
-                lg:max-w-[1024px]
-                xl:max-w-[1280px]
-                2xl:max-w-[1536px]
+                container
             `,
     },
     fitContent: {

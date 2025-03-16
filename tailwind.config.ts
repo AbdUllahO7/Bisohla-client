@@ -1,5 +1,7 @@
 import type { Config } from 'tailwindcss';
 import animate from 'tailwindcss-animate';
+import scrollbar from 'tailwind-scrollbar';
+import scrollbarHide from 'tailwind-scrollbar-hide';
 
 // import scrollbar from 'tailwind-scrollbar';
 // import animate from 'tailwindcss-animate'
@@ -28,11 +30,29 @@ const config: Config = {
       },
     },
     extend: {
+      // Add custom scrollbar styling
+      scrollbar: {
+        width: '8px',
+        thumb: {
+          backgroundColor: '#198341',
+          borderRadius: '9999px',
+        },
+        track: {
+          backgroundColor: '#e5e7eb',
+          borderRadius: '9999px',
+        },
+
+        colors: {
+          primary: '#198341', // Example color
+          secondary: '#e5e7eb', // Example color
+        },
+      },
+
       colors: {
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
-        background: 'hsl(var(--background))',
+        background: '#EFEFEF',
         foreground: 'hsl(var(--foreground))',
         primary: {
           DEFAULT: '#2C3C39',
@@ -45,6 +65,7 @@ const config: Config = {
           purple: '#AF52DE',
           indigo: '#5856D6',
           pink: '#FF2D55',
+          text: '#7D8180',
         },
         destructive: {
           DEFAULT: 'hsl(var(--destructive))',
@@ -222,9 +243,15 @@ const config: Config = {
           },
         },
         'progress-bar': {
-          '0%': { width: '0%' },
-          '50%': { width: '70%' },
-          '100%': { width: '100%' },
+          '0%': {
+            width: '0%',
+          },
+          '50%': {
+            width: '70%',
+          },
+          '100%': {
+            width: '100%',
+          },
         },
       },
       animation: {
@@ -239,21 +266,14 @@ const config: Config = {
         testimonial: 'testimonial 4s ease-in-out infinite',
         'progress-bar': 'progress-bar 2s ease-out',
       },
-      // fontFamily: {
-      //   pthin: ['Poppins-Thin', 'sans-serif'],
-      //   pextralight: ['Poppins-ExtraLight', 'sans-serif'],
-      //   plight: ['Poppins-Light', 'sans-serif'],
-      //   pregular: ['Poppins-Regular', 'sans-serif'],
-      //   pmedium: ['Poppins-Medium', 'sans-serif'],
-      //   psemibold: ['Poppins-SemiBold', 'sans-serif'],
-      //   pbold: ['Poppins-Bold', 'sans-serif'],
-      //   pextrabold: ['Poppins-ExtraBold', 'sans-serif'],
-      //   pblack: ['Poppins-Black', 'sans-serif'],
-      // },
+      fontFamily: {
+        cairo: ['Cairo', 'sans-serif'],
+      },
       screens: {
         '2xs': '360px',
-        xs: '480px',
+        xs: '200px',
         sm: '640px',
+        lg: '800px',
       },
       fontSize: {
         xs: '0.75rem',
@@ -272,6 +292,6 @@ const config: Config = {
       },
     },
   },
-  plugins: [animate],
+  plugins: [animate, scrollbar, scrollbarHide],
 } satisfies Config;
 export default config;

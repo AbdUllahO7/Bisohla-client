@@ -121,7 +121,37 @@
     --info-dark: 210 60% 40%; /* Darker info */
     --info-light: 210 60% 60%; /* Lighter info */ --sidebar-background: 240 5.9% 10%; --sidebar-foreground: 240 4.8% 95.9%; --sidebar-primary: 224.3 76.3% 48%; --sidebar-primary-foreground: 0 0% 100%; --sidebar-accent: 240 3.7% 15.9%; --sidebar-accent-foreground: 240 4.8% 95.9%; --sidebar-border: 240 3.7% 15.9%; --sidebar-ring: 217.2 91.2% 59.8%;
   }
+}/* Global styles in globals.css */
+
+/* Scrollbar width */
+::-webkit-scrollbar {
+  width: 8px; /* Set width for vertical scrollbars */
+  height: 8px; /* Set height for horizontal scrollbars */
 }
+
+/* Scrollbar thumb styling */
+::-webkit-scrollbar-thumb {
+  background-color: #198341; /* Thumb color */
+  border-radius: 9999px; /* Fully rounded scrollbar */
+}
+
+/* Scrollbar track styling */
+::-webkit-scrollbar-track {
+  background-color: #e5e7eb; /* Track color */
+  border-radius: 9999px; /* Fully rounded track */
+}
+
+/* Hide scrollbar buttons (up and down arrows) */
+::-webkit-scrollbar-button {
+  display: none; /* Completely hides the buttons */
+}
+
+/* Firefox scrollbar styles */
+.scrollbar {
+  scrollbar-width: thin; /* Thin scrollbar */
+  scrollbar-color: #198341 #e5e7eb; /* Thumb and track colors */
+}
+
 /* 
 @font-face {
   font-family: 'Poppins-Thin';
@@ -204,10 +234,7 @@
 
 /* Custom Scrollbar Styles */
 
-::-webkit-scrollbar {
-  width: 4px;
-  height: 8px;
-}
+
 
 /* ::-webkit-scrollbar-track {
   background: hsl(var(--background));
@@ -221,11 +248,3 @@
   background-color: hsl(var(--primary-dark));
 } */
 
-.scrollbar {
-  scrollbar-width: thin;
-  scrollbar-color: hsl(var(--primary)) hsl(var(--background));
-}
-
-.scrollable-element {
-  overflow-y: scroll;
-}

@@ -1,8 +1,754 @@
 {
   "homePage": {
+    "lang": "en",
     "metadata": {
       "title": "Bishola",
       "description": "A mobile app for Bishola, a community of practitioners sharing their stories and experiences."
+    },
+    "headerOne": {
+      "adsButton": "create Ads",
+      "loginButton": "Login / SignUp"
+    },
+    "headerTow": {
+      "home": "Home",
+      "rent": "Rent",
+      "sale": "Sale",
+      "news": "news",
+      "join": "Join"
+    },
+    "hero": {
+      "title": "Bishola",
+      "description": "Sell . Buy . Rent . Hire"
+    },
+
+    "filter": {
+      "Buy": "Buy",
+      "Hire": "Hire",
+      "productType": "product Type",
+      "selectproductType": "Select product Type",
+      "state": "State",
+      "selectState": "Select State",
+      "controltype": "Control Type",
+      "selectControlType": "Select Control Type",
+      "priceHigh": "Price High",
+      "priceLow": "Price Low",
+      "selectPrice": "Select Price",
+      "search": "Search",
+      "options": {
+        "productType": {
+          "sedan": "Sedan",
+          "suv": "SUV",
+          "truck": "Truck",
+          "coupe": "Coupe"
+        },
+        "state": {
+          "new": "New",
+          "used": "Used",
+          "certified": "Certified"
+        },
+        "controltype": {
+          "manual": "Manual",
+          "automatic": "Automatic"
+        },
+        "priceRanges": {
+          "15000_20000": "15,000 to 20,000",
+          "20000_30000": "20,000 to 30,000",
+          "30000_40000": "30,000 to 40,000"
+        }
+      }
+    },
+    "latestOffers": {
+      "title": "Latest Offers",
+      "showMore": "Show More",
+      "price": "Price",
+      "products": {
+        "product1": {
+          "title": "product 1",
+          "marka": "Brand A",
+          "price": "$80.00",
+          "carType": "Economy",
+          "model": "2002020",
+          "controlType": "Automatic",
+          "distance": "1000",
+          "passengers": "5",
+          "adsNumber": "123123",
+          "dateOfAds": "2020-12-12",
+          "gaz": "Benzin"
+        },
+        "product2": {
+          "title": "product 2",
+          "marka": "Brand B",
+          "price": "$85.00",
+          "carType": "Economy",
+          "model": "2002020",
+          "controlType": "Automatic",
+          "distance": "1000",
+          "passengers": "5",
+          "adsNumber": "123123",
+          "dateOfAds": "2020-12-12",
+          "gaz": "Benzin"
+        },
+        "product3": {
+          "title": "product 3",
+          "marka": "Brand C",
+          "price": "$90.00",
+          "carType": "Economy",
+          "model": "2002020",
+          "controlType": "Automatic",
+          "distance": "1000",
+          "passengers": "5",
+          "adsNumber": "123123",
+          "dateOfAds": "2020-12-12",
+          "gaz": "Benzin"
+        },
+        "product4": {
+          "title": "product 4",
+          "marka": "Brand D",
+          "price": "$95.00",
+          "carType": "Economy",
+          "model": "2002020",
+          "controlType": "Automatic",
+          "distance": "1000",
+          "passengers": "5",
+          "adsNumber": "123123",
+          "dateOfAds": "2020-12-12",
+          "gaz": "Benzin"
+        },
+        "product5": {
+          "title": "product 5",
+          "marka": "Brand E",
+          "price": "$100.00",
+          "carType": "Economy",
+          "model": "2002020",
+          "controlType": "Automatic",
+          "distance": "1000",
+          "passengers": "5",
+          "adsNumber": "123123",
+          "dateOfAds": "2020-12-12",
+          "gaz": "Benzin"
+        },
+        "product6": {
+          "title": "product 6",
+          "marka": "Brand F",
+          "price": "$105.00",
+          "carType": "Economy",
+          "model": "2002020",
+          "controlType": "Automatic",
+          "distance": "1000",
+          "passengers": "5",
+          "adsNumber": "123123",
+          "dateOfAds": "2020-12-12",
+          "gaz": "Benzin"
+        },
+        "product7": {
+          "title": "product 7",
+          "marka": "Brand G",
+          "price": "$110.00",
+          "carType": "Economy",
+          "model": "2002020",
+          "controlType": "Automatic",
+          "distance": "1000",
+          "passengers": "5",
+          "adsNumber": "123123",
+          "dateOfAds": "2020-12-12",
+          "gaz": "Benzin"
+        },
+        "product8": {
+          "title": "product 8",
+          "marka": "Brand H",
+          "price": "$115.00",
+          "carType": "Economy",
+          "model": "2002020",
+          "controlType": "Automatic",
+          "distance": "1000",
+          "passengers": "5",
+          "adsNumber": "123123",
+          "dateOfAds": "2020-12-12",
+          "gaz": "Benzin"
+        },
+        "product9": {
+          "title": "product 9",
+          "marka": "Brand I",
+          "price": "$120.00",
+          "carType": "Economy",
+          "model": "2002020",
+          "controlType": "Automatic",
+          "distance": "1000",
+          "passengers": "5",
+          "adsNumber": "123123",
+          "dateOfAds": "2020-12-12",
+          "gaz": "Benzin"
+        }
+      }
+    },
+    "productAds": {
+      "title": "Your ad here reaches hundreds of thousands daily.",
+      "description": "Contact us now"
+    },
+    "adsSection": {
+      "title": "Create your ad with us",
+      "bishola": "Bishola",
+      "startNow": "Start Now"
+    },
+    "worldOfProducts": {
+      "title": "Discover a world of products",
+      "showMore": "Show all",
+      "cities": {
+        "city1": { "title": "Idlib", "productCount": "250" },
+        "city2": { "title": "Aleppo", "productCount": "250" },
+        "city3": { "title": "Damascus", "productCount": "250" },
+        "city4": { "title": "Hama", "productCount": "250" },
+        "city5": { "title": "Homs", "productCount": "250" }
+      }
+    },
+    "rentProduct": {
+      "title": "Rent your order with us",
+      "showMore": "Show all",
+      "price": "Today Price",
+      "products": {
+        "product1": {
+          "title": "product 1",
+          "marka": "Brand A",
+          "price": "$80.00",
+          "details": {
+            "basic": {
+              "gaz": "Benzin",
+              "type": "Normal"
+            }
+          }
+        },
+        "product2": {
+          "title": "product 2",
+          "marka": "Brand B",
+          "price": "$85.00",
+          "details": {
+            "gaz": "Benzin",
+            "type": "Normal"
+          }
+        },
+        "product3": {
+          "title": "product 3",
+          "marka": "Brand C",
+          "price": "$90.00",
+          "details": {
+            "basic": {
+              "gaz": "Benzin",
+              "type": "Normal"
+            }
+          }
+        },
+        "product4": {
+          "title": "product 4",
+          "marka": "Brand D",
+          "price": "$95.00",
+          "details": {
+            "basic": {
+              "gaz": "Benzin",
+              "type": "Normal"
+            }
+          }
+        },
+        "product5": {
+          "title": "product 5",
+          "marka": "Brand E",
+          "price": "$100.00",
+          "details": {
+            "basic": {
+              "gaz": "Benzin",
+              "type": "Normal"
+            }
+          }
+        },
+        "product6": {
+          "title": "product 6",
+          "marka": "Brand F",
+          "price": "$105.00",
+          "details": {
+            "basic": {
+              "gaz": "Benzin",
+              "type": "Normal"
+            }
+          }
+        },
+        "product7": {
+          "title": "product 7",
+          "marka": "Brand G",
+          "price": "$110.00",
+          "details": {
+            "basic": {
+              "gaz": "Benzin",
+              "type": "Normal"
+            }
+          }
+        },
+        "product8": {
+          "title": "product 8",
+          "marka": "Brand H",
+          "price": "$115.00",
+          "details": {
+            "basic": {
+              "gaz": "Benzin",
+              "type": "Normal"
+            }
+          }
+        },
+        "product9": {
+          "title": "product 9",
+          "marka": "Brand I",
+          "price": "$120.00",
+          "details": {
+            "basic": {
+              "gaz": "Benzin",
+              "type": "Normal"
+            }
+          }
+        }
+      }
+    },
+    "spaceAds": {
+      "box1": {
+        "title": "Create your ad with us 1",
+        "bishola": "Bishola"
+      },
+      "box2": {
+        "title": "Create your ad with us 2",
+        "bishola": "Bishola"
+      }
+    },
+    "faq": {
+      "title": "FAQ",
+      "showMore": "Show all",
+      "questions": {
+        "question1": {
+          "question": "It is a long established fact that the readable content of a page?",
+          "answer": "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like)."
+        },
+        "question2": {
+          "question": "It is a long established fact that the readable content of a page?",
+          "answer": "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like)."
+        },
+        "question3": {
+          "question": "It is a long established fact that the readable content of a page?",
+          "answer": "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like)."
+        },
+        "question4": {
+          "question": "It is a long established fact that the readable content of a page?",
+          "answer": "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like)."
+        },
+        "question5": {
+          "question": "It is a long established fact that the readable content of a page?",
+          "answer": "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like)."
+        }
+      }
+    }
+  },
+  "productsPage": {
+    "header": {
+      "adCounter": "250 ad",
+      "orderBy": "Short by:",
+      "selectPrice": "Select Price",
+      "options": {
+        "priceHigh": "Price High",
+        "priceLow": "Price Low"
+      }
+    },
+    "filter": {
+      "title": "What are you looking for",
+      "searchInput": "Search",
+      "filterOptions": {
+        "address": {
+          "filterOptionsTitle": "Address",
+          "placeHolder": "City",
+          "options": {
+            "Damascus": "Damascus",
+            "Idlib": "Idlib",
+            "Aleppo": "Aleppo",
+            "Homs": "Homs"
+          }
+        },
+        "states": {
+          "placeHolder": "State",
+          "options": {
+            "Damascus": "دمشق",
+            "Idlib": "إدلب",
+            "Aleppo": "حلب",
+            "Homs": "حمص"
+          }
+        },
+        "productMarka": {
+          "filterOptionsTitle": "product Marka",
+          "Mercedes": "Mercedes",
+          "Bmw": "BMW"
+        },
+        "productModels": {
+          "title": "product model",
+          "lessYear": "Less Year",
+          "highestYear": "Highest year"
+        },
+        "productPrice": {
+          "title": "product Price",
+          "currency": "SYP",
+          "lessPrice": "Less Price",
+          "highestPrice": "Highest Price"
+        },
+        "ControlType": {
+          "title": "Control Type",
+          "auto": "Automatic",
+          "normal": "Normal"
+        },
+        "FuelType": {
+          "title": "Fuel Type",
+          "gasoline": "Gasoline",
+          "diesel": "Diesel"
+        },
+        "search": "Search",
+        "resetSearch": "reset Search"
+      }
+    },
+    "categories": {
+      "cat_name_one": "Economy",
+      "cat_name_tow": "Economy",
+      "cat_name_three": "Economy",
+      "cat_name_four": "Economy",
+      "cat_name_five": "Economy",
+      "cat_name_six": "Economy"
+    }
+  },
+  "product" : {
+    "header" : {
+      "whatsApp" : "Text us on WhatsApp"
+    },
+    "BasicInfo" : {
+      "price" : "Price",
+      "carType" : "Car Type",
+      "model" : "Model",
+      "controlType" : "Control Type",
+      "distance" : "Distance",
+      "passengers" : "Passengers",
+      "adsNumber" : "Ads Number",
+      "dateOfAds" : "Date Of Ads",
+      "gaz" : "Gaz"
+    },
+    "tabs" : {
+      "adsInfo" : "Ads Info",
+      "location" : "Location",
+      "productInfo" : "Car Info",
+      "productDetails": "Details",
+      "productSafety": "Safety"
+
+    },
+    "accordionDetails" : {
+
+      "questions" : {
+          "question1" : {
+            "question" : "Ads Details",
+            "answer" : "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like)."
+          },
+          "question2" : {
+            "question" : "Car Details",
+            "answer" : "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like)."
+          },
+          "productDetailsTitles": {
+          "title-one" : "No defect",
+          "title-tow" : "Just paint",
+          "title-three" : "Repair and paint",
+          "title-four" : "Part change"
+          },
+          "productDetailsBoxes" : {
+            "box-one" : {
+
+            "title" : "Repair and painting",
+            "list": {
+
+            "one" : "The door was replaced with an original door from the agency",
+            "tow" : "The door was replaced with an original door from the agency"
+            }
+            },
+            "box-tow" : {
+
+            "title" : "Repair and painting",
+            "list": {
+
+            "one" : "The door was replaced with an original door from the agency",
+            "tow" : "The door was replaced with an original door from the agency"
+            }
+            },
+            "box-three" : {
+
+            "title" : "Repair and painting",
+            "list": {
+
+            "one" : "The door was replaced with an original door from the agency",
+            "tow" : "The door was replaced with an original door from the agency"
+            }
+            },
+            "box-four" : {
+
+            "title" : "Repair and painting",
+            "list": {
+
+            "one" : "The door was replaced with an original door from the agency",
+            "tow" : "The door was replaced with an original door from the agency"
+            }
+            }
+            }
+        }
+    },
+    "accordionSafety" : {
+      "list": {
+      "one": "Airbag (Passenger)",
+      "two": "Airbag (Driver)",
+      "three": "Anti-lock Braking System (ABS)",
+      "four": "Electronic Brakeforce Distribution (EBD)",
+      "five": "Rear Camera",
+      "six": "Hill Assist",
+      "seven": "Manual Air Conditioning",
+      "eight": "Cloth Seats",
+      "nine": "Audio System with Bluetooth",
+      "ten": "Electric Windows"
+      }
+      }
+  },
+  "adminPage": {
+    "general": {
+      "addRecord": "Add Record",
+      "selectColumn": "Select Column",
+      "search": "Search...",
+      "rows": "Rows",
+      "row": "Row",
+      "edit": "Edit",
+      "delete": "Delete",
+      "editRecord": "Edit Record",
+      "deleteRecord": "Delete Record",
+      "cancel": "Cancel",
+      "actions": "Actions",
+      "showing": "showing",
+      "to": "to",
+      "of": "of",
+      "results": "results"
+    },
+    "dashboard": {},
+    "sidebar": {
+      "groups": {
+        "staff": {
+          "label": "Staff",
+          "items": [
+            {
+              "title": "Roles and Permissions",
+              "url": "/permissions/roles-list",
+              "icon": "PaintRoller",
+              "children": [
+                {
+                  "title": "Roles List",
+                  "url": "/permissions/roles-list",
+                  "icon": "RollerCoaster"
+                },
+                {
+                  "title": "Permissions List",
+                  "url": "/permissions/permissions-list",
+                  "icon": "Check"
+                }
+              ]
+            }
+          ]
+        },
+        "users": {
+          "label": "Users",
+          "items": [
+            {
+              "title": "Users List",
+              "url": "/users/list",
+              "icon": "Users"
+            }
+          ]
+        }
+      }
+    },
+    "rolesListPage": {
+      "title": "Roles List"
+    },
+    "permissionsListPage": {
+      "title": "Permissions List"
+    },
+    "usersPage": {
+      "title": "Users",
+      "addUser": "Add User",
+      "editUser": "Edit User",
+      "deleteUser": "Delete User",
+      "tableColumns": {
+        "id": "ID",
+        "name": "Name",
+        "email": "Email",
+        "created_at": "Created At"
+      }
+    },
+    "tabs": {
+      "adsInfo": "Ads Info",
+      "location": "Location",
+      "productInfo": "Car Info",
+      "productDetails": "Details",
+      "productSafety": "Safety"
+    },
+    "accordionDetails": {
+      "questions": {
+        "question1": {
+          "question": "Ads Details",
+          "answer": "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like)."
+        },
+        "question2": {
+          "question": "Car Details",
+          "answer": "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like)."
+        },
+        "productDetailsTitles": {
+          "title-one": "No defect",
+          "title-tow": "Just paint",
+          "title-three": "Repair and paint",
+          "title-four": "Part change"
+        },
+        "productDetailsBoxes": {
+          "box-one": {
+            "title": "Repair and painting",
+            "list": {
+              "one": "The door was replaced with an original door from the agency",
+              "tow": "The door was replaced with an original door from the agency"
+            }
+          },
+          "box-tow": {
+            "title": "Repair and painting",
+            "list": {
+              "one": "The door was replaced with an original door from the agency",
+              "tow": "The door was replaced with an original door from the agency"
+            }
+          },
+          "box-three": {
+            "title": "Repair and painting",
+            "list": {
+              "one": "The door was replaced with an original door from the agency",
+              "tow": "The door was replaced with an original door from the agency"
+            }
+          },
+          "box-four": {
+            "title": "Repair and painting",
+            "list": {
+              "one": "The door was replaced with an original door from the agency",
+              "tow": "The door was replaced with an original door from the agency"
+            }
+          }
+        }
+      }
+    },
+    "accordionSafety": {
+      "list": {
+        "one": "Airbag (Passenger)",
+        "two": "Airbag (Driver)",
+        "three": "Anti-lock Braking System (ABS)",
+        "four": "Electronic Brakeforce Distribution (EBD)",
+        "five": "Rear Camera",
+        "six": "Hill Assist",
+        "seven": "Manual Air Conditioning",
+        "eight": "Cloth Seats",
+        "nine": "Audio System with Bluetooth",
+        "ten": "Electric Windows"
+      }
+    }
+  },
+  "addProduct": {
+    "steps": {
+      "carType": "Car Type",
+      "carInfo": "Car Information",
+      "carImages": "Car Images",
+      "adsDetails": "Ad Details"
+    },
+    "enteredData": {
+      "stepOne": {
+        "branda": {
+          "title": "Car Brand",
+          "description": "Add Car Brand Not Found",
+          "options": {
+            "productMarka": {
+              "toyota": "Toyota",
+              "honda": "Honda",
+              "ford": "Ford",
+              "bmw": "BMW",
+              "mercedes": "Mercedes",
+              "audi": "Audi",
+              "nissan": "Nissan",
+              "chevrolet": "Chevrolet"
+            }
+          }
+        },
+        "madeYear": {
+          "title": "Year of Manufacture",
+          "description": "Add Year of Manufacture Missing",
+          "options": {
+            "2020": "2020",
+            "2021": "2021",
+            "2022": "2022",
+            "2023": "2023",
+            "2024": "2024"
+          }
+        },
+        "model": {
+          "title": "Car Model",
+          "description": "Add Car Model Missing",
+          "options": {
+            "sedan": "Sedan",
+            "suv": "Truck",
+            "truck": "Truck",
+            "coupe": "Coupe"
+          }
+        }
+      },
+      "stepTow": {
+        "price": {
+          "options": {
+            "usd": "$ - USD",
+            "eur": "€ - EUR",
+            "try": "₺ - TRY",
+            "gbp": "£ - GBP"
+          }
+        },
+
+        "color": {
+          "options": {
+            "red": "Red",
+            "green": "Green",
+            "yellow": "Yellow",
+            "blue": "Blue"
+          }
+        },
+
+        "gaz": {
+          "options": {
+            "petrol": "Petrol",
+            "diesel": "Diesel",
+            "electric": "Electric",
+            "hybrid": "Hybrid"
+          }
+        }
+      }
+    }
+  },
+  "UserProfile" : {
+    "SideBar" : {
+        "home" : "Home",
+        "products" : "products",
+        "favorites" : "Favorites",
+        "messages" :"Messages",
+        "userInfo" : "User Info",
+        "logout" : "LogOut"
+    },
+    "profile" : {
+      "editProfile": "Edit Profile",
+      "resetPassword": "Reset Password",
+      "name": "Name",
+      "email": "Email",
+      "phoneNumber": "Phone Number",
+      "location": "Location",
+      "oldPassword": "Old Password",
+      "newPassword": "New Password",
+      "repeatPassword": "Repeat Password",
+      "saveChanges": "Save Changes"
     }
   }
 }

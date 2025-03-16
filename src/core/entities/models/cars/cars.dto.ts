@@ -1,0 +1,143 @@
+import {
+  BodyType,
+  FeatureCategory,
+  FuelType,
+  Transmission,
+} from '../../enums/cars.enums';
+import { Currency } from '../../enums/currency.enum';
+import { SyriaCity, SyriaGovernorate } from '../../enums/syria.enums';
+import { SelectUserDto } from '../users/users.dto';
+
+// Define the select type interfaces that represent what's returned from the database
+export interface SelectCarMakeDto {
+  id: number;
+  name: string;
+  logoUrl: string | null;
+  description: string | null;
+  createdAt: string | Date;
+  updatedAt: string | Date;
+  deletedAt: string | Date | null;
+}
+
+export interface SelectCarModelDto {
+  id: number;
+  makeId: number;
+  make?: SelectCarMakeDto;
+  name: string;
+  yearStart: number | null;
+  yearEnd: number | null;
+  description: string | null;
+  createdAt: string | Date;
+  updatedAt: string | Date;
+  deletedAt: string | Date | null;
+}
+
+export interface SelectCarTrimDto {
+  id: number;
+  modelId: number;
+  model?: SelectCarModelDto;
+  name: string;
+  description: string | null;
+  createdAt: string | Date;
+  updatedAt: string | Date;
+  deletedAt: string | Date | null;
+}
+
+export interface SelectFeatureDto {
+  id: number;
+  name: string;
+  category: FeatureCategory;
+  icon: string | null;
+  createdAt: string | Date;
+  updatedAt: string | Date;
+  deletedAt: string | Date | null;
+}
+
+export interface CarListingFeature {
+  id: number;
+  carListingId: number;
+  featureId: number;
+  feature?: SelectFeatureDto;
+}
+
+export interface CarImage {
+  id: number;
+  carListingId: number;
+  url: string;
+  isPrimary: boolean;
+  createdAt: string | Date;
+  updatedAt: string | Date;
+  deletedAt: string | Date | null;
+}
+
+export interface CarDetails {
+  id: number;
+  carListingId: number;
+  year: number;
+  mileage: number | null;
+  fuelType?: FuelType | null;
+  transmission?: Transmission | null;
+  engineSize: number | null;
+  enginePower: number | null;
+  bodyType?: BodyType | null;
+  doors: number | null;
+  colorExterior: string | null;
+  colorInterior: string | null;
+  vin: string | null;
+  plateNumber: string | null;
+  createdAt: string | Date;
+  updatedAt: string | Date;
+  deletedAt: string | Date | null;
+}
+
+// Create DTO for CarDetails
+export interface CreateCarDetailsDto {
+  year: number;
+  mileage?: number | null;
+  fuelType?: string | null;
+  transmission?: string | null;
+  engineSize?: number | null;
+  enginePower?: number | null;
+  bodyType?: string | null;
+  doors?: number | null;
+  colorExterior?: string | null;
+  colorInterior?: string | null;
+  vin?: string | null;
+  plateNumber?: string | null;
+}
+
+// Update DTO for CarDetails
+export type UpdateCarDetailsDto = Partial<CreateCarDetailsDto>;
+
+export interface SelectCarListingDto {
+  id: number;
+  title: string;
+  description: string;
+  price: number | number | null;
+  currency: Currency;
+  userId: number;
+  user?: SelectUserDto; // TODO: maybe change this type
+  makeId: number;
+  modelId: number;
+  trimId: number | null;
+  status: string;
+  isFeatured: boolean;
+  isSold: boolean;
+
+  // location
+  governorate: SyriaGovernorate;
+  city: SyriaCity;
+  address: string;
+
+  createdAt: string | Date;
+  updatedAt: string | Date;
+  deletedAt?: string | Date | null;
+
+  // Related entities
+  details: CarDetails;
+  features: CarListingFeature[];
+  images: CarImage[];
+  make: SelectCarMakeDto;
+  model: SelectCarModelDto;
+  trim?: SelectCarTrimDto;
+}
