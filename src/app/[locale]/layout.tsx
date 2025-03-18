@@ -3,13 +3,11 @@ import GlobalProvider from '@/providers/global.provider';
 import '../../globals.css';
 import { initConfigs } from '@/config';
 import { Locale, routing } from '@/i18n/routing';
-import { notFound, redirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import { getMessages } from 'next-intl/server';
 import { NextIntlClientProvider } from 'next-intl';
 import NextTopLoader from 'nextjs-toploader';
 import { Cairo } from '@next/font/google';
-import { fetchAuth } from '@/lib/fetch-auth';
-import { allRoutes } from '@/constants/routes.constant';
 
 const cairo = Cairo({
   subsets: ['latin'],
@@ -32,13 +30,7 @@ export default async function RootLayout({
   const messages = await getMessages();
   // const { direction } = useLangContext();
 
-  const res = await fetchAuth({
-    url: '/auth/check/user',
-    method: 'GET',
-  });
-  if (!res.success) {
-    redirect(allRoutes.auth.children.signIn.path);
-  }
+
 
 
   return (

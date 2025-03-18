@@ -5,6 +5,7 @@ import Text from "@/components/text/text";
 import { Textarea } from "@/components/ui/textarea";
 import { useLocale, useTranslations } from "next-intl";
 import SelectableList from "./SelectableList"; // Import the separate component
+import { useCarMakes } from "@/core/infrastructure-adapters/use-actions/visitors/car.visitor.use-actions";
 
 interface Option {
     value: string;
@@ -15,6 +16,9 @@ const AddProductStepOne: React.FC = () => {
     const t = useTranslations("addProduct");
     const locale = useLocale();
     const direction = locale === "ar" ? "rtl" : "ltr";
+
+    const { data } = useCarMakes({ page : 1 });
+    console.log(data)
 
     // Consolidated state
     const [selectedOptions, setSelectedOptions] = useState({
