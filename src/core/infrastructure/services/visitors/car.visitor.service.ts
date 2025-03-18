@@ -40,9 +40,9 @@ export class CarVisitorService implements ICarVisitorService {
     queryParams: QueryParams,
   ): Promise<PaginatedResponse<SelectCarMakeDto>> {
     // const locale = await getLocale();
-    const res = await getReq<Record<string, unknown>, SelectCarMakeDto>({
-      url: '/car-make-visitor',
-      params: queryParams,
+    const res = await postReq<QueryParams, SelectCarMakeDto>({
+      url: '/car-make-visitor/search',
+      body: queryParams,
     });
 
     return res;
@@ -51,9 +51,9 @@ export class CarVisitorService implements ICarVisitorService {
     queryParams: QueryParams,
   ): Promise<PaginatedResponse<SelectCarModelDto>> {
     // const locale = await getLocale();
-    const res = await getReq<Record<string, unknown>, SelectCarModelDto>({
-      url: '/car-model-visitor',
-      params: queryParams,
+    const res = await postReq<QueryParams, SelectCarModelDto>({
+      url: '/car-model-visitor/search',
+      body: queryParams,
     });
 
     return res;
@@ -62,9 +62,9 @@ export class CarVisitorService implements ICarVisitorService {
     queryParams: QueryParams,
   ): Promise<PaginatedResponse<SelectCarTrimDto>> {
     // const locale = await getLocale();
-    const res = await getReq<Record<string, unknown>, SelectCarTrimDto>({
-      url: '/car-trim-visitor',
-      params: queryParams,
+    const res = await postReq<QueryParams, SelectCarTrimDto>({
+      url: '/car-trim-visitor/search',
+      body: queryParams,
     });
 
     return res;
@@ -73,9 +73,9 @@ export class CarVisitorService implements ICarVisitorService {
     queryParams: QueryParams,
   ): Promise<PaginatedResponse<SelectFeatureDto>> {
     // const locale = await getLocale();
-    const res = await getReq<Record<string, unknown>, SelectFeatureDto>({
-      url: '/features-visitor',
-      params: queryParams,
+    const res = await postReq<QueryParams, SelectFeatureDto>({
+      url: '/features-visitor/search',
+      body: queryParams,
     });
 
     return res;
