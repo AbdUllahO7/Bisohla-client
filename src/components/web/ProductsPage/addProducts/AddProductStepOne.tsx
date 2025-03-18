@@ -28,33 +28,24 @@ interface SelectedOptions {
 
 const STORAGE_KEY = "addProduct_stepOne_selections";
 
+// Default empty state
+const defaultOptions = {
+    marka: "",
+    model: "",
+    trim: "",
+    year: "",
+    story: ""
+};
+
 const AddProductStepOne: React.FC<AddProductStepOneProps> = ({ onValidationChange }) => {
     const t = useTranslations("addProduct")
     const locale = useLocale()
     const direction = locale === "ar" ? "rtl" : "ltr"
     const isArabic = direction === "rtl"
 
-    // Initialize all state from localStorage if available
-    const [selectedOptions, setSelectedOptions] = useState<SelectedOptions>(() => {
-        if (typeof window !== 'undefined') {
-            const savedSelections = localStorage.getItem(STORAGE_KEY);
-            return savedSelections ? JSON.parse(savedSelections) : {
-                marka: "",
-                model: "",
-                trim: "",
-                year: "",
-                story: ""
-            };
-        }
-        return {
-            marka: "",
-            model: "",
-            trim: "",
-            year: "",
-            story: ""
-        };
-    });
-
+    // Start with default empty state for server rendering
+    const [selectedOptions, setSelectedOptions] = useState<SelectedOptions>(defaultOptions);
+    const [isClient, setIsClient] = useState(false);
     const [prevValidationState, setPrevValidationState] = useState(false);
     
     // Create refs to track user interactions vs. initial load
@@ -62,14 +53,31 @@ const AddProductStepOne: React.FC<AddProductStepOneProps> = ({ onValidationChang
     const userChangedMarka = useRef(false);
     const userChangedModel = useRef(false);
     
-
-
-    // Save to localStorage whenever selections change
+    // Set isClient to true once the component has mounted
+    // This ensures hydration is complete before any client-specific code runs
     useEffect(() => {
-        if (typeof window !== 'undefined') {
+        setIsClient(true);
+        
+        // After we know we're on the client, load from localStorage
+        const savedSelections = localStorage.getItem(STORAGE_KEY);
+        if (savedSelections) {
+            setSelectedOptions(JSON.parse(savedSelections));
+        }
+        
+        // Mark when the initial load is complete
+        const timer = setTimeout(() => {
+            isInitialLoad.current = false;
+        }, 1000); // Give enough time for API calls to complete
+        
+        return () => clearTimeout(timer);
+    }, []);
+
+    // Save to localStorage whenever selections change, but only after client-side rendering is confirmed
+    useEffect(() => {
+        if (isClient) {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(selectedOptions));
         }
-    }, [selectedOptions]);
+    }, [selectedOptions, isClient]);
 
     // Extract IDs only when needed
     const makeId = selectedOptions.marka ? Number.parseInt(selectedOptions.marka) : undefined
@@ -108,15 +116,6 @@ const AddProductStepOne: React.FC<AddProductStepOneProps> = ({ onValidationChang
         })) || [], 
         [carTrimsResponse]
     )
-
-    // Mark when the initial load is complete
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            isInitialLoad.current = false;
-        }, 1000); // Give enough time for API calls to complete
-        
-        return () => clearTimeout(timer);
-    }, []);
 
     // Only reset dependent fields on user-initiated changes, not on initial load
     const handleSelectChange = useCallback((type: string, value: string) => {
