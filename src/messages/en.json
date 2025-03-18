@@ -679,6 +679,13 @@
             }
           }
         },
+        "trims": {
+          "title": "Car Trims",
+          "description": "Add Car Trims Not Found",
+          "options": {
+  
+          }
+        },
         "madeYear": {
           "title": "Year of Manufacture",
           "description": "Add Year of Manufacture Missing",

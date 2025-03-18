@@ -10,22 +10,50 @@ interface StepContentProps {
     direction: "ltr" | "rtl";
     handleNext: () => void;
     handleBack: () => void;
+    // Add validation props to check if fields are selected
+    isNextDisabled?: boolean;
+    requiredFieldsMessage?: string;
 }
 
-export const StepContent: React.FC<StepContentProps> = ({ step, children, direction, handleNext, handleBack }) => {
+export const StepContent: React.FC<StepContentProps> = ({ 
+    step, 
+    children, 
+    direction, 
+    handleNext, 
+    handleBack,
+    isNextDisabled = false,
+    requiredFieldsMessage
+}) => {
 
     return (
         <TabsContent value={step} className="">
             {children}
             <Box variant="row" className="w-full justify-start items-center bg-white mt-10 px-5 py-5 rounded-lg xs:mb-5" dir={direction}>
-                <Button className="bg-primary text-white font-bold px-7 min-w-[150px] hover:bg-primary-light duration-500" onClick={handleNext}>
-                    {direction === "ltr" ? "Next" : "التالي"}
-                    {direction === "ltr" ? <ArrowRight/>: <ArrowLeft/>}
-                </Button>
-                <Button className="bg-gray-200 text-primary font-bold px-7 min-w-[150px] hover:bg-primary-light duration-500 hover:text-white" onClick={handleBack}>
+                <div className="flex flex-col items-start">
+                    <Button 
+                        className="bg-primary text-white font-bold px-7 min-w-[150px] hover:bg-primary-light duration-500 disabled:opacity-50 disabled:cursor-not-allowed" 
+                        onClick={handleNext}
+                        disabled={isNextDisabled}
+                    >
+                        {direction === "ltr" ? "Next" : "التالي"}
+                        {direction === "ltr" ? <ArrowRight className="ml-2"/> : <ArrowLeft className="mr-2"/>}
+                    </Button>
+                    
+                </div>
+                
+                <Button 
+                    className="bg-gray-200 text-primary font-bold px-7 min-w-[150px] hover:bg-primary-light duration-500 hover:text-white ml-4" 
+                    onClick={handleBack}
+                >
+                    {direction === "ltr" ? <ArrowLeft className="mr-2"/> : <ArrowRight className="ml-2"/>}
                     {direction === "ltr" ? "Back" : "العودة"}
-                    {direction === "ltr" ? <ArrowLeft/>: <ArrowRight/>}
                 </Button>
+
+                    {isNextDisabled && requiredFieldsMessage && (
+                        <span className="text-red-500 text-sm mt-1">
+                            {requiredFieldsMessage}
+                        </span>
+                    )}
             </Box>
         </TabsContent>
     );
