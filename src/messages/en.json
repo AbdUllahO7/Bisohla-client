@@ -7,7 +7,9 @@
     },
     "headerOne": {
       "adsButton": "create Ads",
-      "loginButton": "Login / SignUp"
+      "loginButton": "Login / SignUp",
+      "profileButton": "Profile"
+
     },
     "headerTow": {
       "home": "Home",

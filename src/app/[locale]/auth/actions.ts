@@ -32,7 +32,7 @@ export const signInAction = async (
 
   if (res.success) {
     revalidatePath('/');
-    redirect(allRoutes.user.children.dashboard.path);
+    redirect(allRoutes.user.children.homePage.path);
   }
 
   return res;
@@ -53,10 +53,10 @@ export const RegisterAction = async (
 
   const res = await authController.register(fields as RegisterDto);
 
-  // if (res.success) {
-  //   revalidatePath('/');
-  //   redirect(allRoutes.user.children.dashboard.path);
-  // }
+  if (res.success) {
+    revalidatePath('/');
+    redirect(allRoutes.user.children.homePage.path);
+  }
 
   return res;
 };

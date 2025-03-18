@@ -1,7 +1,7 @@
 // src/enums/car.ts
 
-/**
- * Represents vehicle transmission types
+  /**
+    * Represents vehicle transmission types
  */
 export enum Transmission {
   AUTOMATIC = 'automatic',

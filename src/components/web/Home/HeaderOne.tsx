@@ -5,9 +5,14 @@ import Box from '../../box/box'
 import { getTranslations } from 'next-intl/server'
 import LocaleSwitcher from '../../local/LocalSwitcher'
 import Link from 'next/link'
+import { getSession } from '@/core/lib/web/session'
+import { UserCheck2Icon } from 'lucide-react'
 
 const HeaderOne = async () => {
     const t = await getTranslations('homePage');
+
+    const payload = await getSession();
+    console.log(payload)
 
     return (
         <Box className='flex md:justify-between xs:justify-center mt-2 pb-2'>
@@ -38,18 +43,31 @@ const HeaderOne = async () => {
                     
 
                 </Box>
-                <Box  className='xs:w-[120px] lg:w-full'>
-                            <Button variant="default" className='text-primary hover:none bg-transparent shadow-none rounded-3xl pb-[5px] pr-[23px]  pt-[5px]  border-2 border-primary' size="lg" >
-                            <span>{t('headerOne.loginButton')}</span>
-                        <Image 
-                            src="/assets/icons/user.png" // Default image included in Next.js projects
-                            alt="user Image"
-                            width={18}
-                            height={18}
-                        />
+                {
+                    payload?.user === null ?   <Box  className='xs:w-[120px] lg:w-full'>
+                    <Link href="/products/AddProducts">
+
+                        <Button variant="default" className='text-primary hover:none bg-transparent shadow-none rounded-3xl pb-[5px] pr-[23px]  pt-[5px]  border-2 border-primary' size="lg" >
+                        <span>{t('headerOne.loginButton')}</span>
+                    <Image 
+                        src="/assets/icons/user.png" // Default image included in Next.js projects
+                        alt="user Image"
+                        width={18}
+                        height={18}
+                    />
+                    </Button>
+                    </Link>
+
+                </Box>  
+                :  
+                <Link href="/userProfile">
+                        <Button variant="default" className='text-primary hover:none bg-transparent shadow-none rounded-3xl pb-[5px] pr-[23px]  pt-[5px]  border-2 border-primary' size="lg" >
+                        <span>{t('headerOne.profileButton')} / {payload?.user.name}</span>
+                        <UserCheck2Icon/>
+
                         </Button>
-                
-                </Box>
+                        </Link>
+                }
                 {/* local  */}
                 <div className='xs:hidden lg:block md:block'>
                     <LocaleSwitcher/>
