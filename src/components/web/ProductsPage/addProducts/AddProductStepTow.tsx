@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useLocale, useTranslations } from "next-intl";
 import { Checkbox } from "@/components/ui/checkbox";
+import { getCurrencyOptions } from "@/core/entities/enums/currency.enum";
 
 interface BoxState {
     price?: string;
@@ -15,9 +16,10 @@ interface BoxState {
 }
 
 const AddProductStepTwo: React.FC = () => {
-    const t = useTranslations("addProduct");
+    const t = useTranslations("addProduct.enteredData.stepTow");
     const locale = useLocale();
     const direction = locale === "ar" ? "rtl" : "ltr";
+    const currencyOptions = getCurrencyOptions(t);
 
     // Separate states for each box
     const [box1, setBox1] = useState<BoxState>({ price: "", currency: "", selectedColor: "", selectedGazType: "", selectedAdditional: "" });
@@ -35,25 +37,20 @@ const AddProductStepTwo: React.FC = () => {
     };
 
     const colorOptions = [
-        { value: "red", label: t('enteredData.stepTow.color.options.red'), hex: "#FF0000" },
-        { value: "green", label: t('enteredData.stepTow.color.options.green'), hex: "#008000" },
-        { value: "yellow", label: t('enteredData.stepTow.color.options.yellow'), hex: "#FFD700" },
-        { value: "blue", label: t('enteredData.stepTow.color.options.blue'), hex: "#0000FF" },
+        { value: "red", label: t('color.options.red'), hex: "#FF0000" },
+        { value: "green", label: t('color.options.green'), hex: "#008000" },
+        { value: "yellow", label: t('color.options.yellow'), hex: "#FFD700" },
+        { value: "blue", label: t('color.options.blue'), hex: "#0000FF" },
     ];
 
     const gazTypeOptions = [
-        { value: "petrol", label: t('enteredData.stepTow.gaz.options.petrol') },
-        { value: "diesel", label: t('enteredData.stepTow.gaz.options.diesel') },
-        { value: "electric", label: t('enteredData.stepTow.gaz.options.electric') },
-        { value: "hybrid", label: t('enteredData.stepTow.gaz.options.hybrid') },
+        { value: "petrol", label: t('gaz.options.petrol') },
+        { value: "diesel", label: t('gaz.options.diesel') },
+        { value: "electric", label: t('gaz.options.electric') },
+        { value: "hybrid", label: t('gaz.options.hybrid') },
     ];
 
-    const currencyOptions = [
-        { value: "usd", label: t('enteredData.stepTow.price.options.usd') },
-        { value: "eur", label: t('enteredData.stepTow.price.options.eur') },
-        { value: "try", label: t('enteredData.stepTow.price.options.try') },
-        { value: "gbp", label: t('enteredData.stepTow.price.options.gbp') },
-    ];
+
 
     const additionalOptions = [
         { value: "option1", label: "Option 1" },
@@ -103,20 +100,23 @@ const AddProductStepTwo: React.FC = () => {
                                         <SelectTrigger className="w-[150px]">
                                             <SelectValue placeholder={direction === "ltr" ? "Select a currency" : "اختر العملة"} />
                                         </SelectTrigger>
-                                        <SelectContent className="w-[150px] bg-primary" dir={direction}>
-                                            <SelectGroup>
-                                                <SelectLabel>{direction === "ltr" ? "Currencies" : "العملات"}</SelectLabel>
-                                                {currencyOptions.map((currencyOption) => (
-                                                    <SelectItem key={currencyOption.value} value={currencyOption.value}>
-                                                        {currencyOption.label}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectGroup>
-                                        </SelectContent>
+                                        <SelectContent className="w-[150px] " dir={direction}>
+                                        <SelectGroup>
+                                            <SelectLabel>{direction === "ltr" ? "Currencies" : "العملات"}</SelectLabel>
+                                            {currencyOptions.map((currencyOption) => (
+                                                <SelectItem className="hover:bg-primary-foreground" key={currencyOption.value} value={currencyOption.value}>
+                                                    {currencyOption.label}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectGroup>
+                                    </SelectContent>
                                     </Select>
                                 </Box>
                             </Box>
                         )}
+
+
+                        
                         <Box className="gap-2 justify-start items-start w-full" variant="column">
                             <Text className="font-bold text-primary">{direction === "ltr" ? "Color" : "اللون"}</Text>
                             <Select
@@ -127,12 +127,12 @@ const AddProductStepTwo: React.FC = () => {
                                 <SelectTrigger className="w-full">
                                     <SelectValue placeholder={direction === "ltr" ? "Select a Color" : "اختر اللون"} />
                                 </SelectTrigger>
-                                <SelectContent className="w-full bg-primary">
+                                <SelectContent className="w-full bg-white">
                                     <SelectGroup>
-                                        <SelectLabel className="text-white font-bold">{direction === "ltr" ? "Colors" : "الألوان"}</SelectLabel>
+                                        <SelectLabel className="text-black font-bold">{direction === "ltr" ? "Colors" : "الألوان"}</SelectLabel>
                                         {colorOptions.map((color) => (
-                                            <SelectItem key={color.value} value={color.value} className="flex items-center justify-start gap-2">
-                                                <span className="w-3 h-3 rounded-full inline-block mr-1 ml-1" style={{ backgroundColor: color.hex }} />
+                                            <SelectItem  key={color.value} value={color.value} className="flex hover:bg-primary-foreground items-center justify-start gap-2">
+                                                <span className="w-3 h-3  rounded-full inline-block mr-1 ml-1" style={{ backgroundColor: color.hex }} />
                                                 {color.label}
                                             </SelectItem>
                                         ))}
@@ -150,7 +150,7 @@ const AddProductStepTwo: React.FC = () => {
                                 <SelectTrigger className="w-full">
                                     <SelectValue placeholder={direction === "ltr" ? "Select a Gaz Type" : "اختر نوع الغاز"} />
                                 </SelectTrigger>
-                                <SelectContent className="w-full bg-primary">
+                                <SelectContent className="w-full ">
                                     <SelectGroup>
                                         <SelectLabel>{direction === "ltr" ? "Gaz Types" : "أنواع الغاز"}</SelectLabel>
                                         {gazTypeOptions.map((gazType) => (
@@ -161,27 +161,6 @@ const AddProductStepTwo: React.FC = () => {
                             </Select>
                             
                         </Box>
-                        {box.hasPriceAndCurrency && (
-                            <Box className="gap-2 justify-start items-start w-full mt-5" variant="column">
-                                <Text className="font-bold text-primary">{direction === "ltr" ? "Additional Option" : "خيار إضافي"}</Text>
-                                <Select
-                                    value={box.selectedAdditional || ""}
-                                    onValueChange={(value) => handleChange(index, "selectedAdditional", value)}
-                                    dir={direction}
-                                >
-                                    <SelectTrigger className="w-full">
-                                        <SelectValue placeholder="Select an option" />
-                                    </SelectTrigger>
-                                    <SelectContent className="w-full bg-primary">
-                                        <SelectGroup>
-                                            {additionalOptions.map((option) => (
-                                                <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
-                                            ))}
-                                        </SelectGroup>
-                                    </SelectContent>
-                                </Select>
-                            </Box>
-                        )}
                     </Box>
                 ))}
                 
@@ -193,7 +172,6 @@ const AddProductStepTwo: React.FC = () => {
                         {direction === "ltr" ? "Car Features" : "ميزات السيارة"}
                         </Text>
                     </Box>
-  
                         <Box className="w-full md:justify-center items-start bg-white rounded-lg flex-wrap xs:justify-center">
                             {Array(4).fill().map((_, colIndex) => (
                             <Box key={colIndex} className="justify-start items-start min-w-[300px] px-5 py-5 gap-5" variant="column">

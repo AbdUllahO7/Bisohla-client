@@ -711,13 +711,52 @@
       "stepTow": {
         "price": {
           "options": {
-            "usd": "$ - USD",
-            "eur": "€ - EUR",
-            "try": "₺ - TRY",
-            "gbp": "£ - GBP"
+            "usd": "US Dollar",
+            "eur": "Euro",
+            "try": "Turkish Lira",
+            "gbp": "British Pound"
           }
         },
-
+        "currency": {
+          "syp": "Syrian Pound",
+          "usd": "US Dollar",
+          "eur": "Euro",
+          "gbp": "British Pound",
+          "jpy": "Japanese Yen",
+          "cad": "Canadian Dollar",
+          "aud": "Australian Dollar",
+          "cny": "Chinese Yuan",
+          "nzd": "New Zealand Dollar",
+          "mxn": "Mexican Peso",
+          "brl": "Brazilian Real",
+          "try": "Turkish Lira",
+          "rub": "Russian Ruble",
+          "pln": "Polish Zloty",
+          "sek": "Swedish Krona",
+          "nok": "Norwegian krone",
+          "dkk": "Danish krone",
+          "chf": "Swiss franc",
+          "hkd": "Hong Kong dollar",
+          "sgd": "Singapore dollar",
+          "myr": "Malaysian ringgit",
+          "php": "Philippine peso",
+          "thb": "Thai baht",
+          "zar": "South African rand",
+          "bgn": "Bulgarian lev",
+          "czk": "Czech koruna",
+          "ils": "Israeli new shekel",
+          "krw": "South Korean won",
+          "huf": "Hungarian forint",
+          "isk": "Icelandic krona",
+          "ltl": "Lithuanian litas",
+          "lvl": "Latvian lats",
+          "ron": "Romanian leu",
+          "rsd": "Serbian dinar",
+          "skk": "koruna Slovak",
+          "eek": "Estonian Kroon",
+          "sit": "Slovenian Tolar",
+          "uah": "Ukrainian Hryvnia"
+        },
         "color": {
           "options": {
             "red": "Red",
@@ -726,7 +765,6 @@
             "blue": "Blue"
           }
         },
-
         "gaz": {
           "options": {
             "petrol": "Petrol",
