@@ -614,17 +614,170 @@
         "options": {
           "red": "أحمر",
           "green": "أخضر",
+          "blue": "أزرق",
           "yellow": "أصفر",
-          "blue": "أزرق"
+          "orange": "برتقالي",
+          "purple": "أرجواني",
+          "pink": "وردي",
+          "brown": "بني",
+          "black": "أسود",
+          "white": "أبيض",
+          "gray": "رمادي",
+          
+          "light_red": "أحمر فاتح",
+          "light_green": "أخضر فاتح",
+          "light_blue": "أزرق فاتح",
+          "light_yellow": "أصفر فاتح",
+          "light_orange": "برتقالي فاتح",
+          "light_purple": "أرجواني فاتح",
+          "light_pink": "وردي فاتح",
+          "light_brown": "بني فاتح",
+          "light_gray": "رمادي فاتح",
+          
+          "dark_red": "أحمر داكن",
+          "dark_green": "أخضر داكن",
+          "dark_blue": "أزرق داكن",
+          "dark_yellow": "أصفر داكن",
+          "dark_orange": "برتقالي داكن",
+          "dark_purple": "أرجواني داكن",
+          "dark_pink": "وردي داكن",
+          "dark_brown": "بني داكن",
+          "dark_gray": "رمادي داكن",
+          
+          "turquoise": "فيروزي",
+          "teal": "أزرق مخضر",
+          "navy": "أزرق غامق",
+          "indigo": "نيلي",
+          "violet": "بنفسجي",
+          "magenta": "أرجواني",
+          "crimson": "قرمزي",
+          "maroon": "كستنائي",
+          "olive": "زيتوني",
+          "lime": "ليموني",
+          "aqua": "مائي",
+          "cyan": "سماوي",
+          "silver": "فضي",
+          "gold": "ذهبي",
+          "beige": "بيج",
+          "coral": "مرجاني",
+          "ivory": "عاجي",
+          "lavender": "خزامي",
+          "mint": "نعناعي",
+          "peach": "خوخي",
+          "plum": "برقوقي"
         }
       },
-      "gaz": {
-        "options": {
-          "petrol": "بنزين",
-          "diesel": "ديزل",
-          "electric": "كهربائي",
-          "hybrid": "هايبرد"
-        }
+      "fuelType": {
+        "gasoline": "بنزين",
+        "diesel": "ديزل",
+        "electric": "كهربائي", 
+        "hybrid": "هجين",
+        "plug_in_hybrid": "هجين قابل للشحن",
+        "lpg": "غاز البترول المسال",
+        "natural_gas": "غاز طبيعي"
+      },
+      "bodyType": {
+        "suv": "سيارة رياضية متعددة الاستخدامات",
+        "sedan": "سيدان",
+        "hatchback": "هاتشباك",
+        "coupe": "كوبيه",
+        "convertible": "مكشوفة",
+        "wagon": "استيشن",
+        "van": "فان",
+        "minivan": "ميني فان",
+        "pickup": "بيك أب",
+        "other": "أخرى"
+      },
+      "transmission": {
+        "automatic": "أوتوماتيك",
+        "manual": "يدوي",
+        "semi_automatic": "نصف أوتوماتيك",
+        "cvt": "ناقل حركة متغير باستمرار"
+      },
+      "featureCategory": {
+        "safety": "السلامة",
+        "comfort": "الراحة",
+        "technology": "التكنولوجيا",
+        "performance": "الأداء",
+        "exterior": "المظهر الخارجي",
+        "interior": "المظهر الداخلي",
+        "entertainment": "الترفيه",
+        "other": "أخرى"
+      },
+      "features": {
+        "safety": {
+          "airbags": "وسائد هوائية",
+          "abs": "نظام الفرامل المانعة للانغلاق (ABS)",
+          "parkingSensors": "حساسات الاصطفاف",
+          "blindSpotMonitoring": "مراقبة النقطة العمياء",
+          "crashSensors": "حساسات التصادم",
+          "laneAssist": "مساعد المسار"
+        },
+        "comfort": {
+          "airConditioning": "تكييف الهواء",
+          "heatedSeats": "مقاعد مدفأة",
+          "powerSeats": "مقاعد كهربائية",
+          "leatherSeats": "مقاعد جلدية",
+          "sunroof": "فتحة سقف",
+          "keylessEntry": "دخول بدون مفتاح"
+        },
+        "technology": {
+          "bluetooth": "بلوتوث",
+          "navigationSystem": "نظام الملاحة",
+          "smartphoneIntegration": "تكامل الهاتف الذكي",
+          "wirelessCharging": "شحن لاسلكي",
+          "digitalDashboard": "لوحة قيادة رقمية",
+          "voiceControl": "التحكم الصوتي"
+        },
+        "performance": {
+          "turboEngine": "محرك توربو",
+          "sportSuspension": "تعليق رياضي",
+          "allWheelDrive": "دفع رباعي",
+          "sportMode": "وضع رياضي",
+          "hillAssist": "مساعد صعود المرتفعات",
+          "ecoMode": "وضع توفير الوقود"
+        },
+        "exterior": {
+          "alloyWheels": "عجلات من سبائك معدنية",
+          "ledHeadlights": "مصابيح LED أمامية",
+          "fogLights": "مصابيح ضباب",
+          "roofRails": "قضبان سقف",
+          "panoramicRoof": "سقف بانورامي",
+          "tintedWindows": "نوافذ معتمة"
+        },
+        "interior": {
+          "woodTrim": "تطعيمات خشبية",
+          "ambientLighting": "إضاءة محيطة",
+          "rearSeatsControl": "تحكم بالمقاعد الخلفية",
+          "foldableSeats": "مقاعد قابلة للطي",
+          "cupHolders": "حاملات أكواب",
+          "luggageCompartment": "مقصورة أمتعة"
+        },
+        "entertainment": {
+          "premiumAudio": "نظام صوت فاخر",
+          "rearScreens": "شاشات ترفيهية خلفية",
+          "hdRadio": "راديو HD",
+          "usbPorts": "منافذ USB",
+          "wifiHotspot": "نقطة اتصال WiFi",
+          "subwoofer": "مضخم صوت"
+        },
+        "other": {
+          "cargoBox": "صندوق حمولة",
+          "trailerHitch": "وصلة مقطورة",
+          "bikeRack": "حامل دراجات",
+          "childSeat": "مقعد طفل",
+          "winterTires": "إطارات شتوية",
+          "alarmSystem": "نظام إنذار"
+        },
+      
+
+      "carStatus": {
+        "pending": "قيد الانتظار",
+        "approved": "موافق عليه",
+        "rejected": "مرفوض",
+        "expired": "منتهي",
+        "sold": "مباع"
+      }
       }
     }
   }
