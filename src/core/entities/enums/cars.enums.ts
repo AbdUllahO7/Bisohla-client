@@ -3,11 +3,6 @@
   /**
     * Represents vehicle transmission types
  */
-
-
-
-
-
 export enum Transmission {
   AUTOMATIC = 'automatic',
   MANUAL = 'manual',
@@ -422,6 +417,12 @@ export const getColorOptions = (t?: any): ColorOption[] => {
     { value: Colors.PLUM, label: t ? t('color.options.plum') : 'Plum', hex: '#DDA0DD' },
   ];
 };
+
+
+
+
+
+
 /**
  * Get feature category options for select components with translation support
  */

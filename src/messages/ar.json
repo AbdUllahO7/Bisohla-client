@@ -779,6 +779,33 @@
         "sold": "مباع"
       }
       }
+    },
+    "stepThree": {
+    "carInfo": "حالة السيارة",
+    "carPhotos": "صور السيارة",
+    "carSectionName": "اسم قسم السيارة",
+    "conditionTypes": {
+      "noDefect": "لا يوجد عيب",
+      "justBoya": "فقط بويا",
+      "repairPaint": "تصليح وبويا",
+      "changePiece": "تغيير القطعة"
+    },
+    "carSection": {
+      "frontBumper": "المصد الأمامي",
+      "hood": "غطاء المحرك",
+      "leftDoor": "الباب الأيسر",
+      "rightDoor": "الباب الأيمن",
+      "rearBumper": "المصد الخلفي",
+      "roof": "السقف"
+    },
+    "images": {
+      "coverImage": "صورة الغلاف",
+      "oneImage": "يمكنك إدخال صورة واحدة",
+      "carImages": "صور السيارة",
+      "tenImages": "يمكنك إدخال حتى 10 صور",
+      "documents": "المستندات",
+      "tenFiles": "يمكنك إدخال حتى 10 ملفات"
+    }
     }
   }
   },

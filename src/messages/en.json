@@ -924,7 +924,34 @@
       "expired": "Expired",
       "sold": "Sold"
       }
-  }
+      },
+      "stepThree": {
+        "carInfo": "Car Condition",
+        "carPhotos": "Car Photos",
+        "carSectionName": "Car Section Name",
+        "conditionTypes": {
+          "noDefect": "No defect",
+          "justBoya": "Just boya",
+          "repairPaint": "Repair & paint", 
+          "changePiece": "Change piece"
+        },
+        "carSection": {
+          "frontBumper": "Front bumper",
+          "hood": "Hood",
+          "leftDoor": "Left door",
+          "rightDoor": "Right door",
+          "rearBumper": "Rear bumper",
+          "roof": "Roof"
+        },
+        "images": {
+          "coverImage": "Cover image",
+          "oneImage": "You can enter one image",
+          "carImages": "Car Images",
+          "tenImages": "You can enter up to 10 images",
+          "documents": "Documents",
+          "tenFiles": "You can enter up to 10 files"
+        }
+      }
     }
   },
   "UserProfile" : {
