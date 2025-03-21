@@ -14,11 +14,11 @@ import AddProductStepTwo from './AddProductStepTwo';
 const Steps = () => {
     const locale = useLocale();
     const direction = locale === 'ar' ? 'rtl' : 'ltr';
+    const router = useRouter(); 
 
     const steps = ['productType', 'location', 'productInfo', 'adsInfo'];
     // Ensure currentStep is always a string, not an array
     const [currentStep, setCurrentStep] = useState<string>(steps[0]);
-    const router = useRouter(); 
 
     // Add state to track validation for each step
     const [stepValidation, setStepValidation] = useState({
@@ -36,6 +36,14 @@ const Steps = () => {
         adsInfo: false
     });
 
+    // Add state to store form data from all steps
+    const [formData, setFormData] = useState({
+        productType: {},
+        location: {},
+        productInfo: {},
+        adsInfo: {}
+    });
+
     const handleNext = () => {
         const currentIndex = steps.indexOf(currentStep);
         const currentStepName = steps[currentIndex];
@@ -48,9 +56,34 @@ const Steps = () => {
         
         // Only proceed if step is valid
         if (stepValidation[currentStepName as keyof typeof stepValidation]) {
-            if (currentIndex < steps.length - 1) {
+            // Check if it's the last step
+            if (currentIndex === steps.length - 1) {
+                // This is the last step, handle submission or redirection
+                handleFinalSubmission();
+            } else {
+                // Move to the next step
                 setCurrentStep(steps[currentIndex + 1]);
             }
+        }
+    };
+
+    // Function to handle the final submission
+    const handleFinalSubmission = async () => {
+        try {
+        
+            console.log(localStorage.getItem('addProduct_stepOne_selections'))
+            console.log(localStorage.getItem('addProduct_stepTwo_data'))
+            console.log(localStorage.getItem('addProduct_stepThree_data'))
+            console.log(localStorage.getItem('addProduct_stepFour_data'))
+
+            localStorage.setItem('addProduct_stepFour_data' , "")
+            localStorage.setItem('addProduct_stepOne_selections' , "")
+            localStorage.setItem('addProduct_stepTwo_data' , "")
+            localStorage.setItem('addProduct_stepThree_data' , "")
+
+        } catch (error) {
+            console.error("Error submitting form:", error);
+        
         }
     };
 
@@ -64,8 +97,7 @@ const Steps = () => {
         }
     };
 
-    // Add function to update validation state
-    // Use useCallback to ensure stable reference
+    // Update validation state
     const updateStepValidation = useCallback((step: string, isValid: boolean) => {
         setStepValidation(prev => {
             // Only update if the value has changed
@@ -79,13 +111,20 @@ const Steps = () => {
         });
         
         // If validation becomes invalid, also mark step as attempted
-        // This ensures the error message shows immediately when a value is cleared
         if (!isValid) {
             setValidationAttempted(prev => ({
                 ...prev,
                 [step]: true
             }));
         }
+    }, []);
+
+    // Add function to update form data for each step
+    const updateStepData = useCallback((step: string, data: any) => {
+        setFormData(prev => ({
+            ...prev,
+            [step]: data
+        }));
     }, []);
 
     // Get required fields message based on locale
@@ -95,7 +134,13 @@ const Steps = () => {
             : "يرجى تحديد جميع الحقول المطلوبة قبل المتابعة";
     };
 
-
+    // Custom text for the "Next" button on the last step
+    const getNextButtonText = (step: string) => {
+        if (step === steps[steps.length - 1]) { // if it's the last step
+            return direction === 'ltr' ? 'Submit' : 'إرسال';
+        }
+        return direction === 'ltr' ? 'Next' : 'التالي';
+    };
 
     return (
         <Box variant="column" className="w-full flex flex-col justify-start items-start">
@@ -117,7 +162,7 @@ const Steps = () => {
                         requiredFieldsMessage={getRequiredFieldsMessage()}
                     >
                         <AddProductStepOne 
-                            onValidationChange={(isValid) => updateStepValidation('productType', isValid)} 
+                            onValidationChange={(isValid) => updateStepValidation('productType', isValid)}
                         />
                     </StepContent>
                     <StepContent 
@@ -127,8 +172,11 @@ const Steps = () => {
                         step="location"
                         isNextDisabled={validationAttempted.location && !stepValidation.location}
                         requiredFieldsMessage={getRequiredFieldsMessage()}
+                   
                     >
-                        <AddProductStepTwo onValidationChange={(isValid) => updateStepValidation('location', isValid)} />
+                        <AddProductStepTwo 
+                            onValidationChange={(isValid) => updateStepValidation('location', isValid)}
+                        />
                     </StepContent>
                     <StepContent 
                         handleBack={handleBack} 
@@ -138,7 +186,9 @@ const Steps = () => {
                         isNextDisabled={validationAttempted.productInfo && !stepValidation.productInfo}
                         requiredFieldsMessage={getRequiredFieldsMessage()}
                     >
-                        <AddProductStepThree  />
+                        <AddProductStepThree   
+                            onValidationChange={(isValid) => updateStepValidation('productInfo', isValid)}
+                        />
                     </StepContent>
                     <StepContent 
                         handleBack={handleBack} 
@@ -148,7 +198,9 @@ const Steps = () => {
                         isNextDisabled={validationAttempted.adsInfo && !stepValidation.adsInfo}
                         requiredFieldsMessage={getRequiredFieldsMessage()}
                     >
-                        <AddProductStepFour  />    
+                        <AddProductStepFour   
+                            onValidationChange={(isValid) => updateStepValidation('adsInfo', isValid)}
+                        />    
                     </StepContent>
                 </div>
             </Tabs>

@@ -2,7 +2,7 @@ import React from "react";
 import Box from "@/components/box/box";
 import { Button } from "@/components/ui/button";
 import { TabsContent } from "@/components/ui/tabs";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, Send } from "lucide-react";
 
 interface StepContentProps {
     step: string;
@@ -10,9 +10,10 @@ interface StepContentProps {
     direction: "ltr" | "rtl";
     handleNext: () => void;
     handleBack: () => void;
-    // Add validation props to check if fields are selected
     isNextDisabled?: boolean;
     requiredFieldsMessage?: string;
+    isLastStep?: boolean;
+    nextButtonText?: string;
 }
 
 export const StepContent: React.FC<StepContentProps> = ({ 
@@ -22,7 +23,9 @@ export const StepContent: React.FC<StepContentProps> = ({
     handleNext, 
     handleBack,
     isNextDisabled = false,
-    requiredFieldsMessage
+    requiredFieldsMessage,
+    isLastStep = false,
+    nextButtonText
 }) => {
 
     return (
@@ -31,12 +34,15 @@ export const StepContent: React.FC<StepContentProps> = ({
             <Box variant="row" className="w-full justify-start items-center bg-white mt-10 px-5 py-5 rounded-lg xs:mb-5" dir={direction}>
                 <div className="flex flex-col items-start">
                     <Button 
-                        className="bg-primary text-white font-bold px-7 min-w-[150px] hover:bg-primary-light duration-500 disabled:opacity-50 disabled:cursor-not-allowed" 
+                        className={`${isLastStep ? 'bg-green-600 hover:bg-green-700' : 'bg-primary hover:bg-primary-light'} text-white font-bold px-7 min-w-[150px] duration-500 disabled:opacity-50 disabled:cursor-not-allowed`} 
                         onClick={handleNext}
                         disabled={isNextDisabled}
                     >
-                        {direction === "ltr" ? "Next" : "التالي"}
-                        {direction === "ltr" ? <ArrowRight className="ml-2"/> : <ArrowLeft className="mr-2"/>}
+                        {nextButtonText || (direction === "ltr" ? (isLastStep ? "Submit" : "Next") : (isLastStep ? "إرسال" : "التالي"))}
+                        {isLastStep ? 
+                            <Send className={direction === "ltr" ? "ml-2 h-4 w-4" : "mr-2 h-4 w-4"}/> : 
+                            (direction === "ltr" ? <ArrowRight className="ml-2"/> : <ArrowLeft className="mr-2"/>)
+                        }
                     </Button>
                     
                 </div>
@@ -49,11 +55,11 @@ export const StepContent: React.FC<StepContentProps> = ({
                     {direction === "ltr" ? "Back" : "العودة"}
                 </Button>
 
-                    {isNextDisabled && requiredFieldsMessage && (
-                        <span className="text-red-500 text-sm mt-1">
-                            {requiredFieldsMessage}
-                        </span>
-                    )}
+                {isNextDisabled && requiredFieldsMessage && (
+                    <span className="text-red-500 text-sm mt-1 ml-4">
+                        {requiredFieldsMessage}
+                    </span>
+                )}
             </Box>
         </TabsContent>
     );
