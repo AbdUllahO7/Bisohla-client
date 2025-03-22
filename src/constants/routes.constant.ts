@@ -38,9 +38,9 @@ export const allRoutes = {
   user: {
     // path: '/user',
     children: {
-      dashboard: {
-        path: '/user/dashboard',
-        pageName: 'User Dashboard',
+      homePage: {
+        path: '/',
+        pageName: 'home Page',
       },
     },
   },

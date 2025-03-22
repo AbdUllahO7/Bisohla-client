@@ -1,207 +1,352 @@
-'use client'
-import Box from '@/components/box/box'
-import Text from '@/components/text/text'
-import { useLocale } from 'next-intl';
-import React, { useEffect, useState } from 'react'
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table"
-import { Circle, Plus } from 'lucide-react';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Button } from '@/components/ui/button';
-import ImageUpload from '@/lib/ImageUpload';
-import { MultiImageUpload } from '@/lib/MlutiImageUpload';
+"use client"
 
-const AddProductStepThree = () => {
-    const locale = useLocale();
-    const direction = locale === "ar" ? "rtl" : "ltr";
-    const [imageFile, setImageFile] = useState<File | null>(null);
-    const [uploadedImageUrl, setUploadedImageUrl] = useState('');
-    const [imageLoadingState, setImageLoadingState] = useState(false);
-    const [imageFiles, setImageFiles] = useState<File[]>([]);
-    useEffect(() => {
-        window.scrollTo(0, 0);
-    }, []);
-    
-    // Data array for table rows
-    const carSections = [
-        { id: 1, name: direction === 'ltr' ? '1- Front bumper' : '1- المصد الأمامي' },
-        { id: 2, name: direction === 'ltr' ? '2- Hood' : '2- غطاء المحرك' },
-        { id: 3, name: direction === 'ltr' ? '3- Left door' : '3- الباب الأيسر' },
-        { id: 4, name: direction === 'ltr' ? '4- Right door' : '4- الباب الأيمن' },
-        { id: 5, name: direction === 'ltr' ? '5- Rear bumper' : '5- المصد الخلفي' },
-        { id: 6, name: direction === 'ltr' ? '6- Roof' : '6- السقف' },
-    ];
+import React, { useState, useEffect, useCallback, useMemo, useRef } from "react"
+import { useLocale, useTranslations } from "next-intl"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Circle } from "lucide-react"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Card, CardHeader, CardContent } from "@/components/ui/card"
+import ImageUploader, { ImageUploaderRef } from "@/components/image-uploader/image-uploader"
+import Text from "@/components/text/text"
+import { 
+  CarConditionType, 
+  CarSection,
+  getCarSectionOptions,
+  getCarConditionOptions
+} from "@/core/entities/enums/car-condition.enum"
 
-    return (
-        <Box variant="container" className='pr-0'>
-            {/* table */}
-            <Box className="w-full md:justify-center items-start bg-white rounded-lg flex-wrap xs:justify-center" variant="row" dir={direction}>
-                <Box className="bg-gray-100 px-5 py-5 w-full flex justify-center">
-                    <Text className="font-bold text-primary">
-                        {direction === "ltr" ? "Car Information" : "معلومات السيارة"}
-                    </Text>
-                </Box>
+// Storage key for localStorage
+const STORAGE_KEY = "addProduct_stepThree_data"
 
-                {/* Scrollable Table Container */}
-                <div className="w-full overflow-x-auto pb-4">
-                    <Table className="min-w-[800px] lg:w-full text-center mx-auto">
-                        <TableHeader className='pb-2'>
-                            <TableRow className="text-center hover:bg-transparent border-gray-200 border-1 mb-10">
-                                {/* Table Heads - Keep original styling */}
-                                <TableHead className="min-w-[150px] text-start">{direction === "ltr" ? "Car section name" : "اسم قسم السيارة"}</TableHead>
-                                <TableHead className="min-w-[160px] ">
-                                    <Text className="bg-primary-light text-white justify-center font-bold py-2 rounded-3xl flex gap-2 items-center mx-auto text-sm md:text-base">
-                                        <Circle size={20} className="text-primary" />
-                                        {direction === "ltr" ? 'No defect' : 'لا يوجد عيب'}
-                                    </Text>
-                                </TableHead>
-                                <TableHead className="min-w-[160px]">
-                                    <Text className="bg-secondary-purple text-white justify-center font-bold py-2 rounded-3xl flex gap-2 items-center mx-auto text-sm md:text-base">
-                                        <Circle size={20} className="text-primary" />
-                                        {direction === "ltr" ? 'Just boya' : 'فقط بويا'}
-                                    </Text>
-                                </TableHead>
-                                <TableHead className="min-w-[160px]">
-                                    <Text className="bg-secondary-indigo text-white justify-center font-bold py-2 rounded-3xl flex gap-2 items-center mx-auto text-sm md:text-base">
-                                        <Circle size={20} className="text-primary" />
-                                        {direction === "ltr" ? 'Repair & paint' : 'تصليح وبويا'}
-                                    </Text>
-                                </TableHead>
-                                <TableHead className="min-w-[160px]">
-                                    <Text className="bg-secondary-pink text-white justify-center font-bold py-2 rounded-3xl flex gap-2 items-center mx-auto text-sm md:text-base">
-                                        <Circle size={20} className="text-primary" />
-                                        {direction === "ltr" ? 'Change piece' : 'تغيير القطعة'}
-                                    </Text>
-                                </TableHead>
-                                <TableHead className="min-w-[120px]">
-                                    <Text className="text-primary justify-center font-bold py-2 rounded-3xl flex gap-2 items-center mx-auto text-sm md:text-base">
-                                        {direction === "ltr" ? 'Details' : 'التفاصيل'}
-                                    </Text>
-                                </TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody >
-                            {carSections.map((section) => (
-                                <TableRow key={section.id} className="text-center hover:bg-transparent border-gray-300 hover:bg-background group duration-500">
-                                    <TableCell className="font-medium text-sm md:text-base text-start">{section.name}</TableCell>
-                                    <TableCell> 
-                                        <Checkbox 
-                                            id={`no-defect-${section.id}`} 
-                                            className='rounded-full h-5 w-5 '
-                                        /> 
-                                    </TableCell>
-                                    <TableCell> 
-                                        <Checkbox 
-                                            id={`just-boya-${section.id}`} 
-                                            className='rounded-full h-5 w-5 '
-                                        /> 
-                                    </TableCell>
-                                    <TableCell> 
-                                        <Checkbox 
-                                            id={`repair-paint-${section.id}`} 
-                                            className='rounded-full h-5 w-5'
-                                        /> 
-                                    </TableCell>
-                                    <TableCell> 
-                                        <Checkbox 
-                                            id={`change-piece-${section.id}`} 
-                                            className='rounded-full h-5 w-5'
-                                        /> 
-                                    </TableCell>
-                                    <TableCell> 
-                                        <Button 
-                                            className='bg-background text-primary-light border hover:bg-primary duration-500 hover:text-white border-primary text-sm md:text-base px-3 py-2'
-                                            size="sm"
-                                        >
-                                            {direction === 'ltr' ? 'Add' : 'إضافة'}
-                                                <Plus/>
-
-                                        </Button>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </div>
-            </Box>
-            {/* photos */}
-
-            <Box className="w-full md:justify-center items-start bg-white rounded-lg flex-wrap xs:justify-center pb-10" variant="row" dir={direction}>
-
-                <Box className="bg-gray-100 px-5 py-5 w-full flex justify-start">
-                    <Text className="font-bold text-primary">
-                        {direction === "ltr" ? "Car Photos" : "صور السيارة"}
-                    </Text>
-                </Box>
-
-                <Box className='flex-wrap h-full justify-start w-full gap-10 p-4' variant="row">
-                <Box className="xl:w-[700px] h-[300px]  md:w-[100%] xs:w-[100%]" variant="column">
-                <ImageUpload
-                            imageFile={imageFile}
-                            setImageFile={setImageFile}
-                            setUploadedImageUrl={setUploadedImageUrl}
-                            setImageLoadingState={setImageLoadingState}
-                            imageLoadingState={imageLoadingState}
-                            urlToUpload=''
-                            isEditMode ={false}
-                            className="border  border-dashed flex justify-center items-center min-h-[200px] border-primary px-5 py-5"
-                            isCustomStyling={true}
-                            labelText={direction === "ltr" ? "Cover image" : 'صورة الغلاف'}
-                            labelDescription={direction === "ltr" ? "You can enter one image" : "يمكنك ادخال الى صورة واحد"}
-                        />
-                    </Box>
-                    <Box className="xl:w-[700px] h-[300px]  md:w-[100%] xs:w-[100%]" variant="column">
-                    <MultiImageUpload
-                            imageFiles={imageFiles}
-                            setImageFiles={setImageFiles}
-                            setImageLoadingState={setImageLoadingState}
-                            imageLoadingState={imageLoadingState}
-                            isEditMode ={false}
-                            className="border  border-dashed flex justify-center items-center min-h-[200px] border-primary px-5 py-5"
-                            isCustomStyling={true}
-                            labelText={direction === "ltr" ? "Cover Files" : 'ملفات السيارة'}
-                            labelDescription={direction === "ltr" ? "You can enter 10 file" : "يمكنك ادخال الى 10 ملف"}
-                        />
-                    </Box>
-                    <Box className="xl:w-[700px] h-[300px]  md:w-[100%] xs:w-[100%]" variant="column">
-                    <MultiImageUpload
-                            imageFiles={imageFiles}
-                            setImageFiles={setImageFiles}
-                            setImageLoadingState={setImageLoadingState}
-                            imageLoadingState={imageLoadingState}
-                            isEditMode ={false}
-                            className="border  border-dashed flex justify-center items-center min-h-[200px] border-primary px-5 py-5"
-                            isCustomStyling={true}
-                            labelText={direction === "ltr" ? "Cover Files" : 'ملفات السيارة'}
-                            labelDescription={direction === "ltr" ? "You can enter 10 file" : "يمكنك ادخال الى 10 ملف"}
-                        />
-                    </Box>
-                    <Box className="xl:w-[700px] h-[300px] min-h-[200px]  md:w-[100%] xs:w-[100%]" variant="column">
-                    <MultiImageUpload
-                            imageFiles={imageFiles}
-                            setImageFiles={setImageFiles}
-                            setImageLoadingState={setImageLoadingState}
-                            imageLoadingState={imageLoadingState}
-                            isEditMode ={false}
-                            className="border  border-dashed min-h-[200px] flex justify-center items-center border-primary px-5 py-5"
-                            isCustomStyling={true}
-                            labelText={direction === "ltr" ? "Car image" : 'صور السيارة'}
-                            labelDescription={direction === "ltr" ? "You can enter 10 image" : "يمكنك ادخال الى 10 صور"}
-                        />
-                    </Box>
-                </Box>
-
-
-            </Box>
-        </Box>
-    );
+// Define our state type
+interface CarConditionState {
+  sectionStatus: {
+    [sectionId: number]: CarConditionType
+  };
+  coverImage: string[];
+  carImages: string[];
+  documents: string[];
+  additionalImages: string[];
 }
 
+// Default state
+const defaultState: CarConditionState = {
+  sectionStatus: {},
+  coverImage: [],
+  carImages: [],
+  documents: [],
+  additionalImages: []
+}
 
-export default AddProductStepThree
+interface AddProductStepThreeProps {
+  onValidationChange: (isValid: boolean) => void
+}
+
+const AddProductStepThree: React.FC<AddProductStepThreeProps> = ({ onValidationChange }) => {
+    const locale = useLocale()
+    const isRTL = locale === "ar"
+    const direction = isRTL ? "rtl" : "ltr"
+    const t = useTranslations("addProduct.enteredData.stepThree")
+    const [isFormDisabled, setIsFormDisabled] = useState(false)
+    const [isClient, setIsClient] = useState(false)
+    
+    // References to ImageUploader components to call reset() if needed
+    const coverImageRef = useRef<ImageUploaderRef>(null)
+    const carImagesRef = useRef<ImageUploaderRef>(null)
+    const documentsRef = useRef<ImageUploaderRef>(null)
+    const additionalImagesRef = useRef<ImageUploaderRef>(null)
+    
+    // Use ref to track previous validation state to prevent unnecessary updates
+    const prevValidState = useRef<boolean | null>(null)
+    
+    // Combined state for all form data
+    const [carCondition, setCarCondition] = useState<CarConditionState>(defaultState)
+
+    // Text labels
+    const labels = useMemo(
+      () => ({
+        carInfo: isRTL ? "معلومات حالة السيارة" : "Car Condition Information",
+        carPhotos: isRTL ? "صور السيارة" : "Car Photos",
+        carSectionName: isRTL ? "أقسام السيارة" : "Car Section Name",
+        coverImage: isRTL ? "صورة الغلاف" : "Cover Image",
+        carImages: isRTL ? "صور السيارة" : "Car Images",
+        documents: isRTL ? "المستندات" : "Documents",
+        additionalImages: isRTL ? "صور إضافية" : "Additional Images",
+        oneImage: isRTL ? "صورة واحدة" : "One image",
+        tenImages: isRTL ? "10 صور كحد أقصى" : "Maximum 10 images",
+        tenFiles: isRTL ? "10 ملفات كحد أقصى" : "Maximum 10 files",
+        required: isRTL ? "مطلوب" : "Required",
+      }),
+      [isRTL],
+    )
+
+    // Memoized options
+    const options = useMemo(() => ({
+      carSections: getCarSectionOptions(t),
+      conditionTypes: getCarConditionOptions(t)
+    }), [t]);
+
+    // Load data from localStorage on client-side
+    useEffect(() => {
+        setIsClient(true)
+        try {
+            const savedData = localStorage.getItem(STORAGE_KEY)
+            if (savedData) {
+                const parsed = JSON.parse(savedData)
+                setCarCondition(parsed)
+            }
+        } catch (e) {
+            console.error("Failed to parse saved data:", e)
+        }
+    }, [])
+
+    // Save to localStorage whenever the state changes
+    useEffect(() => {
+        if (isClient) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(carCondition))
+        }
+    }, [carCondition, isClient])
+
+    // Scroll to top on component mount
+    useEffect(() => {
+        window.scrollTo(0, 0)
+    }, [])
+
+    // Handle checkbox selection for car section status
+    const handleSectionStatusChange = useCallback((sectionId: CarSection, status: CarConditionType) => {
+        setCarCondition(prev => {
+            const newSectionStatus = { ...prev.sectionStatus }
+            
+            // If clicking the same status again, remove it
+            if (newSectionStatus[sectionId] === status) {
+                delete newSectionStatus[sectionId]
+            } else {
+                // Otherwise set to the new status
+                newSectionStatus[sectionId] = status
+            }
+            
+            return {
+                ...prev,
+                sectionStatus: newSectionStatus
+            }
+        })
+    }, [])
+
+    // Check if a checkbox should be checked
+    const isStatusSelected = useCallback((sectionId: CarSection, status: CarConditionType) => {
+        return carCondition.sectionStatus[sectionId] === status
+    }, [carCondition.sectionStatus])
+
+    // Handle image uploads for each section
+    const handleCoverImageChange = useCallback((urls: string[]) => {
+        setCarCondition(prev => ({
+            ...prev,
+            coverImage: urls
+        }))
+    }, [])
+
+    const handleCarImagesChange = useCallback((urls: string[]) => {
+        setCarCondition(prev => ({
+            ...prev,
+            carImages: urls
+        }))
+    }, [])
+
+    const handleDocumentsChange = useCallback((urls: string[]) => {
+        setCarCondition(prev => ({
+            ...prev,
+            documents: urls
+        }))
+    }, [])
+
+    const handleAdditionalImagesChange = useCallback((urls: string[]) => {
+        setCarCondition(prev => ({
+            ...prev,
+            additionalImages: urls
+        }))
+    }, [])
+
+    // Validation effect
+    useEffect(() => {
+        // Check if all required sections have a status
+        const allSectionsHaveStatus = options.carSections.every(section => 
+            Boolean(carCondition.sectionStatus[section.id])
+        )
+
+        // Check if at least cover image is provided
+        const hasCoverImage = carCondition.coverImage.length > 0
+
+        // Check if at least one car image is provided
+        const hasCarImages = carCondition.carImages.length > 0
+
+        // Overall validation
+        const isValid = allSectionsHaveStatus && hasCoverImage && hasCarImages
+
+        // Only call onValidationChange if validation state changed
+        if (isValid !== prevValidState.current) {
+            prevValidState.current = isValid
+            onValidationChange(isValid)
+        }
+    }, [carCondition, options.carSections, onValidationChange])
+
+    // Car Condition Table component
+    const CarConditionTable = useCallback(() => (
+        <div className="w-full overflow-x-auto p-4">
+            <Table className="min-w-[800px] w-full text-center">
+                <TableHeader>
+                    <TableRow className="text-center hover:bg-transparent border-gray-200 border-1">
+                        {/* Table Heads */}
+                        <TableHead className="min-w-[150px] text-start">{labels.carSectionName}</TableHead>
+                        {options.conditionTypes.map((conditionType) => (
+                            <TableHead key={conditionType.value} className="min-w-[160px]">
+                                <div className={`${conditionType.colorClass} text-white justify-center font-bold py-2 rounded-3xl flex gap-2 items-center mx-auto text-sm md:text-base`}>
+                                    <Circle size={20} className="text-primary" />
+                                    {conditionType.label}
+                                </div>
+                            </TableHead>
+                        ))}
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {options.carSections.map((section) => (
+                        <TableRow
+                            key={section.id}
+                            className="text-center hover:bg-transparent border-gray-300 hover:bg-background group duration-300"
+                        >
+                            <TableCell className="font-medium text-sm md:text-base text-start">{section.name}</TableCell>
+                            {options.conditionTypes.map((conditionType) => (
+                                <TableCell key={`${section.id}-${conditionType.value}`}>
+                                    <Checkbox 
+                                        id={`${conditionType.value}-${section.id}`} 
+                                        className="rounded-full h-5 w-5"
+                                        checked={isStatusSelected(section.id, conditionType.value)}
+                                        onCheckedChange={() => handleSectionStatusChange(section.id, conditionType.value)}
+                                    />
+                                </TableCell>
+                            ))}
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+        </div>
+    ), [labels.carSectionName, options.conditionTypes, options.carSections, isFormDisabled, isStatusSelected, handleSectionStatusChange]);
+
+    // Car Photos component
+    const CarPhotosSection = useCallback(() => (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4">
+            {/* Cover Image */}
+            <div>
+                <Text className="text-lg font-semibold mb-2">
+                    {labels.coverImage} <span className="text-red-500">*</span>
+                </Text>
+                <Text className="text-sm text-gray-500 mb-3">
+                    {labels.oneImage}
+                </Text>
+                <ImageUploader
+                    ref={coverImageRef}
+                    maxImages={1}
+                    onChange={handleCoverImageChange}
+                    setDisableForm={setIsFormDisabled}
+                    value={carCondition.coverImage}
+                    dropzoneClassName="min-h-[200px]"
+                    name="coverImage"
+                />
+            </div>
+
+            {/* Car Images */}
+            <div>
+                <Text className="text-lg font-semibold mb-2">
+                    {labels.carImages} <span className="text-red-500">*</span>
+                </Text>
+                <Text className="text-sm text-gray-500 mb-3">
+                    {labels.tenImages}
+                </Text>
+                <ImageUploader
+                    ref={carImagesRef}
+                    maxImages={10}
+                    onChange={handleCarImagesChange}
+                    setDisableForm={setIsFormDisabled}
+                    value={carCondition.carImages}
+                    dropzoneClassName="min-h-[200px]"
+                    name="carImages"
+                />
+            </div>
+
+            {/* Documents */}
+            <div>
+                <Text className="text-lg font-semibold mb-2">
+                    {labels.documents}
+                </Text>
+                <Text className="text-sm text-gray-500 mb-3">
+                    {labels.tenFiles}
+                </Text>
+                <ImageUploader
+                    ref={documentsRef}
+                    maxImages={10}
+                    onChange={handleDocumentsChange}
+                    setDisableForm={setIsFormDisabled}
+                    value={carCondition.documents}
+                    acceptedFileTypes={['image/jpeg', 'image/png', 'image/webp', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']}
+                    dropzoneClassName="min-h-[200px]"
+                    name="documents"
+                />
+            </div>
+
+            {/* Additional Images */}
+            <div>
+                <Text className="text-lg font-semibold mb-2">
+                    {labels.additionalImages}
+                </Text>
+                <Text className="text-sm text-gray-500 mb-3">
+                    {labels.tenImages}
+                </Text>
+                <ImageUploader
+                    ref={additionalImagesRef}
+                    maxImages={10}
+                    onChange={handleAdditionalImagesChange}
+                    setDisableForm={setIsFormDisabled}
+                    value={carCondition.additionalImages}
+                    dropzoneClassName="min-h-[200px]"
+                    name="additionalImages"
+                />
+            </div>
+        </div>
+    ), [
+        labels, 
+        handleCoverImageChange, 
+        handleCarImagesChange, 
+        handleDocumentsChange, 
+        handleAdditionalImagesChange,
+        carCondition.coverImage,
+        carCondition.carImages,
+        carCondition.documents,
+        carCondition.additionalImages,
+        isFormDisabled
+    ]);
+
+    return (
+        <div className="w-full space-y-6" dir={direction}>
+            {/* Car Information Section */}
+            <Card className="w-full shadow-sm">
+                <CardHeader className="bg-gray-100 py-4">
+                    <Text className="text-xl font-bold text-primary text-center">{labels.carInfo}</Text>
+                </CardHeader>
+                <CardContent className="p-0">
+                    <CarConditionTable />
+                </CardContent>
+            </Card>
+
+            {/* Car Photos Section */}
+            <Card className="w-full shadow-sm">
+                <CardHeader className="bg-gray-100 py-4">
+                    <Text className="text-xl font-bold text-primary text-center px-4">{labels.carPhotos}</Text>
+                </CardHeader>
+                <CardContent>
+                    <CarPhotosSection />
+                </CardContent>
+            </Card>
+        </div>
+    )
+}
+
+export default React.memo(AddProductStepThree)

@@ -6,7 +6,7 @@ const withNextIntl = createNextIntlPlugin();
 const nextConfig: NextConfig = {
   
   images: {
-    domains: ['example.com'],
+    domains: ['example.com', 'res.cloudinary.com'],
 
     remotePatterns: [
       {
@@ -29,16 +29,17 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "img.freepik.com",
       },
-
       {
         protocol: "https",
-        hostname: "cdn-icons-png.flaticon.com", // Add this entry
+        hostname: "cdn-icons-png.flaticon.com",
+      },
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+        pathname: '/**',
       },
     ],
   },
 };
-
-
-
 
 export default withNextIntl(nextConfig);
