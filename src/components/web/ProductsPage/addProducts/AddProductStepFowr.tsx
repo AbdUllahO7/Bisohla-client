@@ -198,7 +198,6 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
             overall: isValid
         };
         
-        console.log("Form validation:", validationDebugRef.current);
         
         return isValid;
     }, []);
