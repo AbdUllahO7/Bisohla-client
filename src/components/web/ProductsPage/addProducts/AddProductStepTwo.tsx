@@ -96,7 +96,6 @@ const groupFeaturesByCategory = (allFeatures: SelectFeatureDto[]) => {
 const AddProductStepTwo: React.FC<AddProductStepTwoProps> = ({ onValidationChange }) => {
   const t = useTranslations("addProduct.enteredData.stepTow")
   const locale = useLocale()
-  console.log(locale)
 
   // State for features from backend
   const [allFeatures, setAllFeatures] = useState<SelectFeatureDto[]>([])
@@ -116,7 +115,6 @@ const AddProductStepTwo: React.FC<AddProductStepTwoProps> = ({ onValidationChang
   
   // Update features when data is loaded - matching the exact response structure
   useEffect(() => {
-    // Based on the console.log data, we need to extract features array from data.data.data
     if (featuresData?.data?.data) {
       const features = featuresData.data.data;
       setAllFeatures(features);

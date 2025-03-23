@@ -152,7 +152,6 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
     // This will be called by DatePickerForm somehow, 
     // but we don't directly pass it as a prop since the component doesn't accept it
     const handleDateChange = useCallback((date: string | null) => {
-        console.log("Date changed to:", date);
         setTouchedFields((prev) => ({ ...prev, publicationDate: true }));
         setAdInfo((prev) => ({ ...prev, publicationDate: date }));
     }, []);
@@ -211,7 +210,6 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
             prevValidState.current = isValid;
             onValidationChange(isValid);
             
-            console.log("Validation state changed to:", isValid);
         }
     }, [adInfo, onValidationChange, validateForm]);
 
