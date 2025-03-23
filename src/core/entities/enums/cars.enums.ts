@@ -359,8 +359,8 @@ export const getCarStatusOptions = (t?: any) => {
 export const getColorOptions = (t?: any): ColorOption[] => {
   return [
     // Basic colors
-    { value: Colors.RED, label: t ? t('color.options.red') : 'Red', hex: '#FF0000' },
-    { value: Colors.GREEN, label: t ? t('color.options.green') : 'Green', hex: '#008000' },
+    { value: Colors.RED, label:  t('color.options.red'), hex: '#FF0000' },
+    { value: Colors.GREEN, label: t ? t('color.options.green') : t('color.options.red'), hex: '#008000' },
     { value: Colors.BLUE, label: t ? t('color.options.blue') : 'Blue', hex: '#0000FF' },
     { value: Colors.YELLOW, label: t ? t('color.options.yellow') : 'Yellow', hex: '#FFFF00' },
     { value: Colors.ORANGE, label: t ? t('color.options.orange') : 'Orange', hex: '#FFA500' },

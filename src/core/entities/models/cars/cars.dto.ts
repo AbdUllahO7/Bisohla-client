@@ -56,7 +56,7 @@ export interface SelectFeatureDto {
 export interface CarListingFeature {
   id: number;
   carListingId: number;
-  featureId: number;
+  featureId: string;
   feature?: SelectFeatureDto;
 }
 

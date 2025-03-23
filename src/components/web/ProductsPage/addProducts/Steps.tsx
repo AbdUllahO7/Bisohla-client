@@ -11,16 +11,16 @@ import AddProductStepFour from './AddProductStepFowr';
 import { useRouter } from 'next/navigation';
 import AddProductStepTwo from './AddProductStepTwo';
 import { createCarListing } from '@/core/infrastructure-adapters/actions/users/car.user.actions';
-import { useSession } from '@/hooks/auth/use-session';
 // Import the Currency enum from your project
 import { Currency } from '@/core/entities/enums/currency.enum'; // Adjust the import path as needed
+import { CarDetails, CarImage, CarListingFeature, SelectCarListingDto, SelectCarMakeDto, SelectCarModelDto, SelectCarTrimDto } from '@/core/entities/models/cars/cars.dto';
+import { SelectUserDto } from '@/core/entities/models/users/users.dto';
+import { SyriaCity, SyriaGovernorate } from '@/core/entities/enums/syria.enums';
+import { BodyType, FuelType, Transmission } from '@/core/entities/enums/cars.enums';
+import ErrorDialog from './Dialogs/ErrorDialog';
+import SuccessDialog from './Dialogs/SuccessDialogProps';
 
 // Type definitions
-interface ImageItem {
-    url: string;
-    isPrimary: boolean;
-}
-
 interface SectionStatus {
     [key: string]: boolean;
 }
@@ -30,6 +30,9 @@ interface StepOneData {
     model: string;
     year: string;
     trim: string;
+    governorate : string,
+    city : string,
+    address : string,
 }
 
 interface StepTwoData {
@@ -40,24 +43,35 @@ interface StepTwoData {
     fuelType: string;
     bodyType: string;
     transmission: string;
-    doors : string | number,
-    plateNumber : string | number,
-    mileage : string | number,
-    enginePower : string | number, 
-    engineSize : string | number,
-    vin : string | number,
-    selectedFeatures: {
-        [category: string]: string[];
-    };
+    doors: string | number;
+    plateNumber: string | number;
+    mileage: string | number;
+    enginePower: string | number; 
+    engineSize: string | number;
+    vin: string | number;
+    selectedFeatures: Array<{
+        id: number;
+        carListingId: number;
+        featureId: string;
+        feature?: {
+            id: number;
+            name: string;
+            category: string;
+            icon: string | null;
+            createdAt: Date | string;
+            updatedAt: Date | string;
+            deletedAt: Date | string | null;
+        }
+    }>;
 }
 
 interface StepThreeData {
     coverImage: string[];
-    carImages: string[];
+    carImages: CarImage;
     additionalImages: string[];
     documents: string[];
-    governorate: string;
-    city: string;
+    governorate: SyriaGovernorate;
+    city: SyriaCity;
     address: string;
     sectionStatus: SectionStatus;
 }
@@ -67,48 +81,52 @@ interface StepFourData {
     adDescription: string;
 }
 
-interface Feature {
-    name: string;
-    category: string;
-}
-
 // Update CarListingDTO to use Currency enum type
 interface CarListingDTO {
-    makeId: number;
-    modelId: number;
-    year: number;
-    trimId: number;
-    currency: Currency; // Changed from string to Currency enum
-    price: number;
-    colorExterior: string;  
-    colorInterior: string;  
-    fuelType: string;
-    bodyType: string;
-    transmission: string;
+    id: number;
     title: string;
     description: string;
-    governorate: string;
-    city: string;
+    price: number | number | null;
+    currency: Currency;
+    userId: number;
+    user?: SelectUserDto; // TODO: maybe change this type
+    makeId: number;
+    modelId: number;
+    trimId: number | null;
+    status: string;
+    isFeatured: boolean;
+    isSold: boolean;
+
+    // location
+    governorate: SyriaGovernorate;
+    city: SyriaCity;
     address: string;
-    sectionStatus: SectionStatus;
-    images: string[];
-    primaryImageIndex?: number;
-    features: Feature[];
-    doors : string | number,
-    plateNumber : string | number,
-    mileage : string | number,
-    enginePower : string | number, 
-    engineSize : string | number,
-    vin : string | number,
+
+    createdAt: string | Date;
+    updatedAt: string | Date;
+    deletedAt?: string | Date | null;
+
+    // Related entities
+    details: CarDetails;
+    features: CarListingFeature[];
+    images: CarImage[];
+    make: SelectCarMakeDto;
+    model: SelectCarModelDto;
+    trim?: SelectCarTrimDto;
 }
 
 const Steps = () => {
     const locale = useLocale();
     const direction = locale === 'ar' ? 'rtl' : 'ltr';
     const router = useRouter(); 
+    const isArabic = direction === 'rtl';
 
-    const { user } = useSession();
-    console.log(user)
+    // Dialog states
+    const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+    const [showErrorDialog, setShowErrorDialog] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    
     const steps = ['productType', 'location', 'productInfo', 'adsInfo'];
     // Ensure currentStep is always a string, not an array
     const [currentStep, setCurrentStep] = useState<string>(steps[0]);
@@ -160,31 +178,56 @@ const Steps = () => {
         }
     };
 
-    // Function to handle the final submission with fixed feature processing
+    // Handle the try again action for error dialog
+    const handleTryAgain = () => {
+        setShowErrorDialog(false);
+        setErrorMessage('');
+        // You could retry submission here if needed
+    };
+
+    // Format error message for display
+    const formatErrorMessage = (error: any): string => {
+        if (typeof error === 'string') return error;
+        
+        if (error.message) {
+            return error.message;
+        }
+        
+        if (error.status && error.path) {
+            return `Error ${error.status}: ${error.message || 'An error occurred'} (${error.path})`;
+        }
+        
+        return JSON.stringify(error, null, 2);
+    };
+
+    // Updated handleFinalSubmission function with error handling
     const handleFinalSubmission = async () => {
         try {
-            if (!user) {
-                console.error("User not authenticated or missing user ID");
-                // Handle unauthenticated user (redirect to login or show message)
-                return;
-            }
-
-            console.log("Reading localStorage data for submission");
-            
+            setIsSubmitting(true);
             // Get all form data from localStorage
             const data1 = localStorage.getItem('addProduct_stepOne_selections');
             const data2 = localStorage.getItem('addProduct_stepTwo_data');
             const data3 = localStorage.getItem('addProduct_stepThree_data');
             const data4 = localStorage.getItem('addProduct_stepFour_data');
+        
+            console.log("Parsed data from localStorage:");
+            console.log("Step One:", data1);
+            console.log("Step Two:", data2);
+            console.log("Step Three:", data3);
+            console.log("Step Four:", data4);
 
             // Check if we have all required data
             if (!data1 || !data2 || !data3 || !data4) {
-                console.error('Missing required data in localStorage:', {
+                const errorMsg = 'Missing required data in localStorage';
+                console.error(errorMsg, {
                     stepOne: !!data1,
                     stepTwo: !!data2,
                     stepThree: !!data3,
                     stepFour: !!data4
                 });
+                setErrorMessage(errorMsg);
+                setShowErrorDialog(true);
+                setIsSubmitting(false);
                 return;
             }
 
@@ -193,23 +236,45 @@ const Steps = () => {
             const storedData2 = JSON.parse(data2) as StepTwoData;
             const storedData3 = JSON.parse(data3) as StepThreeData;
             const storedData4 = JSON.parse(data4) as StepFourData;
-
-            console.log("Step Three Data (contains images):", storedData3);
-
-            // Process all images into a single array
-            const allImages: string[] = [];
+        
+            // Extract ONLY feature IDs to send to the API
+            const featureIds = [];
             
-            // Add cover image as primary (if exists)
+            if (storedData2.selectedFeatures && Array.isArray(storedData2.selectedFeatures)) {
+                for (const featureItem of storedData2.selectedFeatures) {
+                    if (featureItem && typeof featureItem === 'object') {
+                        // Get the feature ID, whether it's directly available or inside a feature object
+                        let featureId = null;
+                        
+                        if (featureItem.feature && featureItem.feature.id) {
+                            featureId = featureItem.feature.id;
+                        } else if (featureItem.featureId) {
+                            featureId = parseInt(featureItem.featureId, 10);
+                        }
+                        
+                        if (featureId) {
+                            featureIds.push(featureId);
+                        }
+                    }
+                }
+            }
+
+            console.log("Extracted feature IDs:", featureIds);
+
+            // Process all images into a string array
+            const imageUrls: string[] = [];
+            
+            // Add cover image
             if (storedData3.coverImage && Array.isArray(storedData3.coverImage) && storedData3.coverImage.length > 0) {
-                allImages.push(storedData3.coverImage[0]);
-                console.log("Added cover image as primary:", storedData3.coverImage[0]);
+                imageUrls.push(storedData3.coverImage[0]);
+                console.log("Added cover image:", storedData3.coverImage[0]);
             }
             
             // Add car images
             if (storedData3.carImages && Array.isArray(storedData3.carImages)) {
                 storedData3.carImages.forEach((url: string) => {
                     if (url) {
-                        allImages.push(url);
+                        imageUrls.push(url);
                     }
                 });
                 console.log(`Added ${storedData3.carImages.length} car images`);
@@ -219,7 +284,7 @@ const Steps = () => {
             if (storedData3.additionalImages && Array.isArray(storedData3.additionalImages)) {
                 storedData3.additionalImages.forEach((url: string) => {
                     if (url) {
-                        allImages.push(url);
+                        imageUrls.push(url);
                     }
                 });
                 console.log(`Added ${storedData3.additionalImages.length} additional images`);
@@ -229,95 +294,88 @@ const Steps = () => {
             if (storedData3.documents && Array.isArray(storedData3.documents)) {
                 storedData3.documents.forEach((url: string) => {
                     if (url) {
-                        allImages.push(url);
+                        imageUrls.push(url);
                     }
                 });
                 console.log(`Added ${storedData3.documents.length} document images`);
             }
             
-            // Primary image is the first one (index 0) if it exists
-            const primaryImageIndex = storedData3.coverImage && 
-                Array.isArray(storedData3.coverImage) && 
-                storedData3.coverImage.length > 0 ? 0 : undefined;
-            
-            // FIXED: Properly process the features into the format expected by the backend
-            const features = [];
-            
-            if (storedData2.selectedFeatures && typeof storedData2.selectedFeatures === 'object') {
-                for (const [category, featureIds] of Object.entries(storedData2.selectedFeatures)) {
-                    if (Array.isArray(featureIds)) {
-                        for (const featureName of featureIds) {
-                            features.push({
-                                name: featureName,
-                                category: category
-                            });
-                        }
-                    }
-                }
-            }
-            
-            console.log("Processed features:", features);
-            
-            // Create the DTO object with all required properties
-            const createCarListingDto: CarListingDTO = {
-                // Vehicle details from step 1 - Convert strings to numbers
+            // Create the car listing submission with a FLATTENED structure
+            const createCarListingDto = {
+                // Basic vehicle details from step 1
                 makeId: Number(storedData1.marka),
                 modelId: Number(storedData1.model),
+                trimId: Number(storedData1.trim) || null,
                 year: Number(storedData1.year),
-                trimId: Number(storedData1.trim) ,
                 
-                // Vehicle details from step 2
-                currency: storedData2.currency as Currency,
+                // Location details from step 1
+                address: storedData1.address,
+                city: storedData1.city,
+                governorate: storedData1.governorate,
+                
+                // Pricing from step 2
+                // Convert currency string to Currency enum
+                currency: Currency[storedData2.currency as keyof typeof Currency] || Currency.SYP,
                 price: Number(storedData2.price),
-                colorExterior: storedData2.colorExterior,
-                colorInterior: storedData2.colorInterior,
-                fuelType: storedData2.fuelType,
-                bodyType: storedData2.bodyType,
-                transmission: storedData2.transmission,
                 
-                doors: Number(storedData2.doors),
-                vin: storedData2.vin,
-                mileage: Number(storedData2.mileage),
-                enginePower: Number(storedData2.enginePower),
-                engineSize: Number(storedData2.engineSize),
-                plateNumber: storedData2.plateNumber,
+                // Listing metadata
+                status: 'ACTIVE',
+                isFeatured: false,
+                isSold: false,
                 
-                // Details from step 4
+                // Listing content from step 4
                 title: storedData4.adTitle,
                 description: storedData4.adDescription,
                 
-                // Add location details from step 3
-                governorate: storedData3.governorate,
-                city: storedData3.city,
-                address: storedData3.address,
+                // Using featureIds to match the schema
+                featureIds: featureIds,
                 
-                // Section status data from step 3
-                sectionStatus: storedData3.sectionStatus || {},
+                // Images
+                images: imageUrls,
+                primaryImageIndex: imageUrls.length > 0 ? 0 : undefined,
                 
-                // Images with primary image index
-                images: allImages,
-                primaryImageIndex: primaryImageIndex,
-                
-                // FIXED: Features in the format expected by the backend
-                features: features,
+                // Car details - FLATTENED structure
+                mileage: Number(storedData2.mileage) || 0,
+                fuelType: storedData2.fuelType as FuelType || null,
+                transmission: storedData2.transmission as Transmission || null,
+                engineSize: Number(storedData2.engineSize) || 0,
+                enginePower: Number(storedData2.enginePower) || 0,
+                bodyType: storedData2.bodyType as BodyType || null,
+                doors: Number(storedData2.doors) || 0,
+                colorExterior: storedData2.colorExterior || null,
+                colorInterior: storedData2.colorInterior || null,
+                vin: storedData2.vin?.toString() || null,
+                plateNumber: storedData2.plateNumber?.toString() || null
             };
             
-            console.log("Submitting car listing DTO:", createCarListingDto);
+            console.log("Submitting car listing with FLATTENED structure:", createCarListingDto);
             
-            // Call the API with the complete DTO
+            // Call the API with the flattened DTO
             const response = await createCarListing(createCarListingDto);
-            console.log("Listing created successfully:", response);
+            console.log("API response:", response);
             
-            // Clear saved data after successful submission (optional)
-            // localStorage.removeItem('addProduct_stepOne_selections');
-            // localStorage.removeItem('addProduct_stepTwo_data');
-            // localStorage.removeItem('addProduct_stepThree_data');
-            // localStorage.removeItem('addProduct_stepFour_data');
+            if (response.success) {
+                // Show success dialog on successful response
+                localStorage.removeItem('')
+                localStorage.removeItem('addProduct_stepOne_selections');
+                localStorage.removeItem('addProduct_stepTwo_data');
+                localStorage.removeItem('addProduct_stepThree_data');
+                localStorage.removeItem('addProduct_stepFour_data');
+                setShowSuccessDialog(true);
+            } else {
+                // Show error dialog on unsuccessful response
+                setErrorMessage(formatErrorMessage(response));
+                setShowErrorDialog(true);
+            }
             
             return response;
         } catch (error) {
             console.error("Error submitting form:", error);
-            throw error; // Allow the calling component to handle the error
+            setErrorMessage(formatErrorMessage(error));
+            setShowErrorDialog(true);
+            return null;
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -368,6 +426,25 @@ const Steps = () => {
             : "يرجى تحديد جميع الحقول المطلوبة قبل المتابعة";
     };
 
+    // Success dialog texts based on locale
+    const successDialogTexts = {
+        title: isArabic ? "تم النشر بنجاح!" : "Listing Published Successfully!",
+        description: isArabic 
+            ? "تم نشر سيارتك بنجاح. يمكنك الآن الذهاب إلى الصفحة الرئيسية أو الذهاب إلى صفحة ملفك الشخصي لمشاهدة إعلانك." 
+            : "Your car has been successfully listed. You can now go to the home page or go to your profile page to view your listing.",
+        homeButtonText: isArabic ? "الصفحة الرئيسية" : "Home Page",
+        profileButtonText: isArabic ? "صفحة الملف الشخصي" : "Profile Page"
+    };
+
+    // Error dialog texts based on locale
+    const errorDialogTexts = {
+        title: isArabic ? "حدث خطأ!" : "Error Occurred!",
+        description: isArabic 
+            ? "حدث خطأ أثناء نشر إعلان سيارتك. يرجى التحقق من التفاصيل أدناه ومحاولة مرة أخرى." 
+            : "An error occurred while publishing your car listing. Please check the details below and try again.",
+        tryAgainText: isArabic ? "حاول مرة أخرى" : "Try Again"
+    };
+
     // Custom text for the "Next" button on the last step
     const getNextButtonText = (step: string) => {
         if (step === steps[steps.length - 1]) { // if it's the last step
@@ -392,7 +469,7 @@ const Steps = () => {
                         handleNext={handleNext} 
                         direction={direction} 
                         step="productType"
-                        isNextDisabled={validationAttempted.productType && !stepValidation.productType}
+                        isNextDisabled={validationAttempted.productType && !stepValidation.productType || isSubmitting}
                         requiredFieldsMessage={getRequiredFieldsMessage()}
                     >
                         <AddProductStepOne 
@@ -404,7 +481,7 @@ const Steps = () => {
                         handleNext={handleNext} 
                         direction={direction} 
                         step="location"
-                        isNextDisabled={validationAttempted.location && !stepValidation.location}
+                        isNextDisabled={validationAttempted.location && !stepValidation.location || isSubmitting}
                         requiredFieldsMessage={getRequiredFieldsMessage()}
                    
                     >
@@ -417,7 +494,7 @@ const Steps = () => {
                         handleNext={handleNext} 
                         direction={direction} 
                         step="productInfo"
-                        isNextDisabled={validationAttempted.productInfo && !stepValidation.productInfo}
+                        isNextDisabled={validationAttempted.productInfo && !stepValidation.productInfo || isSubmitting}
                         requiredFieldsMessage={getRequiredFieldsMessage()}
                     >
                         <AddProductStepThree   
@@ -429,7 +506,7 @@ const Steps = () => {
                         handleNext={handleNext} 
                         direction={direction} 
                         step="adsInfo"
-                        isNextDisabled={validationAttempted.adsInfo && !stepValidation.adsInfo}
+                        isNextDisabled={validationAttempted.adsInfo && !stepValidation.adsInfo || isSubmitting}
                         requiredFieldsMessage={getRequiredFieldsMessage()}
                     >
                         <AddProductStepFour   
@@ -438,6 +515,27 @@ const Steps = () => {
                     </StepContent>
                 </div>
             </Tabs>
+
+            {/* Success Dialog */}
+            <SuccessDialog
+                open={showSuccessDialog}
+                onOpenChange={setShowSuccessDialog}
+                title={successDialogTexts.title}
+                description={successDialogTexts.description}
+                homeButtonText={successDialogTexts.homeButtonText}
+                profileButtonText={successDialogTexts.profileButtonText}
+            />
+
+            {/* Error Dialog */}
+            <ErrorDialog
+                open={showErrorDialog}
+                onOpenChange={setShowErrorDialog}
+                title={errorDialogTexts.title}
+                description={errorDialogTexts.description}
+                errorMessage={errorMessage}
+                tryAgainText={errorDialogTexts.tryAgainText}
+                onTryAgain={handleTryAgain}
+            />
         </Box>
     );
 };

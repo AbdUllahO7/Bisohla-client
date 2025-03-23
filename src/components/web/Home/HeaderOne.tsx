@@ -13,6 +13,8 @@ const HeaderOne = async () => {
 
     const payload = await getSession();
     console.log(payload)
+
+    
     return (
         <Box className='flex md:justify-between xs:justify-center mt-2 pb-2'>
              {/* right */}

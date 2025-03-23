@@ -148,6 +148,7 @@ export const SyriaGovernorate_TO_CITIES: Record<SyriaGovernorate, SyriaCity[]> =
       SyriaCity.MAARRAT_AL_NUMAN,
       SyriaCity.ARIHA,
       SyriaCity.JISR_AL_SHUGHUR,
+      SyriaCity.SARQEP,
     ],
     [SyriaGovernorate.AL_HASAKAH]: [
       SyriaCity.AL_HASAKAH,
@@ -216,6 +217,93 @@ export const SyriaGovernorate_ARABIC_NAMES: Record<SyriaGovernorate, string> = {
 };
 
 /**
+ * Arabic names for SyriaCities (for bilingual support)
+ */
+export const SyriaCity_ARABIC_NAMES: Record<SyriaCity, string> = {
+  // Damascus cities
+  [SyriaCity.DAMASCUS]: 'دمشق',
+  [SyriaCity.DOUMA]: 'دوما',
+  [SyriaCity.HARASTA]: 'حرستا',
+  [SyriaCity.DARAYYA]: 'داريا',
+
+  // Aleppo cities
+  [SyriaCity.ALEPPO]: 'حلب',
+  [SyriaCity.MANBIJ]: 'منبج',
+  [SyriaCity.AL_BAB]: 'الباب',
+  [SyriaCity.AZAZ]: 'أعزاز',
+  [SyriaCity.AFRIN]: 'عفرين',
+
+  // Homs cities
+  [SyriaCity.HOMS]: 'حمص',
+  [SyriaCity.PALMYRA]: 'تدمر',
+  [SyriaCity.AL_RASTAN]: 'الرستن',
+  [SyriaCity.TALKALAKH]: 'تلكلخ',
+
+  // Hama cities
+  [SyriaCity.HAMA]: 'حماة',
+  [SyriaCity.SALAMIYAH]: 'سلمية',
+  [SyriaCity.MASYAF]: 'مصياف',
+  [SyriaCity.SUQAYLABIYAH]: 'السقيلبية',
+
+  // Latakia cities
+  [SyriaCity.LATAKIA]: 'اللاذقية',
+  [SyriaCity.JABLEH]: 'جبلة',
+  [SyriaCity.AL_HAFFA]: 'الحفة',
+  [SyriaCity.QARDAHA]: 'القرداحة',
+
+  // Idlib cities
+  [SyriaCity.IDLIB]: 'إدلب',
+  [SyriaCity.MAARRAT_AL_NUMAN]: 'معرة النعمان',
+  [SyriaCity.ARIHA]: 'أريحا',
+  [SyriaCity.JISR_AL_SHUGHUR]: 'جسر الشغور',
+  [SyriaCity.SARQEP]: 'سراقب',
+
+  // Al-Hasakah cities
+  [SyriaCity.AL_HASAKAH]: 'الحسكة',
+  [SyriaCity.QAMISHLI]: 'القامشلي',
+  [SyriaCity.RAS_AL_AYN]: 'رأس العين',
+  [SyriaCity.AL_MALIKIYAH]: 'المالكية',
+
+  // Deir ez-Zor cities
+  [SyriaCity.DEIR_EZ_ZOR]: 'دير الزور',
+  [SyriaCity.AL_MAYADIN]: 'الميادين',
+  [SyriaCity.ABU_KAMAL]: 'أبو كمال',
+
+  // Tartus cities
+  [SyriaCity.TARTUS]: 'طرطوس',
+  [SyriaCity.BANIYAS]: 'بانياس',
+  [SyriaCity.SAFITA]: 'صافيتا',
+  [SyriaCity.SHEIKH_BADR]: 'الشيخ بدر',
+
+  // Raqqa cities
+  [SyriaCity.RAQQA]: 'الرقة',
+  [SyriaCity.AL_THAWRAH]: 'الثورة',
+  [SyriaCity.TELL_ABYAD]: 'تل أبيض',
+
+  // Daraa cities
+  [SyriaCity.DARAA]: 'درعا',
+  [SyriaCity.NAWA]: 'نوى',
+  [SyriaCity.IZRA]: 'إزرع',
+  [SyriaCity.BUSRA_AL_HARIR]: 'بصرى الحرير',
+
+  // As-Suwayda cities
+  [SyriaCity.AS_SUWAYDA]: 'السويداء',
+  [SyriaCity.SALKHAD]: 'صلخد',
+  [SyriaCity.SHAHBA]: 'شهبا',
+
+  // Quneitra cities
+  [SyriaCity.QUNEITRA]: 'القنيطرة',
+  [SyriaCity.MADINAT_AL_BAATH]: 'مدينة البعث',
+
+  // Damascus-Countryside cities
+  [SyriaCity.AL_TALL]: 'التل',
+  [SyriaCity.YABROUD]: 'يبرود',
+  [SyriaCity.AN_NABK]: 'النبك',
+  [SyriaCity.QATANA]: 'قطنا',
+  [SyriaCity.AL_KISWAH]: 'الكسوة',
+};
+
+/**
  * Get SyriaGovernorate options for select components
  */
 export const getSyriaGovernorateOptions = () => {
@@ -248,6 +336,16 @@ export const getSyriaCityOptions = () => {
 };
 
 /**
+ * Get bilingual SyriaCity options for select components
+ */
+export const getBilingualSyriaCityOptions = () => {
+  return Object.values(SyriaCity).map((value) => ({
+    value,
+    label: `${value.replace(/-/g, ' ')} (${SyriaCity_ARABIC_NAMES[value]})`,
+  }));
+};
+
+/**
  * Get SyriaCity options for a specific SyriaGovernorate
  * @param SyriaGovernorate The SyriaGovernorate to get cities for
  */
@@ -257,5 +355,20 @@ export const getCitiesBySyriaGovernorate = (
   return SyriaGovernorate_TO_CITIES[SyriaGovernorate].map((SyriaCity) => ({
     value: SyriaCity,
     label: SyriaCity.replace(/-/g, ' '),
+  }));
+};
+
+/**
+ * Get bilingual SyriaCity options for a specific SyriaGovernorate
+ * @param SyriaGovernorate The SyriaGovernorate to get cities for
+ * @param useArabic Whether to use Arabic names (true) or English (false)
+ */
+export const getBilingualCitiesBySyriaGovernorate = (
+  SyriaGovernorate: SyriaGovernorate,
+  useArabic: boolean = false
+) => {
+  return SyriaGovernorate_TO_CITIES[SyriaGovernorate].map((city) => ({
+    value: city,
+    label: useArabic ? SyriaCity_ARABIC_NAMES[city] : city.replace(/-/g, ' ')
   }));
 };
