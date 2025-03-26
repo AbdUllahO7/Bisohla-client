@@ -12,7 +12,7 @@ interface Option {
 
 interface SelectableListProps {
     title: string;
-    type: "marka" | "model" | "year" | "trim";
+    type: "marka" | "model" | "year" | "trim" | 'governorate' | 'city';
     options: Option[]; // Changed to Option[] array
     selectedValue: string;
     direction: "ltr" | "rtl";

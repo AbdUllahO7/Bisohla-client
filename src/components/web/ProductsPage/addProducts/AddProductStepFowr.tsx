@@ -152,7 +152,6 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
     // This will be called by DatePickerForm somehow, 
     // but we don't directly pass it as a prop since the component doesn't accept it
     const handleDateChange = useCallback((date: string | null) => {
-        console.log("Date changed to:", date);
         setTouchedFields((prev) => ({ ...prev, publicationDate: true }));
         setAdInfo((prev) => ({ ...prev, publicationDate: date }));
     }, []);
@@ -173,11 +172,11 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
         };
     }, [handleDateChange]);
 
-    // Validation function
+    // Validation function with minimum character checks
     const validateForm = useCallback((data: AdInfoState) => {
-        // Required fields validation
-        const isTitleValid = data.adTitle.trim().length > 0;
-        const isDescriptionValid = data.adDescription.trim().length > 0;
+        // Required fields validation with minimum length checks
+        const isTitleValid = data.adTitle.trim().length >= 3; // Title must be at least 3 characters
+        const isDescriptionValid = data.adDescription.trim().length >= 10; // Description must be at least 10 characters
         
         // Status validation
         const isStatusValid = data.adStatus !== "";
@@ -211,7 +210,6 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
             prevValidState.current = isValid;
             onValidationChange(isValid);
             
-            console.log("Validation state changed to:", isValid);
         }
     }, [adInfo, onValidationChange, validateForm]);
 
@@ -239,6 +237,25 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
         }
     }, []);
 
+    // Helper function to get the correct validation message
+    const getTitleErrorMessage = () => {
+        if (!adInfo.adTitle.trim()) {
+            return direction === "ltr" ? 'Title is required' : 'العنوان مطلوب';
+        } else if (adInfo.adTitle.trim().length < 3) {
+            return direction === "ltr" ? 'Title must be at least 3 characters' : 'يجب أن يكون العنوان 3 أحرف على الأقل';
+        }
+        return '';
+    };
+
+    const getDescriptionErrorMessage = () => {
+        if (!adInfo.adDescription.trim()) {
+            return direction === "ltr" ? 'Description is required' : 'الوصف مطلوب';
+        } else if (adInfo.adDescription.trim().length < 10) {
+            return direction === "ltr" ? 'Description must be at least 10 characters' : 'يجب أن يكون الوصف 10 أحرف على الأقل';
+        }
+        return '';
+    };
+
     return (
         <Box className="w-full bg-white rounded-lg pb-10" variant="column" dir={direction}>
             {/* Header */}
@@ -263,15 +280,15 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                         <Input 
                             type="text" 
                             id="adTitle" 
-                            placeholder={direction === "ltr" ? 'Ad Title' : 'عنوان الإعلان'} 
+                            placeholder={direction === "ltr" ? 'Ad Title (min 3 characters)' : 'عنوان الإعلان (3 أحرف على الأقل)'} 
                             className='w-full'
                             value={adInfo.adTitle}
                             onChange={(e) => handleTextChange('adTitle', e.target.value)}
                             onBlur={() => setTouchedFields(prev => ({ ...prev, adTitle: true }))}
                         />
-                        {touchedFields.adTitle && !adInfo.adTitle.trim() && (
+                        {touchedFields.adTitle && getTitleErrorMessage() && (
                             <Text className="text-red-500 text-sm mt-1">
-                                {direction === "ltr" ? 'Title is required' : 'العنوان مطلوب'}
+                                {getTitleErrorMessage()}
                             </Text>
                         )}
                     </Box>
@@ -285,15 +302,15 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                         <Input 
                             type="text" 
                             id="adDescription" 
-                            placeholder={direction === "ltr" ? 'Ad Description' : 'وصف الإعلان'} 
+                            placeholder={direction === "ltr" ? 'Ad Description (min 10 characters)' : 'وصف الإعلان (10 أحرف على الأقل)'} 
                             className='w-full'
                             value={adInfo.adDescription}
                             onChange={(e) => handleTextChange('adDescription', e.target.value)}
                             onBlur={() => setTouchedFields(prev => ({ ...prev, adDescription: true }))}
                         />
-                        {touchedFields.adDescription && !adInfo.adDescription.trim() && (
+                        {touchedFields.adDescription && getDescriptionErrorMessage() && (
                             <Text className="text-red-500 text-sm mt-1">
-                                {direction === "ltr" ? 'Description is required' : 'الوصف مطلوب'}
+                                {getDescriptionErrorMessage()}
                             </Text>
                         )}
                     </Box>

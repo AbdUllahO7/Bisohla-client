@@ -2,17 +2,19 @@ import Image from 'next/image'
 import React from 'react'
 import { Button } from '../../ui/button'
 import Box from '../../box/box'
-import { getTranslations } from 'next-intl/server'
 import LocaleSwitcher from '../../local/LocalSwitcher'
 import Link from 'next/link'
-import { getSession } from '@/core/lib/web/session'
+import { getSession, updateTokens } from '@/core/lib/web/session'
 import { UserCheck2Icon } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 
 const HeaderOne = async () => {
-    const t = await getTranslations('homePage');
+    const t = useTranslations('homePage');
 
-    const payload = await getSession();
-    console.log(payload)
+    const payload  = await getSession();
+
+    console.log(payload?.accessToken)
+    
     return (
         <Box className='flex md:justify-between xs:justify-center mt-2 pb-2'>
              {/* right */}
@@ -43,8 +45,8 @@ const HeaderOne = async () => {
 
                 </Box>
                 {
-                    payload?.user === null ?   <Box  className='xs:w-[120px] lg:w-full'>
-                    <Link href="/products/AddProducts">
+                    1 == 1 ?   <Box  className='xs:w-[120px] lg:w-full'>
+                    <Link href="/auth/sign-in">
 
                         <Button variant="default" className='text-primary hover:none bg-transparent shadow-none rounded-3xl pb-[5px] pr-[23px]  pt-[5px]  border-2 border-primary' size="lg" >
                         <span>{t('headerOne.loginButton')}</span>
@@ -61,7 +63,7 @@ const HeaderOne = async () => {
                 :  
                 <Link href="/userProfile">
                         <Button variant="default" className='text-primary hover:none bg-transparent shadow-none rounded-3xl pb-[5px] pr-[23px]  pt-[5px]  border-2 border-primary' size="lg" >
-                        <span>{t('headerOne.profileButton')} / {payload?.user.name}</span>
+                        {/* <span>{t('headerOne.profileButton')} / {payload?.user.name}</span> */}
                         <UserCheck2Icon/>
 
                         </Button>

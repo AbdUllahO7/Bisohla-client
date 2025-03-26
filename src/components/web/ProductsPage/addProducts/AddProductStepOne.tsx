@@ -1,8 +1,10 @@
-"use client"
+// Updated AddProductStepOne.tsx with location selectors and address field
+
 import React, { useState, useEffect, useCallback, useMemo, useRef } from "react"
 import Box from "@/components/box/box"
 import Text from "@/components/text/text"
 import { Textarea } from "@/components/ui/textarea"
+import { Input } from "@/components/ui/input"
 import { useLocale, useTranslations } from "next-intl"
 import SelectableList from "./SelectableList"
 import {
@@ -11,6 +13,13 @@ import {
     useCarTrims,
 } from "@/core/infrastructure-adapters/use-actions/visitors/car.visitor.use-actions"
 import { Filter } from "@/core/entities/api/api"
+import { 
+    SyriaGovernorate, 
+    SyriaCity,
+    SyriaGovernorate_ARABIC_NAMES, 
+    SyriaCity_ARABIC_NAMES,
+    SyriaGovernorate_TO_CITIES 
+} from "@/core/entities/enums/syria.enums"
 
 // Define the prop types for the component
 interface AddProductStepOneProps {
@@ -24,6 +33,9 @@ interface SelectedOptions {
     trim: string;
     year: string;
     story: string;
+    governorate: string;
+    city: string;
+    address: string;
 }
 
 const STORAGE_KEY = "addProduct_stepOne_selections";
@@ -34,7 +46,10 @@ const defaultOptions = {
     model: "",
     trim: "",
     year: "",
-    story: ""
+    story: "",
+    governorate: "",
+    city: "",
+    address: ""
 };
 
 const AddProductStepOne: React.FC<AddProductStepOneProps> = ({ onValidationChange }) => {
@@ -52,6 +67,7 @@ const AddProductStepOne: React.FC<AddProductStepOneProps> = ({ onValidationChang
     const isInitialLoad = useRef(true);
     const userChangedMarka = useRef(false);
     const userChangedModel = useRef(false);
+    const userChangedGovernorate = useRef(false);
     
     // Set isClient to true once the component has mounted
     // This ensures hydration is complete before any client-specific code runs
@@ -117,6 +133,30 @@ const AddProductStepOne: React.FC<AddProductStepOneProps> = ({ onValidationChang
         [carTrimsResponse]
     )
 
+    // Prepare governorate options with bilingual support
+    const governorateOptions = useMemo(() => 
+        Object.values(SyriaGovernorate).map(gov => ({
+            value: gov,
+            label: isArabic 
+                ? SyriaGovernorate_ARABIC_NAMES[gov]
+                : gov.replace(/-/g, ' ')
+        })),
+        [isArabic]
+    );
+
+    // Prepare city options based on selected governorate
+    const cityOptions = useMemo(() => {
+        if (!selectedOptions.governorate) return [];
+        
+        const selectedGov = selectedOptions.governorate as SyriaGovernorate;
+        return SyriaGovernorate_TO_CITIES[selectedGov].map(city => ({
+            value: city,
+            label: isArabic
+                ? SyriaCity_ARABIC_NAMES[city]
+                : city.replace(/-/g, ' ')
+        }));
+    }, [selectedOptions.governorate, isArabic]);
+
     // Only reset dependent fields on user-initiated changes, not on initial load
     const handleSelectChange = useCallback((type: string, value: string) => {
         if (type === "marka") {
@@ -152,6 +192,22 @@ const AddProductStepOne: React.FC<AddProductStepOneProps> = ({ onValidationChang
                     [type]: value
                 }));
             }
+        } else if (type === "governorate") {
+            userChangedGovernorate.current = true;
+            
+            // Only reset city if this is a user change, not initial load
+            if (!isInitialLoad.current) {
+                setSelectedOptions(prev => ({
+                    ...prev,
+                    [type]: value,
+                    city: ""
+                }));
+            } else {
+                setSelectedOptions(prev => ({
+                    ...prev,
+                    [type]: value
+                }));
+            }
         } else {
             // For other fields, just update normally
             setSelectedOptions(prev => ({
@@ -161,13 +217,26 @@ const AddProductStepOne: React.FC<AddProductStepOneProps> = ({ onValidationChang
         }
     }, []);
 
+    // Handle address input change - Fixed to use HTMLTextAreaElement
+    const handleAddressChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setSelectedOptions(prev => ({ ...prev, address: e.target.value }));
+    }, []);
+
+    // Handle story text changes
+    const handleStoryChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setSelectedOptions(prev => ({ ...prev, story: e.target.value }));
+    }, []);
+
     // Validate and notify parent component
     useEffect(() => {
         const isValid = Boolean(
             selectedOptions.marka && 
             selectedOptions.model && 
             selectedOptions.trim && 
-            selectedOptions.year
+            selectedOptions.year &&
+            selectedOptions.governorate &&
+            selectedOptions.city &&
+            selectedOptions.address
         );
         
         if (isValid !== prevValidationState && onValidationChange) {
@@ -184,12 +253,7 @@ const AddProductStepOne: React.FC<AddProductStepOneProps> = ({ onValidationChang
         })),
         [t]
     );
-
-    // Handle story text changes
-    const handleStoryChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-        setSelectedOptions(prev => ({ ...prev, story: e.target.value }));
-    }, []);
-
+    
     // Check for errors
     const hasErrors = makesError || modelsError || trimsError;
 
@@ -199,6 +263,10 @@ const AddProductStepOne: React.FC<AddProductStepOneProps> = ({ onValidationChang
         model: t("enteredData.stepOne.model.title"),
         brand: t("enteredData.stepOne.branda.title"),
         year: t("enteredData.stepOne.madeYear.title"),
+        governorate: isArabic ? "المحافظة" : "Governorate",
+        city: isArabic ? "المدينة" : "City",
+        address: isArabic ? "العنوان التفصيلي" : "Detailed Address",
+        addressPlaceholder: isArabic ? "أدخل العنوان التفصيلي هنا" : "Enter detailed address here",
         story: isArabic ? "قصة السيارة" : "Story of car",
         placeholder: isArabic ? "اكتب رسالتك هنا" : "Write your message here",
         error: isArabic 
@@ -218,7 +286,7 @@ const AddProductStepOne: React.FC<AddProductStepOneProps> = ({ onValidationChang
                 </Box>
             )}
 
-            <Box className="w-full justify-start items-center flex-wrap xs:justify-center" variant="row">
+            <Box className="w-full justify-start items-center flex-wrap grid grid-cols-4 xs:justify-center" variant="row">
                 {/* Car selection fields */}
                 <SelectableList
                     title={titles.brand}
@@ -260,19 +328,59 @@ const AddProductStepOne: React.FC<AddProductStepOneProps> = ({ onValidationChang
                     required={true}
                 />
 
+                {/* Location selection fields */}
+                <SelectableList
+                    title={titles.governorate}
+                    type="governorate"
+                    options={governorateOptions}
+                    selectedValue={selectedOptions.governorate}
+                    direction={direction}
+                    onSelect={handleSelectChange}
+                    required={true}
+                />
+
+                <SelectableList
+                    title={titles.city}
+                    type="city"
+                    options={selectedOptions.governorate ? cityOptions : []}
+                    selectedValue={selectedOptions.city}
+                    direction={direction}
+                    onSelect={handleSelectChange}
+                    required={true}
+                />
+
+                {/* Address field */}
+                <Box className=" py-5 " variant="column">
+                    <Text className="text-primary font-bold text-xl border-b border-primary-foreground pb-2">
+                        {titles.address} <span className="text-red-500">*</span>
+                    </Text>
+                    <Box className="mt-4" variant="column">
+                        <Textarea
+                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                            placeholder={titles.addressPlaceholder}
+                            value={selectedOptions.address}
+                            onChange={handleAddressChange}
+                            cols={30}
+                            rows={13}
+                            dir={direction}
+                        />
+                    </Box>
+                </Box>
+
                 {/* Story field */}
-                <Box className="min-w-[250px] py-5" variant="column">
+                <Box className="min-w-[250px] py-5 col-span-2 px-5" variant="column">
                     <Text className="text-primary font-bold text-xl border-b border-primary-foreground pb-2">
                         {titles.story}
                     </Text>
                     <Textarea
-                        className="px-5 border-gray-100"
+                        className="px-5 border-gray-100 mt-4"
                         placeholder={titles.placeholder}
                         id="message-2"
                         cols={20}
                         rows={17}
                         value={selectedOptions.story}
                         onChange={handleStoryChange}
+                        dir={direction}
                     />
                 </Box>
             </Box>
