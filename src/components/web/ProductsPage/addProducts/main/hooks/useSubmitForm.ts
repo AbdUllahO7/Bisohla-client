@@ -186,11 +186,10 @@ export const useSubmitForm = () => {
       console.log("API response:", response);
       
       if (response.success) {
-        // Optional: Clear localStorage after successful submission
-        // localStorage.removeItem('addProduct_stepOne_selections');
-        // localStorage.removeItem('addProduct_stepTwo_data');
-        // localStorage.removeItem('addProduct_stepThree_data');
-        // localStorage.removeItem('addProduct_stepFour_data');
+        localStorage.removeItem('addProduct_stepOne_selections');
+        localStorage.removeItem('addProduct_stepTwo_data');
+        localStorage.removeItem('addProduct_stepThree_data');
+        localStorage.removeItem('addProduct_stepFour_data');
 
 
         // Alternatively, you can try this approach with router
