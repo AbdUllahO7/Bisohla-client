@@ -147,4 +147,14 @@ export class AuthController implements IAuthController {
       return catchClientRequest(err);
     }
   }
+
+  async checkAuth(): Promise<ApiResponse<SuccessResponseWithNoContent>> {
+    try {
+      const res = await this.authUseCase.checkAuth();
+
+      return res;
+    } catch (err) {
+      return catchClientRequest(err);
+    }
+  }
 }

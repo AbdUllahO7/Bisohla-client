@@ -11,7 +11,7 @@ import {
 } from '@/core/entities/models/auth/register.dto';
 import { ResetPasswordDto } from '@/core/entities/models/auth/reset-password.dto';
 import { SendVerificationEmailDto } from '@/core/entities/models/auth/send-verification-email.dto';
-import { postReq } from '@/core/lib/api';
+import { getAuthReq, postReq } from '@/core/lib/api';
 
 export class AuthService implements IAuthService {
   async register(
@@ -149,6 +149,18 @@ export class AuthService implements IAuthService {
     }
 
     return response;
+  }
+
+  async checkAuth(): Promise<ApiResponse<SuccessResponseWithNoContent>> {
+    const res = await getAuthReq({
+      url: '/auth/check/user',
+    });
+
+    if (!res.success) {
+      throw new Error(res.message);
+    }
+
+    return res;
   }
 
   // async register(
