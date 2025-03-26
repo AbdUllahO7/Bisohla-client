@@ -5,12 +5,8 @@ import HeaderTow from '@/components/web/Home/HeaderTow';
 import { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { PropsWithChildren } from 'react';
-import { checkRole } from '../actions';
 
 export async function generateMetadata(): Promise<Metadata> {
-  const res = await checkRole('user');
-  console.log(res);
-
   const t = await getTranslations('homePage');
 
   return {
