@@ -8,7 +8,6 @@ import { useLocale } from 'next-intl';
 
 
 // Import hooks and utilities
-import { useStepManagement } from './hooks/useStepManagement';
 import { getRequiredFieldsMessage, getErrorDialogTexts } from './utils';
 import { StepContent } from './Components/StepContent';
 import AddProductStepOne from '../StepOne/AddProductStepOne';
@@ -17,6 +16,7 @@ import AddProductStepThree from '../stepThree/AddProductStepThree';
 import AddProductStepFour from '../stepFour/AddProductStepFowr';
 import ErrorDialog from './Components/ErrorDialog';
 import { StepTrigger } from './Components/StepTrigger';
+import { useStepManagement } from './hooks/useStepManagement';
 
 const Steps = () => {
   const locale = useLocale();

@@ -1,5 +1,5 @@
 // hooks/useSubmitForm.ts
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { createCarListing } from '@/core/infrastructure-adapters/actions/users/car.user.actions';
 import { Currency } from '@/core/entities/enums/currency.enum';
@@ -27,12 +27,12 @@ export const useSubmitForm = () => {
   const [showErrorDialog, setShowErrorDialog] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const handleTryAgain = () => {
+  const handleTryAgain = useCallback(() => {
     setShowErrorDialog(false);
     setErrorMessage('');
-  };
+  }, []);
 
-  const submitForm = async () => {
+  const submitForm = useCallback(async () => {
     try {
       setIsSubmitting(true);
       // Get all form data from localStorage
@@ -186,12 +186,18 @@ export const useSubmitForm = () => {
       console.log("API response:", response);
       
       if (response.success) {
+        // Optional: Clear localStorage after successful submission
         // localStorage.removeItem('addProduct_stepOne_selections');
         // localStorage.removeItem('addProduct_stepTwo_data');
         // localStorage.removeItem('addProduct_stepThree_data');
         // localStorage.removeItem('addProduct_stepFour_data');
 
-        router.push('/products/AddProducts/ProductSuccessPage');
+
+        // Alternatively, you can try this approach with router
+        setTimeout(() => {
+          router.push('/products/AddProducts/ProductSuccessPage');
+        }, 0);
+        
         return response;
       } else {
         // Show error dialog on unsuccessful response
@@ -207,7 +213,7 @@ export const useSubmitForm = () => {
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }, [router]);
 
   return {
     isSubmitting,
