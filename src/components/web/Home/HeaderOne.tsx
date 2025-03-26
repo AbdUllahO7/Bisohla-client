@@ -2,15 +2,15 @@ import Image from 'next/image'
 import React from 'react'
 import { Button } from '../../ui/button'
 import Box from '../../box/box'
-import { getTranslations } from 'next-intl/server'
 import LocaleSwitcher from '../../local/LocalSwitcher'
 import Link from 'next/link'
-import { getSession } from '@/core/lib/web/session'
+import { getSession, updateTokens } from '@/core/lib/web/session'
 import { UserCheck2Icon } from 'lucide-react'
 import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions'
+import { useTranslations } from 'next-intl'
 
 const HeaderOne = async () => {
-    const t = await getTranslations('homePage');
+    const t = useTranslations('homePage');
 
     const payload = await getSession();
 
