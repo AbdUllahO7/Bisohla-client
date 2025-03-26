@@ -132,4 +132,17 @@ export class AuthUseCase implements IAuthUseCase {
 
     return res;
   }
+
+  async checkAuth(): Promise<ApiResponse<SuccessResponseWithNoContent>> {
+    // TODO: Implement AUTHORIZATION in use cases
+
+    const res = await this.authService.checkAuth();
+
+    if (res.success && res.data) {
+      // revalidatePath('/');
+      // redirect(allRoutes.user.children.dashboard.path);
+    }
+
+    return res;
+  }
 }
