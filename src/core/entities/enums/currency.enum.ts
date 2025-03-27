@@ -92,13 +92,35 @@ export const CURRENCY_INFO: Record<Currency, { symbol: string; name: string }> =
 /**
  * Get currency options for select components
  */
-export const getCurrencyOptions = () => {
-  return Object.values(Currency).map((code) => ({
-    value: code,
-    label: `${code} (${CURRENCY_INFO[code].symbol}) - ${CURRENCY_INFO[code].name}`,
-  }));
-};
+// In the currency.enum.ts file, update the getCurrencyOptions function:
 
+export const getCurrencyOptions = (t?: any) => {
+  return Object.values(Currency).map((code) => {
+    // If translation function is provided, try to get the translation
+    // Using the correct path based on your translation structure
+    let name = CURRENCY_INFO[code].name;
+    
+    if (t) {
+      try {
+        // First try to get from the currency path
+        name = t(`currency.${code.toLowerCase()}`);
+      } catch (error) {
+        // Fallback to the price options path for backwards compatibility
+        try {
+          name = t(`price.options.${code.toLowerCase()}`);
+        } catch (err) {
+          // If translation is not found, use the default name
+          name = CURRENCY_INFO[code].name;
+        }
+      }
+    }
+    
+    return {
+      value: code,
+      label: `${code} (${CURRENCY_INFO[code].symbol}) - ${name}`,
+    };
+  });
+};
 /**
  * Format a number as currency
  * @param amount - The amount to format

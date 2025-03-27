@@ -1,0 +1,324 @@
+// hooks.ts
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { useLocale, useTranslations } from "next-intl";
+import { useCarFeatrues } from "@/core/infrastructure-adapters/use-actions/visitors/car.visitor.use-actions";
+import { getCurrencyOptions } from "@/core/entities/enums/currency.enum";
+import { getBodyTypeOptions, getColorOptions, getFuelTypeOptions, getTransmissionOptions, FeatureCategory } from "@/core/entities/enums/cars.enums";
+import { CarInfoState, ValidationErrors, GroupedFeatures, CategoryData } from "./types";
+import { groupFeaturesByCategory, loadFromStorage, saveToStorage, validateForm } from "./utils";
+import { SelectFeatureDto, CarListingFeature } from "@/core/entities/models/cars/cars.dto";
+
+/**
+ * Custom hook for the AddProductStepTwo component
+ */
+export const useAddProductStepTwo = (onValidationChange: (isValid: boolean) => void) => {
+  const t = useTranslations("addProduct.enteredData.stepTow");
+  const locale = useLocale();
+  const direction = locale === "ar" ? "rtl" : "ltr";
+  
+  // State for features from backend - properly typed
+  const [allFeatures, setAllFeatures] = useState<SelectFeatureDto[]>([]);
+  const [featureCategories, setFeatureCategories] = useState<GroupedFeatures>({});
+  
+  // Validation errors state
+  const [validationErrors, setValidationErrors] = useState<ValidationErrors>({
+    doors: "",
+    price: "",
+    engineSize: ""
+  });
+  
+  // Main form state
+  const [isClient, setIsClient] = useState(false);
+  const [carInfo, setCarInfo] = useState<CarInfoState>({
+    price: "",
+    currency: "",
+    colorExterior: "",
+    colorInterior: "",
+    fuelType: "",
+    bodyType: "",
+    transmission: "",
+    mileage: "",
+    enginePower: "",
+    engineSize: "",
+    doors: "",
+    plateNumber: "",
+    vin: "",
+    selectedFeatures: []
+  });
+  
+  // Use ref to track previous validation state
+  const prevValidState = useRef<boolean | null>(null);
+  
+  // Use the hook to fetch features from backend
+  const { data: featuresData, isLoading: isFeaturesLoading } = useCarFeatrues({ 
+    page: 1
+  });
+  
+  // Update features when data is loaded
+  useEffect(() => {
+    if (featuresData?.data?.data) {
+      const features = featuresData.data.data as SelectFeatureDto[];
+      setAllFeatures(features);
+      
+      // Group features by category
+      const grouped = groupFeaturesByCategory(features);
+      setFeatureCategories(grouped);
+    }
+  }, [featuresData]);
+  
+  // Load data from localStorage on client-side
+  useEffect(() => {
+    setIsClient(true);
+    
+    const loadedData = loadFromStorage();
+    setCarInfo(loadedData);
+    
+    // Validate loaded data immediately
+    validateLoadedData(loadedData);
+  }, []);
+  
+  // Save to localStorage when carInfo changes
+  useEffect(() => {
+    if (isClient) {
+      saveToStorage(carInfo);
+    }
+  }, [carInfo, isClient]);
+  
+  // Validate loaded data
+  const validateLoadedData = useCallback((data: CarInfoState) => {
+    const newValidationErrors = { ...validationErrors };
+    
+    // Check price
+    const priceValue = parseFloat(data.price);
+    if (data.price && (isNaN(priceValue) || priceValue <= 0)) {
+      newValidationErrors.price = locale === 'ar' 
+        ? "يجب أن يكون السعر قيمة موجبة" 
+        : "Price must be a positive value";
+    } else {
+      newValidationErrors.price = "";
+    }
+    
+    // Check doors
+    const doorsValue = parseInt(data.doors);
+    if (data.doors) {
+      if (!Number.isInteger(doorsValue) || doorsValue <= 0) {
+        newValidationErrors.doors = locale === 'ar' 
+          ? "يجب أن يكون عدد الأبواب رقمًا صحيحًا موجبًا" 
+          : "Doors must be a positive integer";
+      } else if (doorsValue > 10) {
+        newValidationErrors.doors = locale === 'ar' 
+          ? "يجب ألا يتجاوز عدد الأبواب 10" 
+          : "Doors cannot exceed 10";
+      } else {
+        newValidationErrors.doors = "";
+      }
+    }
+    
+    // Check engine size
+    const engineSizeValue = parseFloat(data.engineSize);
+    if (data.engineSize && (isNaN(engineSizeValue) || engineSizeValue <= 0)) {
+      newValidationErrors.engineSize = locale === 'ar' 
+        ? "يجب أن يكون حجم المحرك قيمة موجبة" 
+        : "Engine size must be a positive value";
+    } else {
+      newValidationErrors.engineSize = "";
+    }
+    
+    setValidationErrors(newValidationErrors);
+  }, [locale, validationErrors]);
+  
+  // Handle select change events
+  const handleSelectChange = useCallback((field: string, value: string) => {
+    setCarInfo(prev => ({ ...prev, [field]: value }));
+  }, []);
+  
+  // Handle text field blur events with validation
+  const handleTextFieldBlur = useCallback((field: string, value: string) => {
+    setCarInfo(prev => ({ ...prev, [field]: value }));
+    
+    // Validate based on field type
+    if (field === 'price') {
+      const priceValue = parseFloat(value);
+      if (value && (isNaN(priceValue) || priceValue <= 0)) {
+        setValidationErrors(prev => ({ 
+          ...prev, 
+          price: locale === 'ar' 
+            ? "يجب أن يكون السعر قيمة موجبة" 
+            : "Price must be a positive value" 
+        }));
+      } else {
+        setValidationErrors(prev => ({ ...prev, price: "" }));
+      }
+    } 
+    else if (field === 'doors') {
+      const doorsValue = parseInt(value);
+      if (value) {
+        if (!Number.isInteger(doorsValue) || doorsValue <= 0) {
+          setValidationErrors(prev => ({ 
+            ...prev, 
+            doors: locale === 'ar' 
+              ? "يجب أن يكون عدد الأبواب رقمًا صحيحًا موجبًا" 
+              : "Doors must be a positive integer" 
+          }));
+        } else if (doorsValue > 10) {
+          setValidationErrors(prev => ({ 
+            ...prev, 
+            doors: locale === 'ar' 
+              ? "يجب ألا يتجاوز عدد الأبواب 10" 
+              : "Doors cannot exceed 10" 
+          }));
+        } else {
+          setValidationErrors(prev => ({ ...prev, doors: "" }));
+        }
+      }
+    }
+    else if (field === 'engineSize') {
+      const engineSizeValue = parseFloat(value);
+      if (value && (isNaN(engineSizeValue) || engineSizeValue <= 0)) {
+        setValidationErrors(prev => ({ 
+          ...prev, 
+          engineSize: locale === 'ar' 
+            ? "يجب أن يكون حجم المحرك قيمة موجبة" 
+            : "Engine size must be a positive value" 
+        }));
+      } else {
+        setValidationErrors(prev => ({ ...prev, engineSize: "" }));
+      }
+    }
+  }, [locale]);
+  
+  // Feature toggle handler
+  const handleFeatureToggle = useCallback((featureId: string, category: string) => {
+    setCarInfo((prev) => {
+      // Convert string featureId to number if needed
+      const featureIdNum = parseInt(featureId);
+      
+      // Find if the feature is already selected
+      const existingIndex = prev.selectedFeatures.findIndex(
+        feature => feature.featureId === featureId
+      );
+      
+      let updatedFeatures: CarListingFeature[];
+      
+      if (existingIndex !== -1) {
+        // If feature exists, remove it (toggle off)
+        updatedFeatures = [
+          ...prev.selectedFeatures.slice(0, existingIndex),
+          ...prev.selectedFeatures.slice(existingIndex + 1)
+        ];
+      } else {
+        // If feature doesn't exist, add it (toggle on)
+        // Find the actual feature from allFeatures to get its details
+        const featureDetails = allFeatures.find(f => f.id.toString() === featureId);
+        
+        const newFeature: CarListingFeature = {
+          id: 0, // Will be assigned by backend
+          carListingId: 0, // Will be assigned by backend
+          featureId: featureId,
+          feature: {
+            id: featureIdNum, 
+            name: featureDetails?.name || "", 
+            category: category as FeatureCategory,
+            icon: featureDetails?.icon || null,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            deletedAt: null
+          }
+        };
+        
+        updatedFeatures = [...prev.selectedFeatures, newFeature];
+      }
+      
+      return { 
+        ...prev, 
+        selectedFeatures: updatedFeatures 
+      };
+    });
+  }, [allFeatures]);
+  
+  // Form validation effect
+  useEffect(() => {
+    const isValid = validateForm(carInfo, validationErrors);
+    
+    if (isValid !== prevValidState.current) {
+      prevValidState.current = isValid;
+      onValidationChange(isValid);
+    }
+  }, [carInfo, validationErrors, onValidationChange]);
+  
+  // Memoized options for selects
+  const options = useMemo(
+    () => ({
+      currency: getCurrencyOptions(t),
+      fuelType: getFuelTypeOptions(t),
+      bodyType: getBodyTypeOptions(t),
+      transmission: getTransmissionOptions(t),
+      colors: getColorOptions(t),
+    }),
+    [t], 
+  );
+  
+  // Text labels with translations
+  const labels = useMemo(
+    () => ({
+      carInfo: locale === 'ar' ? "معلومات السيارة" : "Car Information",
+      carFeatures: locale === 'ar' ? "ميزات السيارة" : "Car Features",
+      price: locale === 'ar' ? "السعر" : "Price",
+      currency: locale === 'ar' ? "العملة" : "Currency",
+      colorExterior: locale === 'ar' ? "لون الخارجي" : "Exterior Color",
+      colorInterior: locale === 'ar' ? "لون الداخلي" : "Interior Color",
+      fuelType: locale === 'ar' ? "نوع الوقود" : "Fuel Type",
+      bodyType: locale === 'ar' ? "نوع الهيكل" : "Body Type",
+      transmission: locale === 'ar' ? "ناقل الحركة" : "Transmission",
+      mileage: locale === 'ar' ? "المسافة المقطوعة" : "Mileage",
+      enginePower: locale === 'ar' ? "قوة المحرك" : "Engine Power",
+      engineSize: locale === 'ar' ? "حجم المحرك" : "Engine Size",
+      doors: locale === 'ar' ? "عدد الأبواب" : "Doors",
+      plateNumber: locale === 'ar' ? "رقم اللوحة" : "Plate Number",
+      vin: locale === 'ar' ? "رقم الهيكل (VIN)" : "VIN",
+      selectColorExterior: locale === 'ar' ? "اختر اللون الخارجي" : "Select Exterior Color",
+      selectColorInterior: locale === 'ar' ? "اختر اللون الداخلي" : "Select Interior Color",
+      selectCurrency: locale === 'ar' ? "اختر العملة" : "Select a currency",
+      selectFuelType: locale === 'ar' ? "اختر نوع الوقود" : "Select a Fuel Type",
+      selectBodyType: locale === 'ar' ? "اختر نوع الهيكل" : "Select a Body Type",
+      selectTransmission: locale === 'ar' ? "اختر ناقل الحركة" : "Select a Transmission",
+      enterPrice: locale === 'ar' ? "أدخل السعر" : "Enter price",
+      enterMileage: locale === 'ar' ? "أدخل المسافة المقطوعة" : "Enter mileage",
+      enterEnginePower: locale === 'ar' ? "أدخل قوة المحرك" : "Enter engine power",
+      enterEngineSize: locale === 'ar' ? "أدخل حجم المحرك" : "Enter engine size",
+      enterDoors: locale === 'ar' ? "أدخل عدد الأبواب" : "Enter doors count",
+      enterPlateNumber: locale === 'ar' ? "أدخل رقم اللوحة" : "Enter plate number",
+      enterVin: locale === 'ar' ? "أدخل رقم الهيكل" : "Enter VIN number",
+      colors: locale === 'ar' ? "الألوان" : "Colors",
+      extColors: locale === 'ar' ? "الألوان الخارجية" : "Exterior Colors",
+      intColors: locale === 'ar' ? "الألوان الداخلية" : "Interior Colors",
+      currencies: locale === 'ar' ? "العملات" : "Currencies",
+      fuelTypes: locale === 'ar' ? "أنواع الوقود" : "Fuel Types",
+      bodyTypes: locale === 'ar' ? "أنواع الهيكل" : "Body Types",
+      transmissions: locale === 'ar' ? "أنواع ناقل الحركة" : "Transmissions",
+      required: locale === 'ar' ? "مطلوب" : "Required",
+      loading: locale === 'ar' ? "جاري التحميل..." : "Loading...",
+      noFeatures: locale === 'ar' ? "لا توجد ميزات متاحة" : "No features available",
+      invalidDoors: locale === 'ar' ? "يجب ألا يتجاوز عدد الأبواب 10" : "Doors cannot exceed 10",
+      invalidDoorsNumber: locale === 'ar' ? "يجب أن يكون عدد الأبواب رقمًا صحيحًا موجبًا" : "Doors must be a positive integer",
+      invalidPrice: locale === 'ar' ? "يجب أن يكون السعر قيمة موجبة" : "Price must be a positive value",
+      invalidEngineSize: locale === 'ar' ? "يجب أن يكون حجم المحرك قيمة موجبة" : "Engine size must be a positive value"
+    }),
+    [locale]
+  );
+  
+  return {
+    carInfo,
+    validationErrors,
+    allFeatures,
+    featureCategories,
+    isFeaturesLoading,
+    labels,
+    options,
+    locale,
+    direction,
+    handleSelectChange,
+    handleTextFieldBlur,
+    handleFeatureToggle
+  };
+};

@@ -29,6 +29,10 @@ export default async function RootLayout({
   initConfigs();
   const messages = await getMessages();
   // const { direction } = useLangContext();
+
+
+
+
   return (
     <html
       lang={locale}
