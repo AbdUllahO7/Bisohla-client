@@ -1,8 +1,10 @@
 'use server';
 
-import { SuccessResponseWithNoContent } from '@/core/entities/api/success.response';
+import {
+  ApiResponse,
+  SuccessResponseWithNoContent,
+} from '@/core/entities/api/success.response';
 import { getInjection } from '@/di/container';
-import { ApiResponse } from '@/interfaces/api-response.interface';
 
 export const checkAuth = async (): Promise<
   ApiResponse<SuccessResponseWithNoContent>

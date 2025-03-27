@@ -1,7 +1,9 @@
 'use client';
 
-import { SuccessResponseWithNoContent } from '@/core/entities/api/success.response';
-import { ApiResponse } from '@/interfaces/api-response.interface';
+import {
+  ApiResponse,
+  SuccessResponseWithNoContent,
+} from '@/core/entities/api/success.response';
 import { useLocaleQuery } from '../common/use-locale-query';
 import {
   checkAuth,
