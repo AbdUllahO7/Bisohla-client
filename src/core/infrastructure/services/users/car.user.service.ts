@@ -1,6 +1,8 @@
 import { ICarUserService } from '@/core/application/services/users/car.user.service.interface';
+import { QueryParams } from '@/core/entities/api/api';
 import {
   ApiResponse,
+  PaginatedResponse,
   SuccessResponseWithNoContent,
 } from '@/core/entities/api/success.response';
 import { SelectCarListingDto } from '@/core/entities/models/cars/cars.dto';
@@ -8,9 +10,78 @@ import {
   CreateCarListingDto,
   UpdateCarListingDto,
 } from '@/core/entities/models/cars/cars.zod.dto';
-import { deleteAuthReq, postAuthReq, putAuthReq } from '@/core/lib/api';
+import {
+  UserFavoriteCarListing,
+  CreateFavoriteCarListingDto,
+  ToggleFavoriteCarListingDto,
+  ToggleFavoriteResponse,
+} from '@/core/entities/models/cars/users-favorites-cars.zod.dto';
+import {
+  deleteAuthReq,
+  getAuthReq,
+  postAuthReq,
+  putAuthReq,
+} from '@/core/lib/api';
 
 export class CarUserService implements ICarUserService {
+  async getCarFavorites(
+    params: QueryParams,
+  ): Promise<PaginatedResponse<UserFavoriteCarListing>> {
+    const res = await postAuthReq<QueryParams, UserFavoriteCarListing>({
+      url: '/user-favorites',
+      body: params,
+    });
+
+    return res;
+  }
+  async addCarListingToFavorites(
+    dto: CreateFavoriteCarListingDto,
+  ): Promise<ApiResponse<UserFavoriteCarListing>> {
+    const res = await postAuthReq<
+      CreateFavoriteCarListingDto,
+      UserFavoriteCarListing
+    >({
+      url: '/user-favorites/add',
+      body: dto,
+    });
+
+    return res;
+  }
+  async removeCarListingFromFavorites(
+    id: number,
+  ): Promise<ApiResponse<SuccessResponseWithNoContent>> {
+    const res = await deleteAuthReq({
+      url: '/user-favorites/' + id,
+    });
+
+    return res;
+  }
+  async toggleCarListingFavorite(
+    dto: ToggleFavoriteCarListingDto,
+  ): Promise<ApiResponse<ToggleFavoriteResponse>> {
+    const res = await postAuthReq<
+      ToggleFavoriteCarListingDto,
+      UserFavoriteCarListing
+    >({
+      url: '/user-favorites/toggle',
+      body: dto,
+    });
+
+    return res;
+  }
+  async checkIsCarListingFavorite(
+    carListingId: number,
+  ): Promise<ApiResponse<boolean>> {
+    const res = await getAuthReq<
+      { carListingId: number },
+      { isFavorite: boolean }
+    >({
+      url: '/user-favorites/check/' + carListingId,
+    });
+
+    return res;
+  }
+
   async addCarListing(
     dto: CreateCarListingDto,
   ): Promise<ApiResponse<SelectCarListingDto>> {
