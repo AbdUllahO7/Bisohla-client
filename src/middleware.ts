@@ -1,157 +1,129 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { Locale, routing } from './i18n/routing';
+import createIntlMiddleware from 'next-intl/middleware';
+import { getSession, deleteSession } from './core/lib/web/session';
+import { checkAuth } from './core/infrastructure-adapters/actions/auth/auth.actions';
 import { allRoutes } from './constants/routes.constant';
 import { getAdminRole, getUserRole } from './services/permission.service';
 import { checkRole } from './lib/permission';
-import { Locale, routing } from './i18n/routing';
-import createIntlMiddleware from 'next-intl/middleware';
-import { deleteSession, getSession } from './core/lib/web/session';
-import { checkAuth } from './core/infrastructure-adapters/actions/auth/auth.actions';
 
 // Create internationalization middleware
 const intlMiddleware = createIntlMiddleware(routing);
 
-async function handleAuthRoutes(req: NextRequest) {
-  console.log('🔐 handleAuthRoutes called! Path:', req.nextUrl.pathname);
-
-  const session = await getSession();
-  console.log('Session state:', session ? 'Session exists' : 'No session');
-
-  if (session && session.user) {
-    console.log('User is logged in, redirecting to profile');
-    const locale = req.nextUrl.pathname.split('/')[1];
-    return NextResponse.redirect(
-      new URL(`/${locale}/userProfile`, req.nextUrl),
-    );
-  }
-
-  console.log('Auth route check passed, allowing access');
-  return null;
-}
-
-async function handleAdminRoutes(req: NextRequest) {
-  console.log('👑 handleAdminRoutes called! Path:', req.nextUrl.pathname);
-
-  const locale = req.nextUrl.pathname.split('/')[1];
-
-  if (req.nextUrl.pathname.includes('/admin/auth')) {
-    console.log('Admin auth page, allowing access');
-    return null;
-  }
-
+// Session validation helper function
+async function validateSession(): Promise<boolean> {
   try {
-    const adminRoleName = getAdminRole()?.name || 'admin';
-    const isAdmin = await checkRole(adminRoleName);
-    console.log('Admin check result:', isAdmin ? 'Is admin' : 'Not admin');
+    const session = await getSession();
+    if (!session) return false;
 
-    if (!isAdmin) {
-      console.log('Not an admin, redirecting to home');
-      return NextResponse.redirect(
-        new URL(`/${locale}${allRoutes.home.path}`, req.nextUrl),
-      );
-    }
-
-    console.log('Admin check passed, allowing access');
-    return null;
-  } catch (error) {
-    console.error('Error checking admin role:', error);
-    return NextResponse.redirect(
-      new URL(`/${locale}${allRoutes.home.path}`, req.nextUrl),
-    );
-  }
-}
-
-async function handleUserRoutes(req: NextRequest) {
-  console.log('👤 handleUserRoutes called! Path:', req.nextUrl.pathname);
-
-  const locale = req.nextUrl.pathname.split('/')[1];
-
-  try {
-    const userRoleName = getUserRole()?.name || 'user';
-    const isUser = await checkRole(userRoleName);
-    console.log('User check result:', isUser ? 'Is user' : 'Not user');
-
-    if (!isUser) {
-      console.log('Not a user, redirecting to home');
-      return NextResponse.redirect(
-        new URL(`/${locale}${allRoutes.home.path}`, req.nextUrl),
-      );
-    }
-
-    console.log('User check passed, allowing access');
-    return null;
-  } catch (error) {
-    console.error('Error checking user role:', error);
-    return NextResponse.redirect(
-      new URL(`/${locale}${allRoutes.home.path}`, req.nextUrl),
-    );
-  }
-}
-
-async function handleCheckAuthUser() {
-  const session = await getSession();
-  if (session) {
-    console.log('Checking existing session validity');
     const res = await checkAuth();
     if (!res.success) {
-      console.log('Session invalid, deleting session');
       await deleteSession();
-    } else {
-      console.log('Session valid');
+      return false;
     }
+
+    return true;
+  } catch (error) {
+    console.error('Error validating session:', error);
+    return false;
   }
 }
 
 async function middleware(req: NextRequest) {
-  console.log('⚙️ Middleware starting for path:', req.nextUrl.pathname);
+  console.log('Middleware triggered');
 
+  // Apply intl middleware first to handle localization
+  const response = await intlMiddleware(req);
+
+  // Early return for assets, api routes, etc.
+  if (
+    req.nextUrl.pathname.match(/\.(ico|png|jpg|jpeg|svg|css|js)$/) ||
+    req.nextUrl.pathname.startsWith('/_next') ||
+    req.nextUrl.pathname.startsWith('/api')
+  ) {
+    return response;
+  }
+
+  // Extract locale from URL (considering the intl middleware has processed it)
+  const pathParts = req.nextUrl.pathname.split('/').filter(Boolean);
+  const locale = routing.locales.includes(pathParts[0] as Locale)
+    ? pathParts[0]
+    : routing.defaultLocale;
+  const routeType = routing.locales.includes(pathParts[0] as Locale)
+    ? pathParts[1]
+    : pathParts[0];
+
+  // Validate user session
+  const isValidSession = await validateSession();
+
+  // Handle route-specific logic
   try {
-    // Check auth first
-    await handleCheckAuthUser();
-
-    // Store original URL for debugging
-    const originalUrl = req.nextUrl.clone();
-    console.log('Original URL:', originalUrl.pathname);
-
-    // Process the path to find what type of route it is
-    // Handle both /auth/sign-in and /en/auth/sign-in patterns
-    const pathParts = req.nextUrl.pathname.split('/').filter(Boolean);
-    console.log('Path parts:', pathParts);
-
-    // Determine if first part is a locale
-    const firstPartIsLocale = routing.locales.includes(pathParts[0] as Locale);
-    console.log('First part is locale:', firstPartIsLocale);
-
-    // Extract route type (auth, admin, user)
-    const routeType = firstPartIsLocale ? pathParts[1] : pathParts[0];
-    console.log('Route type identified as:', routeType);
-
-    // Execute specific route handler based on type
-    let routeResponse = null;
+    // Auth routes - redirect logged-in users
     if (routeType === 'auth') {
-      routeResponse = await handleAuthRoutes(req);
-    } else if (routeType === 'admin') {
-      routeResponse = await handleAdminRoutes(req);
-    } else if (routeType === 'user') {
-      routeResponse = await handleUserRoutes(req);
+      if (isValidSession) {
+        return NextResponse.redirect(
+          new URL(`/userProfile`, req.nextUrl.origin),
+        );
+      }
+      return response;
     }
 
-    // Apply intl middleware after our route checks
-    if (routeResponse) {
-      console.log('Route handler returned redirect, using that');
-      return routeResponse;
+    // Admin routes
+    if (routeType === 'admin') {
+      // Allow access to admin auth pages
+      if (req.nextUrl.pathname.includes('/admin/auth')) {
+        return response;
+      }
+
+      // Check if user is admin
+      try {
+        const adminRoleName = getAdminRole()?.name || 'admin';
+        const isAdmin = await checkRole(adminRoleName);
+
+        if (!isAdmin) {
+          return NextResponse.redirect(
+            new URL(`${allRoutes.home.path}`, req.nextUrl.origin),
+          );
+        }
+
+        return response;
+      } catch (error) {
+        console.error('Error checking admin role:', error);
+        return NextResponse.redirect(
+          new URL(`${allRoutes.home.path}`, req.nextUrl.origin),
+        );
+      }
     }
 
-    console.log('No redirect from route handler, applying i18n middleware');
-    return await intlMiddleware(req);
+    // User routes
+    if (routeType === 'user') {
+      try {
+        const userRoleName = getUserRole()?.name || 'user';
+        const isUser = await checkRole(userRoleName);
+
+        if (!isUser) {
+          return NextResponse.redirect(
+            new URL(`${allRoutes.home.path}`, req.nextUrl.origin),
+          );
+        }
+
+        return response;
+      } catch (error) {
+        console.error('Error checking user role:', error);
+        return NextResponse.redirect(
+          new URL(`${allRoutes.home.path}`, req.nextUrl.origin),
+        );
+      }
+    }
+
+    // For all other routes, return the intl middleware response
+    console.log('Returning intl middleware response');
+    return response;
   } catch (error) {
     console.error('Middleware error:', error);
-    const locale = req.nextUrl.pathname.split('/')[1];
-    if (routing.locales.includes(locale as Locale)) {
-      return NextResponse.redirect(
-        new URL(`/${locale}${allRoutes.home.path}`, req.nextUrl),
-      );
-    }
-    return NextResponse.redirect(new URL(allRoutes.home.path, req.nextUrl));
+    return NextResponse.redirect(
+      new URL(`${allRoutes.home.path}`, req.nextUrl.origin),
+    );
   }
 }
 

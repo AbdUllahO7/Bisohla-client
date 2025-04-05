@@ -30,9 +30,6 @@ export default async function RootLayout({
   const messages = await getMessages();
   // const { direction } = useLangContext();
 
-
-
-
   return (
     <html
       lang={locale}
