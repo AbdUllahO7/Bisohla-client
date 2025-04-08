@@ -61,7 +61,6 @@ export const useAddProductStepThree = (onValidationChange: (isValid: boolean) =>
     setIsClient(true);
     
     // Only run client-side code after hydration
-    if (typeof window !== 'undefined') {
       window.scrollTo(0, 0);
       
       // Safe localStorage operations
@@ -72,15 +71,12 @@ export const useAddProductStepThree = (onValidationChange: (isValid: boolean) =>
         }
       } catch (e) {
         console.error("Failed to load data:", e);
-      }
     }
   }, []);
 
   // Save to localStorage
   useEffect(() => {
-    if (isClient && typeof window !== 'undefined') {
       saveToStorage(carCondition);
-    }
   }, [carCondition, isClient]);
 
   // Handle section status change

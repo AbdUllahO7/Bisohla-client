@@ -31,13 +31,11 @@ const SelectField: React.FC<SelectFieldProps> = ({
   const handleChange = (value: string) => {
     // This component uses the provided onChange function from CarInfoForm
     // which will be passed down as a prop
-    if (typeof window !== 'undefined') {
       // Create a custom event that will be handled by the parent component
       const event = new CustomEvent('select-field-change', {
         detail: { field, value }
       });
       window.dispatchEvent(event);
-    }
   };
 
   // Get the current value from the global event listener in the parent

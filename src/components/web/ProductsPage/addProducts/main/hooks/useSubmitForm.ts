@@ -3,7 +3,7 @@ import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { createCarListing } from '@/core/infrastructure-adapters/actions/users/car.user.actions';
 import { Currency } from '@/core/entities/enums/currency.enum';
-import { BodyType, FuelType, Transmission } from '@/core/entities/enums/cars.enums';
+import { BodyType, FuelType, ListingType, Transmission } from '@/core/entities/enums/cars.enums';
 import { StepOneData, StepTwoData, StepThreeData, StepFourData, CreateCarListingDto } from '../types';
 
 // Format error message for display
@@ -150,7 +150,6 @@ export const useSubmitForm = () => {
         price: Number(storedData2.price),
         
         // Listing metadata
-        status: 'ACTIVE',
         isFeatured: false,
         isSold: false,
         
@@ -176,7 +175,9 @@ export const useSubmitForm = () => {
         colorExterior: storedData2.colorExterior || null,
         colorInterior: storedData2.colorInterior || null,
         vin: storedData2.vin?.toString() || null,
-        plateNumber: storedData2.plateNumber?.toString() || null
+        plateNumber: storedData2.plateNumber?.toString() || null,
+        listingType : storedData4.listingType as ListingType,
+        rentType: storedData4.rentType || null,
       };
       
       console.log("Submitting car listing with FLATTENED structure:", createCarListingDto);
@@ -186,16 +187,16 @@ export const useSubmitForm = () => {
       console.log("API response:", response);
       
       if (response.success) {
-        localStorage.removeItem('addProduct_stepOne_selections');
-        localStorage.removeItem('addProduct_stepTwo_data');
-        localStorage.removeItem('addProduct_stepThree_data');
-        localStorage.removeItem('addProduct_stepFour_data');
+        // localStorage.removeItem('addProduct_stepOne_selections');
+        // localStorage.removeItem('addProduct_stepTwo_data');
+        // localStorage.removeItem('addProduct_stepThree_data');
+        // localStorage.removeItem('addProduct_stepFour_data');
 
 
         // Alternatively, you can try this approach with router
-        setTimeout(() => {
-          router.push('/products/AddProducts/ProductSuccessPage');
-        }, 0);
+        // setTimeout(() => {
+        //   router.push('/products/AddProducts/ProductSuccessPage');
+        // }, 0);
         
         return response;
       } else {

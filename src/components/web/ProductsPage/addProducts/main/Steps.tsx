@@ -104,7 +104,7 @@ const Steps = () => {
             requiredFieldsMessage={requiredFieldsMessage}
           >
             <AddProductStepFour   
-              onValidationChange={(isValid) => updateStepValidation('adsInfo', isValid)}
+              onValidationChange={(isValid) => {}}
             />    
           </StepContent>
         </div>
