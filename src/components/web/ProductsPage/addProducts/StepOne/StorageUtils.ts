@@ -27,9 +27,7 @@ export const loadSelections = (): SelectedOptions => {
  */
 export const saveSelections = (selections: SelectedOptions): void => {
     try {
-        if (typeof window !== 'undefined') {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(selections));
-        }
+       
     } catch (e) {
         console.error("Failed to save selections:", e);
     }

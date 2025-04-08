@@ -1,67 +1,54 @@
-// storageUtils.ts
-import { AdInfoState, STORAGE_KEY, defaultState } from './types';
+'use client'
+// storageUtils.ts - Fixed to prevent hydration errors
+import { AdInfoState, STORAGE_KEY } from './types';
 
-/**
- * Loads saved form data from localStorage
- * @returns The saved AdInfoState or default state if none exists
- */
-export const loadFormData = (): AdInfoState => {
+export const getInitialState = (initialData?: Partial<AdInfoState>): AdInfoState => {
+    return {
+        adTitle: initialData?.adTitle || '',
+        adDescription: initialData?.adDescription || '',
+        adStatus: initialData?.adStatus || '',
+        publicationDate: initialData?.publicationDate || null,
+        listingType: initialData?.listingType || '',
+        rentType: initialData?.rentType || '',
+    };
+};
+
+export const saveFormData = (formData: AdInfoState): void => {
+    // Only run on the client
+    if (typeof window === 'undefined') return;
+    
     try {
-        if (typeof window === 'undefined') {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
+    } catch (error) {
+        console.error("Error saving form data to localStorage:", error);
+    }
+};
+
+export const loadFormData = (): AdInfoState => {
+    // Return initial state on the server to prevent hydration mismatch
+    if (typeof window === 'undefined') {
+        return getInitialState();
+    }
+
+    try {
+        const savedData = localStorage.getItem(STORAGE_KEY);
+        if (!savedData) {
             return getInitialState();
         }
-        
-        const savedData = localStorage.getItem(STORAGE_KEY);
-        if (savedData) {
-            const parsed = JSON.parse(savedData);
-            
-            // Ensure publication date is set to today if null
-            if (!parsed.publicationDate) {
-                parsed.publicationDate = new Date().toISOString().split('T')[0];
-            }
-            
-            return parsed;
-        }
-        
-        return getInitialState();
-    } catch (e) {
-        console.error("Failed to parse saved data:", e);
-        return getInitialState();
-    }
-};
 
-/**
- * Saves form data to localStorage
- * @param data - The current AdInfoState to save
- */
-export const saveFormData = (data: AdInfoState): void => {
-    try {
-        if (typeof window !== 'undefined') {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-        }
-    } catch (e) {
-        console.error("Failed to save data:", e);
-    }
-};
-
-/**
- * Gets the initial state with today's date
- * @param initialData - Optional initial data to merge with defaults
- * @returns The initial AdInfoState
- */
-export const getInitialState = (initialData?: Partial<AdInfoState>): AdInfoState => {
-    const today = new Date().toISOString().split('T')[0];
-    
-    if (initialData) {
+        const parsedData = JSON.parse(savedData) as Partial<AdInfoState>;
+        
+        // Ensure we return a complete object with all expected properties
         return {
-            ...defaultState,
-            ...initialData,
-            publicationDate: initialData.publicationDate || today
+            adTitle: parsedData.adTitle || '',
+            adDescription: parsedData.adDescription || '',
+            adStatus: parsedData.adStatus || '',
+            publicationDate: parsedData.publicationDate || null,
+            listingType: parsedData.listingType || '',
+            rentType: parsedData.rentType || '',
         };
+    } catch (e) {
+        console.error('Error parsing saved form data:', e);
+        return getInitialState();
     }
-    
-    return {
-        ...defaultState,
-        publicationDate: today
-    };
 };

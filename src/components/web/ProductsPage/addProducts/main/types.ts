@@ -1,6 +1,6 @@
 // types/index.ts
 import { Currency } from '@/core/entities/enums/currency.enum';
-import { BodyType, FuelType, Transmission } from '@/core/entities/enums/cars.enums';
+import { BodyType, FuelType, ListingType, RentType, Transmission } from '@/core/entities/enums/cars.enums';
 import { SyriaCity, SyriaGovernorate } from '@/core/entities/enums/syria.enums';
 import { CarDetails, CarImage, CarListingFeature, SelectCarMakeDto, SelectCarModelDto, SelectCarTrimDto } from '@/core/entities/models/cars/cars.dto';
 import { SelectUserDto } from '@/core/entities/models/users/users.dto';
@@ -64,41 +64,43 @@ export interface StepThreeData {
 export interface StepFourData {
   adTitle: string;
   adDescription: string;
+  listingType : ListingType,
+  rentType : RentType | null;
 }
 
-// Update CarListingDTO to use Currency enum type
-export interface CarListingDTO {
-  id: number;
-  title: string;
-  description: string;
-  price: number | null;
-  currency: Currency;
-  userId: number;
-  user?: SelectUserDto;
-  makeId: number;
-  modelId: number;
-  trimId: number | null;
-  status: string;
-  isFeatured: boolean;
-  isSold: boolean;
+// // Update CarListingDTO to use Currency enum type
+// export interface CarListingDTO {
+//   id: number;
+//   title: string;
+//   description: string;
+//   price: number | null;
+//   currency: Currency;
+//   userId: number;
+//   user?: SelectUserDto;
+//   makeId: number;
+//   modelId: number;
+//   trimId: number | null;
+//   status: string;
+//   isFeatured: boolean;
+//   isSold: boolean;
 
-  // location
-  governorate: SyriaGovernorate;
-  city: SyriaCity;
-  address: string;
+//   // location
+//   governorate: SyriaGovernorate;
+//   city: SyriaCity;
+//   address: string;
 
-  createdAt: string | Date;
-  updatedAt: string | Date;
-  deletedAt?: string | Date | null;
+//   createdAt: string | Date;
+//   updatedAt: string | Date;
+//   deletedAt?: string | Date | null;
 
-  // Related entities
-  details: CarDetails;
-  features: CarListingFeature[];
-  images: CarImage[];
-  make: SelectCarMakeDto;
-  model: SelectCarModelDto;
-  trim?: SelectCarTrimDto;
-}
+//   // Related entities
+//   details: CarDetails;
+//   features: CarListingFeature[];
+//   images: CarImage[];
+//   make: SelectCarMakeDto;
+//   model: SelectCarModelDto;
+//   trim?: SelectCarTrimDto;
+// }
 
 export interface CreateCarListingDto {
   // Basic vehicle details
@@ -117,10 +119,11 @@ export interface CreateCarListingDto {
   price: number;
   
   // Listing metadata
-  status: string;
   isFeatured: boolean;
   isSold: boolean;
-  
+
+  listingType: ListingType;
+  rentType : RentType | null;
   // Listing content
   title: string;
   description: string;

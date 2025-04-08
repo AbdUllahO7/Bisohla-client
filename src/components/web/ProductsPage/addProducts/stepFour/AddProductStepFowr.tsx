@@ -3,14 +3,13 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useLocale } from 'next-intl';
 import Box from '@/components/box/box';
 import Text from '@/components/text/text';
-import { AddProductStepFourProps, AdInfoState } from '../stepFour/types';
-import { getInitialState, loadFormData, saveFormData } from '../stepFour/storageUtils';
-import { getDescriptionErrorMessage, getTitleErrorMessage, validateForm } from '../stepFour/validationUtils';
-import FormField from '../stepFour/FormField';
-import StatusSelect from '../stepFour/StatusSelect';
-import PublicationDate from '../stepFour/PublicationDate';
-
-
+import { AddProductStepFourProps, AdInfoState } from './types';
+import { getInitialState, loadFormData, saveFormData } from './storageUtils';
+import { getDescriptionErrorMessage, getTitleErrorMessage, validateForm } from './validationUtils';
+import FormField from './FormField';
+import PublicationDate from './PublicationDate';
+import { ListingType, RentType } from '@/core/entities/enums/cars.enums';
+import ProductTypeSelect from './ProductTypeSelect';
 
 // Main component
 const AddProductStepFour: React.FC<AddProductStepFourProps> = ({ 
@@ -26,8 +25,9 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
     const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({
         adTitle: !!adInfo.adTitle,
         adDescription: !!adInfo.adDescription,
-        adStatus: !!adInfo.adStatus,
-        publicationDate: !!adInfo.publicationDate
+        publicationDate: !!adInfo.publicationDate,
+        listingType: !!adInfo.listingType,
+        rentType: !!adInfo.rentType
     });
     
     // Refs
@@ -39,8 +39,9 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
         lastCheck: Date.now(),
         isTitleValid: false,
         isDescriptionValid: false,
-        isStatusValid: false,
         isDateValid: false,
+        isListingTypeValid: false,
+        isRentTypeValid: false,
         overall: false
     });
 
@@ -57,18 +58,20 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
             setAdInfo(savedData);
             
             // Consider all fields as touched if we load saved data
-            if (savedData.adTitle || savedData.adDescription || savedData.adStatus) {
+            if (savedData.adTitle || savedData.adDescription || savedData.listingType) {
                 setTouchedFields({
                     adTitle: true,
                     adDescription: true,
-                    adStatus: true,
-                    publicationDate: true
+                    publicationDate: true,
+                    listingType: true,
+                    rentType: true
                 });
             }
             
             // Force validation on initial load
             setTimeout(() => {
                 const isValid = validateForm(savedData);
+                console.log("Initial validation result:", isValid, savedData);
                 if (isValid !== prevValidState.current) {
                     prevValidState.current = isValid;
                     onValidationChange(isValid);
@@ -83,18 +86,22 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
     useEffect(() => {
         if (isClient && formInitialized.current) {
             saveFormData(adInfo);
+            
+            // Force a validation check when form data changes
+            const isValid = validateForm(adInfo);
+            if (isValid !== prevValidState.current) {
+                prevValidState.current = isValid;
+                onValidationChange(isValid);
+                console.log("Validation state changed to:", isValid);
+            }
         }
-    }, [adInfo, isClient]);
+    }, [adInfo, isClient, onValidationChange]);
 
     // Field change handlers
     const handleTextChange = useCallback((field: keyof AdInfoState, value: string) => {
+        console.log(`Field ${field} changed to:`, value);
         setTouchedFields((prev) => ({ ...prev, [field]: true }));
         setAdInfo((prev) => ({ ...prev, [field]: value }));
-    }, []);
-
-    const handleStatusChange = useCallback((value: string) => {
-        setTouchedFields((prev) => ({ ...prev, adStatus: true }));
-        setAdInfo((prev) => ({ ...prev, adStatus: value }));
     }, []);
 
     const handleDateChange = useCallback((date: string | null) => {
@@ -102,28 +109,25 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
         setTouchedFields((prev) => ({ ...prev, publicationDate: true }));
         setAdInfo((prev) => ({ ...prev, publicationDate: date }));
     }, []);
+    
+    const handleListingTypeChange = useCallback((value: ListingType | '') => {
+        console.log("Listing type changed to:", value);
+        setTouchedFields((prev) => ({ ...prev, listingType: true }));
+        setAdInfo((prev) => ({ ...prev, listingType: value }));
+    }, []);
+    
+    const handleRentTypeChange = useCallback((value: RentType | '') => {
+        console.log("Rent type changed to:", value);
+        setTouchedFields((prev) => ({ ...prev, rentType: true }));
+        setAdInfo((prev) => ({ ...prev, rentType: value }));
+    }, []);
 
-    // Validation effect
-    useEffect(() => {
+    // Debug function to manually trigger validation
+    const checkValidation = () => {
         const isValid = validateForm(adInfo);
-        
-        // Only call onValidationChange if validation state changed
-        if (isValid !== prevValidState.current) {
-            prevValidState.current = isValid;
-            onValidationChange(isValid);
-            console.log("Validation state changed to:", isValid);
-            
-            // Update validation debug info
-            validationDebugRef.current = {
-                lastCheck: Date.now(),
-                isTitleValid: adInfo.adTitle.trim().length >= 3,
-                isDescriptionValid: adInfo.adDescription.trim().length >= 10,
-                isStatusValid: adInfo.adStatus !== "",
-                isDateValid: adInfo.publicationDate !== null,
-                overall: isValid
-            };
-        }
-    }, [adInfo, onValidationChange]);
+        onValidationChange(isValid);
+        console.log("Manual validation check:", isValid);
+    };
 
     return (
         <Box className="w-full bg-white rounded-lg pb-10" variant="column" dir={direction}>
@@ -161,21 +165,20 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                         errorMessage={touchedFields.adDescription ? getDescriptionErrorMessage(adInfo.adDescription, direction) : ''}
                         required={true}
                     />
+                    
+                 
                 </Box>
 
-                {/* Right Section - Status & Calendar */}
+                {/* Right Section - Product Type & Calendar */}
                 <Box variant="column" className='w-full md:w-auto border border-gray-100 p-4 md:p-5 gap-4 md:gap-8 rounded-lg items-start'>
-                    {/* Status Select */}
-                    <Box variant="column" className='w-full items-start'>
-                        <Text className='font-bold text-primary mb-2 md:mb-3'>
-                            {direction === 'ltr' ? 'Ad Status' : 'حالة الإعلان'}
-                        </Text>
-                        <StatusSelect 
-                            value={adInfo.adStatus}
-                            onChange={handleStatusChange}
-                            direction={direction}
-                        />
-                    </Box>
+                    {/* Product Type Select */}
+                    <ProductTypeSelect 
+                        listingType={adInfo.listingType}
+                        rentType={adInfo.rentType}
+                        onListingTypeChange={handleListingTypeChange}
+                        onRentTypeChange={handleRentTypeChange}
+                        direction={direction}
+                    />
 
                     {/* Publication Date */}
                     <PublicationDate 
@@ -186,12 +189,6 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                 </Box>
             </Box>
             
-            {/* Hidden input to store the date value for form submission */}
-            <input
-                type="hidden"
-                name="publicationDate"
-                value={adInfo.publicationDate || ''}
-            />
         </Box>
     );
 };
