@@ -138,7 +138,7 @@ export const useSubmitForm = () => {
         modelId: Number(storedData1.model),
         trimId: Number(storedData1.trim) || null,
         year: Number(storedData1.year),
-        
+        story : storedData1.story || null,
         // Location details from step 1
         address: storedData1.address,
         city: storedData1.city,
@@ -178,6 +178,8 @@ export const useSubmitForm = () => {
         plateNumber: storedData2.plateNumber?.toString() || null,
         listingType : storedData4.listingType as ListingType,
         rentType: storedData4.rentType || null,
+        contactNumber: storedData4.contactNumber || null,
+        publishedAt : storedData4.publicationDate || null
       };
       
       console.log("Submitting car listing with FLATTENED structure:", createCarListingDto);

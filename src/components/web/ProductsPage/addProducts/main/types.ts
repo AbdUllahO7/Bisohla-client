@@ -18,6 +18,7 @@ export interface StepOneData {
   governorate: string;
   city: string;
   address: string;
+  story : string | null;
 }
 
 export interface StepTwoData {
@@ -66,6 +67,8 @@ export interface StepFourData {
   adDescription: string;
   listingType : ListingType,
   rentType : RentType | null;
+  contactNumber : string | null;
+  publicationDate : string | null;
 }
 
 // // Update CarListingDTO to use Currency enum type
@@ -108,7 +111,7 @@ export interface CreateCarListingDto {
   modelId: number;
   trimId: number | null;
   year: number;
-  
+  story : string | null;
   // Location details
   address: string;
   city: string;
@@ -124,6 +127,8 @@ export interface CreateCarListingDto {
 
   listingType: ListingType;
   rentType : RentType | null;
+  contactNumber : string | null;
+  publishedAt : string | null;
   // Listing content
   title: string;
   description: string;

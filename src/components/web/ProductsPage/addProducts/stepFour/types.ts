@@ -3,11 +3,12 @@ import { ListingType, RentType } from "@/core/entities/enums/cars.enums";
 // Complete AdInfoState interface with all fields
 export interface AdInfoState {
     adTitle: string;
-    adDescription: string;
     adStatus: string; // Keep this for backward compatibility
-    publicationDate: string | null;
+    adDescription: string;
+    contactNumber: string;
     listingType: ListingType | '';
     rentType: RentType | '';
+    publicationDate: string | null;
 }
 
 export interface AddProductStepFourProps {
@@ -36,6 +37,7 @@ export interface PublicationDateProps {
     direction: string;
     onDateChange?: (date: string | null) => void;
     showError: boolean;
+    initialDate?: string | null; // Optional prop for initial date
 }
 
 // Constants

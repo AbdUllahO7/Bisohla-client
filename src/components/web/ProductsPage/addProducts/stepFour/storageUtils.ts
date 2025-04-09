@@ -1,5 +1,4 @@
 'use client'
-// storageUtils.ts - Fixed to prevent hydration errors
 import { AdInfoState, STORAGE_KEY } from './types';
 
 export const getInitialState = (initialData?: Partial<AdInfoState>): AdInfoState => {
@@ -7,9 +6,10 @@ export const getInitialState = (initialData?: Partial<AdInfoState>): AdInfoState
         adTitle: initialData?.adTitle || '',
         adDescription: initialData?.adDescription || '',
         adStatus: initialData?.adStatus || '',
-        publicationDate: initialData?.publicationDate || null,
         listingType: initialData?.listingType || '',
+        contactNumber: initialData?.contactNumber || '',
         rentType: initialData?.rentType || '',
+        publicationDate: initialData?.publicationDate || null,
     };
 };
 
@@ -42,10 +42,11 @@ export const loadFormData = (): AdInfoState => {
         return {
             adTitle: parsedData.adTitle || '',
             adDescription: parsedData.adDescription || '',
+            contactNumber: parsedData.contactNumber || '',
             adStatus: parsedData.adStatus || '',
-            publicationDate: parsedData.publicationDate || null,
             listingType: parsedData.listingType || '',
             rentType: parsedData.rentType || '',
+            publicationDate: parsedData.publicationDate || null,
         };
     } catch (e) {
         console.error('Error parsing saved form data:', e);
