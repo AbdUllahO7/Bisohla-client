@@ -5,7 +5,13 @@ import Box from '@/components/box/box';
 import Text from '@/components/text/text';
 import { AddProductStepFourProps, AdInfoState } from './types';
 import { getInitialState, loadFormData, saveFormData } from './storageUtils';
-import { getDescriptionErrorMessage, getTitleErrorMessage, validateForm } from './validationUtils';
+import { 
+    getContactErrorMessage, 
+    getDescriptionErrorMessage, 
+    getTitleErrorMessage, 
+    validateForm,
+    getPublicationDateErrorMessage 
+} from './validationUtils';
 import FormField from './FormField';
 import PublicationDate from './PublicationDate';
 import { ListingType, RentType } from '@/core/entities/enums/cars.enums';
@@ -25,26 +31,16 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
     const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({
         adTitle: !!adInfo.adTitle,
         adDescription: !!adInfo.adDescription,
-        publicationDate: !!adInfo.publicationDate,
+        contactNumber: !!adInfo.contactNumber,
         listingType: !!adInfo.listingType,
-        rentType: !!adInfo.rentType
+        rentType: !!adInfo.rentType,
+        publicationDate: !!adInfo.publicationDate
     });
     
     // Refs
     const prevValidState = useRef<boolean | null>(null);
     const formInitialized = useRef(false);
     
-    // Debug refs
-    const validationDebugRef = useRef({
-        lastCheck: Date.now(),
-        isTitleValid: false,
-        isDescriptionValid: false,
-        isDateValid: false,
-        isListingTypeValid: false,
-        isRentTypeValid: false,
-        overall: false
-    });
-
     // Scroll to top on mount
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -58,13 +54,14 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
             setAdInfo(savedData);
             
             // Consider all fields as touched if we load saved data
-            if (savedData.adTitle || savedData.adDescription || savedData.listingType) {
+            if (savedData.adTitle || savedData.adDescription || savedData.listingType || savedData.publicationDate) {
                 setTouchedFields({
                     adTitle: true,
                     adDescription: true,
-                    publicationDate: true,
+                    contactNumber: true,
                     listingType: true,
-                    rentType: true
+                    rentType: true,
+                    publicationDate: true
                 });
             }
             
@@ -165,8 +162,16 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                         errorMessage={touchedFields.adDescription ? getDescriptionErrorMessage(adInfo.adDescription, direction) : ''}
                         required={true}
                     />
-                    
-                 
+                    <FormField 
+                        label={direction === "ltr" ? 'Contact Number ' : 'رقم الاتصال'}
+                        id="contactNumber"
+                        placeholder={direction === "ltr" ? 'Contact Number' : 'رقم الاتصال'}
+                        value={adInfo.contactNumber}
+                        onChange={(value) => handleTextChange('contactNumber', value)}
+                        onBlur={() => setTouchedFields(prev => ({ ...prev, contactNumber: true }))}
+                        errorMessage={touchedFields.contactNumber ? getContactErrorMessage(adInfo.contactNumber, direction) : ''}
+                        required={true}
+                    />
                 </Box>
 
                 {/* Right Section - Product Type & Calendar */}
@@ -185,6 +190,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                         direction={direction}
                         onDateChange={handleDateChange}
                         showError={touchedFields.publicationDate && !adInfo.publicationDate}
+                        initialDate={adInfo.publicationDate} 
                     />
                 </Box>
             </Box>

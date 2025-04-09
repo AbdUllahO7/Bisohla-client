@@ -1,4 +1,3 @@
-// validationUtils.ts - Fixed validation to match all fields
 import { ListingType } from '@/core/entities/enums/cars.enums';
 import { AdInfoState } from './types';
 
@@ -22,6 +21,26 @@ export const getDescriptionErrorMessage = (description: string, direction: strin
     return '';
 };
 
+export const getContactErrorMessage = (contactNumber: string, direction: string): string => {
+    if (!contactNumber.trim()) {
+        return direction === 'ltr' ? 'Contact number is required' : 'رقم الاتصال مطلوب';
+    }
+    if (contactNumber.trim().length < 10) {
+        return direction === 'ltr' ? 'Contact number must be at least 10 digits' : 'يجب أن يكون رقم الاتصال 10 أرقام على الأقل';
+    }
+    if (contactNumber.trim().length > 20) {
+        return direction === 'ltr' ? 'Contact number must not exceed 20 digits' : 'يجب ألا يتجاوز رقم الاتصال 20 رقماً';
+    }
+    return '';
+};
+
+export const getPublicationDateErrorMessage = (date: string | null, direction: string): string => {
+    if (!date) {
+        return direction === 'ltr' ? 'Publication date is required' : 'تاريخ النشر مطلوب';
+    }
+    return '';
+};
+
 export const validateForm = (formData: AdInfoState): boolean => {
     // Log the entire form data to debug
     console.log("Validating form data:", formData);
@@ -29,7 +48,12 @@ export const validateForm = (formData: AdInfoState): boolean => {
     // Basic validation
     const isTitleValid = formData.adTitle.trim().length >= 3;
     const isDescriptionValid = formData.adDescription.trim().length >= 10;
-    const isDateValid = formData.publicationDate !== null;
+    
+    // Contact number validation, allowing for optional contact (matching the Zod schema)
+    const isContactValid = !formData.contactNumber || (
+        formData.contactNumber.trim().length >= 10 && 
+        formData.contactNumber.trim().length <= 20
+    );
     
     // Listing type validation
     const isListingTypeValid = formData.listingType !== '';
@@ -39,27 +63,34 @@ export const validateForm = (formData: AdInfoState): boolean => {
         formData.listingType !== ListingType.FOR_RENT || 
         (formData.listingType === ListingType.FOR_RENT && formData.rentType !== '');
     
+    // Publication date validation
+    const isPublicationDateValid = !!formData.publicationDate;
+    
     // Log each validation check result
     console.log("Validation checks:", {
         isTitleValid,
         isDescriptionValid,
-        isDateValid,
+        isContactValid,
         isListingTypeValid,
         isRentTypeValid,
+        isPublicationDateValid,
+        
         title: formData.adTitle,
         description: formData.adDescription,
-        date: formData.publicationDate,
+        contactNumber: formData.contactNumber,
         listingType: formData.listingType,
-        rentType: formData.rentType
+        rentType: formData.rentType,
+        publicationDate: formData.publicationDate
     });
     
     // Combined validation result
     const isValid = isTitleValid && 
-                   isDescriptionValid && 
-                   isDateValid && 
-                   isListingTypeValid && 
-                   isRentTypeValid;
-                   
+            isDescriptionValid && 
+            isContactValid &&
+            isListingTypeValid && 
+            isRentTypeValid &&
+            isPublicationDateValid;
+            
     console.log("Final validation result:", isValid);
     
     return isValid;

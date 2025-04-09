@@ -20,7 +20,7 @@ const StoryField: React.FC<StoryFieldProps> = ({
     direction
 }) => {
     return (
-        <Box className="min-w-[250px] py-5 col-span-2 px-5" variant="column">
+        <Box className="min-w-[250px] py-5  px-5" variant="column">
             <Text className="text-primary font-bold text-xl border-b border-primary-foreground pb-2">
                 {title}
             </Text>
@@ -28,8 +28,8 @@ const StoryField: React.FC<StoryFieldProps> = ({
                 className="px-5 border-gray-100 mt-4"
                 placeholder={placeholder}
                 id="message-2"
-                cols={20}
-                rows={17}
+                cols={30}
+                rows={13}
                 value={value}
                 onChange={onChange}
                 dir={direction}
