@@ -6,8 +6,9 @@ import {
   CarConditionType, 
   CarSection,
   getCarSectionOptions,
-  getCarConditionOptions
-} from "@/core/entities/enums/car-condition.enum";
+  getCarConditionOptions,
+  getGroupedCarSectionOptions
+} from "@/core/entities/enums/cars.damegs.enum"; // Updated import path
 import { CarConditionState, defaultState } from "./types";
 import { loadFromStorage, saveToStorage, validateForm } from "./utils";
 
@@ -19,7 +20,7 @@ export const useAddProductStepThree = (onValidationChange: (isValid: boolean) =>
   const isRTL = locale === "ar";
   const direction = isRTL ? "rtl" : "ltr";
   const t = useTranslations("addProduct.enteredData.stepThree");
-  
+   
   // State
   const [isFormDisabled, setIsFormDisabled] = useState(false);
   const [isClient, setIsClient] = useState(false);
@@ -35,32 +36,66 @@ export const useAddProductStepThree = (onValidationChange: (isValid: boolean) =>
   // Text labels
   const labels = useMemo(
     () => ({
-      carInfo: isRTL ? "معلومات حالة السيارة" : "Car Condition Information",
-      carPhotos: isRTL ? "صور السيارة" : "Car Photos",
-      carSectionName: isRTL ? "أقسام السيارة" : "Car Section Name",
-      coverImage: isRTL ? "صورة الغلاف" : "Cover Image",
-      carImages: isRTL ? "صور السيارة" : "Car Images",
-      documents: isRTL ? "المستندات" : "Documents",
-      additionalImages: isRTL ? "صور إضافية" : "Additional Images",
-      oneImage: isRTL ? "صورة واحدة" : "One image",
-      tenImages: isRTL ? "10 صور كحد أقصى" : "Maximum 10 images",
-      tenFiles: isRTL ? "10 ملفات كحد أقصى" : "Maximum 10 files",
-      required: isRTL ? "مطلوب" : "Required",
+      carInfo: t('carInfo'),
+      carPhotos: t('carPhotos'),
+      carSectionName: t('carSectionName'),
+      coverImage: t('images.coverImage'),
+      carImages: t('images.carImages'),
+      documents: t('images.documents'),
+      additionalImages: "Additional Images", // Add this to translation file if needed
+      oneImage: t('images.oneImage'),
+      tenImages: t('images.tenImages'),
+      tenFiles: t('images.tenFiles'),
+      required: "Required", // Add this to translation file if needed
     }),
-    [isRTL],
+    [t],
   );
 
-  // Memoized options
+  // Generate condition types with color classes for the table
+  const getConditionTypesWithColors = useCallback(() => {
+    const conditionOptions = getCarConditionOptions(t);
+    
+    // Define color classes for each condition type
+    const colorClasses: Record<string, string> = {
+      [CarConditionType.SCRATCH]: 'bg-yellow-500',
+      [CarConditionType.DENT]: 'bg-orange-500',
+      [CarConditionType.PAINT_FADED]: 'bg-amber-600',
+      [CarConditionType.PAINT_REPAIRED]: 'bg-blue-500',
+      [CarConditionType.PANEL_REPLACED]: 'bg-red-500'
+    };
+    
+    // Add color classes to condition types
+    return conditionOptions.map(option => ({
+      ...option,
+      colorClass: colorClasses[option.value] || 'bg-gray-500' // Fallback color
+    }));
+  }, [t]);
+
+  // Format car sections for the table
+  const formatCarSections = useCallback(() => {
+    // Get all car sections with translations
+    const allSections = getCarSectionOptions(t);
+    
+    // Map to table format
+    return allSections.map(section => ({
+      id: section.value,
+      name: section.label
+    }));
+  }, [t]);
+
+  // Memoized options with grouped sections
   const options = useMemo(() => ({
-    carSections: getCarSectionOptions(t),
-    conditionTypes: getCarConditionOptions(t)
-  }), [t]);
+    carSections: formatCarSections(),
+    conditionTypes: getConditionTypesWithColors(),
+    groupedSections: getGroupedCarSectionOptions(t) // Add grouped sections for filtering
+  }), [t, formatCarSections, getConditionTypesWithColors]);
 
   // Initialize client-side
   useEffect(() => {
     setIsClient(true);
     
     // Only run client-side code after hydration
+    if (typeof window !== 'undefined') {
       window.scrollTo(0, 0);
       
       // Safe localStorage operations
@@ -71,16 +106,19 @@ export const useAddProductStepThree = (onValidationChange: (isValid: boolean) =>
         }
       } catch (e) {
         console.error("Failed to load data:", e);
+      }
     }
   }, []);
 
   // Save to localStorage
   useEffect(() => {
+    if (isClient) {
       saveToStorage(carCondition);
+    }
   }, [carCondition, isClient]);
 
   // Handle section status change
-  const handleSectionStatusChange = useCallback((sectionId: CarSection, status: CarConditionType) => {
+  const handleSectionStatusChange = useCallback((sectionId: string, status: string) => {
     setCarCondition(prev => {
       const newSectionStatus = { ...prev.sectionStatus };
       
@@ -100,7 +138,7 @@ export const useAddProductStepThree = (onValidationChange: (isValid: boolean) =>
   }, []);
 
   // Check if a status is selected
-  const isStatusSelected = useCallback((sectionId: CarSection, status: CarConditionType) => {
+  const isStatusSelected = useCallback((sectionId: string, status: string) => {
     return carCondition.sectionStatus[sectionId] === status;
   }, [carCondition.sectionStatus]);
 

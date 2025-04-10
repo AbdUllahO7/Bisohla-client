@@ -2,10 +2,13 @@
 import React from "react";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import Text from "@/components/text/text";
-import { AddProductStepThreeProps } from "./types";
 import { useAddProductStepThree } from "./hooks";
 import CarConditionTable from "./CarConditionTable";
 import CarPhotosSection from "./CarPhotosSection";
+
+interface AddProductStepThreeProps {
+  onValidationChange: (isValid: boolean) => void;
+}
 
 /**
  * Step Three of Add Product form - Car Condition and Photos
@@ -58,10 +61,11 @@ const AddProductStepThree: React.FC<AddProductStepThreeProps> = ({ onValidationC
           <CarConditionTable 
             carSections={options.carSections}
             conditionTypes={options.conditionTypes}
-            sectionStatus={carCondition.sectionStatus}
+            damages={carCondition.sectionStatus}
             isStatusSelected={isStatusSelected}
             onSectionStatusChange={handleSectionStatusChange}
             labels={{ carSectionName: labels.carSectionName }}
+            groupedSections={options.groupedSections}
           />
         </CardContent>
       </Card>

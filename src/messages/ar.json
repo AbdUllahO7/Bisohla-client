@@ -780,33 +780,80 @@
       }
       }
     },
-    "stepThree": {
-    "carInfo": "حالة السيارة",
-    "carPhotos": "صور السيارة",
-    "carSectionName": "اسم قسم السيارة",
-    "conditionTypes": {
-      "noDefect": "لا يوجد عيب",
-      "justBoya": "فقط بويا",
-      "repairPaint": "تصليح وبويا",
-      "changePiece": "تغيير القطعة"
-    },
-    "carSection": {
-      "frontBumper": "المصد الأمامي",
-      "hood": "غطاء المحرك",
-      "leftDoor": "الباب الأيسر",
-      "rightDoor": "الباب الأيمن",
-      "rearBumper": "المصد الخلفي",
-      "roof": "السقف"
-    },
-    "images": {
-      "coverImage": "صورة الغلاف",
-      "oneImage": "يمكنك إدخال صورة واحدة",
-      "carImages": "صور السيارة",
-      "tenImages": "يمكنك إدخال حتى 10 صور",
-      "documents": "المستندات",
-      "tenFiles": "يمكنك إدخال حتى 10 ملفات"
-    }
-    }
+    
+      "stepThree": {
+        "carInfo": "حالة السيارة",
+        "carPhotos": "صور السيارة",
+        "carSectionName": "اسم قسم السيارة",
+        "conditionTypes": {
+          "noDefect": "لا يوجد عيب",
+          "justBoya": "فقط بويا",
+          "repairPaint": "تصليح وبويا",
+          "changePiece": "تغيير القطعة"
+        },
+        "damageType": {
+          "scratch": "خدش",
+          "dent": "انبعاج",
+          "paintFaded": "طلاء باهت",
+          "paintRepaired": "طلاء مصلح",
+          "panelReplaced": "لوحة مستبدلة"
+        },
+        "carSection": {
+          "frontBumper": "المصد الأمامي",
+          "hood": "غطاء المحرك",
+          "frontGrill": "الشبك الأمامي",
+          "leftHeadlight": "المصباح الأمامي الأيسر",
+          "rightHeadlight": "المصباح الأمامي الأيمن",
+          "roof": "السقف",
+          "trunk": "صندوق السيارة",
+          "rearBumper": "المصد الخلفي",
+          "leftTaillight": "المصباح الخلفي الأيسر",
+          "rightTaillight": "المصباح الخلفي الأيمن",
+          "leftFrontFender": "الرفرف الأمامي الأيسر",
+          "leftFrontDoor": "الباب الأمامي الأيسر",
+          "leftRearDoor": "الباب الخلفي الأيسر",
+          "leftRearFender": "الرفرف الخلفي الأيسر",
+          "leftMirror": "المرآة اليسرى",
+          "leftFrontPillar": "العمود الأمامي الأيسر",
+          "leftCenterPillar": "العمود الأوسط الأيسر",
+          "leftRearPillar": "العمود الخلفي الأيسر",
+          "rightFrontFender": "الرفرف الأمامي الأيمن",
+          "rightFrontDoor": "الباب الأمامي الأيمن",
+          "rightRearDoor": "الباب الخلفي الأيمن",
+          "rightRearFender": "الرفرف الخلفي الأيمن",
+          "rightMirror": "المرآة اليمنى",
+          "rightFrontPillar": "العمود الأمامي الأيمن",
+          "rightCenterPillar": "العمود الأوسط الأيمن",
+          "rightRearPillar": "العمود الخلفي الأيمن",
+          "frontWindshield": "الزجاج الأمامي",
+          "rearWindshield": "الزجاج الخلفي",
+          "leftFrontWindow": "النافذة الأمامية اليسرى",
+          "leftRearWindow": "النافذة الخلفية اليسرى",
+          "rightFrontWindow": "النافذة الأمامية اليمنى",
+          "rightRearWindow": "النافذة الخلفية اليمنى",
+          "leftFrontWheel": "العجلة الأمامية اليسرى",
+          "leftRearWheel": "العجلة الخلفية اليسرى",
+          "rightFrontWheel": "العجلة الأمامية اليمنى",
+          "rightRearWheel": "العجلة الخلفية اليمنى"
+        },
+        "damageZoneGroup": {
+          "front": "القسم الأمامي",
+          "roof": "قسم السقف",
+          "rear": "القسم الخلفي",
+          "leftSide": "الجانب الأيسر",
+          "rightSide": "الجانب الأيمن",
+          "glass": "الزجاج",
+          "wheels": "العجلات/الجنوط"
+        },
+        "images": {
+          "coverImage": "صورة الغلاف",
+          "oneImage": "يمكنك إدخال صورة واحدة",
+          "carImages": "صور السيارة",
+          "tenImages": "يمكنك إدخال حتى 10 صور",
+          "documents": "المستندات",
+          "tenFiles": "يمكنك إدخال حتى 10 ملفات"
+        }
+      }
   }
   },
   "adminPage": {

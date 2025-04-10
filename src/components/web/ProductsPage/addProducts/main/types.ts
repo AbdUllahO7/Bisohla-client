@@ -56,10 +56,7 @@ export interface StepThreeData {
   carImages: CarImage;
   additionalImages: string[];
   documents: string[];
-  governorate: SyriaGovernorate;
-  city: SyriaCity;
-  address: string;
-  sectionStatus: SectionStatus;
+  sectionStatus: Record<string, string>; // Changed from array to Record<string, string>
 }
 
 export interface StepFourData {
@@ -150,6 +147,8 @@ export interface CreateCarListingDto {
   colorInterior: string | null;
   vin: string | null;
   plateNumber: string | null;
+  damages?: { damageZone: string; damageType: string; description: null | string; }[];
+
 }
 
 export interface StepProps {
