@@ -5,6 +5,7 @@ import { createCarListing } from '@/core/infrastructure-adapters/actions/users/c
 import { Currency } from '@/core/entities/enums/currency.enum';
 import { BodyType, FuelType, ListingType, Transmission } from '@/core/entities/enums/cars.enums';
 import { StepOneData, StepTwoData, StepThreeData, StepFourData, CreateCarListingDto } from '../types';
+import { transformDamages } from '../../stepThree/utils';
 
 // Format error message for display
 const formatErrorMessage = (error: any): string => {
@@ -46,7 +47,7 @@ export const useSubmitForm = () => {
       console.log("Step Two:", data2);
       console.log("Step Three:", data3);
       console.log("Step Four:", data4);
-
+  
       // Check if we have all required data
       if (!data1 || !data2 || !data3 || !data4) {
         const errorMsg = 'Missing required data in localStorage';
@@ -61,7 +62,7 @@ export const useSubmitForm = () => {
         setIsSubmitting(false);
         return null;
       }
-
+  
       // Parse all data
       const storedData1 = JSON.parse(data1) as StepOneData;
       const storedData2 = JSON.parse(data2) as StepTwoData;
@@ -89,9 +90,9 @@ export const useSubmitForm = () => {
           }
         }
       }
-
+  
       console.log("Extracted feature IDs:", featureIds);
-
+  
       // Process all images into a string array
       const imageUrls: string[] = [];
       
@@ -131,6 +132,10 @@ export const useSubmitForm = () => {
         console.log(`Added ${storedData3.documents.length} document images`);
       }
       
+      // Transform car damages from sectionStatus to the backend format with snake_case keys
+      const damages = transformDamages(storedData3.sectionStatus);
+      console.log("Transformed car damages:", damages);
+      
       // Create the car listing submission with a FLATTENED structure
       const createCarListingDto: CreateCarListingDto = {
         // Basic vehicle details from step 1
@@ -138,7 +143,7 @@ export const useSubmitForm = () => {
         modelId: Number(storedData1.model),
         trimId: Number(storedData1.trim) || null,
         year: Number(storedData1.year),
-        story : storedData1.story || null,
+        story: storedData1.story || null,
         // Location details from step 1
         address: storedData1.address,
         city: storedData1.city,
@@ -176,10 +181,11 @@ export const useSubmitForm = () => {
         colorInterior: storedData2.colorInterior || null,
         vin: storedData2.vin?.toString() || null,
         plateNumber: storedData2.plateNumber?.toString() || null,
-        listingType : storedData4.listingType as ListingType,
+        listingType: storedData4.listingType as ListingType,
         rentType: storedData4.rentType || null,
         contactNumber: storedData4.contactNumber || null,
-        publishedAt : storedData4.publicationDate || null
+        publishedAt: storedData4.publicationDate || null,
+        damages: damages, // Add the correctly transformed damages array
       };
       
       console.log("Submitting car listing with FLATTENED structure:", createCarListingDto);
@@ -193,8 +199,7 @@ export const useSubmitForm = () => {
         // localStorage.removeItem('addProduct_stepTwo_data');
         // localStorage.removeItem('addProduct_stepThree_data');
         // localStorage.removeItem('addProduct_stepFour_data');
-
-
+  
         // Alternatively, you can try this approach with router
         // setTimeout(() => {
         //   router.push('/products/AddProducts/ProductSuccessPage');
