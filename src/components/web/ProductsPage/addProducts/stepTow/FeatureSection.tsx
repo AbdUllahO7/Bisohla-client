@@ -81,7 +81,7 @@ const FeatureSection: React.FC<FeatureSectionProps> = ({
                 />
                 <label
                   htmlFor={feature.id}
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                  className="text-sm font-medium leading-none text-primary peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
                 >
                   {feature.label}
                 </label>

@@ -3,7 +3,8 @@ import React, { useRef, useCallback, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import FormField from "./FormField";
 import { CarInfoState, ValidationErrors } from "./types";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useTranslations } from 'next-intl';
+import SelectDropdown from "@/components/SelectDropdown";
 
 interface CarInfoFormProps {
   carInfo: CarInfoState;
@@ -27,6 +28,8 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
   onTextFieldBlur,
   onSelectChange,
 }) => {
+  // Get translations for next-intl
+  const t = useTranslations('homePage');
   // Input refs for text fields
   const priceInputRef = useRef<HTMLInputElement>(null);
   const mileageInputRef = useRef<HTMLInputElement>(null);
@@ -76,40 +79,13 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
     onTextFieldBlur('plateNumber', plateInputRef.current?.value || "");
   }, [onTextFieldBlur]);
   
-  // Setup global event listeners for SelectField components
-  useEffect(() => {
-    const handleSelectFieldChange = (e: CustomEvent) => {
-      onSelectChange(e.detail.field, e.detail.value);
-    };
-    
-    const handleSelectFieldRequestValue = (e: CustomEvent) => {
-      // Respond with current value
-      const event = new CustomEvent('select-field-value-update', {
-        detail: { 
-          field: e.detail.field, 
-          value: carInfo[e.detail.field] 
-        }
-      });
-      window.dispatchEvent(event);
-    };
-    
-    window.addEventListener('select-field-change' as any, handleSelectFieldChange as EventListener);
-    window.addEventListener('select-field-request-value' as any, handleSelectFieldRequestValue as EventListener);
-    
-    return () => {
-      window.removeEventListener('select-field-change' as any, handleSelectFieldChange as EventListener);
-      window.removeEventListener('select-field-request-value' as any, handleSelectFieldRequestValue as EventListener);
-    };
-  }, [carInfo, onSelectChange]);
-
-  // SelectField component within CarInfoForm
+  // Modified SelectField to use SelectDropdown
   const SelectField = useCallback(
     ({
       label,
       field,
       options,
       placeholder,
-      optionsLabel,
       required = false,
     }: {
       label: string;
@@ -118,42 +94,29 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
       placeholder: string;
       optionsLabel: string;
       required?: boolean;
-    }) => (
-      <FormField label={label} field={field} required={required}>
-        <Select
-          value={carInfo[field]}
-          onValueChange={(value) => onSelectChange(field, value)}
-          dir={locale === 'ar' ? "rtl" : "ltr"}
-        >
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder={placeholder} />
-          </SelectTrigger>
-          <SelectContent className="w-full bg-white">
-            <SelectGroup>
-              <SelectLabel className="text-black font-bold">{optionsLabel}</SelectLabel>
-              {options.map((option) => (
-                <SelectItem
-                  key={option.value}
-                  value={option.value}
-                  className="flex hover:bg-primary-foreground items-center justify-start gap-2"
-                >
-                  {/* Display color circle if the option has a hex color value */}
-                  {option.hex && (
-                    <span
-                      className="w-3 h-3 rounded-full inline-block mr-1 ml-1"
-                      style={{ backgroundColor: option.hex }}
-                    />
-                  )}
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectGroup>
-          </SelectContent>
-        </Select>
-      </FormField>
-    ),
-    [carInfo, onSelectChange, locale]
+    }) => {
+    
+      const hasError = Object.prototype.hasOwnProperty.call(validationErrors, field) && validationErrors[field as keyof ValidationErrors];
+      
+      return (
+        <FormField label={label} field={field} required={required}>
+          <SelectDropdown
+            label=""
+            options={options}
+            placeholder={placeholder}
+            SelectTriggerStyle={`${hasError ? "border-red-500" : ""}`}
+            className="w-full text-primary"
+          />
+        </FormField>
+      );
+    },
+    [validationErrors]
   );
+
+  // Function to handle select changes from SelectDropdown
+  const handleSelectDropdownChange = useCallback((field: string, value: string) => {
+    onSelectChange(field, value);
+  }, [onSelectChange]);
 
   return (
     <div className="grid gap-5 p-5 w-full">
@@ -171,7 +134,7 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
             defaultValue={carInfo.price || ""}
             onBlur={handlePriceBlur}
             placeholder={labels.enterPrice}
-            className={`w-full ${validationErrors.price ? "border-red-500" : ""}`}
+            className={`w-full ${validationErrors.price ? "border-red-500" : ""} text-primary`}
           />
         </FormField>
 
@@ -194,7 +157,7 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
             defaultValue={carInfo.mileage || ""}
             onBlur={handleMileageBlur}
             placeholder={labels.enterMileage}
-            className="w-full"
+            className="w-full text-primary"
           />
         </FormField>
 
@@ -205,7 +168,7 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
             defaultValue={carInfo.enginePower || ""}
             onBlur={handleEnginePowerBlur}
             placeholder={labels.enterEnginePower}
-            className="w-full"
+            className="w-full text-primary"
           />
         </FormField>
       </div>
@@ -224,7 +187,7 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
             defaultValue={carInfo.engineSize || ""}
             onBlur={handleEngineSizeBlur}
             placeholder={labels.enterEngineSize}
-            className={`w-full ${validationErrors.engineSize ? "border-red-500" : ""}`}
+            className={`w-full ${validationErrors.engineSize ? "border-red-500" : ""} text-primary`}
           />
         </FormField>
 
@@ -240,7 +203,7 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
             defaultValue={carInfo.doors || ""}
             onBlur={handleDoorsBlur}
             placeholder={labels.enterDoors}
-            className={`w-full ${validationErrors.doors ? "border-red-500" : ""}`}
+            className={`w-full ${validationErrors.doors ? "border-red-500" : ""} text-primary`}
           />
         </FormField>
       </div>
@@ -254,7 +217,7 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
             defaultValue={carInfo.plateNumber || ""}
             placeholder={labels.enterPlateNumber}
             onBlur={handlePlateBlur}
-            className="w-full"
+            className="w-full text-primary"
           />
         </FormField>
 
@@ -265,7 +228,7 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
             defaultValue={carInfo.vin || ""}
             placeholder={labels.enterVin}
             onBlur={handleVinBlur}
-            className="w-full"
+            className="w-full text-primary"
           />
         </FormField>
       </div>

@@ -50,7 +50,7 @@ const AddProductStepThree: React.FC<AddProductStepThreeProps> = ({ onValidationC
   return (
     <div className="w-full space-y-6" dir={direction}>
       {/* Car Information Section */}
-      <Card className="w-full shadow-sm">
+      <Card className="w-full shadow-sm bg-white border-0 ">
         <CardHeader className="bg-gray-100 py-4">
           <Text className="text-xl font-bold text-primary text-center">{labels.carInfo}</Text>
         </CardHeader>
@@ -67,7 +67,7 @@ const AddProductStepThree: React.FC<AddProductStepThreeProps> = ({ onValidationC
       </Card>
 
       {/* Car Photos Section */}
-      <Card className="w-full shadow-sm">
+      <Card className="w-full shadow-sm bg-white border-0 ">
         <CardHeader className="bg-gray-100 py-4">
           <Text className="text-xl font-bold text-primary text-center px-4">{labels.carPhotos}</Text>
         </CardHeader>
