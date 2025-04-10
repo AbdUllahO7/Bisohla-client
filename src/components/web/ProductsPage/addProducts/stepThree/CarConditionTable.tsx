@@ -36,14 +36,14 @@ const CarConditionTable: React.FC<CarConditionTableProps> = ({
           {carSections.map((section) => (
             <TableRow
               key={section.id}
-              className="text-center hover:bg-transparent border-gray-300 hover:bg-background group duration-300"
+              className="text-center text-primary hover:bg-transparent border-gray-300 hover:bg-background group duration-300"
             >
               <TableCell className="font-medium text-sm md:text-base text-start">{section.name}</TableCell>
               {conditionTypes.map((conditionType) => (
                 <TableCell key={`${section.id}-${conditionType.value}`}>
                   <Checkbox 
                     id={`${conditionType.value}-${section.id}`} 
-                    className="rounded-full h-5 w-5"
+                    className="rounded-full text-primary h-5 w-5"
                     checked={isStatusSelected(section.id, conditionType.value)}
                     onCheckedChange={() => onSectionStatusChange(section.id, conditionType.value)}
                   />

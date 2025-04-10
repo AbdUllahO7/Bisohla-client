@@ -28,7 +28,7 @@ const CarPhotosSection: React.FC<CarPhotosSectionProps> = ({
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4">
       {/* Cover Image */}
       <div>
-        <Text className="text-lg font-semibold mb-2">
+        <Text className="text-lg font-semibold mb-2 text-primary">
           {labels.coverImage} <span className="text-red-500">*</span>
         </Text>
         <Text className="text-sm text-gray-500 mb-3">
@@ -47,7 +47,7 @@ const CarPhotosSection: React.FC<CarPhotosSectionProps> = ({
 
       {/* Car Images */}
       <div>
-        <Text className="text-lg font-semibold mb-2">
+        <Text className="text-lg font-semibold mb-2 text-primary">
           {labels.carImages} <span className="text-red-500">*</span>
         </Text>
         <Text className="text-sm text-gray-500 mb-3">
@@ -66,7 +66,7 @@ const CarPhotosSection: React.FC<CarPhotosSectionProps> = ({
 
       {/* Documents */}
       <div>
-        <Text className="text-lg font-semibold mb-2">
+        <Text className="text-lg font-semibold mb-2 text-primary">
           {labels.documents}
         </Text>
         <Text className="text-sm text-gray-500 mb-3">
@@ -86,7 +86,7 @@ const CarPhotosSection: React.FC<CarPhotosSectionProps> = ({
 
       {/* Additional Images */}
       <div>
-        <Text className="text-lg font-semibold mb-2">
+        <Text className="text-lg font-semibold mb-2 text-primary">
           {labels.additionalImages}
         </Text>
         <Text className="text-sm text-gray-500 mb-3">

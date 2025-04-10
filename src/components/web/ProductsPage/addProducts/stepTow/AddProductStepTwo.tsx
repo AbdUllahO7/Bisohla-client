@@ -29,7 +29,7 @@ const AddProductStepTwo: React.FC<AddProductStepTwoProps> = ({ onValidationChang
   return (
     <div className="w-full space-y-6" dir={direction}>
       {/* Car Information Section */}
-      <Card className="w-full shadow-sm">
+      <Card className="w-full shadow-sm bg-white  border-0">
         <CardHeader className="bg-gray-100 py-4">
           <Text className="text-xl font-bold text-primary text-center">{labels.carInfo}</Text>
         </CardHeader>
@@ -47,7 +47,7 @@ const AddProductStepTwo: React.FC<AddProductStepTwoProps> = ({ onValidationChang
       </Card>
 
       {/* Car Features Section */}
-      <Card className="w-full shadow-sm">
+      <Card className="w-full shadow-sm bg-white border-0">
         <CardHeader className="bg-gray-100 py-4">
           <Text className="text-xl font-bold text-primary text-center">{labels.carFeatures}</Text>
         </CardHeader>
