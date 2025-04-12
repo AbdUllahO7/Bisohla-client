@@ -50,11 +50,11 @@ export const RentProductCard: React.FC<CarCardItemProps> = ({ title, marka, pric
                    {/* Display details */}
                     <Text variant="small" className="text-gray-500 pr-2 pl-2 flex justify-center items-center gap-2">
                         <Fuel/>
-                        {details?.gaz}
+                        {details?.fuelType}
                     </Text>
                     <Text variant="small" className="text-gray-500 pr-2 pl-2 flex justify-center items-center gap-2">
                         <LifeBuoy/>
-                        {details?.type}
+                        {details?.transmission}
                     </Text>
             </CardFooter>
         </Card>

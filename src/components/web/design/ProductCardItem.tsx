@@ -49,7 +49,7 @@ export const ProductCardItem: React.FC<CarCardItemPropsProfile> = ({ title, mark
             {isFavorites ? (
                 <CardFooter className="bg-[#E4E4E4] flex justify-between p-4 rounded-b-lg group-hover:bg-primary-light duration-500">
                     <Text className="text-primary group-hover:text-white duration-500">{priceWord}</Text>
-                    <Text className="text-primary-light font-bold group-hover:text-white duration-500">{price}</Text>
+                    <Text className="text-primary-light font-bold group-hover:text-white duration-500">{price.toString()}</Text>
                 </CardFooter>
             ) : (
                 <CardFooter className="bg-gray-100 w-full flex flex-wrap gap-2 justify-between p-4 rounded-b-lg">

@@ -6,8 +6,8 @@ export interface CarCardItemProps {
     imageSrc: string;
     priceWord: string;
     details? : {
-        gaz : string,
-        type:string
+        fuelType : string,
+        transmission:string
     },
     ProductId : number
 }
@@ -16,7 +16,7 @@ export interface CarCardItemPropsProfile {
     marka: string;
     imageSrc: string;
     priceWord : string;
-    price :string;
+    price :Number;
     details? : {
         gaz : string,
         type:string
