@@ -6,23 +6,26 @@ export interface CarCardItemProps {
     imageSrc: string;
     priceWord: string;
     details? : {
-        gaz : string,
-        type:string
+        fuelType : string,
+        transmission:string
     },
     ProductId : number
+    type? : string
 }
 export interface CarCardItemPropsProfile {
     title: string;
     marka: string;
     imageSrc: string;
     priceWord : string;
-    price :string;
+    price :Number;
     details? : {
         gaz : string,
         type:string
     },
     ProductId : number;
-    isFavorites : boolean
+    isFavorites : boolean,
+    type? : string
+
 }
 export interface CitiesDataType {
     title : string , 

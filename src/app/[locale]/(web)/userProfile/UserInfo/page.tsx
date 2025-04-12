@@ -13,6 +13,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
 import {  User } from "lucide-react"
+import { useSession } from "@/hooks/auth/use-session"
 
 const profileFormSchema = z.object({
 name: z
@@ -40,8 +41,13 @@ urls: z
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>
 
+
+
+
+
 const UserInfoPage = () => {
     const [isLoading, setIsLoading] = useState<boolean>(false)
+    
 
     // Profile form
     const profileForm = useForm<ProfileFormValues>({

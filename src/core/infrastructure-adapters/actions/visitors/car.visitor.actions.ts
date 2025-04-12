@@ -22,6 +22,7 @@ export const getCarListings = async (
 
   const res = await carListingController.findCarListings(params);
 
+
   return res;
 };
 
