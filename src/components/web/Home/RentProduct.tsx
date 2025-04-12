@@ -7,19 +7,44 @@ import React from 'react';
 import { RentProductCard } from '../design/RentProductCard';
 import CardAds from '../design/CardAds';
 import { useCarListings } from '@/core/infrastructure-adapters/use-actions/visitors/car.visitor.use-actions';
-// Import the necessary hook for fetching rental car data
+import { Filter } from '@/core/entities/api/api';
 
 const RentProduct = () => {
     const t = useTranslations('homePage');
     
-    // Fetch rental car listings data
-    const { data, isLoading, error } = useCarListings({});
-    
-    console.log("rent data structure:", data);
+    // Fetch rental car listings data with filter for listingType = 'for_rent'
+    // Using the complete QueryParams structure
+    const { data, isLoading, error } = useCarListings({
+        filterGroups: [
+            {
+                operator: 'and',
+                filters: [
+                    {
+                        field: 'listingType',
+                        operator: 'eq',
+                        value: 'for_rent'
+                    }
+                ]
+            }
+        ],
+        // Also keep the where filter for compatibility
+        where: [
+            {
+                field: 'listingType',
+                operator: 'eq',
+                value: 'for_rent'
+            }
+        ]
+    });
     
     // Extract rental car listings array safely and limit to 9 items
     const rentListings = React.useMemo(() => {
+        // Define the type for the listings array
         let listings: Array<any> = [];
+        
+        // Debug the data structure
+        console.log("Complete data structure:", data);
+        
         // If data.data is an array, use it
         if (Array.isArray(data?.data)) {
             listings = data.data;
@@ -28,6 +53,10 @@ const RentProduct = () => {
         else if (Array.isArray(data?.data?.data)) {
             listings = data.data.data;
         }
+        
+        console.log("Extracted listings:", listings);
+        console.log("First listing sample:", listings[0]);
+        
         // Limit to 9 items
         return listings.slice(0, 9);
     }, [data]);
@@ -78,6 +107,7 @@ const RentProduct = () => {
                                 <RentProductCard
                                     title={product.title}
                                     marka={product.make?.name || product.marka}
+                                    type={product.listingType}
                                     price={product.price}
                                     imageSrc={product.images?.find((img: { isPrimary: boolean; url: string }) => img.isPrimary)?.url || product.images?.[0]?.url || product.imageSrc}
                                     priceWord={t('rentProduct.price')}
@@ -86,7 +116,7 @@ const RentProduct = () => {
                                 />
                                 {index === 3 && (
                                     <Box variant="center" className="justify-center items-center">
-                                        <CardAds isRent={false} />
+                                        <CardAds isRent={true} />
                                     </Box>
                                 )}
                             </React.Fragment>

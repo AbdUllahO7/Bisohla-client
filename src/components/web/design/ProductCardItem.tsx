@@ -15,7 +15,7 @@ import { HeartIcon } from 'lucide-react';
 
 // CardItem Component
 
-export const ProductCardItem: React.FC<CarCardItemPropsProfile> = ({ title, marka, imageSrc, ProductId, isFavorites, priceWord, price }) => {
+export const ProductCardItem: React.FC<CarCardItemPropsProfile> = ({ title, marka, imageSrc, ProductId, isFavorites, priceWord, price , type }) => {
     const CardContent = (
         <Card className={` group border-none rounded-lg bg-white  w-full shadow-lg relative ${isFavorites ? 'cursor-pointer' : ''}`}>
             {/* Heart Icon for Favorites */}
@@ -24,7 +24,9 @@ export const ProductCardItem: React.FC<CarCardItemPropsProfile> = ({ title, mark
                     <HeartIcon size={24} className='z-10 text-red-500'/>
                 </Button>
             )}
-
+            <Text className="absolute bottom-40 left-2 bg-white px-2 py-1 rounded-lg shadow-md text-primary text-sm">
+                    {type === "for_sale" ? "Sale" : 'Rent'}
+            </Text>
             <CardHeader className="p-0">
                 <CardTitle className="w-full">
                     <Image
@@ -36,7 +38,7 @@ export const ProductCardItem: React.FC<CarCardItemPropsProfile> = ({ title, mark
                     />
                 </CardTitle>
                 <CardDescription className="p-4">
-                    <Text variant="h4" className="text-primary font-semibold">
+                    <Text variant="h4" className="text-primary font-semibold line-clamp-1">
                         {title}
                     </Text>
                     <Text variant="mid" className="text-gray-600">

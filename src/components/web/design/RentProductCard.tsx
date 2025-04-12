@@ -16,13 +16,16 @@ import Link from 'next/link';
 
 // CardItem Component
 
-export const RentProductCard: React.FC<CarCardItemProps> = ({ title, marka, price, imageSrc, priceWord, details , ProductId }) => {
+export const RentProductCard: React.FC<CarCardItemProps> = ({ title, marka, price, imageSrc, priceWord, details , ProductId , type  }) => {
     return (
         <Link href={`/products/product/${ProductId}`} className='hover:-translate-y-3 duration-500 group '>
             <Card className="border-none bg-white relative ">
             <Button className="absolute top-12 left-2 bg-white p-2 rounded-full shadow-md">
                         <HeartIcon size={24} className='z-10 text-red-500'/>
-                </Button>
+            </Button>
+            <Text className="absolute bottom-32 left-2 bg-white px-2 py-1 rounded-lg shadow-md text-primary text-sm">
+                    {type === "for_rent" ? "Rent" : 'Sale'}
+            </Text>
             <Box className="flex justify-between p-[8px] rounded-t-[10px] bg-primary-light group-hover:bg-primary duration-500">
                 <Text className="mid font-cairo text-[500] text-[#EFEFEF] text-[14px]">{priceWord}</Text>
                 <Text className="mid font-cairo text-white-light font-bold">{price}</Text>

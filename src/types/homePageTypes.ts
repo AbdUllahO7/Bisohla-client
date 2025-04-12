@@ -10,6 +10,7 @@ export interface CarCardItemProps {
         transmission:string
     },
     ProductId : number
+    type? : string
 }
 export interface CarCardItemPropsProfile {
     title: string;
@@ -22,7 +23,9 @@ export interface CarCardItemPropsProfile {
         type:string
     },
     ProductId : number;
-    isFavorites : boolean
+    isFavorites : boolean,
+    type? : string
+
 }
 export interface CitiesDataType {
     title : string , 

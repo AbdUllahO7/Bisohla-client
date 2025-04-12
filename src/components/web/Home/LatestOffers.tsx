@@ -8,13 +8,33 @@ import CardAds from '../design/CardAds';
 import { ProductCardItem } from '../design/ProductCardItem';
 import { LatestOffersProps } from '@/types/homePageTypes';
 import { useCarListings } from '@/core/infrastructure-adapters/use-actions/visitors/car.visitor.use-actions';
+import { Filter } from '@/core/entities/api/api';
 
 const LatestOffers: React.FC<LatestOffersProps> = ({ count, showTitle = true, container = true }) => {
     const t = useTranslations('homePage');
     
-    // Fetch car listings data
+    // Fetch car listings data with filter for listingType = 'for_sale'
     const { data, isLoading, error } = useCarListings({
         page: 1,
+        filterGroups: [
+            {
+                operator: 'and',
+                filters: [
+                    {
+                        field: 'listingType',
+                        operator: 'eq',
+                        value: 'for_sale'
+                    }
+                ]
+            }
+        ],
+        where: [
+            {
+                field: 'listingType',
+                operator: 'eq',
+                value: 'for_sale'
+            }
+        ]
     });
     
     console.log("data structure:", data);
@@ -30,9 +50,14 @@ const LatestOffers: React.FC<LatestOffersProps> = ({ count, showTitle = true, co
         else if (Array.isArray(data?.data?.data)) {
             listings = data.data.data;
         }
-        // Limit to 9 items
-        return listings.slice(0, 9);
-    }, [data]);
+        
+        console.log("Extracted listings:", listings);
+        console.log("First listing sample:", listings[0]);
+        
+        // Limit to count items if provided, otherwise 9
+        const limit = count || 9;
+        return listings.slice(0, limit);
+    }, [data, count]);
     
     return (
         <Box variant={`${container ? "container" : 'center'}`} className="mb-5 mt-[50px]">
@@ -81,8 +106,9 @@ const LatestOffers: React.FC<LatestOffersProps> = ({ count, showTitle = true, co
                             <React.Fragment key={card.id || index}>
                                 <ProductCardItem
                                     title={card.title}
-                                    marka={card.make?.name || card.marka} 
+                                    marka={card.make?.name || card.marka}
                                     price={card.price}
+                                    type={card.listingType}
                                     imageSrc={card.images?.find((img: { isPrimary: boolean; url: string }) => img.isPrimary)?.url || card.images?.[0]?.url || card.imageSrc}
                                     ProductId={card.id}
                                     priceWord={t('latestOffers.price')}
