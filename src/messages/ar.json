@@ -780,8 +780,7 @@
       }
       }
     },
-    
-      "stepThree": {
+    "stepThree": {
         "carInfo": "حالة السيارة",
         "carPhotos": "صور السيارة",
         "carSectionName": "اسم قسم السيارة",
@@ -853,7 +852,28 @@
           "documents": "المستندات",
           "tenFiles": "يمكنك إدخال حتى 10 ملفات"
         }
+    },
+    "stepFour" : {
+      "title" : "تفاصيل الإعلان",
+      "adTitle" : "عنوان الإعلان",
+      "adDescription" : "وصف الإعلان",
+      "contactNumber" : "رقم الاتصال",
+      "adType" : "نوع الإعلان",
+      "publicationDate" : "تاريخ النشر",
+      "rentType" : "نوع الإيجار",
+      "dateValue" : {
+        "forSale" : "للبيع",
+        "forRent" : "للإيجار",
+        "test" : "تجريبي",
+        "test1" : "تجريبي 1",
+        "RentType" : {
+          "daily" : "يومي",
+          "weekly" : "أسبوعي",
+          "monthly" : "شهري",
+          "yearly" : "سنوي"
+        }
       }
+    }
   }
   },
   "adminPage": {

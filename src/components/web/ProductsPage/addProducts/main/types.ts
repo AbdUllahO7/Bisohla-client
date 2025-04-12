@@ -60,8 +60,8 @@ export interface StepThreeData {
 }
 
 export interface StepFourData {
-  adTitle: string;
-  adDescription: string;
+  title: string;
+  description: string;
   listingType : ListingType,
   rentType : RentType | null;
   contactNumber : string | null;

@@ -44,12 +44,12 @@ export const ErrorDialog: React.FC<ErrorDialogProps> = ({
             </DialogDescription>
           </Box>
         </DialogHeader>
-        
+{/*         
         <Box className="mt-2 p-3 bg-red-50 rounded-md border border-red-100">
           <Text className="text-red-700 text-sm font-medium break-words whitespace-pre-wrap">
             {errorMessage}
           </Text>
-        </Box>
+        </Box> */}
         
         <DialogFooter className="flex flex-col mt-4">
           <Button

@@ -63,7 +63,6 @@ export const useSubmitForm = () => {
           stepFour: !!data4
         });
         setErrorMessage(errorMsg);
-        setShowErrorDialog(true);
         setIsSubmitting(false);
         return null;
       }
@@ -73,6 +72,7 @@ export const useSubmitForm = () => {
       const storedData2 = JSON.parse(data2) as StepTwoData;
       const storedData3 = JSON.parse(data3) as StepThreeData;
       const storedData4 = JSON.parse(data4) as StepFourData;
+
     
       // Extract ONLY feature IDs to send to the API
       const featureIds: number[] = [];
@@ -164,8 +164,8 @@ export const useSubmitForm = () => {
         isSold: false,
         
         // Listing content from step 4
-        title: storedData4.adTitle,
-        description: storedData4.adDescription,
+        title: storedData4.title,
+        description: storedData4.description,
         
         // Using featureIds to match the schema
         featureIds: featureIds,
@@ -222,13 +222,11 @@ export const useSubmitForm = () => {
       } else {
         // Show error dialog on unsuccessful response
         setErrorMessage(formatErrorMessage(response));
-        setShowErrorDialog(true);
         return null;
       }
     } catch (error) {
       console.error("Error submitting form:", error);
       setErrorMessage(formatErrorMessage(error));
-      setShowErrorDialog(true);
       return null;
     } finally {
       setIsSubmitting(false);
