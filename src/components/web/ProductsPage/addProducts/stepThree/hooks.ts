@@ -58,10 +58,10 @@ export const useAddProductStepThree = (onValidationChange: (isValid: boolean) =>
     // Define color classes for each condition type
     const colorClasses: Record<string, string> = {
       [CarConditionType.SCRATCH]: 'bg-yellow-500',
-      [CarConditionType.DENT]: 'bg-orange-500',
-      [CarConditionType.PAINT_FADED]: 'bg-amber-600',
-      [CarConditionType.PAINT_REPAIRED]: 'bg-blue-500',
-      [CarConditionType.PANEL_REPLACED]: 'bg-red-500'
+      [CarConditionType.DENT]: 'bg-primary-light',
+      [CarConditionType.PAINT_FADED]: 'bg-secondary-purple',
+      [CarConditionType.PAINT_REPAIRED]: 'bg-secondary-indigo',
+      [CarConditionType.PANEL_REPLACED]: 'bg-secondary-pink'
     };
     
     // Add color classes to condition types

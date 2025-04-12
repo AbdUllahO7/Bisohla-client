@@ -3,7 +3,7 @@ import { ListingType, RentType } from "@/core/entities/enums/cars.enums";
 // Complete AdInfoState interface with all fields
 export interface AdInfoState {
     adTitle: string;
-    adStatus: string; // Keep this for backward compatibility
+    adStatus: string; 
     adDescription: string;
     contactNumber: string;
     listingType: ListingType | '';
@@ -42,3 +42,14 @@ export interface PublicationDateProps {
 
 // Constants
 export const STORAGE_KEY = "addProduct_stepFour_data";
+
+
+export const defaultState: AdInfoState = {
+    adTitle: "",
+    adDescription: "",
+    adStatus: "publish",
+    contactNumber: "",
+    listingType: "",
+    rentType: "",
+    publicationDate: new Date().toISOString().split('T')[0], // Format: YYYY-MM-DD
+};

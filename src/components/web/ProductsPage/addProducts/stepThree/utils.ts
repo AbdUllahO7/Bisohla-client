@@ -29,7 +29,9 @@ export const loadFromStorage = (): CarConditionState => {
  */
 export const saveToStorage = (data: CarConditionState): void => {
   try {
-   
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
   } catch (e) {
     console.error("Failed to save data:", e);
   }

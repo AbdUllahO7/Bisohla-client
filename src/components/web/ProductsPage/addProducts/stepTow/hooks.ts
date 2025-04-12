@@ -24,7 +24,8 @@ export const useAddProductStepTwo = (onValidationChange: (isValid: boolean) => v
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({
     doors: "",
     price: "",
-    engineSize: ""
+    engineSize: "",
+    bodyType : '',
   });
   
   // Main form state
@@ -43,6 +44,7 @@ export const useAddProductStepTwo = (onValidationChange: (isValid: boolean) => v
     doors: "",
     plateNumber: "",
     vin: "",
+    body : '',
     selectedFeatures: []
   });
   
@@ -114,14 +116,20 @@ export const useAddProductStepTwo = (onValidationChange: (isValid: boolean) => v
       }
     }
     
-    // Check engine size
+    // Check engine size with new range validation (1.0 to 4.0)
     const engineSizeValue = parseFloat(data.engineSize);
-    if (data.engineSize && (isNaN(engineSizeValue) || engineSizeValue <= 0)) {
-      newValidationErrors.engineSize = locale === 'ar' 
-        ? "يجب أن يكون حجم المحرك قيمة موجبة" 
-        : "Engine size must be a positive value";
-    } else {
-      newValidationErrors.engineSize = "";
+    if (data.engineSize) {
+      if (isNaN(engineSizeValue) || engineSizeValue <= 0) {
+        newValidationErrors.engineSize = locale === 'ar' 
+          ? "يجب أن يكون حجم المحرك قيمة موجبة" 
+          : "Engine size must be a positive value";
+      } else if (engineSizeValue < 1.0 || engineSizeValue > 4.0) {
+        newValidationErrors.engineSize = locale === 'ar' 
+          ? "يجب أن يكون حجم المحرك بين 1.0 و 4.0" 
+          : "Engine size must be between 1.0 and 4.0";
+      } else {
+        newValidationErrors.engineSize = "";
+      }
     }
     
     setValidationErrors(newValidationErrors);
@@ -174,13 +182,24 @@ export const useAddProductStepTwo = (onValidationChange: (isValid: boolean) => v
     }
     else if (field === 'engineSize') {
       const engineSizeValue = parseFloat(value);
-      if (value && (isNaN(engineSizeValue) || engineSizeValue <= 0)) {
-        setValidationErrors(prev => ({ 
-          ...prev, 
-          engineSize: locale === 'ar' 
-            ? "يجب أن يكون حجم المحرك قيمة موجبة" 
-            : "Engine size must be a positive value" 
-        }));
+      if (value) {
+        if (isNaN(engineSizeValue) || engineSizeValue <= 0) {
+          setValidationErrors(prev => ({ 
+            ...prev, 
+            engineSize: locale === 'ar' 
+              ? "يجب أن يكون حجم المحرك قيمة موجبة" 
+              : "Engine size must be a positive value" 
+          }));
+        } else if (engineSizeValue < 1.0 || engineSizeValue > 4.0) {
+          setValidationErrors(prev => ({ 
+            ...prev, 
+            engineSize: locale === 'ar' 
+              ? "يجب أن يكون حجم المحرك بين 1.0 و 4.0" 
+              : "Engine size must be between 1.0 and 4.0" 
+          }));
+        } else {
+          setValidationErrors(prev => ({ ...prev, engineSize: "" }));
+        }
       } else {
         setValidationErrors(prev => ({ ...prev, engineSize: "" }));
       }
@@ -285,7 +304,7 @@ export const useAddProductStepTwo = (onValidationChange: (isValid: boolean) => v
       enterPrice: locale === 'ar' ? "أدخل السعر" : "Enter price",
       enterMileage: locale === 'ar' ? "أدخل المسافة المقطوعة" : "Enter mileage",
       enterEnginePower: locale === 'ar' ? "أدخل قوة المحرك" : "Enter engine power",
-      enterEngineSize: locale === 'ar' ? "أدخل حجم المحرك" : "Enter engine size",
+      enterEngineSize: locale === 'ar' ? "أدخل حجم المحرك (1.0 - 4.0)" : "Enter engine size (1.0 - 4.0)",
       enterDoors: locale === 'ar' ? "أدخل عدد الأبواب" : "Enter doors count",
       enterPlateNumber: locale === 'ar' ? "أدخل رقم اللوحة" : "Enter plate number",
       enterVin: locale === 'ar' ? "أدخل رقم الهيكل" : "Enter VIN number",
@@ -302,7 +321,8 @@ export const useAddProductStepTwo = (onValidationChange: (isValid: boolean) => v
       invalidDoors: locale === 'ar' ? "يجب ألا يتجاوز عدد الأبواب 10" : "Doors cannot exceed 10",
       invalidDoorsNumber: locale === 'ar' ? "يجب أن يكون عدد الأبواب رقمًا صحيحًا موجبًا" : "Doors must be a positive integer",
       invalidPrice: locale === 'ar' ? "يجب أن يكون السعر قيمة موجبة" : "Price must be a positive value",
-      invalidEngineSize: locale === 'ar' ? "يجب أن يكون حجم المحرك قيمة موجبة" : "Engine size must be a positive value"
+      invalidEngineSize: locale === 'ar' ? "يجب أن يكون حجم المحرك قيمة موجبة" : "Engine size must be a positive value",
+      invalidEngineSizeRange: locale === 'ar' ? "يجب أن يكون حجم المحرك بين 1.0 و 4.0" : "Engine size must be between 1.0 and 4.0"
     }),
     [locale]
   );
@@ -310,6 +330,7 @@ export const useAddProductStepTwo = (onValidationChange: (isValid: boolean) => v
   return {
     carInfo,
     validationErrors,
+    setValidationErrors,
     allFeatures,
     featureCategories,
     isFeaturesLoading,

@@ -38,6 +38,12 @@ export interface SelectDropdownProps {
   className?: string; // Additional class names
   SelectTriggerStyle?: string;
   labelStyle?: string;
+  required?: boolean
+  error?: string
+  onChange?: (name: string, value: string) => void
+  value?: string
+  name?: string
+  onBlur?: (field: string, value: string) => void
 }
 
 export interface CarouselComponentProps {

@@ -46,6 +46,7 @@ export interface CarInfoState {
   doors: string;
   plateNumber: string;
   vin: string;
+  
   selectedFeatures: CarListingFeature[]; // Array of selected features
   [key: string]: any;
 }
@@ -55,6 +56,7 @@ export interface ValidationErrors {
   doors: string;
   price: string;
   engineSize: string;
+  bodyType : string
 }
 
 // Define category data structure
