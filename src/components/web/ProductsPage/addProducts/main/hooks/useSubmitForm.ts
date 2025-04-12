@@ -3,10 +3,11 @@ import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { createCarListing } from '@/core/infrastructure-adapters/actions/users/car.user.actions';
 import { Currency } from '@/core/entities/enums/currency.enum';
-import { BodyType, FuelType, ListingType, Transmission } from '@/core/entities/enums/cars.enums';
+import { BodyType, DamageType, DamageZone, FuelType, ListingType, RentType, SaveStatus, Transmission } from '@/core/entities/enums/cars.enums';
 import { StepOneData, StepTwoData, StepThreeData, StepFourData, CreateCarListingDto } from '../types';
 import { transformDamages } from '../../stepThree/utils';
 import { STORAGE_KEY } from '../../stepFour/types';
+import { SyriaCity, SyriaGovernorate } from '@/core/entities/enums/syria.enums';
 
 // Format error message for display
 const formatErrorMessage = (error: any): string => {
@@ -47,11 +48,7 @@ export const useSubmitForm = () => {
       const data3 = localStorage.getItem('addProduct_stepThree_data');
       const data4 = localStorage.getItem('addProduct_stepFour_data');
     
-      console.log("Parsed data from localStorage:");
-      console.log("Step One:", data1);
-      console.log("Step Two:", data2);
-      console.log("Step Three:", data3);
-      console.log("Step Four:", data4);
+
   
       // Check if we have all required data
       if (!data1 || !data2 || !data3 || !data4) {
@@ -96,7 +93,6 @@ export const useSubmitForm = () => {
         }
       }
   
-      console.log("Extracted feature IDs:", featureIds);
   
       // Process all images into a string array
       const imageUrls: string[] = [];
@@ -104,7 +100,6 @@ export const useSubmitForm = () => {
       // Add cover image
       if (storedData3.coverImage && Array.isArray(storedData3.coverImage) && storedData3.coverImage.length > 0) {
         imageUrls.push(storedData3.coverImage[0]);
-        console.log("Added cover image:", storedData3.coverImage[0]);
       }
       
       // Add car images
@@ -114,7 +109,6 @@ export const useSubmitForm = () => {
             imageUrls.push(url);
           }
         });
-        console.log(`Added ${storedData3.carImages.length} car images`);
       }
       
       // Add additional images
@@ -124,7 +118,6 @@ export const useSubmitForm = () => {
             imageUrls.push(url);
           }
         });
-        console.log(`Added ${storedData3.additionalImages.length} additional images`);
       }
       
       // Add document images
@@ -134,12 +127,10 @@ export const useSubmitForm = () => {
             imageUrls.push(url);
           }
         });
-        console.log(`Added ${storedData3.documents.length} document images`);
       }
       
       // Transform car damages from sectionStatus to the backend format with snake_case keys
       const damages = transformDamages(storedData3.sectionStatus);
-      console.log("Transformed car damages:", damages);
       
       // Create the car listing submission with a FLATTENED structure
       const createCarListingDto: CreateCarListingDto = {
@@ -149,19 +140,20 @@ export const useSubmitForm = () => {
         trimId: Number(storedData1.trim) || null,
         year: Number(storedData1.year),
         story: storedData1.story || null,
-        // Location details from step 1
+        
+        // Location details from step 1 - cast to enum types
         address: storedData1.address,
-        city: storedData1.city,
-        governorate: storedData1.governorate,
+        city: storedData1.city as SyriaCity,
+        governorate: storedData1.governorate as SyriaGovernorate,
         
         // Pricing from step 2
-        // Convert currency string to Currency enum
         currency: Currency[storedData2.currency as keyof typeof Currency] || Currency.SYP,
-        price: Number(storedData2.price),
+        price: Number(storedData2.price) || null,
         
         // Listing metadata
         isFeatured: false,
         isSold: false,
+        saveStatus: SaveStatus.DRAFT,
         
         // Listing content from step 4
         title: storedData4.title,
@@ -175,25 +167,27 @@ export const useSubmitForm = () => {
         primaryImageIndex: imageUrls.length > 0 ? 0 : undefined,
         
         // Car details - FLATTENED structure
-        mileage: Number(storedData2.mileage) || 0,
+        mileage: Number(storedData2.mileage) || null,
         fuelType: storedData2.fuelType as FuelType || null,
         transmission: storedData2.transmission as Transmission || null,
-        engineSize: Number(storedData2.engineSize) || 0,
-        enginePower: Number(storedData2.enginePower) || 0,
+        engineSize: Number(storedData2.engineSize) || null,
+        enginePower: Number(storedData2.enginePower) || null,
         bodyType: storedData2.bodyType as BodyType || null,
-        doors: Number(storedData2.doors) || 0,
+        doors: Number(storedData2.doors) || null,
         colorExterior: storedData2.colorExterior || null,
         colorInterior: storedData2.colorInterior || null,
         vin: storedData2.vin?.toString() || null,
         plateNumber: storedData2.plateNumber?.toString() || null,
         listingType: storedData4.listingType as ListingType,
-        rentType: storedData4.rentType || null,
+        rentType: storedData4.rentType as RentType || null,
         contactNumber: storedData4.contactNumber || null,
         publishedAt: storedData4.publicationDate || null,
-        damages: damages, // Add the correctly transformed damages array
-      };
-      
-      console.log("Submitting car listing with FLATTENED structure:", createCarListingDto);
+        damages: damages?.map(d => ({
+          damageZone: d.damageZone as DamageZone,
+          damageType: d.damageType as DamageType,
+          description: d.description
+        })),
+};
       
       // Call the API with the flattened DTO
       const response = await createCarListing(createCarListingDto);
@@ -203,20 +197,19 @@ export const useSubmitForm = () => {
         // Clear all form data properly
         // Use the imported clearAllFormData function or implement it inline:
         const keysToRemove = [
-          // 'addProduct_stepOne_selections',
-          // 'addProduct_stepTwo_data',
-          // 'addProduct_stepThree_data',
+          'addProduct_stepOne_selections',
+          'addProduct_stepTwo_data',
+          'addProduct_stepThree_data',
           'addProduct_stepFour_data',
         ];
         
         // Important: Remove items one by one
         keysToRemove.forEach(key => {
           localStorage.removeItem(key);
-          console.log(`Removed ${key} from localStorage`);
         });
         
         // Redirect to success page or next step
-        // router.push('/AddProducts/ProductSuccessPage');
+        router.replace('/products/AddProducts/ProductSuccessPage');
         
         return response;
       } else {

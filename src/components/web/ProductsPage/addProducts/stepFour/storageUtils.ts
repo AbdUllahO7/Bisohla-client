@@ -49,7 +49,6 @@ export const saveAdInfoData = (data: AdInformationFormData): void => {
     try {
         if (typeof window !== "undefined") {
             localStorage.setItem(AD_INFO_STORAGE_KEY, JSON.stringify(data))
-            console.log("Ad information saved automatically:", data)
         }
     } catch (e) {
         console.error("Failed to save ad information:", e)
@@ -78,7 +77,6 @@ export const autoSaveAdInfoData = (
             // Merge the existing data with new changes
             const mergedData = { ...existingData, ...data }
             localStorage.setItem(AD_INFO_STORAGE_KEY, JSON.stringify(mergedData))
-            console.log("Ad information auto-saved:", mergedData)
         }
     } catch (e) {
         console.error("Failed to auto-save ad information:", e)

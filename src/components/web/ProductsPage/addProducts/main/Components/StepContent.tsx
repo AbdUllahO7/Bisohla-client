@@ -27,11 +27,10 @@ export const StepContent: React.FC<StepContentProps> = ({
     isLastStep = false,
     nextButtonText
 }) => {
-
     return (
         <TabsContent value={step} className="">
             {children}
-            <Box variant="row" className="w-full justify-start items-center bg-white mt-10 px-5 py-5 rounded-lg xs:mb-5" dir={direction}>
+            <Box variant="row" className="w-full justify-between items-center bg-white mt-10 px-5 py-5 rounded-lg xs:mb-5" dir={direction}>
                 <div className="flex flex-col items-start">
                     <Button 
                         className={`${isLastStep ? 'bg-green-600 hover:bg-green-700' : 'bg-primary hover:bg-primary-light'} text-white font-bold px-7 min-w-[150px] duration-500 disabled:opacity-50 disabled:cursor-not-allowed`} 
@@ -45,21 +44,20 @@ export const StepContent: React.FC<StepContentProps> = ({
                         }
                     </Button>
                     
+                    {isNextDisabled && requiredFieldsMessage && (
+                        <span className="text-red-500 text-sm mt-2">
+                            {requiredFieldsMessage}
+                        </span>
+                    )}
                 </div>
                 
                 <Button 
-                    className="bg-gray-200 text-primary font-bold px-7 min-w-[150px] hover:bg-primary-light duration-500 hover:text-white ml-4" 
+                    className="bg-gray-200 text-primary font-bold px-7 min-w-[150px] hover:bg-primary-light duration-500 hover:text-white" 
                     onClick={handleBack}
                 >
                     {direction === "ltr" ? <ArrowLeft className="mr-2"/> : <ArrowRight className="ml-2"/>}
                     {direction === "ltr" ? "Back" : "العودة"}
                 </Button>
-
-                {isNextDisabled && requiredFieldsMessage && (
-                    <span className="text-red-500 text-sm mt-1 ml-4">
-                        {requiredFieldsMessage}
-                    </span>
-                )}
             </Box>
         </TabsContent>
     );
