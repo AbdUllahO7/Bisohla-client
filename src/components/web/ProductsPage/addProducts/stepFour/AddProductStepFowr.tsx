@@ -146,7 +146,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                         placeholder={direction === "ltr" ? 'Ad Title (min 3 characters)' : 'عنوان الإعلان (3 أحرف على الأقل)'}
                         value={adInfo.adTitle}
                         onChange={(value) => handleTextChange('adTitle', value)}
-                        onBlur={() => setTouchedFields(prev => ({ ...prev, adTitle: true }))}
+                        onBlur={() => {}}
                         errorMessage={touchedFields.adTitle ? getTitleErrorMessage(adInfo.adTitle, direction) : ''}
                         required={true}
                     />
@@ -158,7 +158,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                         placeholder={direction === "ltr" ? 'Ad Description (min 10 characters)' : 'وصف الإعلان (10 أحرف على الأقل)'}
                         value={adInfo.adDescription}
                         onChange={(value) => handleTextChange('adDescription', value)}
-                        onBlur={() => setTouchedFields(prev => ({ ...prev, adDescription: true }))}
+                        onBlur={() => {}}
                         errorMessage={touchedFields.adDescription ? getDescriptionErrorMessage(adInfo.adDescription, direction) : ''}
                         required={true}
                     />
@@ -168,7 +168,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                         placeholder={direction === "ltr" ? 'Contact Number' : 'رقم الاتصال'}
                         value={adInfo.contactNumber}
                         onChange={(value) => handleTextChange('contactNumber', value)}
-                        onBlur={() => setTouchedFields(prev => ({ ...prev, contactNumber: true }))}
+                        onBlur={() => {}}
                         errorMessage={touchedFields.contactNumber ? getContactErrorMessage(adInfo.contactNumber, direction) : ''}
                         required={true}
                     />

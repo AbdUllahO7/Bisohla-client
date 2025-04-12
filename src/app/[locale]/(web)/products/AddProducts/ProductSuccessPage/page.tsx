@@ -18,7 +18,7 @@ export default function ProductSuccessPage() {
 
     return (
         <div className="container mx-auto py-10 flex items-center justify-center min-h-[80vh]">
-        <Card className="max-w-md w-full">
+        <Card className="max-w-md w-full bg-primary">
             <CardHeader className="flex flex-col items-center justify-center text-center gap-4 pt-8">
             <CheckCircle className="h-20 w-20 text-green-500" />
             <div className="space-y-2">
@@ -34,10 +34,10 @@ export default function ProductSuccessPage() {
             </CardContent>
 
             <CardFooter className="flex flex-col sm:flex-row gap-4 pb-8">
-            <Button variant="outline" className="flex-1" onClick={handleHomeClick} size="lg">
+            <Button variant="outline" className="flex-1 bg-primary-light font-bold" onClick={handleHomeClick} size="lg">
                 View Home 
             </Button>
-            <Button className="flex-1" onClick={handleProfileClick} size="lg">
+            <Button className="flex-1 bg-primary-foreground text-primary font-bold" onClick={handleProfileClick} size="lg">
                 View Profile
             </Button>
             </CardFooter>

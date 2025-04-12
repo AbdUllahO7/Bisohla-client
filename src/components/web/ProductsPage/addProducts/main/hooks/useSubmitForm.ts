@@ -6,6 +6,7 @@ import { Currency } from '@/core/entities/enums/currency.enum';
 import { BodyType, FuelType, ListingType, Transmission } from '@/core/entities/enums/cars.enums';
 import { StepOneData, StepTwoData, StepThreeData, StepFourData, CreateCarListingDto } from '../types';
 import { transformDamages } from '../../stepThree/utils';
+import { STORAGE_KEY } from '../../stepFour/types';
 
 // Format error message for display
 const formatErrorMessage = (error: any): string => {
@@ -36,6 +37,10 @@ export const useSubmitForm = () => {
   const submitForm = useCallback(async () => {
     try {
       setIsSubmitting(true);
+      
+      // Import the clearAllFormData function from your storageUtils
+      // alternatively, you can use the version below if you can't import it
+      
       // Get all form data from localStorage
       const data1 = localStorage.getItem('addProduct_stepOne_selections');
       const data2 = localStorage.getItem('addProduct_stepTwo_data');
@@ -63,7 +68,7 @@ export const useSubmitForm = () => {
         return null;
       }
   
-      // Parse all data
+      // Make copies of the data
       const storedData1 = JSON.parse(data1) as StepOneData;
       const storedData2 = JSON.parse(data2) as StepTwoData;
       const storedData3 = JSON.parse(data3) as StepThreeData;
@@ -195,15 +200,23 @@ export const useSubmitForm = () => {
       console.log("API response:", response);
       
       if (response.success) {
-        // localStorage.removeItem('addProduct_stepOne_selections');
-        // localStorage.removeItem('addProduct_stepTwo_data');
-        // localStorage.removeItem('addProduct_stepThree_data');
-        // localStorage.removeItem('addProduct_stepFour_data');
-  
-        // Alternatively, you can try this approach with router
-        // setTimeout(() => {
-        //   router.push('/products/AddProducts/ProductSuccessPage');
-        // }, 0);
+        // Clear all form data properly
+        // Use the imported clearAllFormData function or implement it inline:
+        const keysToRemove = [
+          // 'addProduct_stepOne_selections',
+          // 'addProduct_stepTwo_data',
+          // 'addProduct_stepThree_data',
+          'addProduct_stepFour_data',
+        ];
+        
+        // Important: Remove items one by one
+        keysToRemove.forEach(key => {
+          localStorage.removeItem(key);
+          console.log(`Removed ${key} from localStorage`);
+        });
+        
+        // Redirect to success page or next step
+        // router.push('/AddProducts/ProductSuccessPage');
         
         return response;
       } else {
