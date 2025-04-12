@@ -61,7 +61,6 @@ export const getPublicationDateErrorMessage = (date: string | null, direction: s
  */
 export const validateForm = (formData: AdInfoState): boolean => {
   // Log the entire form data to debug
-  console.log("Validating form data:", formData)
 
   // Basic validation checks
   const isTitleValid = formData.title.trim().length >= 3
@@ -83,22 +82,7 @@ export const validateForm = (formData: AdInfoState): boolean => {
   // Publication date validation
   const isPublicationDateValid = !!formData.publicationDate
 
-  // Log each validation check result for debugging
-  console.log("Validation checks:", {
-    isTitleValid,
-    isDescriptionValid,
-    isContactValid,
-    isListingTypeValid,
-    isRentTypeValid,
-    isPublicationDateValid,
 
-    title: formData.title,
-    description: formData.description,
-    contactNumber: formData.contactNumber,
-    listingType: formData.listingType,
-    rentType: formData.rentType,
-    publicationDate: formData.publicationDate,
-  })
 
   // Combined validation result
   const isValid =
@@ -109,7 +93,6 @@ export const validateForm = (formData: AdInfoState): boolean => {
     isRentTypeValid &&
     isPublicationDateValid
 
-  console.log("Final validation result:", isValid)
 
   return isValid
 }

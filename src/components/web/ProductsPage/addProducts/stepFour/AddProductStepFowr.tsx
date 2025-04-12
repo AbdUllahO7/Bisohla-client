@@ -40,7 +40,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({ onValidationCha
   const [showRentType, setShowRentType] = useState(false)
   const [direction, setDirection] = useState<string>("ltr")
   const previousFormData = useRef<AdInformationFormData | null>(null)
-  const prevValidState = useRef<boolean | null>(null) // ✅ FIXED
+  const prevValidState = useRef<boolean | null>(null)
 
   const t = useTranslations("addProduct.enteredData")
 
@@ -50,9 +50,28 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({ onValidationCha
   const form = useForm<AdInformationFormData>({
     resolver: zodResolver(adInformationSchema),
     defaultValues: defaultAdInfoData,
-    mode: "onTouched", // Validate on field blur
+    mode: "onChange", // Validate on change
   })
 
+  // Check if the form data is valid
+  const checkFormValidity = (data: AdInformationFormData) => {
+    // Basic validation: check if required fields are filled
+    let isValid = Boolean(
+      data.title && 
+      data.description && 
+      data.contactNumber && 
+      data.listingType
+    );
+    
+    // Additional validation for rent type
+    if (data.listingType === ListingType.FOR_RENT && !data.rentType) {
+      isValid = false;
+    }
+    
+    return isValid;
+  }
+
+  // Initial setup effect - runs once on component mount
   useEffect(() => {
     const savedData = loadAdInfoData()
     form.reset(savedData)
@@ -62,38 +81,53 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({ onValidationCha
       setShowRentType(true)
     }
 
+    // Initial validation of loaded data
+    const isValid = checkFormValidity(savedData);
+    prevValidState.current = isValid;
+    
+    // Only call onValidationChange once during initialization
+    if (onValidationChange) {
+      onValidationChange(isValid);
+    }
+
     const htmlDir = document.documentElement.dir || "ltr"
     setDirection(htmlDir)
-  }, [form])
+  }, [form]); // Remove onValidationChange from dependencies
 
+  // Watch form changes and update validation
   useEffect(() => {
     const subscription = form.watch((formValues) => {
       const currentData = formValues as AdInformationFormData
 
+      // Auto-save if key fields are present
       if (currentData.title && currentData.description) {
         autoSaveAdInfoData(currentData, previousFormData.current || undefined)
         previousFormData.current = { ...currentData }
       }
 
-        const isValid = validateForm(currentData)
-        if (isValid !== prevValidState.current) {
-            prevValidState.current = isValid
-            onValidationChange(isValid)
-            console.log("Validation state changed to:", isValid)
+      // Check form validity
+      const isValid = checkFormValidity(currentData);
+      
+      // Only notify parent if validation state has changed
+      if (isValid !== prevValidState.current) {
+        prevValidState.current = isValid;
+        if (onValidationChange) {
+          onValidationChange(isValid);
         }
+      }
 
-        if (currentData.listingType === ListingType.FOR_RENT) {
-            setShowRentType(true)
-        } else {
-            setShowRentType(false)
-        }
+      // Toggle rent type field visibility
+      if (currentData.listingType === ListingType.FOR_RENT) {
+        setShowRentType(true)
+      } else {
+        setShowRentType(false)
+      }
     })
 
     return () => subscription.unsubscribe()
-  }, [form , onValidationChange])
+  }, [form, onValidationChange]) // Keep onValidationChange in dependencies
 
   const onSubmit = (data: AdInformationFormData) => {
-    console.log("Form submitted with data:", data)
 
     const adInfoState: AdInfoState = {
       title: data.title,
@@ -109,9 +143,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({ onValidationCha
 
     if (isValid) {
       saveAdInfoData(data)
-      console.log("Form submitted successfully")
     } else {
-      console.error("Form validation failed")
       setFormErrors(adInfoState)
     }
   }
@@ -312,10 +344,8 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({ onValidationCha
                             />
                         </div>
                         </div>
-
-                    
                     </form>
-                    </Form>
+                </Form>
         </CardContent>
       </Card>
     </div>

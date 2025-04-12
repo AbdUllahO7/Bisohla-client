@@ -1,6 +1,6 @@
 // types/index.ts
 import { Currency } from '@/core/entities/enums/currency.enum';
-import { BodyType, FuelType, ListingType, RentType, Transmission } from '@/core/entities/enums/cars.enums';
+import { BodyType, DamageType, DamageZone, FuelType, ListingType, RentType, SaveStatus, Transmission } from '@/core/entities/enums/cars.enums';
 import { SyriaCity, SyriaGovernorate } from '@/core/entities/enums/syria.enums';
 import { CarDetails, CarImage, CarListingFeature, SelectCarMakeDto, SelectCarModelDto, SelectCarTrimDto } from '@/core/entities/models/cars/cars.dto';
 import { SelectUserDto } from '@/core/entities/models/users/users.dto';
@@ -108,47 +108,49 @@ export interface CreateCarListingDto {
   modelId: number;
   trimId: number | null;
   year: number;
-  story : string | null;
-  // Location details
-  address: string;
-  city: string;
-  governorate: string;
+  story: string | null;
+  
+  // Location details - update types to match enums
+  address: string | undefined;
+  city: SyriaCity | undefined;
+  governorate: SyriaGovernorate | undefined;
   
   // Pricing
   currency: Currency;
-  price: number;
+  price: number | null;
   
   // Listing metadata
   isFeatured: boolean;
   isSold: boolean;
+  saveStatus: SaveStatus;
 
   listingType: ListingType;
-  rentType : RentType | null;
-  contactNumber : string | null;
-  publishedAt : string | null;
+  rentType: RentType | null;
+  contactNumber: string | null;
+  publishedAt: string | null;
+  
   // Listing content
   title: string;
   description: string;
   
   // Features and images
-  featureIds: number[];
-  images: string[];
+  featureIds: number[] | undefined;
+  images: string[] | undefined;
   primaryImageIndex?: number;
   
   // Car details
-  mileage: number;
+  mileage: number | null;
   fuelType: FuelType | null;
   transmission: Transmission | null;
-  engineSize: number;
-  enginePower: number;
+  engineSize: number | null;
+  enginePower: number | null;
   bodyType: BodyType | null;
-  doors: number;
+  doors: number | null;
   colorExterior: string | null;
   colorInterior: string | null;
   vin: string | null;
   plateNumber: string | null;
-  damages?: { damageZone: string; damageType: string; description: null | string; }[];
-
+  damages?: { damageZone: DamageZone; damageType: DamageType; description: string | null; }[];
 }
 
 export interface StepProps {

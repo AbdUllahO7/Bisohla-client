@@ -1,13 +1,10 @@
 'use client'
 import Box from '@/components/box/box';
-import React from 'react';
+import React, { useState } from 'react';
 import { Tabs, TabsList } from "@/components/ui/tabs";
 import { useLocale } from 'next-intl';
 
 // Import components
-
-
-// Import hooks and utilities
 import { getRequiredFieldsMessage, getErrorDialogTexts } from './utils';
 import { StepContent } from './Components/StepContent';
 import AddProductStepOne from '../StepOne/AddProductStepOne';
@@ -23,6 +20,9 @@ const Steps = () => {
   const direction = locale === 'ar' ? 'rtl' : 'ltr';
   const isArabic = direction === 'rtl';
   
+  // Add state for step four validation
+  const [stepFourIsValid, setStepFourIsValid] = useState(false);
+  
   // Use the step management hook
   const {
     steps,
@@ -36,7 +36,8 @@ const Steps = () => {
     handleBack,
     updateStepValidation,
     handleTryAgain,
-    setShowErrorDialog
+    setShowErrorDialog,
+    
   } = useStepManagement();
 
   // Get error dialog text based on locale
@@ -51,7 +52,7 @@ const Steps = () => {
       <Tabs value={currentStep} className="w-full flex flex-col justify-start items-start">
         <TabsList className="bg-transparent flex h-auto gap-4 md:gap-6 lg:gap-8 flex-wrap w-full xs:w-full justify-start items-center xs:justify-center" dir={direction}>
           {steps.map((step, index) => (
-            <StepTrigger totalSteps={steps.length} key={step} step={step} index={index} />
+            <StepTrigger totalSteps={steps.length} key={step} step={step} index={index} currentStep={currentStep} />
           ))}
         </TabsList>
 
@@ -100,12 +101,16 @@ const Steps = () => {
             handleNext={handleNext} 
             direction={direction} 
             step="adsInfo"
-            isNextDisabled={validationAttempted.adsInfo && !stepValidation.adsInfo || isSubmitting}
+            isNextDisabled={!stepFourIsValid || isSubmitting}
             requiredFieldsMessage={requiredFieldsMessage}
+            isLastStep={true}
           >
             <AddProductStepFour   
-                onValidationChange={(isValid) => updateStepValidation('adsInfo', isValid)}
-              />    
+              onValidationChange={(isValid) => {
+                setStepFourIsValid(isValid);
+                updateStepValidation('adsInfo', isValid);
+              }}
+            />    
           </StepContent>
         </div>
       </Tabs>

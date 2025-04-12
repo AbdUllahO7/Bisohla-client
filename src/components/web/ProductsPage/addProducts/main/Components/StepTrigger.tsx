@@ -6,9 +6,11 @@ interface StepTriggerProps {
     step: string;
     index: number;
     totalSteps: number;
+    currentStep: string;
+
 }
 
-export const StepTrigger: React.FC<StepTriggerProps> = ({ step, index, totalSteps }) => {
+export const StepTrigger: React.FC<StepTriggerProps> = ({ step, index, totalSteps , currentStep  }) => {
     const t = useTranslations("addProduct");
 
     return (
