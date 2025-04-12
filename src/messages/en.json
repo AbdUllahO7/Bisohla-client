@@ -997,7 +997,28 @@
           "documents": "Documents",
           "tenFiles": "You can enter up to 10 files"
         }
-      }
+      },
+      "stepFour" : {
+          "title" : "Ad Details",
+          "adTitle" : "Ad Title",
+          "adDescription" : "Ad Description",
+          "contactNumber" : "Contact Number",
+          "adType" : "Ad Type",
+          "publicationDate" : "Publish Date",
+          "rentType" : "Rent Type",
+          "dateValue" : {
+          "forSale" : "For Sale",
+          "forRent" : "For Rent",
+          "test" : "Test",
+          "test1" : "Test 1",
+          "RentType" : {
+          "daily" : "Daily",
+          "weekly" : "Weekly",
+          "monthly" : "Monthly",
+          "yearly" : "Yearly"
+        }
+        }
+    }
     }
   },
   "UserProfile" : {

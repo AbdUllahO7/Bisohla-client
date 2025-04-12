@@ -186,6 +186,8 @@ export enum DamageType {
 export enum ListingType {
   FOR_SALE = 'for_sale',
   FOR_RENT = 'for_rent',
+  test  = "test",
+  test1 = "test1"
 }
 
 // rent types
@@ -195,6 +197,10 @@ export enum RentType {
   MONTHLY = 'monthly',
   YEARLY = 'yearly',
 }
+export type SelectOption = {
+  value: string;
+  label: string;
+};
 
 /**
  * Represents zones/areas of a vehicle that can be damaged
@@ -263,15 +269,44 @@ export const getSaveStatusOptions = () => {
   }));
 };
 
-/**
- * Get save status options for select components
- */
-export const getRentTypeOptions = () => {
-  return Object.values(RentType).map((value) => ({
-    value,
-    label: value.charAt(0).toUpperCase() + value.slice(1).replace(/_/g, ' '),
-  }));
-};
+
+// Get listing type options with translation
+export function getListingTypeOptions(t: any): SelectOption[] {
+  return [
+      {
+          value: ListingType.FOR_SALE,
+          label: t("stepFour.dateValue.forSale", { defaultValue: "For Sale" })
+      },
+      {
+          value: ListingType.FOR_RENT,
+          label: t("stepFour.dateValue.forRent", { defaultValue: "For Rent" })
+      },
+   
+  ];
+}
+
+// Get rent type options with translation
+export function getRentTypeOptions(t: any): SelectOption[] {
+  return [
+      {
+          value: RentType.DAILY,
+          label: t("stepFour.dateValue.RentType.daily", { defaultValue: "Daily" })
+      },
+      {
+          value: RentType.WEEKLY,
+          label: t("stepFour.dateValue.RentType.weekly", { defaultValue: "Weekly" })
+      },
+      {
+          value: RentType.MONTHLY,
+          label: t("stepFour.dateValue.RentType.monthly", { defaultValue: "Monthly" })
+      },
+      {
+          value: RentType.YEARLY,
+          label: t("stepFour.dateValue.RentType.yearly", { defaultValue: "Yearly" })
+      },
+      // Add more options here when you extend the enum
+  ];
+}
 
 /**
  * Get damage type options for select components
@@ -283,15 +318,7 @@ export const getDamageTypeOptions = () => {
   }));
 };
 
-/**
- * Get listing type options for select components
- */
-export const getListingTypeOptions = () => {
-  return Object.values(ListingType).map((value) => ({
-    value,
-    label: value.charAt(0).toUpperCase() + value.slice(1).replace(/_/g, ' '),
-  }));
-};
+
 
 /**
  * Get damage zone options for select components

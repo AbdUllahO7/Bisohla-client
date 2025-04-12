@@ -1,118 +1,86 @@
-'use client'
-import { AdInfoState, STORAGE_KEY, defaultState } from './types';
+import { ListingType } from "@/core/entities/enums/cars.enums"
+import { AdInformationFormData } from "./schema"
+
+// Storage key for ad information
+export const AD_INFO_STORAGE_KEY = "addProduct_stepFour_data"
+
+// Default values for the form
+export const defaultAdInfoData: AdInformationFormData = {
+    title: "",
+    description: "",
+    contactNumber: "",
+    listingType: ListingType.FOR_SALE,
+    rentType: null,
+    publicationDate: new Date(),
+}
 
 /**
- * Loads saved form data from localStorage
- * @returns The saved AdInfoState or default state if none exists
+ * Loads saved ad information data from localStorage
  */
-export const loadFormData = (): AdInfoState => {
+export const loadAdInfoData = (): AdInformationFormData => {
     try {
-        if (typeof window === 'undefined') {
-            return getInitialState();
+        if (typeof window === "undefined") {
+            return defaultAdInfoData
         }
-        
-        const savedData = localStorage.getItem(STORAGE_KEY);
+
+        const savedData = localStorage.getItem(AD_INFO_STORAGE_KEY)
         if (savedData) {
-            const parsed = JSON.parse(savedData);
-            
-            // Ensure publication date is set to today if null
-            if (!parsed.publicationDate) {
-                parsed.publicationDate = new Date().toISOString().split('T')[0];
+            const parsedData = JSON.parse(savedData)
+
+            // Convert string date back to Date object
+            if (parsedData.publicationDate) {
+                parsedData.publicationDate = new Date(parsedData.publicationDate)
             }
-            
-            return parsed;
+
+            return parsedData
         }
-        
-        return getInitialState();
+
+        return defaultAdInfoData
     } catch (e) {
-        console.error("Failed to parse saved data:", e);
-        return getInitialState();
+        console.error("Failed to load saved ad information:", e)
+        return defaultAdInfoData
     }
-};
+}
 
 /**
- * Saves form data to localStorage
- * @param data - The current AdInfoState to save
+ * Saves ad information data to localStorage
  */
-export const saveFormData = (data: AdInfoState): void => {
+export const saveAdInfoData = (data: AdInformationFormData): void => {
     try {
-        if (typeof window !== 'undefined') {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        if (typeof window !== "undefined") {
+            localStorage.setItem(AD_INFO_STORAGE_KEY, JSON.stringify(data))
+            console.log("Ad information saved automatically:", data)
         }
     } catch (e) {
-        console.error("Failed to save data:", e);
+        console.error("Failed to save ad information:", e)
     }
-};
+}
 
 /**
- * Gets the initial state with today's date
- * @param initialData - Optional initial data to merge with defaults
- * @returns The initial AdInfoState
+ * Automatically saves form data as it changes
+ * @param data Current form data
+ * @param previousData Previous form data for comparison (optional)
  */
-export const getInitialState = (initialData?: Partial<AdInfoState>): AdInfoState => {
-    const today = new Date().toISOString().split('T')[0];
+export const autoSaveAdInfoData = (
+    data: Partial<AdInformationFormData>, 
+    previousData?: Partial<AdInformationFormData>
+): void => {
+    // Don't save if the data hasn't changed
+    if (previousData && 
+        JSON.stringify(data) === JSON.stringify(previousData)) {
+        return
+    }
     
-    if (initialData) {
-        return {
-            ...defaultState,
-            ...initialData,
-            publicationDate: initialData.publicationDate || today
-        };
-    }
-    
-    return {
-        ...defaultState,
-        publicationDate: today
-    };
-};
-
-/**
- * Resets form data in localStorage
- */
-export const resetStorageState = (): void => {
     try {
-        if (typeof window !== 'undefined') {
-            localStorage.removeItem(STORAGE_KEY);
-            console.log(`Storage key ${STORAGE_KEY} has been removed`);
+        if (typeof window !== "undefined") {
+            // Get existing data first so we don't overwrite fields not in the partial data
+            const existingData = loadAdInfoData()
+            // Merge the existing data with new changes
+            const mergedData = { ...existingData, ...data }
+            localStorage.setItem(AD_INFO_STORAGE_KEY, JSON.stringify(mergedData))
+            console.log("Ad information auto-saved:", mergedData)
         }
     } catch (e) {
-        console.error("Failed to reset storage state:", e);
+        console.error("Failed to auto-save ad information:", e)
     }
-};
-
-/**
- * Clear all form data from localStorage
- */
-export const clearAllFormData = (): void => {
-    try {
-        if (typeof window !== 'undefined') {
-            // Keys to clear - make sure this covers ALL possible keys
-            const keysToRemove = [
-                // 'addProduct_stepOne_selections',
-                // 'addProduct_stepTwo_data',
-                // 'addProduct_stepThree_data',
-                'addProduct_stepFour_data',
-            ];
-            
-            // Remove all keys
-            keysToRemove.forEach(key => {
-                try {
-                    localStorage.removeItem(key);
-                    console.log(`Removed ${key} from localStorage`);
-                } catch (err) {
-                    console.error(`Error removing ${key}:`, err);
-                }
-            });
-            
-            // Verify removal
-            keysToRemove.forEach(key => {
-                const check = localStorage.getItem(key);
-                if (check) {
-                    console.warn(`Warning: Failed to remove ${key} from localStorage, value:`, check);
-                }
-            });
-        }
-    } catch (e) {
-        console.error("Failed to clear all form data:", e);
-    }
-};
+}

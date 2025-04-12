@@ -2,9 +2,9 @@ import { ListingType, RentType } from "@/core/entities/enums/cars.enums";
 
 // Complete AdInfoState interface with all fields
 export interface AdInfoState {
-    adTitle: string;
+    title: string;
     adStatus: string; 
-    adDescription: string;
+    description: string;
     contactNumber: string;
     listingType: ListingType | '';
     rentType: RentType | '';
@@ -45,8 +45,8 @@ export const STORAGE_KEY = "addProduct_stepFour_data";
 
 
 export const defaultState: AdInfoState = {
-    adTitle: "",
-    adDescription: "",
+    title: "",
+    description: "",
     adStatus: "publish",
     contactNumber: "",
     listingType: "",

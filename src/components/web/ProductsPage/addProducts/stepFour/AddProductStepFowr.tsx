@@ -1,202 +1,325 @@
-'use client'
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useLocale } from 'next-intl';
-import Box from '@/components/box/box';
-import Text from '@/components/text/text';
-import { AddProductStepFourProps, AdInfoState } from './types';
-import { getInitialState, loadFormData, saveFormData } from './storageUtils';
-import { 
-    getContactErrorMessage, 
-    getDescriptionErrorMessage, 
-    getTitleErrorMessage, 
-    validateForm,
-    getPublicationDateErrorMessage 
-} from './validationUtils';
-import FormField from './FormField';
-import PublicationDate from './PublicationDate';
-import { ListingType, RentType } from '@/core/entities/enums/cars.enums';
-import ProductTypeSelect from './ProductTypeSelect';
+"use client"
 
-// Main component
-const AddProductStepFour: React.FC<AddProductStepFourProps> = ({ 
-    onValidationChange,
-    initialData 
-}) => {
-    const locale = useLocale();
-    const direction = locale === "ar" ? "rtl" : "ltr";
-    
-    // State
-    const [isClient, setIsClient] = useState(false);
-    const [adInfo, setAdInfo] = useState<AdInfoState>(() => getInitialState(initialData));
-    const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({
-        adTitle: !!adInfo.adTitle,
-        adDescription: !!adInfo.adDescription,
-        contactNumber: !!adInfo.contactNumber,
-        listingType: !!adInfo.listingType,
-        rentType: !!adInfo.rentType,
-        publicationDate: !!adInfo.publicationDate
-    });
-    
-    // Refs
-    const prevValidState = useRef<boolean | null>(null);
-    const formInitialized = useRef(false);
-    
-    // Scroll to top on mount
-    useEffect(() => {
-        window.scrollTo(0, 0);
-        setIsClient(true);
-    }, []);
+import { useState, useEffect, useRef } from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { format } from "date-fns"
+import { CalendarIcon } from "lucide-react"
+import { useTranslations } from "next-intl"
 
-    // Load data from localStorage on client-side
-    useEffect(() => {
-        if (isClient && !formInitialized.current) {
-            const savedData = loadFormData();
-            setAdInfo(savedData);
-            
-            // Consider all fields as touched if we load saved data
-            if (savedData.adTitle || savedData.adDescription || savedData.listingType || savedData.publicationDate) {
-                setTouchedFields({
-                    adTitle: true,
-                    adDescription: true,
-                    contactNumber: true,
-                    listingType: true,
-                    rentType: true,
-                    publicationDate: true
-                });
-            }
-            
-            // Force validation on initial load
-            setTimeout(() => {
-                const isValid = validateForm(savedData);
-                console.log("Initial validation result:", isValid, savedData);
-                if (isValid !== prevValidState.current) {
-                    prevValidState.current = isValid;
-                    onValidationChange(isValid);
-                }
-            }, 100);
-            
-            formInitialized.current = true;
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Calendar } from "@/components/ui/calendar"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { cn } from "@/lib/utils"
+
+import { ListingType, RentType, getListingTypeOptions, getRentTypeOptions } from "@/core/entities/enums/cars.enums"
+import type { AdInformationFormData } from "./schema"
+import type { AddProductStepFourProps, AdInfoState } from "./types"
+import {
+  adInformationSchema,
+  getContactErrorMessage,
+  getDescriptionErrorMessage,
+  getPublicationDateErrorMessage,
+  getTitleErrorMessage,
+  validateForm
+} from "./validationUtils"
+import {
+  autoSaveAdInfoData,
+  defaultAdInfoData,
+  loadAdInfoData,
+  saveAdInfoData
+} from "./storageUtils"
+import Text from "@/components/text/text"
+
+const AddProductStepFour: React.FC<AddProductStepFourProps> = ({ onValidationChange }) => {
+  const [showRentType, setShowRentType] = useState(false)
+  const [direction, setDirection] = useState<string>("ltr")
+  const previousFormData = useRef<AdInformationFormData | null>(null)
+  const prevValidState = useRef<boolean | null>(null) // ✅ FIXED
+
+  const t = useTranslations("addProduct.enteredData")
+
+  const listingTypeOptions = getListingTypeOptions(t)
+  const rentTypeOptions = getRentTypeOptions(t)
+
+  const form = useForm<AdInformationFormData>({
+    resolver: zodResolver(adInformationSchema),
+    defaultValues: defaultAdInfoData,
+    mode: "onTouched", // Validate on field blur
+  })
+
+  useEffect(() => {
+    const savedData = loadAdInfoData()
+    form.reset(savedData)
+    previousFormData.current = savedData
+
+    if (savedData.listingType === ListingType.FOR_RENT) {
+      setShowRentType(true)
+    }
+
+    const htmlDir = document.documentElement.dir || "ltr"
+    setDirection(htmlDir)
+  }, [form])
+
+  useEffect(() => {
+    const subscription = form.watch((formValues) => {
+      const currentData = formValues as AdInformationFormData
+
+      if (currentData.title && currentData.description) {
+        autoSaveAdInfoData(currentData, previousFormData.current || undefined)
+        previousFormData.current = { ...currentData }
+      }
+
+        const isValid = validateForm(currentData)
+        if (isValid !== prevValidState.current) {
+            prevValidState.current = isValid
+            onValidationChange(isValid)
+            console.log("Validation state changed to:", isValid)
         }
-    }, [isClient, onValidationChange]);
 
-    // Save to localStorage when form state changes
-    useEffect(() => {
-        if (isClient && formInitialized.current) {
-            saveFormData(adInfo);
-            
-            // Force a validation check when form data changes
-            const isValid = validateForm(adInfo);
-            if (isValid !== prevValidState.current) {
-                prevValidState.current = isValid;
-                onValidationChange(isValid);
-                console.log("Validation state changed to:", isValid);
-            }
+        if (currentData.listingType === ListingType.FOR_RENT) {
+            setShowRentType(true)
+        } else {
+            setShowRentType(false)
         }
-    }, [adInfo, isClient, onValidationChange]);
+    })
 
-    // Field change handlers
-    const handleTextChange = useCallback((field: keyof AdInfoState, value: string) => {
-        console.log(`Field ${field} changed to:`, value);
-        setTouchedFields((prev) => ({ ...prev, [field]: true }));
-        setAdInfo((prev) => ({ ...prev, [field]: value }));
-    }, []);
+    return () => subscription.unsubscribe()
+  }, [form , onValidationChange])
 
-    const handleDateChange = useCallback((date: string | null) => {
-        console.log("Date changed to:", date);
-        setTouchedFields((prev) => ({ ...prev, publicationDate: true }));
-        setAdInfo((prev) => ({ ...prev, publicationDate: date }));
-    }, []);
-    
-    const handleListingTypeChange = useCallback((value: ListingType | '') => {
-        console.log("Listing type changed to:", value);
-        setTouchedFields((prev) => ({ ...prev, listingType: true }));
-        setAdInfo((prev) => ({ ...prev, listingType: value }));
-    }, []);
-    
-    const handleRentTypeChange = useCallback((value: RentType | '') => {
-        console.log("Rent type changed to:", value);
-        setTouchedFields((prev) => ({ ...prev, rentType: true }));
-        setAdInfo((prev) => ({ ...prev, rentType: value }));
-    }, []);
+  const onSubmit = (data: AdInformationFormData) => {
+    console.log("Form submitted with data:", data)
 
-    // Debug function to manually trigger validation
-    const checkValidation = () => {
-        const isValid = validateForm(adInfo);
-        onValidationChange(isValid);
-        console.log("Manual validation check:", isValid);
-    };
+    const adInfoState: AdInfoState = {
+      title: data.title,
+      adStatus: "draft",
+      description: data.description,
+      contactNumber: data.contactNumber || "",
+      listingType: data.listingType,
+      rentType: data.rentType || "",
+      publicationDate: data.publicationDate ? data.publicationDate.toISOString() : null,
+    }
 
-    return (
-        <Box className="w-full bg-white rounded-lg pb-10" variant="column" dir={direction}>
-            {/* Header */}
-            <Box className="bg-gray-100 px-4 py-4 md:px-5 md:py-5 w-full flex justify-center">
-                <Text className="font-bold text-primary text-lg md:text-xl">
-                    {direction === "ltr" ? "Ad Information" : "معلومات الإعلان"}
-                </Text>
-            </Box>
+    const isValid = validateForm(adInfoState)
 
-            {/* Main Content */}
-            <Box variant="column" className='flex-col md:flex-row justify-center items-center w-full pt-6 md:pt-10 gap-6 md:gap-10 px-4 md:px-4'>
-                {/* Left Section - Form Fields */}
-                <Box className='w-full md:w-[700px] justify-start items-start gap-4 md:gap-8' variant="column">
-                    {/* Ad Title */}
-                    <FormField 
-                        label={direction === "ltr" ? 'Ad Title' : 'عنوان الإعلان'}
-                        id="adTitle"
-                        placeholder={direction === "ltr" ? 'Ad Title (min 3 characters)' : 'عنوان الإعلان (3 أحرف على الأقل)'}
-                        value={adInfo.adTitle}
-                        onChange={(value) => handleTextChange('adTitle', value)}
-                        onBlur={() => {}}
-                        errorMessage={touchedFields.adTitle ? getTitleErrorMessage(adInfo.adTitle, direction) : ''}
-                        required={true}
-                    />
+    if (isValid) {
+      saveAdInfoData(data)
+      console.log("Form submitted successfully")
+    } else {
+      console.error("Form validation failed")
+      setFormErrors(adInfoState)
+    }
+  }
 
-                    {/* Ad Description */}
-                    <FormField 
-                        label={direction === "ltr" ? 'Ad Description' : 'وصف الإعلان'}
-                        id="adDescription"
-                        placeholder={direction === "ltr" ? 'Ad Description (min 10 characters)' : 'وصف الإعلان (10 أحرف على الأقل)'}
-                        value={adInfo.adDescription}
-                        onChange={(value) => handleTextChange('adDescription', value)}
-                        onBlur={() => {}}
-                        errorMessage={touchedFields.adDescription ? getDescriptionErrorMessage(adInfo.adDescription, direction) : ''}
-                        required={true}
-                    />
-                    <FormField 
-                        label={direction === "ltr" ? 'Contact Number ' : 'رقم الاتصال'}
-                        id="contactNumber"
-                        placeholder={direction === "ltr" ? 'Contact Number' : 'رقم الاتصال'}
-                        value={adInfo.contactNumber}
-                        onChange={(value) => handleTextChange('contactNumber', value)}
-                        onBlur={() => {}}
-                        errorMessage={touchedFields.contactNumber ? getContactErrorMessage(adInfo.contactNumber, direction) : ''}
-                        required={true}
-                    />
-                </Box>
+  const setFormErrors = (adInfoState: AdInfoState) => {
+    const titleError = getTitleErrorMessage(adInfoState.title, direction)
+    if (titleError) form.setError("title", { message: titleError })
 
-                {/* Right Section - Product Type & Calendar */}
-                <Box variant="column" className='w-full md:w-auto border border-gray-100 p-4 md:p-5 gap-4 md:gap-8 rounded-lg items-start'>
-                    {/* Product Type Select */}
-                    <ProductTypeSelect 
-                        listingType={adInfo.listingType}
-                        rentType={adInfo.rentType}
-                        onListingTypeChange={handleListingTypeChange}
-                        onRentTypeChange={handleRentTypeChange}
-                        direction={direction}
-                    />
+    const descriptionError = getDescriptionErrorMessage(adInfoState.description, direction)
+    if (descriptionError) form.setError("description", { message: descriptionError })
 
-                    {/* Publication Date */}
-                    <PublicationDate 
-                        direction={direction}
-                        onDateChange={handleDateChange}
-                        showError={touchedFields.publicationDate && !adInfo.publicationDate}
-                        initialDate={adInfo.publicationDate} 
-                    />
-                </Box>
-            </Box>
-            
-        </Box>
-    );
-};
+    const contactError = getContactErrorMessage(adInfoState.contactNumber, direction)
+    if (contactError) form.setError("contactNumber", { message: contactError })
 
-export default AddProductStepFour;
+    const dateError = getPublicationDateErrorMessage(adInfoState.publicationDate, direction)
+    if (dateError) form.setError("publicationDate", { message: dateError })
+  }
+
+  return (
+    <div className="w-full space-y-6" dir={direction}>
+      <Card className="w-full bg-white mx-auto border-0 shadow-none">
+        <CardHeader className="bg-gray-100 py-4">
+          <Text className="text-xl font-bold text-primary text-center">
+            {t("stepFour.title", { defaultValue: "Ad Information" })}
+          </Text>
+        </CardHeader>
+        <CardContent className="pt-5">
+        <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Left Column */}
+                        <div className="space-y-6 md:col-span-1">
+                            {/* Title Field */}
+                            <FormField
+                            control={form.control}
+                            name="title"
+                            render={({ field }) => (
+                                <FormItem className="text-primary">
+                                <FormLabel className="text-primary">
+                                    {t("stepFour.adTitle")}
+                                    <span className="text-red-500">*</span>
+                                </FormLabel>
+                                <FormControl>
+                                    <Input placeholder={t("stepFour.adTitle")} {...field} />
+                                </FormControl>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                            />
+
+                            {/* Description Field */}
+                            <FormField
+                            control={form.control}
+                            name="description"
+                            render={({ field }) => (
+                                <FormItem className="text-primary">
+                                <FormLabel className="text-primary">
+                                    {t("stepFour.adDescription")}
+                                    <span className="text-red-500">*</span>
+                                </FormLabel>
+                                <FormControl>
+                                    <Textarea placeholder={t("stepFour.adDescription")} className="min-h-[100px]" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                            />
+
+                            {/* Contact Number Field */}
+                            <FormField
+                            control={form.control}
+                            name="contactNumber"
+                            render={({ field }) => (
+                                <FormItem className="text-primary">
+                                <FormLabel className="text-primary">
+                                    {t("stepFour.contactNumber")}
+                                    <span className="text-red-500">*</span>
+                                </FormLabel>
+                                <FormControl>
+                                    <Input type="tel" placeholder={t("stepFour.contactNumber")} {...field} />
+                                </FormControl>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                            />
+                        </div>
+
+                        {/* Right Column */}
+                        <div className="space-y-6 md:col-span-1">
+                            {/* Listing Type Field */}
+                            <FormField
+                            control={form.control}
+                            name="listingType"
+                            render={({ field }) => (
+                                <FormItem className="text-primary">
+                                <FormLabel className="text-primary">
+                                    {t("stepFour.adType")}
+                                    <span className="text-red-500">*</span>
+                                </FormLabel>
+                                <Select
+                                    onValueChange={(value) => {
+                                    field.onChange(value as ListingType)
+                                    // Reset rentType when switching away from FOR_RENT
+                                    if (value !== ListingType.FOR_RENT) {
+                                        form.setValue("rentType", null)
+                                    }
+                                    }}
+                                    defaultValue={field.value}
+                                    value={field.value}
+                                >
+                                    <FormControl>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder={t("stepFour.adType")} />
+                                    </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent className="bg-white ">
+                                    {listingTypeOptions.map((option) => (
+                                        <SelectItem className="text-primary  hover:bg-primary-light" key={option.value} value={option.value}>
+                                                {option.label}
+                                        </SelectItem>
+                                    ))}
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                            />
+
+                            {/* Conditional Rent Type Field */}
+                            {showRentType && (
+                            <FormField
+                                control={form.control}
+                                name="rentType"
+                                render={({ field }) => (
+                                <FormItem className="text-primary">
+                                    <FormLabel className="text-primary">
+                                    {t("stepFour.rentType")}
+                                        <span className="text-red-500">*</span>
+                                    </FormLabel>
+                                    <Select
+                                    onValueChange={(value) => field.onChange(value as RentType)}
+                                    defaultValue={field.value || undefined}
+                                    value={field.value || undefined}
+
+                                    >
+                                    <FormControl>
+                                        <SelectTrigger>
+                                        <SelectValue className="text-primary" placeholder={t("stepFour.rentType")} />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent className="bg-white">
+                                        {rentTypeOptions.map((option) => (
+                                        <SelectItem className="text-primary" key={option.value} value={option.value}>
+                                            {option.label}
+                                        </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                                )}
+                            />
+                            )}
+
+                            {/* Publication Date Field */}
+                                <FormField
+                                control={form.control}
+                                name="publicationDate"
+                                render={({ field }) => (
+                                    <FormItem className="flex flex-col">
+                                    <FormLabel className="text-primary">{t("stepFour.publicationDate")}</FormLabel>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                        <FormControl>
+                                            <Button
+                                            variant={"outline"}
+                                            className={cn(
+                                                "w-full pl-3 text-left font-normal text-primary",
+                                                !field.value && "text-muted-foreground",
+                                            )}
+                                            >
+                                            {field.value ? (
+                                                format(field.value, "MMMM do, yyyy")
+                                            ) : (
+                                                <span>{t("pickDate", { defaultValue: "Pick a date" })}</span>
+                                            )}
+                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                            </Button>
+                                        </FormControl>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-auto p-0" align="start">
+                                        <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus />
+                                        </PopoverContent>
+                                    </Popover>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+                        </div>
+
+                    
+                    </form>
+                    </Form>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+export default AddProductStepFour
