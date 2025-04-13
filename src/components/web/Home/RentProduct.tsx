@@ -8,6 +8,7 @@ import { RentProductCard } from '../design/RentProductCard';
 import CardAds from '../design/CardAds';
 import { useCarListings } from '@/core/infrastructure-adapters/use-actions/visitors/car.visitor.use-actions';
 import { Filter } from '@/core/entities/api/api';
+import ProductSkeleton from '../design/ProductSkeletonItem';
 
 const RentProduct = () => {
     const t = useTranslations('homePage');
@@ -76,11 +77,8 @@ const RentProduct = () => {
                 </Box>
                 
                 {/* Show loading state */}
-                {isLoading && (
-                    <Box className="w-full py-4" variant="center">
-                        <Text>Loading...</Text>
-                    </Box>
-                )}
+                {isLoading && <ProductSkeleton  showTitle={false} />}
+
                 
                 {/* Show error state */}
                 {error && (
@@ -116,7 +114,7 @@ const RentProduct = () => {
                                 />
                                 {index === 3 && (
                                     <Box variant="center" className="justify-center items-center">
-                                        <CardAds isRent={true} />
+                                        <CardAds isRent={false} />
                                     </Box>
                                 )}
                             </React.Fragment>

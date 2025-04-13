@@ -8,7 +8,7 @@ import CardAds from '../design/CardAds';
 import { ProductCardItem } from '../design/ProductCardItem';
 import { LatestOffersProps } from '@/types/homePageTypes';
 import { useCarListings } from '@/core/infrastructure-adapters/use-actions/visitors/car.visitor.use-actions';
-import { Filter } from '@/core/entities/api/api';
+import ProductSkeleton from '../design/ProductSkeletonItem';
 
 const LatestOffers: React.FC<LatestOffersProps> = ({ count, showTitle = true, container = true }) => {
     const t = useTranslations('homePage');
@@ -37,9 +37,7 @@ const LatestOffers: React.FC<LatestOffersProps> = ({ count, showTitle = true, co
         ]
     });
     
-    console.log("data structure:", data);
-    
-    // Extract car listings array safely and limit to 9 items
+    // Extract car listings array safely and limit to count items
     const carListings = React.useMemo(() => {
         let listings: Array<any> = [];
         // If data.data is an array, use it
@@ -50,9 +48,6 @@ const LatestOffers: React.FC<LatestOffersProps> = ({ count, showTitle = true, co
         else if (Array.isArray(data?.data?.data)) {
             listings = data.data.data;
         }
-        
-        console.log("Extracted listings:", listings);
-        console.log("First listing sample:", listings[0]);
         
         // Limit to count items if provided, otherwise 9
         const limit = count || 9;
@@ -75,12 +70,8 @@ const LatestOffers: React.FC<LatestOffersProps> = ({ count, showTitle = true, co
                     </Box>
                 )}
                 
-                {/* Show loading state */}
-                {isLoading && (
-                    <Box className="w-full py-4" variant="center">
-                        <Text>Loading...</Text>
-                    </Box>
-                )}
+                {/* Show loading skeleton */}
+                {isLoading && <ProductSkeleton count={count ||8} showTitle={false} />}
                 
                 {/* Show error state */}
                 {error && (
@@ -96,7 +87,7 @@ const LatestOffers: React.FC<LatestOffersProps> = ({ count, showTitle = true, co
                     </Box>
                 )}
                 
-                {/* Display Cards */}
+                {/* Display actual cards when data is loaded */}
                 {!isLoading && !error && carListings.length > 0 && (
                     <Box 
                         className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 ${showTitle ? "lg:grid-cols-5" : "lg:grid-cols-4"} gap-4 sm:w-[80%] xs:w-[80%] lg:w-full`} 

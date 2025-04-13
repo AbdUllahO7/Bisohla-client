@@ -346,7 +346,7 @@
   },
   "productsPage": {
     "header": {
-      "adCounter": "250 ad",
+      "adCounter": " ad",
       "orderBy": "Short by:",
       "selectPrice": "Select Price",
       "options": {
@@ -1042,5 +1042,111 @@
       "repeatPassword": "Repeat Password",
       "saveChanges": "Save Changes"
     }
-  }
+  },
+  "saleProduct": {
+      "hero": {
+        "title": "Cars For Sale",
+        "subtitle": "Find your perfect car from our extensive collection of quality vehicles"
+      },
+      "search": {
+        "placeholder": "Search by make, model, or keywords..."
+      },
+      "filters": {
+        "button": "Filters",
+        "title": "Filter Options",
+        "close": "Close",
+        "make": "Make",
+        "allMakes": "All Makes",
+        "priceRange": "Price Range",
+        "anyPrice": "Any Price",
+        "fuelType": "Fuel Type",
+        "allTypes": "All Types",
+        "reset": "Reset",
+        "apply": "Apply Filters"
+      },
+      "results": {
+        "title": "Cars For Sale",
+        "found": "vehicles found"
+      },
+      "sort": {
+        "label": "Sort by:",
+        "newest": "Newest First",
+        "oldest": "Oldest First",
+        "priceLow": "Price: Low to High",
+        "priceHigh": "Price: High to Low"
+      },
+      "error": {
+        "title": "Failed to load car listings",
+        "message": "There was a problem loading the car listings. Please try again later.",
+        "retry": "Try Again"
+      },
+      "empty": {
+        "title": "No cars found",
+        "message": "There are currently no car listings available. Please check back later.",
+        "searchMessage": "No cars match your search criteria. Try different keywords or clear your filters.",
+        "clearSearch": "Clear Search"
+      },
+      "pagination": {
+        "previous": "Previous",
+        "next": "Next",
+        "showing": "Showing",
+        "to": "to",
+        "of": "of",
+        "items": "items"
+      },
+      "price": "Price"
+    },
+    "rentProduct": {
+      "hero": {
+        "title": "Cars For Rent",
+        "subtitle": "Find your perfect car from our extensive collection of quality vehicles"
+      },
+      "search": {
+        "placeholder": "Search by make, model, or keywords..."
+      },
+      "filters": {
+        "button": "Filters",
+        "title": "Filter Options",
+        "close": "Close",
+        "make": "Make",
+        "allMakes": "All Makes",
+        "priceRange": "Price Range",
+        "anyPrice": "Any Price",
+        "fuelType": "Fuel Type",
+        "allTypes": "All Types",
+        "reset": "Reset",
+        "apply": "Apply Filters"
+      },
+      "results": {
+        "title": "Cars For Rent",
+        "found": "vehicles found"
+      },
+      "sort": {
+        "label": "Sort by:",
+        "newest": "Newest First",
+        "oldest": "Oldest First",
+        "priceLow": "Price: Low to High",
+        "priceHigh": "Price: High to Low"
+      },
+      "error": {
+        "title": "Failed to load car listings",
+        "message": "There was a problem loading the car listings. Please try again later.",
+        "retry": "Try Again"
+      },
+      "empty": {
+        "title": "No cars found",
+        "message": "There are currently no car listings available. Please check back later.",
+        "searchMessage": "No cars match your search criteria. Try different keywords or clear your filters.",
+        "clearSearch": "Clear Search"
+      },
+      "pagination": {
+        "previous": "Previous",
+        "next": "Next",
+        "showing": "Showing",
+        "to": "to",
+        "of": "of",
+        "items": "items"
+      },
+      "price": "Price"
+    }
 }
