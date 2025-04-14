@@ -73,7 +73,7 @@ export const createCarListing = async (
   createCarListingDto: CreateCarListingDto,
 ): Promise<ApiResponse<SelectCarListingDto>> => {
   const carListingController = getInjection('ICarUserController');
-    console.log("createCarListingDto" , createCarListingDto)
+  console.log('createCarListingDto', createCarListingDto);
   const res = await carListingController.addCarListing(createCarListingDto);
 
   return res;
@@ -96,6 +96,16 @@ export const deleteCarListing = async (
   const carListingController = getInjection('ICarUserController');
 
   const res = await carListingController.deleteCarListing(id);
+
+  return res;
+};
+
+export const getMyCarListings = async (
+  params: QueryParams,
+): Promise<PaginatedResponse<SelectCarListingDto>> => {
+  const carListingController = getInjection('ICarUserController');
+
+  const res = await carListingController.getMyCars(params);
 
   return res;
 };

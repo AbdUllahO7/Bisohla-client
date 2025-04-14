@@ -112,4 +112,15 @@ export class CarUserService implements ICarUserService {
 
     return res;
   }
+
+  async getMyCars(
+    params: QueryParams,
+  ): Promise<PaginatedResponse<SelectCarListingDto>> {
+    const res = await postAuthReq<QueryParams, UserFavoriteCarListing>({
+      url: '/car-listings-user/my-cars',
+      body: params,
+    });
+
+    return res;
+  }
 }

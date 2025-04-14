@@ -42,4 +42,7 @@ export interface ICarUserStrategy {
   checkIsCarListingFavorite(
     carListingId: number,
   ): Promise<ApiResponse<boolean>>;
+  getMyCars(
+    params: QueryParams,
+  ): Promise<PaginatedResponse<SelectCarListingDto>>;
 }
