@@ -21,6 +21,17 @@ import { catchClientRequest } from '@/core/lib/error';
 
 export class CarUserController implements ICarUserController {
   constructor(private readonly carUserUseCase: ICarUserUseCase) {}
+
+  async getMyCars(
+    params: QueryParams,
+  ): Promise<PaginatedResponse<SelectCarListingDto>> {
+    try {
+      return await this.carUserUseCase.getMyCars(params);
+    } catch (e) {
+      return catchClientRequest(e);
+    }
+  }
+
   async getCarFavorites(
     params: QueryParams,
   ): Promise<PaginatedResponse<UserFavoriteCarListing>> {

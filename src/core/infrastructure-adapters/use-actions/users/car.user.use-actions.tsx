@@ -19,6 +19,7 @@ import {
   createCarListing,
   deleteCarListing,
   getCarFavorites,
+  getMyCarListings,
   removeCarListingFromFavorites,
   toggleCarListingFavorite,
   updateCarListing,
@@ -126,3 +127,11 @@ export const useDeleteCarListing = () =>
       },
     },
   );
+
+export const useMyCarListings = (params: QueryParams) =>
+  useLocaleQuery<PaginatedResponse<SelectCarListingDto>>({
+    queryKey: ['visitors-car-listings', params],
+    queryFn: async () => await getMyCarListings(params),
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
