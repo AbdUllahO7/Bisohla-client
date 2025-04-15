@@ -20,6 +20,12 @@ import {
 
 export class CarUserUseCase implements ICarUserUseCase {
   constructor(protected readonly carUserStrategy: ICarUserService) {}
+  async getMyCars(
+    params: QueryParams,
+  ): Promise<PaginatedResponse<SelectCarListingDto>> {
+    return await this.carUserStrategy.getMyCars(params);
+  }
+
   async getCarFavorites(
     params: QueryParams,
   ): Promise<PaginatedResponse<UserFavoriteCarListing>> {
