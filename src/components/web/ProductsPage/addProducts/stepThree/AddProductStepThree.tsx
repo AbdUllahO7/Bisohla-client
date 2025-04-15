@@ -20,18 +20,13 @@ const AddProductStepThree: React.FC<AddProductStepThreeProps> = ({ onValidationC
     labels,
     options,
     carCondition,
-    isFormDisabled,
     setIsFormDisabled,
     coverImageRef,
     carImagesRef,
-    documentsRef,
-    additionalImagesRef,
     handleSectionStatusChange,
     isStatusSelected,
     handleCoverImageChange,
     handleCarImagesChange,
-    handleDocumentsChange,
-    handleAdditionalImagesChange
   } = useAddProductStepThree(onValidationChange);
 
   // Don't render full content during SSR to avoid hydration issues
@@ -80,25 +75,16 @@ const AddProductStepThree: React.FC<AddProductStepThreeProps> = ({ onValidationC
             labels={{
               coverImage: labels.coverImage,
               carImages: labels.carImages,
-              documents: labels.documents,
-              additionalImages: labels.additionalImages,
               oneImage: labels.oneImage,
               tenImages: labels.tenImages,
               tenFiles: labels.tenFiles
             }}
             coverImageRef={coverImageRef}
             carImagesRef={carImagesRef}
-            documentsRef={documentsRef}
-            additionalImagesRef={additionalImagesRef}
             coverImage={carCondition.coverImage}
             carImages={carCondition.carImages}
-            documents={carCondition.documents}
-            additionalImages={carCondition.additionalImages}
             onCoverImageChange={handleCoverImageChange}
             onCarImagesChange={handleCarImagesChange}
-            onDocumentsChange={handleDocumentsChange}
-            onAdditionalImagesChange={handleAdditionalImagesChange}
-            isFormDisabled={isFormDisabled}
             setIsFormDisabled={setIsFormDisabled}
           />
         </CardContent>

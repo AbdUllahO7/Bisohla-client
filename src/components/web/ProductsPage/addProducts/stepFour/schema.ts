@@ -1,4 +1,4 @@
-import { ListingType, RentType } from "@/core/entities/enums/cars.enums"
+import { ListingType, RentType, SaveStatus } from "@/core/entities/enums/cars.enums"
 import { z } from "zod"
 
 
@@ -12,6 +12,8 @@ export const adInformationSchema = z.object({
     listingType: z.nativeEnum(ListingType),
     rentType: z.nativeEnum(RentType).nullable().optional(),
     publicationDate: z.date(),
+    saveStatus: z.nativeEnum(SaveStatus).default(SaveStatus.DRAFT)
+
 })
 
 export type AdInformationFormData = z.infer<typeof adInformationSchema>

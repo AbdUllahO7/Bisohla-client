@@ -111,26 +111,11 @@ export const useSubmitForm = () => {
         });
       }
       
-      // Add additional images
-      if (storedData3.additionalImages && Array.isArray(storedData3.additionalImages)) {
-        storedData3.additionalImages.forEach((url: string) => {
-          if (url) {
-            imageUrls.push(url);
-          }
-        });
-      }
-      
-      // Add document images
-      if (storedData3.documents && Array.isArray(storedData3.documents)) {
-        storedData3.documents.forEach((url: string) => {
-          if (url) {
-            imageUrls.push(url);
-          }
-        });
-      }
+    
+     
       
       // Transform car damages from sectionStatus to the backend format with snake_case keys
-      const damages = transformDamages(storedData3.sectionStatus);
+      const damages = transformDamages(storedData3.sectionStatus || {});
       
       // Create the car listing submission with a FLATTENED structure
       const createCarListingDto: CreateCarListingDto = {
@@ -153,7 +138,7 @@ export const useSubmitForm = () => {
         // Listing metadata
         isFeatured: false,
         isSold: false,
-        saveStatus: SaveStatus.DRAFT,
+        saveStatus: storedData4.saveStatus,
         
         // Listing content from step 4
         title: storedData4.title,

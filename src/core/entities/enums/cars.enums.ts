@@ -164,7 +164,6 @@ export enum FeatureCategory {
  * Represents the save status of a car listing
  */
 export enum SaveStatus {
-  SOLD = 'sold',
   DRAFT = 'draft',
   PUBLISHED = 'published',
 }
@@ -262,12 +261,18 @@ export enum DamageZone {
 /**
  * Get save status options for select components
  */
-export const getSaveStatusOptions = () => {
-  return Object.values(SaveStatus).map((value) => ({
-    value,
-    label: value.charAt(0).toUpperCase() + value.slice(1).replace(/_/g, ' '),
-  }));
-};
+export function getSaveStatusOptions(t: any): SelectOption[] {
+  return [
+    {
+      value: SaveStatus.DRAFT,
+      label: t("stepFour.saveStatusOptions.draft", { defaultValue: "Draft" })
+    },
+    {
+      value: SaveStatus.PUBLISHED,
+      label: t("stepFour.saveStatusOptions.published", { defaultValue: "Published" })
+    }
+  ];
+}
 
 
 // Get listing type options with translation

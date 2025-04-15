@@ -792,77 +792,44 @@
       }
     },
     "stepThree": {
-        "carInfo": "حالة السيارة",
-        "carPhotos": "صور السيارة",
-        "carSectionName": "اسم قسم السيارة",
-        "conditionTypes": {
-          "noDefect": "لا يوجد عيب",
-          "justBoya": "فقط بويا",
-          "repairPaint": "تصليح وبويا",
-          "changePiece": "تغيير القطعة"
-        },
-        "damageType": {
-          "scratch": "خدش",
-          "dent": "انبعاج",
-          "paintFaded": "طلاء باهت",
-          "paintRepaired": "طلاء مصلح",
-          "panelReplaced": "لوحة مستبدلة"
-        },
-        "carSection": {
-          "frontBumper": "المصد الأمامي",
-          "hood": "غطاء المحرك",
-          "frontGrill": "الشبك الأمامي",
-          "leftHeadlight": "المصباح الأمامي الأيسر",
-          "rightHeadlight": "المصباح الأمامي الأيمن",
-          "roof": "السقف",
-          "trunk": "صندوق السيارة",
-          "rearBumper": "المصد الخلفي",
-          "leftTaillight": "المصباح الخلفي الأيسر",
-          "rightTaillight": "المصباح الخلفي الأيمن",
-          "leftFrontFender": "الرفرف الأمامي الأيسر",
-          "leftFrontDoor": "الباب الأمامي الأيسر",
-          "leftRearDoor": "الباب الخلفي الأيسر",
-          "leftRearFender": "الرفرف الخلفي الأيسر",
-          "leftMirror": "المرآة اليسرى",
-          "leftFrontPillar": "العمود الأمامي الأيسر",
-          "leftCenterPillar": "العمود الأوسط الأيسر",
-          "leftRearPillar": "العمود الخلفي الأيسر",
-          "rightFrontFender": "الرفرف الأمامي الأيمن",
-          "rightFrontDoor": "الباب الأمامي الأيمن",
-          "rightRearDoor": "الباب الخلفي الأيمن",
-          "rightRearFender": "الرفرف الخلفي الأيمن",
-          "rightMirror": "المرآة اليمنى",
-          "rightFrontPillar": "العمود الأمامي الأيمن",
-          "rightCenterPillar": "العمود الأوسط الأيمن",
-          "rightRearPillar": "العمود الخلفي الأيمن",
-          "frontWindshield": "الزجاج الأمامي",
-          "rearWindshield": "الزجاج الخلفي",
-          "leftFrontWindow": "النافذة الأمامية اليسرى",
-          "leftRearWindow": "النافذة الخلفية اليسرى",
-          "rightFrontWindow": "النافذة الأمامية اليمنى",
-          "rightRearWindow": "النافذة الخلفية اليمنى",
-          "leftFrontWheel": "العجلة الأمامية اليسرى",
-          "leftRearWheel": "العجلة الخلفية اليسرى",
-          "rightFrontWheel": "العجلة الأمامية اليمنى",
-          "rightRearWheel": "العجلة الخلفية اليمنى"
-        },
-        "damageZoneGroup": {
-          "front": "القسم الأمامي",
-          "roof": "قسم السقف",
-          "rear": "القسم الخلفي",
-          "leftSide": "الجانب الأيسر",
-          "rightSide": "الجانب الأيمن",
-          "glass": "الزجاج",
-          "wheels": "العجلات/الجنوط"
-        },
-        "images": {
-          "coverImage": "صورة الغلاف",
-          "oneImage": "يمكنك إدخال صورة واحدة",
-          "carImages": "صور السيارة",
-          "tenImages": "يمكنك إدخال حتى 10 صور",
-          "documents": "المستندات",
-          "tenFiles": "يمكنك إدخال حتى 10 ملفات"
-        }
+      "carInfo": "حالة السيارة",
+      "carPhotos": "صور السيارة",
+      "carSectionName": "اسم قسم السيارة",
+
+      "damageType": {
+        "paint": "طلاء",
+        "replacement": "استبدال",
+        "Scratch": "خدش"
+        
+      },
+      "carSection": {
+        "Hood": "غطاء المحرك",
+        "Roof": "السقف",
+        "Left Front Fender": "الرفرف الأمامي الأيسر",
+        "Right Front Fender": "الرفرف الأمامي الأيمن",
+        "Left Front Door": "الباب الأمامي الأيسر",
+        "Right Front Door": "الباب الأمامي الأيمن",
+        "Left Rear Door": "الباب الخلفي الأيسر",
+        "Right Rear Door": "الباب الخلفي الأيمن",
+        "Package": "الحزمة",
+        "Left Rear Fender": "الرفرف الخلفي الأيسر",
+        "Right Rear Fender": "الرفرف الخلفي الأيمن"
+      },
+      "damageZoneGroup": {
+        "front": "القسم الأمامي",
+        "roof": "قسم السقف",
+        "leftSide": "الجانب الأيسر",
+        "rightSide": "الجانب الأيمن",
+        "package": "الحزمة"
+      },
+      "images": {
+        "coverImage": "صورة الغلاف",
+        "oneImage": "يمكنك إدخال صورة واحدة",
+        "carImages": "صور السيارة",
+        "tenImages": "يمكنك إدخال حتى 10 صور",
+        "documents": "المستندات",
+        "tenFiles": "يمكنك إدخال حتى 10 ملفات"
+      }
     },
     "stepFour" : {
       "title" : "تفاصيل الإعلان",
@@ -871,7 +838,12 @@
       "contactNumber" : "رقم الاتصال",
       "adType" : "نوع الإعلان",
       "publicationDate" : "تاريخ النشر",
+      "saveStatus" : "حاله الاعلان ",
       "rentType" : "نوع الإيجار",
+      "saveStatusOptions" : {
+        "draft": "أرشيف",
+        "published" : "نشر"
+      },
       "dateValue" : {
         "forSale" : "للبيع",
         "forRent" : "للإيجار",
