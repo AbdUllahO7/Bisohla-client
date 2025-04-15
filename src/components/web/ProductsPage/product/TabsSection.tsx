@@ -8,18 +8,19 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import AccordionProductDetails from './Tabs/AccordionProductDetails';
 import AccordionProductSafety from './Tabs/AccordionProductSafety';
 import LatestOffers from '../../Home/LatestOffers';
+import CarDetailsContent from './Tabs/CarDetailsContent';
 
-const TabsSection = () => {
+const TabsSection = ( {data}) => {
     const t = useTranslations('product');
     // Hardcoded data (using translations for dynamic content)
-    const data = [
-        { question: t('accordionDetails.questions.question1.question'), answer: t('accordionDetails.questions.question1.answer') },
-        { question: t('accordionDetails.questions.question2.question'), answer: t('accordionDetails.questions.question2.answer') },
-    ];
+    // const data = [
+    //     { question: t('accordionDetails.questions.question1.question'), answer: t('accordionDetails.questions.question1.answer') },
+    //     { question: t('accordionDetails.questions.question2.question'), answer: t('accordionDetails.questions.question2.answer') },
+    // ];
 
     return (
         <Box variant='column' className='justify-start items-start w-full'>
-        <Tabs defaultValue="account" className="flex-wrap">
+        <Tabs defaultValue="account" className="flex-wrap mb-10">
             <TabsList className='bg-transparent gap-8 flex-wrap lg:min-h-[100%] md:min-h-[200px] xs:min-h-[400px]'>
                 <TabsTrigger 
                     className="bg-white hover:bg-primary group duration-500 font-bold px-10 py-5 min-w-[225px] flex gap-4 items-center transition-colors text-primary-light data-[state=active]:bg-primary-light data-[state=active]:text-white"
@@ -63,23 +64,47 @@ const TabsSection = () => {
             <TabsContent value="productInfo"></TabsContent>
             <TabsContent value="location"></TabsContent>
             <TabsContent value="adsInfo" className=''>
-                {/* <AdsDetailsTab /> */}
             </TabsContent>
         </Tabs>
 
-            
-            {/* text accordion */}
-            <AccordionDetails data={data}/>
+                <Accordion  type="single" collapsible className='shadow-xl bg-white p-2 rounded-lg w-full '>
+                <AccordionItem value="item-1" className='border-none'>
+                    <AccordionTrigger className='hover:no-underline font-cairo font-bold text-primary'>
+                    <span className='border-b-2  pb-1 border-primary-light'>
+                            {t('accordionDetails.questions.question2.question')}
+                        </span> 
+                    </AccordionTrigger>
+                    <AccordionContent className='font-cairo text-[400] text-secondary-text'>
+                        {/* Display the car details here */}
+                        {data?.data && <CarDetailsContent data={data.data} />}
+                    </AccordionContent>
+                </AccordionItem>
+                </Accordion>
+
+
+                <Accordion  type="single" collapsible className='shadow-xl bg-white p-2 rounded-lg w-full '>
+                <AccordionItem value="item-1" className='border-none'>
+                    <AccordionTrigger className='hover:no-underline font-cairo font-bold text-primary'>
+                    <span className='border-b-2  pb-1 border-primary-light'>
+                            {t('accordionDetails.questions.question1.question')}
+                        </span> 
+                    </AccordionTrigger>
+                    <AccordionContent className='font-cairo text-[400] text-secondary-text'>
+                            
+                    </AccordionContent>
+                </AccordionItem>
+                </Accordion>
 
             {/* Product Details Accordion */}
-            <Accordion type="single" collapsible className='shadow-xl bg-white p-2 rounded-lg w-full ' value="item-1">
-                <AccordionItem value="item-1" className='border-none'>
+            <Accordion type="single" collapsible className='shadow-xl bg-white p-2 rounded-lg w-full ' value="item-3">
+                <AccordionItem value="item-3" className='border-none'>
                     <AccordionTrigger className='hover:no-underline font-cairo font-bold text-primary'>
                         <span className='border-b-2  pb-1 border-primary-light'>
                             {t('tabs.productInfo')}
                         </span>
                     </AccordionTrigger>
                     <AccordionContent className='font-cairo text-[400] text-secondary-text'>
+                        {/*  */}
                         <AccordionProductDetails />
                     </AccordionContent>
                 </AccordionItem>

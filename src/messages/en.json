@@ -426,7 +426,7 @@
       "model" : "Model",
       "controlType" : "Control Type",
       "distance" : "Distance",
-      "passengers" : "Passengers",
+      "modelYear" : "Model Year",
       "adsNumber" : "Ads Number",
       "dateOfAds" : "Date Of Ads",
       "gaz" : "Gaz"
@@ -440,7 +440,6 @@
 
     },
     "accordionDetails" : {
-
       "questions" : {
           "question1" : {
             "question" : "Ads Details",
@@ -509,7 +508,19 @@
       "nine": "Audio System with Bluetooth",
       "ten": "Electric Windows"
       }
-      }
+      },
+    "CarDetailsContent" : {
+      "title": "Title",
+      "description": "Description",
+      "contactNumber": "Contact Number",
+      "price": "Price",
+      "currency": "Currency",
+      "make": "Make",
+      "model": "Model",
+      "trim": "Trim",
+      "fullDescription": "Full Description"
+      
+    }
   },
   "adminPage": {
     "general": {

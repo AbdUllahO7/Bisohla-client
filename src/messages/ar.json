@@ -505,6 +505,17 @@
         "ten": "نوافذ كهربائية"
       }
 
+    },
+    "CarDetailsContent" : {
+      "title": "العنوان",
+      "description": "الوصف",
+      "contactNumber": "رقم الاتصال",
+      "price": "السعر",
+      "currency": "العملة",
+      "make": "الماركة",
+      "model": "الموديل",
+      "trim": "القص",
+      "fullDescription": "الوصف الكامل"
     }
   },
   "addProduct" : {
