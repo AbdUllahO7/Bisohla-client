@@ -19,10 +19,10 @@ const HeaderTow: React.FC<HeaderTowProps> = ({ translations }) => {
                             <Link href="/" className="hover:bg-primary-light transition-all px-3 py-2 rounded">
                                 {translations.home}
                             </Link>
-                            <Link href="/products" className="hover:bg-primary-light transition-all px-3 py-2 rounded">
+                            <Link href="/rentProducts" className="hover:bg-primary-light transition-all px-3 py-2 rounded">
                                 {translations.rent}
                             </Link>
-                            <Link href="/products" className="hover:bg-primary-light transition-all px-3 py-2 rounded">
+                            <Link href="/saleProducts" className="hover:bg-primary-light transition-all px-3 py-2 rounded">
                                 {translations.sale}
                             </Link>
                             <Link href="#" className="hover:bg-primary-light transition-all px-3 py-2 rounded">

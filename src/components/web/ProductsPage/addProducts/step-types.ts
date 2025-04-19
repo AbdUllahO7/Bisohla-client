@@ -59,7 +59,7 @@ export interface StepThreeData {
   governorate: SyriaGovernorate
   city: SyriaCity
   address: string
-  sectionStatus: SectionStatus
+  sectionStatus?: SectionStatus
 }
 
 export interface StepFourData {

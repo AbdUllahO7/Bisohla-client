@@ -54,9 +54,7 @@ export interface StepTwoData {
 export interface StepThreeData {
   coverImage: string[];
   carImages: CarImage;
-  additionalImages: string[];
-  documents: string[];
-  sectionStatus: Record<string, string>; // Changed from array to Record<string, string>
+  sectionStatus?: Record<string, string>; // Changed from array to Record<string, string>
 }
 
 export interface StepFourData {
@@ -66,6 +64,7 @@ export interface StepFourData {
   rentType : RentType | null;
   contactNumber : string | null;
   publicationDate : string | null;
+  saveStatus : SaveStatus;
 }
 
 // // Update CarListingDTO to use Currency enum type

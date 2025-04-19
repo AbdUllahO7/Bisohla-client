@@ -1,4 +1,4 @@
-import { ListingType } from "@/core/entities/enums/cars.enums"
+import { ListingType, SaveStatus } from "@/core/entities/enums/cars.enums"
 import { AdInformationFormData } from "./schema"
 
 // Storage key for ad information
@@ -12,6 +12,7 @@ export const defaultAdInfoData: AdInformationFormData = {
     listingType: ListingType.FOR_SALE,
     rentType: null,
     publicationDate: new Date(),
+    saveStatus: SaveStatus.DRAFT // Default to draft
 }
 
 /**
@@ -30,6 +31,11 @@ export const loadAdInfoData = (): AdInformationFormData => {
             // Convert string date back to Date object
             if (parsedData.publicationDate) {
                 parsedData.publicationDate = new Date(parsedData.publicationDate)
+            }
+
+            // Set default saveStatus if not present in saved data
+            if (!parsedData.saveStatus) {
+                parsedData.saveStatus = SaveStatus.DRAFT
             }
 
             return parsedData

@@ -4,7 +4,6 @@ import { useLocale, useTranslations } from "next-intl";
 import { ImageUploaderRef } from "@/components/image-uploader/image-uploader";
 import { 
   CarConditionType, 
-  CarSection,
   getCarSectionOptions,
   getCarConditionOptions,
   getGroupedCarSectionOptions
@@ -41,8 +40,6 @@ export const useAddProductStepThree = (onValidationChange: (isValid: boolean) =>
       carSectionName: t('carSectionName'),
       coverImage: t('images.coverImage'),
       carImages: t('images.carImages'),
-      documents: t('images.documents'),
-      additionalImages: "Additional Images", // Add this to translation file if needed
       oneImage: t('images.oneImage'),
       tenImages: t('images.tenImages'),
       tenFiles: t('images.tenFiles'),
@@ -57,11 +54,9 @@ export const useAddProductStepThree = (onValidationChange: (isValid: boolean) =>
     
     // Define color classes for each condition type
     const colorClasses: Record<string, string> = {
-      [CarConditionType.SCRATCH]: 'bg-yellow-500',
-      [CarConditionType.DENT]: 'bg-primary-light',
-      [CarConditionType.PAINT_FADED]: 'bg-secondary-purple',
-      [CarConditionType.PAINT_REPAIRED]: 'bg-secondary-indigo',
-      [CarConditionType.PANEL_REPLACED]: 'bg-secondary-pink'
+      [CarConditionType.PAINT]: 'bg-primary-light',
+      [CarConditionType.REPLACEMENT]: 'bg-secondary-purple',
+      [CarConditionType.SCRATCH]: 'bg-secondary-indigo',
     };
     
     // Add color classes to condition types
@@ -139,7 +134,7 @@ export const useAddProductStepThree = (onValidationChange: (isValid: boolean) =>
 
   // Check if a status is selected
   const isStatusSelected = useCallback((sectionId: string, status: string) => {
-    return carCondition.sectionStatus[sectionId] === status;
+    return carCondition.sectionStatus?.[sectionId] === status;
   }, [carCondition.sectionStatus]);
 
   // Image handlers

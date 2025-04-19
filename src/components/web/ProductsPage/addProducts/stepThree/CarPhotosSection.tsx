@@ -11,17 +11,10 @@ const CarPhotosSection: React.FC<CarPhotosSectionProps> = ({
   labels,
   coverImageRef,
   carImagesRef,
-  documentsRef,
-  additionalImagesRef,
   coverImage,
   carImages,
-  documents,
-  additionalImages,
   onCoverImageChange,
   onCarImagesChange,
-  onDocumentsChange,
-  onAdditionalImagesChange,
-  isFormDisabled,
   setIsFormDisabled
 }) => {
   return (
@@ -64,44 +57,8 @@ const CarPhotosSection: React.FC<CarPhotosSectionProps> = ({
         />
       </div>
 
-      {/* Documents */}
-      <div>
-        <Text className="text-lg font-semibold mb-2 text-primary">
-          {labels.documents}
-        </Text>
-        <Text className="text-sm text-gray-500 mb-3">
-          {labels.tenFiles}
-        </Text>
-        <ImageUploader
-          ref={documentsRef}
-          maxImages={10}
-          onChange={onDocumentsChange}
-          setDisableForm={setIsFormDisabled}
-          value={documents}
-          acceptedFileTypes={['image/jpeg', 'image/png', 'image/webp', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']}
-          dropzoneClassName="min-h-[200px]"
-          name="documents"
-        />
-      </div>
 
-      {/* Additional Images */}
-      <div>
-        <Text className="text-lg font-semibold mb-2 text-primary">
-          {labels.additionalImages}
-        </Text>
-        <Text className="text-sm text-gray-500 mb-3">
-          {labels.tenImages}
-        </Text>
-        <ImageUploader
-          ref={additionalImagesRef}
-          maxImages={10}
-          onChange={onAdditionalImagesChange}
-          setDisableForm={setIsFormDisabled}
-          value={additionalImages}
-          dropzoneClassName="min-h-[200px]"
-          name="additionalImages"
-        />
-      </div>
+      
     </div>
   );
 };

@@ -1,6 +1,5 @@
-import { ListingType, RentType } from "@/core/entities/enums/cars.enums"
+import { ListingType, RentType, SaveStatus } from "@/core/entities/enums/cars.enums"
 import type { AdInfoState } from "./types"
-import { z } from "zod"
 
 /**
  * Validates the title field and returns an error message if invalid
@@ -57,11 +56,19 @@ export const getPublicationDateErrorMessage = (date: string | null, direction: s
 }
 
 /**
+ * Validates the save status field and returns an error message if invalid
+ */
+export const getSaveStatusErrorMessage = (status: string, direction: string): string => {
+  if (!status) {
+    return direction === "ltr" ? "Save status is required" : "حالة الحفظ مطلوبة"
+  }
+  return ""
+}
+
+/**
  * Validates the entire form and returns a boolean indicating if the form is valid
  */
 export const validateForm = (formData: AdInfoState): boolean => {
-  // Log the entire form data to debug
-
   // Basic validation checks
   const isTitleValid = formData.title.trim().length >= 3
   const isDescriptionValid = formData.description.trim().length >= 10
@@ -81,8 +88,9 @@ export const validateForm = (formData: AdInfoState): boolean => {
 
   // Publication date validation
   const isPublicationDateValid = !!formData.publicationDate
-
-
+  
+  // Save status validation
+  const isSaveStatusValid = !!formData.saveStatus
 
   // Combined validation result
   const isValid =
@@ -91,18 +99,8 @@ export const validateForm = (formData: AdInfoState): boolean => {
     isContactValid &&
     isListingTypeValid &&
     isRentTypeValid &&
-    isPublicationDateValid
-
+    isPublicationDateValid &&
+    isSaveStatusValid
 
   return isValid
 }
-
-
-export const adInformationSchema = z.object({
-    title: z.string().min(3, "Title must be at least 3 characters"),
-    description: z.string().min(10, "Description must be at least 10 characters"),
-    contactNumber: z.string().min(10).max(20).nullable().optional(),
-    listingType: z.nativeEnum(ListingType),
-    rentType: z.nativeEnum(RentType).nullable().optional(),
-    publicationDate: z.date(),
-})

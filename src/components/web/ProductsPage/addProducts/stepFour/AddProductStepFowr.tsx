@@ -17,15 +17,15 @@ import { Calendar } from "@/components/ui/calendar"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 
-import { ListingType, RentType, getListingTypeOptions, getRentTypeOptions } from "@/core/entities/enums/cars.enums"
-import type { AdInformationFormData } from "./schema"
+import { ListingType, RentType, SaveStatus, getListingTypeOptions, getRentTypeOptions, getSaveStatusOptions } from "@/core/entities/enums/cars.enums"
+import { adInformationSchema, type AdInformationFormData } from "./schema"
 import type { AddProductStepFourProps, AdInfoState } from "./types"
 import {
-  adInformationSchema,
   getContactErrorMessage,
   getDescriptionErrorMessage,
   getPublicationDateErrorMessage,
   getTitleErrorMessage,
+  getSaveStatusErrorMessage,
   validateForm
 } from "./validationUtils"
 import {
@@ -46,6 +46,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({ onValidationCha
 
   const listingTypeOptions = getListingTypeOptions(t)
   const rentTypeOptions = getRentTypeOptions(t)
+  const saveStatusOptions = getSaveStatusOptions(t) 
 
   const form = useForm<AdInformationFormData>({
     resolver: zodResolver(adInformationSchema),
@@ -60,7 +61,8 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({ onValidationCha
       data.title && 
       data.description && 
       data.contactNumber && 
-      data.listingType
+      data.listingType &&
+      data.saveStatus
     );
     
     // Additional validation for rent type
@@ -137,6 +139,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({ onValidationCha
       listingType: data.listingType,
       rentType: data.rentType || "",
       publicationDate: data.publicationDate ? data.publicationDate.toISOString() : null,
+      saveStatus: data.saveStatus
     }
 
     const isValid = validateForm(adInfoState)
@@ -160,6 +163,9 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({ onValidationCha
 
     const dateError = getPublicationDateErrorMessage(adInfoState.publicationDate, direction)
     if (dateError) form.setError("publicationDate", { message: dateError })
+    
+    const saveStatusError = getSaveStatusErrorMessage(adInfoState.saveStatus || "", direction)
+    if (saveStatusError) form.setError("saveStatus", { message: saveStatusError })
   }
 
   return (
@@ -308,39 +314,72 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({ onValidationCha
                             />
                             )}
 
+                            {/* Save Status Field */}
+                            <FormField
+                            control={form.control}
+                            name="saveStatus"
+                            render={({ field }) => (
+                                <FormItem className="text-primary">
+                                <FormLabel className="text-primary">
+                                    {t("stepFour.saveStatus")}
+                                    <span className="text-red-500">*</span>
+                                </FormLabel>
+                                <Select
+                                    onValueChange={(value) => field.onChange(value as SaveStatus)}
+                                    defaultValue={field.value}
+                                    value={field.value}
+                                >
+                                    <FormControl>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder={t("stepFour.saveStatus")} />
+                                    </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent className="bg-white">
+                                    {saveStatusOptions.map((option) => (
+                                        <SelectItem className="text-primary hover:bg-primary-light" key={option.value} value={option.value}>
+                                            {option.label}
+                                        </SelectItem>
+                                    ))}
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                            />
+
                             {/* Publication Date Field */}
-                                <FormField
-                                control={form.control}
-                                name="publicationDate"
-                                render={({ field }) => (
-                                    <FormItem className="flex flex-col">
-                                    <FormLabel className="text-primary">{t("stepFour.publicationDate")}</FormLabel>
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                        <FormControl>
-                                            <Button
-                                            variant={"outline"}
-                                            className={cn(
-                                                "w-full pl-3 text-left font-normal text-primary",
-                                                !field.value && "text-muted-foreground",
-                                            )}
-                                            >
-                                            {field.value ? (
-                                                format(field.value, "MMMM do, yyyy")
-                                            ) : (
-                                                <span>{t("pickDate", { defaultValue: "Pick a date" })}</span>
-                                            )}
-                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                            </Button>
-                                        </FormControl>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-auto p-0" align="start">
-                                        <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus />
-                                        </PopoverContent>
-                                    </Popover>
-                                    <FormMessage />
-                                    </FormItem>
-                                )}
+                            <FormField
+                            control={form.control}
+                            name="publicationDate"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-col">
+                                <FormLabel className="text-primary">{t("stepFour.publicationDate")}</FormLabel>
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                    <FormControl>
+                                        <Button
+                                        variant={"outline"}
+                                        className={cn(
+                                            "w-full pl-3 text-left font-normal text-primary",
+                                            !field.value && "text-muted-foreground",
+                                        )}
+                                        >
+                                        {field.value ? (
+                                            format(field.value, "MMMM do, yyyy")
+                                        ) : (
+                                            <span>{t("pickDate", { defaultValue: "Pick a date" })}</span>
+                                        )}
+                                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                        </Button>
+                                    </FormControl>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0" align="start">
+                                    <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus />
+                                    </PopoverContent>
+                                </Popover>
+                                <FormMessage />
+                                </FormItem>
+                            )}
                             />
                         </div>
                         </div>

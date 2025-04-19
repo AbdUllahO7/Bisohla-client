@@ -1,6 +1,9 @@
+
+'use client';
 import Box from '@/components/box/box'
 import SelectDropdown from '@/components/SelectDropdown';
 import Text from '@/components/text/text';
+import { useCarListings } from '@/core/infrastructure-adapters/use-actions/visitors/car.visitor.use-actions';
 import { Grid2X2, StretchHorizontal } from 'lucide-react';
 import { useTranslations } from 'next-intl'
 import Link from 'next/link';
@@ -19,22 +22,28 @@ const Header = () => {
         },
     ];
 
+
+    const { data, isLoading, error } = useCarListings({});
+
+    console.log(data)
+    
+
     return (
         <Box variant="center" className='w-full shadow-xl pt-3 pb-3  bg-white'>
             <Box variant="container">
                     <Box variant="rowBetween" className='justify-between items-center'>
                         <Box className='justify-center items-center ' variant="center">
-                            <Text variant="mid" className='pr-2 pl-2'> {t('header.adCounter')}</Text>
+                            <Text variant="mid" className='pr-2 pl-2 font-bold text-primary text-xl'> { data?.data?.totalItems } {t('header.adCounter')}</Text>
                         </Box>
 
                         <Box className='justify-center items-center' variant="row">
                                 <Text className='w-fit'>{t('header.orderBy')}</Text>
                                 <Box className="">
                                     <SelectDropdown
-                                    options={priceRanges}
-                                    placeholder={t('header.selectPrice')}
-                                    SelectTriggerStyle=" shadow-none p-0"
-                                    className=' w-[150px] xs:w-[120px]'
+                                        options={priceRanges}
+                                        placeholder={t('header.selectPrice')}
+                                        SelectTriggerStyle=" shadow-none p-0"
+                                        className=' w-[150px] xs:w-[120px]'
                                     />
                                     <Box className='p-2' >
                                         <Link href="#" className='bg-primary-light p-2 rounded-lg'>

@@ -1,4 +1,4 @@
-import { ListingType, RentType } from "@/core/entities/enums/cars.enums";
+import { ListingType, RentType, SaveStatus } from "@/core/entities/enums/cars.enums";
 
 // Complete AdInfoState interface with all fields
 export interface AdInfoState {
@@ -9,6 +9,8 @@ export interface AdInfoState {
     listingType: ListingType | '';
     rentType: RentType | '';
     publicationDate: string | null;
+    saveStatus?: SaveStatus; // Added saveStatus
+
 }
 
 export interface AddProductStepFourProps {
