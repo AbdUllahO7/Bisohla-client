@@ -1,265 +1,735 @@
-'use client'
-import Box from '@/components/box/box';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Search } from 'lucide-react';
-import React, { useState } from 'react';
+"use client"
+import { useState, useEffect, useRef } from "react"
+import { Search, ChevronDown, Sliders } from "lucide-react"
+import { useLocale, useTranslations } from "next-intl"
+import { useRouter, useSearchParams } from "next/navigation"
+
+// UI Components
+import Box from "@/components/box/box"
+import Text from "@/components/text/text"
+import Image from "next/image"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Button } from "@/components/ui/button"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Checkbox } from "@/components/ui/checkbox"
+import SelectDropdown from "@/components/SelectDropdown"
 import {
-    Accordion,
-    AccordionContent,
-    AccordionItem,
-    AccordionTrigger,
-} from '@/components/ui/accordion';
-import SelectDropdown from '@/components/SelectDropdown';
-import { Checkbox } from '@/components/ui/checkbox';
-import Image from 'next/image';
-import Text from '@/components/text/text';
-import { useTranslations } from 'next-intl';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Button } from '@/components/ui/button';
-import { getCarMarkaItems, getCarModelsOptions, getCitiesOptions, getControlType, getFuelType, getPriceRanges, getStatesOptions } from '@/constants/filterData';
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 
-type FilterOptionDropdownProps = {
-    title?: string;
-    options: { value: string; label: string }[];
-    placeholder: string;
-};
+// Hooks and Data
+import { useProductStepOne } from "./addProducts/StepOne/hooks"
+import { useAddProductStepTwo } from "./addProducts/stepTow/hooks"
+import { getPriceRanges } from "@/constants/filterData"
 
-type FilterCheckboxItemProps = {
-    id: string;
-    imageSrc?: string;
-    label: string;
-};
+// Types for filtering
+import { Filter, FilterGroup, QueryParams } from "@/core/entities/api/api"
 
-const FilterOptionDropdown: React.FC<FilterOptionDropdownProps> = ({ title, options, placeholder }) => (
-    <Box className="mb-4 w-full">
-        <Label className="font-bold mb-2">{title}</Label>
-        <SelectDropdown
-            options={options}
-            placeholder={placeholder}
-            SelectTriggerStyle="border-0 outline-none shadow-none p-0"
-            className="w-full"
-        />
-    </Box>
-);
+// Define simple interface for filter state
+interface FilterState {
+  governorate?: string;
+  city?: string;
+  marka?: string;
+  model?: string;
+  trim?: string;
+  year?: string;
+  transmission?: string;
+  fuelType?: string;
+  bodyType?: string;
+  [key: string]: string | undefined;
+}
 
-const FilterCheckboxItem: React.FC<FilterCheckboxItemProps> = ({ id, imageSrc, label }) => (
-    <AccordionContent className="flex items-center pr-4 pl-4">
-        <Checkbox id={id} />
-        <Label
-            htmlFor={id}
-            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 pl-2 pr-2 flex"
-        >
-            {/* Render Image conditionally */}
-            {imageSrc && (
-            <Image 
-                src={imageSrc} 
-                alt={label} 
-                width={20} 
-                height={20} 
-                className="block" 
-            />
-            )}
-            <Text variant="mid" className="pl-2 pr-2">
-            {label}
-            </Text>
-        </Label>
-    </AccordionContent>
-);
+// Types for components
+interface FilterOptionDropdownProps {
+  title?: string;
+  options: { value: string; label: string }[];
+  placeholder: string;
+  onChange?: (name: string, value: string) => void;
+  name?: string;
+  value?: string;
+}
 
+interface FilterCheckboxItemProps {
+  id: string;
+  imageSrc?: string;
+  label: string;
+  checked?: boolean;
+  onChange?: () => void;
+}
 
-const Filter: React.FC = () => {
-    const t = useTranslations('productsPage')
-    // State management for filters
-    const [searchText, setSearchText] = useState('');
+// Props interface for the Filter component
+interface FilterProps {
+  onChange?: (params: QueryParams) => void;
+}
 
-
-    const citiesOptions = getCitiesOptions(t);
-    const ControlType = getControlType(t);
-    const statesOptions = getStatesOptions(t);
-    const carMarkaItems = getCarMarkaItems(t);
-    const priceRanges = getPriceRanges; 
-    const CarModelsOptions = getCarModelsOptions;
-    const FuelType = getFuelType(t);
-
-
-return (
-    <Box variant="column" className="w-full">
-        <Box variant="column" className="w-full p-4 bg-white rounded-lg">
-           {/* Search */}
-            <Box variant="column" className="justify-start items-start w-full">
-                    <Label className="text-xl font-bold" htmlFor="search">
-                        {t('filter.title')}
-                    </Label>
-                    <Box className="bg-background w-full rounded-2xl pr-2 pl-2 flex items-center">
-                        <Input
-                            type="text"
-                            id="search"
-                            placeholder={t('filter.searchInput')}
-                            value={searchText}
-                            onChange={(e) => setSearchText(e.target.value)}
-                            className="border-none flex-1"
-                        />
-                        <Search />
-                    </Box>
-                </Box>
-
-            {/* Address Filter */}
-            <div className="justify-start items-start w-full">
-            <Accordion type="single" collapsible className=''>
-                <AccordionItem value="address" className="border-none">
-                <AccordionTrigger className="hover:no-underline font-cairo font-bold text-primary">
-                    {t('filter.filterOptions.address.filterOptionsTitle')}
-                </AccordionTrigger>
-                <AccordionContent className='w-full'>
-                    <FilterOptionDropdown
-                        options={citiesOptions}
-                        placeholder={t('filter.filterOptions.address.placeHolder')}
-                    />
-                    <FilterOptionDropdown
-                        options={statesOptions}
-                        placeholder={t('filter.filterOptions.states.placeHolder')}
-                    />
-                </AccordionContent>
-                </AccordionItem>
-            </Accordion>
-            </div>
-
-            {/* Car Marka Filter */}
-         {/* Car Marka Filter */}
-            <div className="w-full ">
-                        {/* Constant AccordionTrigger (placed outside ScrollArea but still inside Accordion) */}
-                        <Accordion type="single" collapsible defaultValue="car-marka" className="">
-                            <AccordionItem value="car-marka" className="border-none">
-                            <AccordionTrigger className="hover:no-underline font-cairo font-bold text-primary">
-                                {t('filter.filterOptions.productMarka.filterOptionsTitle')}
-                            </AccordionTrigger>
-
-                            {/* Scrollable Content (Items inside Accordion) */}
-                            <ScrollArea
-                                className="h-[250px]  w-full overflow-y-auto scrollbar-thin scrollbar-thumb-[#198341] scrollbar-track-[#e5e7eb] scrollbar-thumb-rounded-full scrollbar-track-rounded-full"
-                                dir="tlr"
-                            >
-                                {carMarkaItems.map((item) => (
-                                <FilterCheckboxItem key={item.id} id={item.id} imageSrc={item.imageSrc} label={item.label} />
-                                ))}
-                            </ScrollArea>
-                            </AccordionItem>
-                        </Accordion>
-                </div>
+// Components
+const FilterOptionDropdown = ({
+  title,
+  options,
+  placeholder,
+  onChange,
+  value,
+  name,
+}: FilterOptionDropdownProps) => {
+  return (
+    <div className="mb-3 w-full">
+      {title && <Label className="text-sm font-medium text-slate-700 mb-1.5">{title}</Label>}
+      <SelectDropdown
+        options={options}
+        placeholder={placeholder}
+        SelectTriggerStyle="border rounded-lg p-2.5 shadow-sm bg-white hover:bg-slate-50 transition-colors w-full text-slate-800"
+        className="w-full"
+        onChange={onChange}
+        value={value || ""}
+        name={name || ""}
+      />
+    </div>
+  )
+}
 
 
 
+const FilterCheckboxItem = ({ id, imageSrc, label, checked = false, onChange }: FilterCheckboxItemProps) => (
+  <div className="flex items-center p-2 my-0.5 rounded-md hover:bg-slate-50 transition-colors">
+    <Checkbox
+      id={id}
+      checked={checked}
+      onCheckedChange={onChange}
+      className="border-slate-300 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+    />
+    <Label
+      htmlFor={id}
+      className="text-sm text-slate-700 font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 pl-2 flex items-center cursor-pointer"
+    >
+      {imageSrc && (
+        <Image src={imageSrc || "/placeholder.svg"} alt={label} width={20} height={20} className="mr-2" />
+      )}
+      {label}
+    </Label>
+  </div>
+)
 
-            {/* Car models */}
-            <div className="justify-start items-start w-full">
-            <Accordion type="single" collapsible className='pr-4 pl-4'>
-                <AccordionItem value="address" className="border-none">
-                <AccordionTrigger className="hover:no-underline font-cairo font-bold text-primary">
-                    {t('filter.filterOptions.productModels.title')}
-                </AccordionTrigger>
-                <AccordionContent className='w-full flex'>
-                    <FilterOptionDropdown
-                        options={CarModelsOptions}
-                        placeholder={t('filter.filterOptions.productModels.lessYear')}
-                    />
-                    <FilterOptionDropdown
-                        options={CarModelsOptions}
-                        placeholder={t('filter.filterOptions.productModels.highestYear')}
-                    />
-                </AccordionContent>
-                </AccordionItem>
-            </Accordion>
-            </div>
+interface AccordionHeaderProps {
+  title: string;
+}
 
+const AccordionHeader = ({ title }: AccordionHeaderProps) => (
+  <div className="flex items-center justify-between w-full">
+    <span className="font-medium text-slate-800">{title}</span>
+   
+  </div>
+)
 
-            {/* Car models */}
-            <div className="justify-start items-start w-full">
-                <Accordion type="single" collapsible className='pr-4 pl-4'>
-                    <AccordionItem value="address" className="border-none">
-                    <AccordionTrigger className="hover:no-underline font-cairo font-bold text-primary">
-                        {t('filter.filterOptions.productPrice.title')}
-                    </AccordionTrigger>
-                    <AccordionContent className='w-full flex flex-wrap'>
-                            <Box className='w-full'>
-                                <FilterOptionDropdown
-                                options={priceRanges}
-                                placeholder={t('filter.filterOptions.productPrice.lessPrice')}
-                                    />
-                                <FilterOptionDropdown
-                                    options={priceRanges}
-                                    placeholder={t('filter.filterOptions.productPrice.highestPrice')}
-                                />
-                            </Box>
-                        <Box className='block w-full'>
-                        <FilterOptionDropdown
-                            options={priceRanges}
-                            placeholder={t('filter.filterOptions.productPrice.currency')}
-                        />
-                        </Box>
-                    </AccordionContent>
-                    </AccordionItem>
-                </Accordion>
-            </div>
-                            
-            {/* Control type  */}
-            <div className="justify-start items-start w-full">
-            <Accordion 
-                type="single" 
-                collapsible 
-                defaultValue="car-marka"  // Set the default open accordion item
-                className="pr-4 pl-4"
+// Main Component
+const Filter: React.FC<FilterProps> = ({ onChange }) => {
+  const t = useTranslations("productsPage")
+  const locale = useLocale()
+  const direction = locale === "ar" ? "rtl" : "ltr"
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const filterRef = useRef<HTMLDivElement>(null)
+  const [headerHeight, setHeaderHeight] = useState(80)
+  const [isCollapsed, setIsCollapsed] = useState(false)
+  const [searchText, setSearchText] = useState("")
+  const [minPrice, setMinPrice] = useState<string>("")
+  const [maxPrice, setMaxPrice] = useState<string>("")
+  const [currency, setCurrency] = useState<string>("")
+  const [filterState, setFilterState] = useState<FilterState>({})
+  const priceRanges = getPriceRanges
+
+  // Initialize filter from URL parameters
+  useEffect(() => {
+    if (searchParams) {
+      const make = searchParams.get("make")
+      const model = searchParams.get("model")
+      const trim = searchParams.get("trim")
+      const year = searchParams.get("year")
+      const minPrice = searchParams.get("minPrice")
+      const maxPrice = searchParams.get("maxPrice")
+      const currency = searchParams.get("currency")
+      const governorate = searchParams.get("governorate")
+      const city = searchParams.get("city")
+      const transmission = searchParams.get("transmission")
+      const fuelType = searchParams.get("fuelType")
+      const bodyType = searchParams.get("bodyType")
+      const search = searchParams.get("search")
+
+      // Set state based on URL parameters
+      const initialState: FilterState = {}
+      if (make) initialState.marka = make
+      if (model) initialState.model = model
+      if (trim) initialState.trim = trim
+      if (year) initialState.year = year
+      if (governorate) initialState.governorate = governorate
+      if (city) initialState.city = city
+      if (transmission) initialState.transmission = transmission
+      if (fuelType) initialState.fuelType = fuelType
+      if (bodyType) initialState.bodyType = bodyType
+      
+      setFilterState(initialState)
+      if (minPrice) setMinPrice(minPrice)
+      if (maxPrice) setMaxPrice(maxPrice)
+      if (currency) setCurrency(currency)
+      if (search) setSearchText(search)
+    }
+  }, [searchParams])
+
+  // Effect to measure header height once on mount
+  useEffect(() => {
+    const header = document.querySelector(".mt-\\[50px\\]")
+    if (header) {
+      const headerRect = header.getBoundingClientRect()
+      setHeaderHeight(headerRect.height + headerRect.top)
+    }
+  }, [])
+
+  // Validation handlers
+  const handleValidationChangeStepOne = (isValid: boolean) => {}
+  const handleValidationChangeStepTwo = (isValid: boolean) => {}
+
+  // Hooks data
+  const {
+    selectedOptions,
+    governorateOptions,
+    cityOptions,
+    carMarka,
+    carModel,
+    carTrim,
+    madeYear,
+    handleSelectChange: handleStepOneSelectChange,
+    titles: stepOneTitles,
+  } = useProductStepOne(handleValidationChangeStepOne)
+
+  const {
+    carInfo,
+    options: stepTwoOptions,
+    labels: stepTwoLabels,
+    handleSelectChange: handleStepTwoSelectChange,
+  } = useAddProductStepTwo(handleValidationChangeStepTwo)
+
+  // Calculate the available height for the scroll area
+  const scrollHeight = `calc(100vh - ${headerHeight + 170}px)`
+  
+  // Custom handlers for filter changes
+  const handleFilterChange = (name: string, value: string) => {
+    const newFilterState = { ...filterState, [name]: value }
+    setFilterState(newFilterState)
+    handleStepOneSelectChange(name, value)
+  }
+  
+  const handlePriceChange = (type: "min" | "max", value: string) => {
+    if (type === "min") {
+      setMinPrice(value)
+    } else {
+      setMaxPrice(value)
+    }
+  }
+  
+  const handleCurrencyChange = (name: string, value: string) => {
+    setCurrency(value)
+    handleStepTwoSelectChange(name, value)
+  }
+  
+  const handleTransmissionChange = (name: string, value: string) => {
+    const newFilterState = { ...filterState, [name]: value }
+    setFilterState(newFilterState)
+    handleStepTwoSelectChange(name, value)
+  }
+  
+  // Build filter query
+  const buildFilterQuery = (): QueryParams => {
+    const filters: Filter[] = []
+    const filterGroups: FilterGroup[] = []
+    
+    // Add make/marka filter
+    if (filterState.marka) {
+      filters.push({
+        field: "makeId",
+        operator: "eq",
+        value: filterState.marka
+      })
+    }
+    
+    // Add model filter
+    if (filterState.model) {
+      filters.push({
+        field: "modelId",
+        operator: "eq",
+        value: filterState.model
+      })
+    }
+    
+    // Add trim filter
+    if (filterState.trim) {
+      filters.push({
+        field: "trimId",
+        operator: "eq",
+        value: filterState.trim
+      })
+    }
+    
+    // Add year filter
+    if (filterState.year) {
+      filters.push({
+        field: "details.year",
+        operator: "eq",
+        value: filterState.year
+      })
+    }
+    
+    // Add location filters
+    if (filterState.governorate) {
+      filters.push({
+        field: "governorate",
+        operator: "eq",
+        value: filterState.governorate
+      })
+    }
+    
+    if (filterState.city) {
+      filters.push({
+        field: "city",
+        operator: "eq",
+        value: filterState.city
+      })
+    }
+    
+    // Add car details filters
+    if (filterState.transmission) {
+      filters.push({
+        field: "details.transmission",
+        operator: "eq",
+        value: filterState.transmission
+      })
+    }
+    
+    if (filterState.fuelType) {
+      filters.push({
+        field: "details.fuelType",
+        operator: "eq",
+        value: filterState.fuelType
+      })
+    }
+    
+    if (filterState.bodyType) {
+      filters.push({
+        field: "details.bodyType",
+        operator: "eq",
+        value: filterState.bodyType
+      })
+    }
+    
+    // Add price range filter
+    if (minPrice || maxPrice) {
+      const priceFilters: Filter[] = []
+      
+      if (minPrice) {
+        priceFilters.push({
+          field: "price",
+          operator: "gte",
+          value: parseInt(minPrice, 10)
+        })
+      }
+      
+      if (maxPrice) {
+        priceFilters.push({
+          field: "price",
+          operator: "lte",
+          value: parseInt(maxPrice, 10)
+        })
+      }
+      
+      if (priceFilters.length > 0) {
+        filterGroups.push({
+          operator: "and",
+          filters: priceFilters
+        })
+      }
+    }
+    
+    // Add currency filter
+    if (currency) {
+      filters.push({
+        field: "currency",
+        operator: "eq",
+        value: currency
+      })
+    }
+    
+    return {
+      page: 1,
+      pageSize: 8,
+      sortBy: "createdAt",
+      sortDirection: "desc",
+      searchTerm: searchText || undefined,
+      where: filters.length > 0 ? filters : undefined,
+      filterGroups: filterGroups.length > 0 ? filterGroups : undefined
+    }
+  }
+  
+  // Apply filters
+  const applyFilters = () => {
+    const queryParams = buildFilterQuery()
+    
+    // Update URL with filter parameters
+    const params = new URLSearchParams()
+    
+    if (filterState.marka) params.set("make", filterState.marka)
+    if (filterState.model) params.set("model", filterState.model)
+    if (filterState.trim) params.set("trim", filterState.trim)
+    if (filterState.year) params.set("year", filterState.year)
+    if (filterState.governorate) params.set("governorate", filterState.governorate)
+    if (filterState.city) params.set("city", filterState.city)
+    if (filterState.transmission) params.set("transmission", filterState.transmission)
+    if (filterState.fuelType) params.set("fuelType", filterState.fuelType)
+    if (filterState.bodyType) params.set("bodyType", filterState.bodyType)
+    if (minPrice) params.set("minPrice", minPrice)
+    if (maxPrice) params.set("maxPrice", maxPrice)
+    if (currency) params.set("currency", currency)
+    if (searchText) params.set("search", searchText)
+    
+    // Update the URL
+    router.push(`?${params.toString()}`)
+    
+    // Call the onChange prop if provided
+    if (onChange) {
+      onChange(queryParams)
+    }
+  }
+  
+  // Reset filters
+// Reset filters
+// Reset filters
+// Reset filters
+// Reset filters with forced refresh
+const resetFilters = () => {
+  // Reset all state variables
+  setFilterState({})
+  setMinPrice("")
+  setMaxPrice("")
+  setCurrency("")
+  setSearchText("")
+  
+  // Also reset the hook state to ensure dropdowns reset properly
+  handleStepOneSelectChange("governorate", "")
+  handleStepOneSelectChange("city", "")
+  handleStepOneSelectChange("marka", "")
+  handleStepOneSelectChange("model", "")
+  handleStepOneSelectChange("trim", "")
+  handleStepOneSelectChange("year", "")
+  
+  handleStepTwoSelectChange("transmission", "")
+  handleStepTwoSelectChange("fuelType", "")
+  handleStepTwoSelectChange("bodyType", "")
+  handleStepTwoSelectChange("currency", "")
+  
+  // Create default query params for reset state
+  const defaultParams: QueryParams = {
+    page: 1,
+    pageSize: 8,
+    sortBy: "createdAt",
+    sortDirection: "desc"
+  }
+  
+  // Important: Call onChange first to update listings immediately
+  if (onChange) {
+    onChange(defaultParams)
+  }
+  
+  // Reset URL - force removal of all query parameters
+  // Get just the base path without query parameters
+  const currentPath = window.location.pathname
+  router.push(currentPath)
+  
+  // Additional forced refresh if needed
+  // This is a fallback in case the onChange doesn't trigger a refresh
+  setTimeout(() => {
+    if (onChange) {
+      onChange(defaultParams)
+    }
+  }, 100)
+}
+
+  // Add this effect after your other useEffect hooks
+useEffect(() => {
+  // Only run this effect for resetting (when filterState is empty)
+  if (Object.keys(filterState).length === 0) {
+    // Reset Dropdown selections in hooks
+    if (selectedOptions.governorate) handleStepOneSelectChange("governorate", "")
+    if (selectedOptions.city) handleStepOneSelectChange("city", "")
+    if (selectedOptions.marka) handleStepOneSelectChange("marka", "")
+    if (selectedOptions.model) handleStepOneSelectChange("model", "")
+    if (selectedOptions.trim) handleStepOneSelectChange("trim", "")
+    if (selectedOptions.year) handleStepOneSelectChange("year", "")
+    
+    if (carInfo.transmission) handleStepTwoSelectChange("transmission", "")
+    if (carInfo.fuelType) handleStepTwoSelectChange("fuelType", "")
+    if (carInfo.bodyType) handleStepTwoSelectChange("bodyType", "")
+    if (carInfo.currency) handleStepTwoSelectChange("currency", "")
+  }
+}, [filterState, selectedOptions, carInfo, handleStepOneSelectChange, handleStepTwoSelectChange])
+
+  return (
+    <div
+      ref={filterRef}
+      className="sticky top-[80px] transition-all"
+      style={{ maxHeight: `calc(100vh - ${headerHeight}px)`, overflowY: "auto" }}
+    >
+      <div className="w-full bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+        {/* Filter Header */}
+        <div className="p-4 border-b border-slate-100 flex justify-between items-center">
+          <div className="flex items-center">
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2" 
+              strokeLinecap="round" 
+              strokeLinejoin="round" 
+              className="h-4 w-4 text-primary mr-2"
             >
-                <AccordionItem value="car-marka" className="border-none">
-                <AccordionTrigger className="hover:no-underline font-cairo font-bold text-primary">
-                    {t('filter.filterOptions.ControlType.title')}
+              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+            </svg>
+            <h2 className="text-lg font-semibold text-slate-800">{t("filter.title")}</h2>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 w-8 p-0 rounded-full"
+            onClick={() => setIsCollapsed(!isCollapsed)}
+          >
+            <Sliders className="h-4 w-4 text-slate-600" />
+          </Button>
+        </div>
+
+        {/* Search Input */}
+        <div className="p-4 border-b border-slate-100">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
+            <Input
+              type="text"
+              id="search"
+              placeholder={t("filter.searchInput")}
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              className="border border-slate-200 bg-slate-50 pl-9 h-10 rounded-lg focus-visible:ring-primary/30"
+            />
+          </div>
+        </div>
+
+        {/* Filter Body */}
+        <div className={`transition-all duration-300 ${isCollapsed ? 'h-0 overflow-hidden' : ''}`}>
+          <ScrollArea className="px-4" style={{ height: scrollHeight }}>
+            {/* Location Filter */}
+            <Accordion type="single" collapsible defaultValue="address" className="my-2">
+              <AccordionItem value="address" className="border-b border-slate-100 py-1">
+                <AccordionTrigger className="!no-underline py-2 px-2 rounded-md transition-colors hover:bg-slate-50 group">
+                  <AccordionHeader title={t("filter.filterOptions.address.filterOptionsTitle")} />
                 </AccordionTrigger>
-                {ControlType.map((item) => (
-                    <FilterCheckboxItem
-                        key={item.id}
-                        id={item.id}
-                        label={item.label}
-                    />
-                ))}
-                </AccordionItem>
+                <AccordionContent className="pt-2 pb-3 px-2">
+                  <FilterOptionDropdown
+                    title={stepOneTitles.governorate}
+                    options={governorateOptions}
+                    placeholder={stepOneTitles.governorate}
+                    onChange={handleFilterChange}
+                    value={filterState.governorate || selectedOptions.governorate}
+                    name="governorate"
+                  />
+                  <FilterOptionDropdown
+                    title={stepOneTitles.city}
+                    options={cityOptions}
+                    placeholder={stepOneTitles.city}
+                    onChange={handleFilterChange}
+                    value={filterState.city || selectedOptions.city}
+                    name="city"
+                  />
+                </AccordionContent>
+              </AccordionItem>
             </Accordion>
-            </div>
 
-                 {/* Fuel type  */}
-            <div className="justify-start items-start w-full">
-                <Accordion 
-                    type="single" 
-                    collapsible 
-                    defaultValue="car-marka"  // Set the default open accordion item
-                    className="pr-4 pl-4"
-                >
-                <AccordionItem value="car-marka" className="border-none">
-                <AccordionTrigger className="hover:no-underline font-cairo font-bold text-primary">
-                    {t('filter.filterOptions.FuelType.title')}
+            {/* Car Brand Filter */}
+            <Accordion type="single" collapsible className="my-2">
+              <AccordionItem value="car-marka" className="border-b border-slate-100 py-1">
+                <AccordionTrigger className="!no-underline py-2 px-2 rounded-md transition-colors hover:bg-slate-50 group">
+                  <AccordionHeader title={t("filter.filterOptions.productMarka.filterOptionsTitle")} />
                 </AccordionTrigger>
-                {FuelType.map((item) => (
-                    <FilterCheckboxItem
-                        key={item.id}
-                        id={item.id}
-                        label={item.label}
-                    />
-                ))}
-                </AccordionItem>
+                <AccordionContent className="pt-2 pb-3 px-2">
+                  <FilterOptionDropdown
+                    title={stepOneTitles.brand}
+                    options={carMarka}
+                    placeholder={stepOneTitles.brand}
+                    onChange={handleFilterChange}
+                    value={filterState.marka || selectedOptions.marka}
+                    name="marka"
+                  />
+                </AccordionContent>
+              </AccordionItem>
             </Accordion>
-            </div>
-        </Box>
 
-        <Box variant="column" className='bg-white w-full p-4 rounded-lg'>
-                <Button className='w-full bg-primary-foreground text-primary font-bold'>
-                    {t('filter.filterOptions.search')}
-                </Button>
-                <Button className='bg-transparent text-primary shadow-none'>
-                    {t('filter.filterOptions.resetSearch')}
+            {/* Car Models */}
+            <Accordion type="single" collapsible className="my-2">
+              <AccordionItem value="car-models" className="border-b border-slate-100 py-1">
+                <AccordionTrigger className="!no-underline py-2 px-2 rounded-md transition-colors hover:bg-slate-50 group">
+                  <AccordionHeader title={t("filter.filterOptions.productModels.title")} />
+                </AccordionTrigger>
+                <AccordionContent className="pt-2 pb-3 px-2">
+                  <FilterOptionDropdown
+                    title={stepOneTitles.model}
+                    options={carModel}
+                    placeholder={stepOneTitles.model}
+                    onChange={handleFilterChange}
+                    value={filterState.model || selectedOptions.model}
+                    name="model"
+                  />
+                  <FilterOptionDropdown
+                    title={stepOneTitles.trim}
+                    options={carTrim}
+                    placeholder={stepOneTitles.trim}
+                    onChange={handleFilterChange}
+                    value={filterState.trim || selectedOptions.trim}
+                    name="trim"
+                  />
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
 
-                </Button>
-        </Box>
-    </Box>
-    );
-};
+            {/* Car Year */}
+            <Accordion type="single" collapsible className="my-2">
+              <AccordionItem value="car-year" className="border-b border-slate-100 py-1">
+                <AccordionTrigger className="!no-underline py-2 px-2 rounded-md transition-colors hover:bg-slate-50 group">
+                  <AccordionHeader title={stepOneTitles.year} />
+                </AccordionTrigger>
+                <AccordionContent className="pt-2 pb-3 px-2">
+                  <FilterOptionDropdown
+                    options={madeYear}
+                    placeholder={t("filter.filterOptions.productModels.lessYear")}
+                    onChange={handleFilterChange}
+                    value={filterState.year || selectedOptions.year}
+                    name="year"
+                  />
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
 
-export default Filter;
+            {/* Price Range */}
+            <Accordion type="single" collapsible className="my-2">
+              <AccordionItem value="price-range" className="border-b border-slate-100 py-1">
+                <AccordionTrigger className="!no-underline py-2 px-2 rounded-md transition-colors hover:bg-slate-50 group">
+                  <AccordionHeader title={t("filter.filterOptions.productPrice.title")} />
+                </AccordionTrigger>
+                <AccordionContent className="pt-2 pb-3 px-2">
+                  <div className="grid grid-cols-2 gap-3 mb-3">
+                    <FilterOptionDropdown
+                      options={priceRanges}
+                      placeholder={t("filter.filterOptions.productPrice.lessPrice")}
+                      onChange={(name, value) => handlePriceChange("min", value)}
+                      value={minPrice}
+                      name="minPrice"
+                    />
+                    <FilterOptionDropdown
+                      options={priceRanges}
+                      placeholder={t("filter.filterOptions.productPrice.highestPrice")}
+                      onChange={(name, value) => handlePriceChange("max", value)}
+                      value={maxPrice}
+                      name="maxPrice"
+                    />
+                  </div>
+                  <FilterOptionDropdown
+                    options={stepTwoOptions.currency}
+                    placeholder={stepTwoLabels.selectCurrency}
+                    onChange={handleCurrencyChange}
+                    value={currency || carInfo.currency}
+                    name="currency"
+                  />
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+
+            {/* Control Type */}
+            <Accordion type="single" collapsible className="my-2">
+              <AccordionItem value="control-type" className="border-b border-slate-100 py-1">
+                <AccordionTrigger className="!no-underline py-2 px-2 rounded-md transition-colors hover:bg-slate-50 group">
+                  <AccordionHeader title={t("filter.filterOptions.ControlType.title")} />
+                </AccordionTrigger>
+                <AccordionContent className="pt-2 pb-3 px-2">
+                  <FilterOptionDropdown
+                    title={stepTwoLabels.transmission}
+                    options={stepTwoOptions.transmission}
+                    placeholder={stepTwoLabels.selectTransmission}
+                    onChange={handleTransmissionChange}
+                    value={filterState.transmission || carInfo.transmission}
+                    name="transmission"
+                  />
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+
+            {/* Fuel Type */}
+            <Accordion type="single" collapsible className="my-2">
+              <AccordionItem value="fuel-type" className="border-b border-slate-100 py-1">
+                <AccordionTrigger className="!no-underline py-2 px-2 rounded-md transition-colors hover:bg-slate-50 group">
+                  <AccordionHeader title={t("filter.filterOptions.FuelType.title")} />
+                </AccordionTrigger>
+                <AccordionContent className="pt-2 pb-3 px-2">
+                  <FilterOptionDropdown
+                    title={stepTwoLabels.fuelType}
+                    options={stepTwoOptions.fuelType}
+                    placeholder={stepTwoLabels.selectFuelType}
+                    onChange={handleTransmissionChange}
+                    value={filterState.fuelType || carInfo.fuelType}
+                    name="fuelType"
+                  />
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+
+            {/* Body Type */}
+            <Accordion type="single" collapsible className="my-2">
+              <AccordionItem value="body-type" className="border-b border-slate-100 py-1">
+                <AccordionTrigger className="!no-underline py-2 px-2 rounded-md transition-colors hover:bg-slate-50 group">
+                  <AccordionHeader title={stepTwoLabels.bodyType} />
+                </AccordionTrigger>
+                <AccordionContent className="pt-2 pb-3 px-2">
+                  <FilterOptionDropdown
+                    title={stepTwoLabels.bodyType}
+                    options={stepTwoOptions.bodyType}
+                    placeholder={stepTwoLabels.selectBodyType}
+                    onChange={handleTransmissionChange}
+                    value={filterState.bodyType || carInfo.bodyType}
+                    name="bodyType"
+                  />
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </ScrollArea>
+        </div>
+
+        {/* Filter Footer */}
+        <div className="p-4 border-t border-slate-100 bg-slate-50">
+          <div className="grid grid-cols-2 gap-3">
+            <Button
+              className="bg-primary text-white font-medium rounded-lg hover:bg-primary/90 transition-colors h-10"
+              onClick={applyFilters}
+            >
+              {t("filter.filterOptions.search")}
+            </Button>
+            <Button
+              variant="outline"
+              className="bg-white text-slate-700 border border-slate-200 hover:bg-slate-100 transition-colors rounded-lg h-10"
+              onClick={resetFilters}
+            >
+              {t("filter.filterOptions.resetSearch")}
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default Filter

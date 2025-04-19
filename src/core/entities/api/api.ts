@@ -144,3 +144,72 @@ export interface PaginationInfo {
   hasPreviousPage: boolean;
   totalItems: number;
 }
+
+
+// types/car-listings.ts
+
+
+
+// Filter state for component use
+
+
+// Query parameters for the API
+export interface QueryParams {
+  page?: number;
+  pageSize?: number;
+  sortBy?: string;
+  sortDirection?: 'asc' | 'desc';
+  searchTerm?: unknown | unknown[];
+  id?: number | number[];
+  locale?: string;
+  where?: Filter[];
+  filterGroups?: FilterGroup[];
+}
+
+// Filter and FilterGroup for API queries
+export interface Filter {
+  field: string;
+  operator: string;
+  value: string | number;
+}
+
+export interface FilterGroup {
+  operator: string;
+  filters: Filter[];
+}
+
+// Options for UI components
+export interface FilterOption {
+  id: string;
+  label: string;
+  value: string;
+}
+
+export interface SortOption {
+  sortBy: string;
+  sortDirection: "asc" | "desc";
+}
+
+export interface PriceRange {
+  min: number | null;
+  max: number | null;
+}
+
+// Car-related interfaces
+export interface CarImage {
+  isPrimary: boolean;
+  url: string;
+}
+
+export interface CarMake {
+  name: string;
+}
+
+// Standard pagination info
+export interface PaginationInfo {
+  currentPage: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+  totalItems: number;
+}
