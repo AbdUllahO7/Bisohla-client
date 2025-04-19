@@ -3,6 +3,18 @@
   /**
     * Represents vehicle transmission types
  */
+
+  export interface CarouselItem {
+    title: string;
+    carCount: string;
+    image: string;
+    value?: string; // Added to support bodyType value
+  }
+  
+  export interface CarouselComponentProps {
+    data: CarouselItem[];
+    direction: 'ltr' | 'rtl';
+  }
 export enum Transmission {
   AUTOMATIC = 'automatic',
   MANUAL = 'manual',

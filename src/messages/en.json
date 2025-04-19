@@ -361,12 +361,8 @@
         "address": {
           "filterOptionsTitle": "Address",
           "placeHolder": "City",
-          "options": {
-            "Damascus": "Damascus",
-            "Idlib": "Idlib",
-            "Aleppo": "Aleppo",
-            "Homs": "Homs"
-          }
+          "governorate" : "Governorate",
+          "city" : "City"
         },
         "states": {
           "placeHolder": "State",

@@ -132,7 +132,7 @@ export interface SelectCarListingDto {
   price: number | null;
   currency: Currency;
   userId: number;
-  user?: SelectUserDto; // TODO: maybe change this type
+  user?: SelectUserDto; 
   makeId: number;
   modelId: number;
   trimId: number | null;
