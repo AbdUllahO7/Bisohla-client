@@ -429,70 +429,61 @@
       "modelYear" : "Model Year",
       "adsNumber" : "Ads Number",
       "dateOfAds" : "Date Of Ads",
-      "gaz" : "Gaz"
+      "gaz" : "Gaz",
+      "bodyType" : "Body Type"
     },
     "tabs" : {
       "adsInfo" : "Ads Info",
       "location" : "Location",
       "productInfo" : "Car Info",
       "productDetails": "Details",
-      "productSafety": "Safety"
+      "productFeatures": "Features"
 
-    },
+    },  
     "accordionDetails" : {
-      "questions" : {
-          "question1" : {
+      "details" : {
+        "noDamage" : "No Damages",
+          "carDetails" : {
             "question" : "Ads Details",
             "answer" : "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like)."
           },
-          "question2" : {
+          "adsDetails" : {
             "question" : "Car Details",
             "answer" : "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like)."
           },
           "productDetailsTitles": {
-          "title-one" : "No defect",
-          "title-tow" : "Just paint",
-          "title-three" : "Repair and paint",
-          "title-four" : "Part change"
+            "scratch": "خدش",
+            "paint": "طلاء",
+            "replacement": "استبدال"
+
           },
           "productDetailsBoxes" : {
-            "box-one" : {
-
-            "title" : "Repair and painting",
-            "list": {
-
-            "one" : "The door was replaced with an original door from the agency",
-            "tow" : "The door was replaced with an original door from the agency"
-            }
-            },
-            "box-tow" : {
-
-            "title" : "Repair and painting",
-            "list": {
-
-            "one" : "The door was replaced with an original door from the agency",
-            "tow" : "The door was replaced with an original door from the agency"
-            }
-            },
-            "box-three" : {
-
-            "title" : "Repair and painting",
-            "list": {
-
-            "one" : "The door was replaced with an original door from the agency",
-            "tow" : "The door was replaced with an original door from the agency"
-            }
-            },
-            "box-four" : {
-
-            "title" : "Repair and painting",
-            "list": {
-
-            "one" : "The door was replaced with an original door from the agency",
-            "tow" : "The door was replaced with an original door from the agency"
-            }
-            }
-            }
+            "scratch" : "Scratch",
+            "paint" : "Paint",
+            "replacement" : "Replacement"
+          },
+          "affectedAreas":"Affected Areas",
+          "damageZone" : {
+            "hood": "Hood",
+            "roof": "Roof",
+            "trunk" : "trunk",
+            "right_headlight" : "Right headlight",
+            "left_headlight" : "left Headlight",
+            "front_grill" : "Front Grill",
+            "rear_bumper" : "Rear Bumper",
+            "left_taillight":"Left Taillight",
+            "front_bumper" :"front Bumper",
+            "right_taillight" : "Right Taillight",
+            "left_front_fender": "Left Front Fender",
+            "right_front_fender": "Right Front Fender",
+            "left_front_door": "Left Front Door",
+            "right_front_door": "Right Front Door",
+            "left_rear_door": "Left Rear Door",
+            "right_rear_door": "Right Rear Door",
+            "Package": "Package",
+            "left_rear_fender": "Left Rear Fender",
+            "right_rear_fender": "Right Rear Fender"
+          }
         }
     },
     "accordionSafety" : {
@@ -508,7 +499,7 @@
       "nine": "Audio System with Bluetooth",
       "ten": "Electric Windows"
       }
-      },
+    },
     "CarDetailsContent" : {
       "title": "Title",
       "description": "Description",
@@ -518,8 +509,19 @@
       "make": "Make",
       "model": "Model",
       "trim": "Trim",
-      "fullDescription": "Full Description"
-      
+      "fullDescription": "Full Description",
+      "governorate" : "Governorate",
+      "address" : "Address",
+      "city" : "City",
+      "story" : "Story",
+      "engineSize" : "engine Size",
+      "colorInterior" : "color Interior",
+      "year" : "year",
+      "enginePower" : "Engine Power",
+      "plateNumber" : "plate Number",
+      "mileage" : "mile Age",
+      "doors" : "Doors",
+      "vin" : "vin"
     }
   },
   "adminPage": {
@@ -600,56 +602,9 @@
       "location": "Location",
       "productInfo": "Car Info",
       "productDetails": "Details",
-      "productSafety": "Safety"
+      "productFeatures": "Features"
     },
-    "accordionDetails": {
-      "questions": {
-        "question1": {
-          "question": "Ads Details",
-          "answer": "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like)."
-        },
-        "question2": {
-          "question": "Car Details",
-          "answer": "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like)."
-        },
-        "productDetailsTitles": {
-          "title-one": "No defect",
-          "title-tow": "Just paint",
-          "title-three": "Repair and paint",
-          "title-four": "Part change"
-        },
-        "productDetailsBoxes": {
-          "box-one": {
-            "title": "Repair and painting",
-            "list": {
-              "one": "The door was replaced with an original door from the agency",
-              "tow": "The door was replaced with an original door from the agency"
-            }
-          },
-          "box-tow": {
-            "title": "Repair and painting",
-            "list": {
-              "one": "The door was replaced with an original door from the agency",
-              "tow": "The door was replaced with an original door from the agency"
-            }
-          },
-          "box-three": {
-            "title": "Repair and painting",
-            "list": {
-              "one": "The door was replaced with an original door from the agency",
-              "tow": "The door was replaced with an original door from the agency"
-            }
-          },
-          "box-four": {
-            "title": "Repair and painting",
-            "list": {
-              "one": "The door was replaced with an original door from the agency",
-              "tow": "The door was replaced with an original door from the agency"
-            }
-          }
-        }
-      }
-    },
+   
     "accordionSafety": {
       "list": {
         "one": "Airbag (Passenger)",
@@ -953,6 +908,7 @@
         "carSection": {
           "Hood": "Hood",
           "Roof": "Roof",
+          "trunk":"trunk",
           "Left Front Fender": "Left Front Fender",
           "Right Front Fender": "Right Front Fender",
           "Left Front Door": "Left Front Door",

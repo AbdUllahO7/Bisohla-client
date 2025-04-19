@@ -15,15 +15,15 @@ const Product = () => {
     const t = useTranslations('homePage');
 
 
-     // Fetch all car listings with pagination
-      const { data, isLoading, error } = useCarListingById(Number(id));
+        // Fetch all car listings with pagination
+        const { data, isLoading, error } = useCarListingById(Number(id));
 
-      console.log(data)
+        console.log(data)
 
-   
+    
 
     return (
-        <div  className="mt-[50px] bg-background  w-full">
+        <div  className="mt-[50px]  bg-background  w-full">
             {/* Header Section */}
                 <div className='w-full mt-[50px] mb-3  bg-white' >
                     <Box variant="container">
@@ -31,9 +31,9 @@ const Product = () => {
                     </Box>
                 </div>
 
-            {/* Product Details Section */}
+            <Box variant="container">
+                  {/* Product Details Section */}
             <Box className="mt-1 w-full mb-3">
-                <Box variant='container' >
                     <ProductBasicInfo 
                     carType={data?.data?.make?.name || ''}
                     model={data?.data?.model?.name || ''}
@@ -41,13 +41,12 @@ const Product = () => {
                     distance={data?.data?.details?.mileage?.toString() || ''}
                     modelYear={data?.data?.details?.year?.toString() || ''}
                     gaz={data?.data?.details?.fuelType || ''}
+                    bodyType = {data?.data?.details?.bodyType || ''}
                     />
-                </Box>
             </Box>
 
             {/* images  */}
             <Box className='w-full'>
-            <Box variant='container'>
             <Box variant="row" className='w-full gap-4 items-start justify-start md:flex-wrap xs:flex-wrap xs:justify-center' >
                 <Box className='xs:w-[90%] lg:w-fit' >
                 <ProductInfo
@@ -66,17 +65,15 @@ const Product = () => {
                     <Box className='lg:flex-1 xs:w-full'>
                             <ProductImages images={data?.data?.images || []} />
                     </Box>
-            </Box>
                 
         </Box>
 
             </Box>
             {/* Tabs */}
             <Box  className='lg:w-full xs:w-[90%] mt-5'>
-                <Box variant='container'>
                         <TabsSection data = {data}/>
-                </Box>
 
+            </Box>
             </Box>
 
         </div>

@@ -53,6 +53,8 @@ const LatestOffers: React.FC<LatestOffersProps> = ({ count, showTitle = true, co
         const limit = count || 9;
         return listings.slice(0, limit);
     }, [data, count]);
+
+
     
     return (
         <Box variant={`${container ? "container" : 'center'}`} className="mb-5 mt-[50px]">

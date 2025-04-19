@@ -1,105 +1,164 @@
 "use client"
 
-import type React from "react"
+import React from "react"
 import { useTranslations } from "next-intl"
-import { Car, Tag, Phone, DollarSign, Info, Layers, Settings, Bookmark, MessageSquare } from "lucide-react"
+import { 
+  Car, Tag, Phone, DollarSign, Info, Layers, Settings, Bookmark, 
+  MessageSquare, MapPin, Calendar, BarChart, Key, Palette, Hash 
+} from "lucide-react"
 
 import Box from "@/components/box/box"
 import Text from "@/components/text/text"
 
 interface CarDetailsContentProps {
-  data: any
+  data: any;
+  type?: "car" | "ads";
 }
 
-const CarDetailsContent: React.FC<CarDetailsContentProps> = ({ data }) => {
+const CarDetailsContent: React.FC<CarDetailsContentProps> = ({ data, type = "car" }) => {
   const t = useTranslations("product.CarDetailsContent")
 
-  // Extract the required fields with fallbacks
+  // Car details display fields
   const carDetails = [
     {
       label: t("title"),
       value: data?.title || "-",
-      important: true,
       icon: <Car className="w-5 h-5" />,
-    },
-    {
-      label: t("contactNumber"),
-      value: data?.contactNumber || "-",
-      important: true,
-      icon: <Phone className="w-5 h-5" />,
-    },
-    {
-      label: t("price"),
-      value: data?.price ? `${data?.price} ${data?.currency || ""}` : "-",
-      important: true,
-      icon: <DollarSign className="w-5 h-5" />,
     },
     {
       label: t("make"),
       value: data?.make?.name || "-",
-      important: false,
       icon: <Tag className="w-5 h-5" />,
     },
     {
       label: t("model"),
       value: data?.model?.description || "-",
-      important: false,
       icon: <Layers className="w-5 h-5" />,
     },
     {
       label: t("trim"),
       value: data?.trim?.name || "-",
-      important: true,
       icon: <Settings className="w-5 h-5" />,
+    },
+    {
+      label: t("year"),
+      value: data?.details?.year || "-",
+      icon: <Calendar className="w-5 h-5" />,
+    },
+    {
+      label: t("mileage"),
+      value: data?.details?.mileage || "-",
+      icon: <BarChart className="w-5 h-5" />,
+    },
+    {
+      label: t("engineSize"),
+      value: data?.details?.engineSize || "-",
+      icon: <Settings className="w-5 h-5" />,
+    },
+    {
+      label: t("enginePower"),
+      value: data?.details?.enginePower || "-",
+      icon: <Settings className="w-5 h-5" />,
+    },
+    {
+      label: t("doors"),
+      value: data?.details?.doors || "-",
+      icon: <Car className="w-5 h-5" />,
+    },
+    {
+      label: t("colorInterior"),
+      value: data?.details?.colorInterior || "-",
+      icon: <Palette className="w-5 h-5" />,
+    },
+    {
+      label: t("plateNumber"),
+      value: data?.details?.plateNumber || "-",
+      icon: <Hash className="w-5 h-5" />,
+    },
+    {
+      label: t("vin"),
+      value: data?.details?.vin || "-",
+      icon: <Key className="w-5 h-5" />,
+    }
+  ]
+
+  // Ads details display fields
+  const adsDetails = [
+    {
+      label: t("title"),
+      value: data?.title || "-",
+      icon: <Car className="w-5 h-5" />,
+    },
+    {
+      label: t("contactNumber"),
+      value: data?.contactNumber || "-",
+      icon: <Phone className="w-5 h-5" />,
+    },
+    {
+      label: t("price"),
+      value: data?.price ? `${data?.price} ${data?.currency || ""}` : "-",
+      icon: <DollarSign className="w-5 h-5" />,
     },
     {
       label: t("currency"),
       value: data?.currency || "-",
-      important: true,
       icon: <Bookmark className="w-5 h-5" />,
     },
     {
-        label: t("description"),
-        value: data?.description || "-",
-        important: true,
-        icon: <Bookmark className="w-5 h-5" />,
-      },
+      label: t("address"),
+      value: data?.address || "-",
+      icon: <MapPin className="w-5 h-5" />,
+    },
+    {
+      label: t("city"),
+      value: data?.city || "-",
+      icon: <MapPin className="w-5 h-5" />,
+    },
+    {
+      label: t("governorate"),
+      value: data?.governorate || "-",
+      icon: <MapPin className="w-5 h-5" />,
+    },
+    {
+      label: t("description"),
+      value: data?.description || "-",
+      icon: <MessageSquare className="w-5 h-5" />,
+    },
+    {
+      label: t("story"),
+      value: data?.story || "-",
+      icon: <Info className="w-5 h-5" />,
+    }
   ]
 
+  // Select which details to display based on type
+  const detailsToShow = type === "car" ? carDetails : adsDetails;
+
   return (
-    <Box
-      variant="column"
-      className="w-full space-y-8 p-6 bg-gradient-to-br from-white to-slate-50 rounded-2xl shadow-lg"
-    >
-      {/* Main details in a grid */}
-      <Box className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        {carDetails.map((detail, index) => (
-          <Box
-            key={index}
-            className="relative overflow-hidden p-5 rounded-xl transition-all duration-300 
-            bg-white shadow-md hover:shadow-xl hover:translate-y-[-2px]"
-          >
-            <Box variant="row" className="items-center gap-4">
-              <Box className="p-3 rounded-full bg-primary-foreground/15 text-primary ring-4 ring-primary">{detail.icon}</Box>
-              <Box variant="column" className="flex-1 text-start items-start">
-                <Text variant="small" className="text-slate-500 font-medium mb-1">
-                  {detail.label}
-                </Text>
-                <Text variant="mid" className="font-semibold text-slate-900 text-lg">
-                    {detail.value}
-                </Text>
-              </Box>
-            </Box>
-            <div className="absolute top-0 right-0 w-16 h-16 -mr-8 -mt-8 bg-primary-foreground/15 rounded-full" />
-          </Box>
+    <div className="w-full">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {detailsToShow.map((detail, index) => (
+          <div key={index} className="bg-white rounded-lg overflow-hidden shadow-md p-4 h-32 w-full flex flex-col justify-between border-l-4 border-primary-light hover:border-primary-foreground transition-colors duration-300">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-medium text-secondary-text uppercase tracking-wider">{detail.label}</h3>
+              <div className="bg-primary-foreground/10 p-2 rounded-full">
+                {React.cloneElement(detail.icon, { 
+                  className: "text-primary-light" 
+                })}
+              </div>
+            </div>
+            
+            <div className="mt-2">
+              <p className="text-lg font-bold text-primary truncate">{detail.value}</p>
+            </div>
+            
+            <div className="w-full h-1 bg-gray-100 mt-2">
+              <div className="h-full bg-primary-light w-1/3"></div>
+            </div>
+          </div>
         ))}
-      </Box>
-
-    
-
-      {/* If description exists and is longer, show it separately with the same style */}
-     
-    </Box>
+      </div>
+    </div>
   )
 }
 

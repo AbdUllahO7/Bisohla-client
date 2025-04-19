@@ -23,9 +23,7 @@ const Header = () => {
     ];
 
 
-    const { data, isLoading, error } = useCarListings({
-        
-    });
+    const { data, isLoading, error } = useCarListings({});
 
     console.log(data)
     

@@ -30,8 +30,8 @@ const ProductImages: React.FC<ProductImagesProps> = ({ images = [] }) => {
   
   // Get the primary image or first image or fallback
   const primaryImage = images.find(img => img?.isPrimary)?.url || 
-                       images[0]?.url || 
-                       "/assets/images/car-large.png"
+                    images[0]?.url || 
+                    "/assets/images/car-large.png"
   
   // All images
   const allImageUrls = images.length > 0 
@@ -100,7 +100,7 @@ const ProductImages: React.FC<ProductImagesProps> = ({ images = [] }) => {
 
   return (
     <Box variant="center" className="w-full">
-      <Box variant="container">
+      <Box variant="container" className="pl-0 pr-0">
         <Box variant="row" className="w-full items-start justify-center gap-2 lg:flex-nowrap xs:flex-wrap">
           {/* Main Image */}
           <Box className="xs:w-[90%] xl:w-[80%]">
@@ -109,23 +109,23 @@ const ProductImages: React.FC<ProductImagesProps> = ({ images = [] }) => {
               alt="Car"
               width={400}
               height={500}
-              className="w-full h-full rounded-md cursor-pointer"
+              className="w-full h-full rounded-md cursor-pointer max-w-[700px] max-h-[520px]"
               onClick={() => openCarousel(allImageUrls.indexOf(primaryImage))}
             />
           </Box>
           
           {/* Thumbnails */}
-          <Box variant="center" className="relative lg:w-[40%]">
-            <Box variant="column" className="items-center xs:w-[90%]">
+          <Box variant="center" className="relative justify-start items-start lg:w-[40%]">
+            <Box variant="column" className="items-center lg:w-full xs:w-[90%]">
               <Box variant="row" className="flex-wrap lg:justify-start xs:justify-center w-full gap-2">
                 {visibleThumbnails.map((src, index) => (
                   <Image
                     key={index}
                     src={src || "/placeholder.svg"}
                     alt="Car Thumbnail"
-                    width={100}
-                    height={100}
-                    className="rounded-md cursor-pointer object-cover"
+                    width={index === 0 ? 650 : 100}
+                    height={index === 0 ? 450 : 100}
+                    className={`rounded-md cursor-pointer object-contain  ${index === 0 ? 'max-w-[100%] max-h-[520px]' : 'w-24 h-24'}`}
                     onClick={() => openCarousel(allImageUrls.indexOf(src))}
                   />
                 ))}
@@ -138,7 +138,7 @@ const ProductImages: React.FC<ProductImagesProps> = ({ images = [] }) => {
                       alt="More Cars"
                       width={100}
                       height={100}
-                      className="rounded-md cursor-pointer"
+                      className="rounded-md cursor-pointer w-24 h-24"
                       onClick={() => openCarousel(allImageUrls.indexOf(thumbnailImages[maxThumbnails - 1]))}
                     />
                     <div className="absolute inset-0 bg-black opacity-50 rounded-md"></div>
