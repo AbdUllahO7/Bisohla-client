@@ -68,6 +68,8 @@ export const useProductStepOne = (onValidationChange: (isValid: boolean) => void
         carMakesResponse?.data?.data?.map(make => ({
             value: make.id.toString(),
             label: make.name,
+            logoUrl: make.logoUrl,
+
         })) || [], 
         [carMakesResponse]
     );

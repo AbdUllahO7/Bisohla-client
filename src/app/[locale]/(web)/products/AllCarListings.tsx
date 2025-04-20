@@ -36,160 +36,161 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
     sortDirection: 'desc',
     ...initialQueryParams
   });
-  
-  // Update from URL parameters or props
-  useEffect(() => {
-    if (initialQueryParams) {
-      setQueryParams({
-        ...queryParams,
-        ...initialQueryParams,
-        page: currentPage
-      });
-    } else if (searchParams) {
-      // Build filters from URL search params
-      const filters: Filter[] = [];
-      const filterGroups: FilterGroup[] = [];
-      
-      // Check for make/model/trim filters
-      const make = searchParams.get('make');
-      if (make) {
-        filters.push({
-          field: 'makeId',
-          operator: 'eq',
-          value: make
-        });
-      }
-      
-      const model = searchParams.get('model');
-      if (model) {
-        filters.push({
-          field: 'modelId',
-          operator: 'eq',
-          value: model
-        });
-      }
-      
-      const trim = searchParams.get('trim');
-      if (trim) {
-        filters.push({
-          field: 'trimId',
-          operator: 'eq',
-          value: trim
-        });
-      }
-      
-      const year = searchParams.get('year');
-      if (year) {
-        filters.push({
-          field: 'details.year',
-          operator: 'eq',
-          value: year
-        });
-      }
-      
-      // Location filters
-      const governorate = searchParams.get('governorate');
-      if (governorate) {
-        filters.push({
-          field: 'governorate',
-          operator: 'eq',
-          value: governorate
-        });
-      }
-      
-      const city = searchParams.get('city');
-      if (city) {
-        filters.push({
-          field: 'city',
-          operator: 'eq',
-          value: city
-        });
-      }
-      
-      // Car details filters
-      const transmission = searchParams.get('transmission');
-      if (transmission) {
-        filters.push({
-          field: 'details.transmission',
-          operator: 'eq',
-          value: transmission
-        });
-      }
-      
-      const fuelType = searchParams.get('fuelType');
-      if (fuelType) {
-        filters.push({
-          field: 'details.fuelType',
-          operator: 'eq',
-          value: fuelType
-        });
-      }
-      
-      const bodyType = searchParams.get('bodyType');
-      if (bodyType) {
-        filters.push({
-          field: 'details.bodyType',
-          operator: 'eq',
-          value: bodyType
-        });
-      }
-      
-      // Price range filters
-      const minPrice = searchParams.get('minPrice');
-      const maxPrice = searchParams.get('maxPrice');
-      
-      if (minPrice || maxPrice) {
-        const priceFilters: Filter[] = [];
-        
-        if (minPrice) {
-          priceFilters.push({
-            field: 'price',
-            operator: 'gte',
-            value: parseInt(minPrice, 10)
-          });
-        }
-        
-        if (maxPrice) {
-          priceFilters.push({
-            field: 'price',
-            operator: 'lte',
-            value: parseInt(maxPrice, 10)
-          });
-        }
-        
-        if (priceFilters.length > 0) {
-          filterGroups.push({
-            operator: 'and',
-            filters: priceFilters
-          });
-        }
-      }
-      
-      const currency = searchParams.get('currency');
-      if (currency) {
-        filters.push({
-          field: 'currency',
-          operator: 'eq',
-          value: currency
-        });
-      }
-      
-      // Search term
-      const search = searchParams.get('search');
-      
-      // Apply all filters to the query params
-      setQueryParams({
-        page: currentPage,
-        pageSize: pageSize,
-        sortBy: 'createdAt',
-        sortDirection: 'desc',
-        searchTerm: search || undefined,
-        where: filters.length > 0 ? filters : undefined,
-        filterGroups: filterGroups.length > 0 ? filterGroups : undefined
+
+
+
+// Update from URL parameters or props
+useEffect(() => {
+  if (initialQueryParams) {
+    setQueryParams({
+      ...queryParams,
+      ...initialQueryParams,
+      page: currentPage
+    });
+  } else if (searchParams) {
+    // Build filters from URL search params
+    const filters: Filter[] = [];
+    const filterGroups: FilterGroup[] = [];
+    
+    // Check for make/model/trim filters
+    const make = searchParams.get('make');
+    if (make) {
+      filters.push({
+        field: 'makeId',
+        operator: 'eq',
+        value: make
       });
     }
-  }, [initialQueryParams, searchParams, currentPage, pageSize]);
-  
+    
+    const model = searchParams.get('model');
+    if (model) {
+      filters.push({
+        field: 'modelId',
+        operator: 'eq',
+        value: model
+      });
+    }
+    
+    const trim = searchParams.get('trim');
+    if (trim) {
+      filters.push({
+        field: 'trimId',
+        operator: 'eq',
+        value: trim
+      });
+    }
+    
+    const year = searchParams.get('year');
+    if (year) {
+      filters.push({
+        field: 'details',
+        operator: 'inArray',
+        value: `year:${year}` // Format as string for consistent behavior
+      });
+    }
+    
+    // Location filters
+    const governorate = searchParams.get('governorate');
+    if (governorate) {
+      filters.push({
+        field: 'governorate',
+        operator: 'eq',
+        value: governorate
+      });
+    }
+    
+    const city = searchParams.get('city');
+    if (city) {
+      filters.push({
+        field: 'city',
+        operator: 'eq',
+        value: city
+      });
+    }
+    
+    // Car details filters - modified to use inArray operator consistently
+    const transmission = searchParams.get('transmission');
+    if (transmission) {
+      filters.push({
+        field: 'details',
+        operator: 'inArray',
+        value: `transmission:${transmission}` // Format as string for consistent behavior
+      });
+    }
+    
+    const fuelType = searchParams.get('fuelType');
+    if (fuelType) {
+      filters.push({
+        field: 'details',
+        operator: 'inArray',
+        value: `fuelType:${fuelType}` // Format as string for consistent behavior
+      });
+    }
+    
+    const bodyType = searchParams.get('bodyType');
+    if (bodyType) {
+      filters.push({
+        field: 'details',
+        operator: 'inArray',
+        value: `bodyType:${bodyType}` // Format as string for consistent behavior
+      });
+    }
+    
+    // Price range filters
+    const minPrice = searchParams.get('minPrice');
+    const maxPrice = searchParams.get('maxPrice');
+    
+    if (minPrice || maxPrice) {
+      const priceFilters: Filter[] = [];
+      
+      if (minPrice) {
+        priceFilters.push({
+          field: 'price',
+          operator: 'gte',
+          value: parseInt(minPrice, 10)
+        });
+      }
+      
+      if (maxPrice) {
+        priceFilters.push({
+          field: 'price',
+          operator: 'lte',
+          value: parseInt(maxPrice, 10)
+        });
+      }
+      
+      if (priceFilters.length > 0) {
+        filterGroups.push({
+          operator: 'and',
+          filters: priceFilters
+        });
+      }
+    }
+    
+    const currency = searchParams.get('currency');
+    if (currency) {
+      filters.push({
+        field: 'currency',
+        operator: 'eq',
+        value: currency
+      });
+    }
+    
+    // Search term
+    const search = searchParams.get('search');
+    
+    // Apply all filters to the query params
+    setQueryParams({
+      page: currentPage,
+      pageSize: pageSize,
+      sortBy: 'createdAt',
+      sortDirection: 'desc',
+      searchTerm: search || undefined,
+      where: filters.length > 0 ? filters : undefined,
+      filterGroups: filterGroups.length > 0 ? filterGroups : undefined
+    });
+  }
+}, [initialQueryParams, searchParams, currentPage, pageSize]);
   // Fetch all car listings with pagination and filters
   const { data, isLoading, error } = useCarListings(queryParams);
   
@@ -207,6 +208,12 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
     }
     return [];
   }, [data]);
+
+
+  console.log("queryParams" , queryParams)
+
+  console.log("carListings" , carListings)
+  
   
   // Get pagination information
   const paginationInfo = React.useMemo(() => {

@@ -18,6 +18,7 @@ const SelectDropdown: React.FC<SelectDropdownProps> = ({
   value,
   name,
   onBlur,
+  disabled = false,
 }) => {
   const t = useTranslations("homePage")
 
@@ -38,6 +39,7 @@ const SelectDropdown: React.FC<SelectDropdownProps> = ({
       )}
       <Select
         value={value}
+        disabled={disabled} 
         onValueChange={handleValueChange}
         required={required}
         onOpenChange={(open) => {

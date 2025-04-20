@@ -364,6 +364,10 @@
         "address": {
           "filterOptionsTitle": "العنوان",
           "placeHolder": "المدينة",
+          "governorate": "المحافظة",
+          "city": "المدينة",
+          "selectGovernorateFirst": "اختر المحافظة أولاً",
+        
           "options": {
             "Damascus": "دمشق",
             "Idlib": "إدلب",
@@ -388,7 +392,9 @@
         "productModels": {
           "title": "موديل السيارة",
           "lessYear": "أقل سنة",
-          "highestYear": " أعلى سنة"
+          "highestYear": " أعلى سنة",
+          "selectMarkaFirst": "اختر العلامة التجارية أولاً",
+          "selectModelFirst": "اختر الطراز أولاً"
         },
         "productPrice": {
           "title": "سعر السيارة",
@@ -407,7 +413,7 @@
           "diesel": "مازوت"
         },
         "search": "بحث",
-        "resetSearch": "إعادة ضبط خيارات البحث"
+        "resetSearch": "إعادة ضبط  البحث"
       }
     },
     "categories": {
@@ -726,13 +732,13 @@
         "natural_gas": "غاز طبيعي"
       },
       "bodyType": {
-        "suv": "سيارة رياضية متعددة الاستخدامات",
+        "suv": "suv",
         "sedan": "سيدان",
         "hatchback": "هاتشباك",
         "coupe": "كوبيه",
-        "convertible": "مكشوفة",
-        "wagon": "استيشن",
-        "van": "فان",
+        "convertible": "قابلة للتحويل",
+        "wagon": "Station",
+        "van": "Van",
         "minivan": "ميني فان",
         "pickup": "بيك أب",
         "other": "أخرى"
