@@ -10,6 +10,8 @@ import Link from 'next/link';
 import React from 'react'
 
 const Header = () => {
+
+
     const t  = useTranslations('productsPage');
     const priceRanges = [
         {
@@ -24,6 +26,10 @@ const Header = () => {
 
 
     const { data, isLoading, error } = useCarListings({});
+
+
+
+
 
     
 
@@ -43,6 +49,7 @@ const Header = () => {
                                         placeholder={t('header.selectPrice')}
                                         SelectTriggerStyle=" shadow-none p-0"
                                         className=' w-[150px] xs:w-[120px]'
+                                        disabled = {false}
                                     />
                                     <Box className='p-2' >
                                         <Link href="#" className='bg-primary-light p-2 rounded-lg'>

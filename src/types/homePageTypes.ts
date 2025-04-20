@@ -47,6 +47,7 @@ export interface SelectDropdownProps {
   value?: string
   name?: string
   onBlur?: (field: string, value: string) => void
+  disabled:boolean
 }
 
 export interface CarouselComponentProps {

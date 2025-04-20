@@ -362,7 +362,9 @@
           "filterOptionsTitle": "Address",
           "placeHolder": "City",
           "governorate" : "Governorate",
-          "city" : "City"
+          "city" : "City",
+          "selectGovernorateFirst" : "select Governorate First"
+
         },
         "states": {
           "placeHolder": "State",
@@ -381,7 +383,9 @@
         "productModels": {
           "title": "product model",
           "lessYear": "Less Year",
-          "highestYear": "Highest year"
+          "highestYear": "Highest year",
+          "selectMarkaFirst" : "select Marka First",
+          "selectModelFirst" : "select Model First"
         },
         "productPrice": {
           "title": "product Price",
@@ -786,7 +790,7 @@
       "natural_gas": "Natural Gas"
       },
       "bodyType": {
-      "suv": "Sports Utility Vehicle",
+      "suv": "suv",
       "sedan": "Sedan",
       "hatchback": "Hatchback",
       "coupe": "Coupe",

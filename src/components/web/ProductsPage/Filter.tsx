@@ -1,12 +1,11 @@
 "use client"
 import { useState, useEffect, useRef } from "react"
-import { Search, ChevronDown, Sliders } from "lucide-react"
+import { Search, ChevronDown, Sliders, SearchCheck, ListRestart } from "lucide-react"
 import { useLocale, useTranslations } from "next-intl"
 import { useRouter, useSearchParams } from "next/navigation"
 
 // UI Components
-import Box from "@/components/box/box"
-import Text from "@/components/text/text"
+
 import Image from "next/image"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -27,7 +26,9 @@ import { useAddProductStepTwo } from "./addProducts/stepTow/hooks"
 import { getPriceRanges } from "@/constants/filterData"
 
 // Types for filtering
-import { Filter, FilterGroup, QueryParams } from "@/core/entities/api/api"
+import { QueryParams, FilterGroup } from "@/core/entities/api/api"
+import type { Filter } from "@/core/entities/api/api"
+
 
 // Define simple interface for filter state
 interface FilterState {
@@ -46,16 +47,17 @@ interface FilterState {
 // Types for components
 interface FilterOptionDropdownProps {
   title?: string;
-  options: { value: string; label: string }[];
+  options: { value: string; label: string; logoUrl?: string; }[];
   placeholder: string;
   onChange?: (name: string, value: string) => void;
   name?: string;
   value?: string;
+  disabled?: boolean;
 }
 
-interface FilterCheckboxItemProps {
+interface CarBrandCheckboxItemProps {
   id: string;
-  imageSrc?: string;
+  logoUrl?: string;
   label: string;
   checked?: boolean;
   onChange?: () => void;
@@ -74,6 +76,7 @@ const FilterOptionDropdown = ({
   onChange,
   value,
   name,
+  disabled = false,
 }: FilterOptionDropdownProps) => {
   return (
     <div className="mb-3 w-full">
@@ -81,20 +84,19 @@ const FilterOptionDropdown = ({
       <SelectDropdown
         options={options}
         placeholder={placeholder}
-        SelectTriggerStyle="border rounded-lg p-2.5 shadow-sm bg-white hover:bg-slate-50 transition-colors w-full text-slate-800"
+        SelectTriggerStyle={`border rounded-lg p-2.5 shadow-sm ${disabled ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-white hover:bg-slate-50'} transition-colors w-full text-slate-800`}
         className="w-full"
         onChange={onChange}
         value={value || ""}
         name={name || ""}
+        disabled={disabled}
       />
     </div>
   )
 }
 
-
-
-const FilterCheckboxItem = ({ id, imageSrc, label, checked = false, onChange }: FilterCheckboxItemProps) => (
-  <div className="flex items-center p-2 my-0.5 rounded-md hover:bg-slate-50 transition-colors">
+const CarBrandCheckboxItem = ({ id, logoUrl, label, checked = false, onChange }: CarBrandCheckboxItemProps) => (
+  <div className="flex items-center p-2 my-1 rounded-md hover:bg-slate-50 transition-colors">
     <Checkbox
       id={id}
       checked={checked}
@@ -103,10 +105,10 @@ const FilterCheckboxItem = ({ id, imageSrc, label, checked = false, onChange }: 
     />
     <Label
       htmlFor={id}
-      className="text-sm text-slate-700 font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 pl-2 flex items-center cursor-pointer"
+      className="text-sm text-slate-700 font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 pl-2 flex items-center cursor-pointer w-full"
     >
-      {imageSrc && (
-        <Image src={imageSrc || "/placeholder.svg"} alt={label} width={20} height={20} className="mr-2" />
+      {logoUrl && (
+        <Image src={logoUrl || "/placeholder.svg"} alt={label} width={24} height={24} className="mr-2" />
       )}
       {label}
     </Label>
@@ -120,15 +122,12 @@ interface AccordionHeaderProps {
 const AccordionHeader = ({ title }: AccordionHeaderProps) => (
   <div className="flex items-center justify-between w-full">
     <span className="font-medium text-slate-800">{title}</span>
-   
   </div>
 )
 
 // Main Component
 const Filter: React.FC<FilterProps> = ({ onChange }) => {
   const t = useTranslations("productsPage")
-  const locale = useLocale()
-  const direction = locale === "ar" ? "rtl" : "ltr"
   const router = useRouter()
   const searchParams = useSearchParams()
   const filterRef = useRef<HTMLDivElement>(null)
@@ -139,6 +138,7 @@ const Filter: React.FC<FilterProps> = ({ onChange }) => {
   const [maxPrice, setMaxPrice] = useState<string>("")
   const [currency, setCurrency] = useState<string>("")
   const [filterState, setFilterState] = useState<FilterState>({})
+  const [selectedBrands, setSelectedBrands] = useState<string[]>([])
   const priceRanges = getPriceRanges
 
   // Initialize filter from URL parameters
@@ -175,6 +175,13 @@ const Filter: React.FC<FilterProps> = ({ onChange }) => {
       if (maxPrice) setMaxPrice(maxPrice)
       if (currency) setCurrency(currency)
       if (search) setSearchText(search)
+      
+      // Initialize selected brands if marka is in URL
+      if (make) {
+        setSelectedBrands([make])
+      } else {
+        setSelectedBrands([])
+      }
     }
   }, [searchParams])
 
@@ -214,9 +221,63 @@ const Filter: React.FC<FilterProps> = ({ onChange }) => {
   // Calculate the available height for the scroll area
   const scrollHeight = `calc(100vh - ${headerHeight + 170}px)`
   
+  // Handler for brand checkbox changes
+  const handleBrandCheckboxChange = (brandId: string) => {
+    // If already selected, remove it, otherwise add it
+    if (selectedBrands.includes(brandId)) {
+      const newSelectedBrands = selectedBrands.filter(id => id !== brandId);
+      setSelectedBrands(newSelectedBrands);
+      
+      // If we're unselecting the current marka, reset model and trim
+      if (filterState.marka === brandId) {
+        const newFilterState = { ...filterState };
+        delete newFilterState.marka;
+        delete newFilterState.model;
+        delete newFilterState.trim;
+        
+        setFilterState(newFilterState);
+        handleStepOneSelectChange('marka', '');
+        handleStepOneSelectChange('model', '');
+        handleStepOneSelectChange('trim', '');
+      }
+    } else {
+      // Single selection mode - clear previous selections
+      setSelectedBrands([brandId]);
+      
+      // Update the filter state with the selected brand
+      const newFilterState = { 
+        ...filterState, 
+        marka: brandId,
+        // Reset dependent fields
+        model: '',
+        trim: '' 
+      };
+      
+      setFilterState(newFilterState);
+      handleStepOneSelectChange('marka', brandId);
+      handleStepOneSelectChange('model', '');
+      handleStepOneSelectChange('trim', '');
+    }
+  };
+  
   // Custom handlers for filter changes
   const handleFilterChange = (name: string, value: string) => {
     const newFilterState = { ...filterState, [name]: value }
+    
+    // Special handling for governorate change: reset city
+    if (name === 'governorate') {
+      newFilterState.city = '';
+      // Also reset in the hook state
+      handleStepOneSelectChange('city', '');
+    }
+    
+    // Special handling for model change: reset trim
+    if (name === 'model') {
+      newFilterState.trim = '';
+      // Also reset in the hook state
+      handleStepOneSelectChange('trim', '');
+    }
+    
     setFilterState(newFilterState)
     handleStepOneSelectChange(name, value)
   }
@@ -241,135 +302,142 @@ const Filter: React.FC<FilterProps> = ({ onChange }) => {
   }
   
   // Build filter query
-  const buildFilterQuery = (): QueryParams => {
-    const filters: Filter[] = []
-    const filterGroups: FilterGroup[] = []
+// Build filter query
+// Build filter query
+const buildFilterQuery = (): QueryParams => {
+  const filters: Filter[] = []
+  const filterGroups: FilterGroup[] = []
+  
+  // Direct properties - these should work as they did before
+  if (filterState.marka) {
+    filters.push({
+      field: "makeId", 
+      operator: "eq",
+      value: filterState.marka
+    })
+  }
+  
+  if (filterState.model) {
+    filters.push({
+      field: "modelId",
+      operator: "eq",
+      value: filterState.model
+    })
+  }
+  
+  if (filterState.trim) {
+    filters.push({
+      field: "trimId",
+      operator: "eq",
+      value: filterState.trim
+    })
+  }
+  
+  // Location filters - these should also work as before
+  if (filterState.governorate) {
+    filters.push({
+      field: "governorate",
+      operator: "eq",
+      value: filterState.governorate
+    })
+  }
+  
+  if (filterState.city) {
+    filters.push({
+      field: "city",
+      operator: "eq",
+      value: filterState.city
+    })
+  }
+  
+  // Nested properties in details - use the inArray operator
+  if (filterState.year) {
+    filters.push({
+      field: "details",
+      operator: "inArray", // Use inArray operator to search in the details object
+      value: `year.${filterState.year}` // Format as string with property name
+    })
+  }
+  
+  if (filterState.transmission) {
+    filters.push({
+      field: "details",
+      operator: "inArray", // Use inArray operator to search in the details object
+      value: `transmission:${filterState.transmission}` // Format as string with property name
+    })
+  }
+  
+  if (filterState.fuelType) {
+    filters.push({
+      field: "details",
+      operator: "inArray", // Use inArray operator to search in the details object
+      value: `fuelType:${filterState.fuelType}` // Format as string with property name
+    })
+  }
+  
+  if (filterState.bodyType) {
+    filters.push({
+      field: "bodyType",
+      operator: "inArray", // Use inArray operator to search in the details object
+      value: `${filterState.bodyType}` // Format as string with property name
+    })
+  }
+  
+  // Add price range filter
+  if (minPrice || maxPrice) {
+    const priceFilters: Filter[] = []
     
-    // Add make/marka filter
-    if (filterState.marka) {
-      filters.push({
-        field: "makeId",
-        operator: "eq",
-        value: filterState.marka
+    if (minPrice) {
+      priceFilters.push({
+        field: "price",
+        operator: "gte",
+        value: parseInt(minPrice, 10)
       })
     }
     
-    // Add model filter
-    if (filterState.model) {
-      filters.push({
-        field: "modelId",
-        operator: "eq",
-        value: filterState.model
+    if (maxPrice) {
+      priceFilters.push({
+        field: "price",
+        operator: "lte",
+        value: parseInt(maxPrice, 10)
       })
     }
     
-    // Add trim filter
-    if (filterState.trim) {
-      filters.push({
-        field: "trimId",
-        operator: "eq",
-        value: filterState.trim
+    if (priceFilters.length > 0) {
+      filterGroups.push({
+        operator: "and",
+        filters: priceFilters
       })
-    }
-    
-    // Add year filter
-    if (filterState.year) {
-      filters.push({
-        field: "details.year",
-        operator: "eq",
-        value: filterState.year
-      })
-    }
-    
-    // Add location filters
-    if (filterState.governorate) {
-      filters.push({
-        field: "governorate",
-        operator: "eq",
-        value: filterState.governorate
-      })
-    }
-    
-    if (filterState.city) {
-      filters.push({
-        field: "city",
-        operator: "eq",
-        value: filterState.city
-      })
-    }
-    
-    // Add car details filters
-    if (filterState.transmission) {
-      filters.push({
-        field: "details.transmission",
-        operator: "eq",
-        value: filterState.transmission
-      })
-    }
-    
-    if (filterState.fuelType) {
-      filters.push({
-        field: "details.fuelType",
-        operator: "eq",
-        value: filterState.fuelType
-      })
-    }
-    
-    if (filterState.bodyType) {
-      filters.push({
-        field: "details.bodyType",
-        operator: "eq",
-        value: filterState.bodyType
-      })
-    }
-    
-    // Add price range filter
-    if (minPrice || maxPrice) {
-      const priceFilters: Filter[] = []
-      
-      if (minPrice) {
-        priceFilters.push({
-          field: "price",
-          operator: "gte",
-          value: parseInt(minPrice, 10)
-        })
-      }
-      
-      if (maxPrice) {
-        priceFilters.push({
-          field: "price",
-          operator: "lte",
-          value: parseInt(maxPrice, 10)
-        })
-      }
-      
-      if (priceFilters.length > 0) {
-        filterGroups.push({
-          operator: "and",
-          filters: priceFilters
-        })
-      }
-    }
-    
-    // Add currency filter
-    if (currency) {
-      filters.push({
-        field: "currency",
-        operator: "eq",
-        value: currency
-      })
-    }
-    
-    return {
-      page: 1,
-      pageSize: 8,
-      sortBy: "createdAt",
-      sortDirection: "desc",
-      searchTerm: searchText || undefined,
-      where: filters.length > 0 ? filters : undefined,
-      filterGroups: filterGroups.length > 0 ? filterGroups : undefined
     }
   }
+  
+  // Add currency filter
+  if (currency) {
+    filters.push({
+      field: "currency",
+      operator: "eq",
+      value: currency
+    })
+  }
+  
+  // Log the constructed query for debugging
+  console.log("Filter query:", {
+    filters,
+    filterGroups,
+    searchTerm: searchText || undefined
+  });
+  
+  return {
+    page: 1,
+    pageSize: 8,
+    sortBy: "createdAt",
+    sortDirection: "desc",
+    searchTerm: searchText || undefined,
+    where: filters.length > 0 ? filters : undefined,
+    filterGroups: filterGroups.length > 0 ? filterGroups : undefined
+  }
+}
+
   
   // Apply filters
   const applyFilters = () => {
@@ -402,84 +470,80 @@ const Filter: React.FC<FilterProps> = ({ onChange }) => {
   }
   
   // Reset filters
-// Reset filters
-// Reset filters
-// Reset filters
-// Reset filters with forced refresh
-const resetFilters = () => {
-  // Reset all state variables
-  setFilterState({})
-  setMinPrice("")
-  setMaxPrice("")
-  setCurrency("")
-  setSearchText("")
-  
-  // Also reset the hook state to ensure dropdowns reset properly
-  handleStepOneSelectChange("governorate", "")
-  handleStepOneSelectChange("city", "")
-  handleStepOneSelectChange("marka", "")
-  handleStepOneSelectChange("model", "")
-  handleStepOneSelectChange("trim", "")
-  handleStepOneSelectChange("year", "")
-  
-  handleStepTwoSelectChange("transmission", "")
-  handleStepTwoSelectChange("fuelType", "")
-  handleStepTwoSelectChange("bodyType", "")
-  handleStepTwoSelectChange("currency", "")
-  
-  // Create default query params for reset state
-  const defaultParams: QueryParams = {
-    page: 1,
-    pageSize: 8,
-    sortBy: "createdAt",
-    sortDirection: "desc"
-  }
-  
-  // Important: Call onChange first to update listings immediately
-  if (onChange) {
-    onChange(defaultParams)
-  }
-  
-  // Reset URL - force removal of all query parameters
-  // Get just the base path without query parameters
-  const currentPath = window.location.pathname
-  router.push(currentPath)
-  
-  // Additional forced refresh if needed
-  // This is a fallback in case the onChange doesn't trigger a refresh
-  setTimeout(() => {
+  const resetFilters = () => {
+    // Reset all state variables
+    setFilterState({})
+    setMinPrice("")
+    setMaxPrice("")
+    setCurrency("")
+    setSearchText("")
+    setSelectedBrands([])
+    
+    // Also reset the hook state to ensure dropdowns reset properly
+    handleStepOneSelectChange("governorate", "")
+    handleStepOneSelectChange("city", "")
+    handleStepOneSelectChange("marka", "")
+    handleStepOneSelectChange("model", "")
+    handleStepOneSelectChange("trim", "")
+    handleStepOneSelectChange("year", "")
+    
+    handleStepTwoSelectChange("transmission", "")
+    handleStepTwoSelectChange("fuelType", "")
+    handleStepTwoSelectChange("bodyType", "")
+    handleStepTwoSelectChange("currency", "")
+    
+    // Create default query params for reset state
+    const defaultParams: QueryParams = {
+      page: 1,
+      pageSize: 8,
+      sortBy: "createdAt",
+      sortDirection: "desc"
+    }
+    
+    // Important: Call onChange first to update listings immediately
     if (onChange) {
       onChange(defaultParams)
     }
-  }, 100)
-}
+    
+    // Reset URL - force removal of all query parameters
+    // Get just the base path without query parameters
+    const currentPath = window.location.pathname
+    router.push(currentPath)
+    
+    // Additional forced refresh if needed
+    // This is a fallback in case the onChange doesn't trigger a refresh
+    setTimeout(() => {
+      if (onChange) {
+        onChange(defaultParams)
+      }
+    }, 100)
+  }
 
   // Add this effect after your other useEffect hooks
-useEffect(() => {
-  // Only run this effect for resetting (when filterState is empty)
-  if (Object.keys(filterState).length === 0) {
-    // Reset Dropdown selections in hooks
-    if (selectedOptions.governorate) handleStepOneSelectChange("governorate", "")
-    if (selectedOptions.city) handleStepOneSelectChange("city", "")
-    if (selectedOptions.marka) handleStepOneSelectChange("marka", "")
-    if (selectedOptions.model) handleStepOneSelectChange("model", "")
-    if (selectedOptions.trim) handleStepOneSelectChange("trim", "")
-    if (selectedOptions.year) handleStepOneSelectChange("year", "")
-    
-    if (carInfo.transmission) handleStepTwoSelectChange("transmission", "")
-    if (carInfo.fuelType) handleStepTwoSelectChange("fuelType", "")
-    if (carInfo.bodyType) handleStepTwoSelectChange("bodyType", "")
-    if (carInfo.currency) handleStepTwoSelectChange("currency", "")
-  }
-}, [filterState, selectedOptions, carInfo, handleStepOneSelectChange, handleStepTwoSelectChange])
+  useEffect(() => {
+    // Only run this effect for resetting (when filterState is empty)
+    if (Object.keys(filterState).length === 0) {
+      // Reset Dropdown selections in hooks
+      if (selectedOptions.governorate) handleStepOneSelectChange("governorate", "")
+      if (selectedOptions.city) handleStepOneSelectChange("city", "")
+      if (selectedOptions.marka) handleStepOneSelectChange("marka", "")
+      if (selectedOptions.model) handleStepOneSelectChange("model", "")
+      if (selectedOptions.trim) handleStepOneSelectChange("trim", "")
+      if (selectedOptions.year) handleStepOneSelectChange("year", "")
+      
+      if (carInfo.transmission) handleStepTwoSelectChange("transmission", "")
+      if (carInfo.fuelType) handleStepTwoSelectChange("fuelType", "")
+      if (carInfo.bodyType) handleStepTwoSelectChange("bodyType", "")
+      if (carInfo.currency) handleStepTwoSelectChange("currency", "")
+    }
+  }, [filterState, selectedOptions, carInfo, handleStepOneSelectChange, handleStepTwoSelectChange])
 
   return (
     <div
       ref={filterRef}
       className="sticky top-[80px] transition-all"
-      style={{ maxHeight: `calc(100vh - ${headerHeight}px)`, overflowY: "auto" }}
     >
-      <div className="w-full bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+      <div className="w-full bg-white rounded-t-xl shadow-sm border border-slate-100 overflow-hidden">
         {/* Filter Header */}
         <div className="p-4 border-b border-slate-100 flex justify-between items-center">
           <div className="flex items-center">
@@ -533,7 +597,6 @@ useEffect(() => {
                 </AccordionTrigger>
                 <AccordionContent className="pt-2 pb-3 px-2">
                   <FilterOptionDropdown
-                    title={stepOneTitles.governorate}
                     options={governorateOptions}
                     placeholder={stepOneTitles.governorate}
                     onChange={handleFilterChange}
@@ -541,32 +604,38 @@ useEffect(() => {
                     name="governorate"
                   />
                   <FilterOptionDropdown
-                    title={stepOneTitles.city}
                     options={cityOptions}
-                    placeholder={stepOneTitles.city}
+                    placeholder={!filterState.governorate && !selectedOptions.governorate 
+                      ? t("filter.filterOptions.address.selectGovernorateFirst") || "Please select a governorate first" 
+                      : stepOneTitles.city}
                     onChange={handleFilterChange}
                     value={filterState.city || selectedOptions.city}
                     name="city"
+                    disabled={!filterState.governorate && !selectedOptions.governorate} // Disable if no governorate selected
                   />
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
 
-            {/* Car Brand Filter */}
+            {/* Car Brand Filter - Now with Checkboxes */}
             <Accordion type="single" collapsible className="my-2">
               <AccordionItem value="car-marka" className="border-b border-slate-100 py-1">
                 <AccordionTrigger className="!no-underline py-2 px-2 rounded-md transition-colors hover:bg-slate-50 group">
                   <AccordionHeader title={t("filter.filterOptions.productMarka.filterOptionsTitle")} />
                 </AccordionTrigger>
                 <AccordionContent className="pt-2 pb-3 px-2">
-                  <FilterOptionDropdown
-                    title={stepOneTitles.brand}
-                    options={carMarka}
-                    placeholder={stepOneTitles.brand}
-                    onChange={handleFilterChange}
-                    value={filterState.marka || selectedOptions.marka}
-                    name="marka"
-                  />
+                  <div className="max-h-64 overflow-y-auto pr-1 custom-scrollbar">
+                    {carMarka.map((brand) => (
+                      <CarBrandCheckboxItem
+                        key={brand.value}
+                        id={`brand-${brand.value}`}
+                        logoUrl={brand.logoUrl}  
+                        label={brand.label}
+                        checked={selectedBrands.includes(brand.value)}
+                        onChange={() => handleBrandCheckboxChange(brand.value)}
+                      />
+                    ))}
+                  </div>
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
@@ -579,20 +648,24 @@ useEffect(() => {
                 </AccordionTrigger>
                 <AccordionContent className="pt-2 pb-3 px-2">
                   <FilterOptionDropdown
-                    title={stepOneTitles.model}
                     options={carModel}
-                    placeholder={stepOneTitles.model}
+                    placeholder={!filterState.marka && !selectedOptions.marka 
+                      ? t("filter.filterOptions.productModels.selectMarkaFirst") || "Please select a brand first" 
+                      : stepOneTitles.model}
                     onChange={handleFilterChange}
                     value={filterState.model || selectedOptions.model}
                     name="model"
+                    disabled={!filterState.marka && !selectedOptions.marka} 
                   />
                   <FilterOptionDropdown
-                    title={stepOneTitles.trim}
                     options={carTrim}
-                    placeholder={stepOneTitles.trim}
+                    placeholder={!filterState.model && !selectedOptions.model 
+                      ? t("filter.filterOptions.productModels.selectModelFirst") || "Please select a model first" 
+                      : stepOneTitles.trim}
                     onChange={handleFilterChange}
                     value={filterState.trim || selectedOptions.trim}
                     name="trim"
+                    disabled={!filterState.model && !selectedOptions.model}
                   />
                 </AccordionContent>
               </AccordionItem>
@@ -658,7 +731,6 @@ useEffect(() => {
                 </AccordionTrigger>
                 <AccordionContent className="pt-2 pb-3 px-2">
                   <FilterOptionDropdown
-                    title={stepTwoLabels.transmission}
                     options={stepTwoOptions.transmission}
                     placeholder={stepTwoLabels.selectTransmission}
                     onChange={handleTransmissionChange}
@@ -677,7 +749,6 @@ useEffect(() => {
                 </AccordionTrigger>
                 <AccordionContent className="pt-2 pb-3 px-2">
                   <FilterOptionDropdown
-                    title={stepTwoLabels.fuelType}
                     options={stepTwoOptions.fuelType}
                     placeholder={stepTwoLabels.selectFuelType}
                     onChange={handleTransmissionChange}
@@ -696,7 +767,6 @@ useEffect(() => {
                 </AccordionTrigger>
                 <AccordionContent className="pt-2 pb-3 px-2">
                   <FilterOptionDropdown
-                    title={stepTwoLabels.bodyType}
                     options={stepTwoOptions.bodyType}
                     placeholder={stepTwoLabels.selectBodyType}
                     onChange={handleTransmissionChange}
@@ -708,24 +778,26 @@ useEffect(() => {
             </Accordion>
           </ScrollArea>
         </div>
+      </div>
 
-        {/* Filter Footer */}
-        <div className="p-4 border-t border-slate-100 bg-slate-50">
-          <div className="grid grid-cols-2 gap-3">
-            <Button
-              className="bg-primary text-white font-medium rounded-lg hover:bg-primary/90 transition-colors h-10"
-              onClick={applyFilters}
-            >
-              {t("filter.filterOptions.search")}
-            </Button>
-            <Button
-              variant="outline"
-              className="bg-white text-slate-700 border border-slate-200 hover:bg-slate-100 transition-colors rounded-lg h-10"
-              onClick={resetFilters}
-            >
-              {t("filter.filterOptions.resetSearch")}
-            </Button>
-          </div>
+      {/* Filter Footer */}
+      <div className="p-4 border-t border-slate-100 rounded-b-lg bg-primary">
+        <div className="grid grid-cols-2 gap-3">
+          <Button
+            className="rounded-lg bg-primary-light text-white font-bold hover:bg-primary hover:text-white transition-colors h-10"
+            onClick={applyFilters}
+          >
+            <SearchCheck className="mr-2 h-4 w-4" />
+            {t("filter.filterOptions.search")}
+          </Button>
+          <Button
+            variant="outline"
+            className="bg-white text-slate-700 border font-bold border-slate-200 hover:bg-slate-100 hover:text-primary transition-colors rounded-lg h-10"
+            onClick={resetFilters}
+          >
+            <ListRestart className="mr-2 h-4 w-4" />
+            {t("filter.filterOptions.resetSearch")}
+          </Button>
         </div>
       </div>
     </div>
