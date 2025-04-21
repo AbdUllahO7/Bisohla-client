@@ -152,9 +152,7 @@ const CarDetailsContent: React.FC<CarDetailsContentProps> = ({ data, type = "car
               <p className="text-lg font-bold text-primary truncate">{detail.value}</p>
             </div>
             
-            <div className="w-full h-1 bg-gray-100 mt-2">
-              <div className="h-full bg-primary-light w-1/3"></div>
-            </div>
+          
           </div>
         ))}
       </div>

@@ -5,7 +5,6 @@ import { useLocale, useTranslations } from "next-intl"
 import { useRouter, useSearchParams } from "next/navigation"
 
 // UI Components
-
 import Image from "next/image"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -37,7 +36,8 @@ interface FilterState {
   marka?: string;
   model?: string;
   trim?: string;
-  year?: string;
+  minYear?: string;
+  maxYear?: string;
   transmission?: string;
   fuelType?: string;
   bodyType?: string;
@@ -136,6 +136,8 @@ const Filter: React.FC<FilterProps> = ({ onChange }) => {
   const [searchText, setSearchText] = useState("")
   const [minPrice, setMinPrice] = useState<string>("")
   const [maxPrice, setMaxPrice] = useState<string>("")
+  const [minYear, setMinYear] = useState<string>("")
+  const [maxYear, setMaxYear] = useState<string>("")
   const [currency, setCurrency] = useState<string>("")
   const [filterState, setFilterState] = useState<FilterState>({})
   const [selectedBrands, setSelectedBrands] = useState<string[]>([])
@@ -147,7 +149,8 @@ const Filter: React.FC<FilterProps> = ({ onChange }) => {
       const make = searchParams.get("make")
       const model = searchParams.get("model")
       const trim = searchParams.get("trim")
-      const year = searchParams.get("year")
+      const minYear = searchParams.get("minYear")
+      const maxYear = searchParams.get("maxYear")
       const minPrice = searchParams.get("minPrice")
       const maxPrice = searchParams.get("maxPrice")
       const currency = searchParams.get("currency")
@@ -163,7 +166,8 @@ const Filter: React.FC<FilterProps> = ({ onChange }) => {
       if (make) initialState.marka = make
       if (model) initialState.model = model
       if (trim) initialState.trim = trim
-      if (year) initialState.year = year
+      if (minYear) initialState.minYear = minYear
+      if (maxYear) initialState.maxYear = maxYear
       if (governorate) initialState.governorate = governorate
       if (city) initialState.city = city
       if (transmission) initialState.transmission = transmission
@@ -173,6 +177,8 @@ const Filter: React.FC<FilterProps> = ({ onChange }) => {
       setFilterState(initialState)
       if (minPrice) setMinPrice(minPrice)
       if (maxPrice) setMaxPrice(maxPrice)
+      if (minYear) setMinYear(minYear)
+      if (maxYear) setMaxYear(maxYear)
       if (currency) setCurrency(currency)
       if (search) setSearchText(search)
       
@@ -282,6 +288,17 @@ const Filter: React.FC<FilterProps> = ({ onChange }) => {
     handleStepOneSelectChange(name, value)
   }
   
+  // Handler for year range changes
+  const handleYearChange = (type: "min" | "max", value: string) => {
+    if (type === "min") {
+      setMinYear(value)
+      setFilterState(prev => ({ ...prev, minYear: value }))
+    } else {
+      setMaxYear(value)
+      setFilterState(prev => ({ ...prev, maxYear: value }))
+    }
+  }
+  
   const handlePriceChange = (type: "min" | "max", value: string) => {
     if (type === "min") {
       setMinPrice(value)
@@ -301,16 +318,17 @@ const Filter: React.FC<FilterProps> = ({ onChange }) => {
     handleStepTwoSelectChange(name, value)
   }
   
-  // Build filter query
-// Build filter query
-// Build filter query
+// Improved buildFilterQuery function that fully leverages FilterGroups
+// This version organizes filters into logical groups for better API compatibility
+
 const buildFilterQuery = (): QueryParams => {
-  const filters: Filter[] = []
   const filterGroups: FilterGroup[] = []
   
-  // Direct properties - these should work as they did before
+  // Car details filter group (make, model, trim)
+  const carDetailsFilters: Filter[] = []
+  
   if (filterState.marka) {
-    filters.push({
+    carDetailsFilters.push({
       field: "makeId", 
       operator: "eq",
       value: filterState.marka
@@ -318,7 +336,7 @@ const buildFilterQuery = (): QueryParams => {
   }
   
   if (filterState.model) {
-    filters.push({
+    carDetailsFilters.push({
       field: "modelId",
       operator: "eq",
       value: filterState.model
@@ -326,16 +344,25 @@ const buildFilterQuery = (): QueryParams => {
   }
   
   if (filterState.trim) {
-    filters.push({
+    carDetailsFilters.push({
       field: "trimId",
       operator: "eq",
       value: filterState.trim
     })
   }
   
-  // Location filters - these should also work as before
+  if (carDetailsFilters.length > 0) {
+    filterGroups.push({
+      operator: "and",
+      filters: carDetailsFilters
+    })
+  }
+  
+  // Location filter group
+  const locationFilters: Filter[] = []
+  
   if (filterState.governorate) {
-    filters.push({
+    locationFilters.push({
       field: "governorate",
       operator: "eq",
       value: filterState.governorate
@@ -343,47 +370,77 @@ const buildFilterQuery = (): QueryParams => {
   }
   
   if (filterState.city) {
-    filters.push({
+    locationFilters.push({
       field: "city",
       operator: "eq",
       value: filterState.city
     })
   }
   
-  // Nested properties in details - use the inArray operator
-  if (filterState.year) {
-    filters.push({
-      field: "details",
-      operator: "inArray", // Use inArray operator to search in the details object
-      value: `year.${filterState.year}` // Format as string with property name
+  if (locationFilters.length > 0) {
+    filterGroups.push({
+      operator: "and",
+      filters: locationFilters
     })
   }
   
+  // Technical details filter group
+  const technicalDetailsFilters: Filter[] = []
+  
+  // Year range filters
+  if (minYear || maxYear) {
+    if (minYear) {
+      technicalDetailsFilters.push({
+        field: "details.year",
+        operator: "gte", 
+        value: parseInt(minYear, 10)
+      })
+    }
+    
+    if (maxYear) {
+      technicalDetailsFilters.push({
+        field: "details.year",
+        operator: "lte", 
+        value: parseInt(maxYear, 10)
+      })
+    }
+  }
+  
+  // Transmission filter
   if (filterState.transmission) {
-    filters.push({
-      field: "details",
-      operator: "inArray", // Use inArray operator to search in the details object
-      value: `transmission:${filterState.transmission}` // Format as string with property name
+    technicalDetailsFilters.push({
+      field: "details.transmission",
+      operator: "eq",
+      value: filterState.transmission
     })
   }
   
+  // Fuel type filter
   if (filterState.fuelType) {
-    filters.push({
-      field: "details",
-      operator: "inArray", // Use inArray operator to search in the details object
-      value: `fuelType:${filterState.fuelType}` // Format as string with property name
+    technicalDetailsFilters.push({
+      field: "details.fuelType",
+      operator: "eq",
+      value: filterState.fuelType
     })
   }
   
+  // Body type filter
   if (filterState.bodyType) {
-    filters.push({
-      field: "bodyType",
-      operator: "inArray", // Use inArray operator to search in the details object
-      value: `${filterState.bodyType}` // Format as string with property name
+    technicalDetailsFilters.push({
+      field: "details.bodyType",
+      operator: "eq",
+      value: filterState.bodyType
     })
   }
   
-  // Add price range filter
+  if (technicalDetailsFilters.length > 0) {
+    filterGroups.push({
+      operator: "and",
+      filters: technicalDetailsFilters
+    })
+  }
+  
+  // Price filter group
   if (minPrice || maxPrice) {
     const priceFilters: Filter[] = []
     
@@ -411,29 +468,35 @@ const buildFilterQuery = (): QueryParams => {
     }
   }
   
-  // Add currency filter
+  // Currency filter group
   if (currency) {
-    filters.push({
-      field: "currency",
-      operator: "eq",
-      value: currency
+    const currencyFilters: Filter[] = [
+      {
+        field: "currency",
+        operator: "eq",
+        value: currency
+      }
+    ]
+    
+    filterGroups.push({
+      operator: "and",
+      filters: currencyFilters
     })
   }
   
   // Log the constructed query for debugging
   console.log("Filter query:", {
-    filters,
     filterGroups,
     searchTerm: searchText || undefined
   });
   
+  // Return query with only filterGroups (no where clause)
   return {
     page: 1,
     pageSize: 8,
     sortBy: "createdAt",
     sortDirection: "desc",
     searchTerm: searchText || undefined,
-    where: filters.length > 0 ? filters : undefined,
     filterGroups: filterGroups.length > 0 ? filterGroups : undefined
   }
 }
@@ -449,7 +512,8 @@ const buildFilterQuery = (): QueryParams => {
     if (filterState.marka) params.set("make", filterState.marka)
     if (filterState.model) params.set("model", filterState.model)
     if (filterState.trim) params.set("trim", filterState.trim)
-    if (filterState.year) params.set("year", filterState.year)
+    if (minYear) params.set("minYear", minYear)
+    if (maxYear) params.set("maxYear", maxYear)
     if (filterState.governorate) params.set("governorate", filterState.governorate)
     if (filterState.city) params.set("city", filterState.city)
     if (filterState.transmission) params.set("transmission", filterState.transmission)
@@ -475,6 +539,8 @@ const buildFilterQuery = (): QueryParams => {
     setFilterState({})
     setMinPrice("")
     setMaxPrice("")
+    setMinYear("")
+    setMaxYear("")
     setCurrency("")
     setSearchText("")
     setSelectedBrands([])
@@ -485,7 +551,6 @@ const buildFilterQuery = (): QueryParams => {
     handleStepOneSelectChange("marka", "")
     handleStepOneSelectChange("model", "")
     handleStepOneSelectChange("trim", "")
-    handleStepOneSelectChange("year", "")
     
     handleStepTwoSelectChange("transmission", "")
     handleStepTwoSelectChange("fuelType", "")
@@ -529,7 +594,6 @@ const buildFilterQuery = (): QueryParams => {
       if (selectedOptions.marka) handleStepOneSelectChange("marka", "")
       if (selectedOptions.model) handleStepOneSelectChange("model", "")
       if (selectedOptions.trim) handleStepOneSelectChange("trim", "")
-      if (selectedOptions.year) handleStepOneSelectChange("year", "")
       
       if (carInfo.transmission) handleStepTwoSelectChange("transmission", "")
       if (carInfo.fuelType) handleStepTwoSelectChange("fuelType", "")
@@ -671,20 +735,29 @@ const buildFilterQuery = (): QueryParams => {
               </AccordionItem>
             </Accordion>
 
-            {/* Car Year */}
+            {/* Car Year Range */}
             <Accordion type="single" collapsible className="my-2">
               <AccordionItem value="car-year" className="border-b border-slate-100 py-1">
                 <AccordionTrigger className="!no-underline py-2 px-2 rounded-md transition-colors hover:bg-slate-50 group">
                   <AccordionHeader title={stepOneTitles.year} />
                 </AccordionTrigger>
                 <AccordionContent className="pt-2 pb-3 px-2">
-                  <FilterOptionDropdown
-                    options={madeYear}
-                    placeholder={t("filter.filterOptions.productModels.lessYear")}
-                    onChange={handleFilterChange}
-                    value={filterState.year || selectedOptions.year}
-                    name="year"
-                  />
+                  <div className="grid grid-cols-2 gap-3 mb-3">
+                    <FilterOptionDropdown
+                      options={madeYear}
+                      placeholder={t("filter.filterOptions.productModels.minYear", { defaultValue: "Min Year" })}
+                      onChange={(name, value) => handleYearChange("min", value)}
+                      value={minYear}
+                      name="minYear"
+                    />
+                    <FilterOptionDropdown
+                      options={madeYear}
+                      placeholder={t("filter.filterOptions.productModels.maxYear", { defaultValue: "Max Year" })}
+                      onChange={(name, value) => handleYearChange("max", value)}
+                      value={maxYear}
+                      name="maxYear"
+                    />
+                  </div>
                 </AccordionContent>
               </AccordionItem>
             </Accordion>

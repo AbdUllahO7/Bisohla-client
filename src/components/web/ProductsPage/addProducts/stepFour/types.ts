@@ -9,6 +9,7 @@ export interface AdInfoState {
     listingType: ListingType | '';
     rentType: RentType | '';
     publicationDate: string | null;
+    price: string | number;
     saveStatus?: SaveStatus; // Added saveStatus
 
 }
@@ -48,6 +49,7 @@ export const STORAGE_KEY = "addProduct_stepFour_data";
 
 export const defaultState: AdInfoState = {
     title: "",
+    price : "",
     description: "",
     adStatus: "publish",
     contactNumber: "",

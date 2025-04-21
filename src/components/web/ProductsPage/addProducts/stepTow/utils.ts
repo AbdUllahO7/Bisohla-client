@@ -29,15 +29,6 @@ export const groupFeaturesByCategory = (allFeatures: SelectFeatureDto[]): Groupe
     return categoriesMap;
 };
 
-/**
- * Validate price value
- * @param value - Price value to validate
- * @returns Boolean indicating if price is valid
- */
-export const isValidPrice = (value: string): boolean => {
-    const priceNum = parseFloat(value);
-    return !isNaN(priceNum) && priceNum > 0;
-};
 
 /**
  * Validate doors value
@@ -117,7 +108,6 @@ export const loadFromStorage = (): CarInfoState => {
     
     // Return default state if loading failed
     return {
-        price: "",
         currency: "",
         colorExterior: "",
         colorInterior: "",
@@ -158,8 +148,7 @@ export const validateForm = (carInfo: CarInfoState, validationErrors: any): bool
         "plateNumber", "mileage", "enginePower", "engineSize", "doors", "vin"
     ];
   
-    // Price validation
-    const isPriceValid = isValidPrice(carInfo.price);
+   
     
     // Doors validation
     const isDoorsValid = isValidDoors(carInfo.doors);
@@ -173,6 +162,6 @@ export const validateForm = (carInfo: CarInfoState, validationErrors: any): bool
         .every((field) => Boolean(carInfo[field]));
     
     // Form is valid if all conditions are met AND there are no validation errors
-    return isPriceValid && isDoorsValid && isEngineSizeValid && areOtherFieldsValid && 
-            !validationErrors.doors && !validationErrors.price && !validationErrors.engineSize;
+    return isDoorsValid && isEngineSizeValid && areOtherFieldsValid && 
+            !validationErrors.doors && !validationErrors.engineSize;
 };

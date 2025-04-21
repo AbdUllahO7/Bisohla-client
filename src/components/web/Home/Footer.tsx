@@ -11,8 +11,8 @@ const Footer = () => {
         const locale = useLocale(); // Get the current language
     
     return (
-    <Box variant="column" className='relative bg-white pt-10 pb-10 justify-around w-full' >
-        <Box  variant='row' className='w-full justify-evenly md:flex-wrap xs:flex-wrap'>
+    <Box variant="column" className='relative  bg-white pt-10 pb-10 justify-around w-full' >
+        <Box  variant='row' className='w-full container justify-between  md:flex-wrap xs:flex-wrap'>
 
                     {/*  create ad */}
                 <Box variant="column" className='items-start justify-start gap-8 md:w-[300px] sm:w-[400px] xs:w-[400px] lg:mt-0 lg:items-start xs:items-center xs:mt-5'>

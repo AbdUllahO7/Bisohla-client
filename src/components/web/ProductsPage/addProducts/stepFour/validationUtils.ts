@@ -1,5 +1,6 @@
 import { ListingType, RentType, SaveStatus } from "@/core/entities/enums/cars.enums"
 import type { AdInfoState } from "./types"
+import { number } from "zod"
 
 /**
  * Validates the title field and returns an error message if invalid
@@ -23,6 +24,16 @@ export const getDescriptionErrorMessage = (description: string, direction: strin
   }
   if (description.trim().length < 10) {
     return direction === "ltr" ? "Description must be at least 10 characters" : "يجب أن يكون الوصف 10 أحرف على الأقل"
+  }
+  return ""
+}
+
+export const getPriceErrorMessage = (price: string, direction: string): string => {
+  if (!price.trim()) {
+    return direction === "ltr" ? "Price is required" : "السعر مطلوب"
+  }
+  if (Number(price) > 0 ) {
+    return direction === "ltr" ? "Price must be a positive number"  : "يجب أن يكون السعر رقم موجب"
   }
   return ""
 }

@@ -33,7 +33,6 @@ export interface SelectFieldProps {
 
 // Define CarInfoState interface for form data
 export interface CarInfoState {
-  price: string;
   currency: string;
   colorExterior: string;
   colorInterior: string;
@@ -54,7 +53,6 @@ export interface CarInfoState {
 // Define validation errors interface
 export interface ValidationErrors {
   doors: string;
-  price: string;
   engineSize: string;
   bodyType : string
 }
@@ -75,7 +73,6 @@ export const STORAGE_KEY = "addProduct_stepTwo_data";
 
 // Default state with empty array for selectedFeatures
 export const defaultState: CarInfoState = {
-  price: "",
   currency: "",
   colorExterior: "",
   colorInterior: "",

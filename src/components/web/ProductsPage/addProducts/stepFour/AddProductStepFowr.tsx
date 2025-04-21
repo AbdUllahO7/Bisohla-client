@@ -26,7 +26,8 @@ import {
   getPublicationDateErrorMessage,
   getTitleErrorMessage,
   getSaveStatusErrorMessage,
-  validateForm
+  validateForm,
+  getPriceErrorMessage
 } from "./validationUtils"
 import {
   autoSaveAdInfoData,
@@ -62,7 +63,8 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({ onValidationCha
       data.description && 
       data.contactNumber && 
       data.listingType &&
-      data.saveStatus
+      data.saveStatus && 
+      data.price
     );
     
     // Additional validation for rent type
@@ -136,6 +138,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({ onValidationCha
       adStatus: "draft",
       description: data.description,
       contactNumber: data.contactNumber || "",
+      price: data.price || "",
       listingType: data.listingType,
       rentType: data.rentType || "",
       publicationDate: data.publicationDate ? data.publicationDate.toISOString() : null,
@@ -157,6 +160,9 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({ onValidationCha
 
     const descriptionError = getDescriptionErrorMessage(adInfoState.description, direction)
     if (descriptionError) form.setError("description", { message: descriptionError })
+
+      const priceError = getPriceErrorMessage(adInfoState.price.toString(), direction)
+      if (priceError) form.setError("price", { message: priceError })
 
     const contactError = getContactErrorMessage(adInfoState.contactNumber, direction)
     if (contactError) form.setError("contactNumber", { message: contactError })
@@ -230,6 +236,28 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({ onValidationCha
                                 </FormLabel>
                                 <FormControl>
                                     <Input type="tel" placeholder={t("stepFour.contactNumber")} {...field} />
+                                </FormControl>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                            />
+
+                            {/* Price Field */}
+                            <FormField
+                            control={form.control}
+                            name="price"
+                            render={({ field }) => (
+                                <FormItem className="text-primary">
+                                <FormLabel className="text-primary">
+                                    {t("stepFour.price", { defaultValue: "Price" })}
+                                    <span className="text-red-500">*</span>
+                                </FormLabel>
+                                <FormControl>
+                                    <Input 
+                                        type="text" 
+                                        placeholder={t("stepFour.price", { defaultValue: "Enter price" })} 
+                                        {...field} 
+                                    />
                                 </FormControl>
                                 <FormMessage />
                                 </FormItem>

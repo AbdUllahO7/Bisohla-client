@@ -59,6 +59,7 @@ export interface StepThreeData {
 
 export interface StepFourData {
   title: string;
+  price: string | number;
   description: string;
   listingType : ListingType,
   rentType : RentType | null;
