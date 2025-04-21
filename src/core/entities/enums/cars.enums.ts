@@ -8,7 +8,7 @@
     title: string;
     carCount: string;
     image: string;
-    value?: string; // Added to support bodyType value
+    value?: string; 
   }
   
   export interface CarouselComponentProps {

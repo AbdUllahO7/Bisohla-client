@@ -103,16 +103,60 @@ export const getCarModelsOptions = [
 
 export const getPriceRanges = [
     {
-        value: '20000',
-        label:'10000',
+        value: '500',
+        label: '500',
     },
     {
-        value: '30000',
-        label: '30000',
+        value: '1000',
+        label: '1,000',
     },
     {
-        value: '40000',
-        label: '40000',
+        value: '2500',
+        label: '2,500',
+    },
+    {
+        value: '5000',
+        label: '5,000',
+    },
+    {
+        value: '10000',
+        label: '10,000',
+    },
+    {
+        value: '25000',
+        label: '25,000',
+    },
+    {
+        value: '50000',
+        label: '50,000',
+    },
+    {
+        value: '100000',
+        label: '100,000',
+    },
+    {
+        value: '250000',
+        label: '250,000',
+    },
+    {
+        value: '500000',
+        label: '500,000',
+    },
+    {
+        value: '1000000',
+        label: '1,000,000',
+    },
+    {
+        value: '5000000',
+        label: '5,000,000',
+    },
+    {
+        value: '10000000',
+        label: '10,000,000',
+    },
+    {
+        value: '10000000000000',
+        label: '10,000,000,000,000',
     },
 ];
 

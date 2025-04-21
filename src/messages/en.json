@@ -350,6 +350,7 @@
       "orderBy": "Short by:",
       "selectPrice": "Select Price",
       "options": {
+        "newest" : "Newest First",
         "priceHigh": "Price High",
         "priceLow": "Price Low"
       }
@@ -358,6 +359,10 @@
       "title": "What are you looking for",
       "searchInput": "Search",
       "filterOptions": {
+        "bodyType" : {
+          "placeholder" : "Body Type"
+        },
+       
         "address": {
           "filterOptionsTitle": "Address",
           "placeHolder": "City",
@@ -382,7 +387,8 @@
         },
         "productModels": {
           "title": "product model",
-          "lessYear": "Less Year",
+          "minYear": "Less Year",
+          "maxYear" :"Max Year",
           "highestYear": "Highest year",
           "selectMarkaFirst" : "select Marka First",
           "selectModelFirst" : "select Model First"
@@ -437,8 +443,14 @@
       "location" : "Location",
       "productInfo" : "Car Info",
       "productDetails": "Details",
-      "productFeatures": "Features"
-
+      "productFeatures": "Features",
+      "features" :  {
+        "categories"  : {
+          "safety" : "Safety",
+          "entertainment":"Entertainment"
+        }
+      
+      }
     },  
     "accordionDetails" : {
       "details" : {
@@ -790,16 +802,17 @@
       "natural_gas": "Natural Gas"
       },
       "bodyType": {
-      "suv": "suv",
-      "sedan": "Sedan",
-      "hatchback": "Hatchback",
-      "coupe": "Coupe",
-      "convertible": "Convertible",
-      "wagon": "Station",
-      "van": "Van",
-      "minivan": "Minivan",
-      "pickup": "Pickup",
-      "other": "Other"
+        "placeholder" : "Body Type",
+        "suv": "suv",
+        "sedan": "Sedan",
+        "hatchback": "Hatchback",
+        "coupe": "Coupe",
+        "convertible": "Convertible",
+        "wagon": "Station",
+        "van": "Van",
+        "minivan": "Minivan",
+        "pickup": "Pickup",
+        "other": "Other"
       },
       "transmission": {
       "automatic": "Automatic",
@@ -938,6 +951,7 @@
       "stepFour" : {
           "title" : "Ad Details",
           "adTitle" : "Ad Title",
+          "price":"Price",
           "adDescription" : "Ad Description",
           "contactNumber" : "Contact Number",
           "adType" : "Ad Type",

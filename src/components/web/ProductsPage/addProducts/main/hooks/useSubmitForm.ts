@@ -133,7 +133,7 @@ export const useSubmitForm = () => {
         
         // Pricing from step 2
         currency: Currency[storedData2.currency as keyof typeof Currency] || Currency.SYP,
-        price: Number(storedData2.price) || null,
+        price: Number(storedData4.price) || null,
         
         // Listing metadata
         isFeatured: false,

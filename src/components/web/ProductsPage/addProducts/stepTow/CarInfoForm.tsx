@@ -32,7 +32,6 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
   const t = useTranslations("homePage")
 
   // Input refs for text fields
-  const priceInputRef = useRef<HTMLInputElement>(null)
   const mileageInputRef = useRef<HTMLInputElement>(null)
   const enginePowerInputRef = useRef<HTMLInputElement>(null)
   const engineSizeInputRef = useRef<HTMLInputElement>(null)
@@ -42,7 +41,6 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
 
   // Initialize refs with current values
   useEffect(() => {
-    if (priceInputRef.current) priceInputRef.current.value = carInfo.price
     if (mileageInputRef.current) mileageInputRef.current.value = carInfo.mileage
     if (enginePowerInputRef.current) enginePowerInputRef.current.value = carInfo.enginePower
     if (engineSizeInputRef.current) engineSizeInputRef.current.value = carInfo.engineSize
@@ -51,10 +49,7 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
     if (plateInputRef.current) plateInputRef.current.value = carInfo.plateNumber
   }, [carInfo])
 
-  // Handle blur events for text fields
-  const handlePriceBlur = useCallback(() => {
-    onTextFieldBlur("price", priceInputRef.current?.value || "")
-  }, [onTextFieldBlur])
+
 
   const handleMileageBlur = useCallback(() => {
     onTextFieldBlur("mileage", mileageInputRef.current?.value || "")
@@ -132,18 +127,7 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
         {/* Left column - FormFields */}
         <div className="space-y-6">
 
-          {/* Price */}
-          <FormField label={labels.price} field="price" required error={validationErrors.price}>
-            <Input
-              type="text"
-              ref={priceInputRef}
-              defaultValue={carInfo.price || ""}
-              onBlur={handlePriceBlur}
-              placeholder={labels.enterPrice}
-              className={`w-full ${validationErrors.price ? "border-red-500" : ""} text-primary`}
-              required
-            />
-          </FormField>
+       
 
           {/* Mileage */}
           <FormField label={labels.mileage} field="mileage" required>

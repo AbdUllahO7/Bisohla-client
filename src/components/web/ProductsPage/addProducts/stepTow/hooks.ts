@@ -23,7 +23,6 @@ export const useAddProductStepTwo = (onValidationChange: (isValid: boolean) => v
   // Validation errors state
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({
     doors: "",
-    price: "",
     engineSize: "",
     bodyType : '',
   });
@@ -31,7 +30,6 @@ export const useAddProductStepTwo = (onValidationChange: (isValid: boolean) => v
   // Main form state
   const [isClient, setIsClient] = useState(false);
   const [carInfo, setCarInfo] = useState<CarInfoState>({
-    price: "",
     currency: "",
     colorExterior: "",
     colorInterior: "",
@@ -90,15 +88,7 @@ export const useAddProductStepTwo = (onValidationChange: (isValid: boolean) => v
   const validateLoadedData = useCallback((data: CarInfoState) => {
     const newValidationErrors = { ...validationErrors };
     
-    // Check price
-    const priceValue = parseFloat(data.price);
-    if (data.price && (isNaN(priceValue) || priceValue <= 0)) {
-      newValidationErrors.price = locale === 'ar' 
-        ? "يجب أن يكون السعر قيمة موجبة" 
-        : "Price must be a positive value";
-    } else {
-      newValidationErrors.price = "";
-    }
+  
     
     // Check doors
     const doorsValue = parseInt(data.doors);
@@ -144,21 +134,8 @@ export const useAddProductStepTwo = (onValidationChange: (isValid: boolean) => v
   const handleTextFieldBlur = useCallback((field: string, value: string) => {
     setCarInfo(prev => ({ ...prev, [field]: value }));
     
-    // Validate based on field type
-    if (field === 'price') {
-      const priceValue = parseFloat(value);
-      if (value && (isNaN(priceValue) || priceValue <= 0)) {
-        setValidationErrors(prev => ({ 
-          ...prev, 
-          price: locale === 'ar' 
-            ? "يجب أن يكون السعر قيمة موجبة" 
-            : "Price must be a positive value" 
-        }));
-      } else {
-        setValidationErrors(prev => ({ ...prev, price: "" }));
-      }
-    } 
-    else if (field === 'doors') {
+    
+    if (field === 'doors') {
       const doorsValue = parseInt(value);
       if (value) {
         if (!Number.isInteger(doorsValue) || doorsValue <= 0) {
@@ -282,7 +259,6 @@ export const useAddProductStepTwo = (onValidationChange: (isValid: boolean) => v
     () => ({
       carInfo: locale === 'ar' ? "معلومات السيارة" : "Car Information",
       carFeatures: locale === 'ar' ? "ميزات السيارة" : "Car Features",
-      price: locale === 'ar' ? "السعر" : "Price",
       currency: locale === 'ar' ? "العملة" : "Currency",
       colorExterior: locale === 'ar' ? "لون الخارجي" : "Exterior Color",
       colorInterior: locale === 'ar' ? "لون الداخلي" : "Interior Color",
@@ -301,7 +277,6 @@ export const useAddProductStepTwo = (onValidationChange: (isValid: boolean) => v
       selectFuelType: locale === 'ar' ? "اختر نوع الوقود" : "Select a Fuel Type",
       selectBodyType: locale === 'ar' ? "اختر نوع الهيكل" : "Select a Body Type",
       selectTransmission: locale === 'ar' ? "اختر ناقل الحركة" : "Select a Transmission",
-      enterPrice: locale === 'ar' ? "أدخل السعر" : "Enter price",
       enterMileage: locale === 'ar' ? "أدخل المسافة المقطوعة" : "Enter mileage",
       enterEnginePower: locale === 'ar' ? "أدخل قوة المحرك" : "Enter engine power",
       enterEngineSize: locale === 'ar' ? "أدخل حجم المحرك (1.0 - 4.0)" : "Enter engine size (1.0 - 4.0)",
@@ -320,7 +295,6 @@ export const useAddProductStepTwo = (onValidationChange: (isValid: boolean) => v
       noFeatures: locale === 'ar' ? "لا توجد ميزات متاحة" : "No features available",
       invalidDoors: locale === 'ar' ? "يجب ألا يتجاوز عدد الأبواب 10" : "Doors cannot exceed 10",
       invalidDoorsNumber: locale === 'ar' ? "يجب أن يكون عدد الأبواب رقمًا صحيحًا موجبًا" : "Doors must be a positive integer",
-      invalidPrice: locale === 'ar' ? "يجب أن يكون السعر قيمة موجبة" : "Price must be a positive value",
       invalidEngineSize: locale === 'ar' ? "يجب أن يكون حجم المحرك قيمة موجبة" : "Engine size must be a positive value",
       invalidEngineSizeRange: locale === 'ar' ? "يجب أن يكون حجم المحرك بين 1.0 و 4.0" : "Engine size must be between 1.0 and 4.0"
     }),

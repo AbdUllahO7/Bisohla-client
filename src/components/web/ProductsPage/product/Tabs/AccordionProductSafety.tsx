@@ -1,8 +1,10 @@
 import Box from '@/components/box/box';
+import Text from '@/components/text/text';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { useTranslations } from 'next-intl';
-import React from 'react';
+import Image from 'next/image';
+import React, { useMemo } from 'react';
 
 // Define TypeScript interfaces for the feature data structure
 interface FeatureDetails {
@@ -28,32 +30,73 @@ interface AccordionProductSafetyProps {
 const AccordionProductSafety: React.FC<AccordionProductSafetyProps> = ({ features = [] }) => {
   const t = useTranslations('product');
 
-  // If features are provided, we can use this data to display in the component
-  const hasFeatures = features && features.length > 0;
+  // Group features by category
+  const categorizedFeatures = useMemo(() => {
+    const grouped: Record<string, FeatureItem[]> = {};
+    
+    features.forEach(featureItem => {
+      const category = featureItem.feature.category;
+      if (!grouped[category]) {
+        grouped[category] = [];
+      }
+      grouped[category].push(featureItem);
+    });
+    
+    return grouped;
+  }, [features]);
+
+  // Get all unique categories
+  const categories = Object.keys(categorizedFeatures);
+  const hasFeatures = categories.length > 0;
 
   return (
-    <Box variant="row" className="p-4 flex-wrap gap-8">
-      {/* If features data exists, display it below the safety items */}
-      {hasFeatures && (
-        <Box className="w-full mt-4">
-          {features.map((feature, index) => (
-            <Box key={index} className="mb-2">
-              <Box className="flex items-center">
-                <Checkbox
-                  id={`feature-${feature.carListingId}-${feature.feature.id}`}
-                  checked={true}
-                  // Add onCheckedChange to satisfy Checkbox props requirement
-                  onCheckedChange={() => {}}
-                />
-                <Label
-                  htmlFor={`feature-${feature.carListingId}-${feature.feature.id}`}
-                  className="text-sm font-bold leading-none ml-2"
-                >
-                  {feature.feature.name} ({feature.feature.category})
-                </Label>
-              </Box>
+    <Box variant="column" className="w-full">
+      {hasFeatures ? (
+        categories.map(category => (
+          <Box key={category} variant="column" className="mb-6 w-full justify-start items-start ">
+            <Box className="border-b pb-2 mb-4 mr-5 ml-5">
+              <Text variant="large" className="font-bold text-primary capitalize">
+                {t(`tabs.features.categories.${category.toLowerCase()}`)}
+              </Text>
             </Box>
-          ))}
+            
+            <Box variant="row" className="flex-wrap gap-4 mr-5 ml-5">
+              {categorizedFeatures[category].map((featureItem) => (
+                <Box 
+                  key={`${featureItem.carListingId}-${featureItem.feature.id}`}
+                  className="flex items-start bg-white p-3 rounded-lg shadow-sm w-64 h-16"
+                >
+                  <Checkbox
+                    id={`feature-${featureItem.carListingId}-${featureItem.feature.id}`}
+                    checked={true}
+                    onCheckedChange={() => {}}
+                    className="mr-3"
+                  />
+                  
+                  {/* {featureItem.feature.icon && (
+                    <Image 
+                      src={featureItem.feature.icon} 
+                      alt={featureItem.feature.name}
+                      width={24}
+                      height={24}
+                      className="mr-3"
+                    />
+                  )}
+                   */}
+                  <Label
+                    htmlFor={`feature-${featureItem.carListingId}-${featureItem.feature.id}`}
+                    className="text-sm font-medium"
+                  >
+                    {featureItem.feature.name}
+                  </Label>
+                </Box>
+              ))}
+            </Box>
+          </Box>
+        ))
+      ) : (
+        <Box className="text-center py-4">
+          {/* <Text variant="mid">{t('features.noFeatures', { fallback: 'No features available' })}</Text> */}
         </Box>
       )}
     </Box>
@@ -61,4 +104,3 @@ const AccordionProductSafety: React.FC<AccordionProductSafetyProps> = ({ feature
 };
 
 export default AccordionProductSafety;
-

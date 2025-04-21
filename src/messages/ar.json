@@ -352,7 +352,8 @@
       "adCounter": " اعلان",
       "orderBy": "ترتيب حسب:",
       "selectPrice": "اختر السعر",
-      "options": {
+      "options": {      
+        "newest" : "الأحدث أولاً",
         "priceHigh": "السعر العالي",
         "priceLow": "السعر المنخفض"
       }
@@ -361,6 +362,9 @@
       "title": "عن ماذا تبحث",
       "searchInput": "بحث",
       "filterOptions": {
+        "bodyType" : {
+          "placeholder" : "نوع الهيكل"
+        },
         "address": {
           "filterOptionsTitle": "العنوان",
           "placeHolder": "المدينة",
@@ -391,7 +395,8 @@
         },
         "productModels": {
           "title": "موديل السيارة",
-          "lessYear": "أقل سنة",
+          "minYear": "أقل سنة",
+          "maxYear" : "اعلى سنة",
           "highestYear": " أعلى سنة",
           "selectMarkaFirst": "اختر العلامة التجارية أولاً",
           "selectModelFirst": "اختر الطراز أولاً"
@@ -447,8 +452,14 @@
       "location" : "الموقع",
       "productInfo" : "سمات السيارة",
       "productDetails": "المواصفات",
-      "productFeatures": "المميزات"
-
+      "productFeatures": "المميزات",
+      "features" :  {
+        "categories"  : {
+          "safety" : "الحماية",
+          "entertainment":"الترفيه"
+        }
+      
+      }
     },
     "accordionDetails" : {
       "details" : {
@@ -877,6 +888,8 @@
     },
     "stepFour" : {
       "title" : "تفاصيل الإعلان",
+      "price" : "السعر",
+      
       "adTitle" : "عنوان الإعلان",
       "adDescription" : "وصف الإعلان",
       "contactNumber" : "رقم الاتصال",

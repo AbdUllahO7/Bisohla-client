@@ -39,9 +39,17 @@ export const getCityOptions = (governorate: string, isArabic: boolean): Option[]
  * Prepares year options
  */
 export const getYearOptions = (t: (key: string) => string): Option[] => {
-    return [2020, 2021, 2022, 2023, 2024].map(year => ({
+    const currentYear = new Date().getFullYear();
+    const years: number[] = [];
+    
+    // Generate years from 1970 to current year (in descending order)
+    for (let year = currentYear; year >= 1970; year--) {
+        years.push(year);
+    }
+    
+    return years.map(year => ({
         value: year.toString(),
-        label: t(`enteredData.stepOne.madeYear.options.${year}`)
+        label: year.toString()
     }));
 };
 

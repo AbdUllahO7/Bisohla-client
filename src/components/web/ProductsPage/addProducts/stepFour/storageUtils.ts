@@ -7,6 +7,7 @@ export const AD_INFO_STORAGE_KEY = "addProduct_stepFour_data"
 // Default values for the form
 export const defaultAdInfoData: AdInformationFormData = {
     title: "",
+    price : "",
     description: "",
     contactNumber: "",
     listingType: ListingType.FOR_SALE,

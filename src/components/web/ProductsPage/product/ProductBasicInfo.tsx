@@ -13,7 +13,7 @@ export interface ProductBasicInfoProps {
   distance?: string;
   modelYear?: string;
   gaz?: string;
-  bodyType? : string
+  bodyType?: string;
 }
 
 const ProductBasicInfo: React.FC<ProductBasicInfoProps> = ({
@@ -36,22 +36,26 @@ const ProductBasicInfo: React.FC<ProductBasicInfoProps> = ({
     { key: 'modelYear', label: t('BasicInfo.modelYear'), value: modelYear, icon: '/assets/icons/user-1.png' },
     { key: 'gaz', label: t('BasicInfo.gaz'), value: gaz, icon: '/assets/icons/gaz.png' },
     { key: 'bodyType', label: t('BasicInfo.bodyType'), value: bodyType, icon: '/assets/icons/car-2.png' },
-
   ];
 
   return (
     <Box variant="center" className='w-full'>
-      <Box variant="row" className="md:flex-wrap xs:flex-wrap flex-nowrap xs:justify-around lg:justify-start w-full items-center md:justify-center gap-8">
+      <Box variant="row" className="flex flex-wrap justify-between gap-4 w-full">
         {basicInfo.map((info) => (
-          <Card key={info.key} className="bg-white border-none rounded-lg p-5 xs:w-[150px] 2xl:w-[182px] lg:w-[150px] flex-wrap hover:shadow-2xl duration-500">
-            <CardContent className="flex items-start justify-start p-0 flex-wrap h-fit gap-2">
-              <Image src={info.icon} alt={info.key} width={30} height={30} className='text-green-50' />
-              <Box variant="column" className="w-full justify-start gap-1 items-start">
+          <Card 
+            key={info.key} 
+            className="bg-white border-none rounded-lg p-5 w-[180px] h-32 flex-shrink-0 hover:shadow-2xl duration-500"
+          >
+            <CardContent className="flex flex-col h-full p-0">
+              <div className="flex items-start gap-2 mb-2">
+                <Image src={info.icon} alt={info.key} width={30} height={30} className='text-green-50' />
                 <Text variant="mid" className="text-primary font-cairo font-bold">
                   {info.label}
                 </Text>
-                <Text variant="mid" className="text-secondary-text">{info.value}</Text>
-              </Box>
+              </div>
+              <Text variant="mid" className="text-secondary-text mt-auto overflow-hidden text-ellipsis">
+                {info.value}
+              </Text>
             </CardContent>
           </Card>
         ))}
