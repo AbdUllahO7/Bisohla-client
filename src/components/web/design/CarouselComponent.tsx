@@ -11,9 +11,39 @@ import Image from 'next/image';
 import Box from '@/components/box/box';
 import Text from '@/components/text/text';
 import { MoveUpLeft, MoveUpRight } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { CarouselComponentProps } from '@/types/homePageTypes';
 
-const CarouselComponent: React.FC<CarouselComponentProps> = ({ data, direction }) => {
+interface CarouselItemData {
+    title: string;
+    carCount: string;
+    image: string;
+    governorateId?: string; // Optional ID for filtering
+}
+
+interface ExtendedCarouselComponentProps extends CarouselComponentProps {
+    onCityClick?: (cityTitle: string, governorateId?: string) => void;
+}
+
+const CarouselComponent: React.FC<ExtendedCarouselComponentProps> = ({ 
+    data, 
+    direction,
+    onCityClick 
+}) => {
+    const router = useRouter();
+
+    const handleCityClick = (item: CarouselItemData) => {
+        if (onCityClick) {
+            // If parent provided a callback, use it
+            onCityClick(item.title, item.governorateId);
+        } else {
+            // Default behavior - navigate to products with governorate filter
+            const params = new URLSearchParams();
+            params.set("governorate", item.governorateId || item.title);
+            router.push(`/products?${params.toString()}`);
+        }
+    };
+
     return (
         <Carousel
             opts={{ align: "start" }}
@@ -25,6 +55,7 @@ const CarouselComponent: React.FC<CarouselComponentProps> = ({ data, direction }
                     <CarouselItem
                         key={index}
                         className="lg:w-full xl:basis-1/6 lg:basis-1/4 md:basis-1/4 sm:basis-1/3 xs:basis-1/2"
+                        onClick={() => handleCityClick(item as CarouselItemData)}
                     >
                         <Box className="overflow-hidden">
                             {/* Apply `group` here so hover applies only to this individual Card */}

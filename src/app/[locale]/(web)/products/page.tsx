@@ -51,13 +51,28 @@ const Products = () => {
             const transmission = searchParams.get('transmission');
             const fuelType = searchParams.get('fuelType');
             const search = searchParams.get('search');
+            const listingType = searchParams.get('listingType');
             
             // Only proceed if we have at least one filter parameter
             if (bodyType || make || model || trim || minYear || maxYear || minPrice || 
-                maxPrice || governorate || city || transmission || fuelType || search) {
+                maxPrice || governorate || city || transmission || fuelType || search || listingType) {
                 
                 // Build filter groups for API query
                 const filterGroups: FilterGroup[] = [];
+                
+                // Listing Type filter group
+                if (listingType) {
+                    const listingTypeFilters: FilterType[] = [{
+                        field: "listingType",
+                        operator: "eq",
+                        value: listingType
+                    }];
+                    
+                    filterGroups.push({
+                        operator: "and",
+                        filters: listingTypeFilters
+                    });
+                }
                 
                 // Car details filter group
                 const carDetailsFilters: FilterType[] = [];

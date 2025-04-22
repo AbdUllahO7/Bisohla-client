@@ -3,7 +3,8 @@ import Text from '@/components/text/text';
 import { Card, CardContent } from '@/components/ui/card';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
-import React from 'react';
+import React, { useMemo } from 'react';
+import { getBodyTypeOptions, getFuelTypeOptions, getTransmissionOptions } from '@/core/entities/enums/cars.enums';
 
 // Define the props interface
 export interface ProductBasicInfoProps {
@@ -25,17 +26,35 @@ const ProductBasicInfo: React.FC<ProductBasicInfoProps> = ({
   modelYear = '',
   bodyType = ""
 }: ProductBasicInfoProps) => {
-  const t = useTranslations('product');
+  // Get translators for different namespaces
+  const productT = useTranslations('product');
+  const bodyTypeT = useTranslations('addProduct.enteredData.stepTow');
+  
+  // Get the translated options from the car enums
+  const bodyTypeOptions = useMemo(() => getBodyTypeOptions(bodyTypeT), [bodyTypeT]);
+  const transmissionOptions = useMemo(() => getTransmissionOptions(bodyTypeT), [bodyTypeT]);
+  const fuelTypeOptions = useMemo(() => getFuelTypeOptions(bodyTypeT), [bodyTypeT]);
+  
+  // Find the matching label for the given values
+  const getTranslatedLabel = (value: string, options: Array<{ value: string; label: string }>) => {
+    const option = options.find(opt => opt.value === value);
+    return option ? option.label : value;
+  };
+  
+  // Translated values
+  const translatedBodyType = bodyType ? getTranslatedLabel(bodyType, bodyTypeOptions) : '';
+  const translatedControlType = controlType ? getTranslatedLabel(controlType, transmissionOptions) : '';
+  const translatedGaz = gaz ? getTranslatedLabel(gaz, fuelTypeOptions) : '';
 
   // Define the information to render dynamically
   const basicInfo = [
-    { key: 'carType', label: t('BasicInfo.carType'), value: carType, icon: '/assets/icons/car-clender.png' },
-    { key: 'model', label: t('BasicInfo.model'), value: model, icon: '/assets/icons/car-2.png' },
-    { key: 'controlType', label: t('BasicInfo.controlType'), value: controlType, icon: '/assets/icons/gear-shift.png' },
-    { key: 'distance', label: t('BasicInfo.distance'), value: distance, icon: '/assets/icons/distance.png' },
-    { key: 'modelYear', label: t('BasicInfo.modelYear'), value: modelYear, icon: '/assets/icons/user-1.png' },
-    { key: 'gaz', label: t('BasicInfo.gaz'), value: gaz, icon: '/assets/icons/gaz.png' },
-    { key: 'bodyType', label: t('BasicInfo.bodyType'), value: bodyType, icon: '/assets/icons/car-2.png' },
+    { key: 'carType', label: productT('BasicInfo.carType'), value: carType, icon: '/assets/icons/car-clender.png' },
+    { key: 'model', label: productT('BasicInfo.model'), value: model, icon: '/assets/icons/car-2.png' },
+    { key: 'controlType', label: productT('BasicInfo.controlType'), value: translatedControlType, icon: '/assets/icons/gear-shift.png' },
+    { key: 'distance', label: productT('BasicInfo.distance'), value: distance, icon: '/assets/icons/distance.png' },
+    { key: 'modelYear', label: productT('BasicInfo.modelYear'), value: modelYear, icon: '/assets/icons/user-1.png' },
+    { key: 'gaz', label: productT('BasicInfo.gaz'), value: translatedGaz, icon: '/assets/icons/gaz.png' },
+    { key: 'bodyType', label: productT('BasicInfo.bodyType'), value: translatedBodyType, icon: '/assets/icons/car-2.png' },
   ];
 
   return (
