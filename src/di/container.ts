@@ -11,6 +11,7 @@ import { createProductGroupsRepoModule } from './modules/repositories/products/p
 import { createCarRepoModule } from './modules/repositories/cars/car.module';
 import { createVisitorsModule } from './modules/visitors/visitor.module';
 import { createUsersModule } from './modules/users/users.module';
+import { createNotificationsModule } from './modules/notifications.module';
 
 const AppContainer = createContainer();
 
@@ -30,6 +31,8 @@ AppContainer.load(Symbol('CarsRepoModule'), createCarRepoModule());
 AppContainer.load(Symbol('VisitorsModule'), createVisitorsModule());
 
 AppContainer.load(Symbol('UsersModule'), createUsersModule());
+
+AppContainer.load(Symbol('NotificationModule'), createNotificationsModule());
 
 AppContainer.load(
   Symbol('ProductGroupsRepoModule'),

@@ -4,6 +4,7 @@ import {
   PaginatedResponse,
 } from '@/core/entities/api/success.response';
 import {
+  FacetCount,
   SelectCarListingDto,
   SelectCarMakeDto,
   SelectCarModelDto,
@@ -28,4 +29,7 @@ export interface ICarVisitorStrategy {
   findCarFetures(
     queryParams: QueryParams,
   ): Promise<PaginatedResponse<SelectFeatureDto>>;
+  getPublicFilterFacets(
+    params: QueryParams,
+  ): Promise<ApiResponse<FacetCount[]>>;
 }

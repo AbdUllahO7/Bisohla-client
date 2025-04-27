@@ -143,7 +143,11 @@ export const CreateCarListingSchema = z.object({
 
 export type CreateCarListingDto = z.infer<typeof CreateCarListingSchema>;
 
-export const UpdateCarListingSchema = CreateCarListingSchema.partial();
+export const UpdateCarListingSchema = CreateCarListingSchema.partial().extend({
+  status: z.nativeEnum(CarStatus).optional(),
+  isFeatured: z.boolean(),
+  isTrend: z.boolean(),
+});
 export type UpdateCarListingDto = z.infer<typeof UpdateCarListingSchema>;
 
 // Admin update status schema
@@ -167,3 +171,9 @@ export type CreateFeatureDto = z.infer<typeof CreateFeatureSchema>;
 
 export const UpdateFeatureSchema = CreateFeatureSchema.partial();
 export type UpdateFeatureDto = z.infer<typeof UpdateFeatureSchema>;
+
+export type CreateCarDamages = {
+  damageZone: DamageZone;
+  damageType: DamageType;
+  description: string;
+};

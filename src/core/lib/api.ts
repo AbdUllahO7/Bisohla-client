@@ -338,6 +338,13 @@ export const putAuthReq = async <
   config: Omit<RequestConfig<T, R>, 'method'>,
 ) => makeRequest(await withAuth<T, R>(config, 'PUT'));
 
+export const patchAuthReq = async <
+  T = Record<string, FormDataEntryValue | null> | FormData,
+  R = Record<string, unknown>,
+>(
+  config: Omit<RequestConfig<T, R>, 'method'>,
+) => makeRequest(await withAuth<T, R>(config, 'PATCH'));
+
 export const deleteAuthReq = async <
   T extends Record<string, unknown>,
   R = Record<string, unknown>,

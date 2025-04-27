@@ -168,3 +168,9 @@ export interface SelectCarListingDto {
   // Added damage information
   damages?: SelectCarDamageDto[];
 }
+
+export interface FacetCount {
+  field: string;
+  value: string | number | boolean;
+  count: number;
+}
