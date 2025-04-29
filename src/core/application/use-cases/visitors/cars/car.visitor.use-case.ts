@@ -4,6 +4,7 @@ import {
   ApiResponse,
 } from '@/core/entities/api/success.response';
 import {
+  FacetCount,
   SelectCarListingDto,
   SelectCarMakeDto,
   SelectCarModelDto,
@@ -15,6 +16,11 @@ import { ICarVisitorService } from '@/core/application/services/visitors/car.vis
 
 export class CarVisitorUseCase implements ICarVisitorUseCase {
   constructor(protected readonly service: ICarVisitorService) {}
+  async getPublicFilterFacets(
+    params: QueryParams,
+  ): Promise<ApiResponse<FacetCount[]>> {
+    return await this.service.getPublicFilterFacets(params);
+  }
   async findCarListings(
     queryParams: QueryParams,
   ): Promise<PaginatedResponse<SelectCarListingDto>> {

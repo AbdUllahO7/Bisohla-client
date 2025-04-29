@@ -32,7 +32,7 @@ import {
   UserFavoriteCarListing,
 } from '@/core/entities/models/cars/users-favorites-cars.zod.dto';
 import { QueryParams } from '@/core/entities/api/api';
-import { useSession } from '@/hooks/auth/use-session';
+import { useSession } from '../auth/use-session';
 
 export const useGetCarFavorites = (params: QueryParams) => {
   const session = useSession();

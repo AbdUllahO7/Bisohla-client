@@ -5,15 +5,27 @@ import {
   ApiResponse,
 } from '@/core/entities/api/success.response';
 import {
+  FacetCount,
   SelectCarListingDto,
   SelectCarMakeDto,
   SelectCarModelDto,
   SelectCarTrimDto,
   SelectFeatureDto,
 } from '@/core/entities/models/cars/cars.dto';
+import { UserFavoriteCarListing } from '@/core/entities/models/cars/users-favorites-cars.zod.dto';
 import { getReq, postReq } from '@/core/lib/api';
 
 export class CarVisitorService implements ICarVisitorService {
+  async getPublicFilterFacets(
+    params: QueryParams,
+  ): Promise<ApiResponse<FacetCount[]>> {
+    const res = await postReq<QueryParams, UserFavoriteCarListing>({
+      url: '/car-listings-visitor/public-filter-facets',
+      body: params,
+    });
+
+    return res;
+  }
   async findCarListings(
     queryParams: QueryParams,
   ): Promise<PaginatedResponse<SelectCarListingDto>> {

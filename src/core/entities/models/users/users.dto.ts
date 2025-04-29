@@ -18,6 +18,7 @@ export const selectUserSchema = z.object({
   usersToRoles: z.array(usersToRolesSchema).optional(),
   createdAt: z.string(),
   profileUrl: z.string().optional(),
+  phone: z.string().optional().nullable(),
 });
 
 export type SelectUserDto = z.infer<typeof selectUserSchema>;
