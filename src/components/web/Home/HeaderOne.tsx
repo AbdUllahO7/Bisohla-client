@@ -7,12 +7,19 @@ import LocaleSwitcher from '../../local/LocalSwitcher'
 import Link from 'next/link'
 import { getSession } from '@/core/lib/web/session'
 import { UserCheck2Icon } from 'lucide-react'
+import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions'
 
 const HeaderOne = async () => {
     const t = await getTranslations('homePage');
 
     const payload = await getSession();
     console.log(payload)
+
+
+    // Check authentication status
+    const authResult = await checkAuth();
+        
+    
 
     
     return (
@@ -45,7 +52,7 @@ const HeaderOne = async () => {
 
                 </Box>
                 {
-                    payload?.user === null ?   <Box  className='xs:w-[120px] lg:w-full'>
+                    !authResult.success ?   <Box  className='xs:w-[120px] lg:w-full'>
                     <Link href="/products/AddProducts">
 
                         <Button variant="default" className='text-primary hover:none bg-transparent shadow-none rounded-3xl pb-[5px] pr-[23px]  pt-[5px]  border-2 border-primary' size="lg" >

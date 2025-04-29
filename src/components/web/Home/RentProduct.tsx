@@ -3,18 +3,33 @@ import Box from '@/components/box/box';
 import Text from '@/components/text/text';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { RentProductCard } from '../design/RentProductCard';
 import CardAds from '../design/CardAds';
 import { useCarListings } from '@/core/infrastructure-adapters/use-actions/visitors/car.visitor.use-actions';
-import { Filter } from '@/core/entities/api/api';
 import ProductSkeleton from '../design/ProductSkeletonItem';
+import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions';
 
 const RentProduct = () => {
     const t = useTranslations('homePage');
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    
+    // Verify authentication status on component mount
+    useEffect(() => {
+        const verifyAuth = async () => {
+            try {
+                const authResponse = await checkAuth();
+                setIsAuthenticated(authResponse.success);
+            } catch (error) {
+                console.error("Auth check failed:", error);
+                setIsAuthenticated(false);
+            }
+        };
+        
+        verifyAuth();
+    }, []);
     
     // Fetch rental car listings data with filter for listingType = 'for_rent'
-    // Using the complete QueryParams structure
     const { data, isLoading, error } = useCarListings({
         filterGroups: [
             {
@@ -43,9 +58,6 @@ const RentProduct = () => {
         // Define the type for the listings array
         let listings: Array<any> = [];
         
-        // Debug the data structure
-        console.log("Complete data structure:", data);
-        
         // If data.data is an array, use it
         if (Array.isArray(data?.data)) {
             listings = data.data;
@@ -54,9 +66,6 @@ const RentProduct = () => {
         else if (Array.isArray(data?.data?.data)) {
             listings = data.data.data;
         }
-        
-        console.log("Extracted listings:", listings);
-        console.log("First listing sample:", listings[0]);
         
         // Limit to 9 items
         return listings.slice(0, 9);
@@ -77,8 +86,7 @@ const RentProduct = () => {
                 </Box>
                 
                 {/* Show loading state */}
-                {isLoading && <ProductSkeleton  showTitle={false} />}
-
+                {isLoading && <ProductSkeleton showTitle={false} />}
                 
                 {/* Show error state */}
                 {error && (
@@ -119,6 +127,19 @@ const RentProduct = () => {
                                 )}
                             </React.Fragment>
                         ))}
+                    </Box>
+                )}
+                
+                {/* Show authentication prompt if not logged in */}
+                {!isAuthenticated && !isLoading && (
+                    <Box className="mt-4 p-4 bg-gray-100 rounded-lg" variant="center">
+                        <Text className="text-gray-700">
+                            <Link href="/login" className="text-primary hover:underline">
+                                Login
+                            </Link> or <Link href="/register" className="text-primary hover:underline">
+                                Register
+                            </Link> to save your favorite listings
+                        </Text>
                     </Box>
                 )}
             </Box>

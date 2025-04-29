@@ -25,6 +25,7 @@ export interface CarCardItemPropsProfile {
     ProductId : number;
     isFavorites : boolean,
     type? : string
+    onFavoriteToggle?: (productId: number, isFavorite: boolean) => void;
 
 }
 export interface CitiesDataType {

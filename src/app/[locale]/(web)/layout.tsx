@@ -42,7 +42,6 @@ const WebLayout = async ({ children }: PropsWithChildren) => {
       {/* Spacer for HeaderTwo height */}
       <div className="h-[65px]"></div>
       {children}
-      <Footer />
     </Box>
   );
 };

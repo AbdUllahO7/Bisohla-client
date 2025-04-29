@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Box from '@/components/box/box';
 import Text from '@/components/text/text';
@@ -9,9 +9,26 @@ import { ProductCardItem } from '../design/ProductCardItem';
 import { LatestOffersProps } from '@/types/homePageTypes';
 import { useCarListings } from '@/core/infrastructure-adapters/use-actions/visitors/car.visitor.use-actions';
 import ProductSkeleton from '../design/ProductSkeletonItem';
+import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions';
 
 const LatestOffers: React.FC<LatestOffersProps> = ({ count, showTitle = true, container = true }) => {
     const t = useTranslations('homePage');
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    
+    // Verify authentication status on component mount
+    useEffect(() => {
+        const verifyAuth = async () => {
+            try {
+                const authResponse = await checkAuth();
+                setIsAuthenticated(authResponse.success);
+            } catch (error) {
+                console.error("Auth check failed:", error);
+                setIsAuthenticated(false);
+            }
+        };
+        
+        verifyAuth();
+    }, []);
     
     // Fetch car listings data with filter for listingType = 'for_sale'
     const { data, isLoading, error } = useCarListings({
@@ -53,8 +70,6 @@ const LatestOffers: React.FC<LatestOffersProps> = ({ count, showTitle = true, co
         const limit = count || 9;
         return listings.slice(0, limit);
     }, [data, count]);
-
-
     
     return (
         <Box variant={`${container ? "container" : 'center'}`} className="mb-5 mt-[50px]">
@@ -73,7 +88,7 @@ const LatestOffers: React.FC<LatestOffersProps> = ({ count, showTitle = true, co
                 )}
                 
                 {/* Show loading skeleton */}
-                {isLoading && <ProductSkeleton count={count ||8} showTitle={false} />}
+                {isLoading && <ProductSkeleton count={count || 8} showTitle={false} />}
                 
                 {/* Show error state */}
                 {error && (
@@ -115,6 +130,19 @@ const LatestOffers: React.FC<LatestOffersProps> = ({ count, showTitle = true, co
                                 )}
                             </React.Fragment>
                         ))}
+                    </Box>
+                )}
+                
+                {/* Show authentication prompt if not logged in */}
+                {!isAuthenticated && !isLoading && (
+                    <Box className="mt-4 p-4 bg-gray-100 rounded-lg" variant="center">
+                        <Text className="text-gray-700">
+                            <Link href="/login" className="text-primary hover:underline">
+                                Login
+                            </Link> or <Link href="/register" className="text-primary hover:underline">
+                                Register
+                            </Link> to save your favorite listings
+                        </Text>
                     </Box>
                 )}
             </Box>

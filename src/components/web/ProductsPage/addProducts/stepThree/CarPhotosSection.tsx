@@ -35,6 +35,7 @@ const CarPhotosSection: React.FC<CarPhotosSectionProps> = ({
           value={coverImage}
           dropzoneClassName="min-h-[200px]"
           name="coverImage"
+          
         />
       </div>
 
