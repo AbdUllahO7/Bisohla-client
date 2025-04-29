@@ -12,7 +12,6 @@ import { useCarListingById } from '@/core/infrastructure-adapters/use-actions/vi
 
 const Product = () => {
     const { id } = useParams(); // Get the product ID from the URL params
-    const t = useTranslations('homePage');
 
 
         // Fetch all car listings with pagination
@@ -71,8 +70,7 @@ const Product = () => {
             </Box>
             {/* Tabs */}
             <Box  className='lg:w-full xs:w-[90%] mt-5'>
-                        <TabsSection data = {data}/>
-
+                <TabsSection data = {data}/>
             </Box>
             </Box>
 

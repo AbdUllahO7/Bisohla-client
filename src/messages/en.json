@@ -16,7 +16,9 @@
       "rent": "Rent",
       "sale": "Sale",
       "news": "news",
-      "join": "Join"
+      "join": "Join",
+      "BrowseAll" : "Browse All"
+
     },
     "hero": {
       "title": "Bishola",
@@ -36,27 +38,10 @@
       "priceLow": "Price Low",
       "selectPrice": "Select Price",
       "search": "Search",
-      "options": {
-        "productType": {
-          "sedan": "Sedan",
-          "suv": "SUV",
-          "truck": "Truck",
-          "coupe": "Coupe"
-        },
-        "state": {
-          "new": "New",
-          "used": "Used",
-          "certified": "Certified"
-        },
-        "controltype": {
-          "manual": "Manual",
-          "automatic": "Automatic"
-        },
-        "priceRanges": {
-          "15000_20000": "15,000 to 20,000",
-          "20000_30000": "20,000 to 30,000",
-          "30000_40000": "30,000 to 40,000"
-        }
+      "reset" : "Reset",
+      "productPrice" : {
+        "highestPrice" : "Highest Price",
+        "lessPrice" :"Less Price"
       }
     },
     "latestOffers": {

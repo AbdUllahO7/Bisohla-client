@@ -16,7 +16,6 @@ async function AddProductsPage() {
     redirect('/auth/sign-in');
   }
 
-  // User is authenticated, render the page
   return (
     <Box variant="column" className="mt-[50px] bg-background">
       <Box className="w-full mt-10" variant="column">

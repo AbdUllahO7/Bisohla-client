@@ -17,7 +17,8 @@
       "rent": "تأجير",
       "sale": "بيع",
       "news": "اخبار",
-      "join": "أنضم بسهولة"
+      "join": "أنضم بسهولة",
+      "BrowseAll" : "تصفح الكل"
     },
 
     "hero": {
@@ -37,27 +38,10 @@
       "priceLow": "السعر المنخفض",
       "selectPrice": "اختر السعر",
       "search": "بحث",
-      "options": {
-        "productType": {
-          "sedan": "سيدان",
-          "suv": "شاحنات",
-          "truck": "شاحنة",
-          "coupe": "كوبيه"
-        },
-        "state": {
-          "new": "جديد",
-          "used": "مستعمل",
-          "certified": "مُعتمد"
-        },
-        "controltype": {
-          "manual": "يدوي",
-          "automatic": "أوتوماتيكي"
-        },
-        "priceRanges": {
-          "15000_20000": "15,000 إلى 20,000",
-          "20000_30000": "20,000 إلى 30,000",
-          "30000_40000": "30,000 إلى 40,000"
-        }
+      "reset" : "إعادة تعيين",
+      "productPrice" : {
+        "highestPrice" : " أعلى سعر",
+        "lessPrice" :"أقل سعر"
       }
     },
     "latestOffers": {
@@ -743,13 +727,13 @@
         "natural_gas": "غاز طبيعي"
       },
       "bodyType": {
-        "suv": "suv",
+        "suv": "شاحنة",
         "sedan": "سيدان",
         "hatchback": "هاتشباك",
         "coupe": "كوبيه",
         "convertible": "قابلة للتحويل",
-        "wagon": "Station",
-        "van": "Van",
+        "wagon": "عربة",
+        "van": "شاحنة صغيرة",
         "minivan": "ميني فان",
         "pickup": "بيك أب",
         "other": "أخرى"

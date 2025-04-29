@@ -25,6 +25,7 @@ export interface CarCardItemPropsProfile {
     ProductId : number;
     isFavorites : boolean,
     type? : string
+    onFavoriteToggle?: (productId: number, isFavorite: boolean) => void;
 
 }
 export interface CitiesDataType {
@@ -63,6 +64,7 @@ export interface HeaderTowProps {
         sale: string;
         news: string;
         join: string;
+        BrowseAll : string;
     };
 }
 

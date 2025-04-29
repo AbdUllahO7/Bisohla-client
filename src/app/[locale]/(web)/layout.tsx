@@ -34,13 +34,14 @@ const WebLayout = async ({ children }: PropsWithChildren) => {
             sale: t('headerTow.sale'),
             news: t('headerTow.news'),
             join: t('headerTow.join'),
+            BrowseAll: t('headerTow.BrowseAll'),
+
           }}
         />
       </div>
       {/* Spacer for HeaderTwo height */}
       <div className="h-[65px]"></div>
       {children}
-      <Footer />
     </Box>
   );
 };
