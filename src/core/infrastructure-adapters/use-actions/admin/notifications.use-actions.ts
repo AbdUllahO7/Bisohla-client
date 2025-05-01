@@ -54,9 +54,9 @@ import {
   getGroupUsers,
   getUsersNotifications,
 } from '@/core/infrastructure-adapters/actions/admin/notifications.action';
-import { useLocaleQuery } from '@/hooks/use-locale-query';
 import { useSession } from '../auth/use-session';
 import { SelectUserDto } from '@/core/entities/models/users/users.dto';
+import { useLocaleQuery } from '../common/use-locale-query';
 
 // User Notification Hooks
 export const useCreateUserNotification = () =>

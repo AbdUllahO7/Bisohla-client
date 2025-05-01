@@ -1,9 +1,9 @@
 "use client"
 
-import { useState } from "react"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { z } from "zod"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@/components/ui/button"
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
@@ -12,209 +12,306 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
-import {  User } from "lucide-react"
+import { User, Loader2 } from "lucide-react"
 import { useSession } from "@/hooks/auth/use-session"
+import { useGetMyProfile, useUpdateUserProfile } from "@/core/infrastructure-adapters/use-actions/users/user-profile.use-actions"
+import ImageUploader, { ImageUploaderRef } from "@/components/image-uploader/image-uploader"
 
+// Define profile schema based on our DTO
 const profileFormSchema = z.object({
-name: z
-    .string()
-    .min(2, {
+  name: z.string().min(2, {
     message: "Name must be at least 2 characters.",
-    })
-    .max(30, {
-    message: "Name must not be longer than 30 characters.",
-    }),
-email: z.string().email({
+  }).max(50, {
+    message: "Name must not be longer than 50 characters.",
+  }),
+  email: z.string().email({
     message: "Please enter a valid email address.",
-}),
-bio: z.string().max(160).optional(),
-urls: z
-    .object({
-    website: z.string().url({ message: "Please enter a valid URL." }).optional(),
-    twitter: z.string().optional(),
-    linkedin: z.string().optional(),
-    })
-    .optional(),
+  }).optional(),
+  phone: z.string().nullable().optional(),
+  bio: z.string().max(160).optional(),
+  // We'll handle password separately
+  password: z.string().min(8).max(255).nullable().optional(),
+  passwordConfirmation: z.string().min(8).max(255).nullable().optional(),
+  profileUrl: z.string().nullable().optional()
 })
-
-
+  .refine((data) => {
+    if (data.password && !data.passwordConfirmation) return false;
+    if (!data.password && data.passwordConfirmation) return false;
+    if (data.password && data.passwordConfirmation && data.password !== data.passwordConfirmation) return false;
+    return true;
+  }, {
+    message: "Passwords do not match",
+    path: ["passwordConfirmation"],
+  });
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>
 
-
-
-
-
 const UserInfoPage = () => {
-    const [isLoading, setIsLoading] = useState<boolean>(false)
-    
+  const [isFormDisabled, setIsFormDisabled] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+  const profileImageRef = useRef<ImageUploaderRef>(null);
+  
+  // Get user profile data
+  const { data, isLoading: isProfileLoading, error, refetch } = useGetMyProfile();
+  
+  // Update user profile mutation
+  const updateProfileMutation = useUpdateUserProfile();
 
-    // Profile form
-    const profileForm = useForm<ProfileFormValues>({
-        resolver: zodResolver(profileFormSchema),
-        defaultValues: {
-        name: "John Doe",
-        email: "john.doe@example.com",
-        bio: "I'm a software developer based in New York.",
-        urls: {
-            website: "https://example.com",
-            twitter: "johndoe",
-            linkedin: "johndoe",
-        },
-        },
-    })
-
-    function onProfileSubmit(data: ProfileFormValues) {
-        setIsLoading(true)
-
-        // Simulate API call
-        setTimeout(() => {
-        console.log(data)
-        setIsLoading(false)
-        }, 1000)
+  // Profile form
+  const profileForm = useForm<ProfileFormValues>({
+    resolver: zodResolver(profileFormSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      phone: null,
+      bio: "",
+      password: null,
+      passwordConfirmation: null,
+      profileUrl: null
+    },
+  });
+  
+  // Initialize client-side state
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+  
+  // Update form when profile data is loaded
+  useEffect(() => {
+    if (data?.data) {
+      const profile = data.data;
+      profileForm.reset({
+        name: profile.name,
+        email: profile.email,
+        phone: profile.phoneNumber,
+        profileUrl: profile.profileUrl,
+        // We don't populate password fields
+        password: null,
+        passwordConfirmation: null,
+      });
     }
+  }, [data, profileForm]);
 
-    return (
-        <Tabs defaultValue="profile" className="w-full container ">
-        <TabsList className="grid w-full grid-cols-4 bg-primary">
-            <TabsTrigger value="profile" className="flex items-center gap-2 ">
-            <User className="h-4 w-4 text-primary" />
-            <span className="hidden sm:inline text-primary">Profile</span>
-            </TabsTrigger>
-        </TabsList>
+  // Handle profile image changes from ImageUploader
+  const handleProfileImageChange = useCallback((urls: string[]) => {
+    const url = urls.length > 0 ? urls[0] : null;
+    profileForm.setValue("profileUrl", url);
+  }, [profileForm]);
 
-        {/* Profile Tab */}
-        <TabsContent value="profile" className="space-y-6 bg-white">
-            <Card className="bg-primary">
+  // Submit profile form
+  async function onProfileSubmit(data: ProfileFormValues) {
+    try {
+      // Prepare data for update
+      const updateData = {
+        name: data.name,
+        bio: data.bio,
+        phone: data.phone,
+        password: data.password,
+        passwordConfirmation: data.passwordConfirmation,
+        profileUrl: data.profileUrl,
+      };
+      
+      // Send update request
+      await updateProfileMutation.mutateAsync(updateData);
+      console.log("Profile updated successfully",updateData);
+      // Refresh profile data
+      refetch();
+      
+    } catch (error) {
+      console.error("Failed to update profile:", error);
+    }
+  }
+
+  // Get initials for avatar fallback
+  const getInitials = (name: string) => {
+    if (!name) return "U";
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .substring(0, 2);
+  };
+
+  const isSubmitting = updateProfileMutation.isPending;
+  const isLoading = isProfileLoading;
+
+  return (
+    <Tabs defaultValue="profile" className="w-full container">
+      <TabsList className="grid w-full grid-cols-4 bg-primary">
+        <TabsTrigger value="profile" className="flex items-center gap-2">
+          <User className="h-4 w-4 text-primary" />
+          <span className="hidden sm:inline text-primary">Profile</span>
+        </TabsTrigger>
+      </TabsList>
+
+      {/* Profile Tab */}
+      <TabsContent value="profile" className="space-y-6 bg-white">
+        {isLoading ? (
+          <Card className="bg-primary p-6 flex justify-center items-center">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </Card>
+        ) : (
+          <Card className="bg-primary">
             <CardHeader>
-                <CardTitle>Profile</CardTitle>
-                <CardDescription>Manage your public profile information.</CardDescription>
+              <CardTitle>Profile</CardTitle>
+              <CardDescription>Manage your public profile information.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-                <div className="flex flex-col sm:flex-row gap-6 items-start">
-                <Avatar className="h-24 w-24">
-                    <AvatarImage src="/placeholder.svg?height=96&width=96" alt="Profile" />
-                    <AvatarFallback>JD</AvatarFallback>
-                </Avatar>
-                <div className="space-y-2">
-                    <h4 className="text-sm font-medium">Profile Picture</h4>
-                    <div className="flex flex-col sm:flex-row gap-2">
-                    <Button variant="outline" size="sm" className="text-primary"> 
-                        Upload new image
-                    </Button>
-                    <Button variant="outline" size="sm" className="text-destructive">
-                        Remove
-                    </Button>
-                    </div>
-                    <p className="text-xs text-muted-foreground">JPG, GIF or PNG. Max size of 3MB.</p>
-                </div>
-                </div>
-
-                <Separator />
-
-                <Form {...profileForm}>
-                <form onSubmit={profileForm.handleSubmit(onProfileSubmit)} className="space-y-6">
-                    <div className="grid gap-4 sm:grid-cols-2">
-                    <FormField
-                        control={profileForm.control}
-                        name="name"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Name</FormLabel>
-                            <FormControl>
-                            <Input placeholder="Your name" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={profileForm.control}
-                        name="email"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Email</FormLabel>
-                            <FormControl>
-                            <Input placeholder="Your email" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                        )}
-                    />
-                    </div>
-
-                    <FormField
-                    control={profileForm.control}
-                    name="bio"
-                    render={({ field }) => (
-                        <FormItem>
-                        <FormLabel>Bio</FormLabel>
-                        <FormControl>
-                            <Textarea
-                            placeholder="Tell us a little bit about yourself"
-                            className="resize-none"
-                            {...field}
-                            />
-                        </FormControl>
-                        <FormDescription>Brief description for your profile. URLs are hyperlinked.</FormDescription>
-                        <FormMessage />
-                        </FormItem>
+              <div className="flex flex-col gap-6 items-start">
+                <div className="flex flex-row gap-6 items-center">
+                  <Avatar className="h-24 w-24">
+                    {profileForm.getValues("profileUrl") ? (
+                      <AvatarImage src={profileForm.getValues("profileUrl") ?? undefined} alt="Profile" />
+                    ) : (
+                      <AvatarImage src="/placeholder.svg?height=96&width=96" alt="Profile" />
                     )}
-                    />
+                    <AvatarFallback>{getInitials(profileForm.getValues("name"))}</AvatarFallback>
+                  </Avatar>
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-medium">Profile Picture</h4>
+                    <p className="text-xs text-muted-foreground">Change your profile picture below</p>
+                  </div>
+                </div>
+                
+                {isClient && (
+                  <ImageUploader 
+                    maxImages={1}
+                    onChange={handleProfileImageChange}
+                    setDisableForm={setIsFormDisabled}
+                    maxSizeInMB={3}
+                    showPreview={true}
+                    name="profile-image"
+                    containerClassName="w-full"
+                    dropzoneClassName="p-4"
+                    ref={profileImageRef}
+                  />
+                )}
+              </div>
 
-                    <div className="grid gap-4 sm:grid-cols-3">
-                    <FormField
-                        control={profileForm.control}
-                        name="urls.website"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Website</FormLabel>
-                            <FormControl>
-                            <Input placeholder="https://example.com" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={profileForm.control}
-                        name="urls.twitter"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Twitter</FormLabel>
-                            <FormControl>
-                            <Input placeholder="@username" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={profileForm.control}
-                        name="urls.linkedin"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>LinkedIn</FormLabel>
-                            <FormControl>
-                            <Input placeholder="username" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                        )}
-                    />
-                    </div>
+              <Separator />
 
-                    <Button type="submit" disabled={isLoading} className="bg-primary-light text-white">
-                    {isLoading ? "Saving..." : "Save changes"}
-                    </Button>
+              <Form {...profileForm}>
+                <form onSubmit={profileForm.handleSubmit(onProfileSubmit)} className="space-y-6">
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <FormField
+                      control={profileForm.control}
+                      name="name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Name</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Your name" {...field} disabled={isFormDisabled} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={profileForm.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email</FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder="Your email" 
+                              {...field} 
+                              disabled={true} // Email shouldn't be editable via profile
+                            />
+                          </FormControl>
+                          <FormDescription>Email cannot be changed here.</FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <FormField
+                    control={profileForm.control}
+                    name="phone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Phone Number</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="Your phone number" 
+                            {...field} 
+                            value={field.value || ""}
+                            disabled={isFormDisabled}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+              
+
+                  {/* Password fields */}
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <FormField
+                      control={profileForm.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>New Password</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="password" 
+                              placeholder="Leave blank to keep current" 
+                              {...field} 
+                              value={field.value || ""}
+                              disabled={isFormDisabled}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={profileForm.control}
+                      name="passwordConfirmation"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Confirm New Password</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="password" 
+                              placeholder="Confirm new password" 
+                              {...field} 
+                              value={field.value || ""}
+                              disabled={isFormDisabled}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <Button 
+                    type="submit" 
+                    disabled={isSubmitting || isFormDisabled} 
+                    className="bg-primary-light text-white"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      "Save changes"
+                    )}
+                  </Button>
                 </form>
-                </Form>
+              </Form>
             </CardContent>
-            </Card>
-        </TabsContent>
-
-        </Tabs>
-    )
+          </Card>
+        )}
+      </TabsContent>
+    </Tabs>
+  )
 }
 
 export default UserInfoPage

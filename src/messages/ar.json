@@ -402,7 +402,7 @@
           "diesel": "مازوت"
         },
         "search": "بحث",
-        "resetSearch": "إعادة ضبط  البحث"
+        "resetSearch": " ضبط البحث"
       }
     },
     "categories": {
@@ -1098,6 +1098,21 @@
       "of": "من",
       "items": "عنصر"
     },
+    "price": "السعر"
+  },
+  "common": {
+    "myProducts": "منتجاتي",
+    "sale": "بيع",
+    "rent": "إيجار",
+    "edit": "تعديل",
+    "delete": "حذف",
+    "deleting": "جاري الحذف...",
+    "cancel": "إلغاء",
+    "confirmDelete": "حذف نهائي",
+    "deleteConfirmation": "تأكيد الحذف",
+    "deleteWarning": "لا يمكن التراجع عن هذا الإجراء. سيؤدي هذا إلى حذف القائمة الخاصة بك بشكل دائم وإزالتها من خوادمنا.",
+    "details": "التفاصيل",
+    "viewDetails": "عرض التفاصيل",
     "price": "السعر"
   }
 }

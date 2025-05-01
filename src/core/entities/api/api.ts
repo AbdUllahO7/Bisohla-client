@@ -28,6 +28,7 @@ export interface QueryParams {
   searchKey?: string;
   searchTerm?: unknown | unknown[];
   id?: number | number[]; // Modified to support arrays
+  userId?: number | null
   locale?: string; // Add this line
   where?: Filter[]; // New field for explicit where conditions
   filterGroups?: FilterGroup[];

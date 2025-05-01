@@ -10,9 +10,9 @@ import {
   GetUserProfile,
   UpdateProfileDto,
 } from '@/core/entities/models/profile/user.profile.dto';
-import { useLocaleQuery } from '@/hooks/use-locale-query';
 import { useMutation } from '@tanstack/react-query';
 import { SelectUserDto } from '@/core/entities/models/users/users.dto';
+import { useLocaleQuery } from '../common/use-locale-query';
 
 export const useGetMyProfile = () => {
   const session = useSession();
