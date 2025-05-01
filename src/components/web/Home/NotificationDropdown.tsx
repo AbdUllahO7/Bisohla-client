@@ -49,7 +49,7 @@ const NotificationDropdown = () => {
   const dateLocale = locale === 'ar' ? arSA : enUS;
   
   const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement | null>(null);
+  const dropdownRef = useRef(null);
   
   // Set up filter options to only show unread notifications in the dropdown
   const [filterOptions, setFilterOptions] = useState({
@@ -66,7 +66,7 @@ const NotificationDropdown = () => {
   
   // Close dropdown when clicking outside
   useEffect(() => {
-    const handleClickOutside = (event: { target: any; }) => {
+    const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsOpen(false);
       }
@@ -86,7 +86,7 @@ const NotificationDropdown = () => {
   }, [isOpen, refetch]);
   
   // Get notification icon based on type
-  const getNotificationIcon = (type: notificationTypeEnum) => {
+  const getNotificationIcon = (type) => {
     switch (type) {
       case notificationTypeEnum.system: return '💻';
       case notificationTypeEnum.user: return '👤';
@@ -114,7 +114,7 @@ const NotificationDropdown = () => {
   };
   
   // Handle marking a notification as read
-  const handleMarkAsRead = async (id: number, event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+  const handleMarkAsRead = async (id, event) => {
     event.stopPropagation();
     try {
       await markAsReadMutation.mutateAsync({
@@ -127,8 +127,8 @@ const NotificationDropdown = () => {
     }
   };
   
-  // Calculate unread count
-  const unreadCount = notificationsResponse?.data?.totalCount || 0;
+  // Calculate unread count from notification data
+  const unreadCount = notificationsResponse?.data?.data?.length || 0;
   
   return (
     <div className="relative" ref={dropdownRef}>
@@ -184,9 +184,11 @@ const NotificationDropdown = () => {
             <>
               <div className="divide-y divide-gray-100">
                 {notificationsResponse?.data?.data?.map((notification) => (
-                  <div 
+                  <Link 
                     key={notification.id}
-                    className="p-3 hover:bg-gray-50 cursor-pointer transition-colors"
+                    href="/userProfile/Notification"
+                    className="block p-3 hover:bg-gray-50 cursor-pointer transition-colors"
+                    onClick={() => setIsOpen(false)}
                   >
                     <div className="flex gap-3">
                       {/* Icon */}
@@ -222,14 +224,14 @@ const NotificationDropdown = () => {
                         </div>
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
               
               {/* Footer */}
               <div className="p-3 border-t border-gray-100 text-center">
                 <Link 
-                  href="/userProfile/Notification"
+                  href="/notifications"
                   className="text-sm text-[#2C3C39] font-medium hover:text-[#ABDE3B] transition-colors"
                   onClick={() => setIsOpen(false)}
                 >

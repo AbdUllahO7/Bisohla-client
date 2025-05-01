@@ -47,15 +47,12 @@ const HeaderOne = async () => {
                     </Link>
                 </Box>
                 
-                {/* Notification Icon - Only show when authenticated */}
-                {authResult.success && (
-                    <NotificationDropdown />
-                )}
+              
                 
                 {/* Login/Profile Button */}
                 {!authResult.success ? (
                     <Box className='xs:w-[120px] lg:w-full'>
-                        <Link href="/auth/login">
+                        <Link href="/auth/sign-in">
                             <Button variant="default" className='text-primary hover:none bg-transparent shadow-none rounded-3xl pb-[5px] pr-[23px] pt-[5px] border-2 border-primary' size="lg">
                                 <span>{t('headerOne.loginButton')}</span>
                                 <Image 
@@ -75,11 +72,15 @@ const HeaderOne = async () => {
                         </Button>
                     </Link>
                 )}
-                
+                  {/* Notification Icon - Only show when authenticated */}
+                  {authResult.success && (
+                    <NotificationDropdown />
+                )}
                 {/* local */}
                 <div className='xs:hidden lg:block md:block'>
                     <LocaleSwitcher/>
                 </div>
+                
             </div>
         </Box>
     )
