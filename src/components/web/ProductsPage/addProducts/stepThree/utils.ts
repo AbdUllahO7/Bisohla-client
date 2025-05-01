@@ -1,40 +1,60 @@
 // utils.ts
-import { CarConditionState, STORAGE_KEY, defaultState } from "./types";
+import { CarConditionState, defaultState, STORAGE_KEY, EDIT_STORAGE_KEY, EDIT_MODE_FLAG } from "./types";
 import { CarSection, CarConditionType } from "@/core/entities/enums/cars.damegs.enum";
 
 /**
- * Loads car condition data from localStorage
- * @returns Loaded car condition state
+ * Checks if the application is in edit mode
+ * @returns Boolean indicating if we're in edit mode
+ */
+export const isEditMode = (): boolean => {
+  if (typeof window === "undefined") return false;
+  return !!localStorage.getItem(EDIT_MODE_FLAG);
+};
+
+/**
+ * Gets the appropriate storage key based on edit mode
+ * @returns The localStorage key to use
+ */
+export const getStorageKey = (): string => {
+  return isEditMode() ? EDIT_STORAGE_KEY : STORAGE_KEY;
+};
+
+/**
+ * Load car condition data from localStorage with edit mode awareness
  */
 export const loadFromStorage = (): CarConditionState => {
   try {
-    if (typeof window === 'undefined') {
-      return defaultState;
-    }
+    if (typeof window === "undefined") return defaultState;
     
-    const savedData = localStorage.getItem(STORAGE_KEY);
+    const key = getStorageKey();
+    console.log(`Loading car condition from localStorage using key: ${key}`);
+    
+    const savedData = localStorage.getItem(key);
     if (savedData) {
-      return JSON.parse(savedData);
+      const parsedData = JSON.parse(savedData);
+      return parsedData;
     }
     
     return defaultState;
   } catch (e) {
-    console.error("Failed to parse saved data:", e);
+    console.error(`Failed to load data from ${getStorageKey()}:`, e);
     return defaultState;
   }
 };
 
 /**
- * Saves car condition data to localStorage
- * @param data Car condition state to save
+ * Save car condition data to localStorage with edit mode awareness
  */
 export const saveToStorage = (data: CarConditionState): void => {
   try {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    }
+    if (typeof window === "undefined") return;
+    
+    const key = getStorageKey();
+    console.log(`Saving car condition to localStorage using key: ${key}`);
+    
+    localStorage.setItem(key, JSON.stringify(data));
   } catch (e) {
-    console.error("Failed to save data:", e);
+    console.error(`Failed to save data to ${getStorageKey()}:`, e);
   }
 };
 
@@ -48,16 +68,11 @@ export const validateForm = (
   carCondition: CarConditionState,
   carSections: any[]
 ): boolean => {
-  // Modified: No longer checking if all sections have a status
-  // const allSectionsHaveStatus = carSections.every(section => 
-  //   Boolean(carCondition.sectionStatus[section.id])
-  // );
-
   // Check if at least cover image is provided
-  const hasCoverImage = carCondition.coverImage.length > 0;
+  const hasCoverImage = carCondition.coverImage && carCondition.coverImage.length > 0;
 
   // Check if at least one car image is provided
-  const hasCarImages = carCondition.carImages.length > 0;
+  const hasCarImages = carCondition.carImages && carCondition.carImages.length > 0;
 
   // Overall validation - only photos are now required
   return hasCoverImage && hasCarImages;
@@ -65,12 +80,9 @@ export const validateForm = (
 
 /**
  * Transform the sectionStatus object to the backend's expected damages array format
- */
-/**
- * Transform the sectionStatus object to the backend's expected damages array format
  * Maps our frontend CarSection values to backend DamageZone values
  */
-export const transformDamages = (sectionStatus: Record<string, string>) => {
+export const transformDamages = (sectionStatus: Record<string, string | { status: string, description: string | null }>) => {
   if (!sectionStatus || Object.keys(sectionStatus).length === 0) {
     return [];
   }
@@ -78,28 +90,42 @@ export const transformDamages = (sectionStatus: Record<string, string>) => {
   // Map our frontend section enum values to backend DamageZone enum values
   const sectionToDamageZoneMap: Record<string, string> = {
     // Map CarSection enum values to valid backend DamageZone values
-    [CarSection.Hood]: 'hood',
-    [CarSection.Roof]: 'roof',
-    [CarSection.LeftFrontFender]: 'left_front_fender',
-    [CarSection.RightFrontFender]: 'right_front_fender',
-    [CarSection.LeftFrontDoor]: 'left_front_door',
-    [CarSection.RightFrontDoor]: 'right_front_door',
-    [CarSection.LeftRearDoor]: 'left_rear_door',
-    [CarSection.RightRearDoor]: 'right_rear_door',
-    [CarSection.Package]: 'trunk', // Map Package to trunk as it's the closest matching backend value
-    [CarSection.LeftRearFender]: 'left_rear_fender',
-    [CarSection.RightRearFender]: 'right_rear_fender',
+    [CarSection.Hood]: 'Hood',
+    [CarSection.Roof]: 'Roof',
+    [CarSection.LeftFrontFender]: 'Left Front Fender',
+    [CarSection.RightFrontFender]: 'Right Front Fender',
+    [CarSection.LeftFrontDoor]: 'Left Front Door',
+    [CarSection.RightFrontDoor]: 'Right Front Door',
+    [CarSection.LeftRearDoor]: 'Left Rear Door',
+    [CarSection.RightRearDoor]: 'Right Rear Door',
+    [CarSection.Package]: 'Package', 
+    [CarSection.LeftRearFender]: ' Left Rear Fender',
+    [CarSection.RightRearFender]: 'Right Rear Fender',
   };
-
+  
   // Map our frontend condition type enum values to backend DamageType enum values
   const conditionToDamageTypeMap: Record<string, string> = {
-    [CarConditionType.SCRATCH]: 'scratch',
-    [CarConditionType.PAINT]: 'paint_faded',
-    [CarConditionType.REPLACEMENT]: 'panel_replaced',
+    [CarConditionType.SCRATCH]: 'Scratch',
+    [CarConditionType.PAINT]: 'paint',
+    [CarConditionType.REPLACEMENT]: 'replacement',
   };
 
   // Transform sectionStatus object into damages array with valid backend values
-  const damages = Object.entries(sectionStatus).map(([sectionId, conditionType]) => {
+  const damages = Object.entries(sectionStatus).map(([sectionId, value]) => {
+    // Handle both string values and object values
+    let conditionType: string;
+    let description: string | null = null;
+    
+    if (typeof value === 'string') {
+      conditionType = value;
+    } else if (value && typeof value === 'object' && 'status' in value) {
+      conditionType = value.status;
+      description = value.description || null;
+    } else {
+      console.warn(`Skipping invalid section status format for ${sectionId}:`, value);
+      return null;
+    }
+    
     // Map the frontend IDs to backend enum values
     const damageZone = sectionToDamageZoneMap[sectionId];
     const damageType = conditionToDamageTypeMap[conditionType];
@@ -112,7 +138,7 @@ export const transformDamages = (sectionStatus: Record<string, string>) => {
     return {
       damageZone,
       damageType,
-      description: null // You can add description handling if needed
+      description
     };
   }).filter(item => item !== null); // Remove any null entries
   

@@ -30,6 +30,7 @@ export const useProductStepOne = (onValidationChange: (isValid: boolean) => void
     const userChangedMarka = useRef(false);
     const userChangedModel = useRef(false);
     const userChangedGovernorate = useRef(false);
+    const editModeDataApplied = useRef(false);
     
     // Set isClient to true once the component has mounted
     useEffect(() => {
@@ -50,6 +51,23 @@ export const useProductStepOne = (onValidationChange: (isValid: boolean) => void
         }
     }, [selectedOptions, isClient]);
 
+    // Function to set initial data for edit mode
+    const setInitialEditData = useCallback((editData: SelectedOptions) => {
+        // Only apply edit data once
+        if (!editModeDataApplied.current) {
+            console.log("Setting initial edit data:", editData);
+            
+            setSelectedOptions(editData);
+            editModeDataApplied.current = true;
+            
+            // Set validation based on provided data
+            if (onValidationChange && validateForm(editData)) {
+                onValidationChange(true);
+                setPrevValidationState(true);
+            }
+        }
+    }, [onValidationChange]);
+
     // Extract IDs only when needed
     const makeId = selectedOptions.marka ? Number.parseInt(selectedOptions.marka) : undefined;
     const modelId = selectedOptions.model ? Number.parseInt(selectedOptions.model) : undefined;
@@ -69,7 +87,6 @@ export const useProductStepOne = (onValidationChange: (isValid: boolean) => void
             value: make.id.toString(),
             label: make.name,
             logoUrl: make.logoUrl,
-
         })) || [], 
         [carMakesResponse]
     );
@@ -208,6 +225,7 @@ export const useProductStepOne = (onValidationChange: (isValid: boolean) => void
         titles,
         handleSelectChange,
         handleAddressChange,
-        handleStoryChange
+        handleStoryChange,
+        setInitialEditData, // Export this function to be used by the component
     };
 };

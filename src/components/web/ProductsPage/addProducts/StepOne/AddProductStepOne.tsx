@@ -1,5 +1,5 @@
 'use client'
-import React from "react";
+import React, { useEffect } from "react";
 import Box from "@/components/box/box";
 import { AddProductStepOneProps } from "./types";
 import { useProductStepOne } from "./hooks";
@@ -8,7 +8,11 @@ import ErrorMessage from "./ErrorMessage";
 import AddressField from "./AddressField";
 import StoryField from "./StoryField";
 
-const AddProductStepOne: React.FC<AddProductStepOneProps> = ({ onValidationChange }) => {
+const AddProductStepOne: React.FC<AddProductStepOneProps> = ({ 
+    onValidationChange,
+    isEditMode = false,
+    initialData = null 
+}) => {
     const {
         selectedOptions,
         direction,
@@ -22,8 +26,25 @@ const AddProductStepOne: React.FC<AddProductStepOneProps> = ({ onValidationChang
         titles,
         handleSelectChange,
         handleAddressChange,
-        handleStoryChange
+        handleStoryChange,
+        setInitialEditData
     } = useProductStepOne(onValidationChange);
+
+    // Use effect to initialize edit data when in edit mode and initialData is available
+    useEffect(() => {
+        if (isEditMode && initialData && initialData.data) {
+            setInitialEditData({
+                marka: initialData.data.makeId?.toString() || '',
+                model: initialData.data.modelId?.toString() || '',
+                trim: initialData.data.trimId?.toString() || '',
+                year: initialData.data.details?.year?.toString() || '',
+                story: initialData.data.story || '',
+                governorate: initialData.data.governorate || '',
+                city: initialData.data.city || '',
+                address: initialData.data.address || ''
+            });
+        }
+    }, [isEditMode, initialData, setInitialEditData]);
 
     return (
         <Box

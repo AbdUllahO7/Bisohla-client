@@ -1,6 +1,6 @@
 import Box from '@/components/box/box';
 import Text from '@/components/text/text';
-import { Circle, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Circle, CheckCircle2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import React from 'react';
 
@@ -30,16 +30,9 @@ interface AccordionProductDetailsProps {
 const AccordionProductDetails: React.FC<AccordionProductDetailsProps> = ({ damages = [] }) => {
   const t = useTranslations('product');
 
-  console.log("damages", damages);
+  console.log("AccordionProductDetails", damages);
 
-  // Map damage zones to car sections if possible
-  const mapDamageZoneToSection = (damageZone: string): string => {
-    // Convert snake_case to Title Case
-    return damageZone
-      .split('_')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
-  };
+
 
   // Group damages by damage type
   const damagesByType: Record<string, string[]> = {};
@@ -66,7 +59,7 @@ const AccordionProductDetails: React.FC<AccordionProductDetailsProps> = ({ damag
   const productDetailsBoxes: { [key: string]: ProductDetailsBox } = {
     "box-scratch": {
       title: t('accordionDetails.details.productDetailsTitles.scratch', { defaultValue: 'Scratches' }),
-      damageType: "scratch", // Match the actual value from backend
+      damageType: "Scratch", // Match the actual value from backend
       bgColor: "bg-primary-light",
       textColor: "text-white",
     },
@@ -93,7 +86,7 @@ const AccordionProductDetails: React.FC<AccordionProductDetailsProps> = ({ damag
           
           // Get damage sections for this damage type if they exist
           const damageZones = damagesByType[box.damageType] || [];
-          
+          console.log("Damage zones for box:", box.damageType, damageZones);
           return (
             <Box
               variant="column"
@@ -123,7 +116,7 @@ const AccordionProductDetails: React.FC<AccordionProductDetailsProps> = ({ damag
                       >
                         <div className={`w-2 h-2 rounded-full ${box.bgColor} mr-2`}></div>
                         <Text className="text-sm text-primary">
-                          {t(`accordionDetails.details.damageZone.${zone}`, { defaultValue: mapDamageZoneToSection(zone) })}
+                          {t(`accordionDetails.details.damageZone.${zone}`)}
                         </Text>
                       </Box>
                     ))}

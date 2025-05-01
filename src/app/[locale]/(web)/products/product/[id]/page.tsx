@@ -4,7 +4,6 @@ import ProductBasicInfo from '@/components/web/ProductsPage/product/ProductBasic
 import ProductHeader from '@/components/web/ProductsPage/product/ProductHeader';
 import ProductImages from '@/components/web/ProductsPage/product/ProductImages';
 import ProductInfo from '@/components/web/ProductsPage/product/ProductInfo';
-import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
 import React from 'react';
 import TabsSection from '@/components/web/ProductsPage/product/TabsSection';
@@ -14,10 +13,10 @@ const Product = () => {
     const { id } = useParams(); // Get the product ID from the URL params
 
 
-        // Fetch all car listings with pagination
-        const { data, isLoading, error } = useCarListingById(Number(id));
+    // Fetch all car listings with pagination
+    const { data, isLoading, error } = useCarListingById(Number(id));
 
-        console.log(data)
+    console.log("data?.data?.damages" , data?.data?.damages);
 
     
 

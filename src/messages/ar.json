@@ -492,28 +492,19 @@
               }
           }
         },
-        "affectedAreas":"المناطق المتضررة",
+          "affectedAreas":"المناطق المتضررة",
             "damageZone": {
-            "hood": "غطاء المحرك",
-            "roof": "سقف",
-            "trunk": "صندوق السيارة",
-            "right_headlight": "مصباح أمامي يمين",
-            "left_headlight": "مصباح أمامي يسار",
-            "front_grill": "شبك أمامي",
-            "rear_bumper": "مصد خلفي",
-            "left_taillight": "مصباح خلفي يسار",
-            "front_bumper": "مصد أمامي",
-            "right_taillight": "مصباح خلفي يمين",
-            "left_front_fender": "مصد أمامي يسار",
-            "right_front_fender": "مصد أمامي يمين",
-            "left_front_door": "الباب الأمامي الأيسر",
-            "right_front_door": "الباب الأمامي الأيمن",
-            "left_rear_door": "الباب الخلفي الأيسر",
-            "right_rear_door": "الباب الخلفي الأيمن",
-            "left_rear_fender": "الرفرف الخلفي الأيسر",
-            "الحزمة": "الحزمة",
-            "الرفرف الخلفي الأيسر": "الرفرف الخلفي الأيسر",
-            "الرفرف الخلفي الأيمن": "الرفرف الخلفي الأيمن"
+              "Hood": "غطاء المحرك",
+              "Roof": "السقف",
+              "Left Front Fender": "الرفرف الأمامي الأيسر",
+              "Right Front Fender": "الرفرف الأمامي الأيمن",
+              "Left Front Door": "الباب الأمامي الأيسر",
+              "Right Front Door": "الباب الأمامي الأيمن",
+              "Left Rear Door": "الباب الخلفي الأيسر",
+              "Right Rear Door": "الباب الخلفي الأيمن",
+              "Package": "الحزمة",
+              "Left Rear Fender": "الرفرف الخلفي الأيسر",
+              "Right Rear Fender": "الرفرف الخلفي الأيمن"
             }
         
     }

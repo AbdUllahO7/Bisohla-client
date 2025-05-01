@@ -1,25 +1,27 @@
 'use client'
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import Text from "@/components/text/text";
 import { useAddProductStepThree } from "./hooks";
 import CarConditionTable from "./CarConditionTable";
 import CarPhotosSection from "./CarPhotosSection";
-
-interface AddProductStepThreeProps {
-  onValidationChange: (isValid: boolean) => void;
-}
+import { AddProductStepThreeProps } from "./types";
 
 /**
  * Step Three of Add Product form - Car Condition and Photos
  */
-const AddProductStepThree: React.FC<AddProductStepThreeProps> = ({ onValidationChange }) => {
+const AddProductStepThree: React.FC<AddProductStepThreeProps> = ({ 
+  onValidationChange,
+  isEditMode = false,
+  initialData = null 
+}) => {
   const {
     isClient,
     direction,
     labels,
     options,
     carCondition,
+    isFormDisabled,
     setIsFormDisabled,
     coverImageRef,
     carImagesRef,
@@ -27,7 +29,52 @@ const AddProductStepThree: React.FC<AddProductStepThreeProps> = ({ onValidationC
     isStatusSelected,
     handleCoverImageChange,
     handleCarImagesChange,
-  } = useAddProductStepThree(onValidationChange);
+    setInitialDamages,
+    isEditMode: currentEditMode, // Get edit mode status from the hook
+    storageKey // Get the current storage key
+  } = useAddProductStepThree(onValidationChange, isEditMode); // Pass isEditMode prop to hook
+
+  console.log("AddProductStepThree rendered with: ", {
+    isEditModeProp: isEditMode,
+    currentEditMode,
+    storageKey,
+    initialDataPresent: !!initialData
+  });
+
+  // Flag to track if edit data has been applied
+  const editDataApplied = useRef(false);
+
+  // Apply edit data when in edit mode
+  useEffect(() => {
+    if (isEditMode && initialData && initialData.data && !editDataApplied.current) {
+      console.log("Step Three: Applying edit data");
+      
+      // Process damages data for the component
+      if (initialData.data.damages && initialData.data.damages.length > 0) {
+        console.log("Found damages in edit data:", initialData.data.damages);
+        
+        // Create a map of damages by zone
+        const damagesMap = {};
+        
+        // Transform API format to our component format
+        initialData.data.damages.forEach(damage => {
+          if (damage.damageZone && damage.damageType) {
+            // Store as object with status and description
+            damagesMap[damage.damageZone] = {
+              status: damage.damageType,
+              description: damage.description || ''
+            };
+          }
+        });
+        
+        console.log("Transformed damages map:", damagesMap);
+        setInitialDamages(damagesMap);
+      }
+      
+      // Set the flag to prevent reapplying
+      editDataApplied.current = true;
+    }
+  }, [isEditMode, initialData, setInitialDamages]);
 
   // Don't render full content during SSR to avoid hydration issues
   if (!isClient) {
@@ -47,6 +94,8 @@ const AddProductStepThree: React.FC<AddProductStepThreeProps> = ({ onValidationC
 
   return (
     <div className="w-full space-y-6" dir={direction}>
+      
+      
       {/* Car Information Section */}
       <Card className="w-full shadow-sm bg-white border-0 ">
         <CardHeader className="bg-gray-100 py-4">
@@ -89,6 +138,8 @@ const AddProductStepThree: React.FC<AddProductStepThreeProps> = ({ onValidationC
           />
         </CardContent>
       </Card>
+      
+      
     </div>
   );
 };

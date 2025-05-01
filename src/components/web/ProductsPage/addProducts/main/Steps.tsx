@@ -1,6 +1,6 @@
 'use client'
 import Box from '@/components/box/box';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tabs, TabsList } from "@/components/ui/tabs";
 import { useLocale } from 'next-intl';
 
@@ -14,8 +14,16 @@ import AddProductStepFour from '../stepFour/AddProductStepFowr';
 import ErrorDialog from './Components/ErrorDialog';
 import { StepTrigger } from './Components/StepTrigger';
 import { useStepManagement } from './hooks/useStepManagement';
+import { STORAGE_KEYS } from './hooks/useLocalStorage';
 
-const Steps = () => {
+// Props interface for Steps component
+interface StepsProps {
+  isEditMode?: boolean;
+  carId?: number;
+  initialData?: any; // You can define a proper type for this
+}
+
+const Steps: React.FC<StepsProps> = ({ isEditMode = false, carId, initialData }) => {
   const locale = useLocale();
   const direction = locale === 'ar' ? 'rtl' : 'ltr';
   const isArabic = direction === 'rtl';
@@ -23,7 +31,7 @@ const Steps = () => {
   // Add state for step four validation
   const [stepFourIsValid, setStepFourIsValid] = useState(false);
   
-  // Use the step management hook
+  // Use the step management hook with edit mode flag
   const {
     steps,
     currentStep,
@@ -37,8 +45,21 @@ const Steps = () => {
     updateStepValidation,
     handleTryAgain,
     setShowErrorDialog,
+  } = useStepManagement(isEditMode);
+
+  // Set edit mode flag in localStorage on component mount if in edit mode
+  useEffect(() => {
+    if (isEditMode && carId) {
+      localStorage.setItem(STORAGE_KEYS.EDIT_MODE_FLAG, carId.toString());
+    }
     
-  } = useStepManagement();
+    return () => {
+      // Only clean up edit mode flag if we're not on the edit page
+      if (!window.location.pathname.includes('/edit')) {
+        localStorage.removeItem(STORAGE_KEYS.EDIT_MODE_FLAG);
+      }
+    };
+  }, [isEditMode, carId]);
 
   // Get error dialog text based on locale
   const errorDialogTexts = getErrorDialogTexts(isArabic);
@@ -48,6 +69,13 @@ const Steps = () => {
 
   return (
     <Box variant="column" className="w-full flex flex-col justify-start items-start">
+      {/* Page title based on mode */}
+      <h1 className="text-2xl font-bold text-primary mb-6">
+        {isEditMode 
+          ? (isArabic ? 'تعديل السيارة' : 'Edit Car Listing') 
+          : (isArabic ? 'إضافة سيارة جديدة' : 'Add New Car Listing')}
+      </h1>
+
       {/* Fix the type error by explicitly setting value as a string */}
       <Tabs value={currentStep} className="w-full flex flex-col justify-start items-start">
         <TabsList className="bg-transparent flex h-auto gap-4 md:gap-6 lg:gap-8 flex-wrap w-full xs:w-full justify-start items-center xs:justify-center" dir={direction}>
@@ -67,6 +95,8 @@ const Steps = () => {
           >
             <AddProductStepOne 
               onValidationChange={(isValid) => updateStepValidation('productType', isValid)}
+              isEditMode={isEditMode}
+              initialData={initialData}
             />
           </StepContent>
           
@@ -80,6 +110,8 @@ const Steps = () => {
           >
             <AddProductStepTwo 
               onValidationChange={(isValid) => updateStepValidation('location', isValid)}
+              isEditMode={isEditMode}
+              initialData={initialData}
             />
           </StepContent>
           
@@ -93,6 +125,8 @@ const Steps = () => {
           >
             <AddProductStepThree   
               onValidationChange={(isValid) => updateStepValidation('productInfo', isValid)}
+              isEditMode={isEditMode}
+              initialData={initialData}
             />
           </StepContent>
           
@@ -110,6 +144,8 @@ const Steps = () => {
                 setStepFourIsValid(isValid);
                 updateStepValidation('adsInfo', isValid);
               }}
+              isEditMode={isEditMode}
+              initialData={initialData}
             />    
           </StepContent>
         </div>

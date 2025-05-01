@@ -4,6 +4,8 @@ import { ImageUploaderRef } from "@/components/image-uploader/image-uploader";
 // Component props
 export interface AddProductStepThreeProps {
   onValidationChange: (isValid: boolean) => void;
+  isEditMode?: boolean;
+  initialData?: any;
 }
 
 // Car condition table props
@@ -39,20 +41,30 @@ export interface CarPhotosSectionProps {
 
 // Main state type
 export interface CarConditionState {
-  // Change to use string keys instead of number keys
-  sectionStatus?: Record<string, string>;
+  // For component use: simplified sectionStatus as Record<string, string>
+  sectionStatus: Record<string, string>;
   coverImage: string[];
   carImages: string[];
-
+  // Allow other fields to be present
+  [key: string]: any;
 }
 
-// Storage key for localStorage
+// Type for damages used in API and EditProductPage
+export interface Damage {
+  damageZone: string;
+  damageType: string;
+  description?: string | null;
+}
+
+// IMPORTANT: Using direct string literals for storage keys
 export const STORAGE_KEY = "addProduct_stepThree_data";
+export const EDIT_STORAGE_KEY = "addProduct_stepThree_data_edit";
+export const EDIT_MODE_FLAG = "edit_car_listing_id";
 
 // Default state
 export const defaultState: CarConditionState = {
   sectionStatus: {},
   coverImage: [],
-  carImages: [],
-
+  carImages: []
+  
 };
