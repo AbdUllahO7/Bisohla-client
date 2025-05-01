@@ -1089,5 +1089,21 @@
         "items": "items"
       },
       "price": "Price"
-    }
+    },
+
+  "common": {
+    "myProducts": "My Products",
+    "sale": "Sale",
+    "rent": "Rent",
+    "edit": "Edit",
+    "delete": "Delete",
+    "deleting": "Deleting...",
+    "cancel": "Cancel",
+    "confirmDelete": "Delete Permanently",
+    "deleteConfirmation": "Confirm Deletion",
+    "deleteWarning": "This action cannot be undone. This will permanently delete your listing and remove it from our servers.",
+    "details": "Details",
+    "viewDetails": "View Details",
+    "price": "Price"
+  }
 }

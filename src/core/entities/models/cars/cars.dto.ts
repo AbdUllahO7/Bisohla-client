@@ -139,7 +139,7 @@ export interface SelectCarListingDto {
   status: string;
   isFeatured: boolean;
   isTrend: boolean; // Added instead of isSold
-
+  isFavorite ?: boolean | null; // Added for favorite status
   // Save status and listing type
   saveStatus: SaveStatus;
   listingType: ListingType;

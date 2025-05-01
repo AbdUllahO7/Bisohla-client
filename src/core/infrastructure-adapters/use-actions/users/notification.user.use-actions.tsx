@@ -14,9 +14,9 @@ import {
   getAuthUserMyNotificationById,
   updateNotificationReadStatus,
 } from '../../actions/users/notification.user.actions';
-import { useLocaleQuery } from '@/hooks/use-locale-query';
 import { UpdateNotificationReadStatusDto } from '@/core/entities/models/notifications/notifications.zod.dto';
 import { useMutation } from '@tanstack/react-query';
+import { useLocaleQuery } from '../common/use-locale-query';
 
 export const useGetAuthUserMyNotifications = (
   params: NotificationFilterOptions,

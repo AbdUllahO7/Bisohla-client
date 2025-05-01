@@ -3,7 +3,7 @@ import Box from '@/components/box/box';
 import Text from '@/components/text/text';
 import { ProductCardItem } from '@/components/web/design/ProductCardItem';
 import { useTranslations } from 'next-intl';
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { getCarFavorites } from '@/core/infrastructure-adapters/actions/users/car.user.actions';
 import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions';
 import ProductSkeleton from '@/components/web/design/ProductSkeletonItem';
@@ -11,6 +11,7 @@ import { UserFavoriteCarListing } from '@/core/entities/models/cars/users-favori
 import { getSession } from '@/lib/session';
 import { ListingType } from '@/core/entities/enums/cars.enums';
 import { CarDetails } from '@/core/entities/models/cars/cars.dto';
+import { useSession } from '@/hooks/auth/use-session';
 
 // Define a type for the transformed favorite listings
 interface FavoriteListing {
@@ -23,42 +24,25 @@ interface FavoriteListing {
     details: CarDetails; // Use your CarDetails type
 }
 
-// Type for the API response from your actual API
-interface ApiResponse<T> {
-    success: boolean;
-    data?: T;
-    message?: string;
-}
-
-// Type for pagination info as returned by your API
-interface PaginationInfo<T> {
-    data: T[];
-    current_page: number;
-    last_page: number;
-    per_page: number;
-    total: number;
-}
-
 const UserFavorites = () => {
     const t = useTranslations('homePage');
     const [favorites, setFavorites] = useState<UserFavoriteCarListing[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [refreshTrigger, setRefreshTrigger] = useState(0);
+    const [favoriteStatuses, setFavoriteStatuses] = useState<Record<number, boolean>>({});
+    const session = useSession();
+    const isInitialFetch = useRef(true);
     
-    // Function to refresh favorites list
-    const refreshFavorites = useCallback(() => {
-        setRefreshTrigger(prev => prev + 1);
-    }, []);
-    
-    // Function to fetch favorites
+    // Function to fetch favorites - only fetch once initially
     const fetchFavorites = useCallback(async () => {
+        // Skip if not initial fetch
+        if (!isInitialFetch.current) return;
+        
         try {
             setIsLoading(true);
             
             // Get the current user session
-            const session = await getSession();
-            console.log('Current user session:', session);
+            const userSession = await getSession();
             
             // Verify authentication
             const authResult = await checkAuth();
@@ -69,7 +53,8 @@ const UserFavorites = () => {
             }
             
             // Make sure user ID exists
-            if (!session?.user?.id) {
+            const userId = userSession?.user?.id || session?.user?.id;
+            if (!userId) {
                 setError("User ID not found in session");
                 setIsLoading(false);
                 return;
@@ -77,20 +62,30 @@ const UserFavorites = () => {
             
             // Fetch favorites for the current user
             const response = await getCarFavorites({
+                userId: userId,
                 page: 1,
                 where: [
                     {
                         field: 'userId',
                         operator: 'eq',
-                        value: session.user.id
+                        value: userId
                     }
                 ]
             });
             
-            console.log('Favorites response:', response);
-            
             if (response.success && response.data?.data && Array.isArray(response.data.data)) {
                 setFavorites(response.data.data);
+                
+                // Initialize favorite statuses from fetched data
+                const newFavoriteStatuses: Record<number, boolean> = {};
+                response.data.data.forEach(favorite => {
+                    if (favorite.carListing && favorite.carListing.id) {
+                        newFavoriteStatuses[favorite.carListing.id] = true;
+                    }
+                });
+                
+                setFavoriteStatuses(newFavoriteStatuses);
+                isInitialFetch.current = false;
             } else {
                 setError("Failed to load favorites");
             }
@@ -100,12 +95,12 @@ const UserFavorites = () => {
         } finally {
             setIsLoading(false);
         }
-    }, []);
+    }, [session]);
     
-    // Fetch favorites on component mount and when refreshTrigger changes
+    // Fetch favorites only on component mount 
     useEffect(() => {
         fetchFavorites();
-    }, [fetchFavorites, refreshTrigger]);
+    }, [fetchFavorites]);
     
     // Function to safely check if an image is primary
     const isPrimaryImage = (img: any): img is { isPrimary: boolean; url: string } => {
@@ -150,19 +145,21 @@ const UserFavorites = () => {
         return transformedListings;
     }, [favorites]);
     
-    // Handler for when a favorite is toggled
-    const handleFavoriteToggle = (productId: number, isFavorite: boolean) => {
-        console.log(`Product ${productId} favorite status toggled to: ${isFavorite}`);
+    // Handler for when a favorite is toggled - No API calls here, just UI updates
+    const handleFavoriteToggle = useCallback((productId: number, isFavorite: boolean) => {
+        // Update favorite statuses
+        setFavoriteStatuses(prev => ({
+            ...prev,
+            [productId]: isFavorite
+        }));
+        
         if (!isFavorite) {
-            // If the car was removed from favorites, remove it from the local state
+            // If removed from favorites, remove it from the local state immediately
             setFavorites(prevFavorites => 
                 prevFavorites.filter(fav => fav.carListing && fav.carListing.id !== productId)
             );
-        } else {
-            // If a car was added back to favorites, refresh the entire list
-            refreshFavorites();
         }
-    };
+    }, []);
 
     return (
         <Box variant="container">
@@ -205,21 +202,29 @@ const UserFavorites = () => {
                     className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:w-[80%] xs:w-[100%] lg:w-full" 
                     variant="center"
                 >
-                    {favoriteListings.map((card) => (
-                        <React.Fragment key={card.id}>
-                            <ProductCardItem
-                                title={card.title}
-                                marka={card.marka}
-                                price={card.price}
-                                type={card.type}
-                                imageSrc={card.imageSrc}
-                                ProductId={card.id}
-                                priceWord={t('latestOffers.price')}
-                                isFavorites={true}
-                                onFavoriteToggle={handleFavoriteToggle}
-                            />
-                        </React.Fragment>
-                    ))}
+                    {favoriteListings.map((card) => {
+                   
+                        const isFavorite = favoriteStatuses[card.id] !== undefined 
+                            ? favoriteStatuses[card.id] 
+                            : true;
+                        
+                        return (
+                            <React.Fragment key={card.id}>
+                                <ProductCardItem
+                                    title={card.title}
+                                    marka={card.marka}
+                                    price={card.price}
+                                    type={card.type}
+                                    imageSrc={card.imageSrc}
+                                    ProductId={card.id}
+                                    priceWord={t('latestOffers.price')}
+                                    isFavorites={true}
+                                    isMarkedFavorite={isFavorite}
+                                    onFavoriteToggle={handleFavoriteToggle}
+                                />
+                            </React.Fragment>
+                        );
+                    })}
                 </Box>
             )}
         </Box>

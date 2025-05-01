@@ -15,13 +15,16 @@ import { Fuel, HeartIcon, LifeBuoy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions';
-import { 
-    checkIsCarListingFavorite,
-    toggleCarListingFavorite
-} from '@/core/infrastructure-adapters/actions/users/car.user.actions';
+import { toggleCarListingFavorite } from '@/core/infrastructure-adapters/actions/users/car.user.actions';
+
+// Extended props interface to include the callback and favorite status
+interface ExtendedCarCardItemProps extends CarCardItemProps {
+    onFavoriteToggle?: (productId: number, isFavorite: boolean) => void;
+    isMarkedFavorite?: boolean;
+}
 
 // CardItem Component
-export const RentProductCard: React.FC<CarCardItemProps> = ({ 
+export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({ 
     title, 
     marka, 
     price, 
@@ -29,83 +32,108 @@ export const RentProductCard: React.FC<CarCardItemProps> = ({
     priceWord, 
     details, 
     ProductId, 
-    type 
+    type,
+    onFavoriteToggle,
+    isMarkedFavorite = false
 }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [isMarkedFavorite, setIsMarkedFavorite] = useState(false);
+    const [favoriteStatus, setFavoriteStatus] = useState(isMarkedFavorite);
     const [isProcessing, setIsProcessing] = useState(false);
-    const [isInitialLoading, setIsInitialLoading] = useState(true);
-
-    // Check authentication and favorites status when component mounts
+    
+    // Check authentication status when component mounts
     useEffect(() => {
         const verifyAuth = async () => {
             try {
-                setIsInitialLoading(true);
                 // Check if user is authenticated
                 const authResponse = await checkAuth();
                 setIsAuthenticated(authResponse.success);
-                
-                if (authResponse.success) {
-                    try {
-                        console.log('Checking favorite status for RentProductCard ProductId:', ProductId);
-                        // Make sure ProductId is valid
-                        if (ProductId) {
-                            // Check if this specific car is in user's favorites
-                            const favoriteResponse = await checkIsCarListingFavorite(Number(ProductId));
-                            console.log('Favorite response for rent product:', favoriteResponse);
-                            
-                            // FIXED: Improved detection of favorite status by handling different response formats
-                            const isFavorite = favoriteResponse.success && 
-                              (favoriteResponse.data === true || favoriteResponse.data?.isFavorite === true);
-                            
-                            console.log('Calculated favorite status for rent product:', isFavorite);
-                            setIsMarkedFavorite(isFavorite);
-                        } else {
-                            console.error('Invalid ProductId for rent product:', ProductId);
-                        }
-                    } catch (favoriteError) {
-                        console.error('Error checking favorite status for rent product:', favoriteError);
-                    }
-                }
             } catch (error) {
                 console.error("Auth check failed for rent product:", error);
                 setIsAuthenticated(false);
-            } finally {
-                setIsInitialLoading(false);
             }
         };
         
         verifyAuth();
-    }, [ProductId]);
+    }, []);
+    
+    // Update internal state when the prop changes
+    useEffect(() => {
+        console.log(`RentProductCard ${ProductId}: isMarkedFavorite changed to`, isMarkedFavorite);
+        setFavoriteStatus(isMarkedFavorite);
+    }, [isMarkedFavorite, ProductId]);
 
-    const handleFavoriteClick = async (e) => {
+    const handleFavoriteClick = async (e: React.MouseEvent) => {
         e.preventDefault(); // Prevent the link navigation
         e.stopPropagation(); // Stop the event from bubbling up
         
         // Only allow favorite action if authenticated
-        if (isAuthenticated && !isProcessing) {
+        if (isAuthenticated && !isProcessing && ProductId) {
             setIsProcessing(true);
+            console.log(`Toggling favorite for RentProductId ${ProductId}. Current state:`, favoriteStatus);
             
             try {
-                console.log('Toggling favorite for rent product ID:', ProductId);
-                // Call the toggle API with the car listing ID
+                // Store current state for comparison/reversion
+                const currentState = favoriteStatus;
+                
+                // Optimistically update UI
+                const newStatus = !currentState;
+                console.log(`Setting local state to ${newStatus}`);
+                setFavoriteStatus(newStatus);
+                
+                // Notify parent component
+                if (onFavoriteToggle) {
+                    console.log(`Notifying parent component of change to ${newStatus}`);
+                    onFavoriteToggle(Number(ProductId), newStatus);
+                }
+                
+                // Call API
+                console.log(`Calling toggleCarListingFavorite API for carListingId:`, Number(ProductId));
                 const response = await toggleCarListingFavorite({
                     carListingId: Number(ProductId)
                 });
                 
+                // Handle API response
                 if (response.success) {
-                    // FIXED: Improved handling of toggle response for different formats
-                    const newFavoriteStatus = response.data?.isFavorite !== undefined 
-                        ? response.data.isFavorite 
-                        : response.data === true || !isMarkedFavorite;
+                    // Determine the actual status from API
+                    let responseStatus: boolean;
                     
-                    console.log('New favorite status for rent product:', newFavoriteStatus);
-                    setIsMarkedFavorite(newFavoriteStatus);
+                    if (typeof response.data === 'boolean') {
+                        responseStatus = response.data;
+                    } else if (response.data && typeof response.data === 'object' && 'isFavorite' in response.data) {
+                        responseStatus = response.data.isFavorite as boolean;
+                    } else {
+                        // If response format is unexpected, keep optimistic update
+                        responseStatus = newStatus;
+                    }
+                    
+                    console.log(`API response status: ${responseStatus}`);
+                    
+                    // If API returned something different than our optimistic update
+                    if (responseStatus !== newStatus) {
+                        console.log(`API returned different status (${responseStatus}) than optimistic update (${newStatus})`);
+                        setFavoriteStatus(responseStatus);
+                        
+                        if (onFavoriteToggle) {
+                            onFavoriteToggle(Number(ProductId), responseStatus);
+                        }
+                    }
                 } else {
-                    console.error("Failed to toggle favorite for rent product:", response.message);
+                    // API call failed, revert to original state
+                    console.error(`API call failed:`, response.message);
+                    setFavoriteStatus(currentState);
+                    
+                    if (onFavoriteToggle) {
+                        onFavoriteToggle(Number(ProductId), currentState);
+                    }
                 }
             } catch (error) {
-                console.error("Failed to toggle favorite status for rent product:", error);
+                // Exception occurred, revert to initial state
+                console.error(`Exception in toggleFavorite:`, error);
+                setFavoriteStatus(isMarkedFavorite);
+                
+                if (onFavoriteToggle) {
+                    onFavoriteToggle(Number(ProductId), isMarkedFavorite);
+                }
             } finally {
                 setIsProcessing(false);
             }
@@ -121,23 +149,19 @@ export const RentProductCard: React.FC<CarCardItemProps> = ({
             <Card className="border-none bg-white relative group hover:-translate-y-3 duration-500">
                 {/* Heart Icon with favorite status */}
                 <Button 
-                    className="absolute top-12 left-2 bg-white p-2 rounded-full shadow-md z-20"
+                    className="absolute top-12 left-2 bg-white p-2 rounded-full shadow-md z-10"
                     onClick={handleFavoriteClick}
-                    disabled={!isAuthenticated || isProcessing || isInitialLoading}
+                    disabled={!isAuthenticated || isProcessing}
                 >
-                    {isInitialLoading ? (
-                        <HeartIcon size={24} className="text-gray-400 animate-pulse" />
-                    ) : (
-                        <HeartIcon 
-                            size={24} 
-                            className={
-                                isProcessing ? 'text-gray-400 animate-pulse' :
-                                !isAuthenticated ? 'text-gray-400' : 
-                                isMarkedFavorite ? 'text-red-500' : 'text-gray-600'
-                            } 
-                            fill={isMarkedFavorite ? "currentColor" : "none"}
-                        />
-                    )}
+                    <HeartIcon 
+                        size={24} 
+                        className={
+                            isProcessing ? 'text-gray-400 animate-pulse' :
+                            !isAuthenticated ? 'text-gray-400' : 
+                            favoriteStatus ? 'text-red-500' : 'text-gray-600'
+                        } 
+                        fill={favoriteStatus ? "currentColor" : "none"}
+                    />
                 </Button>
                 
                 <Text className="absolute bottom-32 left-2 bg-white px-2 py-1 rounded-lg shadow-md text-primary text-sm">
