@@ -1105,5 +1105,38 @@
     "details": "Details",
     "viewDetails": "View Details",
     "price": "Price"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "button": "Notifications",
+    "empty": "No notifications",
+    "emptyDescription": "You don't have any notifications at the moment.",
+    "loading": "Loading notifications...",
+    "viewAll": "View all notifications",
+    "markAllRead": "Mark all as read",
+    "markRead": "Mark as read",
+    "unread": "unread",
+    "filter": {
+      "all": "All",
+      "unread": "Unread",
+      "read": "Read"
+    },
+    "sort": {
+      "newest": "Newest first",
+      "oldest": "Oldest first"
+    },
+    "type": {
+      "all": "All types",
+      "system": "System",
+      "transaction": "Transaction",
+      "marketing": "Marketing",
+      "alert": "Alert"
+    }
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page",
+    "of": "of"
   }
 }

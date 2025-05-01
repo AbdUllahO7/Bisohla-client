@@ -19,7 +19,7 @@ const WebLayout = async ({ children }: PropsWithChildren) => {
   const t = await getTranslations('homePage');
   return (
     <Box className="w-full bg-background" variant="column">
-      <Box className="fixed z-[20] w-full bg-white shadow-md">
+      <Box className="fixed z-[50] w-full bg-white shadow-md">
         <Box variant="container">
           <HeaderOne />
         </Box>

@@ -41,7 +41,7 @@ export const useGetAuthUserMyNotificationById = (id: number) => {
   });
 };
 
-export const useAddCarToFavorites = () =>
+export const useUpdateNotificationReadStatus = () =>
   useMutation<ApiResponse<boolean>, Error, UpdateNotificationReadStatusDto>({
     mutationFn: async (dto) => await updateNotificationReadStatus(dto),
     onError: (error) => {
