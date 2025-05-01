@@ -3,20 +3,21 @@ import { ListingType, RentType, SaveStatus } from "@/core/entities/enums/cars.en
 // Complete AdInfoState interface with all fields
 export interface AdInfoState {
     title: string;
-    adStatus: string; 
+    adStatus: string;
     description: string;
     contactNumber: string;
-    listingType: ListingType | '';
-    rentType: RentType | '';
+    price: string;
+    listingType: string;
+    rentType?: string | null;
     publicationDate: string | null;
-    price: string | number;
-    saveStatus?: SaveStatus; // Added saveStatus
+    saveStatus?: string;
 
 }
 
 export interface AddProductStepFourProps {
     onValidationChange: (isValid: boolean) => void;
-    initialData?: Partial<AdInfoState>;
+    isEditMode?: boolean;
+    initialData?: any; // This could be more specific based on your API response type
 }
 
 export interface FormFieldProps {

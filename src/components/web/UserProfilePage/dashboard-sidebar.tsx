@@ -43,6 +43,8 @@ export function DashboardSidebar() {
             { href: "/userProfile", icon: LayoutDashboard, label: "Dashboard" },
             { href: "/userProfile/Products", icon: Home, label: "Products" },
             { href: "/userProfile/Favorites", icon: Heart, label: "Favorites" },
+            { href: "/userProfile/Notification", icon: Heart, label: "Notifications" },
+
             { href: "#1", icon: Users, label: "Customers" },
             { href: "#2", icon: Inbox, label: "Inbox", badge: 3 },
             { href: "#3", icon: MessageSquare, label: "Messages" },

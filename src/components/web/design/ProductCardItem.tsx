@@ -305,7 +305,7 @@ export const ProductCardItem: React.FC<ExtendedCarCardItemPropsProfile> = ({
                         
                         {/* Only show Edit button if user is authenticated */}
                         {isAuthenticated && (
-                            <Link href={`/products/product/${ProductId}`} className="bg-primary-light px-4 py-2 text-white rounded-lg flex-1 text-center flex items-center justify-center">
+                            <Link href={`/products/EditProduct/${ProductId}`} className="bg-primary-light px-4 py-2 text-white rounded-lg flex-1 text-center flex items-center justify-center">
                                 <Edit className={iconMarginClass} size={16} />
                                 {t('edit')}
                             </Link>

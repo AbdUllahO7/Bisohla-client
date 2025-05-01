@@ -53,7 +53,7 @@ const HeaderTow: React.FC<HeaderTowProps> = ({ translations }) => {
 
             {isOpen && (
                 <div className="md:hidden">
-                    <div className="space-y-1 px-2 pt-2 pb-3 h-[300px] flex flex-col items-center absolute  z-[999] bg-primary-dark w-full">
+                    <div className="space-y-1 px-2 pt-2 pb-3 h-[300px] flex flex-col items-center absolute  bg-primary-dark w-full">
                             <Link href="#home" className="hover:bg-primary-light transition-all px-3 py-2 rounded">
                                 {translations.home}
                             </Link>

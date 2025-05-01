@@ -186,9 +186,9 @@ export enum SaveStatus {
 export enum DamageType {
   SCRATCH = 'scratch',
   DENT = 'dent',
-  PAINT_FADED = 'paint_faded',
+  PAINT_FADED = 'paint',
   PAINT_REPAIRED = 'paint_repaired',
-  PANEL_REPLACED = 'panel_replaced',
+  PANEL_REPLACED = 'replacement',
 }
 
 /**

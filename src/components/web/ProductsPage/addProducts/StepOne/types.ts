@@ -1,12 +1,11 @@
 // types.ts
-import { 
-    SyriaGovernorate, 
-    SyriaCity
-} from "@/core/entities/enums/syria.enums"
+
 
 // Define the prop types for the component
 export interface AddProductStepOneProps {
     onValidationChange: (isValid: boolean) => void;
+    isEditMode?: boolean;
+    initialData?: any; // You can provide a more specific type
 }
 
 // Define the options state interface
@@ -19,12 +18,15 @@ export interface SelectedOptions {
     governorate: string;
     city: string;
     address: string;
+    [key: string]: string;
+
 }
 
 // Define the option interface used in SelectableList
 export interface Option {
     value: string;
     label: string;
+    logoUrl?: string;
 }
 
 // Props for SelectableList component

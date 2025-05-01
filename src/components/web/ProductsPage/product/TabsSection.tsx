@@ -36,7 +36,7 @@ const TabsSection: React.FC<TabsSectionProps> = ({ data }) => {
     }, [data]);
     
     // Ensure damages is always an array, even if undefined or null
-    const damages = Array.isArray(data?.damages) ? data.damages : [];
+    const damages = Array.isArray(data?.data?.damages) ? data.data?.damages : [];
     
     return (
         <Box variant='column' className='justify-start items-start w-full'>
@@ -84,7 +84,7 @@ const TabsSection: React.FC<TabsSectionProps> = ({ data }) => {
                 </div>
                 <div className='font-cairo text-[400] text-secondary-text mt-4'>
 
-                    <AccordionProductDetails damages={data?.data?.damages} />
+                    <AccordionProductDetails damages={damages} />
                 </div>
             </div>
 

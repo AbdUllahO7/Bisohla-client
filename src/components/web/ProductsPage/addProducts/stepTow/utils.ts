@@ -2,6 +2,22 @@
 import { SelectFeatureDto, CarListingFeature } from "@/core/entities/models/cars/cars.dto";
 import { Feature, GroupedFeatures, CarInfoState } from "./types";
 import { FeatureCategory } from "@/core/entities/enums/cars.enums";
+import { EDIT_STORAGE_KEYS, STORAGE_KEYS } from "../main/hooks/useLocalStorage";
+
+/**
+ * Checks if the application is in edit mode
+ */
+export const isEditMode = (): boolean => {
+    if (typeof window === "undefined") return false;
+    return !!localStorage.getItem(STORAGE_KEYS.EDIT_MODE_FLAG);
+};
+
+/**
+ * Gets the appropriate storage key based on edit mode
+ */
+export const getCarInfoStorageKey = (): string => {
+    return isEditMode() ? EDIT_STORAGE_KEYS.STEP_TWO : STORAGE_KEYS.STEP_TWO;
+};
 
 /**
  * Function to group features by category from backend data
@@ -51,59 +67,63 @@ export const isValidEngineSize = (value: string): boolean => {
 };
 
 /**
- * Load data from localStorage
+ * Load data from localStorage with edit mode awareness
  * @returns CarInfoState object with loaded data or default state
  */
 export const loadFromStorage = (): CarInfoState => {
     try {
-        const savedData = localStorage.getItem("addProduct_stepTwo_data");
+        const storageKey = getCarInfoStorageKey();
+        const savedData = localStorage.getItem(storageKey);
+        
+        console.log(`Loading car info from: ${storageKey}`);
+        
         if (savedData) {
-        const parsed = JSON.parse(savedData);
+            const parsed = JSON.parse(savedData);
 
-        // Ensure selectedFeatures is an array that matches CarListingFeature structure
-        if (parsed.selectedFeatures) {
-            // Handle different storage formats
-            if (!Array.isArray(parsed.selectedFeatures)) {
-            // If stored as an object with categories, convert to array of objects
-            const featureArray: CarListingFeature[] = [];
-            
-            // Loop through each category
-            Object.entries(parsed.selectedFeatures).forEach(([category, featureIds]) => {
-                // Convert each feature ID to a CarListingFeature object
-                (featureIds as string[]).forEach(featureId => {
-                featureArray.push({
-                    id: 0, // This will be assigned by the backend
-                    carListingId: 0, // This will be assigned by the backend
-                    featureId: featureId,
-                    feature: {
-                    id: parseInt(featureId),
-                    name: "", // We don't need to populate this as it's just for reference
-                    category: category as FeatureCategory,
-                    icon: null,
-                    createdAt: new Date(),
-                    updatedAt: new Date(),
-                    deletedAt: null
-                    }
-                });
-                });
-            });
-            
-            parsed.selectedFeatures = featureArray;
+            // Ensure selectedFeatures is an array that matches CarListingFeature structure
+            if (parsed.selectedFeatures) {
+                // Handle different storage formats
+                if (!Array.isArray(parsed.selectedFeatures)) {
+                    // If stored as an object with categories, convert to array of objects
+                    const featureArray: CarListingFeature[] = [];
+                    
+                    // Loop through each category
+                    Object.entries(parsed.selectedFeatures).forEach(([category, featureIds]) => {
+                        // Convert each feature ID to a CarListingFeature object
+                        (featureIds as string[]).forEach(featureId => {
+                            featureArray.push({
+                                id: 0, // This will be assigned by the backend
+                                carListingId: 0, // This will be assigned by the backend
+                                featureId: featureId,
+                                feature: {
+                                    id: parseInt(featureId),
+                                    name: "", // We don't need to populate this as it's just for reference
+                                    category: category as FeatureCategory,
+                                    icon: null,
+                                    createdAt: new Date(),
+                                    updatedAt: new Date(),
+                                    deletedAt: null
+                                }
+                            });
+                        });
+                    });
+                    
+                    parsed.selectedFeatures = featureArray;
+                }
+            } else {
+                parsed.selectedFeatures = [];
             }
-        } else {
-            parsed.selectedFeatures = [];
-        }
 
-        // Handle migration from old 'color' to new 'colorExterior' and 'colorInterior'
-        if (parsed.color && !parsed.colorExterior) {
-            parsed.colorExterior = parsed.color;
-            delete parsed.color;
-        }
+            // Handle migration from old 'color' to new 'colorExterior' and 'colorInterior'
+            if (parsed.color && !parsed.colorExterior) {
+                parsed.colorExterior = parsed.color;
+                delete parsed.color;
+            }
 
-        return parsed;
+            return parsed;
         }
     } catch (e) {
-        console.error("Failed to parse saved data:", e);
+        console.error(`Failed to parse saved data from ${getCarInfoStorageKey()}:`, e);
     }
     
     // Return default state if loading failed
@@ -125,14 +145,16 @@ export const loadFromStorage = (): CarInfoState => {
 };
 
 /**
- * Save data to localStorage
+ * Save data to localStorage with edit mode awareness
  * @param data - CarInfoState object to save
  */
 export const saveToStorage = (data: CarInfoState): void => {
     try {
-        localStorage.setItem("addProduct_stepTwo_data", JSON.stringify(data));
+        const storageKey = getCarInfoStorageKey();
+        localStorage.setItem(storageKey, JSON.stringify(data));
+        console.log(`Saved car info to: ${storageKey}`);
     } catch (e) {
-        console.error("Failed to save data:", e);
+        console.error(`Failed to save data to ${getCarInfoStorageKey()}:`, e);
     }
 };
 
@@ -148,8 +170,6 @@ export const validateForm = (carInfo: CarInfoState, validationErrors: any): bool
         "plateNumber", "mileage", "enginePower", "engineSize", "doors", "vin"
     ];
   
-   
-    
     // Doors validation
     const isDoorsValid = isValidDoors(carInfo.doors);
     
@@ -164,4 +184,21 @@ export const validateForm = (carInfo: CarInfoState, validationErrors: any): bool
     // Form is valid if all conditions are met AND there are no validation errors
     return isDoorsValid && isEngineSizeValid && areOtherFieldsValid && 
             !validationErrors.doors && !validationErrors.engineSize;
+};
+
+/**
+ * Hook-like function for working with car info
+ * Returns loading, saving, validation functions and edit mode status
+ */
+export const useCarInfo = () => {
+    const currentEditMode = isEditMode();
+    const storageKey = getCarInfoStorageKey();
+    
+    return {
+        loadFromStorage,
+        saveToStorage,
+        validateForm,
+        isEditMode: currentEditMode,
+        storageKey
+    };
 };
