@@ -3,6 +3,18 @@
   /**
     * Represents vehicle transmission types
  */
+
+  export interface CarouselItem {
+    title: string;
+    carCount: string;
+    image: string;
+    value?: string; 
+  }
+  
+  export interface CarouselComponentProps {
+    data: CarouselItem[];
+    direction: 'ltr' | 'rtl';
+  }
 export enum Transmission {
   AUTOMATIC = 'automatic',
   MANUAL = 'manual',
@@ -160,6 +172,259 @@ export enum FeatureCategory {
   OTHER = 'other',
 }
 
+/**
+ * Represents the save status of a car listing
+ */
+export enum SaveStatus {
+  DRAFT = 'draft',
+  PUBLISHED = 'published',
+}
+
+/**
+ * Represents types of vehicle damage
+ */
+export enum DamageType {
+  SCRATCH = 'scratch',
+  DENT = 'dent',
+  PAINT_FADED = 'paint',
+  PAINT_REPAIRED = 'paint_repaired',
+  PANEL_REPLACED = 'replacement',
+}
+
+/**
+ * Represents listing types
+ */
+export enum ListingType {
+  FOR_SALE = 'for_sale',
+  FOR_RENT = 'for_rent',
+  test  = "test",
+  test1 = "test1"
+}
+
+// rent types
+export enum RentType {
+  DAILY = 'daily',
+  WEEKLY = 'weekly',
+  MONTHLY = 'monthly',
+  YEARLY = 'yearly',
+}
+export type SelectOption = {
+  value: string;
+  label: string;
+};
+
+/**
+ * Represents zones/areas of a vehicle that can be damaged
+ */
+export enum DamageZone {
+  // Front section
+  FRONT_BUMPER = 'front_bumper',
+  HOOD = 'hood',
+  FRONT_GRILL = 'front_grill',
+  LEFT_HEADLIGHT = 'left_headlight',
+  RIGHT_HEADLIGHT = 'right_headlight',
+
+  // Roof section
+  ROOF = 'roof',
+
+  // Rear section
+  TRUNK = 'trunk',
+  REAR_BUMPER = 'rear_bumper',
+  LEFT_TAILLIGHT = 'left_taillight',
+  RIGHT_TAILLIGHT = 'right_taillight',
+
+  // Left side
+  LEFT_FRONT_FENDER = 'left_front_fender',
+  LEFT_FRONT_DOOR = 'left_front_door',
+  LEFT_REAR_DOOR = 'left_rear_door',
+  LEFT_REAR_FENDER = 'left_rear_fender',
+  LEFT_MIRROR = 'left_mirror',
+  LEFT_FRONT_PILLAR = 'left_front_pillar',
+  LEFT_CENTER_PILLAR = 'left_center_pillar',
+  LEFT_REAR_PILLAR = 'left_rear_pillar',
+
+  // Right side
+  RIGHT_FRONT_FENDER = 'right_front_fender',
+  RIGHT_FRONT_DOOR = 'right_front_door',
+  RIGHT_REAR_DOOR = 'right_rear_door',
+  RIGHT_REAR_FENDER = 'right_rear_fender',
+  RIGHT_MIRROR = 'right_mirror',
+  RIGHT_FRONT_PILLAR = 'right_front_pillar',
+  RIGHT_CENTER_PILLAR = 'right_center_pillar',
+  RIGHT_REAR_PILLAR = 'right_rear_pillar',
+
+  // Glass
+  FRONT_WINDSHIELD = 'front_windshield',
+  REAR_WINDSHIELD = 'rear_windshield',
+  LEFT_FRONT_WINDOW = 'left_front_window',
+  LEFT_REAR_WINDOW = 'left_rear_window',
+  RIGHT_FRONT_WINDOW = 'right_front_window',
+  RIGHT_REAR_WINDOW = 'right_rear_window',
+
+  // Wheels/Rims
+  LEFT_FRONT_WHEEL = 'left_front_wheel',
+  LEFT_REAR_WHEEL = 'left_rear_wheel',
+  RIGHT_FRONT_WHEEL = 'right_front_wheel',
+  RIGHT_REAR_WHEEL = 'right_rear_wheel',
+}
+
+// Helper functions for the new enums
+
+/**
+ * Get save status options for select components
+ */
+export function getSaveStatusOptions(t: any): SelectOption[] {
+  return [
+    {
+      value: SaveStatus.DRAFT,
+      label: t("stepFour.saveStatusOptions.draft", { defaultValue: "Draft" })
+    },
+    {
+      value: SaveStatus.PUBLISHED,
+      label: t("stepFour.saveStatusOptions.published", { defaultValue: "Published" })
+    }
+  ];
+}
+
+
+// Get listing type options with translation
+export function getListingTypeOptions(t: any): SelectOption[] {
+  return [
+      {
+          value: ListingType.FOR_SALE,
+          label: t("stepFour.dateValue.forSale", { defaultValue: "For Sale" })
+      },
+      {
+          value: ListingType.FOR_RENT,
+          label: t("stepFour.dateValue.forRent", { defaultValue: "For Rent" })
+      },
+   
+  ];
+}
+
+// Get rent type options with translation
+export function getRentTypeOptions(t: any): SelectOption[] {
+  return [
+      {
+          value: RentType.DAILY,
+          label: t("stepFour.dateValue.RentType.daily", { defaultValue: "Daily" })
+      },
+      {
+          value: RentType.WEEKLY,
+          label: t("stepFour.dateValue.RentType.weekly", { defaultValue: "Weekly" })
+      },
+      {
+          value: RentType.MONTHLY,
+          label: t("stepFour.dateValue.RentType.monthly", { defaultValue: "Monthly" })
+      },
+      {
+          value: RentType.YEARLY,
+          label: t("stepFour.dateValue.RentType.yearly", { defaultValue: "Yearly" })
+      },
+      // Add more options here when you extend the enum
+  ];
+}
+
+/**
+ * Get damage type options for select components
+ */
+export const getDamageTypeOptions = () => {
+  return Object.values(DamageType).map((value) => ({
+    value,
+    label: value.charAt(0).toUpperCase() + value.slice(1).replace(/_/g, ' '),
+  }));
+};
+
+
+
+/**
+ * Get damage zone options for select components
+ */
+export const getDamageZoneOptions = () => {
+  return Object.values(DamageZone).map((value) => ({
+    value,
+    label: value.charAt(0).toUpperCase() + value.slice(1).replace(/_/g, ' '),
+  }));
+};
+
+/**
+ * Get grouped damage zone options for better UI organization
+ */
+export const getGroupedDamageZoneOptions = () => {
+  return [
+    {
+      label: 'Front',
+      options: [
+        { value: DamageZone.FRONT_BUMPER, label: 'Front Bumper' },
+        { value: DamageZone.HOOD, label: 'Hood' },
+        { value: DamageZone.FRONT_GRILL, label: 'Front Grill' },
+        { value: DamageZone.LEFT_HEADLIGHT, label: 'Left Headlight' },
+        { value: DamageZone.RIGHT_HEADLIGHT, label: 'Right Headlight' },
+      ],
+    },
+    {
+      label: 'Roof',
+      options: [{ value: DamageZone.ROOF, label: 'Roof' }],
+    },
+    {
+      label: 'Rear',
+      options: [
+        { value: DamageZone.TRUNK, label: 'Trunk' },
+        { value: DamageZone.REAR_BUMPER, label: 'Rear Bumper' },
+        { value: DamageZone.LEFT_TAILLIGHT, label: 'Left Taillight' },
+        { value: DamageZone.RIGHT_TAILLIGHT, label: 'Right Taillight' },
+      ],
+    },
+    {
+      label: 'Left Side',
+      options: [
+        { value: DamageZone.LEFT_FRONT_FENDER, label: 'Left Front Fender' },
+        { value: DamageZone.LEFT_FRONT_DOOR, label: 'Left Front Door' },
+        { value: DamageZone.LEFT_REAR_DOOR, label: 'Left Rear Door' },
+        { value: DamageZone.LEFT_REAR_FENDER, label: 'Left Rear Fender' },
+        { value: DamageZone.LEFT_MIRROR, label: 'Left Mirror' },
+        { value: DamageZone.LEFT_FRONT_PILLAR, label: 'Left Front Pillar' },
+        { value: DamageZone.LEFT_CENTER_PILLAR, label: 'Left Center Pillar' },
+        { value: DamageZone.LEFT_REAR_PILLAR, label: 'Left Rear Pillar' },
+      ],
+    },
+    {
+      label: 'Right Side',
+      options: [
+        { value: DamageZone.RIGHT_FRONT_FENDER, label: 'Right Front Fender' },
+        { value: DamageZone.RIGHT_FRONT_DOOR, label: 'Right Front Door' },
+        { value: DamageZone.RIGHT_REAR_DOOR, label: 'Right Rear Door' },
+        { value: DamageZone.RIGHT_REAR_FENDER, label: 'Right Rear Fender' },
+        { value: DamageZone.RIGHT_MIRROR, label: 'Right Mirror' },
+        { value: DamageZone.RIGHT_FRONT_PILLAR, label: 'Right Front Pillar' },
+        { value: DamageZone.RIGHT_CENTER_PILLAR, label: 'Right Center Pillar' },
+        { value: DamageZone.RIGHT_REAR_PILLAR, label: 'Right Rear Pillar' },
+      ],
+    },
+    {
+      label: 'Glass',
+      options: [
+        { value: DamageZone.FRONT_WINDSHIELD, label: 'Front Windshield' },
+        { value: DamageZone.REAR_WINDSHIELD, label: 'Rear Windshield' },
+        { value: DamageZone.LEFT_FRONT_WINDOW, label: 'Left Front Window' },
+        { value: DamageZone.LEFT_REAR_WINDOW, label: 'Left Rear Window' },
+        { value: DamageZone.RIGHT_FRONT_WINDOW, label: 'Right Front Window' },
+        { value: DamageZone.RIGHT_REAR_WINDOW, label: 'Right Rear Window' },
+      ],
+    },
+    {
+      label: 'Wheels',
+      options: [
+        { value: DamageZone.LEFT_FRONT_WHEEL, label: 'Left Front Wheel' },
+        { value: DamageZone.LEFT_REAR_WHEEL, label: 'Left Rear Wheel' },
+        { value: DamageZone.RIGHT_FRONT_WHEEL, label: 'Right Front Wheel' },
+        { value: DamageZone.RIGHT_REAR_WHEEL, label: 'Right Rear Wheel' },
+      ],
+    },
+  ];
+};
+
+
 // Helper function to get feature category options with translations
 export const getFeatureCategoryOptions = (t: any) => [
   { value: FeatureCategory.SAFETY, label: t('featureCategory.safety') },
@@ -241,6 +506,7 @@ export const getFeaturesByCategory = (t: any) => ({
 });
 
 // Optional: Create helper functions for select components
+
 
 /**
  * Get transmission options for select components with translation support

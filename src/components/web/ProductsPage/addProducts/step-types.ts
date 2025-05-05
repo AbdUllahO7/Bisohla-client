@@ -53,13 +53,12 @@ export interface StepTwoData {
 
 export interface StepThreeData {
   coverImage: string[]
-  carImages: CarImage | string[]
   additionalImages: string[]
   documents: string[]
   governorate: SyriaGovernorate
   city: SyriaCity
   address: string
-  sectionStatus: SectionStatus
+  sectionStatus?: SectionStatus
 }
 
 export interface StepFourData {

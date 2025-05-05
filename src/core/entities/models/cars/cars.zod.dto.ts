@@ -6,6 +6,11 @@ import {
   Transmission,
   BodyType,
   FeatureCategory,
+  SaveStatus,
+  ListingType,
+  RentType,
+  DamageZone,
+  DamageType,
 } from '@/core/entities/enums/cars.enums';
 import { Currency } from '@/core/entities/enums/currency.enum';
 import { SyriaCity, SyriaGovernorate } from '../../enums/syria.enums';
@@ -72,11 +77,24 @@ export interface CarImage {
 export const CreateCarListingSchema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters'),
   description: z.string().min(10, 'Description must be at least 10 characters'),
+  story: z.string().nullable().optional(),
   price: z.number().positive('Price must be positive').nullable().optional(),
-  currency: z.nativeEnum(Currency),
+  currency: z.nativeEnum(Currency).default(Currency.USD),
   makeId: z.number().int().positive('Make ID is required'),
   modelId: z.number().int().positive('Model ID is required'),
   trimId: z.number().int().positive().nullable().optional(),
+
+  // Contact
+  contactNumber: z.string().min(10).max(20).nullable().optional(),
+
+  // Save status
+  saveStatus: z.nativeEnum(SaveStatus).default(SaveStatus.DRAFT),
+
+  // Listing type
+  listingType: z.nativeEnum(ListingType),
+
+  // Rent types for rental listings
+  rentType: z.nativeEnum(RentType).nullable().optional(),
 
   // Location information
   governorate: z.nativeEnum(SyriaGovernorate).optional(),
@@ -105,13 +123,31 @@ export const CreateCarListingSchema = z.object({
   featureIds: z.array(z.number().int().positive()).optional(),
 
   // Images
-  images: z.array(CarImageSchema).optional(),
+  images: z.array(z.string().url('Invalid image URL')).optional(),
   primaryImageIndex: z.number().int().min(0).optional(),
+
+  // Published at
+  publishedAt: z.string().nullable().optional(),
+
+  // Car damages
+  damages: z
+    .array(
+      z.object({
+        damageZone: z.nativeEnum(DamageZone),
+        damageType: z.nativeEnum(DamageType),
+        description: z.string().nullable().optional(),
+      }),
+    )
+    .optional(),
 });
 
 export type CreateCarListingDto = z.infer<typeof CreateCarListingSchema>;
 
-export const UpdateCarListingSchema = CreateCarListingSchema.partial();
+export const UpdateCarListingSchema = CreateCarListingSchema.partial().extend({
+  status: z.nativeEnum(CarStatus).optional(),
+  isFeatured: z.boolean(),
+  isTrend: z.boolean(),
+});
 export type UpdateCarListingDto = z.infer<typeof UpdateCarListingSchema>;
 
 // Admin update status schema
@@ -135,3 +171,9 @@ export type CreateFeatureDto = z.infer<typeof CreateFeatureSchema>;
 
 export const UpdateFeatureSchema = CreateFeatureSchema.partial();
 export type UpdateFeatureDto = z.infer<typeof UpdateFeatureSchema>;
+
+export type CreateCarDamages = {
+  damageZone: DamageZone;
+  damageType: DamageType;
+  description: string;
+};

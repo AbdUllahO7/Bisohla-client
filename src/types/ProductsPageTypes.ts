@@ -4,7 +4,7 @@ export interface ProductBasicInfoProps {
     model: string;
     controlType: string;
     distance: string;
-    passengers: string;
+    modelYear: string;
     gaz: string;
 }
 
@@ -13,7 +13,7 @@ export interface ProductInfoProps {
     model: string;
     controlType: string;
     distance: string;
-    passengers: string;
+    modelYear: string;
     gaz: string;
     price: string;
     adsNumber: string;

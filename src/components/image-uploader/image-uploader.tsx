@@ -12,7 +12,6 @@ import { cn } from '@/lib/utils';
 import {
   ImagePlus,
   X,
-  Upload,
   AlertCircle,
   Loader2,
   CheckCircle2,

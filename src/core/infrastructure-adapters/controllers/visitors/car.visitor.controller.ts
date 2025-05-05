@@ -6,6 +6,7 @@ import {
   ApiResponse,
 } from '@/core/entities/api/success.response';
 import {
+  FacetCount,
   SelectCarListingDto,
   SelectCarMakeDto,
   SelectCarModelDto,
@@ -16,6 +17,15 @@ import { catchClientRequest } from '@/core/lib/error';
 
 export class CarVisitorController implements ICarVisitorController {
   constructor(private readonly carUseCase: ICarVisitorUseCase) {}
+  async getPublicFilterFacets(
+    params: QueryParams,
+  ): Promise<ApiResponse<FacetCount[]>> {
+    try {
+      return await this.carUseCase.getPublicFilterFacets(params);
+    } catch (e) {
+      return catchClientRequest(e);
+    }
+  }
   async findCarListings(
     queryParams: QueryParams,
   ): Promise<PaginatedResponse<SelectCarListingDto>> {

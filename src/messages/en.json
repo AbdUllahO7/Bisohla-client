@@ -16,7 +16,9 @@
       "rent": "Rent",
       "sale": "Sale",
       "news": "news",
-      "join": "Join"
+      "join": "Join",
+      "BrowseAll" : "Browse All"
+
     },
     "hero": {
       "title": "Bishola",
@@ -36,27 +38,10 @@
       "priceLow": "Price Low",
       "selectPrice": "Select Price",
       "search": "Search",
-      "options": {
-        "productType": {
-          "sedan": "Sedan",
-          "suv": "SUV",
-          "truck": "Truck",
-          "coupe": "Coupe"
-        },
-        "state": {
-          "new": "New",
-          "used": "Used",
-          "certified": "Certified"
-        },
-        "controltype": {
-          "manual": "Manual",
-          "automatic": "Automatic"
-        },
-        "priceRanges": {
-          "15000_20000": "15,000 to 20,000",
-          "20000_30000": "20,000 to 30,000",
-          "30000_40000": "30,000 to 40,000"
-        }
+      "reset" : "Reset",
+      "productPrice" : {
+        "highestPrice" : "Highest Price",
+        "lessPrice" :"Less Price"
       }
     },
     "latestOffers": {
@@ -346,10 +331,11 @@
   },
   "productsPage": {
     "header": {
-      "adCounter": "250 ad",
+      "adCounter": " ad",
       "orderBy": "Short by:",
       "selectPrice": "Select Price",
       "options": {
+        "newest" : "Newest First",
         "priceHigh": "Price High",
         "priceLow": "Price Low"
       }
@@ -358,15 +344,17 @@
       "title": "What are you looking for",
       "searchInput": "Search",
       "filterOptions": {
+        "bodyType" : {
+          "placeholder" : "Body Type"
+        },
+       
         "address": {
           "filterOptionsTitle": "Address",
           "placeHolder": "City",
-          "options": {
-            "Damascus": "Damascus",
-            "Idlib": "Idlib",
-            "Aleppo": "Aleppo",
-            "Homs": "Homs"
-          }
+          "governorate" : "Governorate",
+          "city" : "City",
+          "selectGovernorateFirst" : "select Governorate First"
+
         },
         "states": {
           "placeHolder": "State",
@@ -384,8 +372,11 @@
         },
         "productModels": {
           "title": "product model",
-          "lessYear": "Less Year",
-          "highestYear": "Highest year"
+          "minYear": "Less Year",
+          "maxYear" :"Max Year",
+          "highestYear": "Highest year",
+          "selectMarkaFirst" : "select Marka First",
+          "selectModelFirst" : "select Model First"
         },
         "productPrice": {
           "title": "product Price",
@@ -426,74 +417,70 @@
       "model" : "Model",
       "controlType" : "Control Type",
       "distance" : "Distance",
-      "passengers" : "Passengers",
+      "modelYear" : "Model Year",
       "adsNumber" : "Ads Number",
       "dateOfAds" : "Date Of Ads",
-      "gaz" : "Gaz"
+      "gaz" : "Gaz",
+      "bodyType" : "Body Type"
     },
     "tabs" : {
       "adsInfo" : "Ads Info",
       "location" : "Location",
       "productInfo" : "Car Info",
       "productDetails": "Details",
-      "productSafety": "Safety"
-
-    },
+      "productFeatures": "Features",
+      "features" :  {
+        "categories"  : {
+          "safety" : "Safety",
+          "entertainment":"Entertainment"
+        }
+      
+      }
+    },  
     "accordionDetails" : {
-
-      "questions" : {
-          "question1" : {
+      "details" : {
+        "noDamage" : "No Damages",
+          "carDetails" : {
             "question" : "Ads Details",
             "answer" : "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like)."
           },
-          "question2" : {
+          "adsDetails" : {
             "question" : "Car Details",
             "answer" : "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like)."
           },
           "productDetailsTitles": {
-          "title-one" : "No defect",
-          "title-tow" : "Just paint",
-          "title-three" : "Repair and paint",
-          "title-four" : "Part change"
+            "scratch": "خدش",
+            "paint": "طلاء",
+            "replacement": "استبدال"
+
           },
           "productDetailsBoxes" : {
-            "box-one" : {
-
-            "title" : "Repair and painting",
-            "list": {
-
-            "one" : "The door was replaced with an original door from the agency",
-            "tow" : "The door was replaced with an original door from the agency"
-            }
-            },
-            "box-tow" : {
-
-            "title" : "Repair and painting",
-            "list": {
-
-            "one" : "The door was replaced with an original door from the agency",
-            "tow" : "The door was replaced with an original door from the agency"
-            }
-            },
-            "box-three" : {
-
-            "title" : "Repair and painting",
-            "list": {
-
-            "one" : "The door was replaced with an original door from the agency",
-            "tow" : "The door was replaced with an original door from the agency"
-            }
-            },
-            "box-four" : {
-
-            "title" : "Repair and painting",
-            "list": {
-
-            "one" : "The door was replaced with an original door from the agency",
-            "tow" : "The door was replaced with an original door from the agency"
-            }
-            }
-            }
+            "scratch" : "Scratch",
+            "paint" : "Paint",
+            "replacement" : "Replacement"
+          },
+          "affectedAreas":"Affected Areas",
+          "damageZone" : {
+            "hood": "Hood",
+            "roof": "Roof",
+            "trunk" : "trunk",
+            "right_headlight" : "Right headlight",
+            "left_headlight" : "left Headlight",
+            "front_grill" : "Front Grill",
+            "rear_bumper" : "Rear Bumper",
+            "left_taillight":"Left Taillight",
+            "front_bumper" :"front Bumper",
+            "right_taillight" : "Right Taillight",
+            "left_front_fender": "Left Front Fender",
+            "right_front_fender": "Right Front Fender",
+            "left_front_door": "Left Front Door",
+            "right_front_door": "Right Front Door",
+            "left_rear_door": "Left Rear Door",
+            "right_rear_door": "Right Rear Door",
+            "Package": "Package",
+            "left_rear_fender": "Left Rear Fender",
+            "right_rear_fender": "Right Rear Fender"
+          }
         }
     },
     "accordionSafety" : {
@@ -509,7 +496,30 @@
       "nine": "Audio System with Bluetooth",
       "ten": "Electric Windows"
       }
-      }
+    },
+    "CarDetailsContent" : {
+      "title": "Title",
+      "description": "Description",
+      "contactNumber": "Contact Number",
+      "price": "Price",
+      "currency": "Currency",
+      "make": "Make",
+      "model": "Model",
+      "trim": "Trim",
+      "fullDescription": "Full Description",
+      "governorate" : "Governorate",
+      "address" : "Address",
+      "city" : "City",
+      "story" : "Story",
+      "engineSize" : "engine Size",
+      "colorInterior" : "color Interior",
+      "year" : "year",
+      "enginePower" : "Engine Power",
+      "plateNumber" : "plate Number",
+      "mileage" : "mile Age",
+      "doors" : "Doors",
+      "vin" : "vin"
+    }
   },
   "adminPage": {
     "general": {
@@ -589,56 +599,9 @@
       "location": "Location",
       "productInfo": "Car Info",
       "productDetails": "Details",
-      "productSafety": "Safety"
+      "productFeatures": "Features"
     },
-    "accordionDetails": {
-      "questions": {
-        "question1": {
-          "question": "Ads Details",
-          "answer": "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like)."
-        },
-        "question2": {
-          "question": "Car Details",
-          "answer": "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like)."
-        },
-        "productDetailsTitles": {
-          "title-one": "No defect",
-          "title-tow": "Just paint",
-          "title-three": "Repair and paint",
-          "title-four": "Part change"
-        },
-        "productDetailsBoxes": {
-          "box-one": {
-            "title": "Repair and painting",
-            "list": {
-              "one": "The door was replaced with an original door from the agency",
-              "tow": "The door was replaced with an original door from the agency"
-            }
-          },
-          "box-tow": {
-            "title": "Repair and painting",
-            "list": {
-              "one": "The door was replaced with an original door from the agency",
-              "tow": "The door was replaced with an original door from the agency"
-            }
-          },
-          "box-three": {
-            "title": "Repair and painting",
-            "list": {
-              "one": "The door was replaced with an original door from the agency",
-              "tow": "The door was replaced with an original door from the agency"
-            }
-          },
-          "box-four": {
-            "title": "Repair and painting",
-            "list": {
-              "one": "The door was replaced with an original door from the agency",
-              "tow": "The door was replaced with an original door from the agency"
-            }
-          }
-        }
-      }
-    },
+   
     "accordionSafety": {
       "list": {
         "one": "Airbag (Passenger)",
@@ -824,16 +787,17 @@
       "natural_gas": "Natural Gas"
       },
       "bodyType": {
-      "suv": "Sports Utility Vehicle",
-      "sedan": "Sedan",
-      "hatchback": "Hatchback",
-      "coupe": "Coupe",
-      "convertible": "Convertible",
-      "wagon": "Station",
-      "van": "Van",
-      "minivan": "Minivan",
-      "pickup": "Pickup",
-      "other": "Other"
+        "placeholder" : "Body Type",
+        "suv": "suv",
+        "sedan": "Sedan",
+        "hatchback": "Hatchback",
+        "coupe": "Coupe",
+        "convertible": "Convertible",
+        "wagon": "Station",
+        "van": "Van",
+        "minivan": "Minivan",
+        "pickup": "Pickup",
+        "other": "Other"
       },
       "transmission": {
       "automatic": "Automatic",
@@ -930,28 +894,72 @@
         "carPhotos": "Car Photos",
         "carSectionName": "Car Section Name",
         "conditionTypes": {
-          "noDefect": "No defect",
-          "justBoya": "Just boya",
-          "repairPaint": "Repair & paint", 
-          "changePiece": "Change piece"
+          "Paint": "Paint",
+          "Replacement": "Replacement",
+          "Scratch": "Scratch"
+        },
+        "damageType": {
+          "paint": "Paint",
+          "replacement": "Replacement",
+          "Scratch": "Scratch"
         },
         "carSection": {
-          "frontBumper": "Front bumper",
-          "hood": "Hood",
-          "leftDoor": "Left door",
-          "rightDoor": "Right door",
-          "rearBumper": "Rear bumper",
-          "roof": "Roof"
+          "Hood": "Hood",
+          "Roof": "Roof",
+          "trunk":"trunk",
+          "Left Front Fender": "Left Front Fender",
+          "Right Front Fender": "Right Front Fender",
+          "Left Front Door": "Left Front Door",
+          "Right Front Door": "Right Front Door",
+          "Left Rear Door": "Left Rear Door",
+          "Right Rear Door": "Right Rear Door",
+          "Package": "Package",
+          "Left Rear Fender": "Left Rear Fender",
+          "Right Rear Fender": "Right Rear Fender"
+        },
+        "damageZoneGroup": {
+          "front": "Front Section",
+          "roof": "Roof Section",
+          "leftSide": "Left Side",
+          "rightSide": "Right Side",
+          "package": "Package"
         },
         "images": {
           "coverImage": "Cover image",
-          "oneImage": "You can enter one image",
+          "oneImage": "You can enter up to 10 images",
           "carImages": "Car Images",
           "tenImages": "You can enter up to 10 images",
           "documents": "Documents",
           "tenFiles": "You can enter up to 10 files"
         }
-      }
+      },
+      "stepFour" : {
+          "title" : "Ad Details",
+          "adTitle" : "Ad Title",
+          "price":"Price",
+          "adDescription" : "Ad Description",
+          "contactNumber" : "Contact Number",
+          "adType" : "Ad Type",
+          "publicationDate" : "Publish Date",
+          "saveStatus" : "Save Status",
+          "saveStatusOptions" : {
+            "draft": "Draft",
+            "published" : "Publish"
+          },
+          "rentType" : "Rent Type",
+          "dateValue" : {
+          "forSale" : "For Sale",
+          "forRent" : "For Rent",
+          "test" : "Test",
+          "test1" : "Test 1",
+          "RentType" : {
+          "daily" : "Daily",
+          "weekly" : "Weekly",
+          "monthly" : "Monthly",
+          "yearly" : "Yearly"
+        }
+        }
+    }
     }
   },
   "UserProfile" : {
@@ -964,6 +972,7 @@
         "logout" : "LogOut"
     },
     "profile" : {
+      "YourProfile":"Your Profile",
       "editProfile": "Edit Profile",
       "resetPassword": "Reset Password",
       "name": "Name",
@@ -974,6 +983,190 @@
       "newPassword": "New Password",
       "repeatPassword": "Repeat Password",
       "saveChanges": "Save Changes"
+    },
+    "home" : {
+      "welcome": "Welcome",
+      "overview": "Here's an overview of your car listings and activity",
+      "memberSince": "Member since",
+      "lastUpdated": "Last updated",
+      "carsForSale": "Cars For Sale",
+      "activeListings": "Active listings",
+      "carsForRent": "Cars For Rent",
+      "favorites": "Favorites",
+      "savedListings": "Saved listings",
+      "activitySummary": "Activity Summary",
+      "recentActivity": "Your recent activity and performance",
+      "totalListings": "Total Listings",
+      "combinedSaleRental": "Combined sale & rental",
+      "accountAge": "Account Age",
+      "months": "Months",
+      "engagement": "Engagement",
+      "favoritesRatio": "Favorites ratio",
+      "listCarSale": "List a Car for Sale",
+      "createSaleListing": "Create a new listing to sell your vehicle and reach potential buyers.",
+      "createSaleButton": "Create Sale Listing",
+      "listCarRent": "List a Car for Rent",
+      "createRentListing": "Create a new rental listing and start earning passive income.",
+      "createRentButton": "Create Rental Listing",
+      "errorLoading": "Error Loading Profile",
+      "errorMessage": "There was a problem loading your profile data. Please try again later.",
+      "switchToArabic": "العربية",
+      "switchToEnglish": "English"
     }
+  },
+  "saleProduct": {
+      "hero": {
+        "title": "Cars For Sale",
+        "subtitle": "Find your perfect car from our extensive collection of quality vehicles"
+      },
+      "search": {
+        "placeholder": "Search by make, model, or keywords..."
+      },
+      "filters": {
+        "button": "Filters",
+        "title": "Filter Options",
+        "close": "Close",
+        "make": "Make",
+        "allMakes": "All Makes",
+        "priceRange": "Price Range",
+        "anyPrice": "Any Price",
+        "fuelType": "Fuel Type",
+        "allTypes": "All Types",
+        "reset": "Reset",
+        "apply": "Apply Filters"
+      },
+      "results": {
+        "title": "Cars For Sale",
+        "found": "vehicles found"
+      },
+      "sort": {
+        "label": "Sort by:",
+        "newest": "Newest First",
+        "oldest": "Oldest First",
+        "priceLow": "Price: Low to High",
+        "priceHigh": "Price: High to Low"
+      },
+      "error": {
+        "title": "Failed to load car listings",
+        "message": "There was a problem loading the car listings. Please try again later.",
+        "retry": "Try Again"
+      },
+      "empty": {
+        "title": "No cars found",
+        "message": "There are currently no car listings available. Please check back later.",
+        "searchMessage": "No cars match your search criteria. Try different keywords or clear your filters.",
+        "clearSearch": "Clear Search"
+      },
+      "pagination": {
+        "previous": "Previous",
+        "next": "Next",
+        "showing": "Showing",
+        "to": "to",
+        "of": "of",
+        "items": "items"
+      },
+      "price": "Price"
+    },
+    "rentProduct": {
+      "hero": {
+        "title": "Cars For Rent",
+        "subtitle": "Find your perfect car from our extensive collection of quality vehicles"
+      },
+      "search": {
+        "placeholder": "Search by make, model, or keywords..."
+      },
+      "filters": {
+        "button": "Filters",
+        "title": "Filter Options",
+        "close": "Close",
+        "make": "Make",
+        "allMakes": "All Makes",
+        "priceRange": "Price Range",
+        "anyPrice": "Any Price",
+        "fuelType": "Fuel Type",
+        "allTypes": "All Types",
+        "reset": "Reset",
+        "apply": "Apply Filters"
+      },
+      "results": {
+        "title": "Cars For Rent",
+        "found": "vehicles found"
+      },
+      "sort": {
+        "label": "Sort by:",
+        "newest": "Newest First",
+        "oldest": "Oldest First",
+        "priceLow": "Price: Low to High",
+        "priceHigh": "Price: High to Low"
+      },
+      "error": {
+        "title": "Failed to load car listings",
+        "message": "There was a problem loading the car listings. Please try again later.",
+        "retry": "Try Again"
+      },
+      "empty": {
+        "title": "No cars found",
+        "message": "There are currently no car listings available. Please check back later.",
+        "searchMessage": "No cars match your search criteria. Try different keywords or clear your filters.",
+        "clearSearch": "Clear Search"
+      },
+      "pagination": {
+        "previous": "Previous",
+        "next": "Next",
+        "showing": "Showing",
+        "to": "to",
+        "of": "of",
+        "items": "items"
+      },
+      "price": "Price"
+    },
+
+  "common": {
+    "myProducts": "My Products",
+    "sale": "Sale",
+    "rent": "Rent",
+    "edit": "Edit",
+    "delete": "Delete",
+    "deleting": "Deleting...",
+    "cancel": "Cancel",
+    "confirmDelete": "Delete Permanently",
+    "deleteConfirmation": "Confirm Deletion",
+    "deleteWarning": "This action cannot be undone. This will permanently delete your listing and remove it from our servers.",
+    "details": "Details",
+    "viewDetails": "View Details",
+    "price": "Price"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "button": "Notifications",
+    "empty": "No notifications",
+    "emptyDescription": "You don't have any notifications at the moment.",
+    "loading": "Loading notifications...",
+    "viewAll": "View all notifications",
+    "markAllRead": "Mark all as read",
+    "markRead": "Mark as read",
+    "unread": "unread",
+    "filter": {
+      "all": "All",
+      "unread": "Unread",
+      "read": "Read"
+    },
+    "sort": {
+      "newest": "Newest first",
+      "oldest": "Oldest first"
+    },
+    "type": {
+      "all": "All types",
+      "system": "System",
+      "transaction": "Transaction",
+      "marketing": "Marketing",
+      "alert": "Alert"
+    }
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page",
+    "of": "of"
   }
 }

@@ -1,15 +1,17 @@
 'use client';
 
 import LocaleSwitcher from '@/components/local/LocalSwitcher';
+import { useSession } from '@/hooks/auth/use-session';
 import { HeaderTowProps } from '@/types/homePageTypes';
 import { MenuIcon, XCircleIcon } from 'lucide-react';
 import Link from 'next/link';
 import React, { useState } from 'react';
 
 
-const HeaderTow: React.FC<HeaderTowProps> = ({ translations }) => {
+const HeaderTow: React.FC<HeaderTowProps> =  ({ translations }) => {
     const [isOpen, setIsOpen] = useState<boolean>(false);
-
+    const session = useSession();
+            
     return (
         <nav className="bg-primary text-white">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -19,18 +21,23 @@ const HeaderTow: React.FC<HeaderTowProps> = ({ translations }) => {
                             <Link href="/" className="hover:bg-primary-light transition-all px-3 py-2 rounded">
                                 {translations.home}
                             </Link>
-                            <Link href="/products" className="hover:bg-primary-light transition-all px-3 py-2 rounded">
+                            <Link href="/rentProducts" className="hover:bg-primary-light transition-all px-3 py-2 rounded">
                                 {translations.rent}
                             </Link>
-                            <Link href="/products" className="hover:bg-primary-light transition-all px-3 py-2 rounded">
+                            <Link href="/saleProducts" className="hover:bg-primary-light transition-all px-3 py-2 rounded">
                                 {translations.sale}
                             </Link>
-                            <Link href="#" className="hover:bg-primary-light transition-all px-3 py-2 rounded">
+                            {/* <Link href="#" className="hover:bg-primary-light transition-all px-3 py-2 rounded">
                                 {translations.news}
+                            </Link> */}
+                            <Link href="/products" className="hover:bg-primary-light transition-all px-3 py-2 rounded">
+                                {translations.BrowseAll}
                             </Link>
-                            <Link href="/products/AddProducts" className="hover:bg-primary-light transition-all px-3 py-2 rounded">
+                           {
+                                session.user.id?  null: <Link href="auth/sign-in" className="hover:bg-primary-light transition-all px-3 py-2 rounded">
                                 {translations.join}
-                            </Link>
+                                </Link>
+                           }
                         </div>
                     </div>
                     <div className="-mr-2 flex md:hidden">
@@ -50,22 +57,27 @@ const HeaderTow: React.FC<HeaderTowProps> = ({ translations }) => {
 
             {isOpen && (
                 <div className="md:hidden">
-                    <div className="space-y-1 px-2 pt-2 pb-3 h-[300px] flex flex-col items-center absolute  z-[999] bg-primary-dark w-full">
-                            <Link href="#home" className="hover:bg-primary-light transition-all px-3 py-2 rounded">
+                    <div className="space-y-1 px-2 pt-2 pb-3 h-[300px] flex flex-col items-center absolute  bg-primary-dark w-full">
+                    <Link href="/" className="hover:bg-primary-light transition-all px-3 py-2 rounded">
                                 {translations.home}
                             </Link>
-                            <Link href="#rent" className="hover:bg-primary-light transition-all px-3 py-2 rounded">
+                            <Link href="/rentProducts" className="hover:bg-primary-light transition-all px-3 py-2 rounded">
                                 {translations.rent}
                             </Link>
-                            <Link href="#sale" className="hover:bg-primary-light transition-all px-3 py-2 rounded">
+                            <Link href="/saleProducts" className="hover:bg-primary-light transition-all px-3 py-2 rounded">
                                 {translations.sale}
                             </Link>
-                            <Link href="#news" className="hover:bg-primary-light transition-all px-3 py-2 rounded">
+                            {/* <Link href="#" className="hover:bg-primary-light transition-all px-3 py-2 rounded">
                                 {translations.news}
+                            </Link> */}
+                            <Link href="/products" className="hover:bg-primary-light transition-all px-3 py-2 rounded">
+                                {translations.BrowseAll}
                             </Link>
-                            <Link href="#join" className="hover:bg-primary-light transition-all px-3 py-2 rounded">
+                           {
+                                session.user.id?  null: <Link href="auth/sign-in" className="hover:bg-primary-light transition-all px-3 py-2 rounded">
                                 {translations.join}
-                            </Link>
+                                </Link>
+                           }
                             <div className='xs:block hidden'>
                                 <LocaleSwitcher/>
                             </div>

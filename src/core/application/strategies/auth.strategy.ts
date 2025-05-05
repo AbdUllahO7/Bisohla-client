@@ -31,4 +31,5 @@ export interface IAuthStrategy {
   ): Promise<ApiResponse<SuccessResponseWithNoContent>>;
 
   signOut(): Promise<ApiResponse<SuccessResponseWithNoContent>>;
+  checkAuth(): Promise<ApiResponse<SuccessResponseWithNoContent>>;
 }

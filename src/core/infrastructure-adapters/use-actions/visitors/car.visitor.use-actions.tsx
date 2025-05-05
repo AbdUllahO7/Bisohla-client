@@ -7,6 +7,7 @@ import {
 } from '@/core/entities/api/success.response';
 
 import {
+  FacetCount,
   SelectCarListingDto,
   SelectCarMakeDto,
   SelectCarModelDto,
@@ -21,6 +22,7 @@ import {
   getCarMakes,
   getCarModels,
   getCarTrims,
+  getPublicFilterFacets,
 } from '../../actions/visitors/car.visitor.actions';
 import { useLocaleQuery } from '../common/use-locale-query';
 
@@ -71,6 +73,15 @@ export const useCarFeatrues = (params: QueryParams) =>
   useLocaleQuery<PaginatedResponse<SelectFeatureDto>>({
     queryKey: ['visitors-car-features', params],
     queryFn: async () => await getCarFeatures(params),
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    // keepPreviousData: true, // Keep previous data during re-fetch
+  });
+
+export const useGetPublicFilterFacets = (params: QueryParams) =>
+  useLocaleQuery<ApiResponse<FacetCount[]>>({
+    queryKey: ['public-filter-facets', params],
+    queryFn: async () => await getPublicFilterFacets(params),
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
     // keepPreviousData: true, // Keep previous data during re-fetch

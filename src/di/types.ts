@@ -1,3 +1,8 @@
+import { IUserProfileController } from './../core/application/controllers/users/user-profile/user-profile.controller.interface';
+import { INotificationUserController } from './../core/application/controllers/users/notifications/notification.user.controller.interface';
+import { IUserProfileUseCase } from './../core/application/use-cases/users/user-profile/user-profile.use-case.interface';
+import { IUserProfileService } from './../core/application/services/users/user-profile.service.interface';
+import { INotificationUserService } from './../core/application/services/users/notification.user.service.interface';
 import { ICarUserController } from './../core/application/controllers/users/cars/car-controller.interface';
 import { IFileManagerController } from '@/core/application/controllers/file-manager.controller.interface';
 import { IRolesRepoController } from './../core/application/controllers/repositories/roles.repo.controller.interface';
@@ -45,34 +50,46 @@ import { ICarUserService } from '@/core/application/services/users/car.user.serv
 import { ICarVisitorUseCase } from '@/core/application/use-cases/visitors/cars/car.visitor.use-case.interface';
 import { ICarUserUseCase } from '@/core/application/use-cases/users/cars/car.user.use-case.interface';
 import { ICarVisitorController } from '@/core/application/controllers/visitors/cars/car-controller.interface';
+import { INotificationService } from '@/core/application/services/notification.service.interface';
+import { INotificationUseCase } from '@/core/application/use-cases/notifications/notifications.use-case.interface';
+import { INotificationController } from '@/core/application/controllers/notifications/notifications.controller.interface';
+import { INotificationUserUseCase } from '@/core/application/use-cases/users/notifications/notification.user.use-case.interface';
 
 export const DI_SYMBOLS = {
   // ? services
   IAuthService: Symbol.for('IAuthService'),
   IPermissionService: Symbol.for('IPermissionService'),
   IFileManagerService: Symbol.for('IFileManagerService'),
+  INotificationService: Symbol.for('INotificationService'),
   // visitors
   // ---- cars
   ICarVisitorService: Symbol.for('ICarVisitorService'),
   // users
   // ---- cars
   ICarUserService: Symbol.for('ICarUserService'),
+  INotificationUserService: Symbol.for('INotificationUserService'),
+  IUserProfileService: Symbol.for('IUserProfileService'),
 
   //? use cases
   IAuthUseCase: Symbol.for('IAuthUseCase'),
   IPermissionUseCase: Symbol.for('IPermissionUseCase'),
   IFileManagerUseCase: Symbol.for('IFileManagerUseCase'),
+  INotificationUseCase: Symbol.for('INotificationUseCase'),
+
   // visitors
   // ---- cars
   ICarVisitorUseCase: Symbol.for('ICarVisitorUseCase'),
   // users
   // ---- cars
   ICarUserUseCase: Symbol.for('ICarUserUseCase'),
+  INotificationUserUseCase: Symbol.for('INotificationUserUseCase'),
+  IUserProfileUseCase: Symbol.for('IUserProfileUseCase'),
 
   //? controllers
   IAuthController: Symbol.for('IAuthController'),
   IPermissionController: Symbol.for('IPermissionController'),
   IFileManagerController: Symbol.for('IFileManagerController'),
+  INotificationController: Symbol.for('INotificationController'),
 
   // visitors
   // ---- cars
@@ -80,6 +97,8 @@ export const DI_SYMBOLS = {
   // users
   // ---- cars
   ICarUserController: Symbol.for('ICarUserController'),
+  INotificationUserController: Symbol.for('INotificationUserController'),
+  IUserProfileController: Symbol.for('IUserProfileController'),
 
   //? REPOSITORIES
   IBaseRepo: Symbol.for('IBaseRepo'),
@@ -140,18 +159,21 @@ export interface DI_RETURN_TYPES {
   IAuthService: IAuthService;
   IPermissionService: IPermissionService;
   IFileManagerService: IFileManagerService;
-
+  INotificationService: INotificationService;
   //visitors
   // --- cars
   ICarVisitorService: ICarVisitorService;
   //users
   // --- cars
   ICarUserService: ICarUserService;
+  INotificationUserService: INotificationUserService;
+  IUserProfileService: IUserProfileService;
 
   // use cases
   IAuthUseCase: IAuthUseCase;
   IPermissionUseCase: IPermissionUseCase;
   IFileManagerUseCase: IFileManagerUseCase;
+  INotificationUseCase: INotificationUseCase;
 
   //visitors
   // --- cars
@@ -159,11 +181,14 @@ export interface DI_RETURN_TYPES {
   //users
   // --- cars
   ICarUserUseCase: ICarUserUseCase;
+  INotificationUserUseCase: INotificationUserUseCase;
+  IUserProfileUseCase: IUserProfileUseCase;
 
   // controllers
   IAuthController: IAuthController;
   IPermissionController: IPermissionController;
   IFileManagerController: IFileManagerController;
+  INotificationController: INotificationController;
 
   // visitors
   // --- cars
@@ -171,6 +196,8 @@ export interface DI_RETURN_TYPES {
   //users
   // --- cars
   ICarUserController: ICarUserController;
+  INotificationUserController: INotificationUserController;
+  IUserProfileController: IUserProfileController;
 
   //REPOSITORIES
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -1,4 +1,5 @@
 import Box from '@/components/box/box';
+import { Toaster } from '@/components/ui/toaster';
 import Footer from '@/components/web/Home/Footer';
 import HeaderOne from '@/components/web/Home/HeaderOne';
 import HeaderTow from '@/components/web/Home/HeaderTow';
@@ -15,32 +16,35 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-const WebLayout = async({ children }: PropsWithChildren) => {
+const WebLayout = async ({ children }: PropsWithChildren) => {
   const t = await getTranslations('homePage');
   return (
-    <Box  className='w-full bg-background' variant="column">
-      <Box className="fixed z-[20] w-full bg-white shadow-md">
-        <Box variant="container" >
-            <HeaderOne />
+    <Box className="w-full bg-background" variant="column">
+      <Box className="fixed z-[50] w-full bg-white shadow-md">
+        <Box variant="container">
+          <HeaderOne />
         </Box>
       </Box>
 
-    {/* HeaderTwo */}
-    <div className="fixed top-[55px] z-[20]  w-full bg-primary shadow-md">
-      <HeaderTow   translations={{
-              home: t('headerTow.home'),
-              rent: t('headerTow.rent'),
-              sale: t('headerTow.sale'),
-              news: t('headerTow.news'),
-              join: t('headerTow.join'),
+      {/* HeaderTwo */}
+      <div className="fixed top-[55px] z-[20]  w-full bg-primary shadow-md">
+        <HeaderTow
+          translations={{
+            home: t('headerTow.home'),
+            rent: t('headerTow.rent'),
+            sale: t('headerTow.sale'),
+            news: t('headerTow.news'),
+            join: t('headerTow.join'),
+            BrowseAll: t('headerTow.BrowseAll'),
 
-            }}/>      
-    </div>
-    {/* Spacer for HeaderTwo height */}
-    <div className="h-[65px]"></div>
-          {children}
-      <Footer />
-
+          }}
+        />
+      </div>
+      {/* Spacer for HeaderTwo height */}
+      <div className="h-[65px]"></div>
+      {children}
+                  <Toaster/>
+      
     </Box>
   );
 };

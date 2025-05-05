@@ -6,6 +6,7 @@ import {
   PaginatedResponse,
 } from '@/core/entities/api/success.response';
 import {
+  FacetCount,
   SelectCarListingDto,
   SelectCarMakeDto,
   SelectCarModelDto,
@@ -21,6 +22,7 @@ export const getCarListings = async (
   const carListingController = getInjection('ICarVisitorController');
 
   const res = await carListingController.findCarListings(params);
+
 
   return res;
 };
@@ -71,6 +73,16 @@ export const getCarListingById = async (
   const carListingController = getInjection('ICarVisitorController');
 
   const res = await carListingController.findCarListingById(id);
+
+  return res;
+};
+
+export const getPublicFilterFacets = async (
+  params: QueryParams,
+): Promise<ApiResponse<FacetCount[]>> => {
+  const carListingController = getInjection('ICarVisitorController');
+
+  const res = await carListingController.getPublicFilterFacets(params);
 
   return res;
 };

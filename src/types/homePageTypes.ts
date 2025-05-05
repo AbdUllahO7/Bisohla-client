@@ -6,23 +6,26 @@ export interface CarCardItemProps {
     imageSrc: string;
     priceWord: string;
     details? : {
-        gaz : string,
-        type:string
+        fuelType : string,
+        transmission:string
     },
     ProductId : number
+    type? : string
 }
 export interface CarCardItemPropsProfile {
     title: string;
     marka: string;
     imageSrc: string;
     priceWord : string;
-    price :string;
+    price :Number;
     details? : {
         gaz : string,
         type:string
     },
     ProductId : number;
-    isFavorites : boolean
+    isFavorites : boolean,
+    type? : string
+    onFavoriteToggle?: (productId: number, isFavorite: boolean) => void;
 }
 export interface CitiesDataType {
     title : string , 
@@ -38,6 +41,13 @@ export interface SelectDropdownProps {
   className?: string; // Additional class names
   SelectTriggerStyle?: string;
   labelStyle?: string;
+  required?: boolean
+  error?: string
+  onChange?: (name: string, value: string) => void
+  value?: string
+  name?: string
+  onBlur?: (field: string, value: string) => void
+  disabled:boolean
 }
 
 export interface CarouselComponentProps {
@@ -53,6 +63,7 @@ export interface HeaderTowProps {
         sale: string;
         news: string;
         join: string;
+        BrowseAll : string;
     };
 }
 

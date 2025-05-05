@@ -1,7 +1,12 @@
 import {
   BodyType,
+  DamageType,
+  DamageZone,
   FeatureCategory,
   FuelType,
+  ListingType,
+  RentType,
+  SaveStatus,
   Transmission,
 } from '../../enums/cars.enums';
 import { Currency } from '../../enums/currency.enum';
@@ -70,6 +75,16 @@ export interface CarImage {
   deletedAt: string | Date | null;
 }
 
+export interface SelectCarDamageDto {
+  damageZone: DamageZone;
+  damageType: DamageType;
+  description: string;
+  id: number;
+  createdAt: string | Date;
+  updatedAt: string | Date;
+  carListingId: number;
+}
+
 export interface CarDetails {
   id: number;
   carListingId: number;
@@ -113,25 +128,34 @@ export interface SelectCarListingDto {
   id: number;
   title: string;
   description: string;
-  price: number | number | null;
+  story?: string | null;
+  price: number | null;
   currency: Currency;
   userId: number;
-  user?: SelectUserDto; // TODO: maybe change this type
+  user?: SelectUserDto; 
   makeId: number;
   modelId: number;
   trimId: number | null;
   status: string;
   isFeatured: boolean;
-  isSold: boolean;
+  isTrend: boolean; // Added instead of isSold
+  isFavorite ?: boolean | null; // Added for favorite status
+  // Save status and listing type
+  saveStatus: SaveStatus;
+  listingType: ListingType;
+  rentType?: RentType | null;
+  contactNumber?: string | null;
 
   // location
   governorate: SyriaGovernorate;
   city: SyriaCity;
   address: string;
 
+  // Timestamps
   createdAt: string | Date;
   updatedAt: string | Date;
   deletedAt?: string | Date | null;
+  publishedAt?: string | Date | null;
 
   // Related entities
   details: CarDetails;
@@ -140,4 +164,13 @@ export interface SelectCarListingDto {
   make: SelectCarMakeDto;
   model: SelectCarModelDto;
   trim?: SelectCarTrimDto;
+
+  // Added damage information
+  damages?: SelectCarDamageDto[];
+}
+
+export interface FacetCount {
+  field: string;
+  value: string | number | boolean;
+  count: number;
 }
