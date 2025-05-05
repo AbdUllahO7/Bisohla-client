@@ -1,4 +1,5 @@
 import Box from '@/components/box/box';
+import { Toaster } from '@/components/ui/toaster';
 import Footer from '@/components/web/Home/Footer';
 import HeaderOne from '@/components/web/Home/HeaderOne';
 import HeaderTow from '@/components/web/Home/HeaderTow';
@@ -42,6 +43,8 @@ const WebLayout = async ({ children }: PropsWithChildren) => {
       {/* Spacer for HeaderTwo height */}
       <div className="h-[65px]"></div>
       {children}
+                  <Toaster/>
+      
     </Box>
   );
 };

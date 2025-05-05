@@ -9,10 +9,12 @@ import { transformDamages } from '../../stepThree/utils';
 import { SyriaCity, SyriaGovernorate } from '@/core/entities/enums/syria.enums';
 import { 
   STORAGE_KEYS, 
-  EDIT_STORAGE_KEYS, 
   getAllFormData, 
   clearFormData 
 } from './useLocalStorage';
+import { useToast } from '@/hooks/use-toast';
+import { useLocale } from 'next-intl';
+
 
 // Format error message for display
 const formatErrorMessage = (error: any): string => {
@@ -31,10 +33,12 @@ const formatErrorMessage = (error: any): string => {
 
 export const useSubmitForm = () => {
   const router = useRouter();
+  const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showErrorDialog, setShowErrorDialog] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [isEditMode, setIsEditMode] = useState(false);
+  const locale = useLocale();
 
   // Determine if we're in edit mode on mount
   useEffect(() => {
@@ -99,15 +103,7 @@ export const useSubmitForm = () => {
         imageUrls.push(storedData3.coverImage[0]);
       }
       
-      // Add car images
-      if (storedData3.carImages && Array.isArray(storedData3.carImages)) {
-        storedData3.carImages.forEach((url: string) => {
-          if (url) {
-            imageUrls.push(url);
-          }
-        });
-      }
-      
+
       // Transform car damages from sectionStatus to the backend format
       const damages = transformDamages(storedData3.sectionStatus || {});
       
@@ -182,29 +178,57 @@ export const useSubmitForm = () => {
       }
       
       if (response.success) {
+        // Show success toast notification using shadcn/ui toast
+        toast({
+          title: locale === 'en' ? "Success 🚗" : "تم بنجاح 🚗",
+          description: locale === 'en' 
+            ? (isEditMode 
+                ? 'Your listing has been successfully updated!' 
+                : 'Your listing has been successfully created!')
+            : (isEditMode 
+                ? 'تم تحديث القائمة الخاصة بك بنجاح!' 
+                : 'تم إنشاء القائمة الخاصة بك بنجاح!'),
+          className: "bg-green-600 text-white border-green-700",
+        });
+        
         // Clear all form data properly - both edit and normal data
         clearFormData(true);
         
         // Redirect to success page or next step
-        const successPath = '/products/AddProducts/ProductSuccessPage';
-        router.replace(successPath);
+        router.back();
         
         return response;
       } else {
         // Show error dialog on unsuccessful response
         setErrorMessage(formatErrorMessage(response));
         setShowErrorDialog(true);
+        
+        // Also show error toast using shadcn/ui toast
+        toast({
+          variant: "destructive",
+          title: locale === 'en' ? "Error" : "خطأ",
+          description: formatErrorMessage(response),
+        });
+        
         return null;
       }
     } catch (error) {
       console.error("Error submitting form:", error);
       setErrorMessage(formatErrorMessage(error));
       setShowErrorDialog(true);
+      
+      // Show error toast using shadcn/ui toast
+      toast({
+        variant: "destructive",
+        title: locale === 'en' ? "Error" : "خطأ",
+        description: formatErrorMessage(error),
+      });
+      
       return null;
     } finally {
       setIsSubmitting(false);
     }
-  }, [router]);
+  }, [router, toast, locale]); // Add locale to the dependency array
 
   return {
     isSubmitting,

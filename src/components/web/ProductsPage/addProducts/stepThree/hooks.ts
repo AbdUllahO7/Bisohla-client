@@ -37,7 +37,6 @@ export const useAddProductStepThree = (
   
   // Refs
   const coverImageRef = useRef<ImageUploaderRef>(null);
-  const carImagesRef = useRef<ImageUploaderRef>(null);
   const prevValidState = useRef<boolean | null>(null);
   const editModeApplied = useRef(false);
   const initialLoadComplete = useRef(false);
@@ -49,7 +48,6 @@ export const useAddProductStepThree = (
       carPhotos: t('carPhotos'),
       carSectionName: t('carSectionName'),
       coverImage: t('images.coverImage'),
-      carImages: t('images.carImages'),
       oneImage: t('images.oneImage'),
       tenImages: t('images.tenImages'),
       tenFiles: t('images.tenFiles'),
@@ -157,9 +155,7 @@ export const useAddProductStepThree = (
             console.log("🖼️ Found cover image:", updatedData.coverImage);
           }
           
-          if (updatedData.carImages && updatedData.carImages.length > 0) {
-            console.log("🚗 Found car images:", updatedData.carImages);
-          }
+         
           
           // Set the normalized data
           setCarCondition(updatedData);
@@ -300,33 +296,11 @@ export const useAddProductStepThree = (
     });
   }, [storageKey]);
 
-  const handleCarImagesChange = useCallback((urls: string[]) => {
-    console.log("🚗 Updating car images:", urls);
-    setCarCondition(prev => {
-      const updatedState = {
-        ...prev,
-        carImages: urls
-      };
-      
-      // Save to localStorage immediately after state update
-      if (storageKey) {
-        try {
-          localStorage.setItem(storageKey, JSON.stringify(updatedState));
-          console.log(`Saved car images change to ${storageKey}`);
-        } catch (e) {
-          console.error(`Error saving car images change to ${storageKey}:`, e);
-        }
-      }
-      
-      return updatedState;
-    });
-  }, [storageKey]);
 
   // Debug: Log current state on every render
   console.log("Current car condition state:", {
     isEditMode,
     storageKey,
-    hasImages: carCondition.carImages && carCondition.carImages.length > 0,
     hasCover: carCondition.coverImage && carCondition.coverImage.length > 0,
     sectionStatusCount: Object.keys(carCondition.sectionStatus || {}).length
   });
@@ -340,11 +314,9 @@ export const useAddProductStepThree = (
     isFormDisabled,
     setIsFormDisabled,
     coverImageRef,
-    carImagesRef,
     handleSectionStatusChange,
     isStatusSelected,
     handleCoverImageChange,
-    handleCarImagesChange,
     setInitialDamages,
     isEditMode,  // Expose edit mode status
     storageKey    // Expose the storage key being used

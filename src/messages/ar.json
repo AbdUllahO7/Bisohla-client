@@ -854,7 +854,7 @@
       },
       "images": {
         "coverImage": "صورة الغلاف",
-        "oneImage": "يمكنك إدخال صورة واحدة",
+        "oneImage": "يمكنك إدخال 10 صور ",
         "carImages": "صور السيارة",
         "tenImages": "يمكنك إدخال حتى 10 صور",
         "documents": "المستندات",
@@ -973,6 +973,7 @@
     },
 
     "profile" : {
+      "YourProfile":"الملف الشخصي",
       "editProfile": "تعديل الملف الشخصي",
       "resetPassword": "إعادة تعيين كلمة المرور",
       "name": "الاسم",

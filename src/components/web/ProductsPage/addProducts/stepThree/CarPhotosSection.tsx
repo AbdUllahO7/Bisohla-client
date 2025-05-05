@@ -10,11 +10,8 @@ import { CarPhotosSectionProps } from "./types";
 const CarPhotosSection: React.FC<CarPhotosSectionProps> = ({
   labels,
   coverImageRef,
-  carImagesRef,
   coverImage,
-  carImages,
   onCoverImageChange,
-  onCarImagesChange,
   setIsFormDisabled
 }) => {
   return (
@@ -29,7 +26,7 @@ const CarPhotosSection: React.FC<CarPhotosSectionProps> = ({
         </Text>
         <ImageUploader
           ref={coverImageRef}
-          maxImages={1}
+          maxImages={10}
           onChange={onCoverImageChange}
           setDisableForm={setIsFormDisabled}
           value={coverImage}
@@ -40,7 +37,7 @@ const CarPhotosSection: React.FC<CarPhotosSectionProps> = ({
       </div>
 
       {/* Car Images */}
-      <div>
+      {/* <div>
         <Text className="text-lg font-semibold mb-2 text-primary">
           {labels.carImages} <span className="text-red-500">*</span>
         </Text>
@@ -56,7 +53,7 @@ const CarPhotosSection: React.FC<CarPhotosSectionProps> = ({
           dropzoneClassName="min-h-[200px]"
           name="carImages"
         />
-      </div>
+      </div> */}
 
 
       

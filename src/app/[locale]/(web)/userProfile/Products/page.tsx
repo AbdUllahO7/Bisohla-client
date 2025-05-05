@@ -128,7 +128,7 @@ const UserProductPage = () => {
     }, [data, currentPage, carListings.length]);
 
     return (
-        <Box variant="container" className="flex flex-col md:flex-row gap-6">
+        <Box variant="container" className="flex flex-col md:flex-row gap-6" dir={direction}>
             {/* Filter Section - Shows on Medium screens and above */}
             <Box className="md:w-1/4 lg:w-1/5 hidden md:block sticky top-24 self-start">
                 <Filter onChange={handleFilterChange} />

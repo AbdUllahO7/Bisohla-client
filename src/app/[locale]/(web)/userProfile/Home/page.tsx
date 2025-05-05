@@ -83,11 +83,11 @@ const UserHomePage = () => {
   }
 
   return (
-    <div className="flex w-full flex-col">
+    <div className=" w-full flex-col mx-auto ">
       {/* Main Content */}
       <SidebarInset>
         <main className="flex-1 p-4 md:p-6 ">
-          <div className="mx-auto max-w-7xl h-full" dir={direction}>
+          <div className="mx-auto container h-full" dir={direction}>
 
             <div className="grid grid-rows-[auto_auto_1fr] h-full gap-6">
               <div className="mb-2">

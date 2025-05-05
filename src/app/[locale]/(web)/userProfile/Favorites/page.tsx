@@ -2,7 +2,7 @@
 import Box from '@/components/box/box';
 import Text from '@/components/text/text';
 import { ProductCardItem } from '@/components/web/design/ProductCardItem';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { getCarFavorites } from '@/core/infrastructure-adapters/actions/users/car.user.actions';
 import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions';
@@ -32,6 +32,7 @@ const UserFavorites = () => {
     const [favoriteStatuses, setFavoriteStatuses] = useState<Record<number, boolean>>({});
     const session = useSession();
     const isInitialFetch = useRef(true);
+    const locale = useLocale()
     
     // Function to fetch favorites - only fetch once initially
     const fetchFavorites = useCallback(async () => {
@@ -162,8 +163,8 @@ const UserFavorites = () => {
     }, []);
 
     return (
-        <Box variant="container">
-            <Text variant="large" className='text-2xl text-primary-dark font-bold mb-6'>My Favorites</Text>
+        <Box variant="container" dir={locale === 'en' ? 'ltr' :'rtl'}>
+            <Text variant="large" className='text-2xl text-primary-dark font-bold mb-6'>{locale === 'en' ? 'My Favorites': 'المفضلة' }</Text>
             
             {/* Loading state */}
             {isLoading && (

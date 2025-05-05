@@ -53,7 +53,6 @@ export interface StepTwoData {
 
 export interface StepThreeData {
   coverImage: string[];
-  carImages: CarImage;
   sectionStatus?: Record<string, string>; // Changed from array to Record<string, string>
 }
 
