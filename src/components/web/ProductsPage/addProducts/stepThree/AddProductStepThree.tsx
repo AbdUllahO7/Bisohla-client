@@ -21,14 +21,11 @@ const AddProductStepThree: React.FC<AddProductStepThreeProps> = ({
     labels,
     options,
     carCondition,
-    isFormDisabled,
     setIsFormDisabled,
     coverImageRef,
-    carImagesRef,
     handleSectionStatusChange,
     isStatusSelected,
     handleCoverImageChange,
-    handleCarImagesChange,
     setInitialDamages,
     isEditMode: currentEditMode, // Get edit mode status from the hook
     storageKey // Get the current storage key
@@ -123,17 +120,13 @@ const AddProductStepThree: React.FC<AddProductStepThreeProps> = ({
           <CarPhotosSection 
             labels={{
               coverImage: labels.coverImage,
-              carImages: labels.carImages,
               oneImage: labels.oneImage,
               tenImages: labels.tenImages,
               tenFiles: labels.tenFiles
             }}
             coverImageRef={coverImageRef}
-            carImagesRef={carImagesRef}
             coverImage={carCondition.coverImage}
-            carImages={carCondition.carImages}
             onCoverImageChange={handleCoverImageChange}
-            onCarImagesChange={handleCarImagesChange}
             setIsFormDisabled={setIsFormDisabled}
           />
         </CardContent>

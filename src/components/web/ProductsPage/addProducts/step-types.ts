@@ -53,7 +53,6 @@ export interface StepTwoData {
 
 export interface StepThreeData {
   coverImage: string[]
-  carImages: CarImage | string[]
   additionalImages: string[]
   documents: string[]
   governorate: SyriaGovernorate

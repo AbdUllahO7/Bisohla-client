@@ -56,8 +56,7 @@ const EditProductPage = () => {
             const stepThreeData = {
                 // Set cover image (primary image)
                 coverImage: data.data?.images?.filter(img => img.isPrimary).map(img => img.url) || [],
-                // Set car images (non-primary images)
-                carImages: data.data?.images?.filter(img => !img.isPrimary).map(img => img.url) || [],
+               
                 // Transform damages to section status format expected by the component
                 sectionStatus: transformDamagesToSectionStatus(data.data?.damages || [])
             };

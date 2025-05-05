@@ -25,17 +25,13 @@ export interface CarConditionTableProps {
 export interface CarPhotosSectionProps {
   labels: {
     coverImage: string;
-    carImages: string;
     oneImage: string;
     tenImages: string;
     tenFiles: string;
   };
   coverImageRef: React.RefObject<ImageUploaderRef | null>;
-  carImagesRef: React.RefObject<ImageUploaderRef | null>;
   coverImage: string[];
-  carImages: string[];
   onCoverImageChange: (urls: string[]) => void;
-  onCarImagesChange: (urls: string[]) => void;
   setIsFormDisabled: (disabled: boolean) => void;
 }
 
@@ -44,7 +40,6 @@ export interface CarConditionState {
   // For component use: simplified sectionStatus as Record<string, string>
   sectionStatus: Record<string, string>;
   coverImage: string[];
-  carImages: string[];
   // Allow other fields to be present
   [key: string]: any;
 }
@@ -65,6 +60,5 @@ export const EDIT_MODE_FLAG = "edit_car_listing_id";
 export const defaultState: CarConditionState = {
   sectionStatus: {},
   coverImage: [],
-  carImages: []
   
 };

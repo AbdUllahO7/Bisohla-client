@@ -60,10 +60,7 @@ export const StepContent: React.FC<StepContentProps> = ({
                             {requiredFieldsMessage}
                         </span>
                     )}
-                                    </div>
-
-                
-              
+                </div>
             </Box>
         </TabsContent>
     );

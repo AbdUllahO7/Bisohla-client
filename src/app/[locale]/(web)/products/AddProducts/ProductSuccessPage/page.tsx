@@ -6,7 +6,7 @@ import { CheckCircle } from "lucide-react"
 import { useRouter } from "next/navigation"
 
 export default function ProductSuccessPage() {
-    const router = useRouter()
+const router = useRouter()
 
     const handleHomeClick = () => {
         router.push("/")

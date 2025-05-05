@@ -72,10 +72,9 @@ export const validateForm = (
   const hasCoverImage = carCondition.coverImage && carCondition.coverImage.length > 0;
 
   // Check if at least one car image is provided
-  const hasCarImages = carCondition.carImages && carCondition.carImages.length > 0;
 
   // Overall validation - only photos are now required
-  return hasCoverImage && hasCarImages;
+  return hasCoverImage ;
 };
 
 /**

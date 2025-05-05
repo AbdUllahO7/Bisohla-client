@@ -926,7 +926,7 @@
         },
         "images": {
           "coverImage": "Cover image",
-          "oneImage": "You can enter one image",
+          "oneImage": "You can enter up to 10 images",
           "carImages": "Car Images",
           "tenImages": "You can enter up to 10 images",
           "documents": "Documents",
@@ -972,6 +972,7 @@
         "logout" : "LogOut"
     },
     "profile" : {
+      "YourProfile":"Your Profile",
       "editProfile": "Edit Profile",
       "resetPassword": "Reset Password",
       "name": "Name",

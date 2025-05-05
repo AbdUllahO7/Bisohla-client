@@ -143,7 +143,7 @@ export default function NotificationsPage() {
   // If data is loading, show loading state
   if (isLoading) {
     return (
-      <div className={`container py-8 max-w-5xl mx-auto ${isRtl ? "rtl" : "ltr"}`}>
+      <div className={` py-8  container ${isRtl ? "rtl" : "ltr"}`} dir={isRtl ? "rtl" : "ltr"}>
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-[#2C3C39]">{t.notifications}</h1>
           <div className="flex rounded-xl overflow-hidden shadow-md">
@@ -176,7 +176,7 @@ export default function NotificationsPage() {
   // If data is not yet available or empty
   if (!notificationsResponse?.data?.data || notificationsResponse.data.data.length === 0) {
     return (
-      <div className={`container py-8 max-w-5xl mx-auto ${isRtl ? "rtl" : "ltr"}`}>
+      <div className={` py-8  container ${isRtl ? "rtl" : "ltr"}`} dir={isRtl ? "rtl" : "ltr"}>
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-[#2C3C39]">{t.notifications}</h1>
           <div className="flex rounded-xl overflow-hidden shadow-md">
@@ -228,7 +228,7 @@ export default function NotificationsPage() {
 
   // If we have notifications data
   return (
-    <div className={`container py-8 max-w-5xl mx-auto ${isRtl ? "rtl" : "ltr"}`}>
+    <div className={` py-8  container ${isRtl ? "rtl" : "ltr"}`} dir={isRtl ? "rtl" : "ltr"}>
       <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
         <h1 className="text-3xl font-bold text-[#2C3C39]">{t.notifications}</h1>
 
