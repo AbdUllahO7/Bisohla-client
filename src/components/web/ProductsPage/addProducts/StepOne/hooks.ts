@@ -55,7 +55,6 @@ export const useProductStepOne = (onValidationChange: (isValid: boolean) => void
     const setInitialEditData = useCallback((editData: SelectedOptions) => {
         // Only apply edit data once
         if (!editModeDataApplied.current) {
-            console.log("Setting initial edit data:", editData);
             
             setSelectedOptions(editData);
             editModeDataApplied.current = true;

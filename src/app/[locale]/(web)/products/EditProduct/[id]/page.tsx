@@ -19,7 +19,6 @@ const EditProductPage = () => {
     useEffect(() => {
         if (data && !isInitialized) {
             // Transform API data to match the format expected by Steps component
-            console.log("edit car data", data.data);
             const stepOneData = {
                 marka: data.data?.makeId.toString(),
                 model: data.data?.modelId.toString(),

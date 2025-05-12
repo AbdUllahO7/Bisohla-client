@@ -30,7 +30,7 @@ const SignInPage = () => {
     <form action={action} className={`w-[50%] ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>
       <Box className="flex-col w-full gap-4 ">
       <div className='xs:hidden lg:block md:block'>
-                          <LocaleSwitcher/>
+                  <LocaleSwitcher/>
           </div>
         {/* Status Message */}
         <FormStateMessage state={state} />

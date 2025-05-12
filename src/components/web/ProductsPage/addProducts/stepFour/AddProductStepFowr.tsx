@@ -212,7 +212,6 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
   // Function to directly apply edit data
   const applyEditData = (editData: AdInformationFormData) => {
     if (!editModeDataApplied.current) {
-      console.log("Setting StepFour edit data:", editData);
       
       // Map string enum values to actual enum values if needed
       const mappedListingType = typeof editData.listingType === 'string' 
@@ -268,7 +267,6 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
       editModeDataApplied.current = true;
       
       // Log after setting
-      console.log("Applied form values:", form.getValues());
     }
   };
 

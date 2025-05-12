@@ -29,11 +29,7 @@ interface TabsSectionProps {
 const TabsSection: React.FC<TabsSectionProps> = ({ data }) => {
     const t = useTranslations('product');
     
-    // Debug log to check what's being passed
-    useEffect(() => {
-        console.log('TabsSection received data:', data);
-        console.log('Damages in data:', data?.data?.damages);
-    }, [data]);
+ 
     
     // Ensure damages is always an array, even if undefined or null
     const damages = Array.isArray(data?.data?.damages) ? data.data?.damages : [];

@@ -16,7 +16,6 @@ const Product = () => {
     // Fetch all car listings with pagination
     const { data, isLoading, error } = useCarListingById(Number(id));
 
-    console.log("data?.data?.damages" , data?.data?.damages);
 
     
 

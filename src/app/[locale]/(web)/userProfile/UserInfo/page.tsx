@@ -112,7 +112,6 @@ const UserInfoPage = () => {
       
       // Send update request
       await updateProfileMutation.mutateAsync(updateData);
-      console.log("Profile updated successfully", updateData);
       // Refresh profile data
       refetch();
       

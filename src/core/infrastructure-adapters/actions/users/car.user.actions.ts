@@ -73,7 +73,6 @@ export const createCarListing = async (
   createCarListingDto: CreateCarListingDto,
 ): Promise<ApiResponse<SelectCarListingDto>> => {
   const carListingController = getInjection('ICarUserController');
-  console.log('createCarListingDto', createCarListingDto);
   const res = await carListingController.addCarListing(createCarListingDto);
 
   return res;

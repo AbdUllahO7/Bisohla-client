@@ -306,9 +306,7 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
     });
   };
 
-  console.log("queryParams" , queryParams)
-  console.log("carListings" , carListings)
-  
+
   
   return (
     <Box variant={container ? "container" : "center"} className="mb-5">

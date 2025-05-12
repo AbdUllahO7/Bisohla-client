@@ -484,11 +484,7 @@ const buildFilterQuery = (): QueryParams => {
     })
   }
   
-  // Log the constructed query for debugging
-  console.log("Filter query:", {
-    filterGroups,
-    searchTerm: searchText || undefined
-  });
+
   
   // Return query with only filterGroups (no where clause)
   return {

@@ -34,7 +34,6 @@ const RentProduct = () => {
     
     // Handle favorite status update from child component
     const handleFavoriteToggle = useCallback((productId: number, isFavorite: boolean) => {
-        console.log(`RentProduct received toggle for ${productId}: ${isFavorite}`);
         setFavoriteStatuses(prev => ({
             ...prev,
             [productId]: isFavorite
@@ -90,7 +89,6 @@ const RentProduct = () => {
         
         // Update favorite statuses state if we have new items
         if (Object.keys(newFavoriteStatuses).length > 0) {
-            console.log("Initializing rent listings favorite statuses:", newFavoriteStatuses);
             setFavoriteStatuses(prev => ({...prev, ...newFavoriteStatuses}));
         }
         
@@ -98,7 +96,6 @@ const RentProduct = () => {
         return listings.slice(0, 9);
     }, [data, favoriteStatuses]);
 
-    console.log("Current rent favorites statuses:", favoriteStatuses);
 
     return (
         <Box variant="container" className="">
@@ -143,7 +140,6 @@ const RentProduct = () => {
                                 ? favoriteStatuses[product.id] 
                                 : !!product.isFavorite;
                                 
-                            console.log(`Rent card ${product.id} favorite status:`, isFavorite);
                             
                             return (
                                 <React.Fragment key={product.id || index}>

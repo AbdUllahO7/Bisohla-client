@@ -200,7 +200,6 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
           );
 
           if (allDone) {
-            console.log('All uploads completed or failed');
             setIsUploading(false);
             if (setDisableForm) setDisableForm(false);
             

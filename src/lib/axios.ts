@@ -36,34 +36,3 @@ api.interceptors.request.use(
     return Promise.reject(error);
   },
 );
-
-// axios.ts
-// Refresh the token when 401 Unauthorized is received
-// api.interceptors.response.use(
-//   (response) => response,
-//   async (error) => {
-//     console.error('Error from axios interceptor:', error);
-//     const originalRequest = error.config;
-
-//     if (error.response?.status === 401 && !originalRequest._retry) {
-//       console.log('Refreshing token...');
-//       originalRequest._retry = true;
-
-//       const session = await getSession();
-//       if (!session?.refreshToken) {
-//         return Promise.reject(error);
-//       }
-
-//       try {
-//         const newAccessToken = await handleRefreshToken(session.refreshToken);
-//         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-//         return api(originalRequest);
-//       } catch (refreshError) {
-//         // Handle refresh token failure (e.g., logout user)
-//         return Promise.reject(refreshError);
-//       }
-//     }
-
-//     return Promise.reject(error);
-//   },
-// );

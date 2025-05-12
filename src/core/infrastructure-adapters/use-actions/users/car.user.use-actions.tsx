@@ -110,7 +110,6 @@ export const useUpdateCarListing = () =>
     { id: number; data: UpdateCarListingDto }
   >({
     mutationFn: async ({ id, data }) => {
-      // console.log('DATA: ', data);
       return await updateCarListing(id, data);
     },
     onError: (error) => {

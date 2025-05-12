@@ -186,7 +186,6 @@ export async function makeRequest<
     };
 
     const fullUrl = buildUrl(BACKEND_URL + url, params);
-    console.log('URL from api.ts: ', fullUrl);
     const response = await fetchWithRetry(fullUrl, fetchOptions, retry);
     clearTimeout(timeoutId);
 
