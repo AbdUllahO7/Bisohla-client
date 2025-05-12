@@ -14,7 +14,6 @@ const HeaderOne = async () => {
     const t = await getTranslations('homePage');
 
     const payload = await getSession();
-    console.log(payload)
 
     // Check authentication status
     const authResult = await checkAuth();

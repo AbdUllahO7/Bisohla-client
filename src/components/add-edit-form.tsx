@@ -99,7 +99,6 @@ const AddEditForm = <
   };
 
   const firstError = Object.values(errors)[0]?.message as string | undefined;
-  // console.log(defaultValues);
 
   const renderInput = (column: FormColumn<T>, field: any): ReactElement => {
     if (!column.inputConfig) {

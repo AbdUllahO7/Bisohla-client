@@ -29,7 +29,6 @@ export const signInAction = async (
   const authController = getInjection('IAuthController');
 
   const res = await authController.login(fields as LoginDto);
-  console.log("Session created:", res);
 
 
   if (res.success) {

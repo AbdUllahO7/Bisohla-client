@@ -71,7 +71,7 @@ export const useSubmitForm = () => {
       
       const { stepOne: storedData1, stepTwo: storedData2, stepThree: storedData3, stepFour: storedData4 } = formData;
 
-      console.log("Stored Data:", {storedData3})
+    
       
       // Extract ONLY feature IDs to send to the API
       const featureIds: number[] = [];
@@ -140,6 +140,7 @@ export const useSubmitForm = () => {
         // Images
         images: imageUrls,
         primaryImageIndex: imageUrls.length > 0 ? 0 : undefined,
+        isTrend : false,
         
         // Car details - FLATTENED structure
         mileage: Number(storedData2.mileage) || null,
@@ -168,13 +169,10 @@ export const useSubmitForm = () => {
       let response;
       if (isEditMode) {
         // Update existing car listing
-        console.log("Editing car listing with ID:", carIdToEdit);
         response = await updateCarListing(Number(carIdToEdit), carListingDto);
-        console.log("Update API response:", response);
       } else {
         // Create new car listing
         response = await createCarListing(carListingDto);
-        console.log("Create API response:", response);
       }
       
       if (response.success) {

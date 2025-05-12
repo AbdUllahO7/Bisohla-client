@@ -75,7 +75,6 @@ export const loadFromStorage = (): CarInfoState => {
         const storageKey = getCarInfoStorageKey();
         const savedData = localStorage.getItem(storageKey);
         
-        console.log(`Loading car info from: ${storageKey}`);
         
         if (savedData) {
             const parsed = JSON.parse(savedData);
@@ -152,7 +151,6 @@ export const saveToStorage = (data: CarInfoState): void => {
     try {
         const storageKey = getCarInfoStorageKey();
         localStorage.setItem(storageKey, JSON.stringify(data));
-        console.log(`Saved car info to: ${storageKey}`);
     } catch (e) {
         console.error(`Failed to save data to ${getCarInfoStorageKey()}:`, e);
     }

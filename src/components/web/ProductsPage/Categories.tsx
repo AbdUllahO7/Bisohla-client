@@ -65,8 +65,7 @@ const Categories = () => {
             }
         });
 
-                // For debugging
-        console.log('Body type counts:', bodyCounts);
+       
         
         // Create categories array with counts and images
         return bodyTypeOptions.map(option => {

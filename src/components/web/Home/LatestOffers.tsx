@@ -58,8 +58,7 @@ const LatestOffers: React.FC<LatestOffersProps> = ({ count, showTitle = true, co
         ]
     });
 
-    console.log("Car Listings Data:", data);
-        console.log("user id :", session.user.id);
+
 
     // Extract car listings array safely and limit to count items
     const carListings = React.useMemo(() => {

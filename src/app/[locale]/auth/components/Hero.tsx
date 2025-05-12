@@ -14,7 +14,7 @@ const Hero = () => {
     const isRTL = locale === 'ar';
     return (
         <div className="w-full h-screen relative bg-cover bg-center" 
-            style={{ backgroundImage: `url('https://img.freepik.com/free-vector/abstract-background-design-emerald-green_53876-43540.jpg?t=st=1739386007~exp=1739389607~hmac=17573bb559eac85370b557df3b362feac3a55b307c5f5c3772943190025d05b2&w=1380` ,  backgroundSize: 'cover', }} 
+            style={{  }} 
             >
                 <Box variant="container"  className='flex justify-center items-center flex-col relative'>
                     <Image 

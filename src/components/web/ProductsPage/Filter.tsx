@@ -484,11 +484,7 @@ const buildFilterQuery = (): QueryParams => {
     })
   }
   
-  // Log the constructed query for debugging
-  console.log("Filter query:", {
-    filterGroups,
-    searchTerm: searchText || undefined
-  });
+
   
   // Return query with only filterGroups (no where clause)
   return {
@@ -693,7 +689,7 @@ const buildFilterQuery = (): QueryParams => {
                       <CarBrandCheckboxItem
                         key={brand.value}
                         id={`brand-${brand.value}`}
-                        logoUrl={brand.logoUrl}  
+                        logoUrl={brand.logoUrl || ""}  
                         label={brand.label}
                         checked={selectedBrands.includes(brand.value)}
                         onChange={() => handleBrandCheckboxChange(brand.value)}

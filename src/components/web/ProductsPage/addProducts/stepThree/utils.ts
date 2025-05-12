@@ -27,7 +27,6 @@ export const loadFromStorage = (): CarConditionState => {
     if (typeof window === "undefined") return defaultState;
     
     const key = getStorageKey();
-    console.log(`Loading car condition from localStorage using key: ${key}`);
     
     const savedData = localStorage.getItem(key);
     if (savedData) {
@@ -50,7 +49,6 @@ export const saveToStorage = (data: CarConditionState): void => {
     if (typeof window === "undefined") return;
     
     const key = getStorageKey();
-    console.log(`Saving car condition to localStorage using key: ${key}`);
     
     localStorage.setItem(key, JSON.stringify(data));
   } catch (e) {

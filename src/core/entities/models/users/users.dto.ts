@@ -1,6 +1,39 @@
 import { z } from 'zod';
 import { selectRoleSchema } from '../permissions/roles.dto';
 
+
+
+
+// Define profile schema based on our DTO
+export const profileFormSchema = z.object({
+  name: z.string().min(2, {
+    message: "Name must be at least 2 characters.",
+  }).max(50, {
+    message: "Name must not be longer than 50 characters.",
+  }),
+  email: z.string().email({
+    message: "Please enter a valid email address.",
+  }).optional(),
+  phone: z.string().nullable().optional(),
+  bio: z.string().max(160).optional(),
+  // We'll handle password separately
+  password: z.string().min(8).max(255).nullable().optional(),
+  passwordConfirmation: z.string().min(8).max(255).nullable().optional(),
+  profileUrl: z.string().nullable().optional()
+})
+  .refine((data) => {
+    if (data.password && !data.passwordConfirmation) return false;
+    if (!data.password && data.passwordConfirmation) return false;
+    if (data.password && data.passwordConfirmation && data.password !== data.passwordConfirmation) return false;
+    return true;
+  }, {
+    message: "Passwords do not match",
+    path: ["passwordConfirmation"],
+  });
+
+export type ProfileFormValues = z.infer<typeof profileFormSchema>
+
+
 export const usersToRolesSchema = z.object({
   id: z.number(),
   userId: z.number(),

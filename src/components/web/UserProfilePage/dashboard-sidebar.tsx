@@ -26,9 +26,9 @@ import { usePathname } from "next/navigation"
 import { useGetMyProfile } from "@/core/infrastructure-adapters/use-actions/users/user-profile.use-actions"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { profileFormSchema, ProfileFormValues } from "@/app/[locale]/(web)/userProfile/UserInfo/page"
 import { useEffect, useState } from "react"
 import { useSession } from "@/hooks/auth/use-session"
+import { profileFormSchema, ProfileFormValues } from "@/core/entities/models/users/users.dto"
 
 export function DashboardSidebar() {
   const pathname = usePathname()
