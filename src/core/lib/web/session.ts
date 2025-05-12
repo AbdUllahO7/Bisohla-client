@@ -21,7 +21,6 @@ export const createSession = async (payload: Session): Promise<void> => {
       )
       .sign(encodedKey);
 
-    console.log('create session 1');
 
     (await cookies()).set(SESSION_KEY, session, {
       httpOnly: true,

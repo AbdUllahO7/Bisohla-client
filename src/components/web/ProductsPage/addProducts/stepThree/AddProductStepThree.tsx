@@ -31,12 +31,6 @@ const AddProductStepThree: React.FC<AddProductStepThreeProps> = ({
     storageKey // Get the current storage key
   } = useAddProductStepThree(onValidationChange, isEditMode); // Pass isEditMode prop to hook
 
-  console.log("AddProductStepThree rendered with: ", {
-    isEditModeProp: isEditMode,
-    currentEditMode,
-    storageKey,
-    initialDataPresent: !!initialData
-  });
 
   // Flag to track if edit data has been applied
   const editDataApplied = useRef(false);
@@ -44,17 +38,15 @@ const AddProductStepThree: React.FC<AddProductStepThreeProps> = ({
   // Apply edit data when in edit mode
   useEffect(() => {
     if (isEditMode && initialData && initialData.data && !editDataApplied.current) {
-      console.log("Step Three: Applying edit data");
       
       // Process damages data for the component
       if (initialData.data.damages && initialData.data.damages.length > 0) {
-        console.log("Found damages in edit data:", initialData.data.damages);
         
         // Create a map of damages by zone
-        const damagesMap = {};
+        const damagesMap: { [key: string | number]: { status: any; description: string } } = {};
         
         // Transform API format to our component format
-        initialData.data.damages.forEach(damage => {
+        initialData.data.damages.forEach((damage: { damageZone: string | number; damageType: any; description: any; }) => {
           if (damage.damageZone && damage.damageType) {
             // Store as object with status and description
             damagesMap[damage.damageZone] = {
@@ -64,7 +56,6 @@ const AddProductStepThree: React.FC<AddProductStepThreeProps> = ({
           }
         });
         
-        console.log("Transformed damages map:", damagesMap);
         setInitialDamages(damagesMap);
       }
       

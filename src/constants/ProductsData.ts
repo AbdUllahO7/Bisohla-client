@@ -1,4 +1,4 @@
-export const getProductsData = (t) => [
+export const getProductsData = (t: (arg0: string) => any) => [
         {   id : 252 , 
             title: t('latestOffers.products.product1.title'), 
             marka: t('latestOffers.products.product1.marka'), 

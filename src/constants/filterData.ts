@@ -1,18 +1,18 @@
-export const getCitiesOptions =  (t) =>  [
+export const getCitiesOptions =  (t: (arg0: string) => any) =>  [
     { value: 'Damascus', label: t('filter.filterOptions.address.options.Damascus') },
     { value: 'Idlib', label: t('filter.filterOptions.address.options.Idlib') },
     { value: 'Aleppo', label: t('filter.filterOptions.address.options.Aleppo') },
     { value: 'Homs', label: t('filter.filterOptions.address.options.Homs') },
 ];
 
-export const getStatesOptions = (t) => [
+export const getStatesOptions = (t: (arg0: string) => any) => [
     { value: 'dm', label: t('filter.filterOptions.states.options.Damascus') },
     { value: 'ds', label: t('filter.filterOptions.states.options.Idlib') },
     { value: 'as', label: t('filter.filterOptions.states.options.Aleppo') },
     { value: 'ho', label: t('filter.filterOptions.states.options.Homs') },
 ];
 
-export const getCarMarkaItems = (t) =>   [
+export const getCarMarkaItems = (t: (arg0: string) => any) =>   [
     {
         id: 'mercedes',
         imageSrc: '/assets/icons/BMW.png',
@@ -67,7 +67,7 @@ export const getCarMarkaItems = (t) =>   [
 
 
 
-export const getControlType = (t) =>   [
+export const getControlType = (t: (arg0: string) => any) =>   [
     {
         id :'1',
         value: 'Auto',
@@ -80,7 +80,7 @@ export const getControlType = (t) =>   [
     },
 
 ];
-export const getFuelType = (t) =>  [
+export const getFuelType = (t: (arg0: string) => any) =>  [
     {
         id :'1',
         value: 'Gasoline',

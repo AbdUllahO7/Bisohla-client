@@ -66,13 +66,7 @@ export const useStepManagement = (isEditMode = false) => {
       const stepThreeData = localStorage.getItem(stepThreeKey);
       const stepFourData = localStorage.getItem(stepFourKey);
       
-      // Log data presence for debugging
-      console.log('Form data in localStorage:', {
-        [stepOneKey]: !!stepOneData,
-        [stepTwoKey]: !!stepTwoData,
-        [stepThreeKey]: !!stepThreeData,
-        [stepFourKey]: !!stepFourData
-      });
+    
       
       // Update validation state based on presence of data
       setStepValidation(prev => ({

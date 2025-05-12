@@ -49,7 +49,7 @@ const NotificationDropdown = () => {
   const dateLocale = locale === 'ar' ? arSA : enUS;
   
   const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef(null);
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
   
   // Set up filter options to only show unread notifications in the dropdown
   const [filterOptions, setFilterOptions] = useState({
@@ -66,7 +66,7 @@ const NotificationDropdown = () => {
   
   // Close dropdown when clicking outside
   useEffect(() => {
-    const handleClickOutside = (event) => {
+    const handleClickOutside = (event: { target: any; }) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsOpen(false);
       }
@@ -86,7 +86,7 @@ const NotificationDropdown = () => {
   }, [isOpen, refetch]);
   
   // Get notification icon based on type
-  const getNotificationIcon = (type) => {
+  const getNotificationIcon = (type: notificationTypeEnum) => {
     switch (type) {
       case notificationTypeEnum.system: return '💻';
       case notificationTypeEnum.user: return '👤';
@@ -99,22 +99,10 @@ const NotificationDropdown = () => {
       default: return '📝';
     }
   };
-  
-  // Get notification priority style
-  const getPriorityStyle = (priority) => {
-    switch (priority?.toLowerCase()) {
-      case notificationPriorityEnum.high: 
-        return 'border-red-500 bg-red-50 text-red-700';
-      case notificationPriorityEnum.medium: 
-        return 'border-yellow-500 bg-yellow-50 text-yellow-700';
-      case notificationPriorityEnum.low: 
-      default: 
-        return 'border-[#ABDE3B] bg-[#ABDE3B]/10 text-[#198341]';
-    }
-  };
+
   
   // Handle marking a notification as read
-  const handleMarkAsRead = async (id, event) => {
+  const handleMarkAsRead = async (id: number, event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     event.stopPropagation();
     try {
       await markAsReadMutation.mutateAsync({

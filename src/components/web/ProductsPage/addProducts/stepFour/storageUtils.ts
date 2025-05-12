@@ -116,7 +116,6 @@ export const saveAdInfoData = (data: AdInformationFormData): void => {
         if (typeof window !== "undefined") {
             const storageKey = getAdInfoStorageKey();
             localStorage.setItem(storageKey, JSON.stringify(data));
-            console.log(`Saved ad information to ${storageKey}`);
         }
     } catch (e) {
         console.error(`Failed to save ad information to ${getAdInfoStorageKey()}:`, e);
@@ -156,7 +155,6 @@ export const autoSaveAdInfoData = (
             
             const storageKey = getAdInfoStorageKey();
             localStorage.setItem(storageKey, JSON.stringify(updatedData));
-            console.log(`Auto-saved ad information to ${storageKey}`);
         }
     } catch (e) {
         console.error(`Failed to auto-save ad information to ${getAdInfoStorageKey()}:`, e);

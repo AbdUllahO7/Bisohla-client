@@ -58,7 +58,6 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
     
     // Update internal state when the prop changes
     useEffect(() => {
-        console.log(`RentProductCard ${ProductId}: isMarkedFavorite changed to`, isMarkedFavorite);
         setFavoriteStatus(isMarkedFavorite);
     }, [isMarkedFavorite, ProductId]);
 
@@ -69,7 +68,6 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
         // Only allow favorite action if authenticated
         if (isAuthenticated && !isProcessing && ProductId) {
             setIsProcessing(true);
-            console.log(`Toggling favorite for RentProductId ${ProductId}. Current state:`, favoriteStatus);
             
             try {
                 // Store current state for comparison/reversion
@@ -77,17 +75,14 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
                 
                 // Optimistically update UI
                 const newStatus = !currentState;
-                console.log(`Setting local state to ${newStatus}`);
                 setFavoriteStatus(newStatus);
                 
                 // Notify parent component
                 if (onFavoriteToggle) {
-                    console.log(`Notifying parent component of change to ${newStatus}`);
                     onFavoriteToggle(Number(ProductId), newStatus);
                 }
                 
                 // Call API
-                console.log(`Calling toggleCarListingFavorite API for carListingId:`, Number(ProductId));
                 const response = await toggleCarListingFavorite({
                     carListingId: Number(ProductId)
                 });
@@ -106,11 +101,9 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
                         responseStatus = newStatus;
                     }
                     
-                    console.log(`API response status: ${responseStatus}`);
                     
                     // If API returned something different than our optimistic update
                     if (responseStatus !== newStatus) {
-                        console.log(`API returned different status (${responseStatus}) than optimistic update (${newStatus})`);
                         setFavoriteStatus(responseStatus);
                         
                         if (onFavoriteToggle) {
@@ -119,7 +112,6 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
                     }
                 } else {
                     // API call failed, revert to original state
-                    console.error(`API call failed:`, response.message);
                     setFavoriteStatus(currentState);
                     
                     if (onFavoriteToggle) {
@@ -138,7 +130,6 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
                 setIsProcessing(false);
             }
         } else if (!isAuthenticated) {
-            console.log("User not authenticated, redirect to login");
             // You could redirect to login page here
             // window.location.href = '/login';
         }

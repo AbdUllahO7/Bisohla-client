@@ -15,8 +15,12 @@ import { IProductGroupsRepo } from '@/core/application/repositories/products/pro
 
 export class ProductGroupsRepoUseCase implements IProductGroupsRepoUseCase {
   constructor(protected readonly productGroupsRepo: IProductGroupsRepo) {}
+  search(params: QueryParams): Promise<PaginatedResponse<any>> {
+    throw new Error('Method not implemented.');
+  }
   async editWholeProductGroup(
     id: number,
+    
     dto: EditProductGroupDtoForPage,
   ): Promise<ApiResponse<EditProductGroupDtoForPage>> {
     return await this.productGroupsRepo.editWholeProductGroup(id, dto);

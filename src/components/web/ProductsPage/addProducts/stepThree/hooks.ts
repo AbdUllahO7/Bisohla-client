@@ -1,4 +1,4 @@
-// hooks.ts
+// hooks.ts - Updated with proper typing
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { ImageUploaderRef } from "@/components/image-uploader/image-uploader";
@@ -7,8 +7,9 @@ import {
   getCarSectionOptions,
   getCarConditionOptions,
   getGroupedCarSectionOptions
-} from "@/core/entities/enums/cars.damegs.enum"; // Updated import path
-import { CarConditionState, defaultState, STORAGE_KEY, EDIT_STORAGE_KEY, EDIT_MODE_FLAG } from "./types";
+} from "@/core/entities/enums/cars.damegs.enum"; 
+
+import { CarConditionState,  defaultState, STORAGE_KEY, EDIT_STORAGE_KEY, EDIT_MODE_FLAG, SectionStatusMap } from "./types";
 import { 
   validateForm, 
   isEditMode as checkIsEditMode,
@@ -103,7 +104,6 @@ export const useAddProductStepThree = (
     const key = detectedEditMode ? EDIT_STORAGE_KEY : STORAGE_KEY;
     setStorageKey(key);
     
-    console.log(`Step Three is in ${detectedEditMode ? 'edit' : 'add'} mode, using key: ${key}`);
   }, [isComponentEditMode]);
 
   // Initialize client-side - Load data from localStorage ONCE
@@ -116,20 +116,18 @@ export const useAddProductStepThree = (
       
       // Safe localStorage operations
       try {
-        console.log(`🔍 Loading from localStorage (initial load) using key: ${storageKey}`);
         // Use the direct localStorage key to ensure we get the right data
         const savedData = localStorage.getItem(storageKey);
         
         if (savedData) {
-          const parsedData = JSON.parse(savedData);
-          console.log("📋 Found saved data:", JSON.stringify(parsedData));
+          const parsedData = JSON.parse(savedData) as Partial<CarConditionState>;
           
           // Handle both old format (string values) and new format (object values)
           let updatedData = { ...parsedData };
           
           if (parsedData.sectionStatus) {
             // Normalize the section status format to match what the component expects
-            const normalizedSectionStatus = {};
+            const normalizedSectionStatus: SectionStatusMap = {};
             
             // Check if we need to convert the format
             Object.entries(parsedData.sectionStatus).forEach(([key, value]) => {
@@ -138,7 +136,7 @@ export const useAddProductStepThree = (
                 normalizedSectionStatus[key] = value;
               } else if (value && typeof value === 'object' && 'status' in value) {
                 // New format from edit mode: { sectionId: { status: 'status', description: '' } }
-                normalizedSectionStatus[key] = value.status;
+                normalizedSectionStatus[key] = (value as { status: string }).status;
               }
             });
             
@@ -147,18 +145,12 @@ export const useAddProductStepThree = (
               sectionStatus: normalizedSectionStatus
             };
             
-            console.log("🔄 Normalized section status:", normalizedSectionStatus);
           }
           
-          // Check if images exist and log them
-          if (updatedData.coverImage && updatedData.coverImage.length > 0) {
-            console.log("🖼️ Found cover image:", updatedData.coverImage);
-          }
+   
           
-         
-          
-          // Set the normalized data
-          setCarCondition(updatedData);
+          // Set the normalized data with proper type assertion
+          setCarCondition(updatedData as CarConditionState);
           // Mark initial load as complete
           initialLoadComplete.current = true;
         } else {
@@ -171,16 +163,15 @@ export const useAddProductStepThree = (
   }, [storageKey]); // Depend on storageKey to reload when it changes
 
   // Function to set initial damages from edit mode
-  const setInitialDamages = useCallback((damagesMap) => {
+  const setInitialDamages = useCallback((damagesMap: Record<string, { status: string, description?: string }>) => {
     if (!editModeApplied.current) {
-      console.log("Setting initial damages from edit mode:", damagesMap);
       
       // First, get the current data to preserve images
       const currentData = { ...carCondition };
       
       // Convert from edit format { sectionId: { status, description } }
       // to the format this component uses { sectionId: status }
-      const normalizedDamages = {};
+      const normalizedDamages: SectionStatusMap = {};
       
       Object.entries(damagesMap).forEach(([key, value]) => {
         if (value && typeof value === 'object' && 'status' in value) {
@@ -188,15 +179,13 @@ export const useAddProductStepThree = (
         }
       });
       
-      console.log("Normalized damages for component:", normalizedDamages);
       
       // Create updated state with preserved images
-      const updatedState = {
+      const updatedState: CarConditionState = {
         ...currentData,
         sectionStatus: normalizedDamages
       };
       
-      console.log("Updated state with damages (preserving images):", updatedState);
       
       // Update state with the normalized format
       setCarCondition(updatedState);
@@ -204,7 +193,6 @@ export const useAddProductStepThree = (
       // Save to storage in the normalized format
       try {
         localStorage.setItem(storageKey, JSON.stringify(updatedState));
-        console.log(`Saved initial damages to ${storageKey}`);
       } catch (e) {
         console.error(`Error saving initial damages to ${storageKey}:`, e);
       }
@@ -217,7 +205,6 @@ export const useAddProductStepThree = (
   // (not on initial load)
   useEffect(() => {
     if (isClient && initialLoadComplete.current && storageKey) {
-      console.log(`💾 Saving updated car condition to localStorage using key: ${storageKey}`, carCondition);
       
       try {
         // Save to the correct localStorage key based on edit mode
@@ -249,7 +236,7 @@ export const useAddProductStepThree = (
         newSectionStatus[sectionId] = status;
       }
       
-      const updatedState = {
+      const updatedState: CarConditionState = {
         ...prev,
         sectionStatus: newSectionStatus
       };
@@ -258,7 +245,6 @@ export const useAddProductStepThree = (
       if (storageKey) {
         try {
           localStorage.setItem(storageKey, JSON.stringify(updatedState));
-          console.log(`Saved section status change to ${storageKey}`);
         } catch (e) {
           console.error(`Error saving section status change to ${storageKey}:`, e);
         }
@@ -275,9 +261,8 @@ export const useAddProductStepThree = (
 
   // Image handlers
   const handleCoverImageChange = useCallback((urls: string[]) => {
-    console.log("🖼️ Updating cover image:", urls);
     setCarCondition(prev => {
-      const updatedState = {
+      const updatedState: CarConditionState = {
         ...prev,
         coverImage: urls
       };
@@ -286,7 +271,6 @@ export const useAddProductStepThree = (
       if (storageKey) {
         try {
           localStorage.setItem(storageKey, JSON.stringify(updatedState));
-          console.log(`Saved cover image change to ${storageKey}`);
         } catch (e) {
           console.error(`Error saving cover image change to ${storageKey}:`, e);
         }
@@ -297,13 +281,7 @@ export const useAddProductStepThree = (
   }, [storageKey]);
 
 
-  // Debug: Log current state on every render
-  console.log("Current car condition state:", {
-    isEditMode,
-    storageKey,
-    hasCover: carCondition.coverImage && carCondition.coverImage.length > 0,
-    sectionStatusCount: Object.keys(carCondition.sectionStatus || {}).length
-  });
+
   
   return {
     isClient,
@@ -318,7 +296,7 @@ export const useAddProductStepThree = (
     isStatusSelected,
     handleCoverImageChange,
     setInitialDamages,
-    isEditMode,  // Expose edit mode status
-    storageKey    // Expose the storage key being used
+    isEditMode,  
+    storageKey    
   };
 };

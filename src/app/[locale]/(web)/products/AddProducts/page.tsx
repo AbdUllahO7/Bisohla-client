@@ -9,7 +9,6 @@ async function AddProductsPage() {
   // Check authentication status
   const authResult = await checkAuth();
 
-  console.log('Auth result:', authResult);
 
   // The logic was inverted - if NOT successful, delete session and redirect
   if (!authResult.success) {

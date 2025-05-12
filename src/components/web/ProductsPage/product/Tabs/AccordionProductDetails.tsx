@@ -30,7 +30,6 @@ interface AccordionProductDetailsProps {
 const AccordionProductDetails: React.FC<AccordionProductDetailsProps> = ({ damages = [] }) => {
   const t = useTranslations('product');
 
-  console.log("AccordionProductDetails", damages);
 
 
 
@@ -53,7 +52,6 @@ const AccordionProductDetails: React.FC<AccordionProductDetailsProps> = ({ damag
     });
   }
 
-  console.log("Grouped damages by type:", damagesByType);
 
   // Data for product details boxes with matching colors to title sections
   const productDetailsBoxes: { [key: string]: ProductDetailsBox } = {
@@ -86,7 +84,6 @@ const AccordionProductDetails: React.FC<AccordionProductDetailsProps> = ({ damag
           
           // Get damage sections for this damage type if they exist
           const damageZones = damagesByType[box.damageType] || [];
-          console.log("Damage zones for box:", box.damageType, damageZones);
           return (
             <Box
               variant="column"

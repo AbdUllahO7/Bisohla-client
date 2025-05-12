@@ -13,9 +13,9 @@ export const STORAGE_KEYS = {
 // Create edit mode versions of the keys by adding "_edit" suffix
 export const EDIT_STORAGE_KEYS = Object.entries(STORAGE_KEYS).reduce((acc, [key, value]) => {
   if (key !== 'EDIT_MODE_FLAG') {
-    acc[key] = `${value}_edit`;
+    acc[key as keyof typeof STORAGE_KEYS] = `${value}_edit`;
   } else {
-    acc[key] = value;
+    acc[key as keyof typeof STORAGE_KEYS] = value;
   }
   return acc;
 }, {} as Record<keyof typeof STORAGE_KEYS, string>);

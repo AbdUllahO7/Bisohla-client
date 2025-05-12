@@ -57,11 +57,7 @@ export function generatePath(
     const routesPath = path.join(configDir, 'routes.ts');
     fs.writeFileSync(routesPath, fileContent);
 
-    console.log('✓ Routes generated successfully!');
-    console.log(
-      `  Routes file created at: ${path.relative(process.cwd(), routesPath)}`,
-    );
-  } catch (error) {
+   } catch (error) {
     console.error('Error generating routes:', error);
     process.exit(1);
   }

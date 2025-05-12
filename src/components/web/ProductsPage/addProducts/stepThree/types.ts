@@ -7,7 +7,9 @@ export interface AddProductStepThreeProps {
   isEditMode?: boolean;
   initialData?: any;
 }
-
+export interface SectionStatusMap {
+  [sectionId: string]: string;  // This adds the string index signature
+}
 // Car condition table props
 export interface CarConditionTableProps {
   carSections?: Array<{ id: string; name: string }>;

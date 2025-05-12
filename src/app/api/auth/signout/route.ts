@@ -8,7 +8,6 @@ export async function GET(req: NextRequest) {
     url: '/auth/signout',
     method: 'POST',
   });
-  console.log('Signout Response', res);
 
   if (res.success) {
     await deleteSession();
