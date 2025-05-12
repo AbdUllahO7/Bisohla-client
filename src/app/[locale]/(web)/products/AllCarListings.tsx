@@ -345,7 +345,7 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
               className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 w-full"
               variant="center"
             >
-              {carListings.map((card, index) => (
+              {carListings.map((card: { id: number; title: string; make: { name: any; }; marka: any; price: Number; listingType: string | undefined; images: any[]; imageSrc: any; gaz: any; type: any; }, index: any) => (
                 <React.Fragment key={card.id || index}>
                   <ProductCardItem
                     title={card.title}

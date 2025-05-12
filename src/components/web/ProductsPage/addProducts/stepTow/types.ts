@@ -4,6 +4,9 @@ import { CarListingFeature } from "@/core/entities/models/cars/cars.dto";
 // Component props type
 export interface AddProductStepTwoProps {
   onValidationChange: (isValid: boolean) => void;
+      isEditMode?: boolean;
+          initialData?: any; // You can provide a more specific type
+
 }
 
 // Define Feature type for UI components

@@ -11,7 +11,7 @@ import {
     User,
     LogOut,
 } from "lucide-react"
-import { Fragment } from "react"
+import { Fragment, JSX } from "react"
 import { Sheet, SheetContent, SheetHeader } from "@/components/ui/sheet"
 import { useRouter, usePathname } from "next/navigation"
 import { useLocale, useTranslations } from "next-intl"

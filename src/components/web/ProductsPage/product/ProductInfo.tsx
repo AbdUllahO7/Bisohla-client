@@ -56,7 +56,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
         </Text>
         <ScrollArea
           className="h-[470px] w-full overflow-y-auto scrollbar-thin scrollbar-thumb-[#198341] scrollbar-track-[#e5e7eb] scrollbar-thumb-rounded-full scrollbar-track-rounded-full"
-          dir="tlr"
+          dir="ltr"
         >
           {productDetails.map((detail, index) => (
             <Box

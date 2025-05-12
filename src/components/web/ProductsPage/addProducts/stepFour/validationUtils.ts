@@ -1,4 +1,4 @@
-import { ListingType, RentType, SaveStatus } from "@/core/entities/enums/cars.enums"
+import { ListingType } from "@/core/entities/enums/cars.enums"
 import type { AdInfoState } from "./types"
 import { number } from "zod"
 

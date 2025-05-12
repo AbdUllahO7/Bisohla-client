@@ -693,7 +693,7 @@ const buildFilterQuery = (): QueryParams => {
                       <CarBrandCheckboxItem
                         key={brand.value}
                         id={`brand-${brand.value}`}
-                        logoUrl={brand.logoUrl}  
+                        logoUrl={brand.logoUrl || ""}  
                         label={brand.label}
                         checked={selectedBrands.includes(brand.value)}
                         onChange={() => handleBrandCheckboxChange(brand.value)}

@@ -56,7 +56,6 @@ const EditProductPage = () => {
             const stepThreeData = {
                 // Set cover image (primary image)
                 coverImage: data.data?.images?.filter(img => img.isPrimary).map(img => img.url) || [],
-               
                 // Transform damages to section status format expected by the component
                 sectionStatus: transformDamagesToSectionStatus(data.data?.damages || [])
             };
@@ -80,7 +79,9 @@ const EditProductPage = () => {
             localStorage.setItem(EDIT_STORAGE_KEYS.STEP_FOUR, JSON.stringify(stepFourData));
 
             // Set edit mode flag
-            localStorage.setItem(STORAGE_KEYS.EDIT_MODE_FLAG, id.toString());
+            if (id) {
+                localStorage.setItem(STORAGE_KEYS.EDIT_MODE_FLAG, id.toString());
+            }
             
             setIsInitialized(true);
         }
@@ -98,8 +99,13 @@ const EditProductPage = () => {
     }, []);
 
     // Helper function to transform damages from API format to section status format
-    function transformDamagesToSectionStatus(damages) {
-        const sectionStatus = {};
+    interface DamageStatus {
+        status: string;
+        description: string;
+    }
+    
+    function transformDamagesToSectionStatus(damages: any[]) {
+        const sectionStatus: Record<string, DamageStatus> = {};
         
         damages.forEach(damage => {
             if (damage.damageZone && damage.damageType) {

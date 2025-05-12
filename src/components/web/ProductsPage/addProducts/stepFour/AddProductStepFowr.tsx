@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, SetStateAction } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format } from "date-fns"
@@ -38,6 +38,19 @@ import {
 import Text from "@/components/text/text"
 
 // Standalone Select Field component to fix state preservation issues
+interface EnumSelectProps {
+  name: string;
+  control: any; // Replace with specific type from react-hook-form if available
+  label: string;
+  options: Array<{ value: string; label: string }>;
+  placeholder: string;
+  required?: boolean;
+  onChange?: (value: string) => void;
+  value?: string;
+  isRtl?: boolean;
+  className?: string;
+}
+
 const EnumSelect = ({ 
   name, 
   control, 
@@ -49,7 +62,7 @@ const EnumSelect = ({
   value,
   isRtl = false,
   className = ""
-}) => {
+}: EnumSelectProps) => {
   const [internalValue, setInternalValue] = useState(value || "");
   
   // Update internal state when external value changes
@@ -59,10 +72,11 @@ const EnumSelect = ({
     }
   }, [value]);
   
-  const handleChange = (newValue) => {
-    setInternalValue(newValue);
+  const handleChange = (newValue: SetStateAction<string>) => {
+    const stringValue = typeof newValue === 'function' ? newValue(internalValue) : newValue;
+    setInternalValue(stringValue);
     if (onChange) {
-      onChange(newValue);
+      onChange(stringValue);
     }
   };
   
@@ -270,7 +284,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
         listingType: initialData.data.listingType || ListingType.FOR_SALE,
         rentType: initialData.data.rentType || null,
         saveStatus: initialData.data.saveStatus || SaveStatus.DRAFT,
-        publicationDate: initialData.data.publishedAt ? new Date(initialData.data.publishedAt) : null
+        publicationDate: new Date(initialData.data.publishedAt) 
       };
       
       applyEditData(formData);
@@ -289,7 +303,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
       // Set our controlled state values
       setListingTypeValue(savedData.listingType);
       setSaveStatusValue(savedData.saveStatus);
-      setRentTypeValue(savedData.rentType);
+      setRentTypeValue(savedData.rentType || null);
       
       form.reset(savedData);
       previousFormData.current = savedData;
@@ -309,12 +323,13 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
   }, [form, isEditMode, onValidationChange]); 
 
   // Handle listing type changes
-  const handleListingTypeChange = (value: ListingType) => {
-    setListingTypeValue(value);
-    form.setValue('listingType', value);
+  const handleListingTypeChange = (value: string) => {
+    const listingTypeValue = value as ListingType;
+    setListingTypeValue(listingTypeValue);
+    form.setValue('listingType', listingTypeValue);
     
     // Toggle rent type visibility
-    if (value === ListingType.FOR_RENT) {
+    if (listingTypeValue === ListingType.FOR_RENT) {
       setShowRentType(true);
     } else {
       setShowRentType(false);
@@ -325,32 +340,40 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
   };
   
   // Handle rent type changes
-  const handleRentTypeChange = (value: RentType) => {
-    setRentTypeValue(value);
-    form.setValue('rentType', value);
+  const handleRentTypeChange = (value: string) => {
+    const rentType = value as RentType;
+    setRentTypeValue(rentType);
+    form.setValue('rentType', rentType);
   };
   
   // Handle save status changes
-  const handleSaveStatusChange = (value: SaveStatus) => {
-    setSaveStatusValue(value);
-    form.setValue('saveStatus', value);
+  const handleSaveStatusChange = (value: string) => {
+    const saveStatus = value as SaveStatus;
+    setSaveStatusValue(saveStatus);
+    form.setValue('saveStatus', saveStatus);
   };
 
   // Watch form changes and update validation
   useEffect(() => {
     const subscription = form.watch((formValues) => {
-      // Create a copy with our preserved enum values
+      // Create a copy with our preserved enum values and handle empty strings
+      // Create data object with required enum values
       const currentData = {
         ...formValues as AdInformationFormData,
-        listingType: formValues.listingType || listingTypeValue,
-        saveStatus: formValues.saveStatus || saveStatusValue,
-        rentType: formValues.rentType || rentTypeValue,
+        listingType: (formValues.listingType || listingTypeValue || ListingType.FOR_SALE) as ListingType,
+        saveStatus: (formValues.saveStatus || saveStatusValue || SaveStatus.DRAFT) as SaveStatus,
+        rentType: (formValues.rentType || rentTypeValue) as RentType | undefined,
+        title: formValues.title || '',
+        description: formValues.description || '',
+        price: formValues.price || '',
+        contactNumber: formValues.contactNumber || '',
+        publicationDate: formValues.publicationDate || new Date()
       };
       
       // Auto-save if key fields are present
       if (currentData.title && currentData.description) {
         autoSaveAdInfoData(currentData, previousFormData.current || undefined);
-        previousFormData.current = { ...currentData };
+        previousFormData.current = currentData;
       }
 
       // Check form validity
@@ -536,7 +559,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                     placeholder={t("stepFour.rentType")}
                     required={true}
                     onChange={handleRentTypeChange}
-                    value={rentTypeValue}
+                    value={rentTypeValue?.toString() || undefined}
                     isRtl={direction === "rtl"}
                   />
                 )}

@@ -51,10 +51,10 @@ const AddProductStepThree: React.FC<AddProductStepThreeProps> = ({
         console.log("Found damages in edit data:", initialData.data.damages);
         
         // Create a map of damages by zone
-        const damagesMap = {};
+        const damagesMap: { [key: string | number]: { status: any; description: string } } = {};
         
         // Transform API format to our component format
-        initialData.data.damages.forEach(damage => {
+        initialData.data.damages.forEach((damage: { damageZone: string | number; damageType: any; description: any; }) => {
           if (damage.damageZone && damage.damageType) {
             // Store as object with status and description
             damagesMap[damage.damageZone] = {

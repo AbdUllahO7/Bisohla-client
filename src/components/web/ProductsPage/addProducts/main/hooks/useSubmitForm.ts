@@ -140,6 +140,7 @@ export const useSubmitForm = () => {
         // Images
         images: imageUrls,
         primaryImageIndex: imageUrls.length > 0 ? 0 : undefined,
+        isTrend : false,
         
         // Car details - FLATTENED structure
         mileage: Number(storedData2.mileage) || null,

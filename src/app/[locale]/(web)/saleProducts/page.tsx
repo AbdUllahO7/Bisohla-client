@@ -7,7 +7,7 @@ import Header from '@/components/web/ProductsPage/Header';
 import AdsSection from '@/components/web/Home/AdsSection';
 import React, { useCallback, useMemo, useState } from 'react';
 import AllCarListings from '../products/AllCarListings';
-import { Filter as FilterType, FilterGroup, QueryParams } from '@/core/entities/api/api';
+import { Filter as FilterType, QueryParams } from '@/core/entities/api/api';
 
 const SaleProducts = () => {
   // Initialize with the special filter for sale cars

@@ -15,6 +15,9 @@ import {
 
 export class RolesRepoUseCase implements IRolesRepoUseCase {
   constructor(protected readonly userRepo: IRolesRepo) {}
+  search(params: QueryParams): Promise<PaginatedResponse<{ id: number; name: string; description: string | null; }>> {
+    throw new Error('Method not implemented.');
+  }
   async seed(items: SelectRoleDto[]): Promise<void> {
     await this.userRepo.seed(items);
   }

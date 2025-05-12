@@ -108,6 +108,7 @@ export interface CreateCarListingDto {
   trimId: number | null;
   year: number;
   story: string | null;
+  isTrend: boolean,
   
   // Location details - update types to match enums
   address: string | undefined;

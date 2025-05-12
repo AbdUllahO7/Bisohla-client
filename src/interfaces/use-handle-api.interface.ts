@@ -1,4 +1,4 @@
-import ApiResponse from './api-response.interface';
+import { ApiResponse } from "./api-response.interface";
 
 export default interface UseHandleApi {
   onSuccess: (res: ApiResponse) => void;

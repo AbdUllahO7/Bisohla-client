@@ -1,4 +1,4 @@
-// hooks.ts
+// hooks.ts - Updated with proper typing
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { ImageUploaderRef } from "@/components/image-uploader/image-uploader";
@@ -7,8 +7,9 @@ import {
   getCarSectionOptions,
   getCarConditionOptions,
   getGroupedCarSectionOptions
-} from "@/core/entities/enums/cars.damegs.enum"; // Updated import path
-import { CarConditionState, defaultState, STORAGE_KEY, EDIT_STORAGE_KEY, EDIT_MODE_FLAG } from "./types";
+} from "@/core/entities/enums/cars.damegs.enum"; 
+
+import { CarConditionState,  defaultState, STORAGE_KEY, EDIT_STORAGE_KEY, EDIT_MODE_FLAG, SectionStatusMap } from "./types";
 import { 
   validateForm, 
   isEditMode as checkIsEditMode,
@@ -121,7 +122,7 @@ export const useAddProductStepThree = (
         const savedData = localStorage.getItem(storageKey);
         
         if (savedData) {
-          const parsedData = JSON.parse(savedData);
+          const parsedData = JSON.parse(savedData) as Partial<CarConditionState>;
           console.log("📋 Found saved data:", JSON.stringify(parsedData));
           
           // Handle both old format (string values) and new format (object values)
@@ -129,7 +130,7 @@ export const useAddProductStepThree = (
           
           if (parsedData.sectionStatus) {
             // Normalize the section status format to match what the component expects
-            const normalizedSectionStatus = {};
+            const normalizedSectionStatus: SectionStatusMap = {};
             
             // Check if we need to convert the format
             Object.entries(parsedData.sectionStatus).forEach(([key, value]) => {
@@ -138,7 +139,7 @@ export const useAddProductStepThree = (
                 normalizedSectionStatus[key] = value;
               } else if (value && typeof value === 'object' && 'status' in value) {
                 // New format from edit mode: { sectionId: { status: 'status', description: '' } }
-                normalizedSectionStatus[key] = value.status;
+                normalizedSectionStatus[key] = (value as { status: string }).status;
               }
             });
             
@@ -155,10 +156,8 @@ export const useAddProductStepThree = (
             console.log("🖼️ Found cover image:", updatedData.coverImage);
           }
           
-         
-          
-          // Set the normalized data
-          setCarCondition(updatedData);
+          // Set the normalized data with proper type assertion
+          setCarCondition(updatedData as CarConditionState);
           // Mark initial load as complete
           initialLoadComplete.current = true;
         } else {
@@ -171,7 +170,7 @@ export const useAddProductStepThree = (
   }, [storageKey]); // Depend on storageKey to reload when it changes
 
   // Function to set initial damages from edit mode
-  const setInitialDamages = useCallback((damagesMap) => {
+  const setInitialDamages = useCallback((damagesMap: Record<string, { status: string, description?: string }>) => {
     if (!editModeApplied.current) {
       console.log("Setting initial damages from edit mode:", damagesMap);
       
@@ -180,7 +179,7 @@ export const useAddProductStepThree = (
       
       // Convert from edit format { sectionId: { status, description } }
       // to the format this component uses { sectionId: status }
-      const normalizedDamages = {};
+      const normalizedDamages: SectionStatusMap = {};
       
       Object.entries(damagesMap).forEach(([key, value]) => {
         if (value && typeof value === 'object' && 'status' in value) {
@@ -191,7 +190,7 @@ export const useAddProductStepThree = (
       console.log("Normalized damages for component:", normalizedDamages);
       
       // Create updated state with preserved images
-      const updatedState = {
+      const updatedState: CarConditionState = {
         ...currentData,
         sectionStatus: normalizedDamages
       };
@@ -249,7 +248,7 @@ export const useAddProductStepThree = (
         newSectionStatus[sectionId] = status;
       }
       
-      const updatedState = {
+      const updatedState: CarConditionState = {
         ...prev,
         sectionStatus: newSectionStatus
       };
@@ -277,7 +276,7 @@ export const useAddProductStepThree = (
   const handleCoverImageChange = useCallback((urls: string[]) => {
     console.log("🖼️ Updating cover image:", urls);
     setCarCondition(prev => {
-      const updatedState = {
+      const updatedState: CarConditionState = {
         ...prev,
         coverImage: urls
       };

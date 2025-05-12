@@ -14,38 +14,20 @@ import { useGetMyProfile, useUpdateUserProfile } from "@/core/infrastructure-ada
 import ImageUploader, { ImageUploaderRef } from "@/components/image-uploader/image-uploader"
 import { useLocale, useTranslations } from "next-intl"
 import { motion } from "framer-motion"
+import { profileFormSchema, ProfileFormValues } from "@/core/entities/models/users/users.dto"
 
-// Define profile schema based on our DTO
-export const profileFormSchema = z.object({
-  name: z.string().min(2, {
-    message: "Name must be at least 2 characters.",
-  }).max(50, {
-    message: "Name must not be longer than 50 characters.",
-  }),
-  email: z.string().email({
-    message: "Please enter a valid email address.",
-  }).optional(),
-  phone: z.string().nullable().optional(),
-  bio: z.string().max(160).optional(),
-  // We'll handle password separately
-  password: z.string().min(8).max(255).nullable().optional(),
-  passwordConfirmation: z.string().min(8).max(255).nullable().optional(),
-  profileUrl: z.string().nullable().optional()
-})
-  .refine((data) => {
-    if (data.password && !data.passwordConfirmation) return false;
-    if (!data.password && data.passwordConfirmation) return false;
-    if (data.password && data.passwordConfirmation && data.password !== data.passwordConfirmation) return false;
-    return true;
-  }, {
-    message: "Passwords do not match",
-    path: ["passwordConfirmation"],
-  });
 
-export type ProfileFormValues = z.infer<typeof profileFormSchema>
 
 // KeyValue component for consistent display of field labels and values
-const KeyValueField = ({ icon, label, value, children, className = "" }) => {
+interface KeyValueFieldProps {
+  icon: React.ReactNode;
+  label: string;
+  value?: string;
+  children?: React.ReactNode;
+  className?: string;
+}
+
+const KeyValueField: React.FC<KeyValueFieldProps> = ({ icon, label, value, children, className = "" }) => {
   return (
     <div className={`flex flex-col space-y-2 ${className}`}>
       <div className="flex items-center gap-2">
