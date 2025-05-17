@@ -1,23 +1,23 @@
-import Box from '@/components/box/box';
-import { Toaster } from '@/components/ui/toaster';
-import Footer from '@/components/web/Home/Footer';
-import HeaderOne from '@/components/web/Home/HeaderOne';
-import HeaderTow from '@/components/web/Home/HeaderTow';
-import { Metadata } from 'next';
-import { getTranslations } from 'next-intl/server';
-import { PropsWithChildren } from 'react';
+import Box from "@/components/box/box"
+import { Toaster } from "@/components/ui/toaster"
+import Footer from "@/components/web/Home/Footer"
+import HeaderOne from "@/components/web/Home/HeaderOne"
+import HeaderTow from "@/components/web/Home/HeaderTow"
+import type { Metadata } from "next"
+import { getTranslations } from "next-intl/server"
+import type { PropsWithChildren } from "react"
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations('homePage');
+  const t = await getTranslations("homePage")
 
   return {
-    title: t('metadata.title'),
-    description: t('metadata.description'),
-  };
+    title: t("metadata.title"),
+    description: t("metadata.description"),
+  }
 }
 
 const WebLayout = async ({ children }: PropsWithChildren) => {
-  const t = await getTranslations('homePage');
+  const t = await getTranslations("homePage")
   return (
     <Box className="w-full bg-background" variant="column">
       <Box className="fixed z-[50] w-full bg-white shadow-md">
@@ -27,26 +27,30 @@ const WebLayout = async ({ children }: PropsWithChildren) => {
       </Box>
 
       {/* HeaderTwo */}
-      <div className="fixed top-[55px] z-[20]  w-full bg-primary shadow-md">
-        <HeaderTow
-          translations={{
-            home: t('headerTow.home'),
-            rent: t('headerTow.rent'),
-            sale: t('headerTow.sale'),
-            news: t('headerTow.news'),
-            join: t('headerTow.join'),
-            BrowseAll: t('headerTow.BrowseAll'),
+      <div className="fixed top-[34px] sm:top-[40px] z-[40] w-full bg-primary shadow-md">
+        <Box variant="container">
+          <HeaderTow
+            translations={{
+              home: t("headerTow.home"),
+              rent: t("headerTow.rent"),
+              sale: t("headerTow.sale"),
+              join: t("headerTow.join"),
+              BrowseAll: t("headerTow.BrowseAll"),
+              
+            }}
 
-          }}
-        />
+          />
+        </Box>
       </div>
-      {/* Spacer for HeaderTwo height */}
-      <div className="h-[65px]"></div>
-      {children}
-                  <Toaster/>
-      
-    </Box>
-  );
-};
 
-export default WebLayout;
+      {/* Spacer for fixed headers - adjusted for different screen sizes */}
+      <div className="h-[74px] sm:h-[82px]"></div>
+
+      {children}
+      <Toaster />
+      <Footer />
+    </Box>
+  )
+}
+
+export default WebLayout

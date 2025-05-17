@@ -11,8 +11,9 @@ import { useCarListings } from '@/core/infrastructure-adapters/use-actions/visit
 import ProductSkeleton from '../design/ProductSkeletonItem';
 import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions';
 import { useSession } from '@/hooks/auth/use-session';
+import { RentProductCard } from '../design/RentProductCard';
 
-const LatestOffers: React.FC<LatestOffersProps> = ({ count, showTitle = true, container = true }) => {
+const LatestOffers: React.FC<LatestOffersProps> = ({ count, title, showTitle = true, container = true }) => {
     const t = useTranslations('homePage');
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [favoriteStatuses, setFavoriteStatuses] = useState<Record<number, boolean>>({});
@@ -58,6 +59,7 @@ const LatestOffers: React.FC<LatestOffersProps> = ({ count, showTitle = true, co
         ]
     });
 
+    console.log("data", data)
 
 
     // Extract car listings array safely and limit to count items
@@ -107,7 +109,7 @@ const LatestOffers: React.FC<LatestOffersProps> = ({ count, showTitle = true, co
                 {showTitle && (
                     <Box variant="column" className="">
                         <Text variant="h3" className="font-bold text-[20px] font-cairo">
-                            {t('latestOffers.title')}
+                           {title ? title  : t('latestOffers.title')} 
                         </Text>
                         <Link href="/products">
                             <Text variant="mid" className="text-[20px] font-cairo text-primary-light">
@@ -137,20 +139,20 @@ const LatestOffers: React.FC<LatestOffersProps> = ({ count, showTitle = true, co
                 {/* Display actual cards when data is loaded */}
                 {!isLoading && !error && carListings.length > 0 && (
                     <Box 
-                        className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 ${showTitle ? "lg:grid-cols-5" : "lg:grid-cols-4"} gap-4 sm:w-[80%] xs:w-[80%] lg:w-full`} 
+                        className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 ${showTitle ? "lg:grid-cols-5" : "lg:grid-cols-4"} gap-4 sm:w-[90%] xs:w-[90%] lg:w-full`} 
                         variant="center"
                     >
                         {carListings.map((card, index) => (
                             <React.Fragment key={card.id || index}>
-                                <ProductCardItem
+                                <RentProductCard
                                     title={card.title}
                                     marka={card.make?.name || card.marka}
                                     price={card.price}
                                     type={card.listingType}
                                     imageSrc={card.images?.find((img: { isPrimary: boolean; url: string; }) => img.isPrimary)?.url || card.images?.[0]?.url || card.imageSrc}
                                     ProductId={card.id}
+                                    details={card.details || []}
                                     priceWord={t('latestOffers.price')}
-                                    isFavorites={true}
                                     isMarkedFavorite={favoriteStatuses[card.id] !== undefined ? favoriteStatuses[card.id] : (card.isFavorite || false)}
                                     onFavoriteToggle={handleFavoriteToggle} 
                                     />
@@ -165,18 +167,7 @@ const LatestOffers: React.FC<LatestOffersProps> = ({ count, showTitle = true, co
                     </Box>
                 )}
                 
-                {/* Show authentication prompt if not logged in */}
-                {!isAuthenticated && !isLoading && (
-                    <Box className="mt-4 p-4 bg-gray-100 rounded-lg" variant="center">
-                        <Text className="text-gray-700">
-                            <Link href="/login" className="text-primary hover:underline">
-                                Login
-                            </Link> or <Link href="/register" className="text-primary hover:underline">
-                                Register
-                            </Link> to save your favorite listings
-                        </Text>
-                    </Box>
-                )}
+              
             </Box>
         </Box>
     );

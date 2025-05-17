@@ -1,6 +1,7 @@
 import Box from '@/components/box/box';
 import AdsSection from '@/components/web/Home/AdsSection';
 import FAQ from '@/components/web/Home/FAQ';
+import Filter from '@/components/web/Home/Filter';
 import Hero from '@/components/web/Home/Hero';
 import LatestOffers from '@/components/web/Home/LatestOffers';
 import RentCar from '@/components/web/Home/RentProduct';
@@ -10,7 +11,7 @@ import WorldOfCar from '@/components/web/Home/WorldOfProduct';
 const WebPage = async () => {
   return (
     <Box variant="column" className='gap-10 w-full bg-background'>
-        <Hero />
+            <Hero />
         <LatestOffers />
         <AdsSection />
         <WorldOfCar/>

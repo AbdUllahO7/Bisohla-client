@@ -54,7 +54,7 @@ const CarouselComponent: React.FC<ExtendedCarouselComponentProps> = ({
                 {data.map((item, index) => (
                     <CarouselItem
                         key={index}
-                        className="lg:w-full xl:basis-1/6 lg:basis-1/4 md:basis-1/4 sm:basis-1/3 xs:basis-1/2"
+                        className="lg:w-full 2xl:basis-1/6 xl:basis-1/5 lg:basis-1/4 md:basis-1/4 sm:basis-1/3 xs:basis-1/2"
                         onClick={() => handleCityClick(item as CarouselItemData)}
                     >
                         <Box className="overflow-hidden">
@@ -64,9 +64,9 @@ const CarouselComponent: React.FC<ExtendedCarouselComponentProps> = ({
                                     <Image
                                         src={item.image}
                                         alt={`${item.title} image`}
-                                        width={220}
+                                        width={250}
                                         height={300}
-                                        className="w-full h-[300px] bg-cover"
+                                        className=" h-[300px] bg-cover"
                                     />
                                 </CardContent>
 

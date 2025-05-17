@@ -248,3 +248,22 @@
   background-color: hsl(var(--primary-dark));
 } */
 
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Add these styles to your globals.css to prevent body scrolling when menu is open */
+body.menu-open {
+  overflow: hidden;
+}
+
+/* Ensure the menu button is always clickable */
+button[aria-expanded] {
+  position: relative;
+  z-index: 60;
+}

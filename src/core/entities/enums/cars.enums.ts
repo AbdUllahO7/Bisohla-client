@@ -552,9 +552,9 @@ export const getFuelTypeOptions = (t?: any) => {
             [FuelType.DIESEL]: 'diesel',
             [FuelType.ELECTRIC]: 'electric',
             [FuelType.HYBRID]: 'hybrid',
-            [FuelType.PLUG_IN_HYBRID]: undefined,
-            [FuelType.LPG]: undefined,
-            [FuelType.NATURAL_GAS]: undefined
+            [FuelType.PLUG_IN_HYBRID]: 'plug_in_hybrid',
+            [FuelType.LPG]: 'lpg',
+            [FuelType.NATURAL_GAS]: 'natural_gas'
           };
           
           // Only try to get the translation if there's a mapping available

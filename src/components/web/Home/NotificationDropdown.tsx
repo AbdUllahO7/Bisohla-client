@@ -1,13 +1,17 @@
-'use client';
+"use client"
 
-import React, { useState, useEffect, useRef } from 'react';
-import { BellIcon, BellOffIcon } from 'lucide-react';
-import { useLocale } from 'next-intl';
-import { useGetAuthUserMyNotifications, useUpdateNotificationReadStatus } from '@/core/infrastructure-adapters/use-actions/users/notification.user.use-actions';
-import { formatDistanceToNow } from 'date-fns';
-import { arSA, enUS } from 'date-fns/locale';
-import { notificationPriorityEnum, notificationTypeEnum } from '@/core/entities/enums/notifications.enum';
-import Link from 'next/link';
+import type React from "react"
+import { useState, useEffect, useRef } from "react"
+import { BellIcon, BellOffIcon } from "lucide-react"
+import { useLocale } from "next-intl"
+import {
+  useGetAuthUserMyNotifications,
+  useUpdateNotificationReadStatus,
+} from "@/core/infrastructure-adapters/use-actions/users/notification.user.use-actions"
+import { formatDistanceToNow } from "date-fns"
+import { arSA, enUS } from "date-fns/locale"
+import { notificationTypeEnum } from "@/core/entities/enums/notifications.enum"
+import Link from "next/link"
 
 // Define translations for English and Arabic
 const translations = {
@@ -23,8 +27,8 @@ const translations = {
     priorities: {
       high: "High",
       medium: "Medium",
-      low: "Low"
-    }
+      low: "Low",
+    },
   },
   ar: {
     notifications: "الإشعارات",
@@ -38,174 +42,193 @@ const translations = {
     priorities: {
       high: "عالي",
       medium: "متوسط",
-      low: "منخفض"
-    }
-  }
-};
+      low: "منخفض",
+    },
+  },
+}
 
 const NotificationDropdown = () => {
-  const locale = useLocale();
-  const t = translations[locale === 'ar' ? 'ar' : 'en'];
-  const dateLocale = locale === 'ar' ? arSA : enUS;
-  
-  const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement | null>(null);
-  
+  const locale = useLocale()
+  const t = translations[locale === "ar" ? "ar" : "en"]
+  const dateLocale = locale === "ar" ? arSA : enUS
+  const isRTL = locale === "ar"
+
+  const [isOpen, setIsOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement | null>(null)
+  const buttonRef = useRef<HTMLButtonElement | null>(null)
+
   // Set up filter options to only show unread notifications in the dropdown
   const [filterOptions, setFilterOptions] = useState({
     isRead: false,
     page: 1,
-    pageSize: 5
-  });
-  
+    pageSize: 5,
+  })
+
   // Fetch notifications
-  const { data: notificationsResponse, isLoading, refetch } = useGetAuthUserMyNotifications(filterOptions);
-  
+  const { data: notificationsResponse, isLoading, refetch } = useGetAuthUserMyNotifications(filterOptions)
+
   // Setup mutation for marking notifications as read
-  const markAsReadMutation = useUpdateNotificationReadStatus();
-  
+  const markAsReadMutation = useUpdateNotificationReadStatus()
+
   // Close dropdown when clicking outside
   useEffect(() => {
-    const handleClickOutside = (event: { target: any; }) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsOpen(false);
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false)
       }
-    };
-    
-    document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    document.addEventListener("mousedown", handleClickOutside)
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
-  
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [])
+
   // Refresh notifications when opening the dropdown
   useEffect(() => {
     if (isOpen) {
-      refetch();
+      refetch()
     }
-  }, [isOpen, refetch]);
-  
+  }, [isOpen, refetch])
+
   // Get notification icon based on type
   const getNotificationIcon = (type: notificationTypeEnum) => {
     switch (type) {
-      case notificationTypeEnum.system: return '💻';
-      case notificationTypeEnum.user: return '👤';
-      case notificationTypeEnum.approval: return '✅';
-      case notificationTypeEnum.reminder: return '⏰';
-      case notificationTypeEnum.update: return '🔄';
-      case notificationTypeEnum.payment: return '💲';
-      case notificationTypeEnum.promotion: return '🎉';
-      case notificationTypeEnum.listing: return '📋';
-      default: return '📝';
+      case notificationTypeEnum.system:
+        return "💻"
+      case notificationTypeEnum.user:
+        return "👤"
+      case notificationTypeEnum.approval:
+        return "✅"
+      case notificationTypeEnum.reminder:
+        return "⏰"
+      case notificationTypeEnum.update:
+        return "🔄"
+      case notificationTypeEnum.payment:
+        return "💲"
+      case notificationTypeEnum.promotion:
+        return "🎉"
+      case notificationTypeEnum.listing:
+        return "📋"
+      default:
+        return "📝"
     }
-  };
+  }
 
-  
   // Handle marking a notification as read
   const handleMarkAsRead = async (id: number, event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-    event.stopPropagation();
+    event.stopPropagation()
     try {
       await markAsReadMutation.mutateAsync({
         notificationId: id,
-        isRead: true
-      });
-      refetch();
+        isRead: true,
+      })
+      refetch()
     } catch (error) {
-      console.error('Failed to update notification read status:', error);
+      console.error("Failed to update notification read status:", error)
     }
-  };
-  
+  }
+
   // Calculate unread count from notification data
-  const unreadCount = notificationsResponse?.data?.data?.length || 0;
-  
+  const unreadCount = notificationsResponse?.data?.data?.length || 0
+
   return (
     <div className="relative" ref={dropdownRef}>
       {/* Notification Bell Icon */}
-      <button 
+      <button
+        ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 bg-gray-100 rounded-full hover:bg-gray-200 flex items-center justify-center"
+        className="relative p-1.5 bg-gray-100 rounded-full hover:bg-gray-200 flex items-center justify-center"
         aria-label={`${unreadCount} unread notifications`}
       >
-        <BellIcon className="h-5 w-5 text-[#2C3C39]" />
-        
+        <BellIcon className="h-4 w-4 text-[#2C3C39]" />
+
         {/* Unread badge */}
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 bg-[#ABDE3B] text-[#2C3C39] text-xs font-medium px-2 py-0.5 rounded-full min-w-[20px] flex items-center justify-center">
-            {unreadCount > 99 ? '99+' : unreadCount}
+          <span className="absolute -top-1 -right-1 bg-[#ABDE3B] text-[#2C3C39] text-[10px] font-medium px-1.5 py-0.5 rounded-full min-w-[16px] flex items-center justify-center">
+            {unreadCount > 99 ? "99+" : unreadCount}
           </span>
         )}
       </button>
-      
+
       {/* Dropdown menu */}
       {isOpen && (
-        <div 
-          className={`absolute mt-2 z-50 ${locale === 'ar' ? 'right-0 rtl' : 'left-0 ltr'} w-80 max-h-96 overflow-y-auto bg-white rounded-lg shadow-lg border border-gray-100`}
+        <div
+          className={`absolute mt-2 z-50 w-72 max-h-80 overflow-y-auto bg-white rounded-lg shadow-lg border border-gray-100`}
+          style={{
+            [isRTL ? "right" : "left"]: "auto",
+            [isRTL ? "left" : "right"]: "0",
+            direction: isRTL ? "rtl" : "ltr",
+          }}
         >
           {/* Header */}
-          <div className="p-3 border-b border-gray-100 flex items-center justify-between">
-            <h3 className="font-semibold text-[#2C3C39]">{t.notifications}</h3>
+          <div className="p-2 border-b border-gray-100 flex items-center justify-between">
+            <h3 className="font-semibold text-[#2C3C39] text-sm">{t.notifications}</h3>
             {unreadCount > 0 ? (
-              <span className="bg-[#ABDE3B]/20 text-[#198341] text-xs px-2 py-1 rounded-full">
+              <span className="bg-[#ABDE3B]/20 text-[#198341] text-xs px-2 py-0.5 rounded-full">
                 {unreadCount} {t.unread.toLowerCase()}
               </span>
             ) : (
-              <BellOffIcon className="h-4 w-4 text-gray-400" />
+              <BellOffIcon className="h-3.5 w-3.5 text-gray-400" />
             )}
           </div>
-          
+
           {/* Notifications list */}
           {isLoading ? (
-            <div className="p-4 flex flex-col space-y-3">
-              {[1, 2, 3].map(i => (
-                <div key={`loading-${i}`} className="bg-gray-50 p-3 rounded-lg animate-pulse">
-                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                  <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+            <div className="p-3 flex flex-col space-y-2">
+              {[1, 2, 3].map((i) => (
+                <div key={`loading-${i}`} className="bg-gray-50 p-2 rounded-lg animate-pulse">
+                  <div className="h-3 bg-gray-200 rounded w-3/4 mb-2"></div>
+                  <div className="h-2 bg-gray-200 rounded w-1/2"></div>
                 </div>
               ))}
             </div>
           ) : notificationsResponse?.data?.data?.length === 0 ? (
-            <div className="p-8 text-center text-gray-500">
-              <BellOffIcon className="h-8 w-8 mx-auto mb-2 text-gray-400" />
-              <p>{t.noUnreadNotifications}</p>
+            <div className="p-6 text-center text-gray-500">
+              <BellOffIcon className="h-6 w-6 mx-auto mb-2 text-gray-400" />
+              <p className="text-xs">{t.noUnreadNotifications}</p>
             </div>
           ) : (
             <>
               <div className="divide-y divide-gray-100">
                 {notificationsResponse?.data?.data?.map((notification) => (
-                  <Link 
+                  <Link
                     key={notification.id}
                     href="/userProfile/Notification"
-                    className="block p-3 hover:bg-gray-50 cursor-pointer transition-colors"
+                    className="block p-2 hover:bg-gray-50 cursor-pointer transition-colors"
                     onClick={() => setIsOpen(false)}
                   >
-                    <div className="flex gap-3">
+                    <div className="flex gap-2">
                       {/* Icon */}
-                      <div className="flex-shrink-0 h-10 w-10 bg-[#2C3C39]/5 rounded-full flex items-center justify-center text-lg">
+                      <div className="flex-shrink-0 h-8 w-8 bg-[#2C3C39]/5 rounded-full flex items-center justify-center text-sm">
                         {notification.iconUrl ? (
-                          <img src={notification.iconUrl} alt="" className="w-6 h-6" />
-                        ) : getNotificationIcon(notification.type)}
+                          <img src={notification.iconUrl || "/placeholder.svg"} alt="" className="w-5 h-5" />
+                        ) : (
+                          getNotificationIcon(notification.type)
+                        )}
                       </div>
-                      
+
                       {/* Content */}
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-[#2C3C39] truncate">
-                          {notification.title}
-                        </p>
-                        <p className="text-xs text-gray-600 line-clamp-2 mt-1">
-                          {notification.content}
-                        </p>
-                        
-                        <div className="flex items-center justify-between mt-2">
-                          <span className="text-xs text-gray-500">
-                            {formatDistanceToNow(new Date(notification.createdAt), { 
+                        <p className="text-xs font-medium text-[#2C3C39] truncate">{notification.title}</p>
+                        <p className="text-[10px] text-gray-600 line-clamp-2 mt-0.5">{notification.content}</p>
+
+                        <div className="flex items-center justify-between mt-1">
+                          <span className="text-[10px] text-gray-500">
+                            {formatDistanceToNow(new Date(notification.createdAt), {
                               addSuffix: true,
-                              locale: dateLocale
+                              locale: dateLocale,
                             })}
                           </span>
-                          
+
                           <button
                             onClick={(e) => handleMarkAsRead(notification.id, e)}
-                            className="text-xs px-2 py-1 rounded-md bg-[#2C3C39] text-[#ABDE3B] hover:bg-[#2C3C39]/90"
+                            className="text-[10px] px-1.5 py-0.5 rounded-md bg-[#2C3C39] text-[#ABDE3B] hover:bg-[#2C3C39]/90"
                           >
                             {t.markAsRead}
                           </button>
@@ -215,12 +238,12 @@ const NotificationDropdown = () => {
                   </Link>
                 ))}
               </div>
-              
+
               {/* Footer */}
-              <div className="p-3 border-t border-gray-100 text-center">
-                <Link 
+              <div className="p-2 border-t border-gray-100 text-center">
+                <Link
                   href="/notifications"
-                  className="text-sm text-[#2C3C39] font-medium hover:text-[#ABDE3B] transition-colors"
+                  className="text-xs text-[#2C3C39] font-medium hover:text-[#ABDE3B] transition-colors"
                   onClick={() => setIsOpen(false)}
                 >
                   {t.viewAll}
@@ -231,7 +254,7 @@ const NotificationDropdown = () => {
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default NotificationDropdown;
+export default NotificationDropdown
