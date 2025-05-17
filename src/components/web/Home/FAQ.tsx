@@ -51,11 +51,11 @@ return (
                             >
                             {item.question}
                             </span>
-                            <span className="flex items-center justify-center h-7 w-7">
+                            <span className="flex items-center justify-center h-7 w-7 relative -z-40">
                             {openIndex === index ? (
-                                <MinusIcon className="h-7 w-7 text-primary-light" />
+                                <MinusIcon className="h-7 w-7 text-primary-light absolute -z-40" />
                             ) : (
-                                <PlusIcon className="h-7 w-7 text-primary-light" />
+                                <PlusIcon className="h-7 w-7 text-primary-light absolute -z-40" />
                             )}
                             </span>
                         </button>

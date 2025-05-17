@@ -138,7 +138,7 @@ const NotificationDropdown = () => {
   const unreadCount = notificationsResponse?.data?.data?.length || 0
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="relative" ref={dropdownRef} >
       {/* Notification Bell Icon */}
       <button
         ref={buttonRef}
@@ -159,7 +159,7 @@ const NotificationDropdown = () => {
       {/* Dropdown menu */}
       {isOpen && (
         <div
-          className={`absolute mt-2 z-50 w-72 max-h-80 overflow-y-auto bg-white rounded-lg shadow-lg border border-gray-100`}
+          className={`absolute mt-2 top-auto z-[999] w-72 max-h-80 overflow-y-auto bg-white rounded-lg shadow-lg border border-gray-100`}
           style={{
             [isRTL ? "right" : "left"]: "auto",
             [isRTL ? "left" : "right"]: "0",
@@ -189,13 +189,13 @@ const NotificationDropdown = () => {
               ))}
             </div>
           ) : notificationsResponse?.data?.data?.length === 0 ? (
-            <div className="p-6 text-center text-gray-500">
+            <div className="p-6 text-center text-gray-500 absolute top-0 z-[150]">
               <BellOffIcon className="h-6 w-6 mx-auto mb-2 text-gray-400" />
               <p className="text-xs">{t.noUnreadNotifications}</p>
             </div>
           ) : (
             <>
-              <div className="divide-y divide-gray-100">
+              <div className="divide-y divide-gray-100  relative top-0 z-[150]">
                 {notificationsResponse?.data?.data?.map((notification) => (
                   <Link
                     key={notification.id}

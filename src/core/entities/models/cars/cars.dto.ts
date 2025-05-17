@@ -97,7 +97,6 @@ export interface CarDetails {
   bodyType?: BodyType | null;
   doors: number | null;
   colorExterior: string | null;
-  colorInterior: string | null;
   vin: string | null;
   plateNumber: string | null;
   createdAt: string | Date;
@@ -116,7 +115,6 @@ export interface CreateCarDetailsDto {
   bodyType?: string | null;
   doors?: number | null;
   colorExterior?: string | null;
-  colorInterior?: string | null;
   vin?: string | null;
   plateNumber?: string | null;
 }

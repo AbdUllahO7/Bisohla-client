@@ -74,11 +74,7 @@ const CarDetailsContent: React.FC<CarDetailsContentProps> = ({ data, type = "car
       value: data?.details?.doors || "-",
       icon: <Car className="w-5 h-5" />,
     },
-    {
-      label: t("colorInterior"),
-      value: data?.details?.colorInterior || "-",
-      icon: <Palette className="w-5 h-5" />,
-    },
+    
     {
       label: t("plateNumber"),
       value: data?.details?.plateNumber || "-",

@@ -16,7 +16,7 @@ export interface ICarVisitorStrategy {
   findCarListings(
     queryParams: QueryParams,
   ): Promise<PaginatedResponse<SelectCarListingDto>>;
-  findCarListingById(id: number): Promise<ApiResponse<SelectCarListingDto>>;
+  findCarListingById(queryParams: QueryParams): Promise<ApiResponse<SelectCarListingDto>>;
   findCarMakes(
     queryParams: QueryParams,
   ): Promise<PaginatedResponse<SelectCarMakeDto>>;

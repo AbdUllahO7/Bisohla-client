@@ -2,7 +2,6 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useCarFeatrues } from "@/core/infrastructure-adapters/use-actions/visitors/car.visitor.use-actions";
-import { getCurrencyOptions } from "@/core/entities/enums/currency.enum";
 import { getBodyTypeOptions, getColorOptions, getFuelTypeOptions, getTransmissionOptions, FeatureCategory } from "@/core/entities/enums/cars.enums";
 import { CarInfoState, ValidationErrors, GroupedFeatures, CategoryData } from "./types";
 import { groupFeaturesByCategory, loadFromStorage, saveToStorage, validateForm } from "./utils";
@@ -30,9 +29,7 @@ export const useAddProductStepTwo = (onValidationChange: (isValid: boolean) => v
   // Main form state
   const [isClient, setIsClient] = useState(false);
   const [carInfo, setCarInfo] = useState<CarInfoState>({
-    currency: "",
     colorExterior: "",
-    colorInterior: "",
     fuelType: "",
     bodyType: "",
     transmission: "",
@@ -245,7 +242,6 @@ export const useAddProductStepTwo = (onValidationChange: (isValid: boolean) => v
   // Memoized options for selects
   const options = useMemo(
     () => ({
-      currency: getCurrencyOptions(t),
       fuelType: getFuelTypeOptions(t),
       bodyType: getBodyTypeOptions(t),
       transmission: getTransmissionOptions(t),
@@ -259,9 +255,7 @@ export const useAddProductStepTwo = (onValidationChange: (isValid: boolean) => v
     () => ({
       carInfo: locale === 'ar' ? "معلومات السيارة" : "Car Information",
       carFeatures: locale === 'ar' ? "ميزات السيارة" : "Car Features",
-      currency: locale === 'ar' ? "العملة" : "Currency",
       colorExterior: locale === 'ar' ? "لون الخارجي" : "Exterior Color",
-      colorInterior: locale === 'ar' ? "لون الداخلي" : "Interior Color",
       fuelType: locale === 'ar' ? "نوع الوقود" : "Fuel Type",
       bodyType: locale === 'ar' ? "نوع الهيكل" : "Body Type",
       transmission: locale === 'ar' ? "ناقل الحركة" : "Transmission",
@@ -272,8 +266,6 @@ export const useAddProductStepTwo = (onValidationChange: (isValid: boolean) => v
       plateNumber: locale === 'ar' ? "رقم اللوحة" : "Plate Number",
       vin: locale === 'ar' ? "رقم الهيكل (VIN)" : "VIN",
       selectColorExterior: locale === 'ar' ? "اختر اللون الخارجي" : "Select Exterior Color",
-      selectColorInterior: locale === 'ar' ? "اختر اللون الداخلي" : "Select Interior Color",
-      selectCurrency: locale === 'ar' ? "اختر العملة" : "Select a currency",
       selectFuelType: locale === 'ar' ? "اختر نوع الوقود" : "Select a Fuel Type",
       selectBodyType: locale === 'ar' ? "اختر نوع الهيكل" : "Select a Body Type",
       selectTransmission: locale === 'ar' ? "اختر ناقل الحركة" : "Select a Transmission",

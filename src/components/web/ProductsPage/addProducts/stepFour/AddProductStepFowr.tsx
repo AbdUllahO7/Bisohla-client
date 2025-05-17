@@ -1,6 +1,4 @@
-"use client"
-
-import { useState, useEffect, useRef, SetStateAction } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format } from "date-fns"
@@ -36,11 +34,12 @@ import {
   saveAdInfoData
 } from "./storageUtils"
 import Text from "@/components/text/text"
+import { Currency, getCurrencyOptions } from "@/core/entities/enums/currency.enum"
 
-// Standalone Select Field component to fix state preservation issues
+// Simplified EnumSelect component without internal state tracking
 interface EnumSelectProps {
   name: string;
-  control: any; // Replace with specific type from react-hook-form if available
+  control: any;
   label: string;
   options: Array<{ value: string; label: string }>;
   placeholder: string;
@@ -63,23 +62,6 @@ const EnumSelect = ({
   isRtl = false,
   className = ""
 }: EnumSelectProps) => {
-  const [internalValue, setInternalValue] = useState(value || "");
-  
-  // Update internal state when external value changes
-  useEffect(() => {
-    if (value) {
-      setInternalValue(value);
-    }
-  }, [value]);
-  
-  const handleChange = (newValue: SetStateAction<string>) => {
-    const stringValue = typeof newValue === 'function' ? newValue(internalValue) : newValue;
-    setInternalValue(stringValue);
-    if (onChange) {
-      onChange(stringValue);
-    }
-  };
-  
   return (
     <FormField
       control={control}
@@ -93,21 +75,22 @@ const EnumSelect = ({
           <Select
             onValueChange={(val) => {
               field.onChange(val);
-              handleChange(val);
+              if (onChange) {
+                onChange(val);
+              }
             }}
-            // Use internalValue as backup if field.value is empty
-            value={field.value || internalValue || ""}
+            value={field.value || value || ""}
           >
             <FormControl>
               <SelectTrigger>
                 <SelectValue placeholder={placeholder} />
               </SelectTrigger>
             </FormControl>
-            <SelectContent className="bg-white">
+            <SelectContent className="bg-white shadow-2xl text-primary border-none absolute z-[99]" dir={`${isRtl ? "rtl" : "ltr"}`}>
               {options.map((option) => (
-                <SelectItem 
-                  className="text-primary hover:bg-primary-light" 
-                  key={option.value} 
+                <SelectItem
+                  className="focus:bg-primary-light hover:text-white transition-all duration-200 font-cairo font-[700]"
+                  key={option.value}
                   value={option.value}
                 >
                   {option.label}
@@ -127,73 +110,47 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
   isEditMode = false,
   initialData = null 
 }) => {
-  const [showRentType, setShowRentType] = useState(false)
-  const [direction, setDirection] = useState<string>("ltr")
-  const previousFormData = useRef<AdInformationFormData | null>(null)
-  const prevValidState = useRef<boolean | null>(null)
-  const editModeDataApplied = useRef<boolean>(false)
+  const [showRentType, setShowRentType] = useState(false);
+  const [direction, setDirection] = useState<string>("ltr");
+  const previousFormData = useRef<AdInformationFormData | null>(null);
+  const prevValidState = useRef<boolean | null>(null);
+  const editModeDataApplied = useRef<boolean>(false);
+  const validationCheckRunning = useRef<boolean>(false);
   
-  // Create explicit state for enum values to ensure they remain stable
+  // Create state for enum values as form backups
   const [listingTypeValue, setListingTypeValue] = useState<ListingType | "">("");
   const [rentTypeValue, setRentTypeValue] = useState<RentType | null>(null);
   const [saveStatusValue, setSaveStatusValue] = useState<SaveStatus | "">("");
+  const [currencyValue, setCurrencyValue] = useState<Currency | "">("");
 
-  const t = useTranslations("addProduct.enteredData")
+  const t = useTranslations("addProduct.enteredData");
 
-  const listingTypeOptions = getListingTypeOptions(t)
-  const rentTypeOptions = getRentTypeOptions(t)
-  const saveStatusOptions = getSaveStatusOptions(t) 
+  const listingTypeOptions = getListingTypeOptions(t);
+  const rentTypeOptions = getRentTypeOptions(t);
+  const saveStatusOptions = getSaveStatusOptions(t);
+  const currencyOptions = getCurrencyOptions(t);
 
   // Initialize form with temporary default values
   const form = useForm<AdInformationFormData>({
     resolver: zodResolver(adInformationSchema),
     defaultValues: defaultAdInfoData,
-    mode: "onChange", // Validate on change
-  })
+    mode: "onChange",
+  });
 
-  // Check if the form data is valid
-  const checkFormValidity = (data: AdInformationFormData) => {
-    // Use state values as fallbacks for enum fields
-    const listingType = data.listingType || listingTypeValue;
-    const saveStatus = data.saveStatus || saveStatusValue;
-    const rentType = data.rentType || rentTypeValue;
-    
-    // Basic validation: check if required fields are filled
-    let isValid = Boolean(
-      data.title && 
-      data.description && 
-      data.contactNumber && 
-      listingType &&
-      saveStatus && 
-      data.price
-    );
-    
-    // Additional validation for rent type
-    if (listingType === ListingType.FOR_RENT && !rentType) {
-      isValid = false;
-    }
-    
-    return isValid;
-  }
-
-  // Fix for listingType and saveStatus values not showing in form
+  // Helper function to map API enums to form enums
   const mapApiEnumToFormEnum = (apiValue: string, enumType: any): any => {
-    if (!apiValue) return Object.values(enumType)[0]; // Default if empty
+    if (!apiValue) return Object.values(enumType)[0];
     
-    // If it's already a valid enum value, return it
     if (Object.values(enumType).includes(apiValue)) {
       return apiValue;
     }
     
-    // Simple mapping function to handle potential case differences
     const normApiValue = apiValue.toUpperCase().replace(/\s+/g, '_');
     
-    // Check each enum value
     for (const key in enumType) {
       const enumValue = enumType[key];
       const normEnumValue = key.toUpperCase().replace(/\s+/g, '_');
       
-      // Try different matching strategies (exact match, normalized match, or substring match)
       if (
         apiValue === enumValue || 
         normApiValue === normEnumValue ||
@@ -204,197 +161,229 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
       }
     }
     
-    // Return default if no match found
     console.warn(`Could not map API value "${apiValue}" to matching enum value`);
-    return Object.values(enumType)[0]; // Return first enum value as default
+    return Object.values(enumType)[0];
   };
 
-  // Function to directly apply edit data
-  const applyEditData = (editData: AdInformationFormData) => {
-    if (!editModeDataApplied.current) {
+  // Check if the form data is valid
+  const checkFormValidity = (data: Partial<AdInformationFormData>) => {
+    if (validationCheckRunning.current) return false;
+    validationCheckRunning.current = true;
+    
+    try {
+      const listingType = data.listingType || listingTypeValue;
+      const saveStatus = data.saveStatus || saveStatusValue;
+      const currency = data.currency || currencyValue;
+      const rentType = listingType === ListingType.FOR_RENT 
+        ? (data.rentType || rentTypeValue)
+        : null;
       
-      // Map string enum values to actual enum values if needed
-      const mappedListingType = typeof editData.listingType === 'string' 
-        ? mapApiEnumToFormEnum(editData.listingType, ListingType)
-        : editData.listingType;
+      let isValid = Boolean(
+        data.title && 
+        data.description && 
+        data.contactNumber && 
+        listingType &&
+        saveStatus && 
+        data.price &&
+        currency
+      );
       
-      const mappedSaveStatus = typeof editData.saveStatus === 'string'
-        ? mapApiEnumToFormEnum(editData.saveStatus, SaveStatus)
-        : editData.saveStatus;
-      
-      const mappedRentType = editData.rentType && typeof editData.rentType === 'string'
-        ? mapApiEnumToFormEnum(editData.rentType, RentType)
-        : editData.rentType;
-      
-      // Set our controlled state values
-      setListingTypeValue(mappedListingType);
-      setSaveStatusValue(mappedSaveStatus);
-      setRentTypeValue(mappedRentType);
-      
-      // Create a new object with the processed values
-      const processedData = {
-        ...editData,
-        listingType: mappedListingType,
-        saveStatus: mappedSaveStatus,
-        rentType: mappedRentType
-      };
-      
-      // Set UI state for conditional fields
-      if (mappedListingType === ListingType.FOR_RENT) {
-        setShowRentType(true);
+      if (listingType === ListingType.FOR_RENT && !rentType) {
+        isValid = false;
       }
       
-      // Important: Reset the form with cleaned data
-      form.reset(processedData);
-      
-      // Explicitly set values for the form fields
-      form.setValue('listingType', mappedListingType);
-      form.setValue('saveStatus', mappedSaveStatus);
-      if (mappedRentType) {
-        form.setValue('rentType', mappedRentType);
-      }
-      
-      // Save initial data as previous to prevent losing it on field change
-      previousFormData.current = { ...processedData };
-      
-      // Set validation state
-      const isValid = checkFormValidity(processedData);
-      prevValidState.current = isValid;
-      if (onValidationChange) {
-        onValidationChange(isValid);
-      }
-      
-      editModeDataApplied.current = true;
-      
-      // Log after setting
+      return isValid;
+    } finally {
+      validationCheckRunning.current = false;
     }
   };
 
-  // Handle initial edit data from props
+  // Apply edit data once
+  const applyEditData = (editData: AdInformationFormData) => {
+    if (editModeDataApplied.current) return;
+    
+    const mappedListingType = typeof editData.listingType === 'string' 
+      ? mapApiEnumToFormEnum(editData.listingType, ListingType)
+      : editData.listingType;
+    
+    const mappedSaveStatus = typeof editData.saveStatus === 'string'
+      ? mapApiEnumToFormEnum(editData.saveStatus, SaveStatus)
+      : editData.saveStatus;
+    
+    const mappedRentType = editData.rentType && typeof editData.rentType === 'string'
+      ? mapApiEnumToFormEnum(editData.rentType, RentType)
+      : editData.rentType;
+    
+    const mappedCurrency = typeof editData.currency === 'string'
+      ? mapApiEnumToFormEnum(editData.currency, Currency)
+      : editData.currency || Currency.USD;
+
+    setListingTypeValue(mappedListingType);
+    setSaveStatusValue(mappedSaveStatus);
+    setCurrencyValue(mappedCurrency);
+    if (mappedRentType) {
+      setRentTypeValue(mappedRentType);
+    }
+    
+    const processedData = {
+      ...editData,
+      listingType: mappedListingType,
+      saveStatus: mappedSaveStatus,
+      rentType: mappedRentType,
+      currency: mappedCurrency
+    };
+    
+    if (mappedListingType === ListingType.FOR_RENT) {
+      setShowRentType(true);
+    }
+    
+    form.reset(processedData);
+    previousFormData.current = { ...processedData };
+    
+    const isValid = checkFormValidity(processedData);
+    prevValidState.current = isValid;
+    
+    if (onValidationChange && isValid !== undefined) {
+      onValidationChange(isValid);
+    }
+    
+    editModeDataApplied.current = true;
+  };
+
   useEffect(() => {
-    if (isEditMode && initialData && initialData.data && !editModeDataApplied.current) {
-      // Transform API data to form data
+    if (isEditMode && initialData?.data && !editModeDataApplied.current) {
       const formData: AdInformationFormData = {
-        title: initialData.data.title || '',
-        description: initialData.data.description || '',
-        price: initialData.data.price?.toString() || '',
-        contactNumber: initialData.data.contactNumber || '',
-        listingType: initialData.data.listingType || ListingType.FOR_SALE,
-        rentType: initialData.data.rentType || null,
-        saveStatus: initialData.data.saveStatus || SaveStatus.DRAFT,
-        publicationDate: new Date(initialData.data.publishedAt) 
+        title: initialData.data[0].title || '',
+        description: initialData.data[0].description || '',
+        price: initialData.data[0].price?.toString() || '',
+        contactNumber: initialData.data[0].contactNumber || '',
+        listingType: initialData.data[0].listingType || ListingType.FOR_SALE,
+        rentType: initialData.data[0].rentType || null,
+        saveStatus: initialData.data[0].saveStatus || SaveStatus.DRAFT,
+        publicationDate: initialData.data[0].publishedAt ? new Date(initialData.data[0].publishedAt) : new Date(),
+        currency: initialData.data[0].currency || Currency.USD
       };
       
       applyEditData(formData);
     }
   }, [isEditMode, initialData]);
 
-  // Initial setup effect - runs once on component mount
   useEffect(() => {
     const htmlDir = document.documentElement.dir || "ltr";
     setDirection(htmlDir);
     
-    // Only load from localStorage in non-edit mode or as fallback
-    if (!isEditMode || !editModeDataApplied.current) {
+    if (!isEditMode && !editModeDataApplied.current) {
       const savedData = loadAdInfoData();
       
-      // Set our controlled state values
-      setListingTypeValue(savedData.listingType);
-      setSaveStatusValue(savedData.saveStatus);
-      setRentTypeValue(savedData.rentType || null);
+      if (savedData.listingType) {
+        setListingTypeValue(savedData.listingType);
+        if (savedData.listingType === ListingType.FOR_RENT) {
+          setShowRentType(true);
+        }
+      }
+      
+      if (savedData.saveStatus) {
+        setSaveStatusValue(savedData.saveStatus);
+      }
+      
+      if (savedData.rentType) {
+        setRentTypeValue(savedData.rentType);
+      }
+      
+      if (savedData.currency) {
+        setCurrencyValue(savedData.currency);
+      }
       
       form.reset(savedData);
       previousFormData.current = savedData;
       
-      if (savedData.listingType === ListingType.FOR_RENT) {
-        setShowRentType(true);
-      }
-      
-      // Initial validation of loaded data
       const isValid = checkFormValidity(savedData);
       prevValidState.current = isValid;
       
-      if (onValidationChange && !editModeDataApplied.current) {
+      if (onValidationChange) {
         onValidationChange(isValid);
       }
     }
-  }, [form, isEditMode, onValidationChange]); 
+  }, []);
 
-  // Handle listing type changes
   const handleListingTypeChange = (value: string) => {
     const listingTypeValue = value as ListingType;
     setListingTypeValue(listingTypeValue);
-    form.setValue('listingType', listingTypeValue);
     
-    // Toggle rent type visibility
     if (listingTypeValue === ListingType.FOR_RENT) {
       setShowRentType(true);
     } else {
       setShowRentType(false);
-      // Reset rent type when not FOR_RENT
       setRentTypeValue(null);
       form.setValue('rentType', null);
     }
   };
   
-  // Handle rent type changes
   const handleRentTypeChange = (value: string) => {
     const rentType = value as RentType;
     setRentTypeValue(rentType);
-    form.setValue('rentType', rentType);
   };
   
-  // Handle save status changes
   const handleSaveStatusChange = (value: string) => {
     const saveStatus = value as SaveStatus;
     setSaveStatusValue(saveStatus);
-    form.setValue('saveStatus', saveStatus);
   };
 
-  // Watch form changes and update validation
-  useEffect(() => {
-    const subscription = form.watch((formValues) => {
-      // Create a copy with our preserved enum values and handle empty strings
-      // Create data object with required enum values
-      const currentData = {
-        ...formValues as AdInformationFormData,
-        listingType: (formValues.listingType || listingTypeValue || ListingType.FOR_SALE) as ListingType,
-        saveStatus: (formValues.saveStatus || saveStatusValue || SaveStatus.DRAFT) as SaveStatus,
-        rentType: (formValues.rentType || rentTypeValue) as RentType | undefined,
-        title: formValues.title || '',
-        description: formValues.description || '',
-        price: formValues.price || '',
-        contactNumber: formValues.contactNumber || '',
-        publicationDate: formValues.publicationDate || new Date()
-      };
-      
-      // Auto-save if key fields are present
-      if (currentData.title && currentData.description) {
-        autoSaveAdInfoData(currentData, previousFormData.current || undefined);
-        previousFormData.current = currentData;
-      }
+  const handleCurrencyChange = (value: string) => {
+    const currency = value as Currency;
+    setCurrencyValue(currency);
+  };
 
-      // Check form validity
-      const isValid = checkFormValidity(currentData);
+  useEffect(() => {
+    let timeout: NodeJS.Timeout;
+    
+    const subscription = form.watch((formValues) => {
+      if (timeout) clearTimeout(timeout);
       
-      // Only notify parent if validation state has changed
-      if (isValid !== prevValidState.current) {
-        prevValidState.current = isValid;
-        if (onValidationChange) {
-          onValidationChange(isValid);
+      timeout = setTimeout(() => {
+        if (!formValues) return;
+        
+        const currentData = {
+          ...(formValues as Partial<AdInformationFormData>),
+          listingType: formValues.listingType || listingTypeValue || ListingType.FOR_SALE,
+          saveStatus: formValues.saveStatus || saveStatusValue || SaveStatus.DRAFT,
+          currency: formValues.currency || currencyValue || Currency.USD,
+          rentType: formValues.listingType === ListingType.FOR_RENT || listingTypeValue === ListingType.FOR_RENT
+            ? (formValues.rentType || rentTypeValue)
+            : null
+        };
+        
+        if (currentData.title && currentData.description) {
+          const prevData = previousFormData.current || undefined;
+          if (JSON.stringify(currentData) !== JSON.stringify(prevData)) {
+            autoSaveAdInfoData(currentData as AdInformationFormData, prevData);
+            previousFormData.current = currentData as AdInformationFormData;
+          }
         }
-      }
+
+        const isValid = checkFormValidity(currentData);
+        
+        if (isValid !== prevValidState.current) {
+          prevValidState.current = isValid;
+          if (onValidationChange) {
+            onValidationChange(isValid);
+          }
+        }
+      }, 100);
     });
 
-    return () => subscription.unsubscribe();
-  }, [form, onValidationChange, listingTypeValue, saveStatusValue, rentTypeValue]);
+    return () => {
+      subscription.unsubscribe();
+      if (timeout) clearTimeout(timeout);
+    };
+  }, [form, onValidationChange, listingTypeValue, saveStatusValue, rentTypeValue, currencyValue]);
 
   const onSubmit = (data: AdInformationFormData) => {
-    // Ensure enum values are preserved in the submitted data
     const submittedData = {
       ...data,
-      listingType: data.listingType || listingTypeValue,
-      saveStatus: data.saveStatus || saveStatusValue,
+      listingType: data.listingType || listingTypeValue || ListingType.FOR_SALE,
+      saveStatus: data.saveStatus || saveStatusValue || SaveStatus.DRAFT,
+      currency: data.currency || currencyValue || Currency.USD,
       rentType: data.listingType === ListingType.FOR_RENT 
         ? (data.rentType || rentTypeValue) 
         : null
@@ -409,7 +398,8 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
       listingType: submittedData.listingType,
       rentType: submittedData.rentType || "",
       publicationDate: submittedData.publicationDate ? submittedData.publicationDate.toISOString() : null,
-      saveStatus: submittedData.saveStatus
+      saveStatus: submittedData.saveStatus,
+      currency: submittedData.currency
     };
 
     const isValid = validateForm(adInfoState);
@@ -450,169 +440,173 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
           </Text>
         </CardHeader>
         <CardContent className="pt-5">
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Left Column */}
-              <div className="space-y-6 md:col-span-1">
-                {/* Title Field */}
-                <FormField
-                  control={form.control}
-                  name="title"
-                  render={({ field }) => (
-                    <FormItem className="text-primary">
-                      <FormLabel className="text-primary">
-                        {t("stepFour.adTitle")}
-                        <span className="text-red-500">*</span>
-                      </FormLabel>
-                      <FormControl>
-                        <Input placeholder={t("stepFour.adTitle")} {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Description Field */}
-                <FormField
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem className="text-primary">
-                      <FormLabel className="text-primary">
-                        {t("stepFour.adDescription")}
-                        <span className="text-red-500">*</span>
-                      </FormLabel>
-                      <FormControl>
-                        <Textarea placeholder={t("stepFour.adDescription")} className="min-h-[100px]" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Contact Number Field */}
-                <FormField
-                  control={form.control}
-                  name="contactNumber"
-                  render={({ field }) => (
-                    <FormItem className="text-primary">
-                      <FormLabel className="text-primary">
-                        {t("stepFour.contactNumber")}
-                        <span className="text-red-500">*</span>
-                      </FormLabel>
-                      <FormControl>
-                        <Input type="tel" placeholder={t("stepFour.contactNumber")} {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Price Field */}
-                <FormField
-                  control={form.control}
-                  name="price"
-                  render={({ field }) => (
-                    <FormItem className="text-primary">
-                      <FormLabel className="text-primary">
-                        {t("stepFour.price", { defaultValue: "Price" })}
-                        <span className="text-red-500">*</span>
-                      </FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="text" 
-                          placeholder={t("stepFour.price", { defaultValue: "Enter price" })} 
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              {/* Right Column */}
-              <div className="space-y-6 md:col-span-1">
-                {/* Listing Type Field */}
-                <EnumSelect
-                  name="listingType"
-                  control={form.control}
-                  label={t("stepFour.adType")}
-                  options={listingTypeOptions}
-                  placeholder={t("stepFour.adType")}
-                  required={true}
-                  onChange={handleListingTypeChange}
-                  value={listingTypeValue}
-                  isRtl={direction === "rtl"}
-                />
-
-                {/* Conditional Rent Type Field */}
-                {showRentType && (
-                  <EnumSelect
-                    name="rentType"
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Left Column */}
+                <div className="space-y-6 md:col-span-1">
+                  <FormField
                     control={form.control}
-                    label={t("stepFour.rentType")}
-                    options={rentTypeOptions}
-                    placeholder={t("stepFour.rentType")}
+                    name="title"
+                    render={({ field }) => (
+                      <FormItem className="text-primary">
+                        <FormLabel className="text-primary">
+                          {t("stepFour.adTitle")}
+                          <span className="text-red-500">*</span>
+                        </FormLabel>
+                        <FormControl>
+                          <Input placeholder={t("stepFour.adTitle")} {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem className="text-primary">
+                        <FormLabel className="text-primary">
+                          {t("stepFour.adDescription")}
+                          <span className="text-red-500">*</span>
+                        </FormLabel>
+                        <FormControl>
+                          <Textarea placeholder={t("stepFour.adDescription")} className="min-h-[100px]" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="contactNumber"
+                    render={({ field }) => (
+                      <FormItem className="text-primary">
+                        <FormLabel className="text-primary">
+                          {t("stepFour.contactNumber")}
+                          <span className="text-red-500">*</span>
+                        </FormLabel>
+                        <FormControl>
+                          <Input type="tel" placeholder={t("stepFour.contactNumber")} {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="price"
+                    render={({ field }) => (
+                      <FormItem className="text-primary">
+                        <FormLabel className="text-primary">
+                          {t("stepFour.price", { defaultValue: "Price" })}
+                          <span className="text-red-500">*</span>
+                        </FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="text" 
+                            placeholder={t("stepFour.price", { defaultValue: "Enter price" })} 
+                            {...field} 
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                {/* Right Column */}
+                <div className="space-y-6 md:col-span-1">
+                  <EnumSelect
+                    name="currency"
+                    control={form.control}
+                    label={t("stepFour.currencyLabel")}
+                    options={currencyOptions}
+                    placeholder={t("stepFour.currencyLabel")}
                     required={true}
-                    onChange={handleRentTypeChange}
-                    value={rentTypeValue?.toString() || undefined}
+                    onChange={handleCurrencyChange}
+                    value={currencyValue}
                     isRtl={direction === "rtl"}
                   />
-                )}
 
-                {/* Save Status Field */}
-                <EnumSelect
-                  name="saveStatus"
-                  control={form.control}
-                  label={t("stepFour.saveStatus")}
-                  options={saveStatusOptions}
-                  placeholder={t("stepFour.saveStatus")}
-                  required={true}
-                  onChange={handleSaveStatusChange}
-                  value={saveStatusValue}
-                  isRtl={direction === "rtl"}
-                />
+                  <EnumSelect
+                    name="listingType"
+                    control={form.control}
+                    label={t("stepFour.adType")}
+                    options={listingTypeOptions}
+                    placeholder={t("stepFour.adType")}
+                    required={true}
+                    onChange={handleListingTypeChange}
+                    value={listingTypeValue}
+                    isRtl={direction === "rtl"}
+                  />
 
-                {/* Publication Date Field */}
-                <FormField
-                  control={form.control}
-                  name="publicationDate"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel className="text-primary">{t("stepFour.publicationDate")}</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant={"outline"}
-                              className={cn(
-                                "w-full pl-3 text-left font-normal text-primary",
-                                !field.value && "text-muted-foreground",
-                              )}
-                            >
-                              {field.value ? (
-                                format(field.value, "MMMM do, yyyy")
-                              ) : (
-                                <span>{t("pickDate", { defaultValue: "Pick a date" })}</span>
-                              )}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus />
-                        </PopoverContent>
-                      </Popover>
-                      <FormMessage />
-                    </FormItem>
+                  {showRentType && (
+                    <EnumSelect
+                      name="rentType"
+                      control={form.control}
+                      label={t("stepFour.rentType")}
+                      options={rentTypeOptions}
+                      placeholder={t("stepFour.rentType")}
+                      required={true}
+                      onChange={handleRentTypeChange}
+                      value={rentTypeValue?.toString() || ""}
+                      isRtl={direction === "rtl"}
+                    />
                   )}
-                />
+
+                  <EnumSelect
+                    name="saveStatus"
+                    control={form.control}
+                    label={t("stepFour.saveStatus")}
+                    options={saveStatusOptions}
+                    placeholder={t("stepFour.saveStatus")}
+                    required={true}
+                    onChange={handleSaveStatusChange}
+                    value={saveStatusValue}
+                    isRtl={direction === "rtl"}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="publicationDate"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <FormLabel className="text-primary">{t("stepFour.publicationDate")}</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant={"outline"}
+                                className={cn(
+                                  "w-full pl-3 text-left font-normal text-primary",
+                                  !field.value && "text-muted-foreground",
+                                )}
+                              >
+                                {field.value ? (
+                                  format(field.value, "MMMM do, yyyy")
+                                ) : (
+                                  <span>{t("pickDate", { defaultValue: "Pick a date" })}</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus />
+                          </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </div>
-            </div>
-          </form>
-        </Form>
+            </form>
+          </Form>
         </CardContent>
       </Card>
     </div>

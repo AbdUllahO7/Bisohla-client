@@ -231,10 +231,7 @@ const UserProductPage = () => {
                 )}
             </Box>
             
-            {/* Mobile Filter Component
-                 This would be shown/hidden with state when the mobile filter button is clicked
-                 For this implementation, you'd need to add a state and a modal or overlay component
-            */}
+           
         </Box>
     );
 };

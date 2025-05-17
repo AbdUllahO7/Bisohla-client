@@ -16,8 +16,8 @@ async function AddProductsPage() {
   }
 
   return (
-    <Box variant="column" className="mt-[50px] bg-background">
-      <Box className="w-full mt-10" variant="column">
+    <Box variant="column" className="mt-2 bg-background">
+      <Box className="w-full " variant="column">
         <Steps />
       </Box>
     </Box>

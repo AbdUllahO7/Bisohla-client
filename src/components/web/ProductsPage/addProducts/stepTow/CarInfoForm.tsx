@@ -24,7 +24,6 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
   validationErrors,
   labels,
   options,
-  locale,
   onTextFieldBlur,
   onSelectChange,
 }) => {
@@ -41,12 +40,12 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
 
   // Initialize refs with current values
   useEffect(() => {
-    if (mileageInputRef.current) mileageInputRef.current.value = carInfo.mileage
-    if (enginePowerInputRef.current) enginePowerInputRef.current.value = carInfo.enginePower
-    if (engineSizeInputRef.current) engineSizeInputRef.current.value = carInfo.engineSize
-    if (doorsInputRef.current) doorsInputRef.current.value = carInfo.doors
-    if (vinInputRef.current) vinInputRef.current.value = carInfo.vin
-    if (plateInputRef.current) plateInputRef.current.value = carInfo.plateNumber
+    if (mileageInputRef.current) mileageInputRef.current.value = carInfo.mileage || ''
+    if (enginePowerInputRef.current) enginePowerInputRef.current.value = carInfo.enginePower || ''
+    if (engineSizeInputRef.current) engineSizeInputRef.current.value = carInfo.engineSize || ''
+    if (doorsInputRef.current) doorsInputRef.current.value = carInfo.doors || ''
+    if (vinInputRef.current) vinInputRef.current.value = carInfo.vin || ''
+    if (plateInputRef.current) plateInputRef.current.value = carInfo.plateNumber || ''
   }, [carInfo])
 
 
@@ -126,9 +125,6 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Left column - FormFields */}
         <div className="space-y-6">
-
-       
-
           {/* Mileage */}
           <FormField label={labels.mileage} field="mileage" required>
             <Input
@@ -143,7 +139,7 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
           </FormField>
 
           {/* Engine Power */}
-          <FormField label={labels.enginePower} field="enginePower" required>
+          <FormField label={labels.enginePower} field="enginePower">
             <Input
               type="text"
               ref={enginePowerInputRef}
@@ -151,7 +147,6 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
               onBlur={handleEnginePowerBlur}
               placeholder={labels.enterEnginePower}
               className="w-full text-primary"
-              required
             />
           </FormField>
 
@@ -195,7 +190,7 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
           </FormField>
 
           {/* VIN */}
-          <FormField label={labels.vin} field="vin" required>
+          <FormField label={labels.vin} field="vin" >
             <Input
               type="text"
               ref={vinInputRef}
@@ -203,7 +198,6 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
               placeholder={labels.enterVin}
               onBlur={handleVinBlur}
               className="w-full text-primary"
-              required
             />
           </FormField>
         </div>
@@ -211,15 +205,7 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
         {/* Right column - SelectFields */}
         <div className="space-y-6">
 
-          {/* Currency */}
-          <SelectField
-            label={labels.currency}
-            field="currency"
-            options={options.currency}
-            placeholder={labels.selectCurrency}
-            optionsLabel={labels.currencies}
-            required
-          />
+         
 
           {/* Exterior Color */}
           <SelectField
@@ -231,15 +217,7 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
             required
           />
 
-          {/* Interior Color */}
-          <SelectField
-            label={labels.colorInterior}
-            field="colorInterior"
-            options={options.colors}
-            placeholder={labels.selectColorInterior}
-            optionsLabel={labels.intColors}
-            required
-          />
+      
 
           {/* Fuel Type */}
           <SelectField
@@ -250,7 +228,15 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
             optionsLabel={labels.fuelTypes}
             required
           />
-
+      {/* Transmission */}
+          <SelectField
+            label={labels.transmission}
+            field="transmission"
+            options={options.transmission}
+            placeholder={labels.selectTransmission}
+            optionsLabel={labels.transmissions}
+            required
+          />
           {/* Body Type */}
           <SelectField
             label={labels.bodyType}
@@ -261,15 +247,7 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
             required
           />
 
-          {/* Transmission */}
-          <SelectField
-            label={labels.transmission}
-            field="transmission"
-            options={options.transmission}
-            placeholder={labels.selectTransmission}
-            optionsLabel={labels.transmissions}
-            required
-          />
+         
         </div>
       </div>
     </div>

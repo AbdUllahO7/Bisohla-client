@@ -67,9 +67,9 @@ const FeatureSection: React.FC<FeatureSectionProps> = ({
   }
   
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-5">
+    <div className="flex flex-col gap-6 p-5">
       {categories.map(([categoryKey, categoryData]) => (
-        <div key={categoryKey} className="flex flex-col items-start gap-3">
+        <div key={categoryKey} className="flex flex-col items-start gap-3 w-full">
           <Text className="text-primary text-xl font-bold mb-2">{categoryData.label}</Text>
           <div className="space-y-3 w-full">
             {categoryData.features.map((feature) => (

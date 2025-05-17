@@ -1,6 +1,7 @@
-import { ListingType, SaveStatus } from "@/core/entities/enums/cars.enums";
+import { ListingType, RentType, SaveStatus } from "@/core/entities/enums/cars.enums";
 import { AdInformationFormData } from "./schema";
 import { EDIT_STORAGE_KEYS, STORAGE_KEYS } from "../main/hooks/useLocalStorage";
+import { Currency } from "@/core/entities/enums/currency.enum";
 
 // Default values for the form
 export const defaultAdInfoData: AdInformationFormData = {
@@ -11,7 +12,8 @@ export const defaultAdInfoData: AdInformationFormData = {
     listingType: ListingType.FOR_SALE,
     rentType: null,
     publicationDate: new Date(),
-    saveStatus: SaveStatus.DRAFT // Default to draft
+    saveStatus: SaveStatus.DRAFT,
+    currency: Currency.USD // Default currency
 };
 
 /**
@@ -42,7 +44,6 @@ export const ensureEnumValues = (data: any): AdInformationFormData => {
         if (Object.values(ListingType).includes(data.listingType as ListingType)) {
             result.listingType = data.listingType as ListingType;
         } else {
-            // Try to match by string comparison
             const normalizedValue = data.listingType.toUpperCase().replace(/\s+/g, '_');
             for (const [key, value] of Object.entries(ListingType)) {
                 if (key.toUpperCase() === normalizedValue) {
@@ -58,11 +59,25 @@ export const ensureEnumValues = (data: any): AdInformationFormData => {
         if (Object.values(SaveStatus).includes(data.saveStatus as SaveStatus)) {
             result.saveStatus = data.saveStatus as SaveStatus;
         } else {
-            // Try to match by string comparison
             const normalizedValue = data.saveStatus.toUpperCase().replace(/\s+/g, '_');
             for (const [key, value] of Object.entries(SaveStatus)) {
                 if (key.toUpperCase() === normalizedValue) {
                     result.saveStatus = value;
+                    break;
+                }
+            }
+        }
+    }
+
+    // Handle currency
+    if (data.currency && typeof data.currency === 'string') {
+        if (Object.values(Currency).includes(data.currency as Currency)) {
+            result.currency = data.currency as Currency;
+        } else {
+            const normalizedValue = data.currency.toUpperCase().replace(/\s+/g, '_');
+            for (const [key, value] of Object.entries(Currency)) {
+                if (key.toUpperCase() === normalizedValue) {
+                    result.currency = value;
                     break;
                 }
             }
@@ -95,6 +110,11 @@ export const loadAdInfoData = (): AdInformationFormData => {
             // Set default saveStatus if not present in saved data
             if (!parsedData.saveStatus) {
                 parsedData.saveStatus = SaveStatus.DRAFT;
+            }
+
+            // Set default currency if not present in saved data
+            if (!parsedData.currency) {
+                parsedData.currency = Currency.USD;
             }
 
             // Ensure enum values are properly set
@@ -150,6 +170,7 @@ export const autoSaveAdInfoData = (
                 // Always preserve these enum values if they exist in original data
                 listingType: data.listingType || existingData.listingType,
                 saveStatus: data.saveStatus || existingData.saveStatus,
+                currency: data.currency || existingData.currency,
                 rentType: data.rentType !== undefined ? data.rentType : existingData.rentType
             };
             
