@@ -131,7 +131,7 @@ const RentProduct = () => {
                 {/* Display Rental Cards */}
                 {!isLoading && !error && rentListings.length > 0 && (
                     <Box 
-                        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:w-[80%] xs:w-[80%] lg:w-full" 
+                        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:w-[90%] xs:w-[90%] lg:w-full" 
                         variant="center"
                     >
                         {rentListings.map((product, index) => {
@@ -166,18 +166,7 @@ const RentProduct = () => {
                     </Box>
                 )}
                 
-                {/* Show authentication prompt if not logged in */}
-                {!isAuthenticated && !isLoading && (
-                    <Box className="mt-4 p-4 bg-gray-100 rounded-lg" variant="center">
-                        <Text className="text-gray-700">
-                            <Link href="/login" className="text-primary hover:underline">
-                                Login
-                            </Link> or <Link href="/register" className="text-primary hover:underline">
-                                Register
-                            </Link> to save your favorite listings
-                        </Text>
-                    </Box>
-                )}
+               
             </Box>
         </Box>
     );

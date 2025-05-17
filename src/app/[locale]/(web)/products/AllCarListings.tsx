@@ -10,6 +10,7 @@ import { ProductCardItem } from '@/components/web/design/ProductCardItem';
 import ProductSkeleton from '@/components/web/design/ProductSkeletonItem';
 import Pagination from '@/components/Pagination';
 import { Filter, FilterGroup, QueryParams } from '@/core/entities/api/api';
+import AdsSectionProduct from '@/components/web/ProductsPage/product/AdsSectionProduct';
 
 interface AllCarListingsProps {
   pageSize?: number;
@@ -296,16 +297,6 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
     window.scrollTo(0, 0);
   };
 
-  // Handle filter changes from Filter component
-  const handleFilterChange = (newQueryParams: QueryParams): void => {
-    setCurrentPage(1); // Reset to first page when filters change
-    setQueryParams({
-      ...newQueryParams,
-      page: 1,
-      pageSize: pageSize
-    });
-  };
-
 
   
   return (
@@ -361,8 +352,10 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
                   />
                 </React.Fragment>
               ))}
+
             </Box>
-            
+
+            <AdsSectionProduct />
             {/* Pagination component */}
             <Pagination
               currentPage={paginationInfo.currentPage}
@@ -377,7 +370,9 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
             />
           </>
         )}
+        
       </Box>
+
     </Box>
   );
 };

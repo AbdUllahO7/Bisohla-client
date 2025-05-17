@@ -1,88 +1,105 @@
-import Image from 'next/image'
-import React from 'react'
-import { Button } from '../../ui/button'
-import Box from '../../box/box'
-import { getTranslations } from 'next-intl/server'
-import LocaleSwitcher from '../../local/LocalSwitcher'
-import Link from 'next/link'
-import { getSession } from '@/core/lib/web/session'
-import { UserCheck2Icon, BellIcon } from 'lucide-react'
-import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions'
-import NotificationDropdown from './NotificationDropdown'
+import Image from "next/image"
+import { Button } from "../../ui/button"
+import Box from "../../box/box"
+import { getTranslations } from "next-intl/server"
+import LocaleSwitcher from "../../local/LocalSwitcher"
+import Link from "next/link"
+import { getSession } from "@/core/lib/web/session"
+import { UserCheck2Icon } from "lucide-react"
+import { checkAuth } from "@/core/infrastructure-adapters/actions/auth/auth.actions"
+import NotificationDropdown from "./NotificationDropdown"
 
 const HeaderOne = async () => {
-    const t = await getTranslations('homePage');
+  const t = await getTranslations("homePage")
+  const payload = await getSession()
+  const authResult = await checkAuth()
 
-    const payload = await getSession();
+  return (
+    <Box className="flex justify-between items-center py-1.5 w-full">
+      {/* Logo - Now visible on all screen sizes */}
+      <div className="flex items-center">
+        <Image
+          src="/assets/images/logo/bishola.png"
+          alt="Test Image"
+          width={500}
+          height={500}
+          className="w-[70px] sm:max-w-[50px] max-w-[50px] lg:max-w-[100%] h-[16px] sm:w-[100px] sm:h-[100px] lg:w-[100px] lg:h-[22px]"
+          priority
+        />
+      </div>
 
-    // Check authentication status
-    const authResult = await checkAuth();
-    
-    return (
-        <Box className='flex md:justify-between xs:justify-center mt-2 pb-2 z-10'>
-             {/* right */}
-            <div className='hidden md:block lg:block'>
-                <Image 
-                    src="/assets/images/logo/bishola.png"
-                    alt="Test Image"
-                    width={153}
-                    height={33}
-                />
-            </div>
-            
-            {/* left */}
-            <div className='flex lg:gap-5 items-center xs:gap-8 justify-evenly'>
-                <Box className='xs:w-[120px] lg:w-full'>
-                    <Link href="/products/AddProducts">
-                        <Button variant="default" className='text-white hover:none rounded-3xl pb-[5px] pr-[23px] pt-[5px]' size="lg">
-                            <span>{t('headerOne.adsButton')}</span>
-                            <Image 
-                                src="/assets/icons/Glyph.png"
-                                alt="Glyph Image"
-                                width={18}
-                                height={18}
-                            />
-                        </Button>
-                    </Link>
-                </Box>
-                
-              
-                
-                {/* Login/Profile Button */}
-                {!authResult.success ? (
-                    <Box className='xs:w-[120px] lg:w-full'>
-                        <Link href="/auth/sign-in">
-                            <Button variant="default" className='text-primary hover:none bg-transparent shadow-none rounded-3xl pb-[5px] pr-[23px] pt-[5px] border-2 border-primary' size="lg">
-                                <span>{t('headerOne.loginButton')}</span>
-                                <Image 
-                                    src="/assets/icons/user.png"
-                                    alt="user Image"
-                                    width={18}
-                                    height={18}
-                                />
-                            </Button>
-                        </Link>
-                    </Box>
-                ) : (
-                    <Link href="/userProfile">
-                        <Button variant="default" className='text-primary hover:none bg-transparent shadow-none rounded-3xl pb-[5px] pr-[23px] pt-[5px] border-2 border-primary' size="lg">
-                            <span>{t('headerOne.profileButton')} / {payload?.user.name}</span>
-                            <UserCheck2Icon/>
-                        </Button>
-                    </Link>
-                )}
-                  {/* Notification Icon - Only show when authenticated */}
-                  {authResult.success && (
-                    <NotificationDropdown />
-                )}
-                {/* local */}
-                <div className='xs:hidden lg:block md:block'>
-                    <LocaleSwitcher/>
-                </div>
-                
-            </div>
+      {/* Actions */}
+      <div className="flex items-center gap-1 sm:gap-1.5 md:gap-2 lg:gap-3">
+        {/* Add Listing Button */}
+        <Box className="flex-shrink-0">
+          <Link href="/products/AddProducts">
+            <Button
+              variant="default"
+              className="text-white rounded-full h-6 sm:h-7 lg:h-8 px-1.5 sm:px-2 md:px-2.5 text-[10px] sm:text-xs flex items-center gap-0.5"
+              size="sm"
+            >
+              <span className="whitespace-nowrap">{t("headerOne.adsButton")}</span>
+              <Image
+                src="/assets/icons/Glyph.png"
+                alt="Glyph Image"
+                width={12}
+                height={12}
+                className="w-3 h-3 sm:w-3.5 sm:h-3.5 lg:w-4 lg:h-4"
+              />
+            </Button>
+          </Link>
         </Box>
-    )
+
+        {/* Login/Profile Button */}
+        <Box className="flex-shrink-0">
+          {!authResult.success ? (
+            <Link href="/auth/sign-in">
+              <Button
+                variant="default"
+                className="text-primary bg-transparent shadow-none rounded-full h-6 sm:h-7 lg:h-8 px-1.5 sm:px-2 md:px-2.5 border border-primary text-[10px] sm:text-xs flex items-center gap-0.5"
+                size="sm"
+              >
+                <span className="whitespace-nowrap">{t("headerOne.loginButton")}</span>
+                <Image
+                  src="/assets/icons/user.png"
+                  alt="user Image"
+                  width={12}
+                  height={12}
+                  className="w-3 h-3 sm:w-3.5 sm:h-3.5 lg:w-4 lg:h-4"
+                />
+              </Button>
+            </Link>
+          ) : (
+            <Link href="/userProfile">
+              <Button
+                variant="default"
+                className="text-primary bg-transparent shadow-none rounded-full h-6 sm:h-7 lg:h-8 px-1.5 sm:px-2 md:px-2.5 border border-primary text-[10px] sm:text-xs flex items-center gap-0.5"
+                size="sm"
+              >
+                <span className="hidden xs:inline whitespace-nowrap truncate max-w-[40px] xs:max-w-[60px] sm:max-w-[70px] md:max-w-[90px] lg:max-w-none">
+                  {t("headerOne.profileButton")} / {payload?.user.name}
+                </span>
+                <span className="xs:hidden">{t("headerOne.profileButton")}</span>
+                <UserCheck2Icon className="w-3 h-3 sm:w-3.5 sm:h-3.5 lg:w-4 lg:h-4" />
+              </Button>
+            </Link>
+          )}
+        </Box>
+
+        {/* Notification Icon - Only show when authenticated */}
+        {authResult.success && (
+          <div className="flex-shrink-0 scale-90 sm:scale-95 lg:scale-100">
+            <NotificationDropdown />
+          </div>
+        )}
+
+        {/* Language Switcher - Now visible on all screen sizes */}
+        <div className="flex-shrink-0 scale-90 sm:scale-95 lg:scale-100">
+          <LocaleSwitcher />
+        </div>
+      </div>
+    </Box>
+  )
 }
 
 export default HeaderOne

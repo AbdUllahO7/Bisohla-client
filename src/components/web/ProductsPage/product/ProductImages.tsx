@@ -2,40 +2,41 @@
 
 import Box from "@/components/box/box"
 import Text from "@/components/text/text"
+import { Skeleton } from "@/components/ui/skeleton"
 import { useLocale } from "next-intl"
 import Image from "next/image"
 import { useState, useEffect } from "react"
-import { ChevronLeft, ChevronRight, X } from "lucide-react"
+import { ChevronLeft, ChevronRight, X } from 'lucide-react'
 
 // Updated interface to match your API type
 interface CarImage {
-  id: number;
-  carListingId: number;
-  url: string;
-  isPrimary: boolean;
-  createdAt: string | Date;  // Allow both string and Date
-  updatedAt?: string | Date;
-  [key: string]: any;  // Allow any additional properties
+  id: number
+  carListingId: number
+  url: string
+  isPrimary: boolean
+  createdAt: string | Date // Allow both string and Date
+  updatedAt?: string | Date
+  [key: string]: any // Allow any additional properties
 }
 
 interface ProductImagesProps {
-  images?: CarImage[];
+  isLoading?: boolean
+  images?: CarImage[]
 }
 
-const ProductImages: React.FC<ProductImagesProps> = ({ images = [] }) => {
+const ProductImages: React.FC<ProductImagesProps> = ({ isLoading = false, images = [] }) => {
   const locale = useLocale()
-  
+
   // Use fallback images if no images are provided
   const fallbackImages = Array(5).fill("/assets/images/car-card.png")
-  
+
   // Get the primary image or first image or fallback
-  const primaryImage = images.find(img => img?.isPrimary)?.url || 
-                    images[0]?.url || 
-                    "/assets/images/car-large.png"
-  
+  const primaryImage =
+    images.find((img) => img?.isPrimary)?.url || images[0]?.url || "/assets/images/car-large.png"
+
   // All images
-  const allImageUrls = images.length > 0 
-    ? images.map(img => img.url) 
+  const allImageUrls = images.length > 0
+    ? images.map((img) => img.url)
     : ["/assets/images/car-large.png", ...fallbackImages]
 
   const [isCarouselOpen, setIsCarouselOpen] = useState(false)
@@ -88,15 +89,42 @@ const ProductImages: React.FC<ProductImagesProps> = ({ images = [] }) => {
   }
 
   // Determine which images to show as thumbnails (skip the primary image)
-  const thumbnailImages = images.length > 0 
-    ? images.filter(img => img.url !== primaryImage).map(img => img.url)
+  const thumbnailImages = images.length > 0
+    ? images.filter((img) => img.url !== primaryImage).map((img) => img.url)
     : fallbackImages
-  
+
   // Add a "more images" indicator if there are more than what we show
   const maxThumbnails = 5
   const hasMoreImages = thumbnailImages.length > maxThumbnails
   const visibleThumbnails = hasMoreImages ? thumbnailImages.slice(0, maxThumbnails - 1) : thumbnailImages
   const remainingCount = hasMoreImages ? thumbnailImages.length - (maxThumbnails - 1) : 0
+
+  // Render skeleton loading state
+  if (isLoading) {
+    return (
+      <Box variant="center" className="w-full">
+        <Box variant="container" className="pl-0 pr-0">
+          <Box variant="row" className="w-full items-start justify-center gap-2 lg:flex-nowrap xs:flex-wrap">
+            {/* Main Image Skeleton */}
+            <Box className="xs:w-[90%] xl:w-[80%]">
+              <Skeleton className="w-full h-[520px] rounded-md max-w-[700px]" />
+            </Box>
+
+            {/* Thumbnails Skeletons */}
+            <Box variant="center" className="relative justify-start items-start lg:w-[40%]">
+              <Box variant="column" className="items-center lg:w-full xs:w-[90%]">
+                <Box variant="row" className="flex-wrap lg:justify-start xs:justify-center w-full gap-2">
+                  {Array.from({ length: 4 }).map((_, index) => (
+                    <Skeleton key={index} className="w-24 h-24 rounded-md" />
+                  ))}
+                </Box>
+              </Box>
+            </Box>
+          </Box>
+        </Box>
+      </Box>
+    )
+  }
 
   return (
     <Box variant="center" className="w-full">
@@ -105,7 +133,7 @@ const ProductImages: React.FC<ProductImagesProps> = ({ images = [] }) => {
           {/* Main Image */}
           <Box className="xs:w-[90%] xl:w-[80%]">
             <Image
-              src={primaryImage}
+              src={primaryImage || "/placeholder.svg"}
               alt="Car"
               width={400}
               height={500}
@@ -113,7 +141,7 @@ const ProductImages: React.FC<ProductImagesProps> = ({ images = [] }) => {
               onClick={() => openCarousel(allImageUrls.indexOf(primaryImage))}
             />
           </Box>
-          
+
           {/* Thumbnails */}
           <Box variant="center" className="relative justify-start items-start lg:w-[40%]">
             <Box variant="column" className="items-center lg:w-full xs:w-[90%]">
@@ -125,7 +153,9 @@ const ProductImages: React.FC<ProductImagesProps> = ({ images = [] }) => {
                     alt="Car Thumbnail"
                     width={index === 0 ? 650 : 100}
                     height={index === 0 ? 450 : 100}
-                    className={`rounded-md cursor-pointer object-contain  ${index === 0 ? 'max-w-[100%] max-h-[520px]' : 'w-24 h-24'}`}
+                    className={`rounded-md cursor-pointer object-contain  ${
+                      index === 0 ? "max-w-[100%] max-h-[520px]" : "w-24 h-24"
+                    }`}
                     onClick={() => openCarousel(allImageUrls.indexOf(src))}
                   />
                 ))}

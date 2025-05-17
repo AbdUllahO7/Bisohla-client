@@ -65,7 +65,6 @@ const Categories = () => {
             }
         });
 
-       
         
         // Create categories array with counts and images
         return bodyTypeOptions.map(option => {
@@ -85,21 +84,21 @@ const Categories = () => {
     // Helper function to map body types to appropriate images
     function getImageForBodyType(bodyType: string): string {
         const imageMap: Record<string, string> = {
-            'SEDAN': '/assets/icons/sedan.png',
-            'SUV': '/assets/icons/suv.png',
-            'COUPE': '/assets/icons/coupe.png',
-            'HATCHBACK': '/assets/icons/hatchback.png',
-            'PICKUP': '/assets/icons/pickup.png',
-            'VAN': '/assets/icons/van.png',
-            'CONVERTIBLE': '/assets/icons/convertible.png',
-            'WAGON': '/assets/icons/station-wagon.png',
-            'TRUCK': '/assets/icons/truck.png',
-            'MINIVAN': '/assets/icons/minivan.png',
-            // Add more mappings as needed
+            'sedan': '/assets/icons/001-car.png',
+            'suv': '/assets/icons/015-suv.png',
+            'coupe': '/assets/icons/004-van.png',
+            'hatchback': '/assets/icons/019-MVP.png',
+            'pickup': '/assets/icons/004-van.png',
+            'van': '/assets/icons/001-car.png',
+            'convertible': '/assets/icons/019-MVP.png',
+            'wagon': '/assets/icons/004-van.png',
+            'truck': '/assets/icons/025-bus.png',
+            'minivan': '/assets/icons/001-car.png',
+            'other' : '/assets/icons/025-bus.png'
         };
         
         // Return specific image if available, otherwise use default
-        return imageMap[bodyType] || '/assets/icons/001-car.png';
+        return imageMap[bodyType] ;
     }
     
     return (

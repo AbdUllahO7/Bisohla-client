@@ -92,7 +92,7 @@ const WorldOfProduct = () => {
     };
 
     return (
-        <Box variant="column" className="">
+        <Box variant="column" className="w-full">
             <Box variant="column" className="">
                 <Text variant="h3" className="font-bold text-[20px] font-cairo mb-5">
                     {t('worldOfProducts.title')}

@@ -225,7 +225,7 @@ export const ProductCardItem: React.FC<ExtendedCarCardItemPropsProfile> = ({
     
     return (
         <div className="w-full" dir={direction}>
-            <Card className={`group border-none rounded-lg bg-white w-full shadow-lg relative`}>
+            <Card className={`group border-none rounded-lg bg-white w-full shadow-lg relative `}>
                 {/* Heart Icon for Favorites with favorite status directly from props */}
                 {isFavorites && (
                     <Button 

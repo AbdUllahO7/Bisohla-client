@@ -525,7 +525,7 @@
 
     },
     "CarDetailsContent" : {
-    "title": "العنوان",
+    "title": "إسم السيارة",
     "description": "الوصف",
     "contactNumber": "رقم الاتصال",
     "price": "السعر",

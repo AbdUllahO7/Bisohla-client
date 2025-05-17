@@ -61,7 +61,6 @@ export interface HeaderTowProps {
         home: string;
         rent: string;
         sale: string;
-        news: string;
         join: string;
         BrowseAll : string;
     };
@@ -72,4 +71,5 @@ export interface LatestOffersProps {
     count?: number; // Optional count of cards to display
     showTitle?: boolean; // Control the visibility of the title and "Show More" link
     container?: boolean
+    title?:string,
 }
