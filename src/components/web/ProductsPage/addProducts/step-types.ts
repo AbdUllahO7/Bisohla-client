@@ -24,8 +24,6 @@ export interface StepOneData {
 export interface StepTwoData {
   currency: string
   price: string | number
-  colorExterior: string
-  colorInterior: string
   fuelType: string
   bodyType: string
   transmission: string
@@ -133,7 +131,6 @@ export interface CarListingSubmission {
   bodyType: BodyType | null
   doors: number
   colorExterior: string | null
-  colorInterior: string | null
   vin: string | null
   plateNumber: string | null
 }

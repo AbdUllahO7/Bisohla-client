@@ -34,10 +34,10 @@ export const useCarListings = (params: QueryParams) =>
     refetchOnWindowFocus: false,
   });
 
-export const useCarListingById = (id: number) =>
+export const useCarListingById = (params: QueryParams) =>
   useLocaleQuery<ApiResponse<SelectCarListingDto>>({
-    queryKey: ['visitors-car-listings', { id }],
-    queryFn: async () => await getCarListingById(id),
+    queryKey: ['visitors-car-listings', { params }],
+    queryFn: async () => await getCarListingById(params),
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
   });

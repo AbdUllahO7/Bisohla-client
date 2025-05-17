@@ -122,7 +122,7 @@ export const useSubmitForm = () => {
         governorate: storedData1.governorate as SyriaGovernorate,
         
         // Pricing from step 2
-        currency: Currency[storedData2.currency as keyof typeof Currency] || Currency.SYP,
+        currency: Currency[storedData4.currency as keyof typeof Currency] || Currency.SYP,
         price: Number(storedData4.price) || null,
         
         // Listing metadata
@@ -151,7 +151,6 @@ export const useSubmitForm = () => {
         bodyType: storedData2.bodyType as BodyType || null,
         doors: Number(storedData2.doors) || null,
         colorExterior: storedData2.colorExterior || null,
-        colorInterior: storedData2.colorInterior || null,
         vin: storedData2.vin?.toString() || null,
         plateNumber: storedData2.plateNumber?.toString() || null,
         listingType: storedData4.listingType as ListingType,

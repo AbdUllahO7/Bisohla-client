@@ -4,7 +4,6 @@ import Box from "@/components/box/box"
 import Categories from "@/components/web/ProductsPage/Categories"
 import Filter from "@/components/web/ProductsPage/Filter"
 import Header from "@/components/web/ProductsPage/Header"
-import AdsSection from "@/components/web/Home/AdsSection"
 import AllCarListings from "./AllCarListings"
 import { useSearchParams } from "next/navigation"
 
@@ -18,7 +17,6 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { useLocale } from "next-intl"
-import AdsSectionProduct from "@/components/web/ProductsPage/product/AdsSectionProduct"
 
 const Products = () => {
   const searchParams = useSearchParams()

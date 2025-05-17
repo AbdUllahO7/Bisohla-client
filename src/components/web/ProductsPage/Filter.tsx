@@ -151,55 +151,9 @@ const ProductsFilter: React.FC<FilterProps> = ({ onChange }) => {
   const [filterState, setFilterState] = useState<FilterState>({})
   const [selectedBrands, setSelectedBrands] = useState<string[]>([])
   const priceRanges = getPriceRanges
+  const hasInitialized = useRef(false) // Track if initialization has occurred
 
-  // Initialize filter from URL parameters
-  useEffect(() => {
-    if (searchParams) {
-      const make = searchParams.get("make")
-      const model = searchParams.get("model")
-      const trim = searchParams.get("trim")
-      const minYear = searchParams.get("minYear")
-      const maxYear = searchParams.get("maxYear")
-      const minPrice = searchParams.get("minPrice")
-      const maxPrice = searchParams.get("maxPrice")
-      const currency = searchParams.get("currency")
-      const governorate = searchParams.get("governorate")
-      const city = searchParams.get("city")
-      const transmission = searchParams.get("transmission")
-      const fuelType = searchParams.get("fuelType")
-      const bodyType = searchParams.get("bodyType")
-      const search = searchParams.get("search")
-
-      // Set state based on URL parameters
-      const initialState: FilterState = {}
-      if (make) initialState.marka = make
-      if (model) initialState.model = model
-      if (trim) initialState.trim = trim
-      if (minYear) initialState.minYear = minYear
-      if (maxYear) initialState.maxYear = maxYear
-      if (governorate) initialState.governorate = governorate
-      if (city) initialState.city = city
-      if (transmission) initialState.transmission = transmission
-      if (fuelType) initialState.fuelType = fuelType
-      if (bodyType) initialState.bodyType = bodyType
-
-      setFilterState(initialState)
-      if (minPrice) setMinPrice(minPrice)
-      if (maxPrice) setMaxPrice(maxPrice)
-      if (minYear) setMinYear(minYear)
-      if (maxYear) setMaxYear(maxYear)
-      if (currency) setCurrency(currency)
-      if (search) setSearchText(search)
-
-      // Initialize selected brands if marka is in URL
-      if (make) {
-        setSelectedBrands([make])
-      } else {
-        setSelectedBrands([])
-      }
-    }
-  }, [searchParams])
-
+  // Initialize filter from URL parameters only on first mount if searchParams exist
   // Effect to measure header height once on mount
   useEffect(() => {
     const header = document.querySelector(".mt-\\[50px\\]")
@@ -233,41 +187,91 @@ const ProductsFilter: React.FC<FilterProps> = ({ onChange }) => {
     handleSelectChange: handleStepTwoSelectChange,
   } = useAddProductStepTwo(handleValidationChangeStepTwo)
 
+
+  
+  useEffect(() => {
+    if (hasInitialized.current || !searchParams || Array.from(searchParams.entries()).length === 0) {
+      return; // Skip if already initialized or no searchParams
+    }
+
+    const make = searchParams.get("make")
+    const model = searchParams.get("model")
+    const trim = searchParams.get("trim")
+    const minYear = searchParams.get("minYear")
+    const maxYear = searchParams.get("maxYear")
+    const minPrice = searchParams.get("minPrice")
+    const maxPrice = searchParams.get("maxPrice")
+    const currency = searchParams.get("currency")
+    const governorate = searchParams.get("governorate")
+    const city = searchParams.get("city")
+    const transmission = searchParams.get("transmission")
+    const fuelType = searchParams.get("fuelType")
+    const bodyType = searchParams.get("bodyType")
+    const search = searchParams.get("search")
+
+    // Only update state if there are relevant parameters
+    const initialState: FilterState = {}
+    if (make) initialState.marka = make
+    if (model) initialState.model = model
+    if (trim) initialState.trim = trim
+    if (governorate) initialState.governorate = governorate
+    if (city) initialState.city = city
+    if (transmission) initialState.transmission = transmission
+    if (fuelType) initialState.fuelType = fuelType
+    if (bodyType) initialState.bodyType = bodyType
+
+    setFilterState((prev) => ({ ...prev, ...initialState }))
+    if (minPrice) setMinPrice(minPrice)
+    if (maxPrice) setMaxPrice(maxPrice)
+    if (minYear) setMinYear(minYear)
+    if (maxYear) setMaxYear(maxYear)
+    if (currency) setCurrency(currency)
+    if (search) setSearchText(search)
+    if (make) setSelectedBrands([make])
+
+    // Sync hook states
+    handleStepOneSelectChange("governorate", initialState.governorate || "")
+    handleStepOneSelectChange("city", initialState.city || "")
+    handleStepOneSelectChange("marka", initialState.marka || "")
+    handleStepOneSelectChange("model", initialState.model || "")
+    handleStepOneSelectChange("trim", initialState.trim || "")
+    handleStepTwoSelectChange("transmission", initialState.transmission || "")
+    handleStepTwoSelectChange("fuelType", initialState.fuelType || "")
+    handleStepTwoSelectChange("bodyType", initialState.bodyType || "")
+    handleStepTwoSelectChange("currency", currency || "")
+
+    hasInitialized.current = true; // Mark as initialized
+  }, [searchParams, handleStepOneSelectChange, handleStepTwoSelectChange])
+
+
+
+
   // Calculate the available height for the scroll area
   const scrollHeight = `calc(100vh - ${headerHeight + 170}px)`
 
   // Handler for brand checkbox changes
   const handleBrandCheckboxChange = (brandId: string) => {
-    // If already selected, remove it, otherwise add it
     if (selectedBrands.includes(brandId)) {
       const newSelectedBrands = selectedBrands.filter((id) => id !== brandId)
       setSelectedBrands(newSelectedBrands)
-
-      // If we're unselecting the current marka, reset model and trim
       if (filterState.marka === brandId) {
         const newFilterState = { ...filterState }
         delete newFilterState.marka
         delete newFilterState.model
         delete newFilterState.trim
-
         setFilterState(newFilterState)
         handleStepOneSelectChange("marka", "")
         handleStepOneSelectChange("model", "")
         handleStepOneSelectChange("trim", "")
       }
     } else {
-      // Single selection mode - clear previous selections
       setSelectedBrands([brandId])
-
-      // Update the filter state with the selected brand
       const newFilterState = {
         ...filterState,
         marka: brandId,
-        // Reset dependent fields
         model: "",
         trim: "",
       }
-
       setFilterState(newFilterState)
       handleStepOneSelectChange("marka", brandId)
       handleStepOneSelectChange("model", "")
@@ -278,21 +282,14 @@ const ProductsFilter: React.FC<FilterProps> = ({ onChange }) => {
   // Custom handlers for filter changes
   const handleFilterChange = (name: string, value: string) => {
     const newFilterState = { ...filterState, [name]: value }
-
-    // Special handling for governorate change: reset city
     if (name === "governorate") {
       newFilterState.city = ""
-      // Also reset in the hook state
       handleStepOneSelectChange("city", "")
     }
-
-    // Special handling for model change: reset trim
     if (name === "model") {
       newFilterState.trim = ""
-      // Also reset in the hook state
       handleStepOneSelectChange("trim", "")
     }
-
     setFilterState(newFilterState)
     handleStepOneSelectChange(name, value)
   }
@@ -327,15 +324,12 @@ const ProductsFilter: React.FC<FilterProps> = ({ onChange }) => {
     handleStepTwoSelectChange(name, value)
   }
 
-  // Improved buildFilterQuery function that fully leverages FilterGroups
-  // This version organizes filters into logical groups for better API compatibility
-
+  // Build filter query
   const buildFilterQuery = (): QueryParams => {
     const filterGroups: FilterGroup[] = []
 
-    // Car details filter group (make, model, trim)
+    // Car details filter group
     const carDetailsFilters: Filter[] = []
-
     if (filterState.marka) {
       carDetailsFilters.push({
         field: "makeId",
@@ -343,7 +337,6 @@ const ProductsFilter: React.FC<FilterProps> = ({ onChange }) => {
         value: filterState.marka,
       })
     }
-
     if (filterState.model) {
       carDetailsFilters.push({
         field: "modelId",
@@ -351,7 +344,6 @@ const ProductsFilter: React.FC<FilterProps> = ({ onChange }) => {
         value: filterState.model,
       })
     }
-
     if (filterState.trim) {
       carDetailsFilters.push({
         field: "trimId",
@@ -359,7 +351,6 @@ const ProductsFilter: React.FC<FilterProps> = ({ onChange }) => {
         value: filterState.trim,
       })
     }
-
     if (carDetailsFilters.length > 0) {
       filterGroups.push({
         operator: "and",
@@ -369,7 +360,6 @@ const ProductsFilter: React.FC<FilterProps> = ({ onChange }) => {
 
     // Location filter group
     const locationFilters: Filter[] = []
-
     if (filterState.governorate) {
       locationFilters.push({
         field: "governorate",
@@ -377,7 +367,6 @@ const ProductsFilter: React.FC<FilterProps> = ({ onChange }) => {
         value: filterState.governorate,
       })
     }
-
     if (filterState.city) {
       locationFilters.push({
         field: "city",
@@ -385,7 +374,6 @@ const ProductsFilter: React.FC<FilterProps> = ({ onChange }) => {
         value: filterState.city,
       })
     }
-
     if (locationFilters.length > 0) {
       filterGroups.push({
         operator: "and",
@@ -395,27 +383,20 @@ const ProductsFilter: React.FC<FilterProps> = ({ onChange }) => {
 
     // Technical details filter group
     const technicalDetailsFilters: Filter[] = []
-
-    // Year range filters
-    if (minYear || maxYear) {
-      if (minYear) {
-        technicalDetailsFilters.push({
-          field: "details.year",
-          operator: "gte",
-          value: Number.parseInt(minYear, 10),
-        })
-      }
-
-      if (maxYear) {
-        technicalDetailsFilters.push({
-          field: "details.year",
-          operator: "lte",
-          value: Number.parseInt(maxYear, 10),
-        })
-      }
+    if (minYear) {
+      technicalDetailsFilters.push({
+        field: "details.year",
+        operator: "gte",
+        value: Number.parseInt(minYear, 10),
+      })
     }
-
-    // Transmission filter
+    if (maxYear) {
+      technicalDetailsFilters.push({
+        field: "details.year",
+        operator: "lte",
+        value: Number.parseInt(maxYear, 10),
+      })
+    }
     if (filterState.transmission) {
       technicalDetailsFilters.push({
         field: "details.transmission",
@@ -423,8 +404,6 @@ const ProductsFilter: React.FC<FilterProps> = ({ onChange }) => {
         value: filterState.transmission,
       })
     }
-
-    // Fuel type filter
     if (filterState.fuelType) {
       technicalDetailsFilters.push({
         field: "details.fuelType",
@@ -432,8 +411,6 @@ const ProductsFilter: React.FC<FilterProps> = ({ onChange }) => {
         value: filterState.fuelType,
       })
     }
-
-    // Body type filter
     if (filterState.bodyType) {
       technicalDetailsFilters.push({
         field: "details.bodyType",
@@ -441,7 +418,6 @@ const ProductsFilter: React.FC<FilterProps> = ({ onChange }) => {
         value: filterState.bodyType,
       })
     }
-
     if (technicalDetailsFilters.length > 0) {
       filterGroups.push({
         operator: "and",
@@ -452,7 +428,6 @@ const ProductsFilter: React.FC<FilterProps> = ({ onChange }) => {
     // Price filter group
     if (minPrice || maxPrice) {
       const priceFilters: Filter[] = []
-
       if (minPrice) {
         priceFilters.push({
           field: "price",
@@ -460,7 +435,6 @@ const ProductsFilter: React.FC<FilterProps> = ({ onChange }) => {
           value: Number.parseInt(minPrice, 10),
         })
       }
-
       if (maxPrice) {
         priceFilters.push({
           field: "price",
@@ -468,7 +442,6 @@ const ProductsFilter: React.FC<FilterProps> = ({ onChange }) => {
           value: Number.parseInt(maxPrice, 10),
         })
       }
-
       if (priceFilters.length > 0) {
         filterGroups.push({
           operator: "and",
@@ -486,14 +459,12 @@ const ProductsFilter: React.FC<FilterProps> = ({ onChange }) => {
           value: currency,
         },
       ]
-
       filterGroups.push({
         operator: "and",
         filters: currencyFilters,
       })
     }
 
-    // Return query with only filterGroups (no where clause)
     return {
       page: 1,
       pageSize: 8,
@@ -507,10 +478,7 @@ const ProductsFilter: React.FC<FilterProps> = ({ onChange }) => {
   // Apply filters
   const applyFilters = () => {
     const queryParams = buildFilterQuery()
-
-    // Update URL with filter parameters
     const params = new URLSearchParams()
-
     if (filterState.marka) params.set("make", filterState.marka)
     if (filterState.model) params.set("model", filterState.model)
     if (filterState.trim) params.set("trim", filterState.trim)
@@ -526,10 +494,7 @@ const ProductsFilter: React.FC<FilterProps> = ({ onChange }) => {
     if (currency) params.set("currency", currency)
     if (searchText) params.set("search", searchText)
 
-    // Update the URL
     router.push(`?${params.toString()}`)
-
-    // Call the onChange prop if provided
     if (onChange) {
       onChange(queryParams)
     }
@@ -537,7 +502,6 @@ const ProductsFilter: React.FC<FilterProps> = ({ onChange }) => {
 
   // Reset filters
   const resetFilters = () => {
-    // Reset all state variables
     setFilterState({})
     setMinPrice("")
     setMaxPrice("")
@@ -547,19 +511,16 @@ const ProductsFilter: React.FC<FilterProps> = ({ onChange }) => {
     setSearchText("")
     setSelectedBrands([])
 
-    // Also reset the hook state to ensure dropdowns reset properly
     handleStepOneSelectChange("governorate", "")
     handleStepOneSelectChange("city", "")
     handleStepOneSelectChange("marka", "")
     handleStepOneSelectChange("model", "")
     handleStepOneSelectChange("trim", "")
-
     handleStepTwoSelectChange("transmission", "")
     handleStepTwoSelectChange("fuelType", "")
     handleStepTwoSelectChange("bodyType", "")
     handleStepTwoSelectChange("currency", "")
 
-    // Create default query params for reset state
     const defaultParams: QueryParams = {
       page: 1,
       pageSize: 8,
@@ -567,42 +528,12 @@ const ProductsFilter: React.FC<FilterProps> = ({ onChange }) => {
       sortDirection: "desc",
     }
 
-    // Important: Call onChange first to update listings immediately
     if (onChange) {
       onChange(defaultParams)
     }
 
-    // Reset URL - force removal of all query parameters
-    // Get just the base path without query parameters
-    const currentPath = window.location.pathname
-    router.push(currentPath)
-
-    // Additional forced refresh if needed
-    // This is a fallback in case the onChange doesn't trigger a refresh
-    setTimeout(() => {
-      if (onChange) {
-        onChange(defaultParams)
-      }
-    }, 100)
+    router.push(window.location.pathname)
   }
-
-  // Add this effect after your other useEffect hooks
-  useEffect(() => {
-    // Only run this effect for resetting (when filterState is empty)
-    if (Object.keys(filterState).length === 0) {
-      // Reset Dropdown selections in hooks
-      if (selectedOptions.governorate) handleStepOneSelectChange("governorate", "")
-      if (selectedOptions.city) handleStepOneSelectChange("city", "")
-      if (selectedOptions.marka) handleStepOneSelectChange("marka", "")
-      if (selectedOptions.model) handleStepOneSelectChange("model", "")
-      if (selectedOptions.trim) handleStepOneSelectChange("trim", "")
-
-      if (carInfo.transmission) handleStepTwoSelectChange("transmission", "")
-      if (carInfo.fuelType) handleStepTwoSelectChange("fuelType", "")
-      if (carInfo.bodyType) handleStepTwoSelectChange("bodyType", "")
-      if (carInfo.currency) handleStepTwoSelectChange("currency", "")
-    }
-  }, [filterState, selectedOptions, carInfo, handleStepOneSelectChange, handleStepTwoSelectChange])
 
   return (
     <div ref={filterRef} className="sticky top-[80px] transition-all min-h-[50vh]" dir={isRTL ? "rtl" : "ltr"}>
@@ -659,13 +590,13 @@ const ProductsFilter: React.FC<FilterProps> = ({ onChange }) => {
                     onChange={handleFilterChange}
                     value={filterState.city || selectedOptions.city}
                     name="city"
-                    disabled={!filterState.governorate && !selectedOptions.governorate} // Disable if no governorate selected
+                    disabled={!filterState.governorate && !selectedOptions.governorate}
                   />
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
 
-            {/* Car Brand Filter - Now with Checkboxes */}
+            {/* Car Brand Filter */}
             <Accordion type="single" collapsible className="my-2">
               <AccordionItem value="car-marka" className="border-b border-slate-100 py-1" dir={isRTL ? "rtl" : "ltr"}>
                 <AccordionTrigger className="!no-underline py-2 px-2 rounded-md transition-colors hover:bg-slate-50 group">
@@ -841,25 +772,24 @@ const ProductsFilter: React.FC<FilterProps> = ({ onChange }) => {
         </div>
       </div>
 
-    <div className="p-4 border-t border-slate-100 rounded-b-lg shadow-lg bg-white mt-5 rounded-md">
-      <div className="flex flex-col items-center space-y-3">
-        <Button
-          className="rounded-lg bg-primary-foreground text-black font-bold  transition-colors h-10 w-full "
-          onClick={applyFilters}
-        >
-         
-          {t("filter.filterOptions.search")}
-        </Button>
-        <Button
-          variant="outline"
-          className="bg-white shadow-none hover:bg-transparent  hover:text-black text-black border-none  font-medium  transition-colors rounded-lg h-10 w-full sm:w-2/3 md:w-1/2"
-          onClick={resetFilters}
-        >
-          <ListRestart className={`${isRTL ? "ml-2" : "mr-2"} h-4 w-4`} />
-          {t("filter.filterOptions.resetSearch")}
-        </Button>
+      <div className="p-4 border-t border-slate-100 rounded-b-lg shadow-lg bg-white mt-5 rounded-md">
+        <div className="flex flex-col items-center space-y-3">
+          <Button
+            className="rounded-lg bg-primary-foreground text-black font-bold transition-colors h-10 w-full"
+            onClick={applyFilters}
+          >
+            {t("filter.filterOptions.search")}
+          </Button>
+          <Button
+            variant="outline"
+            className="bg-white shadow-none hover:bg-transparent hover:text-black text-black border-none font-medium transition-colors rounded-lg h-10 w-full sm:w-2/3 md:w-1/2"
+            onClick={resetFilters}
+          >
+            <ListRestart className={`${isRTL ? "ml-2" : "mr-2"} h-4 w-4`} />
+            {t("filter.filterOptions.resetSearch")}
+          </Button>
+        </div>
       </div>
-    </div>
     </div>
   )
 }

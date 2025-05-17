@@ -1,6 +1,5 @@
 import { ListingType } from "@/core/entities/enums/cars.enums"
 import type { AdInfoState } from "./types"
-import { number } from "zod"
 
 /**
  * Validates the title field and returns an error message if invalid
@@ -28,12 +27,16 @@ export const getDescriptionErrorMessage = (description: string, direction: strin
   return ""
 }
 
+/**
+ * Validates the price field and returns an error message if invalid
+ */
 export const getPriceErrorMessage = (price: string, direction: string): string => {
   if (!price.trim()) {
     return direction === "ltr" ? "Price is required" : "السعر مطلوب"
   }
-  if (Number(price) > 0 ) {
-    return direction === "ltr" ? "Price must be a positive number"  : "يجب أن يكون السعر رقم موجب"
+  const priceNum = Number(price);
+  if (isNaN(priceNum) || priceNum <= 0) {
+    return direction === "ltr" ? "Price must be a positive number" : "يجب أن يكون السعر رقمًا موجبًا"
   }
   return ""
 }
@@ -51,7 +54,7 @@ export const getContactErrorMessage = (contactNumber: string, direction: string)
       : "يجب أن يكون رقم الاتصال 10 أرقام على الأقل"
   }
   if (contactNumber.trim().length > 20) {
-    return direction === "ltr" ? "Contact number must not exceed 20 digits" : "يجب ألا يتجاوز رقم الاتصال 20 رقماً"
+    return direction === "ltr" ? "Contact number must not exceed 20 digits" : "يجب ألا يتجاوز رقم الاتصال 20 رقمًا"
   }
   return ""
 }
@@ -77,12 +80,23 @@ export const getSaveStatusErrorMessage = (status: string, direction: string): st
 }
 
 /**
+ * Validates the currency field and returns an error message if invalid
+ */
+export const getCurrencyErrorMessage = (currency: string, direction: string): string => {
+  if (!currency) {
+    return direction === "ltr" ? "Currency is required" : "العملة مطلوبة"
+  }
+  return ""
+}
+
+/**
  * Validates the entire form and returns a boolean indicating if the form is valid
  */
 export const validateForm = (formData: AdInfoState): boolean => {
   // Basic validation checks
   const isTitleValid = formData.title.trim().length >= 3
   const isDescriptionValid = formData.description.trim().length >= 10
+  const isPriceValid = !!formData.price.trim() && !isNaN(Number(formData.price)) && Number(formData.price) > 0
 
   // Contact number validation, allowing for optional contact (matching the Zod schema)
   const isContactValid =
@@ -103,15 +117,20 @@ export const validateForm = (formData: AdInfoState): boolean => {
   // Save status validation
   const isSaveStatusValid = !!formData.saveStatus
 
+  // Currency validation
+  const isCurrencyValid = !!formData.currency
+
   // Combined validation result
   const isValid =
     isTitleValid &&
     isDescriptionValid &&
+    isPriceValid &&
     isContactValid &&
     isListingTypeValid &&
     isRentTypeValid &&
     isPublicationDateValid &&
-    isSaveStatusValid
+    isSaveStatusValid &&
+    isCurrencyValid
 
   return isValid
 }

@@ -13,6 +13,7 @@ const AddProductStepOne: React.FC<AddProductStepOneProps> = ({
     isEditMode = false,
     initialData = null 
 }) => {
+    console.log("initialData one" , initialData)
     const {
         selectedOptions,
         direction,
@@ -34,14 +35,14 @@ const AddProductStepOne: React.FC<AddProductStepOneProps> = ({
     useEffect(() => {
         if (isEditMode && initialData && initialData.data) {
             setInitialEditData({
-                marka: initialData.data.makeId?.toString() || '',
-                model: initialData.data.modelId?.toString() || '',
-                trim: initialData.data.trimId?.toString() || '',
-                year: initialData.data.details?.year?.toString() || '',
-                story: initialData.data.story || '',
-                governorate: initialData.data.governorate || '',
-                city: initialData.data.city || '',
-                address: initialData.data.address || ''
+                marka: initialData.data[0].makeId?.toString() || '',
+                model: initialData.data[0].modelId?.toString() || '',
+                trim: initialData.data[0].trimId?.toString() || '',
+                year: initialData.data[0].details?.year?.toString() || '',
+                story: initialData.data[0].story || '',
+                governorate: initialData.data[0].governorate || '',
+                city: initialData.data[0].city || '',
+                address: initialData.data[0].address || ''
             });
         }
     }, [isEditMode, initialData, setInitialEditData]);

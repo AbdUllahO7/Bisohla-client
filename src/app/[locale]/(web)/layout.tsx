@@ -20,14 +20,14 @@ const WebLayout = async ({ children }: PropsWithChildren) => {
   const t = await getTranslations("homePage")
   return (
     <Box className="w-full bg-background" variant="column">
-      <Box className="fixed z-[50] w-full bg-white shadow-md">
+      <Box className="fixed z-[99] w-full bg-white shadow-md">
         <Box variant="container">
           <HeaderOne />
         </Box>
       </Box>
 
       {/* HeaderTwo */}
-      <div className="fixed top-[34px] sm:top-[40px] z-[40] w-full bg-primary shadow-md">
+      <div className="fixed top-[34px] sm:top-[40px] z-[70] w-full bg-primary shadow-md">
         <Box variant="container">
           <HeaderTow
             translations={{

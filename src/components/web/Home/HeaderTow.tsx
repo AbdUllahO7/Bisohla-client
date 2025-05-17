@@ -13,7 +13,7 @@ const HeaderTow: React.FC<HeaderTowProps> = ({ translations }) => {
   const session = useSession()
 
   return (
-    <nav className="bg-primary text-white relative z-20 pt-1">
+    <nav className="bg-primary text-white relative  pt-1">
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-center h-10 sm:h-12">
           {/* Desktop Navigation */}
