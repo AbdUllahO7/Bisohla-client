@@ -1,7 +1,11 @@
 import { IFileManagerController } from '@/core/application/controllers/file-manager.controller.interface';
 import { IFileManagerUseCase } from '@/core/application/use-cases/file-manager/file-manager.use-case.interface';
-import { ApiResponse } from '@/core/entities/api/success.response';
 import {
+  ApiResponse,
+  PaginatedResponse,
+} from '@/core/entities/api/success.response';
+import {
+  GetUserUploadsResponse,
   UploadResponse,
   UploadSingleImageResponse,
 } from '@/core/entities/models/file-manager/upload-res.domain';
@@ -28,6 +32,14 @@ export class FileMangerController implements IFileManagerController {
   ): Promise<ApiResponse<UploadSingleImageResponse>> {
     try {
       return await this.fileManagerUseCase.uploadImage(image);
+    } catch (err) {
+      return catchClientRequest(err);
+    }
+  }
+
+  async getUserUploads(): Promise<PaginatedResponse<GetUserUploadsResponse>> {
+    try {
+      return await this.fileManagerUseCase.getUserUploads();
     } catch (err) {
       return catchClientRequest(err);
     }

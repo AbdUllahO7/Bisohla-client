@@ -1,4 +1,5 @@
 import {
+  GetUserUploadsResponse,
   UploadResponse,
   UploadSingleImageResponse,
 } from '@/core/entities/models/file-manager/upload-res.domain';
@@ -8,7 +9,10 @@ import {
 } from '@/core/entities/models/file-manager/upload.dto';
 import { IFileManagerService } from '../../services/file-manager.service.interface';
 import { IFileManagerUseCase } from './file-manager.use-case.interface';
-import { ApiResponse } from '@/core/entities/api/success.response';
+import {
+  ApiResponse,
+  PaginatedResponse,
+} from '@/core/entities/api/success.response';
 
 export class FileMangerUseCase implements IFileManagerUseCase {
   constructor(protected readonly fileManagerService: IFileManagerService) {}
@@ -24,6 +28,12 @@ export class FileMangerUseCase implements IFileManagerUseCase {
     images: UploadImagesDto,
   ): Promise<ApiResponse<UploadResponse>> {
     const res = await this.fileManagerService.uploadImages(images);
+
+    return res;
+  }
+
+  async getUserUploads(): Promise<PaginatedResponse<GetUserUploadsResponse>> {
+    const res = await this.fileManagerService.getUserUploads();
 
     return res;
   }
