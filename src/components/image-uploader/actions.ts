@@ -1,7 +1,11 @@
 'use server';
 
-import { ApiResponse } from '@/core/entities/api/success.response';
 import {
+  ApiResponse,
+  PaginatedResponse,
+} from '@/core/entities/api/success.response';
+import {
+  GetUserUploadsResponse,
   UploadResponse,
   UploadSingleImageResponse,
 } from '@/core/entities/models/file-manager/upload-res.domain';
@@ -27,6 +31,16 @@ export const uploadImage = async (
   const controller = getInjection('IFileManagerController');
 
   const res = await controller.uploadImage(image);
+
+  return res;
+};
+
+export const getUserUploads = async (): Promise<
+  PaginatedResponse<GetUserUploadsResponse>
+> => {
+  const controller = getInjection('IFileManagerController');
+
+  const res = await controller.getUserUploads();
 
   return res;
 };

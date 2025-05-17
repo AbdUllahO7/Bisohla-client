@@ -1,5 +1,9 @@
-import { ApiResponse } from '@/core/entities/api/success.response';
 import {
+  ApiResponse,
+  PaginatedResponse,
+} from '@/core/entities/api/success.response';
+import {
+  GetUserUploadsResponse,
   UploadResponse,
   UploadSingleImageResponse,
 } from '@/core/entities/models/file-manager/upload-res.domain';
@@ -13,4 +17,5 @@ export interface IFileManagerStrategy {
   uploadImage(
     image: UploadSingleImageDto,
   ): Promise<ApiResponse<UploadSingleImageResponse>>;
+  getUserUploads(): Promise<PaginatedResponse<GetUserUploadsResponse>>;
 }
