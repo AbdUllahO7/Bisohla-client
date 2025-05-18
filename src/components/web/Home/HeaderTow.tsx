@@ -19,7 +19,7 @@ const HeaderTow: React.FC<HeaderTowProps> = ({ translations }) => {
   return (
     <nav className="bg-primary text-white relative pt-1">
       <div className="max-w-7xl mx-auto px-4">
-        <div className="flex items-center justify-between flex-row-reverse h-10 sm:h-12">
+        <div className="flex items-center md:justify-center xs:justify-between xs:flex-row-reverse h-10 sm:h-12">
           {/* Logo on small screens */}
           <div className="md:hidden flex items-center cursor-pointer" onClick={()=> {
             router.push('/')
