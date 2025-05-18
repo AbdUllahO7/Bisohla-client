@@ -164,14 +164,7 @@ export const useAddProductStepTwo = (onValidationChange: (isValid: boolean) => v
               ? "يجب أن يكون حجم المحرك قيمة موجبة" 
               : "Engine size must be a positive value" 
           }));
-        } else if (engineSizeValue < 1.0 || engineSizeValue > 4.0) {
-          setValidationErrors(prev => ({ 
-            ...prev, 
-            engineSize: locale === 'ar' 
-              ? "يجب أن يكون حجم المحرك بين 1.0 و 4.0" 
-              : "Engine size must be between 1.0 and 4.0" 
-          }));
-        } else {
+        }  else {
           setValidationErrors(prev => ({ ...prev, engineSize: "" }));
         }
       } else {
