@@ -77,18 +77,18 @@ const ProductBasicInfo: React.FC<ProductBasicInfoProps> = ({
   if (isLoading) {
     return (
       <Box variant="center" className="w-full">
-        <Box variant="row" className="flex flex-wrap justify-between gap-3 w-full">
+        <Box variant="row" className="flex flex-wrap justify-center sm:justify-between gap-2 sm:gap-3 w-full">
           {Array.from({ length: 7 }).map((_, index) => (
             <Card
               key={`skeleton-${index}`}
-              className="bg-white border-none rounded-lg p-3 w-[150px] h-24 flex-shrink-0"
+              className="bg-white border-none rounded-lg p-2 sm:p-3 w-[calc(50%-8px)] sm:w-[calc(33.333%-12px)] md:w-[calc(25%-12px)] lg:w-[150px] h-20 flex-shrink-0"
             >
               <CardContent className="flex flex-col h-full p-0">
                 <div className="flex items-start gap-2 mb-1">
-                  <Skeleton className="h-6 w-6 rounded-md" />
-                  <Skeleton className="h-4 w-20" />
+                  <Skeleton className="h-5 w-5 sm:h-6 sm:w-6 rounded-md" />
+                  <Skeleton className="h-3 sm:h-4 w-16 sm:w-20" />
                 </div>
-                <Skeleton className="h-4 w-full mt-auto" />
+                <Skeleton className="h-3 sm:h-4 w-full mt-auto" />
               </CardContent>
             </Card>
           ))}
@@ -99,26 +99,29 @@ const ProductBasicInfo: React.FC<ProductBasicInfoProps> = ({
 
   return (
     <Box variant="center" className="w-full">
-      <Box variant="row" className="flex flex-wrap justify-between gap-3 w-full">
+      <Box variant="row" className="flex flex-wrap justify-center sm:justify-between gap-2 sm:gap-3 w-full">
         {basicInfo.map((info) => (
           <Card
             key={info.key}
-            className="bg-white border-none rounded-lg p-3 w-[150px] h-20 flex-shrink-0 hover:shadow-lg duration-300"
+            className="bg-white border-none rounded-lg p-2 sm:p-3 w-[calc(50%-8px)] sm:w-[calc(33.333%-12px)] md:w-[calc(25%-12px)] lg:w-[150px] h-20 flex-shrink-0 hover:shadow-lg duration-300"
           >
             <CardContent className="flex flex-col h-full p-0">
-              <div className="flex items-center gap-2 ">
+              <div className="flex items-center gap-1 sm:gap-2">
                 <Image
                   src={info.icon || "/placeholder.svg"}
-                  alt={info.key}
-                  width={24}
-                  height={24}
-                  className="text-green-50"
+                  alt={info.label}
+                  width={20}
+                  height={20}
+                  className="text-green-50 w-5 h-5 sm:w-6 sm:h-6"
                 />
-                <Text variant="small" className="text-primary font-cairo font-bold">
+                <Text variant="small" className="text-primary font-cairo font-bold text-xs sm:text-sm line-clamp-1">
                   {info.label}
                 </Text>
               </div>
-              <Text variant="small" className="text-secondary-text mt-auto pb-2 overflow-hidden text-ellipsis">
+              <Text
+                variant="small"
+                className="text-secondary-text mt-auto pb-1 sm:pb-2 overflow-hidden text-ellipsis text-xs sm:text-sm line-clamp-1"
+              >
                 {info.value}
               </Text>
             </CardContent>

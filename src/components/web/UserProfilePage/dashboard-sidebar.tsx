@@ -1,6 +1,6 @@
 "use client"
 
-import { Heart, Home, Layers, LayoutDashboard, Menu, Settings } from "lucide-react"
+import { Heart, Home, Layers, LayoutDashboard, Menu, MenuIcon, Settings } from "lucide-react"
 import {
   Sidebar,
   SidebarContent,
@@ -92,12 +92,12 @@ export function DashboardSidebar() {
       {/* Mobile Menu Button - Only visible on mobile */}
       {isMobile && (
         <Button
-          variant="ghost"
-          size="icon"
-          className="fixed top-24 left-4 z-50 md:hidden"
+          className="fixed top-10 left-10 bg-transparent z-[99] md:hidden inline-flex items-center justify-center p-2 rounded-md text-white h transition-all focus:outline-none"
+          type="button"
+          aria-label="Toggle menu"
           onClick={() => setOpenMobile(true)}
         >
-          <Menu className="h-6 w-6" />
+        <MenuIcon className="h-14 w-14 size-8 text-4xl" />
           <span className="sr-only">Open menu</span>
         </Button>
       )}
