@@ -36,7 +36,7 @@ export const useCarListings = (params: QueryParams) =>
 
 export const useCarListingById = (params: QueryParams) =>
   useLocaleQuery<ApiResponse<SelectCarListingDto>>({
-    queryKey: ['visitors-car-listings', { params }],
+    queryKey: ['visitors-car-listings', params],
     queryFn: async () => await getCarListingById(params),
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
