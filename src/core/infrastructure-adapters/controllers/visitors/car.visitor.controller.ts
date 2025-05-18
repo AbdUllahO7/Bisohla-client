@@ -36,10 +36,10 @@ export class CarVisitorController implements ICarVisitorController {
     }
   }
   async findCarListingById(
-    id: number,
+    queryParams: QueryParams,
   ): Promise<ApiResponse<SelectCarListingDto>> {
     try {
-      return await this.carUseCase.findCarListingById(id);
+      return await this.carUseCase.findCarListingById(queryParams);
     } catch (err) {
       return catchClientRequest(err);
     }
