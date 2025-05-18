@@ -10,10 +10,6 @@ const EmailVerifiedPage = async ({
     status: 'success' | 'error';
     message: string;
   }>;
-  searchParams: {
-    status: 'success' | 'error';
-    message: string;
-  };
 }) => {
   const { status } = await searchParams;
 
