@@ -3,13 +3,15 @@ import Box from '@/components/box/box';
 import Categories from '@/components/web/ProductsPage/Categories';
 import Filter from '@/components/web/ProductsPage/Filter';
 import Header from '@/components/web/ProductsPage/Header';
-import AdsSection from '@/components/web/Home/AdsSection';
 import React, { useState, useCallback, useMemo } from 'react';
 import AllCarListings from '../products/AllCarListings';
 import { QueryParams } from '@/core/entities/api/api';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
+import { useLocale } from 'next-intl';
 
 const RentProducts = () => {
     // Initialize with the special filter for rental cars
+    const locale = useLocale()
     const [queryParams, setQueryParams] = useState<QueryParams>({
         page: 1,
         pageSize: 8,
@@ -74,15 +76,32 @@ const RentProducts = () => {
     }, []);
 
     return (
-        <Box variant="row" className="mt-[30px] bg-background flex-wrap">
+        <Box variant="row" className="mt-[10px] bg-background flex-wrap">
             {/* Header Section */}
-            <Box className="mt-[50px] w-full" variant="center">
-                <Header 
-                onSortChange={handleSortChange}
-                totalItems={totalItems}
-                currentSort={currentSort}
-                />
-            </Box>
+             <Box variant="container" className="w-full mb-4">
+                    <Breadcrumb dir={locale === "ar" ? "rtl" : "ltr"}>
+                    <BreadcrumbList dir={locale === "ar" ? "rtl" : "ltr"}>
+                        <BreadcrumbItem dir={locale === "ar" ? "rtl" : "ltr"}>
+                        <BreadcrumbLink className="hover:text-black text-black" href="/">
+                            {locale === "ar" ? "الرئيسية" : "Home"}
+                        </BreadcrumbLink>
+                        </BreadcrumbItem>
+                        <BreadcrumbSeparator lang={locale === "ar" ? "ar" : "en"} />
+                        <BreadcrumbItem>
+                        <BreadcrumbLink className="text-primary hover:text-primary-light" href="#">
+                            {locale === "ar" ? "تأجير السيارات" : "Cars for rent"}
+                        </BreadcrumbLink>
+                        </BreadcrumbItem>
+                        <BreadcrumbSeparator lang={locale === "ar" ? "ar" : "en"} />
+                        <BreadcrumbItem></BreadcrumbItem>
+                    </BreadcrumbList>
+                    </Breadcrumb>
+                </Box>
+
+                <Box  className=" w-full shadow-xl bg-white pb-3 pt-3" >
+                    <Header onSortChange={handleSortChange} totalItems={totalItems} currentSort={currentSort} />
+
+                </Box>
 
             {/* Main Content Section */}
             <Box 
@@ -104,8 +123,8 @@ const RentProducts = () => {
                         pageSize={8}
                         queryParams={queryParams}
                         onTotalItemsChange={handleTotalItemsChange}
+                        container={false}
                     />
-                    <AdsSection />
                 </Box>
             </Box>
         </Box>

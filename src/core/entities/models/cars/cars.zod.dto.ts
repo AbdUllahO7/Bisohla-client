@@ -115,7 +115,6 @@ export const CreateCarListingSchema = z.object({
   bodyType: z.nativeEnum(BodyType).nullable().optional(),
   doors: z.number().int().min(0).max(10).nullable().optional(),
   colorExterior: z.string().nullable().optional(),
-  colorInterior: z.string().nullable().optional(),
   vin: z.string().nullable().optional(),
   plateNumber: z.string().nullable().optional(),
 

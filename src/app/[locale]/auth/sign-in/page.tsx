@@ -11,7 +11,7 @@ import {
   defaultActionState,
 } from '@/interfaces/api-response.interface';
 
-import Link from 'next/link';
+import {Link} from "@/i18n/routing"
 import { useActionState } from 'react';
 import { signInAction } from '../actions';
 import { useLocale } from 'next-intl';

@@ -37,13 +37,14 @@ export class CarVisitorService implements ICarVisitorService {
     return res;
   }
   async findCarListingById(
-    id: number,
+    queryParams: QueryParams,
   ): Promise<ApiResponse<SelectCarListingDto>> {
     const res = await getReq<
       Record<string, unknown>,
       ApiResponse<SelectCarListingDto>
     >({
-      url: '/car-listings-visitor/' + id,
+      url: '/car-listings-visitor/' + queryParams.id,
+      params: queryParams,
     });
 
     return res;

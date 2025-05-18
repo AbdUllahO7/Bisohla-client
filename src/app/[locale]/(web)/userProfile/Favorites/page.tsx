@@ -187,11 +187,15 @@ const UserFavorites = () => {
             
             {/* Empty state */}
             {!isLoading && !error && favoriteListings.length === 0 && (
-                <Box className="w-full py-8 text-center" variant="center">
-                    <Text className="text-gray-600">You haven't added any cars to your favorites yet.</Text>
+                <Box className="w-full py-8 flex-col text-center" variant="center">
+                    <Text className="text-gray-600">
+                        {locale === "ar" ? "لم تقم بإضافة أي سيارة إلى مفضلتك بعد." : "You haven't added any cars to your favorites yet."}
+                    </Text>
                     <Box className="mt-4">
                         <a href="/products" className="bg-primary text-white px-4 py-2 rounded-lg">
-                            Browse Cars
+                            {
+                                locale === 'ar' ? "تصفح السيارات": 'Browse Cars'
+                            }
                         </a>
                     </Box>
                 </Box>

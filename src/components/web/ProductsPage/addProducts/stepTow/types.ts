@@ -36,9 +36,7 @@ export interface SelectFieldProps {
 
 // Define CarInfoState interface for form data
 export interface CarInfoState {
-  currency: string;
   colorExterior: string;
-  colorInterior: string;
   fuelType: string;
   bodyType: string;
   transmission: string;
@@ -47,7 +45,7 @@ export interface CarInfoState {
   engineSize: string;
   doors: string;
   plateNumber: string;
-  vin: string;
+  vin: string | null;
   
   selectedFeatures: CarListingFeature[]; // Array of selected features
   [key: string]: any;
@@ -76,9 +74,7 @@ export const STORAGE_KEY = "addProduct_stepTwo_data";
 
 // Default state with empty array for selectedFeatures
 export const defaultState: CarInfoState = {
-  currency: "",
   colorExterior: "",
-  colorInterior: "",
   fuelType: "",
   bodyType: "",
   transmission: "",

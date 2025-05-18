@@ -27,9 +27,9 @@ export class CarVisitorUseCase implements ICarVisitorUseCase {
     return await this.service.findCarListings(queryParams);
   }
   async findCarListingById(
-    id: number,
+    queryParams: QueryParams,
   ): Promise<ApiResponse<SelectCarListingDto>> {
-    return await this.service.findCarListingById(id);
+    return await this.service.findCarListingById(queryParams);
   }
   async findCarMakes(
     queryParams: QueryParams,

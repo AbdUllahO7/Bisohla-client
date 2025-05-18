@@ -27,7 +27,7 @@ const Steps: React.FC<StepsProps> = ({ isEditMode = false, carId, initialData })
   const locale = useLocale();
   const direction = locale === 'ar' ? 'rtl' : 'ltr';
   const isArabic = direction === 'rtl';
-  
+  console.log("initialData",initialData)
   // Add state for step four validation
   const [stepFourIsValid, setStepFourIsValid] = useState(false);
   
@@ -68,9 +68,9 @@ const Steps: React.FC<StepsProps> = ({ isEditMode = false, carId, initialData })
   const requiredFieldsMessage = getRequiredFieldsMessage(direction);
 
   return (
-    <Box variant="column" className="w-full flex flex-col justify-start items-start">
+    <Box variant="column" className="w-full flex flex-col mt-0 justify-start items-start">
       {/* Page title based on mode */}
-      <h1 className="text-2xl font-bold text-primary mb-6">
+      <h1 className="text-xl font-bold text-primary ">
         {isEditMode 
           ? (isArabic ? 'تعديل السيارة' : 'Edit Car Listing') 
           : (isArabic ? 'إضافة سيارة جديدة' : 'Add New Car Listing')}
@@ -78,7 +78,10 @@ const Steps: React.FC<StepsProps> = ({ isEditMode = false, carId, initialData })
 
       {/* Fix the type error by explicitly setting value as a string */}
       <Tabs value={currentStep} className="w-full flex flex-col justify-start items-start">
-        <TabsList className="bg-transparent flex h-auto gap-4 md:gap-6 lg:gap-8 flex-wrap w-full xs:w-full justify-start items-center xs:justify-center" dir={direction}>
+        <TabsList
+          className="bg-transparent flex h-auto gap-2 md:gap-3 lg:gap-4 flex-wrap w-full xs:w-full justify-between items-center "
+          dir={direction}
+        >
           {steps.map((step, index) => (
             <StepTrigger totalSteps={steps.length} key={step} step={step} index={index} currentStep={currentStep} />
           ))}

@@ -1,6 +1,7 @@
-import Link, { LinkProps } from 'next/link';
+import Link from 'next/link';
 import { Button } from '../ui/button';
 import { allRoutes } from '@/constants/routes.constant';
+import { LinkProps } from 'next/link';
 
 interface SignOutLinkProps extends Omit<LinkProps, 'href'> {
   title?: string;

@@ -6,6 +6,10 @@ import { Link } from '@/i18n/routing';
 const EmailVerifiedPage = async ({
   searchParams,
 }: {
+  searchParams: Promise<{
+    status: 'success' | 'error';
+    message: string;
+  }>;
   searchParams: {
     status: 'success' | 'error';
     message: string;
