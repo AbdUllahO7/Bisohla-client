@@ -19,18 +19,20 @@ const CarConditionTable: React.FC<CarConditionTableProps> = ({
   }
 
   return (
-    <div className="w-full overflow-x-auto p-4">
+    <div className="w-full overflow-x-auto p-1 sm:p-2 md:p-4">
       {/* Car Condition Table */}
-      <Table className="min-w-[800px] w-full text-center">
+      <Table className="w-full text-center table-fixed">
         <TableHeader>
           <TableRow className="text-center hover:bg-transparent border-gray-200 border-1">
             {/* Table Heads */}
-            <TableHead className="min-w-[150px] text-start">{labels.carSectionName}</TableHead>
+            <TableHead className="w-20 sm:w-28 md:w-36 lg:w-40 text-start sticky left-0 bg-background z-10 shadow-sm">
+              <span className="text-xs sm:text-sm md:text-base">{labels.carSectionName}</span>
+            </TableHead>
             {conditionTypes.map((conditionType) => (
-              <TableHead key={conditionType.value} className="min-w-[160px]">
-                <div className={`${conditionType.colorClass} text-white justify-center font-bold py-2 rounded-3xl flex gap-2 items-center mx-auto text-sm md:text-base`}>
-                  <Circle size={20} className="text-primary" />
-                  {conditionType.label}
+              <TableHead key={conditionType.value} className="w-16 sm:w-20 md:w-28 lg:w-32">
+                <div className={`${conditionType.colorClass} text-white justify-center font-bold py-1 sm:py-2 rounded-md sm:rounded-3xl flex gap-1 items-center mx-auto text-xs sm:text-sm md:text-base px-1 sm:px-2`}>
+                  <Circle size={12} className="text-primary hidden sm:inline" />
+                  <span className="truncate max-w-full text-xs sm:text-sm">{conditionType.label}</span>
                 </div>
               </TableHead>
             ))}
@@ -40,17 +42,21 @@ const CarConditionTable: React.FC<CarConditionTableProps> = ({
           {carSections.map((section) => (
             <TableRow
               key={section.id}
-              className="text-center text-primary hover:bg-transparent border-gray-300 hover:bg-background group duration-300"
+              className="text-center text-primary hover:bg-transparent border-gray-300 hover:bg-background duration-300"
             >
-              <TableCell className="font-medium text-sm md:text-base text-start">{section.name}</TableCell>
+              <TableCell className="font-medium text-xs sm:text-sm md:text-base text-start sticky left-0 bg-background z-10 shadow-sm truncate">
+                <span className="truncate block">{section.name}</span>
+              </TableCell>
               {conditionTypes.map((conditionType) => (
-                <TableCell key={`${section.id}-${conditionType.value}`}>
-                  <Checkbox
-                    id={`${conditionType.value}-${section.id}`}
-                    className="rounded-full text-primary h-5 w-5"
-                    checked={isStatusSelected(section.id, conditionType.value)}
-                    onCheckedChange={() => onSectionStatusChange(section.id, conditionType.value)}
-                  />
+                <TableCell key={`${section.id}-${conditionType.value}`} className="p-1 sm:p-2 md:p-4">
+                  <div className="flex justify-center">
+                    <Checkbox
+                      id={`${conditionType.value}-${section.id}`}
+                      className="rounded-full text-primary h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5"
+                      checked={isStatusSelected(section.id, conditionType.value)}
+                      onCheckedChange={() => onSectionStatusChange(section.id, conditionType.value)}
+                    />
+                  </div>
                 </TableCell>
               ))}
             </TableRow>

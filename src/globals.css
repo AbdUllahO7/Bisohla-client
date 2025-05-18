@@ -234,7 +234,10 @@
 
 /* Custom Scrollbar Styles */
 
-
+.\[\&_svg\]\:size-4 svg {
+  width: 1.6rem !important;
+  height: 2rem !important;
+}
 
 /* ::-webkit-scrollbar-track {
   background: hsl(var(--background));

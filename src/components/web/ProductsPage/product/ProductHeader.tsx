@@ -5,9 +5,9 @@ import type React from "react"
 import Box from "@/components/box/box"
 import Text from "@/components/text/text"
 import { Skeleton } from "@/components/ui/skeleton"
-import { ArrowLeftRight, Heart, MessageCircle, PhoneCall } from "lucide-react"
+import { Heart, MessageCircle, PhoneCall } from "lucide-react"
 import { useTranslations } from "next-intl"
-import {Link} from "@/i18n/routing"
+import { Link } from "@/i18n/routing"
 import { useState, useEffect, useRef } from "react"
 import { toggleCarListingFavorite } from "@/core/infrastructure-adapters/actions/users/car.user.actions"
 
@@ -156,21 +156,22 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
   }
 
   return (
-    <Box variant="rowBetween" className="items-center justify-start w-full py-2 gap-2">
-      <Box className="justify-start items-start" variant="center">
-        <Text variant="h5" className="line-clamp-1 font-bold">
+    <Box variant="rowBetween" className="items-center justify-start w-full  gap-2 flex-col sm:flex-row">
+      <Box className="justify-start items-start w-full sm:w-auto" variant="center">
+        <Text variant="h5" className=" font-bold md:text-start xs:text-center  w-full">
           {productName}
         </Text>
       </Box>
 
-      <Box className="justify-end items-center flex-wrap gap-2 flex-1 sm:flex-nowrap" variant="row">
+      <Box className="justify-center sm:justify-end items-center flex-wrap gap-2 w-full sm:flex-nowrap" variant="row">
         <button
-          className="p-1.5 rounded-md bg-background hover:bg-white hover:shadow-md transition-all duration-300 group"
+          className="p-2 sm:p-1.5 rounded-md bg-background hover:bg-white hover:shadow-md transition-all duration-300 group"
           onClick={handleFavoriteClick}
           disabled={!isAuthenticated || isProcessing}
+          aria-label={favoriteStatus ? "Remove from favorites" : "Add to favorites"}
         >
           <Heart
-            className={`h-4 w-4 ${
+            className={`h-5 w-5 sm:h-4 sm:w-4 ${
               isProcessing
                 ? "animate-pulse"
                 : !isAuthenticated
@@ -184,21 +185,21 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
 
         <Link
           href={`tel:${ContactNumber}`}
-          className="flex items-center font-bold gap-1 text-sm px-2 py-1.5 border border-primary rounded-md hover:bg-primary hover:text-white transition-all duration-300 text-md"
+          className="flex items-center justify-center font-bold gap-1 text-sm px-3 py-2 sm:px-2 sm:py-1.5 border border-primary rounded-md hover:bg-primary hover:text-white transition-all duration-300 min-w-[80px] sm:min-w-0"
         >
           <span className="hidden sm:inline">{ContactNumber}</span>
           <span className="sm:hidden">Call</span>
-          <PhoneCall className="h-3 w-3" />
+          <PhoneCall className="h-4 w-4 sm:h-3 sm:w-3" />
         </Link>
 
         <Link
           href={generateWhatsAppLink()}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-1 px-2 py-1.5  bg-primary-foreground text-white rounded-md hover:bg-primary transition-all duration-300 text-md"
+          className="flex items-center justify-center gap-1 px-3 py-2 sm:px-2 sm:py-1.5 bg-primary-foreground text-white rounded-md hover:bg-primary transition-all duration-300 min-w-[120px] sm:min-w-0"
         >
           <span className="text-black font-bold text-sm">{t("header.whatsApp")}</span>
-          <MessageCircle className="h-3 w-3 text-black " />
+          <MessageCircle className="h-4 w-4 sm:h-3 sm:w-3 text-black" />
         </Link>
       </Box>
     </Box>

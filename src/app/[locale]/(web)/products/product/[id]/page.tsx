@@ -56,7 +56,6 @@ const Product = () => {
 
   return (
     <div className="mt-[10px] bg-background w-full">
-      {/* Header Section */}
       <Box variant="container" className="w-full mb-4">
         <Breadcrumb dir={locale === 'ar' ? 'rtl' : 'ltr'}>
           <BreadcrumbList dir={locale === 'ar' ? 'rtl' : 'ltr'}>
