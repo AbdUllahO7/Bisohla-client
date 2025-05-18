@@ -80,10 +80,11 @@ const EnumSelect = ({
               }
             }}
             value={field.value || value || ""}
+            dir={`${isRtl ? "rtl" : "ltr"}`}
           >
             <FormControl>
               <SelectTrigger>
-                <SelectValue placeholder={placeholder} />
+                <SelectValue placeholder={placeholder} dir={`${isRtl ? "rtl" : "ltr"}`}/>
               </SelectTrigger>
             </FormControl>
             <SelectContent className="bg-white shadow-2xl text-primary border-none absolute z-[99]" dir={`${isRtl ? "rtl" : "ltr"}`}>
@@ -489,13 +490,13 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                           <span className="text-red-500">*</span>
                         </FormLabel>
                         <FormControl>
-                          <Input type="tel" placeholder={t("stepFour.contactNumber")} {...field} />
+                          <Input  placeholder={t("stepFour.contactNumber")} {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-
+                
                   <FormField
                     control={form.control}
                     name="price"
@@ -542,6 +543,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                     onChange={handleListingTypeChange}
                     value={listingTypeValue}
                     isRtl={direction === "rtl"}
+
                   />
 
                   {showRentType && (

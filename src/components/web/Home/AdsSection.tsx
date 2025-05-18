@@ -1,8 +1,8 @@
 import Box from '@/components/box/box';
 import Text from '@/components/text/text';
+import { Link } from '@/i18n/routing';
 import { useTranslations, useLocale } from 'next-intl'; // Import useLocale
 import Image from 'next/image';
-import Link from 'next/link';
 import React from 'react';
 
 const AdsSection = () => {

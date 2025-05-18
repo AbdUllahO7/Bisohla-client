@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import Link from 'next/link';
+import {Link} from "@/i18n/routing"
 import Box from '@/components/box/box';
 import Text from '@/components/text/text';
 import { useTranslations } from 'next-intl';

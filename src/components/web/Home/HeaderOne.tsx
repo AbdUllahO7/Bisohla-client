@@ -1,30 +1,38 @@
+'use client'
 import Image from "next/image"
 import { Button } from "../../ui/button"
 import Box from "../../box/box"
 import { getTranslations } from "next-intl/server"
 import LocaleSwitcher from "../../local/LocalSwitcher"
-import Link from "next/link"
+import {Link} from "@/i18n/routing"
 import { getSession } from "@/core/lib/web/session"
 import { UserCheck2Icon } from "lucide-react"
 import { checkAuth } from "@/core/infrastructure-adapters/actions/auth/auth.actions"
 import NotificationDropdown from "./NotificationDropdown"
+import { useRouter } from "next/navigation"
+import { useSession } from "@/hooks/auth/use-session"
+import { useCheckAuth } from "@/core/infrastructure-adapters/use-actions/auth/auth.use-actions"
+import { useTranslations } from "next-intl"
 
-const HeaderOne = async () => {
-  const t = await getTranslations("homePage")
-  const payload = await getSession()
-  const authResult = await checkAuth()
-
+const HeaderOne =  () => {
+  const t =  useTranslations("homePage")
+  const payload =  useSession()
+  const authResult =  useCheckAuth()
+  const router = useRouter()
   return (
     <Box className="flex justify-between items-center py-1.5 w-full">
       {/* Logo - Now visible on all screen sizes */}
-      <div className="flex items-center">
+      <div className="flex items-center"  onClick={()=> {
+            router.push("/")
+          }}>
         <Image
           src="/assets/images/logo/bishola.png"
           alt="Test Image"
           width={500}
           height={500}
-          className="w-[70px] sm:max-w-[50px] max-w-[50px] lg:max-w-[100%] h-[16px] sm:w-[100px] sm:h-[100px] lg:w-[100px] lg:h-[22px]"
+          className="w-[70px] cursor-pointer sm:max-w-[50px] max-w-[50px] lg:max-w-[100%] h-[16px] sm:w-[100px] sm:h-[100px] lg:w-[100px] lg:h-[22px]"
           priority
+         
         />
       </div>
 
@@ -52,7 +60,7 @@ const HeaderOne = async () => {
 
         {/* Login/Profile Button */}
         <Box className="flex-shrink-0">
-          {!authResult.success ? (
+          {!authResult ? (
             <Link href="/auth/sign-in">
               <Button
                 variant="default"
@@ -87,7 +95,7 @@ const HeaderOne = async () => {
         </Box>
 
         {/* Notification Icon - Only show when authenticated */}
-        {authResult.success && (
+        {authResult && (
           <div className="flex-shrink-0 scale-90 sm:scale-95 lg:scale-100">
             <NotificationDropdown />
           </div>

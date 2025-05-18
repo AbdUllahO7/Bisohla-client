@@ -1,5 +1,20 @@
 'use client';
 
+import Box from "@/components/box/box"
+import ProductBasicInfo from "@/components/web/ProductsPage/product/ProductBasicInfo"
+import ProductHeader from "@/components/web/ProductsPage/product/ProductHeader"
+import ProductImages from "@/components/web/ProductsPage/product/ProductImages"
+import ProductInfo from "@/components/web/ProductsPage/product/ProductInfo"
+import { useParams } from "next/navigation"
+import { useState, useEffect } from "react"
+import TabsSection from "@/components/web/ProductsPage/product/TabsSection"
+import { useCarListingById } from "@/core/infrastructure-adapters/use-actions/visitors/car.visitor.use-actions"
+import { checkAuth } from "@/core/infrastructure-adapters/actions/auth/auth.actions"
+import Text from "@/components/text/text"
+import {Link} from "@/i18n/routing"
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
+import { useLocale } from "next-intl"
+=======
 import Box from '@/components/box/box';
 import ProductBasicInfo from '@/components/web/ProductsPage/product/ProductBasicInfo';
 import ProductHeader from '@/components/web/ProductsPage/product/ProductHeader';

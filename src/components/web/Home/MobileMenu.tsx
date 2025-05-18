@@ -1,7 +1,7 @@
 "use client"
 
 import LocaleSwitcher from "@/components/local/LocalSwitcher"
-import Link from "next/link"
+import {Link} from "@/i18n/routing"
 import { XIcon } from "lucide-react"
 import { useEffect, useRef } from "react"
 

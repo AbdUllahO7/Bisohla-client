@@ -4,14 +4,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useLocale } from 'next-intl';
 import Image from 'next/image';
-import Link from 'next/link';
+import { Link } from "@/i18n/routing"
 import React from 'react'
 
 const Footer = () => {
         const locale = useLocale(); // Get the current language
     
     return (
-    <Box variant="column" className='relative  bg-white pt-10 pb-10 justify-around w-full' >
+    <Box variant="column" className='relative  bg-white pt-10 pb-10 justify-around w-full z-[99]' >
         <Box  variant='row' className='w-full container justify-between  md:flex-wrap xs:flex-wrap'>
 
                     {/*  create ad */}

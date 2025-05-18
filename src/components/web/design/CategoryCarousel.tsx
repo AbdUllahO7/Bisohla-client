@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
 import Image from "next/image"
 import Text from "@/components/text/text"
-import Link from "next/link"
+import {Link} from "@/i18n/routing"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useSearchParams } from "next/navigation"
 

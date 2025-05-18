@@ -250,20 +250,16 @@ const Products = () => {
   // Handle filter changes from Filter component
   const handleFilterChange = useCallback(
     (newParams: QueryParams) => {
-      // Preserve current sort settings when filters change
+      console.log("New queryParams:", newParams);
       setQueryParams({
         ...newParams,
         sortBy: queryParams.sortBy,
         sortDirection: queryParams.sortDirection,
-      })
-
-      // If this is a reset (no where or filterGroups), force remount
-      if (!newParams.where && !newParams.filterGroups) {
-        setListingKey((prevKey) => prevKey + 1)
-      }
+      });
+      setListingKey((prevKey) => prevKey + 1);
     },
     [queryParams.sortBy, queryParams.sortDirection],
-  )
+  );
 
   // Handle sort change from Header component
   const handleSortChange = useCallback((sortBy: string, sortDirection: "asc" | "desc") => {
@@ -275,9 +271,10 @@ const Products = () => {
   }, [])
 
   // Callback to update total items count
-  const handleTotalItemsChange = useCallback((count: number) => {
-    setTotalItems(count)
-  }, [])
+const handleTotalItemsChange = useCallback((count: number) => {
+  console.log("Updating totalItems:", count);
+  setTotalItems(count);
+}, []);
 
   return (
     <Box variant="row" className="mt-[10px] bg-background flex-wrap">

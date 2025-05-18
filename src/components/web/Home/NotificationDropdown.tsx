@@ -11,7 +11,7 @@ import {
 import { formatDistanceToNow } from "date-fns"
 import { arSA, enUS } from "date-fns/locale"
 import { notificationTypeEnum } from "@/core/entities/enums/notifications.enum"
-import Link from "next/link"
+import {Link} from "@/i18n/routing"
 
 // Define translations for English and Arabic
 const translations = {

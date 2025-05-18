@@ -9,7 +9,7 @@ import {
   MenubarTrigger,
 } from '@/components/ui/menubar';
 import { Fragment } from 'react';
-import Link from 'next/link';
+import {Link} from "@/i18n/routing"
 
 type BaseMenuItem = {
   label: string;

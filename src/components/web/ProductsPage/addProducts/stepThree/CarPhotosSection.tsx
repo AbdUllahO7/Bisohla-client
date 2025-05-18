@@ -15,7 +15,7 @@ const CarPhotosSection: React.FC<CarPhotosSectionProps> = ({
   setIsFormDisabled
 }) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4">
+    <div className="gap-6 p-4 w-full">
       {/* Cover Image */}
       <div>
         <Text className="text-lg font-semibold mb-2 text-primary">
@@ -36,24 +36,7 @@ const CarPhotosSection: React.FC<CarPhotosSectionProps> = ({
         />
       </div>
 
-      {/* Car Images */}
-      {/* <div>
-        <Text className="text-lg font-semibold mb-2 text-primary">
-          {labels.carImages} <span className="text-red-500">*</span>
-        </Text>
-        <Text className="text-sm text-gray-500 mb-3">
-          {labels.tenImages}
-        </Text>
-        <ImageUploader
-          ref={carImagesRef}
-          maxImages={10}
-          onChange={onCarImagesChange}
-          setDisableForm={setIsFormDisabled}
-          value={carImages}
-          dropzoneClassName="min-h-[200px]"
-          name="carImages"
-        />
-      </div> */}
+    
 
 
       

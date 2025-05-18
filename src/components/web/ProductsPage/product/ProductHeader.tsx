@@ -7,7 +7,7 @@ import Text from "@/components/text/text"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ArrowLeftRight, Heart, MessageCircle, PhoneCall } from "lucide-react"
 import { useTranslations } from "next-intl"
-import Link from "next/link"
+import {Link} from "@/i18n/routing"
 import { useState, useEffect, useRef } from "react"
 import { toggleCarListingFavorite } from "@/core/infrastructure-adapters/actions/users/car.user.actions"
 
