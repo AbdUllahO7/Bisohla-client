@@ -143,26 +143,28 @@ export default function NotificationsPage() {
   // If data is loading, show loading state
   if (isLoading) {
     return (
-      <div className={` py-8  container ${isRtl ? "rtl" : "ltr"}`} dir={isRtl ? "rtl" : "ltr"}>
+      <div className={`py-4 container ${isRtl ? "rtl" : "ltr"}`} dir={isRtl ? "rtl" : "ltr"}>
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-[#2C3C39]">{t.notifications}</h1>
           <div className="flex rounded-xl overflow-hidden shadow-md">
-            <button className="px-6 py-3 bg-[#2C3C39] text-[#ABDE3B] font-medium">{t.all}</button>
-            <button className="px-6 py-3 bg-white text-[#2C3C39] font-medium hover:bg-gray-50">{t.unread}</button>
-            <button className="px-6 py-3 bg-white text-[#2C3C39] font-medium hover:bg-gray-50">{t.read}</button>
+            <button className="px-4 py-2 text-sm bg-[#2C3C39] text-[#ABDE3B] font-medium">{t.all}</button>
+            <button className="px-4 py-2 text-sm bg-white text-[#2C3C39] font-medium hover:bg-gray-50">
+              {t.unread}
+            </button>
+            <button className="px-4 py-2 text-sm bg-white text-[#2C3C39] font-medium hover:bg-gray-50">{t.read}</button>
           </div>
         </div>
-        <div className="space-y-6">
+        <div className="space-y-3">
           {[1, 2, 3].map((i) => (
             <div key={i} className="bg-white rounded-xl border border-gray-100 shadow-md overflow-hidden animate-pulse">
-              <div className="h-2 bg-gradient-to-r from-[#ABDE3B] to-[#198341] w-full"></div>
-              <div className="p-6">
-                <div className="flex gap-4">
-                  <div className="h-14 w-14 rounded-full bg-gray-200"></div>
+              <div className="h-1 bg-gradient-to-r from-[#ABDE3B] to-[#198341] w-full"></div>
+              <div className="p-4">
+                <div className="flex gap-3">
+                  <div className="h-10 w-10 rounded-full bg-gray-200"></div>
                   <div className="flex-1">
-                    <div className="h-5 bg-gray-200 rounded w-1/3 mb-3"></div>
-                    <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
-                    <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+                    <div className="h-4 bg-gray-200 rounded w-1/3 mb-2"></div>
+                    <div className="h-3 bg-gray-200 rounded w-full mb-2"></div>
+                    <div className="h-3 bg-gray-200 rounded w-2/3"></div>
                   </div>
                 </div>
               </div>
@@ -176,13 +178,13 @@ export default function NotificationsPage() {
   // If data is not yet available or empty
   if (!notificationsResponse?.data?.data || notificationsResponse.data.data.length === 0) {
     return (
-      <div className={` py-8  container ${isRtl ? "rtl" : "ltr"}`} dir={isRtl ? "rtl" : "ltr"}>
+      <div className={`py-4 container ${isRtl ? "rtl" : "ltr"}`} dir={isRtl ? "rtl" : "ltr"}>
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-[#2C3C39]">{t.notifications}</h1>
           <div className="flex rounded-xl overflow-hidden shadow-md">
             <button
               onClick={() => handleFilterChange(undefined)}
-              className={`px-6 py-3 font-medium transition-all ${
+              className={`px-4 py-2 text-sm font-medium transition-all ${
                 filterOptions.isRead === undefined
                   ? "bg-[#2C3C39] text-[#ABDE3B]"
                   : "bg-white text-[#2C3C39] hover:bg-gray-50"
@@ -192,7 +194,7 @@ export default function NotificationsPage() {
             </button>
             <button
               onClick={() => handleFilterChange(false)}
-              className={`px-6 py-3 font-medium transition-all ${
+              className={`px-4 py-2 text-sm font-medium transition-all ${
                 filterOptions.isRead === false
                   ? "bg-[#2C3C39] text-[#ABDE3B]"
                   : "bg-white text-[#2C3C39] hover:bg-gray-50"
@@ -202,7 +204,7 @@ export default function NotificationsPage() {
             </button>
             <button
               onClick={() => handleFilterChange(true)}
-              className={`px-6 py-3 font-medium transition-all ${
+              className={`px-4 py-2 text-sm font-medium transition-all ${
                 filterOptions.isRead === true
                   ? "bg-[#2C3C39] text-[#ABDE3B]"
                   : "bg-white text-[#2C3C39] hover:bg-gray-50"
@@ -214,11 +216,11 @@ export default function NotificationsPage() {
         </div>
         <div className="bg-white rounded-xl border border-gray-100 shadow-md overflow-hidden">
           <div className="h-2 bg-gradient-to-r from-[#ABDE3B] to-[#198341] w-full"></div>
-          <div className="p-12 text-center">
+          <div className="p-6 text-center">
             <div className="flex flex-col items-center">
-              <span className="text-6xl mb-4">📭</span>
-              <h3 className="text-2xl font-bold text-[#2C3C39] mb-2">{t.noNotifications}</h3>
-              <p className="text-gray-500 text-lg">Your notifications will appear here</p>
+              <span className="text-4xl mb-3">📭</span>
+              <h3 className="text-xl font-bold text-[#2C3C39] mb-1">{t.noNotifications}</h3>
+              <p className="text-gray-500 text-base">Your notifications will appear here</p>
             </div>
           </div>
         </div>
@@ -228,15 +230,15 @@ export default function NotificationsPage() {
 
   // If we have notifications data
   return (
-    <div className={` py-8  container ${isRtl ? "rtl" : "ltr"}`} dir={isRtl ? "rtl" : "ltr"}>
-      <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
-        <h1 className="text-3xl font-bold text-[#2C3C39]">{t.notifications}</h1>
+    <div className={`py-4 container ${isRtl ? "rtl" : "ltr"}`} dir={isRtl ? "rtl" : "ltr"}>
+      <div className="flex flex-col md:flex-row justify-between items-center gap-3 mb-4">
+        <h1 className="text-2xl font-bold text-[#2C3C39]">{t.notifications}</h1>
 
         {/* Filter tabs */}
         <div className="flex rounded-xl overflow-hidden shadow-md w-full md:w-auto">
           <button
             onClick={() => handleFilterChange(undefined)}
-            className={`px-6 py-3 font-medium transition-all flex-1 md:flex-auto ${
+            className={`px-4 py-2 text-sm font-medium transition-all flex-1 md:flex-auto ${
               filterOptions.isRead === undefined
                 ? "bg-[#2C3C39] text-[#ABDE3B]"
                 : "bg-white text-[#2C3C39] hover:bg-gray-50"
@@ -246,7 +248,7 @@ export default function NotificationsPage() {
           </button>
           <button
             onClick={() => handleFilterChange(false)}
-            className={`px-6 py-3 font-medium transition-all flex-1 md:flex-auto ${
+            className={`px-4 py-2 text-sm font-medium transition-all flex-1 md:flex-auto ${
               filterOptions.isRead === false
                 ? "bg-[#2C3C39] text-[#ABDE3B]"
                 : "bg-white text-[#2C3C39] hover:bg-gray-50"
@@ -256,7 +258,7 @@ export default function NotificationsPage() {
           </button>
           <button
             onClick={() => handleFilterChange(true)}
-            className={`px-6 py-3 font-medium transition-all flex-1 md:flex-auto ${
+            className={`px-4 py-2 text-sm font-medium transition-all flex-1 md:flex-auto ${
               filterOptions.isRead === true ? "bg-[#2C3C39] text-[#ABDE3B]" : "bg-white text-[#2C3C39] hover:bg-gray-50"
             }`}
           >
@@ -266,7 +268,7 @@ export default function NotificationsPage() {
       </div>
 
       {/* Notifications list */}
-      <div className="space-y-6">
+      <div className="space-y-3">
         {notificationsResponse.data.data.map((notification: Notification, index: number) => {
           const isUnread = !notification.isRead
 
@@ -280,11 +282,11 @@ export default function NotificationsPage() {
                 className={`h-2 ${isUnread ? "bg-gradient-to-r from-[#ABDE3B] to-[#198341]" : "bg-gray-200"} w-full`}
               ></div>
 
-              <div className="p-6">
-                <div className="flex flex-col md:flex-row gap-6">
+              <div className="p-4">
+                <div className="flex flex-col md:flex-row gap-2">
                   {/* Left side with icon */}
                   <div className="flex-shrink-0">
-                    <div className="w-14 h-14 rounded-full bg-[#2C3C39] text-white flex items-center justify-center text-2xl">
+                    <div className="w-10 h-10 rounded-full bg-[#2C3C39] text-white flex items-center justify-center text-xl">
                       {notification.iconUrl ? (
                         <img src={notification.iconUrl || "/placeholder.svg"} alt="" className="w-8 h-8 rounded-full" />
                       ) : (
@@ -295,9 +297,9 @@ export default function NotificationsPage() {
 
                   {/* Content */}
                   <div className="flex-1">
-                    <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+                    <div className="flex flex-col md:flex-row md:items-start justify-between gap-2">
                       <div>
-                        <h3 className="font-bold text-xl text-[#2C3C39] mb-2">{notification.title}</h3>
+                        <h3 className="font-bold text-base text-[#2C3C39] mb-1">{notification.title}</h3>
                         <p className="text-gray-700">{notification.content}</p>
                         {notification.data?.messageContent && (
                           <p className="text-gray-700 mt-2">{notification.data.messageContent}</p>
@@ -309,7 +311,7 @@ export default function NotificationsPage() {
                         <button
                           onClick={() => handleMarkAsRead(notification.id)}
                           disabled={markAsReadMutation.isPending}
-                          className="px-5 py-2.5 rounded-lg bg-[#2C3C39] text-[#ABDE3B] hover:bg-[#2C3C39]/90 transition-colors shadow-md flex-shrink-0 font-medium"
+                          className="px-3 py-1.5 text-sm rounded-lg bg-[#2C3C39] text-[#ABDE3B] hover:bg-[#2C3C39]/90 transition-colors shadow-sm flex-shrink-0 font-medium"
                         >
                           {t.markAsRead}
                         </button>
@@ -355,7 +357,7 @@ export default function NotificationsPage() {
           <button
             onClick={() => handlePageChange((filterOptions.page ?? 1) - 1)}
             disabled={!notificationsResponse.data.hasPreviousPage}
-            className="px-6 py-3 rounded-lg border-2 border-[#2C3C39] text-[#2C3C39] font-medium hover:bg-[#2C3C39]/5 disabled:opacity-50 disabled:hover:bg-transparent transition-colors"
+            className="px-4 py-2 text-sm rounded-lg border-2 border-[#2C3C39] text-[#2C3C39] font-medium hover:bg-[#2C3C39]/5 disabled:opacity-50 disabled:hover:bg-transparent transition-colors"
           >
             {t.previous}
           </button>
@@ -367,7 +369,7 @@ export default function NotificationsPage() {
           <button
             onClick={() => handlePageChange((filterOptions.page ?? 1) + 1)}
             disabled={!notificationsResponse.data.hasNextPage}
-            className="px-6 py-3 rounded-lg border-2 border-[#2C3C39] text-[#2C3C39] font-medium hover:bg-[#2C3C39]/5 disabled:opacity-50 disabled:hover:bg-transparent transition-colors"
+            className="px-4 py-2 text-sm rounded-lg border-2 border-[#2C3C39] text-[#2C3C39] font-medium hover:bg-[#2C3C39]/5 disabled:opacity-50 disabled:hover:bg-transparent transition-colors"
           >
             {t.next}
           </button>

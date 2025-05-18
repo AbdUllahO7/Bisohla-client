@@ -1,4 +1,5 @@
 "use client"
+import Box from "@/components/box/box"
 import SelectDropdown from "@/components/SelectDropdown"
 import Text from "@/components/text/text"
 import { useTranslations } from "next-intl"
@@ -68,16 +69,16 @@ const Header: React.FC<HeaderProps> = ({
   }
 
   return (
-    <div className="w-full container">
-      <div className="w-full  mx-auto ">
-        <div className="flex justify-between items-center ">
+    <div  className="w-full overflow-hidden container">
+      <div className="  flex justify-between  overflow-hidden">
+        <div className="flex  justify-between  items-center w-full overflow-hidden">
           <div className="flex items-center ">
-            <Text variant="mid" className="text-center font-bold text-primary text-xl">
+            <Text variant="mid" className="text-center overflow-hidden font-bold text-primary text-xl">
               {totalItems} {t("header.adCounter")}
             </Text>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-shrink-1">
             <Text className="whitespace-nowrap">{t("header.orderBy")}</Text>
             <div>
               <SelectDropdown

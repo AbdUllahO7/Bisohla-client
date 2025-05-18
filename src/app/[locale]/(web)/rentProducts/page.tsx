@@ -98,10 +98,10 @@ const RentProducts = () => {
                     </Breadcrumb>
                 </Box>
 
-            <Box className="w-full min-w-[1500px] shadow-xl py-3  bg-white" variant="center">
-                <Header  onSortChange={handleSortChange} totalItems={totalItems} currentSort={currentSort}
-                />
-            </Box>
+                <Box  className=" w-full shadow-xl bg-white pb-3 pt-3" >
+                    <Header onSortChange={handleSortChange} totalItems={totalItems} currentSort={currentSort} />
+
+                </Box>
 
             {/* Main Content Section */}
             <Box 

@@ -250,16 +250,18 @@ const Products = () => {
   // Handle filter changes from Filter component
   const handleFilterChange = useCallback(
     (newParams: QueryParams) => {
-      console.log("New queryParams:", newParams);
+      // Preserve current sort settings when filters change
       setQueryParams({
         ...newParams,
         sortBy: queryParams.sortBy,
         sortDirection: queryParams.sortDirection,
       });
+
+      // Force remount of AllCarListings to fetch new data
       setListingKey((prevKey) => prevKey + 1);
     },
     [queryParams.sortBy, queryParams.sortDirection],
-  );
+);
 
   // Handle sort change from Header component
   const handleSortChange = useCallback((sortBy: string, sortDirection: "asc" | "desc") => {
@@ -277,9 +279,9 @@ const handleTotalItemsChange = useCallback((count: number) => {
 }, []);
 
   return (
-    <Box variant="row" className="mt-[10px] bg-background flex-wrap">
+    <Box variant="row" className="mt-[10px] bg-background flex-wrap overflow-hidden">
       {/* Breadcrumb Navigation - Positioned at the top */}
-      <Box variant="container" className="w-full mb-4">
+      <Box variant="container" className="w-full mb-4 overflow-hidden" >
         <Breadcrumb dir={locale === "ar" ? "rtl" : "ltr"}>
           <BreadcrumbList dir={locale === "ar" ? "rtl" : "ltr"}>
             <BreadcrumbItem dir={locale === "ar" ? "rtl" : "ltr"}>
@@ -298,10 +300,13 @@ const handleTotalItemsChange = useCallback((count: number) => {
           </BreadcrumbList>
         </Breadcrumb>
       </Box>
+        <Box  className=" w-full shadow-xl bg-white pb-3 pt-3" >
+        <Header onSortChange={handleSortChange} totalItems={totalItems} currentSort={currentSort} />
+
+      </Box>
 
       {/* Header Section with sort functionality */}
-      <Box className="w-full shadow-xl py-3  bg-white" variant="center">
-        <Header onSortChange={handleSortChange} totalItems={totalItems} currentSort={currentSort} />
+      <Box className="" variant="center">
       </Box>
 
       {/* Main Content Section */}
