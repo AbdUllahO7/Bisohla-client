@@ -1,77 +1,93 @@
-"use client"
+'use client';
 
-import Box from "@/components/box/box"
-import ProductBasicInfo from "@/components/web/ProductsPage/product/ProductBasicInfo"
-import ProductHeader from "@/components/web/ProductsPage/product/ProductHeader"
-import ProductImages from "@/components/web/ProductsPage/product/ProductImages"
-import ProductInfo from "@/components/web/ProductsPage/product/ProductInfo"
-import { useParams } from "next/navigation"
-import { useState, useEffect } from "react"
-import TabsSection from "@/components/web/ProductsPage/product/TabsSection"
-import { useCarListingById } from "@/core/infrastructure-adapters/use-actions/visitors/car.visitor.use-actions"
-import { checkAuth } from "@/core/infrastructure-adapters/actions/auth/auth.actions"
-import Text from "@/components/text/text"
-import Link from "next/link"
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
-import { useLocale } from "next-intl"
+import Box from '@/components/box/box';
+import ProductBasicInfo from '@/components/web/ProductsPage/product/ProductBasicInfo';
+import ProductHeader from '@/components/web/ProductsPage/product/ProductHeader';
+import ProductImages from '@/components/web/ProductsPage/product/ProductImages';
+import ProductInfo from '@/components/web/ProductsPage/product/ProductInfo';
+import { useParams } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import TabsSection from '@/components/web/ProductsPage/product/TabsSection';
+import { useCarListingById } from '@/core/infrastructure-adapters/use-actions/visitors/car.visitor.use-actions';
+import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions';
+import Text from '@/components/text/text';
+import Link from 'next/link';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
+import { useLocale } from 'next-intl';
+import { useSession } from '@/core/infrastructure-adapters/use-actions/auth/use-session';
 
 const Product = () => {
-  const { id } = useParams() // Get the product ID from the URL params
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [favoriteStatus, setFavoriteStatus] = useState(false)
-  const locale = useLocale()
+  const { id } = useParams(); // Get the product ID from the URL params
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [favoriteStatus, setFavoriteStatus] = useState(false);
+  const locale = useLocale();
+  const session = useSession();
   // Fetch car listing data
-  const { data, isLoading, error } = useCarListingById(Number(id))
+  const { data, isLoading, error } = useCarListingById({
+    id: Number(id),
+    userId: session?.user?.id,
+  });
 
   // Verify authentication status on component mount
-    useEffect(() => {
-        const verifyAuth = async () => {
-        try {
-            const authResponse = await checkAuth()
-            setIsAuthenticated(authResponse.success)
-        } catch (error) {
-            console.error("Auth check failed:", error)
-            setIsAuthenticated(false)
-        }
-        }
+  useEffect(() => {
+    const verifyAuth = async () => {
+      try {
+        const authResponse = await checkAuth();
+        setIsAuthenticated(authResponse.success);
+      } catch (error) {
+        console.error('Auth check failed:', error);
+        setIsAuthenticated(false);
+      }
+    };
 
-    verifyAuth()
-  }, [])
-
+    verifyAuth();
+  }, []);
 
   // Update favorite status when data is loaded
-    useEffect(() => {
-            if (data?.data?.isFavorite !== undefined) {
-            setFavoriteStatus(data?.data?.isFavorite ?? false)
-            }
-    }, [data])
+  useEffect(() => {
+    if (data?.data?.isFavorite !== undefined) {
+      setFavoriteStatus(data?.data?.isFavorite ?? false);
+    }
+  }, [data]);
 
   // Handle favorite toggle from child component
   const handleFavoriteToggle = (productId: number, isFavorite: boolean) => {
-    setFavoriteStatus(isFavorite)
-  }
+    setFavoriteStatus(isFavorite);
+  };
 
   return (
     <div className="mt-[10px] bg-background w-full">
       {/* Header Section */}
-       <Box variant="container" className="w-full mb-4">
-        <Breadcrumb dir={locale === "ar" ? "rtl" : "ltr"}>
-          <BreadcrumbList dir={locale === "ar" ? "rtl" : "ltr"}>
-            <BreadcrumbItem dir={locale === "ar" ? "rtl" : "ltr"}>
+      <Box variant="container" className="w-full mb-4">
+        <Breadcrumb dir={locale === 'ar' ? 'rtl' : 'ltr'}>
+          <BreadcrumbList dir={locale === 'ar' ? 'rtl' : 'ltr'}>
+            <BreadcrumbItem dir={locale === 'ar' ? 'rtl' : 'ltr'}>
               <BreadcrumbLink className="hover:text-black text-black" href="/">
-                {locale === "ar" ? "الرئيسية" : "Home"}
+                {locale === 'ar' ? 'الرئيسية' : 'Home'}
               </BreadcrumbLink>
             </BreadcrumbItem>
-            <BreadcrumbSeparator lang={locale === "ar" ? "ar" : "en"} />
+            <BreadcrumbSeparator lang={locale === 'ar' ? 'ar' : 'en'} />
             <BreadcrumbItem>
-              <BreadcrumbLink className="text-primary hover:text-primary-light" href="/products">
-                {locale === "ar" ? "السيارات" : "Cars"}
+              <BreadcrumbLink
+                className="text-primary hover:text-primary-light"
+                href="/products"
+              >
+                {locale === 'ar' ? 'السيارات' : 'Cars'}
               </BreadcrumbLink>
             </BreadcrumbItem>
-            <BreadcrumbSeparator lang={locale === "ar" ? "ar" : "en"} />
+            <BreadcrumbSeparator lang={locale === 'ar' ? 'ar' : 'en'} />
             <BreadcrumbItem>
-               <BreadcrumbLink className="text-primary hover:text-primary-light" href="#">
-                {locale === "ar" ? data?.data?.title : data?.data?.title}
+              <BreadcrumbLink
+                className="text-primary hover:text-primary-light"
+                href="#"
+              >
+                {locale === 'ar' ? data?.data?.title : data?.data?.title}
               </BreadcrumbLink>
             </BreadcrumbItem>
           </BreadcrumbList>
@@ -97,13 +113,13 @@ const Product = () => {
         <Box className="mt-1 w-full mb-3">
           <ProductBasicInfo
             isLoading={isLoading}
-            carType={data?.data?.make?.name || ""}
-            model={data?.data?.model?.name || ""}
-            controlType={data?.data?.details?.transmission || ""}
-            distance={data?.data?.details?.mileage?.toString() || ""}
-            modelYear={data?.data?.details?.year?.toString() || ""}
-            gaz={data?.data?.details?.fuelType || ""}
-            bodyType={data?.data?.details?.bodyType || ""}
+            carType={data?.data?.make?.name || ''}
+            model={data?.data?.model?.name || ''}
+            controlType={data?.data?.details?.transmission || ''}
+            distance={data?.data?.details?.mileage?.toString() || ''}
+            modelYear={data?.data?.details?.year?.toString() || ''}
+            gaz={data?.data?.details?.fuelType || ''}
+            bodyType={data?.data?.details?.bodyType || ''}
           />
         </Box>
 
@@ -116,20 +132,23 @@ const Product = () => {
             <Box className="xs:w-[90%] lg:w-fit">
               <ProductInfo
                 isLoading={isLoading}
-                carType={data?.data?.make?.name || ""}
-                model={data?.data?.model?.name || ""}
-                controlType={data?.data?.details?.transmission || ""}
-                distance={data?.data?.details?.mileage?.toString() || ""}
-                modelYear={data?.data?.details?.year?.toString() || ""}
-                gaz={data?.data?.details?.fuelType || ""}
-                price={data?.data?.price?.toString() || ""}
-                adsNumber={data?.data?.id?.toString() || ""}
-                adsDate={data?.data?.publishedAt?.toString() || ""}
+                carType={data?.data?.make?.name || ''}
+                model={data?.data?.model?.name || ''}
+                controlType={data?.data?.details?.transmission || ''}
+                distance={data?.data?.details?.mileage?.toString() || ''}
+                modelYear={data?.data?.details?.year?.toString() || ''}
+                gaz={data?.data?.details?.fuelType || ''}
+                price={data?.data?.price?.toString() || ''}
+                adsNumber={data?.data?.id?.toString() || ''}
+                adsDate={data?.data?.publishedAt?.toString() || ''}
               />
             </Box>
 
             <Box className="lg:flex-1 xs:w-full">
-              <ProductImages isLoading={isLoading} images={data?.data?.images || []} />
+              <ProductImages
+                isLoading={isLoading}
+                images={data?.data?.images || []}
+              />
             </Box>
           </Box>
         </Box>
@@ -138,10 +157,9 @@ const Product = () => {
         <Box className="lg:w-full xs:w-[90%] mt-5">
           <TabsSection data={data} isLoading={isLoading} />
         </Box>
-
       </Box>
     </div>
-  )
-}
+  );
+};
 
-export default Product
+export default Product;
