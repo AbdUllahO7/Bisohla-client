@@ -1,21 +1,32 @@
 "use client"
-
 import { useSession } from "@/hooks/auth/use-session"
 import type { HeaderTowProps } from "@/types/homePageTypes"
 import { MenuIcon } from "lucide-react"
-import {Link} from "@/i18n/routing"
+import { Link } from "@/i18n/routing"
+import Image from "next/image"
 import type React from "react"
 import { useMenuToggle } from "./useMenuToggle"
 import MobileMenu from "./MobileMenu"
+import Text from "@/components/text/text"
+import { useLocale } from "next-intl"
+import { useRouter } from "next/navigation"
 
 const HeaderTow: React.FC<HeaderTowProps> = ({ translations }) => {
   const { isOpen, setIsOpen, toggleMenu } = useMenuToggle()
   const session = useSession()
-
+  const locale = useLocale()
+  const router = useRouter()
   return (
-    <nav className="bg-primary text-white relative  pt-1">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex items-center justify-center h-10 sm:h-12">
+    <nav className="bg-primary text-white relative pt-1">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="flex items-center justify-between flex-row-reverse h-10 sm:h-12">
+          {/* Logo on small screens */}
+          <div className="md:hidden flex items-center cursor-pointer" onClick={()=> {
+            router.push('/')
+          }}>
+              <Text variant = "h4" className="font-bold text-primary-foreground">{locale === 'ar' ? "بسهولة": 'Bisohla'}</Text>
+          </div>
+
           {/* Desktop Navigation */}
           <div className="hidden md:block">
             <div className="flex space-x-2 lg:space-x-4">
@@ -40,7 +51,7 @@ const HeaderTow: React.FC<HeaderTowProps> = ({ translations }) => {
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="md:hidden flex justify-center w-full">
+          <div className="md:hidden">
             <button
               onClick={toggleMenu}
               className="inline-flex items-center justify-center p-1.5 rounded-md text-white hover:bg-primary-light transition-all focus:outline-none"
