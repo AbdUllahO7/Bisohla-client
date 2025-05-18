@@ -3,7 +3,7 @@
 import React, { useMemo } from 'react';
 import Box from '@/components/box/box';
 import Text from '@/components/text/text';
-import Link from 'next/link';
+import {Link} from "@/i18n/routing"
 import { useRouter } from 'next/navigation';
 import { useTranslations, useLocale } from 'next-intl';
 import CarouselComponent from '../design/CarouselComponent';
@@ -92,7 +92,7 @@ const WorldOfProduct = () => {
     };
 
     return (
-        <Box variant="column" className="">
+        <Box variant="column" className="w-full">
             <Box variant="column" className="">
                 <Text variant="h3" className="font-bold text-[20px] font-cairo mb-5">
                     {t('worldOfProducts.title')}

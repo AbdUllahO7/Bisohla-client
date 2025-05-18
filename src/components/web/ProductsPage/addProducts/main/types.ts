@@ -24,8 +24,6 @@ export interface StepOneData {
 export interface StepTwoData {
   currency: string;
   price: string | number;
-  colorExterior: string;  
-  colorInterior: string;  
   fuelType: string;
   bodyType: string;
   transmission: string;
@@ -147,7 +145,6 @@ export interface CreateCarListingDto {
   bodyType: BodyType | null;
   doors: number | null;
   colorExterior: string | null;
-  colorInterior: string | null;
   vin: string | null;
   plateNumber: string | null;
   damages?: { damageZone: DamageZone; damageType: DamageType; description: string | null; }[];

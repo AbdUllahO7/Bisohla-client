@@ -113,11 +113,7 @@ export const loadFromStorage = (): CarInfoState => {
                 parsed.selectedFeatures = [];
             }
 
-            // Handle migration from old 'color' to new 'colorExterior' and 'colorInterior'
-            if (parsed.color && !parsed.colorExterior) {
-                parsed.colorExterior = parsed.color;
-                delete parsed.color;
-            }
+         
 
             return parsed;
         }
@@ -127,9 +123,7 @@ export const loadFromStorage = (): CarInfoState => {
     
     // Return default state if loading failed
     return {
-        currency: "",
         colorExterior: "",
-        colorInterior: "",
         fuelType: "",
         bodyType: "",
         transmission: "",
@@ -164,8 +158,7 @@ export const saveToStorage = (data: CarInfoState): void => {
  */
 export const validateForm = (carInfo: CarInfoState, validationErrors: any): boolean => {
     const requiredFields = [
-        "currency", "colorExterior", "colorInterior", "fuelType", "bodyType", "transmission", 
-        "plateNumber", "mileage", "enginePower", "engineSize", "doors", "vin"
+         "colorExterior",  "fuelType", "bodyType", "transmission", "mileage", "engineSize", "doors", "vin"
     ];
   
     // Doors validation

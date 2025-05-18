@@ -55,7 +55,7 @@ const SelectDropdown: React.FC<SelectDropdownProps> = ({
         >
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
-        <SelectContent className="bg-white text-primary border-0" dir={`${t("lang") === "ar" ? "rtl" : "ltr"}`}>
+        <SelectContent className="bg-white shadow-2xl text-primary border-none absolute z-[99]" dir={`${t("lang") === "ar" ? "rtl" : "ltr"}`}>
           {options.map((option) => (
             <SelectItem
               className="focus:bg-primary-light hover:text-white transition-all duration-200 font-cairo font-[700]"

@@ -23,7 +23,6 @@ export const getCarListings = async (
 
   const res = await carListingController.findCarListings(params);
 
-
   return res;
 };
 
@@ -68,11 +67,11 @@ export const getCarFeatures = async (
 };
 
 export const getCarListingById = async (
-  id: number,
+  params: QueryParams,
 ): Promise<ApiResponse<SelectCarListingDto>> => {
   const carListingController = getInjection('ICarVisitorController');
 
-  const res = await carListingController.findCarListingById(id);
+  const res = await carListingController.findCarListingById(params);
 
   return res;
 };

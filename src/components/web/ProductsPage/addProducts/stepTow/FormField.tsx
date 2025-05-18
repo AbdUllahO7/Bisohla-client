@@ -8,7 +8,6 @@ import { FormFieldProps } from "./types";
  */
 const FormField: React.FC<FormFieldProps> = ({
   label,
-  field,
   children,
   required = false,
   error = "",

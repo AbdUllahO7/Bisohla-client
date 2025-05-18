@@ -1,4 +1,4 @@
-import { ListingType, RentType, SaveStatus } from "@/core/entities/enums/cars.enums";
+import { Currency } from "@/core/entities/enums/currency.enum";
 
 // Complete AdInfoState interface with all fields
 export interface AdInfoState {
@@ -11,7 +11,7 @@ export interface AdInfoState {
     rentType?: string | null;
     publicationDate: string | null;
     saveStatus?: string;
-
+    currency: string;
 }
 
 export interface AddProductStepFourProps {
@@ -47,14 +47,15 @@ export interface PublicationDateProps {
 // Constants
 export const STORAGE_KEY = "addProduct_stepFour_data";
 
-
 export const defaultState: AdInfoState = {
     title: "",
-    price : "",
+    price: "",
     description: "",
     adStatus: "publish",
     contactNumber: "",
     listingType: "",
     rentType: "",
     publicationDate: new Date().toISOString().split('T')[0], // Format: YYYY-MM-DD
+    saveStatus: "",
+    currency: Currency.USD
 };

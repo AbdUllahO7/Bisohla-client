@@ -1,15 +1,17 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Box from '@/components/box/box';
 import Text from '@/components/text/text';
 import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
-
 import { useCarListings } from '@/core/infrastructure-adapters/use-actions/visitors/car.visitor.use-actions';
-import { ProductCardItem } from '@/components/web/design/ProductCardItem';
-import ProductSkeleton from '@/components/web/design/ProductSkeletonItem';
 import Pagination from '@/components/Pagination';
 import { Filter, FilterGroup, QueryParams } from '@/core/entities/api/api';
+import AdsSectionProduct from '@/components/web/ProductsPage/product/AdsSectionProduct';
+import AllCarListingsSkeleton from '@/components/web/design/AllCarListingsSkeleton';
+import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions';
+import { useSession } from '@/hooks/auth/use-session';
+import { RentProductCard } from '@/components/web/design/RentProductCard';
 
 interface AllCarListingsProps {
   pageSize?: number;
@@ -29,14 +31,39 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
   const t = useTranslations('homePage');
   const searchParams = useSearchParams();
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [favoriteStatuses, setFavoriteStatuses] = useState<Record<number, boolean>>({});
+    const session = useSession();
   const [queryParams, setQueryParams] = useState<QueryParams>({
+    userId : session.user?.id,
     page: 1,
     sortBy: 'createdAt',
     sortDirection: 'desc',
     ...initialQueryParams
   });
 
+  // Verify authentication status on component mount
+  useEffect(() => {
+    const verifyAuth = async () => {
+      try {
+        const authResponse = await checkAuth();
+        setIsAuthenticated(authResponse.success);
+      } catch (error) {
+        console.error("Auth check failed:", error);
+        setIsAuthenticated(false);
+      }
+    };
+    
+    verifyAuth();
+  }, []);
 
+  // Handle favorite status update from child component
+  const handleFavoriteToggle = useCallback((productId: number, isFavorite: boolean) => {
+    setFavoriteStatuses(prev => ({
+      ...prev,
+      [productId]: isFavorite
+    }));
+  }, []);
 
   // Update from URL parameters or props
   useEffect(() => {
@@ -44,14 +71,13 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
       setQueryParams({
         ...queryParams,
         ...initialQueryParams,
-        page: currentPage
-      });
+        page: currentPage,
+        userId : session.user?.id,
+        });
     } else if (searchParams) {
-      // Build filters from URL search params
       const filters: Filter[] = [];
       const filterGroups: FilterGroup[] = [];
       
-      // Main filters for the where clause
       const make = searchParams.get('make');
       if (make) {
         filters.push({
@@ -79,7 +105,6 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
         });
       }
       
-      // Location filters
       const governorate = searchParams.get('governorate');
       if (governorate) {
         filters.push({
@@ -98,7 +123,6 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
         });
       }
       
-      // Currency filter
       const currency = searchParams.get('currency');
       if (currency) {
         filters.push({
@@ -108,10 +132,8 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
         });
       }
       
-      // Details filters - moved to filterGroups for consistent behavior
       const detailFilters: Filter[] = [];
       
-      // Year range filters
       const minYear = searchParams.get('minYear');
       const maxYear = searchParams.get('maxYear');
       
@@ -158,7 +180,6 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
         });
       }
       
-      // Add details filters to filterGroups if any exist
       if (detailFilters.length > 0) {
         filterGroups.push({
           operator: 'and',
@@ -166,7 +187,6 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
         });
       }
       
-      // Price range filters
       const minPrice = searchParams.get('minPrice');
       const maxPrice = searchParams.get('maxPrice');
       
@@ -197,14 +217,10 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
         }
       }
       
-      // Search term
       const search = searchParams.get('search');
-      
-      // Sorting parameters from URL - use these if available
       const sortBy = searchParams.get('sortBy');
       const sortDirection = searchParams.get('sortDirection');
       
-      // Apply all filters to the query params
       setQueryParams({
         page: currentPage,
         pageSize: pageSize,
@@ -212,10 +228,11 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
         sortDirection: sortDirection as 'asc' | 'desc' || 'desc',
         searchTerm: search || undefined,
         where: filters.length > 0 ? filters : undefined,
-        filterGroups: filterGroups.length > 0 ? filterGroups : undefined
+        filterGroups: filterGroups.length > 0 ? filterGroups : undefined,
+        userId: session.user?.id
       });
     }
-  }, [initialQueryParams, searchParams, currentPage, pageSize]);
+  }, [initialQueryParams, searchParams, currentPage, pageSize, session.user?.id]);
   
   // Fetch all car listings with pagination and filters
   const { data, isLoading, error } = useCarListings(queryParams);
@@ -224,23 +241,33 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
   const carListings = React.useMemo(() => {
     const apiData = data as any;
     
-    // Check if data.data is an array of listings
+    let listings: Array<any> = [];
     if (Array.isArray(apiData?.data)) {
-      return apiData.data;
+      listings = apiData.data;
     }
-    // Check if data.data.data is an array of listings (nested structure)
     else if (apiData?.data && 'data' in apiData.data && Array.isArray(apiData.data.data)) {
-      return apiData.data.data;
+      listings = apiData.data.data;
     }
-    return [];
-  }, [data]);
-
+    
+    // Initialize favorite statuses from backend data if not already set
+    const newFavoriteStatuses: Record<number, boolean> = {};
+    listings.forEach(item => {
+      if (item.id && favoriteStatuses[item.id] === undefined) {
+        newFavoriteStatuses[item.id] = !!item.isFavorite;
+      }
+    });
+    
+    if (Object.keys(newFavoriteStatuses).length > 0) {
+      setFavoriteStatuses(prev => ({...prev, ...newFavoriteStatuses}));
+    }
+    
+    return listings;
+  }, [data, favoriteStatuses]);
 
   // Get pagination information
   const paginationInfo = React.useMemo(() => {
     const apiData = data as any;
     
-    // Check direct properties first
     if (apiData?.currentPage !== undefined) {
       return {
         currentPage: apiData.currentPage,
@@ -250,7 +277,6 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
         totalItems: apiData.totalItems || 0
       };
     }
-    // Then check if pagination info is nested in data
     else if (apiData?.data && typeof apiData.data === 'object' && !Array.isArray(apiData.data) && 'currentPage' in apiData.data) {
       const nestedData = apiData.data;
       return {
@@ -261,7 +287,6 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
         totalItems: nestedData.totalItems || 0
       };
     }
-    // Finally check for meta data structure
     else if (apiData?.meta) {
       return {
         currentPage: apiData.meta.currentPage || 1,
@@ -272,7 +297,6 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
       };
     }
     
-    // Default values
     return {
       currentPage: 1,
       totalPages: 1,
@@ -282,35 +306,20 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
     };
   }, [data, carListings]);
   
-  // Update parent component with total items count
   useEffect(() => {
     if (onTotalItemsChange && !isLoading) {
       onTotalItemsChange(paginationInfo.totalItems);
     }
   }, [paginationInfo.totalItems, onTotalItemsChange, isLoading]);
   
-  // Handle page change
   const handlePageChange = (page: number): void => {
     setCurrentPage(page);
-    // Scroll to top for better UX
     window.scrollTo(0, 0);
   };
 
-  // Handle filter changes from Filter component
-  const handleFilterChange = (newQueryParams: QueryParams): void => {
-    setCurrentPage(1); // Reset to first page when filters change
-    setQueryParams({
-      ...newQueryParams,
-      page: 1,
-      pageSize: pageSize
-    });
-  };
-
-
-  
   return (
-    <Box variant={container ? "container" : "center"} className="mb-5">
-      <Box variant="column">
+    <Box variant={container ? "container" : "center"} className="mb-5 mt-5">
+      <Box variant="column" className='w-full'>
         {showTitle && (
           <Box variant="column" className="mb-4">
             <Text variant="h3" className="font-bold text-[20px] font-cairo">
@@ -319,51 +328,56 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
           </Box>
         )}
         
-        {/* Show loading skeleton */}
-        {isLoading && <ProductSkeleton count={pageSize} showTitle={false} />}
+        {isLoading && <div className='w-full'>
+          <AllCarListingsSkeleton
+            pageSize={pageSize}
+            showTitle={showTitle}
+          /> 
+        </div>}
         
-        {/* Show error state */}
         {error && (
           <Box className="w-full py-4" variant="center">
             <Text className="text-red-500">Failed to load car listings</Text>
           </Box>
         )}
         
-        {/* Show empty state */}
         {!isLoading && !error && carListings.length === 0 && (
           <Box className="w-full py-4" variant="center">
             <Text>No car listings available</Text>
           </Box>
         )}
         
-        {/* Display Cards */}
         {!isLoading && !error && carListings.length > 0 && (
           <>
             <Box 
               className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 w-full"
               variant="center"
             >
-              {carListings.map((card: { id: number; title: string; make: { name: any; }; marka: any; price: Number; listingType: string | undefined; images: any[]; imageSrc: any; gaz: any; type: any; }, index: any) => (
-                <React.Fragment key={card.id || index}>
-                  <ProductCardItem
-                    title={card.title}
-                    marka={card.make?.name || card.marka || ''}
-                    price={card.price}
-                    type={card.listingType}
-                    imageSrc={card.images?.find((img) => img.isPrimary)?.url || card.images?.[0]?.url || card.imageSrc || ''}
-                    ProductId={card.id}
-                    priceWord={t('latestOffers.price')}
-                    isFavorites={true}
-                    details={card.gaz ? {
-                      gaz: card.gaz,
-                      type: card.type || ''
-                    } : undefined}
-                  />
-                </React.Fragment>
-              ))}
+              {carListings.map((card: { id: number; details : any; title: string; make: { name: any; }; marka: any; price: Number; listingType: string | undefined; images: any[]; imageSrc: any; gaz: any; type: any; isFavorite?: boolean }, index: any) => {
+                const isFavorite = favoriteStatuses[card.id] !== undefined 
+                  ? favoriteStatuses[card.id] 
+                  : !!card.isFavorite;
+                
+                return (
+                  <React.Fragment key={card.id || index}>
+                    <RentProductCard
+                      title={card.title}
+                      marka={card.make?.name || card.marka || ''}
+                      price={card.price.toString()}
+                      type={card.listingType}
+                      imageSrc={card.images?.find((img) => img.isPrimary)?.url || card.images?.[0]?.url || card.imageSrc || ''}
+                      ProductId={card.id}
+                      priceWord={t('latestOffers.price')}
+                      isMarkedFavorite={isFavorite}
+                      onFavoriteToggle={handleFavoriteToggle}
+                      details={card.details || []}
+                    />
+                  </React.Fragment>
+                );
+              })}
             </Box>
-            
-            {/* Pagination component */}
+
+            <AdsSectionProduct />
             <Pagination
               currentPage={paginationInfo.currentPage}
               totalPages={paginationInfo.totalPages}

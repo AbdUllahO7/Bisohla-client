@@ -9,7 +9,7 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import Image from 'next/image';
-import Link from 'next/link';
+import {Link} from "@/i18n/routing"
 import { Button } from '@/components/ui/button';
 import { CarCardItemPropsProfile } from '@/types/homePageTypes';
 import { AlertTriangle, Edit, HeartIcon, Trash2 } from 'lucide-react';
@@ -225,7 +225,7 @@ export const ProductCardItem: React.FC<ExtendedCarCardItemPropsProfile> = ({
     
     return (
         <div className="w-full" dir={direction}>
-            <Card className={`group border-none rounded-lg bg-white w-full shadow-lg relative`}>
+            <Card className={`group border-none rounded-lg bg-white w-full shadow-lg relative `}>
                 {/* Heart Icon for Favorites with favorite status directly from props */}
                 {isFavorites && (
                     <Button 

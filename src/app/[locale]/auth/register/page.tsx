@@ -12,7 +12,7 @@ import {
 } from '@/interfaces/api-response.interface';
 import { handleRegister } from '@/services/auth/auth.service';
 import { RegisterFormValues } from '@/zod-schemas/auth/register-form-schema';
-import Link from 'next/link';
+import {Link} from "@/i18n/routing"
 import { useActionState } from 'react';
 import { useLocale } from 'next-intl';
 import LocaleSwitcher from '@/components/local/LocalSwitcher';

@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import Text from '@/components/text/text';
 import {
     Card,
@@ -13,9 +13,11 @@ import { CarCardItemProps } from '@/types/homePageTypes';
 import Box from '@/components/box/box';
 import { Fuel, HeartIcon, LifeBuoy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
+import {Link} from "@/i18n/routing"
 import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions';
 import { toggleCarListingFavorite } from '@/core/infrastructure-adapters/actions/users/car.user.actions';
+import { useTranslations } from "next-intl";
+import { getFuelTypeOptions, getTransmissionOptions } from "@/core/entities/enums/cars.enums";
 
 // Extended props interface to include the callback and favorite status
 interface ExtendedCarCardItemProps extends CarCardItemProps {
@@ -39,6 +41,24 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [favoriteStatus, setFavoriteStatus] = useState(isMarkedFavorite);
     const [isProcessing, setIsProcessing] = useState(false);
+    
+    // Get translators for different namespaces - similar to ProductBasicInfo
+    const productT = useTranslations("product");
+    const bodyTypeT = useTranslations("addProduct.enteredData.stepTow");
+
+    // Get the translated options from the car enums - similar to ProductBasicInfo
+    const transmissionOptions = useMemo(() => getTransmissionOptions(bodyTypeT), [bodyTypeT]);
+    const fuelTypeOptions = useMemo(() => getFuelTypeOptions(bodyTypeT), [bodyTypeT]);
+
+    // Find the matching label for the given values - same helper as in ProductBasicInfo
+    const getTranslatedLabel = (value: string, options: Array<{ value: string; label: string }>) => {
+        const option = options.find((opt) => opt.value === value);
+        return option ? option.label : value;
+    };
+
+    // Translated values for details
+    const translatedFuelType = details?.fuelType ? getTranslatedLabel(details.fuelType, fuelTypeOptions) : "";
+    const translatedTransmission = details?.transmission ? getTranslatedLabel(details.transmission, transmissionOptions) : "";
     
     // Check authentication status when component mounts
     useEffect(() => {
@@ -176,7 +196,7 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
                             />
                         </CardTitle>
                         <CardDescription className='p-[8px]'>
-                            <Text variant="h4" className="text-primary pr-2 pl-2">
+                            <Text variant="h4" className="text-primary pr-2 pl-2 line-clamp-1">
                                 {title}
                             </Text>
                             <Text variant="mid" className="text-primary pr-2 pl-2">
@@ -187,14 +207,14 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
                 </Link>
                 
                 <CardFooter className="flex justify-start p-[8px] gap-4">
-                    {/* Display details */}
+                    {/* Display translated details */}
                     <Text variant="small" className="text-gray-500 pr-2 pl-2 flex justify-center items-center gap-2">
                         <Fuel/>
-                        {details?.fuelType}
+                        {translatedFuelType}
                     </Text>
                     <Text variant="small" className="text-gray-500 pr-2 pl-2 flex justify-center items-center gap-2">
                         <LifeBuoy/>
-                        {details?.transmission}
+                        {translatedTransmission}
                     </Text>
                 </CardFooter>
             </Card>
