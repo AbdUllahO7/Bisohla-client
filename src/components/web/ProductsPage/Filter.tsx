@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from "react"
 import type React from "react"
 
-import { Search, SearchCheck, ListRestart } from "lucide-react"
+import { Search, ListRestart } from "lucide-react"
 import { useLocale, useTranslations } from "next-intl"
 import { useRouter, useSearchParams } from "next/navigation"
 
@@ -19,7 +19,8 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 // Hooks and Data
 import { useProductStepOne } from "./addProducts/StepOne/hooks"
 import { useAddProductStepTwo } from "./addProducts/stepTow/hooks"
-import { getPriceRanges } from "@/constants/filterData"
+import { getPriceRanges, getMileageRanges } from "@/constants/filterData"
+import { getCurrencyOptions } from "@/core/entities/enums/currency.enum"
 
 // Types for filtering
 import type { QueryParams, FilterGroup } from "@/core/entities/api/api"
@@ -37,6 +38,8 @@ interface FilterState {
   transmission?: string
   fuelType?: string
   bodyType?: string
+  minMileage?: string
+  maxMileage?: string
   [key: string]: string | undefined
 }
 
@@ -80,7 +83,7 @@ const FilterOptionDropdown = ({
       <SelectDropdown
         options={options}
         placeholder={placeholder}
-        SelectTriggerStyle={`border border-[#EFEFEF] rounded-lg p-2.5 shadow-sm ${disabled ? "bg-slate-100 text-slate-400 cursor-not-allowed" : "bg-white hover:bg-slate-50"} transition-colors w-full text-slate-800`}
+        SelectTriggerStyle={`border border-[#EFEFEF] rounded-lg p-2.5 shadow-sm ${disabled ? "bg-slate-100 text-slate-400 cursor-not-allowed" : "bg-white relatable hover:bg-slate-50"} transition-colors w-full text-slate-800`}
         className="w-full"
         onChange={onChange}
         value={value || ""}
@@ -128,7 +131,7 @@ interface AccordionHeaderProps {
 
 const AccordionHeader = ({ title }: AccordionHeaderProps) => (
   <div className="flex items-center justify-between w-full">
-    <span className=" text-slate-800 font-bold">{title}</span>
+    <span className="text-slate-800 font-bold">{title}</span>
   </div>
 )
 
@@ -145,16 +148,18 @@ const ProductsFilter: React.FC<FilterProps> = ({ onChange }) => {
   const [searchText, setSearchText] = useState("")
   const [minPrice, setMinPrice] = useState<string>("")
   const [maxPrice, setMaxPrice] = useState<string>("")
+  const [minMileage, setMinMileage] = useState<string>("")
+  const [maxMileage, setMaxMileage] = useState<string>("")
   const [minYear, setMinYear] = useState<string>("")
   const [maxYear, setMaxYear] = useState<string>("")
   const [currency, setCurrency] = useState<string>("")
   const [filterState, setFilterState] = useState<FilterState>({})
   const [selectedBrands, setSelectedBrands] = useState<string[]>([])
+  const [carMarkaAccordionValue, setCarMarkaAccordionValue] = useState<string>("car-marka")
   const priceRanges = getPriceRanges
-  const hasInitialized = useRef(false) // Track if initialization has occurred
+  const mileageRanges = getMileageRanges
+  const hasInitialized = useRef(false)
 
-  // Initialize filter from URL parameters only on first mount if searchParams exist
-  // Effect to measure header height once on mount
   useEffect(() => {
     const header = document.querySelector(".mt-\\[50px\\]")
     if (header) {
@@ -163,11 +168,9 @@ const ProductsFilter: React.FC<FilterProps> = ({ onChange }) => {
     }
   }, [])
 
-  // Validation handlers
   const handleValidationChangeStepOne = (isValid: boolean) => {}
   const handleValidationChangeStepTwo = (isValid: boolean) => {}
 
-  // Hooks data
   const {
     selectedOptions,
     governorateOptions,
@@ -187,11 +190,11 @@ const ProductsFilter: React.FC<FilterProps> = ({ onChange }) => {
     handleSelectChange: handleStepTwoSelectChange,
   } = useAddProductStepTwo(handleValidationChangeStepTwo)
 
+  const currencyOptions = getCurrencyOptions(t)
 
-  
   useEffect(() => {
     if (hasInitialized.current || !searchParams || Array.from(searchParams.entries()).length === 0) {
-      return; // Skip if already initialized or no searchParams
+      return
     }
 
     const make = searchParams.get("make")
@@ -201,6 +204,8 @@ const ProductsFilter: React.FC<FilterProps> = ({ onChange }) => {
     const maxYear = searchParams.get("maxYear")
     const minPrice = searchParams.get("minPrice")
     const maxPrice = searchParams.get("maxPrice")
+    const minMileage = searchParams.get("minMileage")
+    const maxMileage = searchParams.get("maxMileage")
     const currency = searchParams.get("currency")
     const governorate = searchParams.get("governorate")
     const city = searchParams.get("city")
@@ -209,7 +214,6 @@ const ProductsFilter: React.FC<FilterProps> = ({ onChange }) => {
     const bodyType = searchParams.get("bodyType")
     const search = searchParams.get("search")
 
-    // Only update state if there are relevant parameters
     const initialState: FilterState = {}
     if (make) initialState.marka = make
     if (model) initialState.model = model
@@ -219,17 +223,20 @@ const ProductsFilter: React.FC<FilterProps> = ({ onChange }) => {
     if (transmission) initialState.transmission = transmission
     if (fuelType) initialState.fuelType = fuelType
     if (bodyType) initialState.bodyType = bodyType
+    if (minMileage) initialState.minMileage = minMileage
+    if (maxMileage) initialState.maxMileage = maxMileage
 
     setFilterState((prev) => ({ ...prev, ...initialState }))
     if (minPrice) setMinPrice(minPrice)
     if (maxPrice) setMaxPrice(maxPrice)
+    if (minMileage) setMinMileage(minMileage)
+    if (maxMileage) setMaxMileage(maxMileage)
     if (minYear) setMinYear(minYear)
     if (maxYear) setMaxYear(maxYear)
     if (currency) setCurrency(currency)
     if (search) setSearchText(search)
     if (make) setSelectedBrands([make])
 
-    // Sync hook states
     handleStepOneSelectChange("governorate", initialState.governorate || "")
     handleStepOneSelectChange("city", initialState.city || "")
     handleStepOneSelectChange("marka", initialState.marka || "")
@@ -240,16 +247,11 @@ const ProductsFilter: React.FC<FilterProps> = ({ onChange }) => {
     handleStepTwoSelectChange("bodyType", initialState.bodyType || "")
     handleStepTwoSelectChange("currency", currency || "")
 
-    hasInitialized.current = true; // Mark as initialized
+    hasInitialized.current = true
   }, [searchParams, handleStepOneSelectChange, handleStepTwoSelectChange])
 
-
-
-
-  // Calculate the available height for the scroll area
   const scrollHeight = `calc(100vh - ${headerHeight + 170}px)`
 
-  // Handler for brand checkbox changes
   const handleBrandCheckboxChange = (brandId: string) => {
     if (selectedBrands.includes(brandId)) {
       const newSelectedBrands = selectedBrands.filter((id) => id !== brandId)
@@ -277,9 +279,9 @@ const ProductsFilter: React.FC<FilterProps> = ({ onChange }) => {
       handleStepOneSelectChange("model", "")
       handleStepOneSelectChange("trim", "")
     }
+    setCarMarkaAccordionValue("")
   }
 
-  // Custom handlers for filter changes
   const handleFilterChange = (name: string, value: string) => {
     const newFilterState = { ...filterState, [name]: value }
     if (name === "governorate") {
@@ -294,7 +296,6 @@ const ProductsFilter: React.FC<FilterProps> = ({ onChange }) => {
     handleStepOneSelectChange(name, value)
   }
 
-  // Handler for year range changes
   const handleYearChange = (type: "min" | "max", value: string) => {
     if (type === "min") {
       setMinYear(value)
@@ -313,6 +314,16 @@ const ProductsFilter: React.FC<FilterProps> = ({ onChange }) => {
     }
   }
 
+  const handleMileageChange = (type: "min" | "max", value: string) => {
+    if (type === "min") {
+      setMinMileage(value)
+      setFilterState((prev) => ({ ...prev, minMileage: value }))
+    } else {
+      setMaxMileage(value)
+      setFilterState((prev) => ({ ...prev, maxMileage: value }))
+    }
+  }
+
   const handleCurrencyChange = (name: string, value: string) => {
     setCurrency(value)
     handleStepTwoSelectChange(name, value)
@@ -324,7 +335,6 @@ const ProductsFilter: React.FC<FilterProps> = ({ onChange }) => {
     handleStepTwoSelectChange(name, value)
   }
 
-  // Build filter query
   const buildFilterQuery = (): QueryParams => {
     const filterGroups: FilterGroup[] = []
 
@@ -418,6 +428,20 @@ const ProductsFilter: React.FC<FilterProps> = ({ onChange }) => {
         value: filterState.bodyType,
       })
     }
+    if (minMileage) {
+      technicalDetailsFilters.push({
+        field: "details.mileage",
+        operator: "gte",
+        value: Number.parseInt(minMileage, 10),
+      })
+    }
+    if (maxMileage) {
+      technicalDetailsFilters.push({
+        field: "details.mileage",
+        operator: "lte",
+        value: Number.parseInt(maxMileage, 10),
+      })
+    }
     if (technicalDetailsFilters.length > 0) {
       filterGroups.push({
         operator: "and",
@@ -475,7 +499,6 @@ const ProductsFilter: React.FC<FilterProps> = ({ onChange }) => {
     }
   }
 
-  // Apply filters
   const applyFilters = () => {
     const queryParams = buildFilterQuery()
     const params = new URLSearchParams()
@@ -491,25 +514,29 @@ const ProductsFilter: React.FC<FilterProps> = ({ onChange }) => {
     if (filterState.bodyType) params.set("bodyType", filterState.bodyType)
     if (minPrice) params.set("minPrice", minPrice)
     if (maxPrice) params.set("maxPrice", maxPrice)
+    if (minMileage) params.set("minMileage", minMileage)
+    if (maxMileage) params.set("maxMileage", maxMileage)
     if (currency) params.set("currency", currency)
     if (searchText) params.set("search", searchText)
 
-    router.push(`?${params.toString()}`)
+    router.push(`?${params.toString()}`);
     if (onChange) {
-      onChange(queryParams)
+      onChange(queryParams);
     }
   }
 
-  // Reset filters
   const resetFilters = () => {
     setFilterState({})
     setMinPrice("")
     setMaxPrice("")
+    setMinMileage("")
+    setMaxMileage("")
     setMinYear("")
     setMaxYear("")
     setCurrency("")
     setSearchText("")
     setSelectedBrands([])
+    setCarMarkaAccordionValue("car-marka")
 
     handleStepOneSelectChange("governorate", "")
     handleStepOneSelectChange("city", "")
@@ -564,11 +591,11 @@ const ProductsFilter: React.FC<FilterProps> = ({ onChange }) => {
 
         {/* Filter Body */}
         <div className={`transition-all duration-300 ${isCollapsed ? "h-0 overflow-hidden" : ""}`}>
-          <ScrollArea className="px-4" style={{ height: scrollHeight , minHeight : "70vh"}}>
+          <ScrollArea className="px-4" style={{ height: scrollHeight, minHeight: "70vh" }}>
             {/* Location Filter */}
-            <Accordion type="single" collapsible defaultValue="address" className="my-2" >
+            <Accordion type="single" collapsible defaultValue="address" className="my-2">
               <AccordionItem value="address" className="border-b border-[#EFEFEF] py-1" dir={isRTL ? "rtl" : "ltr"}>
-                <AccordionTrigger className="!no-underline py-2 px-2 rounded-md transition-colors hover:bg-slate-50 group" >
+                <AccordionTrigger className="!no-underline py-2 px-2 rounded-md transition-colors hover:bg-slate-50 group">
                   <AccordionHeader title={t("filter.filterOptions.address.filterOptionsTitle")} />
                 </AccordionTrigger>
                 <AccordionContent className="pt-2 pb-3 px-2">
@@ -597,7 +624,7 @@ const ProductsFilter: React.FC<FilterProps> = ({ onChange }) => {
             </Accordion>
 
             {/* Car Brand Filter */}
-            <Accordion type="single" collapsible className="my-2">
+            <Accordion type="single" collapsible className="my-2" value={carMarkaAccordionValue} onValueChange={setCarMarkaAccordionValue}>
               <AccordionItem value="car-marka" className="border-b border-slate-100 py-1" dir={isRTL ? "rtl" : "ltr"}>
                 <AccordionTrigger className="!no-underline py-2 px-2 rounded-md transition-colors hover:bg-slate-50 group">
                   <AccordionHeader title={t("filter.filterOptions.productMarka.filterOptionsTitle")} />
@@ -705,8 +732,8 @@ const ProductsFilter: React.FC<FilterProps> = ({ onChange }) => {
                     />
                   </div>
                   <FilterOptionDropdown
-                    options={stepTwoOptions.currency}
-                    placeholder={stepTwoLabels.selectCurrency}
+                    options={currencyOptions}
+                    placeholder={t("filter.filterOptions.currency.title")}
                     onChange={handleCurrencyChange}
                     value={currency || carInfo.currency}
                     name="currency"
@@ -715,10 +742,37 @@ const ProductsFilter: React.FC<FilterProps> = ({ onChange }) => {
               </AccordionItem>
             </Accordion>
 
+            {/* Mileage Range */}
+            <Accordion type="single" collapsible className="my-2">
+              <AccordionItem value="mileage-range" className="border-b border-slate-100 py-1" dir={isRTL ? "rtl" : "ltr"}>
+                <AccordionTrigger className="!no-underline py-2 px-2 rounded-md transition-colors hover:bg-slate-50 group">
+                  <AccordionHeader title={t("filter.filterOptions.mileage.title", { defaultValue: "Mileage Range" })} />
+                </AccordionTrigger>
+                <AccordionContent className="pt-2 pb-3 px-2">
+                  <div className="grid grid-cols-2 gap-3 mb-3">
+                    <FilterOptionDropdown
+                      options={mileageRanges}
+                      placeholder={t("filter.filterOptions.mileage.minMileage", { defaultValue: "Min Mileage" })}
+                      onChange={(name, value) => handleMileageChange("min", value)}
+                      value={minMileage}
+                      name="minMileage"
+                    />
+                    <FilterOptionDropdown
+                      options={mileageRanges}
+                      placeholder={t("filter.filterOptions.mileage.maxMileage", { defaultValue: "Max Mileage" })}
+                      onChange={(name, value) => handleMileageChange("max", value)}
+                      value={maxMileage}
+                      name="maxMileage"
+                    />
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+
             {/* Control Type */}
             <Accordion type="single" collapsible className="my-2">
               <AccordionItem value="control-type" className="border-b border-slate-100 py-1" dir={isRTL ? "rtl" : "ltr"}>
-                <AccordionTrigger className=" py-2 px-2 rounded-md transition-colors hover:bg-slate-50 group">
+                <AccordionTrigger className="!no-underline py-2 px-2 rounded-md transition-colors hover:bg-slate-50 group">
                   <AccordionHeader title={t("filter.filterOptions.ControlType.title")} />
                 </AccordionTrigger>
                 <AccordionContent className="pt-2 pb-3 px-2">

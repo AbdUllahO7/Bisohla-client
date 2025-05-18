@@ -3,7 +3,7 @@
 import { useSession } from "@/hooks/auth/use-session"
 import type { HeaderTowProps } from "@/types/homePageTypes"
 import { MenuIcon } from "lucide-react"
-import Link from "next/link"
+import {Link} from "@/i18n/routing"
 import type React from "react"
 import { useMenuToggle } from "./useMenuToggle"
 import MobileMenu from "./MobileMenu"

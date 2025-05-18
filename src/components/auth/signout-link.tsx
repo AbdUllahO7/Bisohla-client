@@ -1,4 +1,4 @@
-import Link, { LinkProps } from 'next/link';
+import Link, { LinkProps } from '@/i18n/routing';
 import { Button } from '../ui/button';
 import { allRoutes } from '@/constants/routes.constant';
 

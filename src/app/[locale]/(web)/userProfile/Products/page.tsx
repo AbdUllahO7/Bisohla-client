@@ -174,11 +174,15 @@ const UserProductPage = () => {
                 
                 {/* Empty state */}
                 {!isLoading && !error && carListings.length === 0 && (
-                    <Box className="w-full py-8 text-center" variant="center">
-                        <Text className="text-gray-600">You haven't created any listings yet.</Text>
+                    <Box className="w-full py-8 flex-col text-center" variant="center">
+                        <Text className="text-gray-600">
+                            {locale === 'ar' ? "لم تقم بإنشاء أي قوائم بعد.": "You haven't created any listings yet."}
+                        </Text>
                         <Box className="mt-4">
                             <a href="/products/create" className="bg-primary text-white px-4 py-2 rounded-lg">
-                                Create New Listing
+                                {
+                                    locale === 'ar' ? "إضافة سيارة جديدة" : 'Add New Car'
+                                }
                             </a>
                         </Box>
                     </Box>

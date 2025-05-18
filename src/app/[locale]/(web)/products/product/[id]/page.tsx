@@ -11,7 +11,7 @@ import TabsSection from "@/components/web/ProductsPage/product/TabsSection"
 import { useCarListingById } from "@/core/infrastructure-adapters/use-actions/visitors/car.visitor.use-actions"
 import { checkAuth } from "@/core/infrastructure-adapters/actions/auth/auth.actions"
 import Text from "@/components/text/text"
-import Link from "next/link"
+import {Link} from "@/i18n/routing"
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
 import { useLocale } from "next-intl"
 

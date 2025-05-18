@@ -9,7 +9,7 @@ export default function Dashboard({ children }: PropsWithChildren) {
     <SidebarProvider>
       {/* Account for the fixed headers (55px + 65px = 120px) */}
       <div
-        className="flex pt-[120px] min-h-screen bg-background w-full"
+        className="flex pt-[20px]  bg-background w-full"
         dir="ltr"
       >
         <DashboardSidebar />

@@ -11,6 +11,7 @@ import ProductSkeleton from '@/components/web/design/ProductSkeletonItem';
 import Pagination from '@/components/Pagination';
 import { Filter, FilterGroup, QueryParams } from '@/core/entities/api/api';
 import AdsSectionProduct from '@/components/web/ProductsPage/product/AdsSectionProduct';
+import AllCarListingsSkeleton from '@/components/web/design/AllCarListingsSkeleton';
 
 interface AllCarListingsProps {
   pageSize?: number;
@@ -300,8 +301,11 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
 
   
   return (
-    <Box variant={container ? "container" : "center"} className="mb-5">
-      <Box variant="column">
+    <Box variant={container ? "container" : "center"} className="mb-5 mt-5">
+
+       
+
+      <Box variant="column" className='w-full'>
         {showTitle && (
           <Box variant="column" className="mb-4">
             <Text variant="h3" className="font-bold text-[20px] font-cairo">
@@ -310,8 +314,15 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
           </Box>
         )}
         
-        {/* Show loading skeleton */}
-        {isLoading && <ProductSkeleton count={pageSize} showTitle={false} />}
+       
+        {isLoading && <div className='w-full'>
+          <AllCarListingsSkeleton
+            pageSize={pageSize}
+            showTitle={showTitle}
+          /> 
+        </div>
+        }
+        
         
         {/* Show error state */}
         {error && (

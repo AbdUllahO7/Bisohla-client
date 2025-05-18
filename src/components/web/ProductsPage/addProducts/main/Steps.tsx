@@ -78,7 +78,7 @@ const Steps: React.FC<StepsProps> = ({ isEditMode = false, carId, initialData })
 
       {/* Fix the type error by explicitly setting value as a string */}
       <Tabs value={currentStep} className="w-full flex flex-col justify-start items-start">
-         <TabsList
+        <TabsList
           className="bg-transparent flex h-auto gap-2 md:gap-3 lg:gap-4 flex-wrap w-full xs:w-full justify-between items-center "
           dir={direction}
         >

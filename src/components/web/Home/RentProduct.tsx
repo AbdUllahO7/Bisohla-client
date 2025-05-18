@@ -2,7 +2,7 @@
 import Box from '@/components/box/box';
 import Text from '@/components/text/text';
 import { useTranslations } from 'next-intl';
-import Link from 'next/link';
+import {Link} from "@/i18n/routing"
 import React, { useState, useEffect, useCallback } from 'react';
 import { RentProductCard } from '../design/RentProductCard';
 import CardAds from '../design/CardAds';

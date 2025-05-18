@@ -2,7 +2,7 @@
 import Text from "@/components/text/text"
 import { useTranslations, useLocale } from "next-intl"
 import Image from "next/image"
-import Link from "next/link"
+import {Link} from "@/i18n/routing"
 
 const AdsSectionProduct = () => {
   const t = useTranslations("homePage")

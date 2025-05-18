@@ -13,7 +13,6 @@ const AddProductStepOne: React.FC<AddProductStepOneProps> = ({
     isEditMode = false,
     initialData = null 
 }) => {
-    console.log("initialData one" , initialData)
     const {
         selectedOptions,
         direction,

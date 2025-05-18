@@ -347,7 +347,11 @@
         "bodyType" : {
           "placeholder" : "Body Type"
         },
-       
+        "mileage": {
+            "title": "Mileage Range",
+            "minMileage": "Min Mileage",
+            "maxMileage": "Max Mileage"
+              },
         "address": {
           "filterOptionsTitle": "Address",
           "placeHolder": "City",
@@ -394,6 +398,9 @@
           "gasoline": "Gasoline",
           "diesel": "Diesel"
         },
+          "currency": {
+        "title" :"Currency"
+      },
         "search": "Search",
         "resetSearch": "reset Search"
       }
@@ -893,11 +900,11 @@
           "tenFiles": "You can enter up to 10 files"
         }
       },
-           "currency": {
+      "currency": {
             "syp": "Syrian Pound",
             "usd": "US Dollar",
             "eur": "Euro"
-            },
+        },
       "stepFour" : {
           "title" : "Ad Details",
           "adTitle" : "Ad Title",

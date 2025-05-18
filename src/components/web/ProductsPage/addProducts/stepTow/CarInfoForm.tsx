@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input"
 import FormField from "./FormField"
 import type { CarInfoState, ValidationErrors } from "./types"
 import { useTranslations } from "next-intl"
-import SelectDropdown from "@/components/SelectDropdown"
+import SelectFieldWithSearch from "@/components/web/design/SelectFieldWithSearch"
 
 interface CarInfoFormProps {
   carInfo: CarInfoState
@@ -33,22 +33,18 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
   // Input refs for text fields
   const mileageInputRef = useRef<HTMLInputElement>(null)
   const enginePowerInputRef = useRef<HTMLInputElement>(null)
-  const engineSizeInputRef = useRef<HTMLInputElement>(null)
   const doorsInputRef = useRef<HTMLInputElement>(null)
   const vinInputRef = useRef<HTMLInputElement>(null)
   const plateInputRef = useRef<HTMLInputElement>(null)
 
   // Initialize refs with current values
   useEffect(() => {
-    if (mileageInputRef.current) mileageInputRef.current.value = carInfo.mileage || ''
-    if (enginePowerInputRef.current) enginePowerInputRef.current.value = carInfo.enginePower || ''
-    if (engineSizeInputRef.current) engineSizeInputRef.current.value = carInfo.engineSize || ''
-    if (doorsInputRef.current) doorsInputRef.current.value = carInfo.doors || ''
-    if (vinInputRef.current) vinInputRef.current.value = carInfo.vin || ''
-    if (plateInputRef.current) plateInputRef.current.value = carInfo.plateNumber || ''
+    if (mileageInputRef.current) mileageInputRef.current.value = carInfo.mileage || ""
+    if (enginePowerInputRef.current) enginePowerInputRef.current.value = carInfo.enginePower || ""
+    if (doorsInputRef.current) doorsInputRef.current.value = carInfo.doors || ""
+    if (vinInputRef.current) vinInputRef.current.value = carInfo.vin || ""
+    if (plateInputRef.current) plateInputRef.current.value = carInfo.plateNumber || ""
   }, [carInfo])
-
-
 
   const handleMileageBlur = useCallback(() => {
     onTextFieldBlur("mileage", mileageInputRef.current?.value || "")
@@ -56,10 +52,6 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
 
   const handleEnginePowerBlur = useCallback(() => {
     onTextFieldBlur("enginePower", enginePowerInputRef.current?.value || "")
-  }, [onTextFieldBlur])
-
-  const handleEngineSizeBlur = useCallback(() => {
-    onTextFieldBlur("engineSize", engineSizeInputRef.current?.value || "")
   }, [onTextFieldBlur])
 
   const handleDoorsBlur = useCallback(() => {
@@ -74,7 +66,13 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
     onTextFieldBlur("plateNumber", plateInputRef.current?.value || "")
   }, [onTextFieldBlur])
 
-  // Modified SelectField to use SelectDropdown
+  // Generate engine size options from 0.8 to 8.0
+  const engineSizeOptions = Array.from({ length: 73 }, (_, i) => {
+    const value = (0.8 + i * 0.1).toFixed(1)
+    return { value, label: `${value} L` }
+  })
+
+  // Modified SelectField to use SelectFieldWithSearch
   const SelectField = useCallback(
     ({
       label,
@@ -85,9 +83,9 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
     }: {
       label: string
       field: string
-      options: any[]
+      options: Array<{ value: string; label: string }>
       placeholder: string
-      optionsLabel: string
+      optionsLabel?: string
       required?: boolean
     }) => {
       const hasError =
@@ -100,8 +98,7 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
 
       return (
         <FormField label={label} field={field} required={required}>
-          <SelectDropdown
-            label=""
+          <SelectFieldWithSearch
             options={options}
             placeholder={placeholder}
             name={field}
@@ -116,7 +113,7 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
         </FormField>
       )
     },
-    [validationErrors, carInfo, onSelectChange, onTextFieldBlur],
+    [validationErrors, carInfo, onSelectChange, onTextFieldBlur]
   )
 
   return (
@@ -151,17 +148,7 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
           </FormField>
 
           {/* Engine Size */}
-          <FormField label={labels.engineSize} field="engineSize" required error={validationErrors.engineSize}>
-            <Input
-              type="text"
-              ref={engineSizeInputRef}
-              defaultValue={carInfo.engineSize || ""}
-              onBlur={handleEngineSizeBlur}
-              placeholder={labels.enterEngineSize}
-              className={`w-full ${validationErrors.engineSize ? "border-red-500" : ""} text-primary`}
-              required
-            />
-          </FormField>
+       
 
           {/* Doors */}
           <FormField label={labels.doors} field="doors" required error={validationErrors.doors}>
@@ -190,7 +177,7 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
           </FormField>
 
           {/* VIN */}
-          <FormField label={labels.vin} field="vin" >
+          <FormField label={labels.vin} field="vin">
             <Input
               type="text"
               ref={vinInputRef}
@@ -204,9 +191,6 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
 
         {/* Right column - SelectFields */}
         <div className="space-y-6">
-
-         
-
           {/* Exterior Color */}
           <SelectField
             label={labels.colorExterior}
@@ -216,9 +200,13 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
             optionsLabel={labels.extColors}
             required
           />
-
-      
-
+      <SelectField
+            label={labels.engineSize}
+            field="engineSize"
+            options={engineSizeOptions}
+            placeholder={labels.enterEngineSize}
+            required
+          />
           {/* Fuel Type */}
           <SelectField
             label={labels.fuelType}
@@ -228,7 +216,8 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
             optionsLabel={labels.fuelTypes}
             required
           />
-      {/* Transmission */}
+
+          {/* Transmission */}
           <SelectField
             label={labels.transmission}
             field="transmission"
@@ -237,6 +226,7 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
             optionsLabel={labels.transmissions}
             required
           />
+
           {/* Body Type */}
           <SelectField
             label={labels.bodyType}
@@ -246,8 +236,6 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
             optionsLabel={labels.bodyTypes}
             required
           />
-
-         
         </div>
       </div>
     </div>

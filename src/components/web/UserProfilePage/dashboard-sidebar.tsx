@@ -21,7 +21,7 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import Link from "next/link"
+import {Link} from "@/i18n/routing"
 import { usePathname } from "next/navigation"
 import { useGetMyProfile } from "@/core/infrastructure-adapters/use-actions/users/user-profile.use-actions"
 import { useForm } from "react-hook-form"
@@ -29,12 +29,14 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useEffect, useState } from "react"
 import { useSession } from "@/hooks/auth/use-session"
 import { profileFormSchema, ProfileFormValues } from "@/core/entities/models/users/users.dto"
+import { useLocale, useTranslations } from "next-intl"
 
 export function DashboardSidebar() {
   const pathname = usePathname()
-  const { data, isLoading: isProfileLoading, error, refetch } = useGetMyProfile();
+  const { data} = useGetMyProfile();
     const [isClient, setIsClient] = useState(false);
     const session = useSession()
+    const locale = useLocale()
  // Profile form
   const profileForm = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
@@ -82,23 +84,23 @@ export function DashboardSidebar() {
   };
 
   return (
-    <Sidebar className="" collapsible='icon'>
-      <SidebarHeader className="flex h-14 items-center px-4 mt-20 bg-primary" dir="ltr">
+    <Sidebar className="" collapsible='icon' dir={locale === 'ar' ? 'rtl' :'ltr'}>
+      <SidebarHeader className="flex h-14 items-center pt-5 px-4 mt-20 bg-primary" dir="ltr">
         <div className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary">
             <Layers className="h-5 w-5 text-primary-foreground" />
           </div>
-          <span className="text-xl font-bold">Dashboard</span>
+          <span className="text-xl font-bold ">{locale === 'ar' ?"لوحة التحكم" : "Dashboard"}</span>
         </div>
       </SidebarHeader>
-      <SidebarContent className="px-2 bg-primary">
+      <SidebarContent className="px-2 bg-primary pt-5">
         <SidebarMenu>
           {[
-            { href: "/userProfile", icon: LayoutDashboard, label: "Dashboard" },
-            { href: "/userProfile/Products", icon: Home, label: "Products" },
-            { href: "/userProfile/Favorites", icon: Heart, label: "Favorites" },
-            { href: "/userProfile/Notification", icon: Heart, label: "Notifications" },
-            { href: "/userProfile/UserInfo", icon: Settings, label: "Settings" },
+            { href: "/userProfile", icon: LayoutDashboard, label: locale === 'ar' ? "الرئيسية": "Dashboard" },
+            { href: "/userProfile/Products", icon: Home, label:locale === 'ar' ? "سيارات" : "Cars" },
+            { href: "/userProfile/Favorites", icon: Heart, label: locale === 'ar' ? "المفضلة": "Favorites" },
+            { href: "/userProfile/Notification", icon: Heart, label: locale === 'ar' ? "الإشعارات": "Notifications" },
+            { href: "/userProfile/UserInfo", icon: Settings, label: locale === 'ar' ? "الإعدادات" : "Settings" },
           ].map(({ href, icon: Icon, label }) => (
             <SidebarMenuItem key={href}>
               <SidebarMenuButton

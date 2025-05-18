@@ -581,12 +581,12 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
         <input type="hidden" name={name} value={imageUrls.join(',')} />
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid grid-cols-2 w-full">
-            <TabsTrigger value="upload" className="flex items-center gap-1">
+          <TabsList className="grid grid-cols-2 w-full bg-primary-light ">
+            <TabsTrigger value="upload" className="flex items-center gap-1 border-0 text-white font-bold data-[state=active]:text-primary">
               <Upload className="h-4 w-4" />
               <span>Upload New</span>
             </TabsTrigger>
-            <TabsTrigger value="previous" className="flex items-center gap-1">
+            <TabsTrigger value="previous" className="flex items-center gap-1 text-white font-bold data-[state=active]:text-primary">
               <History className="h-4 w-4" />
               <span>Previous Uploads</span>
             </TabsTrigger>
@@ -698,106 +698,8 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
                     className="w-full mt-4"
                   >
                     <h3 className="text-sm font-medium mb-2">Upload Queue</h3>
-                    <ScrollArea className="h-40 w-full rounded-md border border-muted shadow-sm">
-                      <div className="p-4 space-y-3">
-                        <AnimatePresence>
-                          {uploadingFiles.map((file) => (
-                            <motion.div 
-                              key={file.id} 
-                              initial={{ opacity: 0, y: 10 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, height: 0, marginBottom: 0 }}
-                              transition={{ duration: 0.2 }}
-                              className="flex items-center space-x-3 bg-white p-2 rounded-lg shadow-sm border border-muted"
-                            >
-                              <div className="relative h-14 w-14 flex-shrink-0 overflow-hidden rounded-md">
-                                {file.preview.startsWith('data:image/') ? (
-                                  <Image
-                                    src={file.preview}
-                                    alt={file.file.name}
-                                    fill
-                                    className="object-cover"
-                                    sizes="56px"
-                                  />
-                                ) : (
-                                  <div className="flex h-full w-full items-center justify-center bg-muted/20">
-                                    <FileIcon className="h-6 w-6 text-muted-foreground" />
-                                  </div>
-                                )}
-                              </div>
-                              <div className="flex-grow">
-                                <div className="flex justify-between items-center">
-                                  <p className="text-sm font-medium truncate max-w-[180px]">
-                                    {file.file.name}
-                                  </p>
-                                  <div className="flex items-center space-x-2">
-                                    {file.status === 'error' && (
-                                      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                                        <Button
-                                          variant="outline"
-                                          size="sm"
-                                          className="h-7 px-2 text-xs"
-                                          onClick={() => retryUpload(file.id)}
-                                        >
-                                          Retry
-                                        </Button>
-                                      </motion.div>
-                                    )}
-                                    {file.status !== 'uploading' && (
-                                      <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-                                        <Button
-                                          variant="ghost"
-                                          size="icon"
-                                          className="h-6 w-6"
-                                          onClick={() => removeUploadingFile(file.id)}
-                                        >
-                                          <X className="h-4 w-4" />
-                                        </Button>
-                                      </motion.div>
-                                    )}
-                                  </div>
-                                </div>
-                                
-                                {/* Progress bar */}
-                                {file.status === 'uploading' && typeof file.progress === 'number' && (
-                                  <div className="w-full h-1.5 bg-gray-200 rounded-full mt-1 mb-1 overflow-hidden">
-                                    <motion.div 
-                                      className="h-full bg-primary rounded-full"
-                                      initial={{ width: 0 }}
-                                      animate={{ width: `${file.progress}%` }}
-                                      transition={{ duration: 0.3 }}
-                                    />
-                                  </div>
-                                )}
-                                
-                                <div className="flex items-center text-xs mt-1">
-                                  {file.status === 'uploading' && (
-                                    <div className="flex items-center text-blue-600">
-                                      <Loader2 className="h-3 w-3 mr-1 animate-spin" />{' '}
-                                      Uploading {file.progress ? `(${Math.round(file.progress)}%)` : '...'}
-                                    </div>
-                                  )}
-                                  {file.status === 'success' && (
-                                    <p className="text-green-600 flex items-center">
-                                      <CheckCircle2 className="h-3 w-3 mr-1" /> Upload
-                                      complete
-                                    </p>
-                                  )}
-                                  {file.status === 'error' && (
-                                    <p className="text-red-600">{file.error}</p>
-                                  )}
-                                  {file.status === 'pending' && (
-                                    <p className="text-muted-foreground">
-                                      Waiting to upload...
-                                    </p>
-                                  )}
-                                </div>
-                              </div>
-                            </motion.div>
-                          ))}
-                        </AnimatePresence>
-                      </div>
-                    </ScrollArea>
+                  
+                    
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -820,7 +722,7 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
                 userFilesResponse.data.data.length > 0 ? (
                 <>
                   <div className="mb-4 flex justify-between items-center">
-                    <h3 className="text-sm font-medium">
+                    <h3 className="text-sm font-medium text-primary">
                       Your Previous Uploads
                     </h3>
                     <AnimatePresence>
@@ -843,7 +745,7 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
                     </AnimatePresence>
                   </div>
 
-                  <ScrollArea className="h-64 w-full rounded-md border">
+                  <ScrollArea className="h-70 w-full rounded-md border">
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 p-4">
                       <AnimatePresence>
                         {userFilesResponse.data.data
