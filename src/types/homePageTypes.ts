@@ -63,6 +63,7 @@ export interface HeaderTowProps {
         sale: string;
         join: string;
         BrowseAll : string;
+        Privacypolicy:string
     };
 }
 

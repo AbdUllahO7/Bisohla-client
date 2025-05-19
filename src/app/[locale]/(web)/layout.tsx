@@ -36,7 +36,7 @@ const WebLayout = async ({ children }: PropsWithChildren) => {
               sale: t("headerTow.sale"),
               join: t("headerTow.join"),
               BrowseAll: t("headerTow.BrowseAll"),
-              
+              Privacypolicy :t("headerTow.Privacypolicy"),
             }}
 
           />

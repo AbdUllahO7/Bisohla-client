@@ -37,8 +37,11 @@ const HeaderTow: React.FC<HeaderTowProps> = ({ translations }) => {
               <Link href="/products" className="hover:bg-primary-light transition-all px-2 py-1 text-sm rounded">
                 {translations.BrowseAll}
               </Link>
+               <Link href="/Privacypolicy" className="hover:bg-primary-light transition-all px-2 py-1 text-sm rounded">
+                {translations.Privacypolicy}
+              </Link>
               {!session.user.id && (
-                <Link href="auth/sign-in" className="hover:bg-primary-light transition-all px-2 py-1 text-sm rounded">
+                <Link href="/auth/sign-in" className="hover:bg-primary-light transition-all px-2 py-1 text-sm rounded">
                   {translations.join}
                 </Link>
               )}

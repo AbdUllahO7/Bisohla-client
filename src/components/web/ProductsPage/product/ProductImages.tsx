@@ -181,66 +181,66 @@ const ProductImages: React.FC<ProductImagesProps> = ({ isLoading = false, images
       </Box>
 
       {/* Image Carousel/Lightbox */}
-      {isCarouselOpen && (
-        <Box
-          className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center"
-          onClick={closeCarousel} // Add click handler to the background
-        >
-          <Box
-            className="relative w-full h-full flex items-center justify-center"
-            onClick={(e) => e.stopPropagation()} // Prevent clicks on content from closing
-          >
-            {/* Close button */}
-            <button
-              onClick={closeCarousel}
-              className="absolute top-2 right-2 md:top-4 md:right-4 text-white z-50 p-1 md:p-2 rounded-full bg-black bg-opacity-50 hover:bg-opacity-70 transition-all"
-            >
-              <X size={20} className="md:h-6 md:w-6" />
-            </button>
+     {isCarouselOpen && (
+  <Box
+    className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center"
+    onClick={closeCarousel} // Close when clicking the background
+  >
+    <Box
+      className="relative w-full max-h-[50vh] h-full flex items-center justify-center"
+      onClick={(e) => e.stopPropagation()} // Prevent clicks on content from closing
+    >
+      {/* Close button */}
+      <button
+        onClick={closeCarousel}
+        className="absolute top-2 right-2 md:top-4 md:right-4 text-white z-50 p-1 md:p-2 rounded-full bg-black bg-opacity-50 hover:bg-opacity-70 transition-all"
+      >
+        <X size={20} className="md:h-6 md:w-6" />
+      </button>
 
-            {/* Previous button */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation()
-                goToPrevImage()
-              }}
-              className="absolute left-2 md:left-4 text-white z-50 p-1 md:p-2 rounded-full bg-black bg-opacity-50 hover:bg-opacity-70 transition-all"
-            >
-              <ChevronLeft size={20} className="md:h-6 md:w-6" />
-            </button>
+      {/* Previous button */}
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          goToPrevImage();
+        }}
+        className="absolute left-2 md:left-4 text-white z-50 p-1 md:p-2 rounded-full bg-black bg-opacity-50 hover:bg-opacity-70 transition-all"
+      >
+        <ChevronLeft size={20} className="md:h-6 md:w-6" />
+      </button>
 
-            {/* Current image */}
-            <Box
-              className="relative w-full h-full flex items-center justify-center p-2 md:p-0"
-              onClick={(e) => e.stopPropagation()} // Prevent image clicks from closing
-            >
-              <Image
-                src={allImageUrls[currentImageIndex] || "/placeholder.svg"}
-                alt={`Image ${currentImageIndex + 1}`}
-                width={1200}
-                height={800}
-                className="max-h-[80vh] max-w-[90vw] md:max-h-[90vh] md:max-w-[95vw] object-contain"
-              />
-            </Box>
+      {/* Current image */}
+      <Box
+        className="relative w-full h-full flex items-center justify-center p-2 md:p-0"
+        onClick={(e) => e.stopPropagation()} // Prevent image clicks from closing
+      >
+        <Image
+          src={allImageUrls[currentImageIndex] || "/placeholder.svg"}
+          alt={`Image ${currentImageIndex + 1}`}
+          width={1200}
+          height={800}
+          className="max-h-[80vh] max-w-[90vw] md:max-h-[90vh] md:max-w-[95vw] object-contain"
+        />
+      </Box>
 
-            {/* Next button */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation()
-                goToNextImage()
-              }}
-              className="absolute right-2 md:right-4 text-white z-50 p-1 md:p-2 rounded-full bg-black bg-opacity-50 hover:bg-opacity-70 transition-all"
-            >
-              <ChevronRight size={20} className="md:h-6 md:w-6" />
-            </button>
+      {/* Next button */}
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          goToNextImage();
+        }}
+        className="absolute right-2 md:right-4 text-white z-50 p-1 md:p-2 rounded-full bg-black bg-opacity-50 hover:bg-opacity-70 transition-all"
+      >
+        <ChevronRight size={20} className="md:h-6 md:w-6" />
+      </button>
 
-            {/* Image counter */}
-            <Box className="absolute bottom-2 md:bottom-4 left-1/2 transform -translate-x-1/2 text-white bg-black bg-opacity-50 px-2 py-1 md:px-4 md:py-2 rounded-full text-sm md:text-base">
-              {currentImageIndex + 1} / {allImageUrls.length}
-            </Box>
-          </Box>
-        </Box>
-      )}
+      {/* Image counter */}
+      <Box className="absolute bottom-2 md:bottom-4 left-1/2 transform -translate-x-1/2 text-white bg-black bg-opacity-50 px-2 py-1 md:px-4 md:py-2 rounded-full text-sm md:text-base">
+        {currentImageIndex + 1} / {allImageUrls.length}
+      </Box>
+    </Box>
+  </Box>
+)}
     </Box>
   )
 }

@@ -158,7 +158,7 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
   return (
     <Box variant="rowBetween" className="items-center justify-start w-full  gap-2 flex-col sm:flex-row">
       <Box className="justify-start items-start w-full sm:w-auto" variant="center">
-        <Text variant="h5" className=" font-bold md:text-start xs:text-center  w-full">
+        <Text variant="h5" className=" font-bold md:text-start xs:text-center min-w-[300px]  w-full">
           {productName}
         </Text>
       </Box>

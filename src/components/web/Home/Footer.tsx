@@ -17,22 +17,22 @@ const Footer = () => {
                     {/*  create ad */}
                 <Box variant="column" className='items-start justify-start gap-8 md:w-[300px] sm:w-[400px] xs:w-[400px] lg:mt-0 lg:items-start xs:items-center xs:mt-5'>
                     <Text variant="h4" className='text-primary'>{locale === 'ar' ?  'أنشىء اعلان' : 'Create Ad'}</Text>
-                    <Link href="#" className="text-primary">{locale === 'ar' ? 'إنشىء إعلان تأجير سيارة' :'Create a car rental ad'}</Link>
-                    <Link href="#" className="text-primary">{locale === 'ar' ? 'أنشىء إعلان بيع سيارة' :'Create a car sale ad'}</Link>
-                    <Link href="#" className="text-primary">{locale === 'ar' ? 'أنشىء حساب' :'Create Account'}</Link>
+                    <Link href="/products/AddProducts" className="text-primary">{locale === 'ar' ? 'إنشىء إعلان تأجير سيارة' :'Create a car rental ad'}</Link>
+                    <Link href="/products/AddProducts" className="text-primary">{locale === 'ar' ? 'أنشىء إعلان بيع سيارة' :'Create a car sale ad'}</Link>
+                    <Link href="/auth/sign-in" className="text-primary">{locale === 'ar' ? 'أنشىء حساب' :'Create Account'}</Link>
 
                 </Box>
                 <Box variant="column" className='items-start justify-start gap-8 md:w-[300px] sm:w-[400px] lg:mt-0 xs:w-[400px] lg:items-start xs:items-center xs:mt-5'>
                     <Text variant="h4" className='text-primary'>{locale === 'ar' ?  'بسهولة' : 'Bishola'}</Text>
-                    <Link href="#" className="text-primary">{locale === 'ar' ? 'سياسة الخصوصية' :'Privacy policy'}</Link>
-                    <Link href="#" className="text-primary">{locale === 'ar' ? 'سياسة انشاء الاعلان' :'Advertisement creation policy'}</Link>
-                    <Link href="#" className="text-primary">{locale === 'ar' ? 'سياسية حماية البيانات' :'Data Protection Policy'}</Link>
+                    <Link href="/Privacypolicy" className="text-primary">{locale === 'ar' ? 'سياسة الخصوصية' :'Privacy policy'}</Link>
+                    <Link href="/Privacypolicy" className="text-primary">{locale === 'ar' ? 'سياسة انشاء الاعلان' :'Advertisement creation policy'}</Link>
+                    <Link href="/Privacypolicy" className="text-primary">{locale === 'ar' ? 'سياسية حماية البيانات' :'Data Protection Policy'}</Link>
                 </Box>
                 <Box variant="column" className='items-start justify-start gap-8 md:w-[300px] sm:w-[400px] lg:mt-0 xs:w-[400px] lg:items-start xs:items-center xs:mt-5'>
                     <Text variant="h4" className='text-primary'>{locale === 'ar' ?  'العنوان الرئيسي' : 'Main Title'}</Text>
-                    <Link href="#" className="text-primary">{locale === 'ar' ? 'الصفحة الرئيسية' :'Home Page'}</Link>
-                    <Link href="#" className="text-primary">{locale === 'ar' ? 'الاستئجار' :'Rent'}</Link>
-                    <Link href="#" className="text-primary">{locale === 'ar' ? ' البيع' :'Sale'}</Link>
+                    <Link href="/" className="text-primary">{locale === 'ar' ? 'الصفحة الرئيسية' :'Home Page'}</Link>
+                    <Link href="/rentProducts" className="text-primary">{locale === 'ar' ? 'الاستئجار' :'Rent'}</Link>
+                    <Link href="/saleProducts" className="text-primary">{locale === 'ar' ? ' البيع' :'Sale'}</Link>
                 </Box>
 
                 {/* Subscribe */}
@@ -94,15 +94,15 @@ const Footer = () => {
             
                 {/* social */}
                 <Box variant="row" className=''>
-                    <Link href="#">
+                    <Link href="https://www.tiktok.com/@bishola.sy" target='_blank'>
                         <Image 
-                            src="/assets/icons/twitter.png"
+                            src="/assets/icons/tiktokpng.png"
                             alt='twitter'
-                            width={20}
-                            height={20}
+                            width={30}
+                            height={30}
                         />
                     </Link>
-                    <Link href="#">
+                    <Link href="https://www.instagram.com/bishola.sy/" target='_blank'>
                         <Image 
                             src="/assets/icons/instagram.png"
                             alt='twitter'
@@ -110,7 +110,7 @@ const Footer = () => {
                             height={20}
                         />
                     </Link>
-                    <Link href="#">
+                    <Link href="https://www.facebook.com/profile.php?id=61571070664886" target='_blank'>
                         <Image 
                             src="/assets/icons/faceBook.png"
                             alt='twitter'
