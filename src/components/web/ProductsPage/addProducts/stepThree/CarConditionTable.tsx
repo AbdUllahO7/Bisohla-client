@@ -19,9 +19,9 @@ const CarConditionTable: React.FC<CarConditionTableProps> = ({
   }
 
   return (
-    <div className="w-full overflow-x-auto p-1 sm:p-2 md:p-4">
+    <div className=" overflow-x-auto p-1 sm:p-2 md:p-4">
       {/* Car Condition Table */}
-      <Table className="w-full text-center table-fixed">
+      <Table className=" text-center table-fixed">
         <TableHeader>
           <TableRow className="text-center hover:bg-transparent border-gray-200 border-1">
             {/* Table Heads */}

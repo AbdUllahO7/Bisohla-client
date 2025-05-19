@@ -19,13 +19,8 @@ const HeaderTow: React.FC<HeaderTowProps> = ({ translations }) => {
   return (
     <nav className="bg-primary text-white relative pt-1">
       <div className="max-w-7xl mx-auto px-4">
-        <div className="flex items-center md:justify-center xs:justify-between xs:flex-row-reverse h-10 sm:h-12">
-          {/* Logo on small screens */}
-          <div className="md:hidden flex items-center cursor-pointer" onClick={()=> {
-            router.push('/')
-          }}>
-              <Text variant = "h4" className="font-bold text-primary-foreground">{locale === 'ar' ? "بسهولة": 'Bisohla'}</Text>
-          </div>
+        <div className="flex items-center md:justify-center xs:justify-between  h-10 sm:h-12">
+          
 
           {/* Desktop Navigation */}
           <div className="hidden md:block">

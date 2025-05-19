@@ -15,7 +15,7 @@ const CarPhotosSection: React.FC<CarPhotosSectionProps> = ({
   setIsFormDisabled
 }) => {
   return (
-    <div className="gap-6 p-4 w-full">
+    <div className="gap-6 p-4  ">
       {/* Cover Image */}
       <div>
         <Text className="text-lg font-semibold mb-2 text-primary">

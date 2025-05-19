@@ -66,7 +66,7 @@ const CarouselComponent: React.FC<ExtendedCarouselComponentProps> = ({
                                         alt={`${item.title} image`}
                                         width={250}
                                         height={300}
-                                        className=" h-[300px] bg-cover"
+                                        className=" h-[300px] bg-cover rounded-xl"
                                     />
                                 </CardContent>
 

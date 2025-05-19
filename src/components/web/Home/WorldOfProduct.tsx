@@ -24,40 +24,76 @@ const WorldOfProduct = () => {
     // Create an enhanced data array with governorate IDs
     const carouselData = useMemo(() => {
         const citiesData = [
+        
             { 
-                title: t('worldOfProducts.cities.city1.title'), 
-                carCount: t('worldOfProducts.cities.city1.productCount'), 
-                image: '/assets/images/idlib.png' 
-            },
-            { 
-                title: t('worldOfProducts.cities.city2.title'), 
-                carCount: t('worldOfProducts.cities.city2.productCount'), 
+                title: t('worldOfProducts.cities.aleppo.title'), 
+                carCount: t('worldOfProducts.cities.aleppo.productCount'), 
                 image: '/assets/images/aleppo.png' 
             },
             { 
-                title: t('worldOfProducts.cities.city3.title'), 
-                carCount: t('worldOfProducts.cities.city3.productCount'), 
-                image: '/assets/images/damascus.png' 
+                title: t('worldOfProducts.cities.damascus.title'), 
+                carCount: t('worldOfProducts.cities.damascus.productCount'), 
+                image: '/assets/images/damascus.jpg' 
             },
             { 
-                title: t('worldOfProducts.cities.city4.title'), 
-                carCount: t('worldOfProducts.cities.city4.productCount'), 
+                title: t('worldOfProducts.cities.hama.title'), 
+                carCount: t('worldOfProducts.cities.hama.productCount'), 
                 image: '/assets/images/hama.png' 
             },
             { 
-                title: t('worldOfProducts.cities.city5.title'), 
-                carCount: t('worldOfProducts.cities.city5.productCount'), 
-                image: '/assets/images/homs.png' 
-            },
-            { 
-                title: t('worldOfProducts.cities.city1.title'), 
-                carCount: t('worldOfProducts.cities.city1.productCount'), 
+                title: t('worldOfProducts.cities.idlib.title'), 
+                carCount: t('worldOfProducts.cities.idlib.productCount'), 
                 image: '/assets/images/idlib.png' 
             },
             { 
-                title: t('worldOfProducts.cities.city2.title'), 
-                carCount: t('worldOfProducts.cities.city2.productCount'), 
-                image: '/assets/images/aleppo.png' 
+                title: t('worldOfProducts.cities.homs.title'), 
+                carCount: t('worldOfProducts.cities.homs.productCount'), 
+                image: '/assets/images/homs.png' 
+            },
+            { 
+                title: t('worldOfProducts.cities.latakia.title'), 
+                carCount: t('worldOfProducts.cities.latakia.productCount'), 
+                image: '/assets/images/latakia.jpg' 
+            },
+            { 
+                title: t('worldOfProducts.cities.tartus.title'), 
+                carCount: t('worldOfProducts.cities.tartus.productCount'), 
+                image: '/assets/images/tartus.jpg' 
+            },
+            { 
+                title: t('worldOfProducts.cities.daraa.title'), 
+                carCount: t('worldOfProducts.cities.daraa.productCount'), 
+                image: '/assets/images/draa.jpg' 
+            },
+            { 
+                title: t('worldOfProducts.cities.quneitra.title'), 
+                carCount: t('worldOfProducts.cities.quneitra.productCount'), 
+                image: '/assets/images/quneitra.jpg' 
+            },
+            { 
+                title: t('worldOfProducts.cities.as_suwayda.title'), 
+                carCount: t('worldOfProducts.cities.as_suwayda.productCount'), 
+                image: '/assets/images/as_suwayda.jpg' 
+            },
+            { 
+                title: t('worldOfProducts.cities.deir_ez_zor.title'), 
+                carCount: t('worldOfProducts.cities.deir_ez_zor.productCount'), 
+                image: '/assets/images/deir_ez_zor.jpg' 
+            },
+            { 
+                title: t('worldOfProducts.cities.raqqa.title'), 
+                carCount: t('worldOfProducts.cities.raqqa.productCount'), 
+                image: '/assets/images/raqqa.jpg' 
+            },
+            { 
+                title: t('worldOfProducts.cities.al_hasakah.title'), 
+                carCount: t('worldOfProducts.cities.al_hasakah.productCount'), 
+                image: '/assets/images/al_hasakah.jpg' 
+            },
+            { 
+                title: t('worldOfProducts.cities.rif_dimashq.title'), 
+                carCount: t('worldOfProducts.cities.rif_dimashq.productCount'), 
+                image: '/assets/images/rif_dimashq.jpg' 
             },
         ];
 

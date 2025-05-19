@@ -72,8 +72,8 @@ const AddProductStepThree: React.FC<AddProductStepThreeProps> = ({
   // Don't render full content during SSR to avoid hydration issues
   if (!isClient) {
     return (
-      <div className="w-full space-y-4 px-2 sm:px-4">
-        <Card className="w-full shadow-sm">
+      <div className="  px-2 sm:px-4">
+        <Card className=" shadow-sm">
           <CardHeader className="bg-gray-100 py-3 sm:py-4">
             <Text className="text-lg sm:text-xl font-bold text-primary text-center">Loading...</Text>
           </CardHeader>
@@ -86,14 +86,14 @@ const AddProductStepThree: React.FC<AddProductStepThreeProps> = ({
   }
 
   return (
-    <div className="w-full space-y-4 sm:space-y-6 px-2 sm:px-4" dir={direction}>
+    <div className="space-y-6 container" dir={direction}>
       {/* Car Information Section */}
-      <Card className="w-full shadow-sm bg-white border-0 overflow-hidden">
+      <Card className="max-w-7xl shadow-sm bg-white border-0 overflow-hidden">
         <CardHeader className="bg-gray-100 py-3 sm:py-4">
           <Text className="text-lg sm:text-xl font-bold text-primary text-center">{labels.carInfo}</Text>
         </CardHeader>
         <CardContent className="p-0 overflow-x-auto">
-          <div className="min-w-full">
+          <div className="">
             <CarConditionTable
               carSections={options.carSections}
               conditionTypes={options.conditionTypes}
@@ -108,7 +108,7 @@ const AddProductStepThree: React.FC<AddProductStepThreeProps> = ({
       </Card>
 
       {/* Car Photos Section */}
-      <Card className="w-full shadow-sm bg-white border-0">
+      <Card className="max-w-7xl shadow-sm bg-white border-0">
         <CardHeader className="bg-gray-100 py-3 sm:py-4">
           <Text className="text-lg sm:text-xl font-bold text-primary text-center">{labels.carPhotos}</Text>
         </CardHeader>

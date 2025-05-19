@@ -181,11 +181,20 @@
       "title": "Discover a world of products",
       "showMore": "Show all",
       "cities": {
-        "city1": { "title": "Idlib", "productCount": "250" },
-        "city2": { "title": "Aleppo", "productCount": "250" },
-        "city3": { "title": "Damascus", "productCount": "250" },
-        "city4": { "title": "Hama", "productCount": "250" },
-        "city5": { "title": "Homs", "productCount": "250" }
+        "idlib": { "title": "إدلب", "titleEn": "Idlib", "productCount": "150" },
+        "aleppo": { "title": "حلب", "titleEn": "Aleppo", "productCount": "223" },
+        "damascus": { "title": "دمشق", "titleEn": "Damascus", "productCount": "240" },
+        "hama": { "title": "حماة", "titleEn": "Hama", "productCount": "110" },
+        "homs": { "title": "حمص", "titleEn": "Homs", "productCount": "310" },
+        "latakia": { "title": "اللاذقية", "titleEn": "Latakia", "productCount": "55" },
+        "tartus": { "title": "طرطوس", "titleEn": "Tartus", "productCount": "105" },
+        "daraa": { "title": "درعا", "titleEn": "Daraa", "productCount": "102" },
+        "quneitra": { "title": "القنيطرة", "titleEn": "Quneitra", "productCount": "202" },
+        "as_suwayda": { "title": "السويداء", "titleEn": "As-Suwayda", "productCount": "50" },
+        "deir_ez_zor": { "title": "دير الزور", "titleEn": "Deir ez-Zor", "productCount": "90" },
+        "raqqa": { "title": "الرقة", "titleEn": "Raqqa", "productCount": "305" },
+        "al_hasakah": { "title": "الحسكة", "titleEn": "Al-Hasakah", "productCount": "302" },
+        "rif_dimashq": { "title": "ريف دمشق", "titleEn": "Rif Dimashq", "productCount": "400" }
       }
     },
     "rentProduct": {

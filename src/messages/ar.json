@@ -181,11 +181,21 @@
       "title": "اكتشف عالم السيارات",
       "showMore": "عرض المزيد",
       "cities": {
-        "city1": { "title": "إدلب", "productCount": "250" },
-        "city2": { "title": "حلب", "productCount": "250" },
-        "city3": { "title": "دمشق", "productCount": "250" },
-        "city4": { "title": "حماة", "productCount": "250" },
-        "city5": { "title": "حمص", "productCount": "250" }
+        "idlib": { "title": "إدلب", "productCount": "150" },
+        "aleppo": { "title": "حلب", "productCount": "223" },
+        "damascus": { "title": "دمشق", "productCount": "240" },
+        "hama": { "title": "حماة", "productCount": "110" },
+        "homs": { "title": "حمص", "productCount": "310" },
+        "latakia": { "title": "اللاذقية", "productCount": "55" },
+        "tartus": { "title": "طرطوس", "productCount": "105" },
+        "daraa": { "title": "درعا", "productCount": "102" },
+        "quneitra": { "title": "القنيطرة", "productCount": "202" },
+        "as_suwayda": { "title": "السويداء", "productCount": "50" },
+        "deir_ez_zor": { "title": "دير الزور", "productCount": "90" },
+        "raqqa": { "title": "الرقة", "productCount": "305" },
+        "al_hasakah": { "title": "الحسكة", "productCount": "302" },
+        "rif_dimashq": { "title": "ريف دمشق", "productCount": "400" }
+        
       }
     },
     "rentProduct": {

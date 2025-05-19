@@ -21,7 +21,7 @@ const WebLayout = async ({ children }: PropsWithChildren) => {
   return (
     <Box className="w-full bg-background" variant="column">
       <Box className="fixed z-[99] w-full bg-white shadow-md">
-        <Box variant="container">
+        <Box  className="lg:container sm:pr-5">
           <HeaderOne />
         </Box>
       </Box>

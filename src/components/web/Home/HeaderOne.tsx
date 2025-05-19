@@ -26,8 +26,14 @@ const HeaderOne = () => {
           alt="Logo"
           width={500}
           height={500}
-          className="w-[60px] h-[14px] xs:w-[70px] xs:h-[16px] sm:w-[90px] sm:h-[20px] lg:w-[100px] lg:h-[22px]"
+          className="min-w-[60px] min-h-[14px] w-[60px] h-[14px] xs:w-[70px] xs:h-[16px] sm:w-[90px] sm:h-[20px] lg:w-[100px] lg:h-[22px]"
           priority
+          onError={(e) => {
+            console.error("Failed to load logo image")
+            // Fallback to text if image fails to load
+            e.currentTarget.style.display = "none"
+          
+          }}
         />
       </div>
 
