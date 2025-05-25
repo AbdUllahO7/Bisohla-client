@@ -10,7 +10,17 @@ import {
 import Image from 'next/image';
 import Box from '@/components/box/box';
 import Text from '@/components/text/text';
-import { MoveUpLeft, MoveUpRight } from 'lucide-react';
+import { 
+    ArrowUpRight, 
+    ArrowUpLeft, 
+    MapPin, 
+    Building2, 
+    Car, 
+    Navigation,
+    Sparkles,
+    Eye,
+    ChevronRight
+} from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { CarouselComponentProps } from '@/types/homePageTypes';
 
@@ -46,59 +56,110 @@ const CarouselComponent: React.FC<ExtendedCarouselComponentProps> = ({
 
     return (
         <Carousel
-            opts={{ align: "start" }}
+            opts={{ align: "start", loop: true }}
             className={`w-full ${direction === 'rtl' ? 'rtl' : 'ltr'} cursor-pointer`}
             dir="ltr" 
         >
-            <CarouselContent className="">
+            <CarouselContent className="-ml-2 md:-ml-4">
                 {data.map((item, index) => (
                     <CarouselItem
                         key={index}
-                        className="lg:w-full 2xl:basis-1/6 xl:basis-1/5 lg:basis-1/4 md:basis-1/4 sm:basis-1/3 xs:basis-1/2"
+                        className="2xl:basis-1/8 xl:basis-1/7 lg:basis-1/5 md:basis-1/5 sm:basis-1/4 xs:basis-1/3 pl-2 md:pl-4 flex-shrink-0"
                         onClick={() => handleCityClick(item as CarouselItemData)}
                     >
-                        <Box className="overflow-hidden">
-                            {/* Apply `group` here so hover applies only to this individual Card */}
-                            <Card className="relative flex justify-center items-center bg-white border-none p-0 m-0 group">
-                                <CardContent className="flex aspect-square items-center justify-center p-0">
-                                    <Image
-                                        src={item.image}
-                                        alt={`${item.title} image`}
-                                        width={250}
-                                        height={300}
-                                        className=" h-[300px] bg-cover rounded-xl"
-                                    />
+                        <Box className="overflow-hidden w-full h-full">
+                            {/* Enhanced Card with modern styling - Fixed dimensions */}
+                            <Card className="relative flex justify-center items-center bg-white border-none p-0 m-0 group cursor-pointer overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:scale-[1.02] w-[250px] h-[350px]">
+                                <CardContent className="flex items-center justify-center p-0 relative w-full h-full">
+                                    {/* Image with overlay gradient - Fixed dimensions */}
+                                    <div className="relative w-full h-full overflow-hidden rounded-2xl">
+                                        <Image
+                                            src={item.image}
+                                            alt={`${item.title} image`}
+                                            width={250}
+                                            height={350}
+                                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                        />
+                                        
+                                        {/* Gradient overlay */}
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-70 group-hover:opacity-50 transition-opacity duration-500" />
+                                        
+                                        {/* Top decoration icons */}
+                                        <div className="absolute top-4 right-4 flex gap-2">
+                                            <div className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
+                                                <MapPin className="w-4 h-4 text-white" />
+                                            </div>
+                                            <div className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
+                                                <Eye className="w-4 h-4 text-white" />
+                                            </div>
+                                        </div>
+
+                                        {/* Floating sparkles for enhanced visual appeal */}
+                                        <div className="absolute top-6 left-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-200">
+                                            <Sparkles className="w-5 h-5 text-white animate-pulse" />
+                                        </div>
+                                    </div>
                                 </CardContent>
 
-                                {/* Apply hover only inside this specific card */}
+                                {/* Enhanced overlay box */}
                                 <Box
                                     variant="row"
                                     dir={direction}
-                                    className="w-[190px] justify-around items-center absolute bg-white bottom-5 rounded-xl pb-1 transition-colors duration-500 group-hover:bg-primary-light"
+                                    className={`
+                                        w-[190px] justify-between items-center absolute bottom-4 left-1/2 transform -translate-x-1/2
+                                        bg-white/95 backdrop-blur-md rounded-2xl p-3 shadow-lg
+                                        transition-all duration-500 group-hover:bg-gradient-to-r group-hover:from-[#198341] group-hover:to-[#2C3C39]
+                                        border border-white/20 group-hover:border-white/30
+                                        group-hover:scale-105 group-hover:shadow-xl
+                                    `}
                                 >
                                     <Box
                                         variant="column"
-                                        className="text-start gap-0 justify-start items-start pl-1 pr-1"
+                                        className="text-start gap-1 justify-start items-start flex-1"
                                     >
-                                        <Text
-                                            variant="h5"
-                                            className="font-bold text-primary font-cairo transition-colors duration-500 group-hover:text-white"
-                                        >
-                                            {item.title}
-                                        </Text>
-                                        <Text
-                                            variant="mid"
-                                            className="text-secondary-text transition-colors duration-500 group-hover:text-white"
-                                        >
-                                            {item.carCount} {direction === "ltr" ? 'Car' : "سيارة"}
-                                        </Text>
+                                        <Box className="flex items-center gap-2 mb-1">
+                                            <Building2 className="w-4 h-4 text-[#198341] group-hover:text-white transition-colors duration-500" />
+                                            <Text
+                                                variant="h5"
+                                                className="font-bold text-[#2C3C39] font-cairo transition-colors duration-500 group-hover:text-white text-sm leading-tight"
+                                            >
+                                                {item.title}
+                                            </Text>
+                                        </Box>
+                                        
+                                        <Box className="flex items-center gap-1">
+                                            <Car className="w-3 h-3 text-[#2C3C39]/70 group-hover:text-white/80 transition-colors duration-500" />
+                                            <Text
+                                                variant="small"
+                                                className="text-[#2C3C39]/80 transition-colors duration-500 group-hover:text-white/90 text-xs font-medium"
+                                            >
+                                                {item.carCount} {direction === "ltr" ? 'Cars' : "سيارة"}
+                                            </Text>
+                                        </Box>
                                     </Box>
-                                    {direction === "ltr" ? (
-                                        <MoveUpRight className="text-secondary-text transition-colors duration-500 group-hover:text-white" />
-                                    ) : (
-                                        <MoveUpLeft className="text-secondary-text transition-colors duration-500 group-hover:text-white group-hover:animate-pulse" />
-                                    )}
+
+                                    {/* Enhanced arrow with animation */}
+                                    <div className="relative">
+                                        {direction === "ltr" ? (
+                                            <div className="w-8 h-8 bg-[#ABDE3B]/20 group-hover:bg-white/20 rounded-full flex items-center justify-center transition-all duration-500 group-hover:scale-110">
+                                                <ArrowUpRight className="w-4 h-4 text-[#198341] group-hover:text-white transition-all duration-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                                            </div>
+                                        ) : (
+                                            <div className="w-8 h-8 bg-[#ABDE3B]/20 group-hover:bg-white/20 rounded-full flex items-center justify-center transition-all duration-500 group-hover:scale-110">
+                                                <ArrowUpLeft className="w-4 h-4 text-[#198341] group-hover:text-white transition-all duration-500 group-hover:-translate-x-0.5 group-hover:-translate-y-0.5" />
+                                            </div>
+                                        )}
+                                        
+                                        {/* Pulse ring effect on hover */}
+                                        <div className="absolute inset-0 rounded-full border-2 border-white opacity-0 group-hover:opacity-100 group-hover:animate-ping transition-opacity duration-500" />
+                                    </div>
                                 </Box>
+
+                                {/* Additional hover effects */}
+                                <div className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-[#ABDE3B]/30 transition-all duration-500" />
+                                
+                                {/* Corner decoration */}
+                                <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-[#ABDE3B]/10 to-transparent rounded-bl-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                             </Card>
                         </Box>
                     </CarouselItem>

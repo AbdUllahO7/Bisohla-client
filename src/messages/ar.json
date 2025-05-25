@@ -5,11 +5,17 @@
       "title": "بسهولة",
       "description": "موقع بسهولة التواصل مع الأشخاص والمجتمعات التي تحتاجوون �"
     },
-
+    "Rating": "تصنيف",
+    "Support": "الدعم",
+    "CarsAvailable": "السيارات المتاحة",
+     "FORSALE": "للبيع",
+     "FORRENT": "للإيجار",
+     "PremiumCarServices": "خدمات السيارات المميزة",
     "headerOne": {
       "adsButton": "إنشئ إعلانك",
       "loginButton": "إنشىء / سجل ",
-      "profileButton": "الملف الشخصي"
+      "profileButton": "الملف الشخصي",
+      "logoutButton": "تسجيل الخروج"
 
     },
     "headerTow": {

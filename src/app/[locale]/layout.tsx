@@ -7,7 +7,7 @@ import { notFound } from 'next/navigation';
 import { getMessages } from 'next-intl/server';
 import { NextIntlClientProvider } from 'next-intl';
 import NextTopLoader from 'nextjs-toploader';
-import { Cairo } from 'next/font/google'; // ✅ الطريقة الرسمية الحديثة
+import { Cairo } from 'next/font/google'; // 
 
 const cairo = Cairo({
   subsets: ['latin'],

@@ -11,7 +11,7 @@ import {
 import Image from 'next/image';
 import { CarCardItemProps } from '@/types/homePageTypes';
 import Box from '@/components/box/box';
-import { Fuel, HeartIcon, LifeBuoy } from 'lucide-react';
+import { ArrowRight, Eye, Fuel, HeartIcon, LifeBuoy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {Link} from "@/i18n/routing"
 import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions';
@@ -41,7 +41,8 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [favoriteStatus, setFavoriteStatus] = useState(isMarkedFavorite);
     const [isProcessing, setIsProcessing] = useState(false);
-    
+      const [isHovered, setIsHovered] = useState(false)
+
     // Get translators for different namespaces - similar to ProductBasicInfo
     const productT = useTranslations("product");
     const bodyTypeT = useTranslations("addProduct.enteredData.stepTow");
@@ -157,7 +158,15 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
 
     return (
         <div className="w-full">
-            <Card className="border-none bg-white relative group hover:-translate-y-3 duration-500">
+            <Card 
+            
+                className="border-none bg-white relative group hover:shadow-2xl hover:shadow-emerald-500/10 transition-all duration-500 ease-out overflow-hidden"
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+                style={{
+                transform: isHovered ? "translateY(-8px) scale(1.02)" : "translateY(0) scale(1)",
+                }}
+            >
                 {/* Heart Icon with favorite status */}
                 <Button 
                     className="absolute top-12 left-2 bg-white p-2 rounded-full shadow-md z-10"
@@ -194,6 +203,12 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
                                 height={300}
                                 className="w-full h-48"
                             />
+                             {/* Hover overlay with view icon */}
+                            <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
+                            <div className="bg-white/90 backdrop-blur-sm rounded-full p-3 transform scale-75 group-hover:scale-100 transition-transform duration-300">
+                                <Eye className="h-6 w-6 text-emerald-600" />
+                            </div>
+                            </div>
                         </CardTitle>
                         <CardDescription className='p-[8px]'>
                             <Text variant="h4" className="text-primary pr-2 pl-2 line-clamp-1">
@@ -206,17 +221,31 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
                     </CardHeader>
                 </Link>
                 
-                <CardFooter className="flex justify-start p-[8px] gap-4">
-                    {/* Display translated details */}
-                    <Text variant="small" className="text-gray-500 pr-2 pl-2 flex justify-center items-center gap-2">
-                        <Fuel/>
-                        {translatedFuelType}
-                    </Text>
-                    <Text variant="small" className="text-gray-500 pr-2 pl-2 flex justify-center items-center gap-2">
-                        <LifeBuoy/>
-                        {translatedTransmission}
-                    </Text>
+            <CardFooter className="flex justify-between items-center p-4 pt-0 gap-4">
+          <div className="flex gap-4">
+            {/* Fuel type with enhanced styling */}
+            <div className="flex items-center gap-2 text-sm text-gray-600 group-hover:text-emerald-600 transition-colors duration-300">
+              <div className="p-1.5 bg-gray-100 rounded-lg group-hover:bg-emerald-100 transition-colors duration-300">
+                <Fuel className="h-4 w-4" />
+              </div>
+              <span className="font-medium">{translatedFuelType}</span>
+            </div>
+
+            {/* Transmission with enhanced styling */}
+            <div className="flex items-center gap-2 text-sm text-gray-600 group-hover:text-emerald-600 transition-colors duration-300">
+              <div className="p-1.5 bg-gray-100 rounded-lg group-hover:bg-emerald-100 transition-colors duration-300">
+                <LifeBuoy className="h-4 w-4" />
+              </div>
+              <span className="font-medium">{translatedTransmission}</span>
+            </div>
+          </div>
+
+          {/* View details arrow - appears on hover */}
+          <div className="opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
+            <ArrowRight className="h-5 w-5 text-emerald-600" />
+          </div>
                 </CardFooter>
+ <div className="h-1 bg-gradient-to-r from-emerald-500 to-teal-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
             </Card>
         </div>
     );

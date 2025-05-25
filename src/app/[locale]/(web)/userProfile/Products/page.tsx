@@ -179,7 +179,7 @@ const UserProductPage = () => {
                             {locale === 'ar' ? "لم تقم بإنشاء أي قوائم بعد.": "You haven't created any listings yet."}
                         </Text>
                         <Box className="mt-4">
-                            <a href="/products/create" className="bg-primary text-white px-4 py-2 rounded-lg">
+                            <a href="/products/AddProducts" className="bg-primary text-white px-4 py-2 rounded-lg">
                                 {
                                     locale === 'ar' ? "إضافة سيارة جديدة" : 'Add New Car'
                                 }
