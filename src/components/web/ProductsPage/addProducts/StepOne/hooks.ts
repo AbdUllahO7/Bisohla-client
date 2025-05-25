@@ -80,13 +80,15 @@ export const useProductStepOne = (onValidationChange: (isValid: boolean) => void
     const { data: carModelsResponse, error: modelsError } = useCarModels({ where: makeFilter });
     const { data: carTrimsResponse, error: trimsError } = useCarTrims({ where: modelFilter });
 
+    console.log("Car Makes Response:", carMakesResponse);
+
     // Transform data for SelectableList components
     const carMarka = useMemo(() => 
         carMakesResponse?.data?.data?.map(make => ({
             value: make.id.toString(),
             label: make.name,
             logoUrl: make.logoUrl,
-        })) || [], 
+        })).sort((a, b) => a.label.localeCompare(b.label)) || [] ,
         [carMakesResponse]
     );
 
@@ -94,7 +96,7 @@ export const useProductStepOne = (onValidationChange: (isValid: boolean) => void
         carModelsResponse?.data?.data?.map(model => ({
             value: model.id.toString(),
             label: model.name,
-        })) || [], 
+        })).sort((a, b) => a.label.localeCompare(b.label)) || [], 
         [carModelsResponse]
     );
 
@@ -102,7 +104,7 @@ export const useProductStepOne = (onValidationChange: (isValid: boolean) => void
         carTrimsResponse?.data?.data?.map(trim => ({
             value: trim.id.toString(),
             label: trim.name,
-        })) || [], 
+        })).sort((a, b) => a.label.localeCompare(b.label)) || [],
         [carTrimsResponse]
     );
 

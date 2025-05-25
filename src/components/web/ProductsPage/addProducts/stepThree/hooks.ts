@@ -13,8 +13,6 @@ import { CarConditionState,  defaultState, STORAGE_KEY, EDIT_STORAGE_KEY, EDIT_M
 import { 
   validateForm, 
   isEditMode as checkIsEditMode,
-  loadFromStorage,
-  saveToStorage
 } from "./utils";
 
 /**

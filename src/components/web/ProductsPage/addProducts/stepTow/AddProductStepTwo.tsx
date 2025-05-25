@@ -45,6 +45,7 @@ const AddProductStepTwo: React.FC<AddProductStepTwoProps> = ({ onValidationChang
           />
         </CardContent>
       </Card>
+      
 
       {/* Car Features Section */}
       <Card className="w-full shadow-sm bg-white border-0">

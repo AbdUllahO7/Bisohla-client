@@ -1,20 +1,18 @@
-// src/enums/car.ts
-
-  /**
-    * Represents vehicle transmission types
+/**
+ * Represents vehicle transmission types
  */
+export interface CarouselItem {
+  title: string;
+  carCount: string;
+  image: string;
+  value?: string;
+}
 
-  export interface CarouselItem {
-    title: string;
-    carCount: string;
-    image: string;
-    value?: string; 
-  }
-  
-  export interface CarouselComponentProps {
-    data: CarouselItem[];
-    direction: 'ltr' | 'rtl';
-  }
+export interface CarouselComponentProps {
+  data: CarouselItem[];
+  direction: 'ltr' | 'rtl';
+}
+
 export enum Transmission {
   AUTOMATIC = 'automatic',
   MANUAL = 'manual',
@@ -38,12 +36,12 @@ export interface FeatureCategoryType {
 export interface FeaturesData {
   [category: string]: Feature[];
 }
+
 export interface ColorOption {
   value: string;
   label: string;
   hex: string;
 }
-
 
 export enum FuelType {
   GASOLINE = 'gasoline',
@@ -54,8 +52,6 @@ export enum FuelType {
   LPG = 'lpg',
   NATURAL_GAS = 'natural_gas',
 }
-
-// src/enums/colors.ts
 
 /**
  * Comprehensive color enum with 50 colors
@@ -73,7 +69,7 @@ export enum Colors {
   BLACK = "black",
   WHITE = "white",
   GRAY = "gray",
-  
+
   // Light variants
   LIGHT_RED = "light_red",
   LIGHT_GREEN = "light_green",
@@ -84,7 +80,7 @@ export enum Colors {
   LIGHT_PINK = "light_pink",
   LIGHT_BROWN = "light_brown",
   LIGHT_GRAY = "light_gray",
-  
+
   // Dark variants
   DARK_RED = "dark_red",
   DARK_GREEN = "dark_green",
@@ -95,7 +91,7 @@ export enum Colors {
   DARK_PINK = "dark_pink",
   DARK_BROWN = "dark_brown",
   DARK_GRAY = "dark_gray",
-  
+
   // Specific shades
   TURQUOISE = "turquoise",
   TEAL = "teal",
@@ -119,14 +115,6 @@ export enum Colors {
   PEACH = "peach",
   PLUM = "plum",
 }
-
-// Color data with hex values for visualization
-
-
-/**
- * Get color options with translations
- */
-
 
 /**
  * Represents vehicle body types
@@ -158,9 +146,6 @@ export enum CarStatus {
 /**
  * Represents categories for car features
  */
-// 1. First, let's update the cars.enums.ts file to include the feature category enum
-
-// In /core/entities/enums/cars.enums.ts
 export enum FeatureCategory {
   SAFETY = 'safety',
   COMFORT = 'comfort',
@@ -197,17 +182,18 @@ export enum DamageType {
 export enum ListingType {
   FOR_SALE = 'for_sale',
   FOR_RENT = 'for_rent',
-  test  = "test",
-  test1 = "test1"
 }
 
-// rent types
+/**
+ * Represents rent types
+ */
 export enum RentType {
   DAILY = 'daily',
   WEEKLY = 'weekly',
   MONTHLY = 'monthly',
   YEARLY = 'yearly',
 }
+
 export type SelectOption = {
   value: string;
   label: string;
@@ -268,90 +254,99 @@ export enum DamageZone {
   RIGHT_REAR_WHEEL = 'right_rear_wheel',
 }
 
-// Helper functions for the new enums
+/**
+ * General function to sort options alphabetically by label
+ */
+export function sortOptionsAlphabetically<T extends { label: string }>(options: T[]): T[] {
+  return [...options].sort((a, b) => a.label.localeCompare(b.label));
+}
 
 /**
  * Get save status options for select components
  */
 export function getSaveStatusOptions(t: any): SelectOption[] {
-  return [
+  const options = [
     {
       value: SaveStatus.DRAFT,
-      label: t("stepFour.saveStatusOptions.draft", { defaultValue: "Draft" })
+      label: t("stepFour.saveStatusOptions.draft", { defaultValue: "Draft" }),
     },
     {
       value: SaveStatus.PUBLISHED,
-      label: t("stepFour.saveStatusOptions.published", { defaultValue: "Published" })
-    }
+      label: t("stepFour.saveStatusOptions.published", { defaultValue: "Published" }),
+    },
   ];
+  return sortOptionsAlphabetically(options);
 }
 
-
-// Get listing type options with translation
+/**
+ * Get listing type options with translation
+ */
 export function getListingTypeOptions(t: any): SelectOption[] {
-  return [
-      {
-          value: ListingType.FOR_SALE,
-          label: t("stepFour.dateValue.forSale", { defaultValue: "For Sale" })
-      },
-      {
-          value: ListingType.FOR_RENT,
-          label: t("stepFour.dateValue.forRent", { defaultValue: "For Rent" })
-      },
-   
+  const options = [
+    {
+      value: ListingType.FOR_SALE,
+      label: t("stepFour.dateValue.forSale", { defaultValue: "For Sale" }),
+    },
+    {
+      value: ListingType.FOR_RENT,
+      label: t("stepFour.dateValue.forRent", { defaultValue: "For Rent" }),
+    },
   ];
+  return sortOptionsAlphabetically(options);
 }
 
-// Get rent type options with translation
+/**
+ * Get rent type options with translation
+ */
 export function getRentTypeOptions(t: any): SelectOption[] {
-  return [
-      {
-          value: RentType.DAILY,
-          label: t("stepFour.dateValue.RentType.daily", { defaultValue: "Daily" })
-      },
-      {
-          value: RentType.WEEKLY,
-          label: t("stepFour.dateValue.RentType.weekly", { defaultValue: "Weekly" })
-      },
-      {
-          value: RentType.MONTHLY,
-          label: t("stepFour.dateValue.RentType.monthly", { defaultValue: "Monthly" })
-      },
-      {
-          value: RentType.YEARLY,
-          label: t("stepFour.dateValue.RentType.yearly", { defaultValue: "Yearly" })
-      },
-      // Add more options here when you extend the enum
+  const options = [
+    {
+      value: RentType.DAILY,
+      label: t("stepFour.dateValue.RentType.daily", { defaultValue: "Daily" }),
+    },
+    {
+      value: RentType.WEEKLY,
+      label: t("stepFour.dateValue.RentType.weekly", { defaultValue: "Weekly" }),
+    },
+    {
+      value: RentType.MONTHLY,
+      label: t("stepFour.dateValue.RentType.monthly", { defaultValue: "Monthly" }),
+    },
+    {
+      value: RentType.YEARLY,
+      label: t("stepFour.dateValue.RentType.yearly", { defaultValue: "Yearly" }),
+    },
   ];
+  return sortOptionsAlphabetically(options);
 }
 
 /**
  * Get damage type options for select components
  */
-export const getDamageTypeOptions = () => {
-  return Object.values(DamageType).map((value) => ({
+export const getDamageTypeOptions = (): SelectOption[] => {
+  const options = Object.values(DamageType).map((value) => ({
     value,
     label: value.charAt(0).toUpperCase() + value.slice(1).replace(/_/g, ' '),
   }));
+  return sortOptionsAlphabetically(options);
 };
-
-
 
 /**
  * Get damage zone options for select components
  */
-export const getDamageZoneOptions = () => {
-  return Object.values(DamageZone).map((value) => ({
+export const getDamageZoneOptions = (): SelectOption[] => {
+  const options = Object.values(DamageZone).map((value) => ({
     value,
     label: value.charAt(0).toUpperCase() + value.slice(1).replace(/_/g, ' '),
   }));
+  return sortOptionsAlphabetically(options);
 };
 
 /**
  * Get grouped damage zone options for better UI organization
  */
 export const getGroupedDamageZoneOptions = () => {
-  return [
+  const groupedOptions = [
     {
       label: 'Front',
       options: [
@@ -422,131 +417,138 @@ export const getGroupedDamageZoneOptions = () => {
       ],
     },
   ];
+  // Sort options within each group
+  return groupedOptions.map(group => ({
+    ...group,
+    options: sortOptionsAlphabetically(group.options),
+  }));
 };
 
+/**
+ * Get feature category options for select components with translation support
+ */
+export const getFeatureCategoryOptions = (t: any): SelectOption[] => {
+  const options = [
+    { value: FeatureCategory.SAFETY, label: t('featureCategory.safety', { defaultValue: 'Safety' }) },
+    { value: FeatureCategory.COMFORT, label: t('featureCategory.comfort', { defaultValue: 'Comfort' }) },
+    { value: FeatureCategory.TECHNOLOGY, label: t('featureCategory.technology', { defaultValue: 'Technology' }) },
+    { value: FeatureCategory.PERFORMANCE, label: t('featureCategory.performance', { defaultValue: 'Performance' }) },
+    { value: FeatureCategory.EXTERIOR, label: t('featureCategory.exterior', { defaultValue: 'Exterior' }) },
+    { value: FeatureCategory.INTERIOR, label: t('featureCategory.interior', { defaultValue: 'Interior' }) },
+    { value: FeatureCategory.ENTERTAINMENT, label: t('featureCategory.entertainment', { defaultValue: 'Entertainment' }) },
+    { value: FeatureCategory.OTHER, label: t('featureCategory.other', { defaultValue: 'Other' }) },
+  ];
+  return sortOptionsAlphabetically(options);
+};
 
-// Helper function to get feature category options with translations
-export const getFeatureCategoryOptions = (t: any) => [
-  { value: FeatureCategory.SAFETY, label: t('featureCategory.safety') },
-  { value: FeatureCategory.COMFORT, label: t('featureCategory.comfort') },
-  { value: FeatureCategory.TECHNOLOGY, label: t('featureCategory.technology') },
-  { value: FeatureCategory.PERFORMANCE, label: t('featureCategory.performance') },
-  { value: FeatureCategory.EXTERIOR, label: t('featureCategory.exterior') },
-  { value: FeatureCategory.INTERIOR, label: t('featureCategory.interior') },
-  { value: FeatureCategory.ENTERTAINMENT, label: t('featureCategory.entertainment') },
-  { value: FeatureCategory.OTHER, label: t('featureCategory.other') },
-];
-
-// 2. Now let's create some sample features for each category
-export const getFeaturesByCategory = (t: any) => ({
-  [FeatureCategory.SAFETY]: [
-    { id: 'airbags', label: t('features.safety.airbags')},
-    { id: 'abs', label: t('features.safety.abs') },
-    { id: 'parkingSensors', label: t('features.safety.parkingSensors') },
-    { id: 'blindSpotMonitoring', label: t('features.safety.blindSpotMonitoring') },
-    { id: 'crashSensors', label: t('features.safety.crashSensors') },
-    { id: 'laneAssist', label: t('features.safety.laneAssist') },
-  ],
-  [FeatureCategory.COMFORT]: [
-    { id: 'airConditioning', label: t('features.comfort.airConditioning') },
-    { id: 'heatedSeats', label: t('features.comfort.heatedSeats') },
-    { id: 'powerSeats', label: t('features.comfort.powerSeats') },
-    { id: 'leatherSeats', label: t('features.comfort.leatherSeats') },
-    { id: 'sunroof', label: t('features.comfort.sunroof') },
-    { id: 'keylessEntry', label: t('features.comfort.keylessEntry') },
-  ],
-  [FeatureCategory.TECHNOLOGY]: [
-    { id: 'bluetooth', label: t('features.technology.bluetooth') },
-    { id: 'navigationSystem', label: t('features.technology.navigationSystem') },
-    { id: 'smartphoneIntegration', label: t('features.technology.smartphoneIntegration') },
-    { id: 'wirelessCharging', label: t('features.technology.wirelessCharging') },
-    { id: 'digitalDashboard', label: t('features.technology.digitalDashboard') },
-    { id: 'voiceControl', label: t('features.technology.voiceControl') },
-  ],
-  [FeatureCategory.PERFORMANCE]: [
-    { id: 'turboEngine', label: t('features.performance.turboEngine') },
-    { id: 'sportSuspension', label: t('features.performance.sportSuspension') },
-    { id: 'allWheelDrive', label: t('features.performance.allWheelDrive') },
-    { id: 'sportMode', label: t('features.performance.sportMode') },
-    { id: 'hillAssist', label: t('features.performance.hillAssist') },
-    { id: 'ecoMode', label: t('features.performance.ecoMode') },
-  ],
-  [FeatureCategory.EXTERIOR]: [
-    { id: 'alloyWheels', label: t('features.exterior.alloyWheels') },
-    { id: 'ledHeadlights', label: t('features.exterior.ledHeadlights') },
-    { id: 'fogLights', label: t('features.exterior.fogLights') },
-    { id: 'roofRails', label: t('features.exterior.roofRails') },
-    { id: 'panoramicRoof', label: t('features.exterior.panoramicRoof') },
-    { id: 'tintedWindows', label: t('features.exterior.tintedWindows') },
-  ],
-  [FeatureCategory.INTERIOR]: [
-    { id: 'woodTrim', label: t('features.interior.woodTrim') },
-    { id: 'ambientLighting', label: t('features.interior.ambientLighting') },
-    { id: 'rearSeatsControl', label: t('features.interior.rearSeatsControl') },
-    { id: 'foldableSeats', label: t('features.interior.foldableSeats') },
-    { id: 'cupHolders', label: t('features.interior.cupHolders') },
-    { id: 'luggageCompartment', label: t('features.interior.luggageCompartment') },
-  ],
-  [FeatureCategory.ENTERTAINMENT]: [
-    { id: 'premiumAudio', label: t('features.entertainment.premiumAudio') },
-    { id: 'rearScreens', label: t('features.entertainment.rearScreens') },
-    { id: 'hdRadio', label: t('features.entertainment.hdRadio') },
-    { id: 'usbPorts', label: t('features.entertainment.usbPorts') },
-    { id: 'wifiHotspot', label: t('features.entertainment.wifiHotspot') },
-    { id: 'subwoofer', label: t('features.entertainment.subwoofer') },
-  ],
-  [FeatureCategory.OTHER]: [
-    { id: 'cargoBox', label: t('features.other.cargoBox') },
-    { id: 'trailerHitch', label: t('features.other.trailerHitch') },
-    { id: 'bikeRack', label: t('features.other.bikeRack') },
-    { id: 'childSeat', label: t('features.other.childSeat') },
-    { id: 'winterTires', label: t('features.other.winterTires') },
-    { id: 'alarmSystem', label: t('features.other.alarmSystem') },
-  ],
-});
-
-// Optional: Create helper functions for select components
-
+/**
+ * Get features by category with translation support
+ */
+export const getFeaturesByCategory = (t: any): FeaturesData => {
+  const features = {
+    [FeatureCategory.SAFETY]: [
+      { id: 'airbags', label: t('features.safety.airbags', { defaultValue: 'Airbags' }) },
+      { id: 'abs', label: t('features.safety.abs', { defaultValue: 'ABS' }) },
+      { id: 'parkingSensors', label: t('features.safety.parkingSensors', { defaultValue: 'Parking Sensors' }) },
+      { id: 'blindSpotMonitoring', label: t('features.safety.blindSpotMonitoring', { defaultValue: 'Blind Spot Monitoring' }) },
+      { id: 'crashSensors', label: t('features.safety.crashSensors', { defaultValue: 'Crash Sensors' }) },
+      { id: 'laneAssist', label: t('features.safety.laneAssist', { defaultValue: 'Lane Assist' }) },
+    ],
+    [FeatureCategory.COMFORT]: [
+      { id: 'airConditioning', label: t('features.comfort.airConditioning', { defaultValue: 'Air Conditioning' }) },
+      { id: 'heatedSeats', label: t('features.comfort.heatedSeats', { defaultValue: 'Heated Seats' }) },
+      { id: 'powerSeats', label: t('features.comfort.powerSeats', { defaultValue: 'Power Seats' }) },
+      { id: 'leatherSeats', label: t('features.comfort.leatherSeats', { defaultValue: 'Leather Seats' }) },
+      { id: 'sunroof', label: t('features.comfort.sunroof', { defaultValue: 'Sunroof' }) },
+      { id: 'keylessEntry', label: t('features.comfort.keylessEntry', { defaultValue: 'Keyless Entry' }) },
+    ],
+    [FeatureCategory.TECHNOLOGY]: [
+      { id: 'bluetooth', label: t('features.technology.bluetooth', { defaultValue: 'Bluetooth' }) },
+      { id: 'navigationSystem', label: t('features.technology.navigationSystem', { defaultValue: 'Navigation System' }) },
+      { id: 'smartphoneIntegration', label: t('features.technology.smartphoneIntegration', { defaultValue: 'Smartphone Integration' }) },
+      { id: 'wirelessCharging', label: t('features.technology.wirelessCharging', { defaultValue: 'Wireless Charging' }) },
+      { id: 'digitalDashboard', label: t('features.technology.digitalDashboard', { defaultValue: 'Digital Dashboard' }) },
+      { id: 'voiceControl', label: t('features.technology.voiceControl', { defaultValue: 'Voice Control' }) },
+    ],
+    [FeatureCategory.PERFORMANCE]: [
+      { id: 'turboEngine', label: t('features.performance.turboEngine', { defaultValue: 'Turbo Engine' }) },
+      { id: 'sportSuspension', label: t('features.performance.sportSuspension', { defaultValue: 'Sport Suspension' }) },
+      { id: 'allWheelDrive', label: t('features.performance.allWheelDrive', { defaultValue: 'All Wheel Drive' }) },
+      { id: 'sportMode', label: t('features.performance.sportMode', { defaultValue: 'Sport Mode' }) },
+      { id: 'hillAssist', label: t('features.performance.hillAssist', { defaultValue: 'Hill Assist' }) },
+      { id: 'ecoMode', label: t('features.performance.ecoMode', { defaultValue: 'Eco Mode' }) },
+    ],
+    [FeatureCategory.EXTERIOR]: [
+      { id: 'alloyWheels', label: t('features.exterior.alloyWheels', { defaultValue: 'Alloy Wheels' }) },
+      { id: 'ledHeadlights', label: t('features.exterior.ledHeadlights', { defaultValue: 'LED Headlights' }) },
+      { id: 'fogLights', label: t('features.exterior.fogLights', { defaultValue: 'Fog Lights' }) },
+      { id: 'roofRails', label: t('features.exterior.roofRails', { defaultValue: 'Roof Rails' }) },
+      { id: 'panoramicRoof', label: t('features.exterior.panoramicRoof', { defaultValue: 'Panoramic Roof' }) },
+      { id: 'tintedWindows', label: t('features.exterior.tintedWindows', { defaultValue: 'Tinted Windows' }) },
+    ],
+    [FeatureCategory.INTERIOR]: [
+      { id: 'woodTrim', label: t('features.interior.woodTrim', { defaultValue: 'Wood Trim' }) },
+      { id: 'ambientLighting', label: t('features.interior.ambientLighting', { defaultValue: 'Ambient Lighting' }) },
+      { id: 'rearSeatsControl', label: t('features.interior.rearSeatsControl', { defaultValue: 'Rear Seats Control' }) },
+      { id: 'foldableSeats', label: t('features.interior.foldableSeats', { defaultValue: 'Foldable Seats' }) },
+      { id: 'cupHolders', label: t('features.interior.cupHolders', { defaultValue: 'Cup Holders' }) },
+      { id: 'luggageCompartment', label: t('features.interior.luggageCompartment', { defaultValue: 'Luggage Compartment' }) },
+    ],
+    [FeatureCategory.ENTERTAINMENT]: [
+      { id: 'premiumAudio', label: t('features.entertainment.premiumAudio', { defaultValue: 'Premium Audio' }) },
+      { id: 'rearScreens', label: t('features.entertainment.rearScreens', { defaultValue: 'Rear Screens' }) },
+      { id: 'hdRadio', label: t('features.entertainment.hdRadio', { defaultValue: 'HD Radio' }) },
+      { id: 'usbPorts', label: t('features.entertainment.usbPorts', { defaultValue: 'USB Ports' }) },
+      { id: 'wifiHotspot', label: t('features.entertainment.wifiHotspot', { defaultValue: 'WiFi Hotspot' }) },
+      { id: 'subwoofer', label: t('features.entertainment.subwoofer', { defaultValue: 'Subwoofer' }) },
+    ],
+    [FeatureCategory.OTHER]: [
+      { id: 'cargoBox', label: t('features.other.cargoBox', { defaultValue: 'Cargo Box' }) },
+      { id: 'trailerHitch', label: t('features.other.trailerHitch', { defaultValue: 'Trailer Hitch' }) },
+      { id: 'bikeRack', label: t('features.other.bikeRack', { defaultValue: 'Bike Rack' }) },
+      { id: 'childSeat', label: t('features.other.childSeat', { defaultValue: 'Child Seat' }) },
+      { id: 'winterTires', label: t('features.other.winterTires', { defaultValue: 'Winter Tires' }) },
+      { id: 'alarmSystem', label: t('features.other.alarmSystem', { defaultValue: 'Alarm System' }) },
+    ],
+  };
+  // Sort features within each category
+  return Object.fromEntries(
+    Object.entries(features).map(([category, featureList]) => [
+      category,
+      sortOptionsAlphabetically(featureList),
+    ])
+  );
+};
 
 /**
  * Get transmission options for select components with translation support
  */
-export const getTransmissionOptions = (t?: any) => {
-  return Object.values(Transmission).map((value) => {
+export const getTransmissionOptions = (t?: any): SelectOption[] => {
+  const options = Object.values(Transmission).map((value) => {
     let label = value.charAt(0).toUpperCase() + value.slice(1).replace(/_/g, ' ');
-    
     if (t) {
       try {
-        // Try to get the translation for this transmission type
         label = t(`transmission.${value}`);
       } catch (error) {
-        // Fallback to the formatted value if translation is not found
+        // Fallback to formatted value
       }
     }
-    
-    return {
-      value,
-      label,
-    };
+    return { value, label };
   });
+  return sortOptionsAlphabetically(options);
 };
 
 /**
  * Get fuel type options for select components with translation support
  */
-export const getFuelTypeOptions = (t?: any) => {
-  return Object.values(FuelType).map((value) => {
+export const getFuelTypeOptions = (t?: any): SelectOption[] => {
+  const options = Object.values(FuelType).map((value) => {
     let label = value.charAt(0).toUpperCase() + value.slice(1).replace(/_/g, ' ');
-    
     if (t) {
       try {
-        // Try to get the translation for this fuel type
         label = t(`fuelType.${value}`);
       } catch (error) {
-        // Try the old gaz options path for backwards compatibility
         try {
-          // Map the new FuelType values to the old gaz option values
-          // Use a properly typed mapping object that includes all enum values
           const oldGazMapping: Record<FuelType, string | undefined> = {
             [FuelType.GASOLINE]: 'petrol',
             [FuelType.DIESEL]: 'diesel',
@@ -554,160 +556,120 @@ export const getFuelTypeOptions = (t?: any) => {
             [FuelType.HYBRID]: 'hybrid',
             [FuelType.PLUG_IN_HYBRID]: 'plug_in_hybrid',
             [FuelType.LPG]: 'lpg',
-            [FuelType.NATURAL_GAS]: 'natural_gas'
+            [FuelType.NATURAL_GAS]: 'natural_gas',
           };
-          
-          // Only try to get the translation if there's a mapping available
           const mappedValue = oldGazMapping[value];
           if (mappedValue) {
             label = t(`gaz.options.${mappedValue}`);
           }
         } catch (err) {
-          // Fallback to the formatted value if translation is not found
+          // Fallback to formatted value
         }
       }
     }
-    
-    return {
-      value,
-      label,
-    };
+    return { value, label };
   });
+  return sortOptionsAlphabetically(options);
 };
 
 /**
  * Get body type options for select components with translation support
  */
-export const getBodyTypeOptions = (t?: any) => {
-  return Object.values(BodyType).map((value) => {
+export const getBodyTypeOptions = (t?: any): SelectOption[] => {
+  const options = Object.values(BodyType).map((value) => {
     let label = value.charAt(0).toUpperCase() + value.slice(1).replace(/_/g, ' ');
-    
     if (t) {
       try {
-        // Try to get the translation for this body type
         label = t(`bodyType.${value}`);
       } catch (error) {
-        // Fallback to the formatted value if translation is not found
+        // Fallback to formatted value
       }
     }
-    
-    return {
-      value,
-      label,
-    };
+    return { value, label };
   });
+  return sortOptionsAlphabetically(options);
 };
 
 /**
  * Get car status options for select components with translation support
  */
-export const getCarStatusOptions = (t?: any) => {
-  return Object.values(CarStatus).map((value) => {
+export const getCarStatusOptions = (t?: any): SelectOption[] => {
+  const options = Object.values(CarStatus).map((value) => {
     let label = value.charAt(0).toUpperCase() + value.slice(1).replace(/_/g, ' ');
-    
     if (t) {
       try {
-        // Try to get the translation for this car status
         label = t(`carStatus.${value}`);
       } catch (error) {
-        // Fallback to the formatted value if translation is not found
+        // Fallback to formatted value
       }
     }
-    
-    return {
-      value,
-      label,
-    };
+    return { value, label };
   });
+  return sortOptionsAlphabetically(options);
 };
-
-
-export const getColorOptions = (t?: any): ColorOption[] => {
-  return [
-    // Basic colors
-    { value: Colors.RED, label:  t('color.options.red'), hex: '#FF0000' },
-    { value: Colors.GREEN, label: t ? t('color.options.green') : t('color.options.red'), hex: '#008000' },
-    { value: Colors.BLUE, label: t ? t('color.options.blue') : 'Blue', hex: '#0000FF' },
-    { value: Colors.YELLOW, label: t ? t('color.options.yellow') : 'Yellow', hex: '#FFFF00' },
-    { value: Colors.ORANGE, label: t ? t('color.options.orange') : 'Orange', hex: '#FFA500' },
-    { value: Colors.PURPLE, label: t ? t('color.options.purple') : 'Purple', hex: '#800080' },
-    { value: Colors.PINK, label: t ? t('color.options.pink') : 'Pink', hex: '#FFC0CB' },
-    { value: Colors.BROWN, label: t ? t('color.options.brown') : 'Brown', hex: '#A52A2A' },
-    { value: Colors.BLACK, label: t ? t('color.options.black') : 'Black', hex: '#000000' },
-    { value: Colors.WHITE, label: t ? t('color.options.white') : 'White', hex: '#FFFFFF' },
-    { value: Colors.GRAY, label: t ? t('color.options.gray') : 'Gray', hex: '#808080' },
-    
-    // Light variants
-    { value: Colors.LIGHT_RED, label: t ? t('color.options.light_red') : 'Light Red', hex: '#FF6666' },
-    { value: Colors.LIGHT_GREEN, label: t ? t('color.options.light_green') : 'Light Green', hex: '#90EE90' },
-    { value: Colors.LIGHT_BLUE, label: t ? t('color.options.light_blue') : 'Light Blue', hex: '#ADD8E6' },
-    { value: Colors.LIGHT_YELLOW, label: t ? t('color.options.light_yellow') : 'Light Yellow', hex: '#FFFFE0' },
-    { value: Colors.LIGHT_ORANGE, label: t ? t('color.options.light_orange') : 'Light Orange', hex: '#FFDAB9' },
-    { value: Colors.LIGHT_PURPLE, label: t ? t('color.options.light_purple') : 'Light Purple', hex: '#D8BFD8' },
-    { value: Colors.LIGHT_PINK, label: t ? t('color.options.light_pink') : 'Light Pink', hex: '#FFB6C1' },
-    { value: Colors.LIGHT_BROWN, label: t ? t('color.options.light_brown') : 'Light Brown', hex: '#D2B48C' },
-    { value: Colors.LIGHT_GRAY, label: t ? t('color.options.light_gray') : 'Light Gray', hex: '#D3D3D3' },
-    
-    // Dark variants
-    { value: Colors.DARK_RED, label: t ? t('color.options.dark_red') : 'Dark Red', hex: '#8B0000' },
-    { value: Colors.DARK_GREEN, label: t ? t('color.options.dark_green') : 'Dark Green', hex: '#006400' },
-    { value: Colors.DARK_BLUE, label: t ? t('color.options.dark_blue') : 'Dark Blue', hex: '#00008B' },
-    { value: Colors.DARK_YELLOW, label: t ? t('color.options.dark_yellow') : 'Dark Yellow', hex: '#B8860B' },
-    { value: Colors.DARK_ORANGE, label: t ? t('color.options.dark_orange') : 'Dark Orange', hex: '#FF8C00' },
-    { value: Colors.DARK_PURPLE, label: t ? t('color.options.dark_purple') : 'Dark Purple', hex: '#4B0082' },
-    { value: Colors.DARK_PINK, label: t ? t('color.options.dark_pink') : 'Dark Pink', hex: '#FF1493' },
-    { value: Colors.DARK_BROWN, label: t ? t('color.options.dark_brown') : 'Dark Brown', hex: '#5C4033' },
-    { value: Colors.DARK_GRAY, label: t ? t('color.options.dark_gray') : 'Dark Gray', hex: '#A9A9A9' },
-    
-    // Specific shades
-    { value: Colors.TURQUOISE, label: t ? t('color.options.turquoise') : 'Turquoise', hex: '#40E0D0' },
-    { value: Colors.TEAL, label: t ? t('color.options.teal') : 'Teal', hex: '#008080' },
-    { value: Colors.NAVY, label: t ? t('color.options.navy') : 'Navy', hex: '#000080' },
-    { value: Colors.INDIGO, label: t ? t('color.options.indigo') : 'Indigo', hex: '#4B0082' },
-    { value: Colors.VIOLET, label: t ? t('color.options.violet') : 'Violet', hex: '#EE82EE' },
-    { value: Colors.MAGENTA, label: t ? t('color.options.magenta') : 'Magenta', hex: '#FF00FF' },
-    { value: Colors.CRIMSON, label: t ? t('color.options.crimson') : 'Crimson', hex: '#DC143C' },
-    { value: Colors.MAROON, label: t ? t('color.options.maroon') : 'Maroon', hex: '#800000' },
-    { value: Colors.OLIVE, label: t ? t('color.options.olive') : 'Olive', hex: '#808000' },
-    { value: Colors.LIME, label: t ? t('color.options.lime') : 'Lime', hex: '#00FF00' },
-    { value: Colors.AQUA, label: t ? t('color.options.aqua') : 'Aqua', hex: '#00FFFF' },
-    { value: Colors.CYAN, label: t ? t('color.options.cyan') : 'Cyan', hex: '#00FFFF' },
-    { value: Colors.SILVER, label: t ? t('color.options.silver') : 'Silver', hex: '#C0C0C0' },
-    { value: Colors.GOLD, label: t ? t('color.options.gold') : 'Gold', hex: '#FFD700' },
-    { value: Colors.BEIGE, label: t ? t('color.options.beige') : 'Beige', hex: '#F5F5DC' },
-    { value: Colors.CORAL, label: t ? t('color.options.coral') : 'Coral', hex: '#FF7F50' },
-    { value: Colors.IVORY, label: t ? t('color.options.ivory') : 'Ivory', hex: '#FFFFF0' },
-    { value: Colors.LAVENDER, label: t ? t('color.options.lavender') : 'Lavender', hex: '#E6E6FA' },
-    { value: Colors.MINT, label: t ? t('color.options.mint') : 'Mint', hex: '#98FB98' },
-    { value: Colors.PEACH, label: t ? t('color.options.peach') : 'Peach', hex: '#FFDAB9' },
-    { value: Colors.PLUM, label: t ? t('color.options.plum') : 'Plum', hex: '#DDA0DD' },
-  ];
-};
-
-
-
-
-
 
 /**
- * Get feature category options for select components with translation support
+ * Get color options with translations
  */
-// export const getFeatureCategoryOptions = (t?: any) => {
-//   return Object.values(FeatureCategory).map((value) => {
-//     let label = value.charAt(0).toUpperCase() + value.slice(1).replace(/_/g, ' ');
-    
-//     if (t) {
-//       try {
-//         // Try to get the translation for this feature category
-//         label = t(`featureCategory.${value}`);
-//       } catch (error) {
-//         // Fallback to the formatted value if translation is not found
-//       }
-//     }
-    
-//     return {
-//       value,
-//       label,
-//     };
-//   });
-// };
+export const getColorOptions = (t?: any): ColorOption[] => {
+  const options: ColorOption[] = [
+    // Basic colors
+    { value: Colors.RED, label: t ? t('color.options.red', { defaultValue: 'Red' }) : 'Red', hex: '#FF0000' },
+    { value: Colors.GREEN, label: t ? t('color.options.green', { defaultValue: 'Green' }) : 'Green', hex: '#008000' },
+    { value: Colors.BLUE, label: t ? t('color.options.blue', { defaultValue: 'Blue' }) : 'Blue', hex: '#0000FF' },
+    { value: Colors.YELLOW, label: t ? t('color.options.yellow', { defaultValue: 'Yellow' }) : 'Yellow', hex: '#FFFF00' },
+    { value: Colors.ORANGE, label: t ? t('color.options.orange', { defaultValue: 'Orange' }) : 'Orange', hex: '#FFA500' },
+    { value: Colors.PURPLE, label: t ? t('color.options.purple', { defaultValue: 'Purple' }) : 'Purple', hex: '#800080' },
+    { value: Colors.PINK, label: t ? t('color.options.pink', { defaultValue: 'Pink' }) : 'Pink', hex: '#FFC0CB' },
+    { value: Colors.BROWN, label: t ? t('color.options.brown', { defaultValue: 'Brown' }) : 'Brown', hex: '#A52A2A' },
+    { value: Colors.BLACK, label: t ? t('color.options.black', { defaultValue: 'Black' }) : 'Black', hex: '#000000' },
+    { value: Colors.WHITE, label: t ? t('color.options.white', { defaultValue: 'White' }) : 'White', hex: '#FFFFFF' },
+    { value: Colors.GRAY, label: t ? t('color.options.gray', { defaultValue: 'Gray' }) : 'Gray', hex: '#808080' },
+
+    // Light variants
+    { value: Colors.LIGHT_RED, label: t ? t('color.options.light_red', { defaultValue: 'Light Red' }) : 'Light Red', hex: '#FF6666' },
+    { value: Colors.LIGHT_GREEN, label: t ? t('color.options.light_green', { defaultValue: 'Light Green' }) : 'Light Green', hex: '#90EE90' },
+    { value: Colors.LIGHT_BLUE, label: t ? t('color.options.light_blue', { defaultValue: 'Light Blue' }) : 'Light Blue', hex: '#ADD8E6' },
+    { value: Colors.LIGHT_YELLOW, label: t ? t('color.options.light_yellow', { defaultValue: 'Light Yellow' }) : 'Light Yellow', hex: '#FFFFE0' },
+    { value: Colors.LIGHT_ORANGE, label: t ? t('color.options.light_orange', { defaultValue: 'Light Orange' }) : 'Light Orange', hex: '#FFDAB9' },
+    { value: Colors.LIGHT_PURPLE, label: t ? t('color.options.light_purple', { defaultValue: 'Light Purple' }) : 'Light Purple', hex: '#D8BFD8' },
+    { value: Colors.LIGHT_PINK, label: t ? t('color.options.light_pink', { defaultValue: 'Light Pink' }) : 'Light Pink', hex: '#FFB6C1' },
+    { value: Colors.LIGHT_BROWN, label: t ? t('color.options.light_brown', { defaultValue: 'Light Brown' }) : 'Light Brown', hex: '#D2B48C' },
+    { value: Colors.LIGHT_GRAY, label: t ? t('color.options.light_gray', { defaultValue: 'Light Gray' }) : 'Light Gray', hex: '#D3D3D3' },
+
+    // Dark variants
+    { value: Colors.DARK_RED, label: t ? t('color.options.dark_red', { defaultValue: 'Dark Red' }) : 'Dark Red', hex: '#8B0000' },
+    { value: Colors.DARK_GREEN, label: t ? t('color.options.dark_green', { defaultValue: 'Dark Green' }) : 'Dark Green', hex: '#006400' },
+    { value: Colors.DARK_BLUE, label: t ? t('color.options.dark_blue', { defaultValue: 'Dark Blue' }) : 'Dark Blue', hex: '#00008B' },
+    { value: Colors.DARK_YELLOW, label: t ? t('color.options.dark_yellow', { defaultValue: 'Dark Yellow' }) : 'Dark Yellow', hex: '#B8860B' },
+    { value: Colors.DARK_ORANGE, label: t ? t('color.options.dark_orange', { defaultValue: 'Dark Orange' }) : 'Dark Orange', hex: '#FF8C00' },
+    { value: Colors.DARK_PURPLE, label: t ? t('color.options.dark_purple', { defaultValue: 'Dark Purple' }) : 'Dark Purple', hex: '#4B0082' },
+    { value: Colors.DARK_PINK, label: t ? t('color.options.dark_pink', { defaultValue: 'Dark Pink' }) : 'Dark Pink', hex: '#FF1493' },
+    { value: Colors.DARK_BROWN, label: t ? t('color.options.dark_brown', { defaultValue: 'Dark Brown' }) : 'Dark Brown', hex: '#5C4033' },
+    { value: Colors.DARK_GRAY, label: t ? t('color.options.dark_gray', { defaultValue: 'Dark Gray' }) : 'Dark Gray', hex: '#A9A9A9' },
+
+    // Specific shades
+    { value: Colors.TURQUOISE, label: t ? t('color.options.turquoise', { defaultValue: 'Turquoise' }) : 'Turquoise', hex: '#40E0D0' },
+    { value: Colors.TEAL, label: t ? t('color.options.teal', { defaultValue: 'Teal' }) : 'Teal', hex: '#008080' },
+    { value: Colors.NAVY, label: t ? t('color.options.navy', { defaultValue: 'Navy' }) : 'Navy', hex: '#000080' },
+    { value: Colors.INDIGO, label: t ? t('color.options.indigo', { defaultValue: 'Indigo' }) : 'Indigo', hex: '#4B0082' },
+    { value: Colors.VIOLET, label: t ? t('color.options.violet', { defaultValue: 'Violet' }) : 'Violet', hex: '#EE82EE' },
+    { value: Colors.MAGENTA, label: t ? t('color.options.magenta', { defaultValue: 'Magenta' }) : 'Magenta', hex: '#FF00FF' },
+    { value: Colors.CRIMSON, label: t ? t('color.options.crimson', { defaultValue: 'Crimson' }) : 'Crimson', hex: '#DC143C' },
+    { value: Colors.MAROON, label: t ? t('color.options.maroon', { defaultValue: 'Maroon' }) : 'Maroon', hex: '#800000' },
+    { value: Colors.OLIVE, label: t ? t('color.options.olive', { defaultValue: 'Olive' }) : 'Olive', hex: '#808000' },
+    { value: Colors.LIME, label: t ? t('color.options.lime', { defaultValue: 'Lime' }) : 'Lime', hex: '#00FF00' },
+    { value: Colors.AQUA, label: t ? t('color.options.aqua', { defaultValue: 'Aqua' }) : 'Aqua', hex: '#00FFFF' },
+    { value: Colors.CYAN, label: t ? t('color.options.cyan', { defaultValue: 'Cyan' }) : 'Cyan', hex: '#00FFFF' },
+    { value: Colors.SILVER, label: t ? t('color.options.silver', { defaultValue: 'Silver' }) : 'Silver', hex: '#C0C0C0' },
+    { value: Colors.GOLD, label: t ? t('color.options.gold', { defaultValue: 'Gold' }) : 'Gold', hex: '#FFD700' },
+    { value: Colors.BEIGE, label: t ? t('color.options.beige', { defaultValue: 'Beige' }) : 'Beige', hex: '#F5F5DC' },
+    { value: Colors.CORAL, label: t ? t('color.options.coral', { defaultValue: 'Coral' }) : 'Coral', hex: '#FF7F50' },
+    { value: Colors.IVORY, label: t ? t('color.options.ivory', { defaultValue: 'Ivory' }) : 'Ivory', hex: '#FFFFF0' },
+    { value: Colors.LAVENDER, label: t ? t('color.options.lavender', { defaultValue: 'Lavender' }) : 'Lavender', hex: '#E6E6FA' },
+    { value: Colors.MINT, label: t ? t('color.options.mint', { defaultValue: 'Mint' }) : 'Mint', hex: '#98FB98' },
+    { value: Colors.PEACH, label: t ? t('color.options.peach', { defaultValue: 'Peach' }) : 'Peach', hex: '#FFDAB9' },
+    { value: Colors.PLUM, label: t ? t('color.options.plum', { defaultValue: 'Plum' }) : 'Plum', hex: '#DDA0DD' },
+  ];
+  return sortOptionsAlphabetically(options);
+};

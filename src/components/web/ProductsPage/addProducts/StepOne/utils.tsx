@@ -12,13 +12,15 @@ import {
  * Prepares governorate options with bilingual support
  */
 export const getGovernorateOptions = (isArabic: boolean): Option[] => {
-    return Object.values(SyriaGovernorate).map(gov => ({
-        value: gov,
-        label: isArabic 
-            ? SyriaGovernorate_ARABIC_NAMES[gov]
-            : gov.replace(/-/g, ' ')
-    }));
-};
+    return Object.values(SyriaGovernorate)
+        .map(gov => ({
+            value: gov,
+            label: isArabic 
+                ? SyriaGovernorate_ARABIC_NAMES[gov]
+                : gov.replace(/-/g, ' ')
+        }))
+        .sort((a, b) => a.label.localeCompare(b.label));
+};;
 
 /**
  * Prepares city options based on selected governorate
@@ -27,12 +29,14 @@ export const getCityOptions = (governorate: string, isArabic: boolean): Option[]
     if (!governorate) return [];
     
     const selectedGov = governorate as SyriaGovernorate;
-    return SyriaGovernorate_TO_CITIES[selectedGov].map(city => ({
-        value: city,
-        label: isArabic
-            ? SyriaCity_ARABIC_NAMES[city]
-            : city.replace(/-/g, ' ')
-    }));
+    return SyriaGovernorate_TO_CITIES[selectedGov]
+        .map(city => ({
+            value: city,
+            label: isArabic
+                ? SyriaCity_ARABIC_NAMES[city]
+                : city.replace(/-/g, ' ')
+        }))
+        .sort((a, b) => a.label.localeCompare(b.label));
 };
 
 /**
@@ -42,8 +46,8 @@ export const getYearOptions = (t: (key: string) => string): Option[] => {
     const currentYear = new Date().getFullYear();
     const years: number[] = [];
     
-    // Generate years from 1970 to current year (in descending order)
-    for (let year = currentYear; year >= 1970; year--) {
+    // Generate years from 1970 to current year (in ascending order)
+    for (let year = 1970; year <= currentYear; year++) {
         years.push(year);
     }
     
@@ -55,8 +59,7 @@ export const getYearOptions = (t: (key: string) => string): Option[] => {
 
 /**
  * Validates if the form is completely filled
- */
-export const validateForm = (selectedOptions: SelectedOptions): boolean => {
+ */export const validateForm = (selectedOptions: SelectedOptions): boolean => {
     return Boolean(
         selectedOptions.marka && 
         selectedOptions.model && 
