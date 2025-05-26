@@ -76,9 +76,9 @@ export const useProductStepOne = (onValidationChange: (isValid: boolean) => void
     const modelFilter: Filter[] | undefined = modelId ? [{ field: "modelId", operator: "eq", value: modelId }] : undefined;
 
     // Data fetching with appropriate filters
-    const { data: carMakesResponse, error: makesError } = useCarMakes({ page: 1 });
-    const { data: carModelsResponse, error: modelsError } = useCarModels({ where: makeFilter });
-    const { data: carTrimsResponse, error: trimsError } = useCarTrims({ where: modelFilter });
+    const { data: carMakesResponse, error: makesError } = useCarMakes({ pageSize: 200 });
+    const { data: carModelsResponse, error: modelsError } = useCarModels({ where: makeFilter , pageSize: 200 });
+    const { data: carTrimsResponse, error: trimsError } = useCarTrims({ where: modelFilter , pageSize: 200 });
 
     console.log("Car Makes Response:", carMakesResponse);
 
