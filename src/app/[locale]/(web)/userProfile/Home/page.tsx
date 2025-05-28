@@ -98,7 +98,7 @@ const UserHomePage = () => {
               </div>
 
               {/* User Profile Card */}
-              <Card className="bg-white dark:bg-[#2C3C39] shadow-md hover:shadow-lg transition-shadow duration-300">
+              <Card className="bg-white  shadow-md hover:shadow-lg transition-shadow duration-300">
                 <CardContent className="p-6">
                   <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
                     <Avatar className="h-24 w-24 border-4 border-[#ABDE3B]/20">
@@ -151,7 +151,7 @@ const UserHomePage = () => {
 
               {/* Key Stats Cards */}
               <div className="grid gap-4 h-fit md:grid-cols-3">
-                <Card className="bg-white h-fit dark:bg-[#2C3C39] shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden">
+                <Card className="bg-white h-fit  shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden">
                  
                   <CardHeader className="pb-2">
                     <CardTitle className="text-lg font-medium">{t('carsForSale')}</CardTitle>
@@ -166,7 +166,7 @@ const UserHomePage = () => {
                   </CardContent>
                 </Card>
 
-                <Card className="bg-white h-fit dark:bg-[#2C3C39] shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden">
+                <Card className="bg-white h-fit  shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden">
                   <div className="absolute top-0 right-0 p-3">
                   </div>
                   <CardHeader className="pb-2">
@@ -182,7 +182,7 @@ const UserHomePage = () => {
                   </CardContent>
                 </Card>
 
-                <Card className="bg-white h-fit dark:bg-[#2C3C39] shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden">
+                <Card className="bg-white h-fit  shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden">
                 
                   <CardHeader className="pb-2">
                     <CardTitle className="text-lg font-medium">{t('favorites')}</CardTitle>
@@ -199,14 +199,14 @@ const UserHomePage = () => {
               </div>
 
               {/* Activity Summary */}
-              <Card className="bg-white dark:bg-[#2C3C39] shadow-sm hover:shadow-md transition-shadow duration-300">
+              <Card className="bg-white  shadow-sm hover:shadow-md transition-shadow duration-300">
                 <CardHeader>
                   <CardTitle>{t('activitySummary')}</CardTitle>
                   <CardDescription>{t('recentActivity')}</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="grid gap-6 md:grid-cols-3 ">
-                    <div className="flex flex-col items-center justify-center  p-4 border rounded-lg bg-[#2C3C39]/5 dark:bg-[#198341]/20">
+                    <div className="flex flex-col items-center justify-center  p-4 border rounded-lg bg-[#2C3C39]/5 ">
                       <TrendingUp className="h-8 w-8 text-[#ABDE3B] mb-2" />
                       <h3 className="text-lg font-semibold">{t('totalListings')}</h3>
                       <p className="text-3xl font-bold">
@@ -215,7 +215,7 @@ const UserHomePage = () => {
                       <p className="text-sm text-muted-foreground">{t('combinedSaleRental')}</p>
                     </div>
 
-                    <div className="flex flex-col items-center justify-center p-4 border rounded-lg bg-[#2C3C39]/5 dark:bg-[#198341]/20">
+                    <div className="flex flex-col items-center justify-center p-4 border rounded-lg bg-[#2C3C39]/5 /20">
                       <User className="h-8 w-8 text-[#ABDE3B] mb-2" />
                       <h3 className="text-lg font-semibold">{t('accountAge')}</h3>
                       <p className="text-3xl font-bold">
@@ -229,7 +229,7 @@ const UserHomePage = () => {
                       <p className="text-sm text-muted-foreground">{t('months')}</p>
                     </div>
 
-                    <div className="flex flex-col items-center justify-center p-4 border rounded-lg bg-[#2C3C39]/5 dark:bg-[#198341]/20">
+                    <div className="flex flex-col items-center justify-center p-4 border rounded-lg bg-[#2C3C39]/5 ">
                       <DollarSign className="h-8 w-8 text-[#ABDE3B] mb-2" />
                       <h3 className="text-lg font-semibold">{t('engagement')}</h3>
                       <p className="text-3xl font-bold">
