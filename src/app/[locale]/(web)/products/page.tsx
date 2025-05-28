@@ -281,7 +281,7 @@ const handleTotalItemsChange = useCallback((count: number) => {
   return (
     <Box variant="row" className="mt-[10px] bg-background flex-wrap overflow-hidden">
       {/* Breadcrumb Navigation - Positioned at the top */}
-      <Box variant="container" className="w-full mb-4 overflow-hidden" >
+      <Box variant="container" className="w-full mb-2 overflow-hidden pt-2" >
         <Breadcrumb dir={locale === "ar" ? "rtl" : "ltr"}>
           <BreadcrumbList dir={locale === "ar" ? "rtl" : "ltr"}>
             <BreadcrumbItem dir={locale === "ar" ? "rtl" : "ltr"}>

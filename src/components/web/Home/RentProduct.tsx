@@ -98,7 +98,7 @@ const RentProduct = () => {
 
 
     return (
-        <Box variant="container" className="">
+        <Box variant="container" className="mb-10">
             <Box variant="column">
                 <Box variant="column" className="">
                     <Text variant="h3" className="font-bold text-[20px] font-cairo">
@@ -142,27 +142,34 @@ const RentProduct = () => {
                                 
                             
                             return (
-                                <React.Fragment key={product.id || index}>
+                            <React.Fragment key={product.id || index}>
+                                {/* Card wrapper with fixed dimensions */}
+                                <div className="w-full">
                                     <RentProductCard
-                                        title={product.title}
-                                        marka={product.make?.name || product.marka}
-                                        type={product.listingType}
-                                        price={product.price}
-                                        imageSrc={product.images?.find((img: { isPrimary: boolean; url: string }) => img.isPrimary)?.url || product.images?.[0]?.url || product.imageSrc}
-                                        priceWord={t('rentProduct.price')}
-                                        details={product.details || []}
-                                        ProductId={product.id}
-                                        isMarkedFavorite={isFavorite}
-                                        onFavoriteToggle={handleFavoriteToggle}
+                                    title={product.title}
+                                    marka={product.make?.name || product.marka}
+                                    type={product.listingType}
+                                    price={product.price}
+                                    imageSrc={
+                                        product.images?.find((img: { isPrimary: boolean; url: string }) => img.isPrimary)?.url ||
+                                        product.images?.[0]?.url ||
+                                        product.imageSrc
+                                    }
+                                    priceWord={t("rentProduct.price")}
+                                    details={product.details || []}
+                                    ProductId={product.id}
+                                    isMarkedFavorite={isFavorite}
+                                    onFavoriteToggle={handleFavoriteToggle}
                                     />
-                                    {index === 3 && (
-                                        <Box variant="center" className="justify-center items-center">
-                                            <CardAds isRent={false} />
-                                        </Box>
-                                    )}
+                                </div>
+                                {index === 3 && (
+                                    <Box variant="center" className="justify-center items-center  w-full">
+                                    <CardAds isRent={false} />
+                                    </Box>
+                                )}
                                 </React.Fragment>
-                            );
-                        })}
+                            )
+                            })}
                     </Box>
                 )}
                 

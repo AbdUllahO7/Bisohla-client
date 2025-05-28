@@ -64,7 +64,7 @@ const CarouselComponent: React.FC<ExtendedCarouselComponentProps> = ({
                 {data.map((item, index) => (
                     <CarouselItem
                         key={index}
-                        className="2xl:basis-1/8 xl:basis-1/7 lg:basis-1/5 md:basis-1/5 sm:basis-1/4 xs:basis-1/3 pl-2 md:pl-4 flex-shrink-0"
+                        className="2xl:basis-1/8 xl:basis-1/7 lg:basis-1/6 md:basis-1/6 sm:basis-1/4 xs:basis-1/3 pl-2 md:pl-4 flex-shrink-0"
                         onClick={() => handleCityClick(item as CarouselItemData)}
                     >
                         <Box className="overflow-hidden w-full h-full">

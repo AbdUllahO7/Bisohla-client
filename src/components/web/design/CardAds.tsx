@@ -8,8 +8,8 @@ const CardAds = ({ isRent }: { isRent: boolean }) => {
   const t = useTranslations('homePage');
 
   return (
-    <Box variant="column" className="flex flex-col justify-center items-center ">
-      <Card className={`${isRent ? 'max-h-[420px] h-[410px] min-h-[410px]' : 'max-h-[350px] h-[350px] min-h-[350px]'}  border-none rounded-t-[10px] text-center flex flex-col justify-center items-center bg-primary-light `}>
+    <Box variant="column" className="flex  flex-col justify-center items-center ">
+      <Card className={`${isRent ? 'max-h-[420px]  min-h-[370px]' : 'max-h-[350px] min-h-[370px] '}  border-none rounded-t-[10px] text-center flex flex-col justify-center items-center bg-primary-light `}>
         <CardHeader className="p-0 w-full h-full flex justify-center items-center">
           <CardDescription className="flex flex-col justify-center items-center h-full w-full font-bold font-cairo text-[20px]">
             <Text variant="h4" className="p-[8px] text-white">

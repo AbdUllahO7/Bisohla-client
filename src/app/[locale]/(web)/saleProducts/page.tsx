@@ -87,7 +87,7 @@ const SaleProducts = () => {
   return (
     <Box variant="row" className="mt-[10px] bg-background flex-wrap">
       {/* Header Section */}
-        <Box variant="container" className="w-full mb-4">
+        <Box variant="container" className="w-full mb-2 mt-2">
                     <Breadcrumb dir={locale === "ar" ? "rtl" : "ltr"}>
                     <BreadcrumbList dir={locale === "ar" ? "rtl" : "ltr"}>
                         <BreadcrumbItem dir={locale === "ar" ? "rtl" : "ltr"}>

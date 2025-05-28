@@ -157,10 +157,10 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
     };
 
     return (
-        <div className="w-full">
+        <div className="w-full ">
             <Card 
             
-                className="border-none bg-white relative group hover:shadow-2xl hover:shadow-emerald-500/10 transition-all duration-500 ease-out overflow-hidden"
+                className="border-none h-[370px] bg-white relative group hover:shadow-2xl hover:shadow-emerald-500/10 transition-all duration-500 ease-out overflow-hidden"
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
                 style={{
