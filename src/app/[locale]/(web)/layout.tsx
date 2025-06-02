@@ -48,7 +48,6 @@ const WebLayout = async ({ children }: PropsWithChildren) => {
 
       {children}
       <Toaster />
-      <Footer />
     </Box>
   )
 }

@@ -31,8 +31,8 @@ export enum SyriaCity {
   DARAYYA = 'Darayya',
   KAFR_SOUSA = 'Kafr Sousa',
   JARAMANA = 'Jaramana',
-  MEZZEH = 'Mezzeh', // جديد
-  AL_QADAM = 'Al-Qadam', // جديد
+  MEZZEH = 'Mezzeh', 
+  AL_QADAM = 'Al-Qadam', 
 
   // Aleppo cities
   ALEPPO = 'Aleppo',
@@ -90,7 +90,7 @@ export enum SyriaCity {
   RAS_AL_AYN = 'Ras al-Ayn',
   AL_MALIKIYAH = 'Al-Malikiyah',
   AMUDA = 'Amuda',
-  AL_SHADDADI = 'Al-Shaddadi', // جديد
+  AL_SHADDADI = 'Al_Shaddadi', // جديد
   TAL_TAMR = 'Tal Tamr', // جديد
 
   // Deir ez-Zor cities

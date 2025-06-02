@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useCarFeatrues } from "@/core/infrastructure-adapters/use-actions/visitors/car.visitor.use-actions";
 import { getBodyTypeOptions, getColorOptions, getFuelTypeOptions, getTransmissionOptions, FeatureCategory } from "@/core/entities/enums/cars.enums";
-import { CarInfoState, ValidationErrors, GroupedFeatures, CategoryData } from "./types";
+import { CarInfoState, ValidationErrors, GroupedFeatures } from "./types";
 import { groupFeaturesByCategory, loadFromStorage, saveToStorage, validateForm } from "./utils";
 import { SelectFeatureDto, CarListingFeature } from "@/core/entities/models/cars/cars.dto";
 

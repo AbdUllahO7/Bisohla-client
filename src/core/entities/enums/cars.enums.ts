@@ -49,8 +49,7 @@ export enum FuelType {
   ELECTRIC = 'electric',
   HYBRID = 'hybrid',
   PLUG_IN_HYBRID = 'plug_in_hybrid',
-  LPG = 'lpg',
-  NATURAL_GAS = 'natural_gas',
+  GASOLINE_GAS = "gasoline_gas"
 }
 
 /**
@@ -555,8 +554,7 @@ export const getFuelTypeOptions = (t?: any): SelectOption[] => {
             [FuelType.ELECTRIC]: 'electric',
             [FuelType.HYBRID]: 'hybrid',
             [FuelType.PLUG_IN_HYBRID]: 'plug_in_hybrid',
-            [FuelType.LPG]: 'lpg',
-            [FuelType.NATURAL_GAS]: 'natural_gas',
+            [FuelType.GASOLINE_GAS] : 'gasoline_gas'
           };
           const mappedValue = oldGazMapping[value];
           if (mappedValue) {

@@ -712,15 +712,14 @@
         "electric": "كهربائي", 
         "hybrid": "هجين",
         "plug_in_hybrid": "هجين قابل للشحن",
-        "lpg": "غاز البترول المسال",
-        "natural_gas": "غاز طبيعي"
+        "gasoline_gas" : "بنزين / غاز"
       },
       "bodyType": {
         "suv": "شاحنة",
         "sedan": "سيدان",
         "hatchback": "هاتشباك",
         "coupe": "كوبيه",
-        "convertible": "قابلة للتحويل",
+        "convertible": "كشف ",
         "wagon": "عربة",
         "van": "شاحنة صغيرة",
         "minivan": "ميني فان",

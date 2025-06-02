@@ -134,6 +134,18 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
               required
             />
           </FormField>
+    {/* Doors */}
+          <FormField label={labels.doors} field="doors" required error={validationErrors.doors}>
+            <Input
+              type="text"
+              ref={doorsInputRef}
+              defaultValue={carInfo.doors || ""}
+              onBlur={handleDoorsBlur}
+              placeholder={labels.enterDoors}
+              className={`w-full ${validationErrors.doors ? "border-red-500" : ""} text-primary`}
+              required
+            />
+          </FormField>
 
           {/* Engine Power */}
           <FormField label={labels.enginePower} field="enginePower">
@@ -150,21 +162,10 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
           {/* Engine Size */}
        
 
-          {/* Doors */}
-          <FormField label={labels.doors} field="doors" required error={validationErrors.doors}>
-            <Input
-              type="text"
-              ref={doorsInputRef}
-              defaultValue={carInfo.doors || ""}
-              onBlur={handleDoorsBlur}
-              placeholder={labels.enterDoors}
-              className={`w-full ${validationErrors.doors ? "border-red-500" : ""} text-primary`}
-              required
-            />
-          </FormField>
+       
 
           {/* Plate Number */}
-          <FormField label={labels.plateNumber} field="plateNumber" required>
+          <FormField label={labels.plateNumber} field="plateNumber" >
             <Input
               type="text"
               ref={plateInputRef}

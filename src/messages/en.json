@@ -768,8 +768,8 @@
         "electric": "Electric",
         "hybrid": "Hybrid",
         "plug_in_hybrid": "Plug in Hybrid",
-        "lpg": "Liquefied Petroleum Gas",
-        "natural_gas": "Natural Gas"
+        "gasoline_gas" : "Petrol / Gas"
+
         },
         "bodyType": {
           "placeholder" : "Body Type",

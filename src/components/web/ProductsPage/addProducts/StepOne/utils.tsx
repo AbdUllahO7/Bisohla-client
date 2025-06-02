@@ -46,8 +46,8 @@ export const getYearOptions = (t: (key: string) => string): Option[] => {
     const currentYear = new Date().getFullYear();
     const years: number[] = [];
     
-    // Generate years from 1970 to current year (in ascending order)
-    for (let year = 1970; year <= currentYear; year++) {
+    // Generate years from current year down to 1970 (in descending order)
+    for (let year = currentYear; year >= 1980; year--) {
         years.push(year);
     }
     
