@@ -2,7 +2,6 @@ import React from 'react'
 import UserHomePage from './Home/page'
 import { redirect } from 'next/navigation';
 import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions';
-import Footer from '@/components/web/Home/Footer';
 
 async function UserProfilePage (){
 

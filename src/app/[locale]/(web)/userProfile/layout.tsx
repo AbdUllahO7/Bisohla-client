@@ -1,20 +1,21 @@
-"use client"
-
+'use server'
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
 import { DashboardSidebar } from "@/components/web/UserProfilePage/dashboard-sidebar"
-import { useCheckAuth } from "@/core/infrastructure-adapters/use-actions/auth/auth.use-actions";
 import type { PropsWithChildren } from "react"
 import { redirect } from 'next/navigation';
+import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions';
 
-export default function Dashboard({ children }: PropsWithChildren) {
+export default async function Dashboard({ children }: PropsWithChildren) {
 
 
-     const authResult =   useCheckAuth();
-      console.log("authResult", authResult)
-      // The logic was inverted - if NOT successful, delete session and redirect
-      if (!authResult.data) {
-          redirect('/auth/sign-in');
-      }
+   // Check authentication status
+    const authResult = await checkAuth();
+    
+    // The logic was inverted - if NOT successful, delete session and redirect
+    if (!authResult.success) {
+        redirect('/auth/sign-in');
+    }
+
   return (
     <SidebarProvider>
       {/* Account for the fixed headers (55px + 65px = 120px) */}

@@ -119,9 +119,8 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
   return (
     <div className="p-5 w-full">
       {/* Main grid with two columns - FormFields on left, SelectFields on right */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-4 md:grid-cols-4 gap-6">
         {/* Left column - FormFields */}
-        <div className="space-y-6">
           {/* Mileage */}
           <FormField label={labels.mileage} field="mileage" required>
             <Input
@@ -134,7 +133,7 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
               required
             />
           </FormField>
-    {/* Doors */}
+          {/* Doors */}
           <FormField label={labels.doors} field="doors" required error={validationErrors.doors}>
             <Input
               type="text"
@@ -159,10 +158,6 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
             />
           </FormField>
 
-          {/* Engine Size */}
-       
-
-       
 
           {/* Plate Number */}
           <FormField label={labels.plateNumber} field="plateNumber" >
@@ -188,11 +183,8 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
               className="w-full text-primary"
             />
           </FormField>
-        </div>
 
-        {/* Right column - SelectFields */}
-        <div className="space-y-6">
-          {/* Exterior Color */}
+               {/* Exterior Color */}
           <SelectField
             label={labels.colorExterior}
             field="colorExterior"
@@ -237,6 +229,9 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
             optionsLabel={labels.bodyTypes}
             required
           />
+
+        {/* Right column - SelectFields */}
+        <div className="space-y-6">
         </div>
       </div>
     </div>

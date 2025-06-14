@@ -433,30 +433,39 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
   };
   
   return (
-    <div className="w-full space-y-6" dir={direction}>
-      <Card className="w-full bg-white mx-auto border-0 shadow-none">
-        <CardHeader className="bg-gray-100 py-4">
-          <Text className="text-xl font-bold text-primary text-center">
+    <div className="w-full  mx-auto space-y-6" dir={direction}>
+      <Card className=" min-w-7xl bg-white border-0 shadow-lg">
+        <CardHeader className="bg-gradient-to-r from-gray-50 to-gray-100 py-6 rounded-t-lg">
+          <Text className="text-2xl font-bold text-primary text-center">
             {t("stepFour.title", { defaultValue: "Ad Information" })}
           </Text>
         </CardHeader>
-        <CardContent className="pt-5">
+        <CardContent className="p-8 w-[900px]">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Left Column */}
-                <div className="space-y-6 md:col-span-1">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+              
+              {/* Basic Information Section */}
+              <div className="space-y-6 w-full">
+                <div className="border-b border-gray-200 pb-2">
+                  <h3 className="text-lg font-semibold text-primary">Basic Information</h3>
+                </div>
+                
+                <div className="grid grid-cols-4 lg:grid-cols-4 gap-6">
                   <FormField
                     control={form.control}
                     name="title"
                     render={({ field }) => (
-                      <FormItem className="text-primary">
-                        <FormLabel className="text-primary">
+                      <FormItem className="text-primary lg:col-span-2">
+                        <FormLabel className="text-primary font-medium">
                           {t("stepFour.adTitle")}
-                          <span className="text-red-500">*</span>
+                          <span className="text-red-500 ml-1">*</span>
                         </FormLabel>
                         <FormControl>
-                          <Input placeholder={t("stepFour.adTitle")} {...field} />
+                          <Input 
+                            placeholder={t("stepFour.adTitle")} 
+                            className="h-11" 
+                            {...field} 
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -467,30 +476,47 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                     control={form.control}
                     name="description"
                     render={({ field }) => (
-                      <FormItem className="text-primary">
-                        <FormLabel className="text-primary">
+                      <FormItem className="text-primary lg:col-span-2">
+                        <FormLabel className="text-primary font-medium">
                           {t("stepFour.adDescription")}
-                          <span className="text-red-500">*</span>
+                          <span className="text-red-500 ml-1">*</span>
                         </FormLabel>
                         <FormControl>
-                          <Textarea placeholder={t("stepFour.adDescription")} className="min-h-[100px]" {...field} />
+                          <Textarea 
+                            placeholder={t("stepFour.adDescription")} 
+                            className="min-h-[120px] resize-y" 
+                            {...field} 
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
+                </div>
+              </div>
 
+              {/* Contact & Pricing Section */}
+              <div className="space-y-6 w-full">
+                <div className="border-b border-gray-200 pb-2">
+                  <h3 className="text-lg font-semibold text-primary">Contact & Pricing</h3>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   <FormField
                     control={form.control}
                     name="contactNumber"
                     render={({ field }) => (
                       <FormItem className="text-primary">
-                        <FormLabel className="text-primary">
+                        <FormLabel className="text-primary font-medium">
                           {t("stepFour.contactNumber")}
-                          <span className="text-red-500">*</span>
+                          <span className="text-red-500 ml-1">*</span>
                         </FormLabel>
                         <FormControl>
-                          <Input  placeholder={t("stepFour.contactNumber")} {...field} />
+                          <Input 
+                            placeholder={t("stepFour.contactNumber")} 
+                            className="h-11" 
+                            {...field} 
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -502,14 +528,15 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                     name="price"
                     render={({ field }) => (
                       <FormItem className="text-primary">
-                        <FormLabel className="text-primary">
+                        <FormLabel className="text-primary font-medium">
                           {t("stepFour.price", { defaultValue: "Price" })}
-                          <span className="text-red-500">*</span>
+                          <span className="text-red-500 ml-1">*</span>
                         </FormLabel>
                         <FormControl>
                           <Input 
                             type="text" 
                             placeholder={t("stepFour.price", { defaultValue: "Enter price" })} 
+                            className="h-11"
                             {...field} 
                           />
                         </FormControl>
@@ -517,10 +544,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                       </FormItem>
                     )}
                   />
-                </div>
 
-                {/* Right Column */}
-                <div className="space-y-6 md:col-span-1">
                   <EnumSelect
                     name="currency"
                     control={form.control}
@@ -532,7 +556,16 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                     value={currencyValue}
                     isRtl={direction === "rtl"}
                   />
+                </div>
+              </div>
 
+              {/* Listing Configuration Section */}
+              <div className="space-y-6">
+                <div className="border-b border-gray-200 pb-2">
+                  <h3 className="text-lg font-semibold text-primary">Listing Configuration</h3>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   <EnumSelect
                     name="listingType"
                     control={form.control}
@@ -543,7 +576,6 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                     onChange={handleListingTypeChange}
                     value={listingTypeValue}
                     isRtl={direction === "rtl"}
-
                   />
 
                   {showRentType && (
@@ -571,20 +603,31 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                     value={saveStatusValue}
                     isRtl={direction === "rtl"}
                   />
+                </div>
+              </div>
 
+              {/* Publication Settings Section */}
+              <div className="space-y-6">
+                <div className="border-b border-gray-200 pb-2">
+                  <h3 className="text-lg font-semibold text-primary">Publication Settings</h3>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormField
                     control={form.control}
                     name="publicationDate"
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
-                        <FormLabel className="text-primary">{t("stepFour.publicationDate")}</FormLabel>
+                        <FormLabel className="text-primary font-medium">
+                          {t("stepFour.publicationDate")}
+                        </FormLabel>
                         <Popover>
                           <PopoverTrigger asChild>
                             <FormControl>
                               <Button
                                 variant={"outline"}
                                 className={cn(
-                                  "w-full pl-3 text-left font-normal text-primary",
+                                  "w-full h-11 pl-3 text-left font-normal text-primary justify-between",
                                   !field.value && "text-muted-foreground",
                                 )}
                               >
@@ -593,12 +636,17 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                                 ) : (
                                   <span>{t("pickDate", { defaultValue: "Pick a date" })}</span>
                                 )}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                <CalendarIcon className="h-4 w-4 opacity-50" />
                               </Button>
                             </FormControl>
                           </PopoverTrigger>
                           <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus />
+                            <Calendar 
+                              mode="single" 
+                              selected={field.value} 
+                              onSelect={field.onChange} 
+                              initialFocus 
+                            />
                           </PopoverContent>
                         </Popover>
                         <FormMessage />
