@@ -110,7 +110,7 @@ export function DashboardSidebar() {
       )}
 
       <Sidebar className="" collapsible={isMobile ? "offcanvas" : "icon"} dir={locale === "ar" ? "rtl" : "ltr"}>
-        <SidebarHeader className="flex h-14 items-center pt-5 px-4 mt-20 bg-primary" dir="ltr">
+        <SidebarHeader className="flex h-14 items-center pt-5 px-4  bg-primary" dir="ltr">
           <div className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary">
               <Layers className="h-5 w-5 text-primary-foreground" />
