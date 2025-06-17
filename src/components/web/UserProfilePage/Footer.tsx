@@ -7,11 +7,12 @@ import Image from 'next/image';
 import { Link } from "@/i18n/routing"
 import React from 'react'
 
-const Footer = ({isUserProfile}: {isUserProfile?: boolean}) => {
+const Footer = () => {
         const locale = useLocale(); // Get the current language
+    
     return (
-    <Box variant="column" className= {`  block bg-white pt-10 pb-10 justify-around  z-[99] `} >
-        <Box  variant='row' className='w-full container justify-between  md:flex-wrap xs:flex-wrap'>
+    <Box variant="column" className='bg-white  pt-10 pb-10 justify-around w-full ' >
+        <Box  variant='row' className='max-w-[1300px] w-full container justify-between  md:flex-wrap xs:flex-wrap'>
 
                     {/*  create ad */}
                 <Box variant="column" className='items-start justify-start gap-8 md:w-[300px] sm:w-[400px] xs:w-[400px] lg:mt-0 lg:items-start xs:items-center xs:mt-5'>
@@ -80,8 +81,7 @@ const Footer = ({isUserProfile}: {isUserProfile?: boolean}) => {
         
         </Box>
 
-        <Box variant="rowBetween" className='justify-between container w-full mt-10'>
-
+        <Box variant="rowBetween" className='justify-between container max-w-[1300px] w-full mt-10'>
             <Box className=''>
                 <Image 
                     src="/assets/images/logo/bishola.png"// Default image included in Next.js projects
