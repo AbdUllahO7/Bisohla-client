@@ -137,15 +137,15 @@ const UserHomePage = () => {
           <div className="mx-auto container h-full" dir={direction}>
             <div className="grid grid-rows-[auto_auto_1fr] h-full gap-6">
               <div className="mb-2">
-                <h1 className="text-3xl font-bold">
+                <h1 className="text-3xl font-bold text-primary">
                   {t('welcome')}, {userProfile?.name || ""}
                 </h1>
-                <p className="text-muted-foreground">{t('overview')}</p>
+                <p className="text-muted-foreground text-primary">{t('overview')}</p>
               </div>
 
               {/* User Profile Card */}
-              <Card className="bg-white shadow-md hover:shadow-lg transition-shadow duration-300">
-                <CardContent className="p-6">
+              <Card className="bg-white text-primary shadow-md hover:shadow-lg transition-shadow duration-300">
+                <CardContent className="p-6 text-primary">
                   <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
                     <Avatar className="h-24 w-24 border-4 border-[#ABDE3B]/20">
                       <AvatarImage
@@ -154,8 +154,8 @@ const UserHomePage = () => {
                         }
                         alt={userProfile?.name || "User"}
                       />
-                      <AvatarFallback className="text-2xl bg-[#198341] text-white">
-                        {getUserInitials(userProfile?.name || "")}
+                      <AvatarFallback className="text-2xl bg-[#198341] text-primary">
+                        <span className="text-primary">{getUserInitials(userProfile?.name || "")}</span>
                       </AvatarFallback>
                     </Avatar>
 
@@ -165,12 +165,12 @@ const UserHomePage = () => {
                         <div className="flex flex-col sm:flex-row sm:gap-6 text-muted-foreground">
                           <div className="flex items-center gap-1">
                             <Mail className="h-4 w-4" />
-                            <span>{userProfile?.email || ""}</span>
+                            <span className="text-primary">{userProfile?.email || ""}</span>
                           </div>
                           {userProfile?.phoneNumber && (
                             <div className="flex items-center gap-1">
-                              <Phone className="h-4 w-4" />
-                              <span>{userProfile.phoneNumber}</span>
+                              <Phone className="h-4 w-4 text-primary " />
+                              <span className="text-primary">{userProfile.phoneNumber}</span>
                             </div>
                           )}
                         </div>
@@ -179,13 +179,13 @@ const UserHomePage = () => {
                       <div className="flex flex-col sm:flex-row gap-2 sm:gap-6">
                         <div className="flex items-center gap-1">
                           <Clock className="h-4 w-4 text-[#ABDE3B]" />
-                          <span className="text-sm">
+                          <span className="text-sm text-primary">
                             {t('memberSince')} {formatDate(userProfile?.createdAt || "")}
                           </span>
                         </div>
                         <div className="flex items-center gap-1">
                           <Clock className="h-4 w-4 text-[#ABDE3B]" />
-                          <span className="text-sm">
+                          <span className="text-sm text-primary">
                             {t('lastUpdated')} {formatDate(userProfile?.updatedAt || "")}
                           </span>
                         </div>
@@ -196,14 +196,14 @@ const UserHomePage = () => {
               </Card>
 
               {/* Key Stats Cards */}
-              <div className="grid gap-4 h-fit md:grid-cols-3">
+              <div className="grid gap-4 h-fit text-primary md:grid-cols-3">
                 <Card className="bg-white h-fit shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-lg font-medium">{t('carsForSale')}</CardTitle>
-                    <CardDescription>{t('activeListings')}</CardDescription>
+                  <CardHeader className="pb-2 ">
+                    <CardTitle className="text-lg font-medium text-primary">{t('carsForSale')}</CardTitle>
+                    <CardDescription className="text-primary">{t('activeListings')}</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-3xl font-bold">{userProfile?.totalForSellCarListings || 0}</div>
+                    <div className="text-3xl font-bold text-primary">{userProfile?.totalForSellCarListings || 0}</div>
                     <div className="flex items-center text-xs text-muted-foreground mt-2">
                       <ArrowUpRight className="mr-1 h-4 w-4 text-[#ABDE3B]" />
                       <span className="text-[#ABDE3B]">{t('activeListings')}</span>
@@ -211,7 +211,7 @@ const UserHomePage = () => {
                   </CardContent>
                 </Card>
 
-                <Card className="bg-white h-fit shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden">
+                <Card className="bg-white text-primary h-fit shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-lg font-medium">{t('carsForRent')}</CardTitle>
                     <CardDescription>{t('activeListings')}</CardDescription>
@@ -225,7 +225,7 @@ const UserHomePage = () => {
                   </CardContent>
                 </Card>
 
-                <Card className="bg-white h-fit shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden">
+                <Card className="bg-white text-primary h-fit shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-lg font-medium">{t('favorites')}</CardTitle>
                     <CardDescription>{t('savedListings')}</CardDescription>
@@ -241,7 +241,7 @@ const UserHomePage = () => {
               </div>
 
               {/* Activity Summary */}
-              <Card className="bg-white shadow-sm hover:shadow-md transition-shadow duration-300">
+              <Card className="bg-white text-primary shadow-sm hover:shadow-md transition-shadow duration-300">
                 <CardHeader>
                   <CardTitle>{t('activitySummary')}</CardTitle>
                   <CardDescription>{t('recentActivity')}</CardDescription>

@@ -23,8 +23,8 @@ export default async function Dashboard({ children }: PropsWithChildren) {
         <DashboardSidebar />
         <SidebarInset className="min-h-screen">
           <div className="">{children}</div>
-          
         </SidebarInset>
+
 
       </div>
 
