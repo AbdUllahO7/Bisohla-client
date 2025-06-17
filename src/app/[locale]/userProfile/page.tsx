@@ -14,7 +14,7 @@ async function UserProfilePage (){
     }
 
     return (
-        <div className='w-full w-full' >
+        <div className='w-full ' >
             <UserHomePage/>
 
         </div>

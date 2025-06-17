@@ -130,7 +130,7 @@ const UserHomePage = () => {
   }
 
   return (
-    <div className="w-full flex-col mx-auto">
+    <div className="w-full flex-col mx-auto ">
       {/* Main Content */}
       <SidebarInset>
         <main className="flex-1 p-4 md:p-6">
