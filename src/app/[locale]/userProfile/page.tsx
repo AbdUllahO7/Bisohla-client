@@ -5,18 +5,18 @@ import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.acti
 
 async function UserProfilePage (){
 
-        // Check authentication status
-        const authResult = await  checkAuth();
-        
-        // The logic was inverted - if NOT successful, delete session and redirect
-        if (!authResult.success) {
-            redirect('/auth/sign-in');
-        }
+    // Check authentication status
+    const authResult = await  checkAuth();
+    
+    // The logic was inverted - if NOT successful, delete session and redirect
+    if (!authResult.success) {
+        redirect('/auth/sign-in');
+    }
 
     return (
         <div className='w-full ' >
             <UserHomePage/>
-            
+
         </div>
     )
 }

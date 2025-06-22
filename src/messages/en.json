@@ -3,9 +3,9 @@
 
     "lang": "en",
     "metadata": {
-      "title": "Bishola",
-      "description": "A mobile app for Bishola, a community of practitioners sharing their stories and experiences."
-    },
+        "title": "Bishola - Car Rental & Car Sales Platform",
+        "description": "Rent or buy your perfect car with Bishola. Premium car rental services and quality used cars for sale. Find the best deals on vehicles in Saudi Arabia."
+      },
     "Rating": "Rating",
     "Support": "Support",
     "CarsAvailable": "Available Cars",
@@ -768,8 +768,8 @@
         "electric": "Electric",
         "hybrid": "Hybrid",
         "plug_in_hybrid": "Plug in Hybrid",
-        "lpg": "Liquefied Petroleum Gas",
-        "natural_gas": "Natural Gas"
+        "gasoline_gas" : "Petrol / Gas"
+
         },
         "bodyType": {
           "placeholder" : "Body Type",

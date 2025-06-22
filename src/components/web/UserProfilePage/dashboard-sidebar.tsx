@@ -33,6 +33,7 @@ export function DashboardSidebar() {
   const locale = useLocale()
   const { isMobile, openMobile, setOpenMobile } = useSidebar()
   const router = useRouter()
+  
   // Profile form
   const profileForm = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
@@ -85,6 +86,13 @@ export function DashboardSidebar() {
     router.push(`/`)
   }
 
+  // Helper function to check if route is active (removes locale prefix for comparison)
+  const isActiveRoute = (href: string) => {
+    // Remove locale prefix from pathname for comparison
+    const pathWithoutLocale = pathname.replace(`/${locale}`, '') || '/'
+    return pathWithoutLocale === href
+  }
+
   // Navigation items
   const navItems = [
     { href: "/userProfile", icon: LayoutDashboard, label: locale === "ar" ? "الرئيسية" : "Dashboard" },
@@ -115,7 +123,7 @@ export function DashboardSidebar() {
             <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary">
               <Layers className="h-5 w-5 text-primary-foreground" />
             </div>
-            <span className="text-xl font-bold ">{locale === "ar" ? "لوحة التحكم" : "Dashboard"}</span>
+            <span className="text-xl font-bold text-white">{locale === "ar" ? "لوحة التحكم" : "Dashboard"}</span>
           </div>
         </SidebarHeader>
 
@@ -125,16 +133,15 @@ export function DashboardSidebar() {
               <SidebarMenuItem key={href}>
                 <SidebarMenuButton
                   asChild
-                  isActive={pathname === href}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-md ${
-                    pathname === href ? "bg-primary text-white" : "hover:bg-primary-light"
+                  className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors ${
+                    isActiveRoute(href) ? "bg-primary-light text-white" : "hover:bg-primary-light text-white"
                   }`}
                   tooltip={label}
                   onClick={() => isMobile && setOpenMobile(false)}
                 >
                   <Link href={href}>
-                    <Icon className="h-5 w-5" />
-                    <span>{label}</span>
+                    <Icon className="h-5 w-5 text-white" />
+                    <span className="text-white">{label}</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

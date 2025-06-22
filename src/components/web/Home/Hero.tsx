@@ -11,7 +11,7 @@ const Hero = async () => {
     <div className="w-full relative mt-[-6px] min-h-[300px] lg:max-h-[660px]">
       {/* Background with mask */}
       <div
-        className="absolute inset-0 bg-cover bg-center"
+        className="absolute inset-0 bg-cover bg-center "
         style={{
           backgroundImage: `url('/assets/images/HeroBackRound.png')`,
           mask: "linear-gradient(to bottom, black 0%, black 70%, transparent 100%)",
@@ -28,7 +28,7 @@ const Hero = async () => {
             width={397}
             height={300}
             className="w-[250px] sm:w-[180px] md:w-[200px] lg:w-[300px] xl:w-[397px] 
-                                h-auto sm:h-[100px] md:h-[220px] lg:h-[280px] xl:h-[250px]"
+                                h-auto xs:h-[200px] sm:h-[100px] md:h-[220px] lg:h-[280px] xl:h-[250px] "
             priority
           />
 
@@ -50,7 +50,7 @@ const Hero = async () => {
             alt="cars"
             width={800}
             height={400}
-            className="w-[280px] sm:w-[400px] md:w-[500px] lg:w-[650px] xl:w-[700px] h-auto"
+            className="w-[350px] sm:w-[400px] md:w-[500px] lg:w-[650px] xl:w-[700px] h-auto"
           />
         </div>
       </Box>

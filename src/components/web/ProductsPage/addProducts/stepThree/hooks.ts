@@ -1,4 +1,4 @@
-// hooks.ts - Updated with proper typing
+// hooks.ts - Updated with immediate validation after image upload
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { ImageUploaderRef } from "@/components/image-uploader/image-uploader";
@@ -92,6 +92,23 @@ export const useAddProductStepThree = (
     groupedSections: getGroupedCarSectionOptions(t) // Add grouped sections for filtering
   }), [t, formatCarSections, getConditionTypesWithColors]);
 
+  // Helper function to run validation and notify parent
+  const runValidation = useCallback((currentState: CarConditionState) => {
+    const isValid = validateForm(currentState, options.carSections);
+    
+    console.log('🔍 Validation check:', {
+      coverImageCount: currentState.coverImage?.length || 0,
+      sectionStatusCount: Object.keys(currentState.sectionStatus || {}).length,
+      isValid
+    });
+    
+    if (isValid !== prevValidState.current) {
+      prevValidState.current = isValid;
+      onValidationChange(isValid);
+      console.log('✅ Validation state changed to:', isValid);
+    }
+  }, [onValidationChange, options.carSections]);
+
   // Check if we're in edit mode (from localStorage flag) on mount
   useEffect(() => {
     // Determine edit mode status using the prop or localStorage
@@ -142,23 +159,32 @@ export const useAddProductStepThree = (
               ...parsedData,
               sectionStatus: normalizedSectionStatus
             };
-            
           }
           
-   
+          const finalState = updatedData as CarConditionState;
           
           // Set the normalized data with proper type assertion
-          setCarCondition(updatedData as CarConditionState);
+          setCarCondition(finalState);
+          
+          // Run initial validation after loading data
+          setTimeout(() => {
+            runValidation(finalState);
+          }, 100);
+          
           // Mark initial load as complete
           initialLoadComplete.current = true;
         } else {
           console.log("❌ No saved data found in localStorage");
+          // Run validation even with default state
+          setTimeout(() => {
+            runValidation(defaultState);
+          }, 100);
         }
       } catch (e) {
         console.error("❌ Failed to load data:", e);
       }
     }
-  }, [storageKey]); // Depend on storageKey to reload when it changes
+  }, [storageKey, runValidation]); // Add runValidation to dependencies
 
   // Function to set initial damages from edit mode
   const setInitialDamages = useCallback((damagesMap: Record<string, { status: string, description?: string }>) => {
@@ -195,9 +221,14 @@ export const useAddProductStepThree = (
         console.error(`Error saving initial damages to ${storageKey}:`, e);
       }
       
+      // Run validation after setting initial damages
+      setTimeout(() => {
+        runValidation(updatedState);
+      }, 100);
+      
       editModeApplied.current = true;
     }
-  }, [carCondition, storageKey]);
+  }, [carCondition, storageKey, runValidation]);
 
   // Save to localStorage only when the state changes intentionally
   // (not on initial load)
@@ -211,15 +242,10 @@ export const useAddProductStepThree = (
         console.error(`Error saving to localStorage with key ${storageKey}:`, e);
       }
       
-      // Validate and update parent component
-      const isValid = validateForm(carCondition, options.carSections);
-      
-      if (isValid !== prevValidState.current) {
-        prevValidState.current = isValid;
-        onValidationChange(isValid);
-      }
+      // Run validation after state changes
+      runValidation(carCondition);
     }
-  }, [carCondition, isClient, onValidationChange, prevValidState, options.carSections, storageKey]);
+  }, [carCondition, isClient, storageKey, runValidation]);
 
   // Handle section status change
   const handleSectionStatusChange = useCallback((sectionId: string, status: string) => {
@@ -248,17 +274,24 @@ export const useAddProductStepThree = (
         }
       }
       
+      // Run validation immediately after state update
+      setTimeout(() => {
+        runValidation(updatedState);
+      }, 0);
+      
       return updatedState;
     });
-  }, [storageKey]);
+  }, [storageKey, runValidation]);
 
   // Check if a status is selected
   const isStatusSelected = useCallback((sectionId: string, status: string) => {
     return carCondition.sectionStatus?.[sectionId] === status;
   }, [carCondition.sectionStatus]);
 
-  // Image handlers
+  // Image handlers - FIXED VERSION
   const handleCoverImageChange = useCallback((urls: string[]) => {
+    console.log('📸 Cover image change:', urls);
+    
     setCarCondition(prev => {
       const updatedState: CarConditionState = {
         ...prev,
@@ -274,13 +307,16 @@ export const useAddProductStepThree = (
         }
       }
       
+      // Run validation immediately after state update
+      // Use setTimeout to ensure state has been updated
+      setTimeout(() => {
+        runValidation(updatedState);
+      }, 0);
+      
       return updatedState;
     });
-  }, [storageKey]);
+  }, [storageKey, runValidation]);
 
-
-
-  
   return {
     isClient,
     direction,

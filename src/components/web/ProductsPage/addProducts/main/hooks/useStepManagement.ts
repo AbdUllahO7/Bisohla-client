@@ -66,8 +66,6 @@ export const useStepManagement = (isEditMode = false) => {
       const stepThreeData = localStorage.getItem(stepThreeKey);
       const stepFourData = localStorage.getItem(stepFourKey);
       
-    
-      
       // Update validation state based on presence of data
       setStepValidation(prev => ({
         ...prev,
@@ -101,6 +99,73 @@ export const useStepManagement = (isEditMode = false) => {
       [step]: true
     }));
   }, []);
+  
+  // Handle direct step navigation (for clickable step triggers)
+  const goToStep = useCallback((targetStep: string) => {
+    // Validate that the target step exists
+    if (!steps.includes(targetStep)) {
+      console.warn(`Invalid step: ${targetStep}`);
+      return false;
+    }
+    
+    const targetIndex = steps.indexOf(targetStep);
+    const currentIndex = steps.indexOf(currentStep);
+    
+    // In edit mode, allow navigation to any step
+    if (isEditMode) {
+      setCurrentStep(targetStep);
+      return true;
+    }
+    
+    // Allow navigation to current step or previous steps
+    if (targetIndex <= currentIndex) {
+      setCurrentStep(targetStep);
+      return true;
+    }
+    
+    // For forward navigation, check if all intermediate steps are valid
+    for (let i = currentIndex; i < targetIndex; i++) {
+      const intermediateStep = steps[i];
+      if (!stepValidation[intermediateStep]) {
+        console.warn(`Cannot navigate to ${targetStep}: ${intermediateStep} is not valid`);
+        return false;
+      }
+    }
+    
+    // If all checks pass, navigate to the target step
+    setCurrentStep(targetStep);
+    return true;
+  }, [currentStep, steps, stepValidation, isEditMode]);
+  
+  // Check if a step is accessible for navigation
+  const isStepAccessible = useCallback((stepIndex: number): boolean => {
+    const currentIndex = steps.indexOf(currentStep);
+    
+    // In edit mode, all steps are accessible
+    if (isEditMode) {
+      return true;
+    }
+    
+    // Current step is always accessible
+    if (stepIndex === currentIndex) {
+      return true;
+    }
+    
+    // Previous steps are always accessible
+    if (stepIndex < currentIndex) {
+      return true;
+    }
+    
+    // For future steps, check if all intermediate steps are valid
+    for (let i = currentIndex; i < stepIndex; i++) {
+      const stepKey = steps[i];
+      if (!stepValidation[stepKey]) {
+        return false;
+      }
+    }
+    
+    return true;
+  }, [currentStep, steps, stepValidation, isEditMode]);
   
   // Handle next button click
   const handleNext = useCallback(() => {
@@ -140,9 +205,23 @@ export const useStepManagement = (isEditMode = false) => {
     }
   }, [currentStep, steps]);
   
+  // Get step progress information
+  const getStepProgress = useCallback(() => {
+    const currentIndex = steps.indexOf(currentStep);
+    const completedSteps = steps.slice(0, currentIndex).filter(step => stepValidation[step]);
+    
+    return {
+      currentStepIndex: currentIndex,
+      totalSteps: steps.length,
+      completedSteps: completedSteps.length,
+      progressPercentage: Math.round((completedSteps.length / steps.length) * 100)
+    };
+  }, [currentStep, steps, stepValidation]);
+  
   return {
     steps,
     currentStep,
+    setCurrentStep: goToStep, // Export direct navigation function
     isSubmitting,
     showErrorDialog,
     errorMessage,
@@ -153,5 +232,7 @@ export const useStepManagement = (isEditMode = false) => {
     updateStepValidation,
     handleTryAgain,
     setShowErrorDialog,
+    isStepAccessible, // Export accessibility checker
+    getStepProgress, // Export progress information
   };
 };

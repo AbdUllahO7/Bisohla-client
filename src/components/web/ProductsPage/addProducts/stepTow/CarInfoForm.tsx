@@ -119,9 +119,8 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
   return (
     <div className="p-5 w-full">
       {/* Main grid with two columns - FormFields on left, SelectFields on right */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-4 md:grid-cols-4 gap-6">
         {/* Left column - FormFields */}
-        <div className="space-y-6">
           {/* Mileage */}
           <FormField label={labels.mileage} field="mileage" required>
             <Input
@@ -131,6 +130,18 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
               onBlur={handleMileageBlur}
               placeholder={labels.enterMileage}
               className="w-full text-primary"
+              required
+            />
+          </FormField>
+          {/* Doors */}
+          <FormField label={labels.doors} field="doors" required error={validationErrors.doors}>
+            <Input
+              type="text"
+              ref={doorsInputRef}
+              defaultValue={carInfo.doors || ""}
+              onBlur={handleDoorsBlur}
+              placeholder={labels.enterDoors}
+              className={`w-full ${validationErrors.doors ? "border-red-500" : ""} text-primary`}
               required
             />
           </FormField>
@@ -147,24 +158,9 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
             />
           </FormField>
 
-          {/* Engine Size */}
-       
-
-          {/* Doors */}
-          <FormField label={labels.doors} field="doors" required error={validationErrors.doors}>
-            <Input
-              type="text"
-              ref={doorsInputRef}
-              defaultValue={carInfo.doors || ""}
-              onBlur={handleDoorsBlur}
-              placeholder={labels.enterDoors}
-              className={`w-full ${validationErrors.doors ? "border-red-500" : ""} text-primary`}
-              required
-            />
-          </FormField>
 
           {/* Plate Number */}
-          <FormField label={labels.plateNumber} field="plateNumber" required>
+          <FormField label={labels.plateNumber} field="plateNumber" >
             <Input
               type="text"
               ref={plateInputRef}
@@ -187,11 +183,8 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
               className="w-full text-primary"
             />
           </FormField>
-        </div>
 
-        {/* Right column - SelectFields */}
-        <div className="space-y-6">
-          {/* Exterior Color */}
+               {/* Exterior Color */}
           <SelectField
             label={labels.colorExterior}
             field="colorExterior"
@@ -236,6 +229,9 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
             optionsLabel={labels.bodyTypes}
             required
           />
+
+        {/* Right column - SelectFields */}
+        <div className="space-y-6">
         </div>
       </div>
     </div>

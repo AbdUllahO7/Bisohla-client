@@ -158,7 +158,7 @@ export const saveToStorage = (data: CarInfoState): void => {
  */
 export const validateForm = (carInfo: CarInfoState, validationErrors: any): boolean => {
     const requiredFields = [
-         "colorExterior",  "fuelType", "bodyType", "transmission", "mileage", "engineSize", "doors", "vin"
+        "colorExterior",  "fuelType", "bodyType", "transmission", "mileage", "engineSize", "doors"
     ];
   
     // Doors validation

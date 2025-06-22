@@ -48,7 +48,7 @@ const AddProductStepOne: React.FC<AddProductStepOneProps> = ({
 
   return (
     <Box
-      className="w-full justify-start items-center bg-white rounded-lg flex-wrap xs:justify-center p-4"
+      className="w-full max-w-7xl justify-start items-center bg-white rounded-lg flex-wrap xs:justify-center p-4"
       variant="column"
       dir={direction}
     >
