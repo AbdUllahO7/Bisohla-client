@@ -103,7 +103,6 @@ const WebLayout = async ({
         <div className="h-[74px] sm:h-[82px]"></div>
 
         {children}
-        <Footer />
         <Toaster />
       </Box>
     </>

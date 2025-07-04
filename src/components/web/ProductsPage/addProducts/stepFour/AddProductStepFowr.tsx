@@ -260,7 +260,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
         contactNumber: initialData.data[0].contactNumber || '',
         listingType: initialData.data[0].listingType || ListingType.FOR_SALE,
         rentType: initialData.data[0].rentType || null,
-        saveStatus: initialData.data[0].saveStatus || SaveStatus.DRAFT,
+        saveStatus: initialData.data[0].saveStatus || SaveStatus.PUBLISHED,
         publicationDate: initialData.data[0].publishedAt ? new Date(initialData.data[0].publishedAt) : new Date(),
         currency: initialData.data[0].currency || Currency.USD
       };
@@ -347,7 +347,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
         const currentData = {
           ...(formValues as Partial<AdInformationFormData>),
           listingType: formValues.listingType || listingTypeValue || ListingType.FOR_SALE,
-          saveStatus: formValues.saveStatus || saveStatusValue || SaveStatus.DRAFT,
+          saveStatus: formValues.saveStatus || saveStatusValue || SaveStatus.PUBLISHED,
           currency: formValues.currency || currencyValue || Currency.USD,
           rentType: formValues.listingType === ListingType.FOR_RENT || listingTypeValue === ListingType.FOR_RENT
             ? (formValues.rentType || rentTypeValue)
@@ -383,7 +383,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
     const submittedData = {
       ...data,
       listingType: data.listingType || listingTypeValue || ListingType.FOR_SALE,
-      saveStatus: data.saveStatus || saveStatusValue || SaveStatus.DRAFT,
+      saveStatus: data.saveStatus || saveStatusValue || SaveStatus.PUBLISHED,
       currency: data.currency || currencyValue || Currency.USD,
       rentType: data.listingType === ListingType.FOR_RENT 
         ? (data.rentType || rentTypeValue) 
@@ -392,7 +392,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
     
     const adInfoState: AdInfoState = {
       title: submittedData.title,
-      adStatus: "draft",
+      adStatus: "published",
       description: submittedData.description,
       contactNumber: submittedData.contactNumber || "",
       price: submittedData.price || "",

@@ -13,7 +13,7 @@ export const adInformationSchema = z.object({
     listingType: z.nativeEnum(ListingType),
     rentType: z.nativeEnum(RentType).nullable().optional(),
     publicationDate: z.date(),
-    saveStatus: z.nativeEnum(SaveStatus).default(SaveStatus.DRAFT),
+    saveStatus: z.nativeEnum(SaveStatus).default(SaveStatus.PUBLISHED),
     currency: z.nativeEnum(Currency).default(Currency.USD)
 })
 

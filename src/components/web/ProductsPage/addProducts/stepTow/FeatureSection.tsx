@@ -117,7 +117,7 @@ const FeatureSection: React.FC<FeatureSectionProps> = ({
           return (
             <Card 
               key={categoryKey} 
-              className="group hover:shadow-lg transition-all duration-300 border-0 shadow-sm overflow-hidden"
+              className="group hover:shadow-lg bg-white transition-all duration-300 border-0 shadow-sm overflow-hidden"
             >
               {/* Category Header */}
               <CardHeader className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200 pb-3">

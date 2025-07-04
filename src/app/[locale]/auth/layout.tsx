@@ -41,8 +41,8 @@ const AuthLayout = ({
             {/* Logo Section */}
             <Box className="w-full items-center justify-center mb-8">
               <Image
-                src="/logo-bishola.png"
-                alt={locale === 'ar' ? 'شعار بيشولا' : 'Bishola Logo'}
+                src="/assets/images/logo/bishola.png"
+                alt={locale === 'ar' ? 'شعار بسهولة' : 'Bishola Logo'}
                 width={150}
                 height={50}
                 priority

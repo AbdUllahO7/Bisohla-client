@@ -45,10 +45,10 @@ export default function MobileMenu({ isOpen, onClose, translations, isAuthentica
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 md:hidden" aria-modal="true" role="dialog">
+    <div className="fixed inset-0  bg-opacity-50 z-50 md:hidden" aria-modal="true" role="dialog">
       <div
         ref={menuRef}
-        className="fixed top-[74px] left-0 right-0 bg-primary-dark shadow-lg max-h-[calc(100vh-74px)] overflow-y-auto"
+        className="fixed top-[74px] left-0 right-0 bg-primary shadow-lg max-h-[calc(100vh-74px)] overflow-y-auto"
         role="menu"
       >
         <div className="px-2 pt-2 pb-3 space-y-1 flex flex-col items-center">
@@ -70,7 +70,7 @@ export default function MobileMenu({ isOpen, onClose, translations, isAuthentica
           </Link>
           <Link
             href="/rentProducts"
-            className="hover:bg-primary-light transition-all px-3 py-2 text-sm w-full text-center rounded"
+            className="hover:bg-primary-light  transition-all px-3 py-2 text-sm w-full text-center rounded"
             onClick={onClose}
             role="menuitem"
           >
@@ -78,7 +78,7 @@ export default function MobileMenu({ isOpen, onClose, translations, isAuthentica
           </Link>
           <Link
             href="/saleProducts"
-            className="hover:bg-primary-light transition-all px-3 py-2 text-sm w-full text-center rounded"
+            className="hover:bg-primary-light  transition-all px-3 py-2 text-sm w-full text-center rounded"
             onClick={onClose}
             role="menuitem"
           >
@@ -86,7 +86,7 @@ export default function MobileMenu({ isOpen, onClose, translations, isAuthentica
           </Link>
           <Link
             href="/products"
-            className="hover:bg-primary-light transition-all px-3 py-2 text-sm w-full text-center rounded"
+            className="hover:bg-primary-light  transition-all px-3 py-2 text-sm w-full text-center rounded"
             onClick={onClose}
             role="menuitem"
           >
@@ -95,7 +95,7 @@ export default function MobileMenu({ isOpen, onClose, translations, isAuthentica
           {!isAuthenticated && (
             <Link
               href="auth/sign-in"
-              className="hover:bg-primary-light transition-all px-3 py-2 text-sm w-full text-center rounded"
+              className="hover:bg-primary-light  transition-all px-3 py-2 text-sm w-full text-center rounded"
               onClick={onClose}
               role="menuitem"
             >

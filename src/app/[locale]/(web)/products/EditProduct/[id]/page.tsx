@@ -69,7 +69,7 @@ const EditProductPage = () => {
                 title: data.data?.data[0].title || '',
                 description: data.data?.data[0].description || '',
                 price: data.data?.data[0].price?.toString() || '',
-                saveStatus: data.data?.data[0].saveStatus || 'DRAFT',
+                saveStatus: data.data?.data[0].saveStatus || 'PUBLISHED',
                 listingType: data.data?.data[0].listingType || 'for_sale',
                 rentType: data.data?.data[0].rentType || null,
                 contactNumber: data.data?.data[0].contactNumber || '',

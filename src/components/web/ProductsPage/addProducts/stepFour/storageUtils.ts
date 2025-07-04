@@ -12,7 +12,7 @@ export const defaultAdInfoData: AdInformationFormData = {
     listingType: ListingType.FOR_SALE,
     rentType: null,
     publicationDate: new Date(),
-    saveStatus: SaveStatus.DRAFT,
+    saveStatus: SaveStatus.PUBLISHED,
     currency: Currency.USD // Default currency
 };
 
@@ -109,7 +109,7 @@ export const loadAdInfoData = (): AdInformationFormData => {
 
             // Set default saveStatus if not present in saved data
             if (!parsedData.saveStatus) {
-                parsedData.saveStatus = SaveStatus.DRAFT;
+                parsedData.saveStatus = SaveStatus.PUBLISHED;
             }
 
             // Set default currency if not present in saved data

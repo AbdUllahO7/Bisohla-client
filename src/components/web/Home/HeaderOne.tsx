@@ -7,7 +7,7 @@ import LocaleSwitcher from "../../local/LocalSwitcher"
 import { Link } from "@/i18n/routing"
 import { UserCheck2Icon, LogOut } from "lucide-react"
 import NotificationDropdown from "./NotificationDropdown"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import { useSession } from "@/hooks/auth/use-session"
 import { useCheckAuth } from "@/core/infrastructure-adapters/use-actions/auth/auth.use-actions"
 import { useTranslations } from "next-intl"
@@ -19,6 +19,7 @@ const HeaderOne = () => {
   const { user, accessToken, refetchSession, isLoading } = useSession()
   const authResult = useCheckAuth()
   const router = useRouter()
+  const pathname = usePathname()
   const [isClient, setIsClient] = useState(false)
 
   // Ensure client-side rendering
@@ -26,16 +27,52 @@ const HeaderOne = () => {
     setIsClient(true)
   }, [])
 
-  // Refresh session on mount to ensure latest session data
+  // Refresh session on mount and route changes
   useEffect(() => {
     refetchSession()
+  }, [refetchSession, pathname]) // Added pathname dependency
+
+  // Listen for storage events (useful if session is stored in localStorage)
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'session' || e.key === 'accessToken') {
+        refetchSession()
+      }
+    }
+
+    window.addEventListener('storage', handleStorageChange)
+    return () => window.removeEventListener('storage', handleStorageChange)
+  }, [refetchSession])
+
+  // Listen for focus events to refresh session
+  useEffect(() => {
+    const handleFocus = () => {
+      refetchSession()
+    }
+
+    window.addEventListener('focus', handleFocus)
+    return () => window.removeEventListener('focus', handleFocus)
+  }, [refetchSession])
+
+  // Periodic session check (optional - every 30 seconds)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      refetchSession()
+    }, 30000) // 30 seconds
+
+    return () => clearInterval(interval)
   }, [refetchSession])
 
   // Handle logout
   const handleLogout = async () => {
-    await deleteSession()
-    refetchSession() // Refresh session to update state
-    router.push("/") // Redirect to homepage
+    try {
+      await deleteSession()
+      // Force immediate session refresh
+      await refetchSession()
+      router.push("/")
+    } catch (error) {
+      console.error("Logout error:", error)
+    }
   }
 
   return (

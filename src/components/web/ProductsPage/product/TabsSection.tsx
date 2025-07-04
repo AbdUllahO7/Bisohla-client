@@ -123,7 +123,7 @@ const TabsSection: React.FC<TabsSectionProps> = ({ data, isLoading = false }) =>
                 ))}
                 </div>
             ) : (
-                <AccordionProductSafety features={data?.data.features} />
+                <AccordionProductSafety features={data?.data?.features} />
             )}
             </div>
         </div>

@@ -133,4 +133,4 @@ export const useMyCarListings = (params: QueryParams) =>
     queryFn: async () => await getMyCarListings(params),
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
-  });
+});

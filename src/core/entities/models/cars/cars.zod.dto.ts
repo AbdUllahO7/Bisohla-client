@@ -88,7 +88,7 @@ export const CreateCarListingSchema = z.object({
   contactNumber: z.string().min(10).max(20).nullable().optional(),
 
   // Save status
-  saveStatus: z.nativeEnum(SaveStatus).default(SaveStatus.DRAFT),
+  saveStatus: z.nativeEnum(SaveStatus).default(SaveStatus.PUBLISHED),
 
   // Listing type
   listingType: z.nativeEnum(ListingType),

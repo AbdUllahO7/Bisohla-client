@@ -265,14 +265,15 @@ export function sortOptionsAlphabetically<T extends { label: string }>(options: 
  */
 export function getSaveStatusOptions(t: any): SelectOption[] {
   const options = [
+     {
+      value: SaveStatus.PUBLISHED,
+      label: t("stepFour.saveStatusOptions.published", { defaultValue: "Published" }),
+    },
     {
       value: SaveStatus.DRAFT,
       label: t("stepFour.saveStatusOptions.draft", { defaultValue: "Draft" }),
     },
-    {
-      value: SaveStatus.PUBLISHED,
-      label: t("stepFour.saveStatusOptions.published", { defaultValue: "Published" }),
-    },
+   
   ];
   return sortOptionsAlphabetically(options);
 }
@@ -319,109 +320,11 @@ export function getRentTypeOptions(t: any): SelectOption[] {
   return sortOptionsAlphabetically(options);
 }
 
-/**
- * Get damage type options for select components
- */
-export const getDamageTypeOptions = (): SelectOption[] => {
-  const options = Object.values(DamageType).map((value) => ({
-    value,
-    label: value.charAt(0).toUpperCase() + value.slice(1).replace(/_/g, ' '),
-  }));
-  return sortOptionsAlphabetically(options);
-};
 
-/**
- * Get damage zone options for select components
- */
-export const getDamageZoneOptions = (): SelectOption[] => {
-  const options = Object.values(DamageZone).map((value) => ({
-    value,
-    label: value.charAt(0).toUpperCase() + value.slice(1).replace(/_/g, ' '),
-  }));
-  return sortOptionsAlphabetically(options);
-};
 
-/**
- * Get grouped damage zone options for better UI organization
- */
-export const getGroupedDamageZoneOptions = () => {
-  const groupedOptions = [
-    {
-      label: 'Front',
-      options: [
-        { value: DamageZone.FRONT_BUMPER, label: 'Front Bumper' },
-        { value: DamageZone.HOOD, label: 'Hood' },
-        { value: DamageZone.FRONT_GRILL, label: 'Front Grill' },
-        { value: DamageZone.LEFT_HEADLIGHT, label: 'Left Headlight' },
-        { value: DamageZone.RIGHT_HEADLIGHT, label: 'Right Headlight' },
-      ],
-    },
-    {
-      label: 'Roof',
-      options: [{ value: DamageZone.ROOF, label: 'Roof' }],
-    },
-    {
-      label: 'Rear',
-      options: [
-        { value: DamageZone.TRUNK, label: 'Trunk' },
-        { value: DamageZone.REAR_BUMPER, label: 'Rear Bumper' },
-        { value: DamageZone.LEFT_TAILLIGHT, label: 'Left Taillight' },
-        { value: DamageZone.RIGHT_TAILLIGHT, label: 'Right Taillight' },
-      ],
-    },
-    {
-      label: 'Left Side',
-      options: [
-        { value: DamageZone.LEFT_FRONT_FENDER, label: 'Left Front Fender' },
-        { value: DamageZone.LEFT_FRONT_DOOR, label: 'Left Front Door' },
-        { value: DamageZone.LEFT_REAR_DOOR, label: 'Left Rear Door' },
-        { value: DamageZone.LEFT_REAR_FENDER, label: 'Left Rear Fender' },
-        { value: DamageZone.LEFT_MIRROR, label: 'Left Mirror' },
-        { value: DamageZone.LEFT_FRONT_PILLAR, label: 'Left Front Pillar' },
-        { value: DamageZone.LEFT_CENTER_PILLAR, label: 'Left Center Pillar' },
-        { value: DamageZone.LEFT_REAR_PILLAR, label: 'Left Rear Pillar' },
-      ],
-    },
-    {
-      label: 'Right Side',
-      options: [
-        { value: DamageZone.RIGHT_FRONT_FENDER, label: 'Right Front Fender' },
-        { value: DamageZone.RIGHT_FRONT_DOOR, label: 'Right Front Door' },
-        { value: DamageZone.RIGHT_REAR_DOOR, label: 'Right Rear Door' },
-        { value: DamageZone.RIGHT_REAR_FENDER, label: 'Right Rear Fender' },
-        { value: DamageZone.RIGHT_MIRROR, label: 'Right Mirror' },
-        { value: DamageZone.RIGHT_FRONT_PILLAR, label: 'Right Front Pillar' },
-        { value: DamageZone.RIGHT_CENTER_PILLAR, label: 'Right Center Pillar' },
-        { value: DamageZone.RIGHT_REAR_PILLAR, label: 'Right Rear Pillar' },
-      ],
-    },
-    {
-      label: 'Glass',
-      options: [
-        { value: DamageZone.FRONT_WINDSHIELD, label: 'Front Windshield' },
-        { value: DamageZone.REAR_WINDSHIELD, label: 'Rear Windshield' },
-        { value: DamageZone.LEFT_FRONT_WINDOW, label: 'Left Front Window' },
-        { value: DamageZone.LEFT_REAR_WINDOW, label: 'Left Rear Window' },
-        { value: DamageZone.RIGHT_FRONT_WINDOW, label: 'Right Front Window' },
-        { value: DamageZone.RIGHT_REAR_WINDOW, label: 'Right Rear Window' },
-      ],
-    },
-    {
-      label: 'Wheels',
-      options: [
-        { value: DamageZone.LEFT_FRONT_WHEEL, label: 'Left Front Wheel' },
-        { value: DamageZone.LEFT_REAR_WHEEL, label: 'Left Rear Wheel' },
-        { value: DamageZone.RIGHT_FRONT_WHEEL, label: 'Right Front Wheel' },
-        { value: DamageZone.RIGHT_REAR_WHEEL, label: 'Right Rear Wheel' },
-      ],
-    },
-  ];
-  // Sort options within each group
-  return groupedOptions.map(group => ({
-    ...group,
-    options: sortOptionsAlphabetically(group.options),
-  }));
-};
+
+
+
 
 /**
  * Get feature category options for select components with translation support

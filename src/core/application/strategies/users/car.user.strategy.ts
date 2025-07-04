@@ -45,4 +45,5 @@ export interface ICarUserStrategy {
   getMyCars(
     params: QueryParams,
   ): Promise<PaginatedResponse<SelectCarListingDto>>;
+  
 }
