@@ -38,7 +38,6 @@ export const handleRegister = async (
   return res;
 };
 
-
 export const validateResetPasswordToken = async (token: string) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const fields = {};
@@ -64,7 +63,6 @@ export const handleSignout = async () => {
   revalidatePath('/', 'page');
   redirect(allRoutes.home.path);
 };
-
 
 export const handleRefreshToken = async (oldRefreshToken: string) => {
   try {

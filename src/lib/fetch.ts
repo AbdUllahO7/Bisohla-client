@@ -6,6 +6,7 @@ import { verifyZodFields } from './validation';
 import { ZodTypeAny } from 'zod';
 import { ValidationError } from '@/interfaces/errors/validation.error';
 import { AppError } from '@/interfaces/errors/app-error';
+import { getLocale } from 'next-intl/server';
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 
@@ -135,10 +136,14 @@ export async function makeRequest<
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeout);
 
+    const locale = await getLocale();
+
     const fetchOptions: RequestInit = {
       method,
       headers: {
         'Content-Type': 'application/json',
+        'Accept-Language': locale,
+
         ...headers,
       },
       signal: controller.signal,
