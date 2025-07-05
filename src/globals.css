@@ -266,7 +266,14 @@ body.menu-open {
 }
 
 /* Ensure the menu button is always clickable */
-button[aria-expanded] {
-  position: relative;
-  z-index: 60;
+
+
+
+[data-radix-select-content] {
+  z-index: 99999 !important;
+  position: fixed !important;
+}
+
+[data-radix-popper-content-wrapper] {
+  z-index: 99999 !important;
 }

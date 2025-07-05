@@ -83,11 +83,21 @@ const EnumSelect = ({
             dir={`${isRtl ? "rtl" : "ltr"}`}
           >
             <FormControl>
-              <SelectTrigger>
+              <SelectTrigger className="h-11">
                 <SelectValue placeholder={placeholder} dir={`${isRtl ? "rtl" : "ltr"}`}/>
               </SelectTrigger>
             </FormControl>
-            <SelectContent className="bg-white shadow-2xl text-primary border-none absolute z-[99]" dir={`${isRtl ? "rtl" : "ltr"}`}>
+            <SelectContent 
+              className="bg-white shadow-2xl text-primary border-none !z-[99999]" 
+              dir={`${isRtl ? "rtl" : "ltr"}`}
+              position="popper"
+              sideOffset={4}
+              style={{ 
+                zIndex: 99999,
+                position: 'fixed'
+              }}
+              modal={false}
+            >
               {options.map((option) => (
                 <SelectItem
                   className="focus:bg-primary-light hover:text-white transition-all duration-200 font-cairo font-[700]"
@@ -272,7 +282,8 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
   useEffect(() => {
     const htmlDir = document.documentElement.dir || "ltr";
     setDirection(htmlDir);
-    
+          window.scrollTo(0, 0);
+
     if (!isEditMode && !editModeDataApplied.current) {
       const savedData = loadAdInfoData();
       
@@ -433,29 +444,26 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
   };
   
   return (
-    <div className="w-full  mx-auto space-y-6" dir={direction}>
-      <Card className=" min-w-7xl bg-white border-0 shadow-lg">
-        <CardHeader className="bg-gradient-to-r from-gray-50 to-gray-100 py-6 rounded-t-lg">
-          <Text className="text-2xl font-bold text-primary text-center">
+    <div className="w-full max-w-7xl mx-auto space-y-6 p-4 sm:p-6" dir={direction}>
+      <Card className="w-full bg-white border-0 shadow-lg">
+        <CardHeader className="bg-gradient-to-r from-gray-50 to-gray-100 py-4 sm:py-6 rounded-t-lg">
+          <Text className="text-xl sm:text-2xl font-bold text-primary text-center">
             {t("stepFour.title", { defaultValue: "Ad Information" })}
           </Text>
         </CardHeader>
-        <CardContent className="p-8 w-[900px]">
+        <CardContent className="p-4 sm:p-6 lg:p-8 w-full">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 sm:space-y-8">
               
               {/* Basic Information Section */}
-              <div className="space-y-6 w-full">
-                <div className="border-b border-gray-200 pb-2">
-                  <h3 className="text-lg font-semibold text-primary">Basic Information</h3>
-                </div>
-                
-                <div className="grid grid-cols-4 lg:grid-cols-4 gap-6">
+              <div className="space-y-4 sm:space-y-6 w-full">
+              
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                   <FormField
                     control={form.control}
                     name="title"
                     render={({ field }) => (
-                      <FormItem className="text-primary lg:col-span-2">
+                      <FormItem className="text-primary">
                         <FormLabel className="text-primary font-medium">
                           {t("stepFour.adTitle")}
                           <span className="text-red-500 ml-1">*</span>
@@ -476,7 +484,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                     control={form.control}
                     name="description"
                     render={({ field }) => (
-                      <FormItem className="text-primary lg:col-span-2">
+                      <FormItem className="text-primary">
                         <FormLabel className="text-primary font-medium">
                           {t("stepFour.adDescription")}
                           <span className="text-red-500 ml-1">*</span>
@@ -496,12 +504,10 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
               </div>
 
               {/* Contact & Pricing Section */}
-              <div className="space-y-6 w-full">
-                <div className="border-b border-gray-200 pb-2">
-                  <h3 className="text-lg font-semibold text-primary">Contact & Pricing</h3>
-                </div>
+              <div className="space-y-4 sm:space-y-6 w-full">
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                   <FormField
                     control={form.control}
                     name="contactNumber"
@@ -560,12 +566,12 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
               </div>
 
               {/* Listing Configuration Section */}
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6">
                 <div className="border-b border-gray-200 pb-2">
-                  <h3 className="text-lg font-semibold text-primary">Listing Configuration</h3>
+                  <h3 className="text-base sm:text-lg font-semibold text-primary">Listing Configuration</h3>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                   <EnumSelect
                     name="listingType"
                     control={form.control}
@@ -607,12 +613,10 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
               </div>
 
               {/* Publication Settings Section */}
-              <div className="space-y-6">
-                <div className="border-b border-gray-200 pb-2">
-                  <h3 className="text-lg font-semibold text-primary">Publication Settings</h3>
-                </div>
+              <div className="space-y-4 sm:space-y-6">
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                   <FormField
                     control={form.control}
                     name="publicationDate"
@@ -640,7 +644,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                               </Button>
                             </FormControl>
                           </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
+                          <PopoverContent className="w-auto p-0 " align="start">
                             <Calendar 
                               mode="single" 
                               selected={field.value} 
