@@ -72,7 +72,7 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
     return { value, label: `${value} L` }
   })
 
-  // Modified SelectField to use SelectFieldWithSearch
+  // Modified SelectField to use SelectFieldWithSearch with proper z-index
   const SelectField = useCallback(
     ({
       label,
@@ -97,82 +97,94 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
       const fieldValue = (carInfo[field as keyof CarInfoState] as string) || ""
 
       return (
-        <FormField label={label} field={field} required={required}>
-          <SelectFieldWithSearch
-            options={options}
-            placeholder={placeholder}
-            name={field}
-            value={fieldValue}
-            onChange={onSelectChange}
-            onBlur={onTextFieldBlur}
-            SelectTriggerStyle={`${hasError ? "border-red-500" : ""}`}
-            className="w-full text-primary"
-            required={required}
-            error={errorMessage}
-          />
-        </FormField>
+        <div className="relative z-10">
+          <FormField label={label} field={field} required={required}>
+            <div className="relative">
+              <SelectFieldWithSearch
+                options={options}
+                placeholder={placeholder}
+                name={field}
+                value={fieldValue}
+                onChange={onSelectChange}
+                onBlur={onTextFieldBlur}
+                SelectTriggerStyle={`${hasError ? "border-red-500" : ""} relative z-20`}
+                className="w-full text-primary relative z-20"
+                required={required}
+                error={errorMessage}
+                // Add portal prop if available to render dropdown in document body
+                portal={true}
+                // Add z-index style for dropdown
+                dropdownClassName="z-[9999] relative"
+                contentProps={{
+                  style: { zIndex: 9999 }
+                }}
+              />
+            </div>
+          </FormField>
+        </div>
       )
     },
     [validationErrors, carInfo, onSelectChange, onTextFieldBlur]
   )
 
   return (
-    <div className="p-5 w-full">
-      {/* Main grid with two columns - FormFields on left, SelectFields on right */}
-      <div className="grid grid-cols-4 md:grid-cols-4 gap-6">
-        {/* Left column - FormFields */}
-          {/* Mileage */}
-          <FormField label={labels.mileage} field="mileage" required>
-            <Input
-              type="text"
-              ref={mileageInputRef}
-              defaultValue={carInfo.mileage || ""}
-              onBlur={handleMileageBlur}
-              placeholder={labels.enterMileage}
-              className="w-full text-primary"
-              required
-            />
-          </FormField>
-          {/* Doors */}
-          <FormField label={labels.doors} field="doors" required error={validationErrors.doors}>
-            <Input
-              type="text"
-              ref={doorsInputRef}
-              defaultValue={carInfo.doors || ""}
-              onBlur={handleDoorsBlur}
-              placeholder={labels.enterDoors}
-              className={`w-full ${validationErrors.doors ? "border-red-500" : ""} text-primary`}
-              required
-            />
-          </FormField>
+    <div className="p-3 sm:p-5 w-full relative">
+      {/* Responsive grid: 1 column on mobile, 2 on tablet, 3-4 on desktop */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+        
+        {/* Mileage */}
+        <FormField label={labels.mileage} field="mileage" required>
+          <Input
+            type="text"
+            ref={mileageInputRef}
+            defaultValue={carInfo.mileage || ""}
+            onBlur={handleMileageBlur}
+            placeholder={labels.enterMileage}
+            className="w-full text-primary"
+            required
+          />
+        </FormField>
+        
+        {/* Doors */}
+        <FormField label={labels.doors} field="doors" required error={validationErrors.doors}>
+          <Input
+            type="text"
+            ref={doorsInputRef}
+            defaultValue={carInfo.doors || ""}
+            onBlur={handleDoorsBlur}
+            placeholder={labels.enterDoors}
+            className={`w-full ${validationErrors.doors ? "border-red-500" : ""} text-primary`}
+            required
+          />
+        </FormField>
 
-          {/* Engine Power */}
-          <FormField label={labels.enginePower} field="enginePower">
-            <Input
-              type="text"
-              ref={enginePowerInputRef}
-              defaultValue={carInfo.enginePower || ""}
-              onBlur={handleEnginePowerBlur}
-              placeholder={labels.enterEnginePower}
-              className="w-full text-primary"
-            />
-          </FormField>
+        {/* Engine Power */}
+        <FormField label={labels.enginePower} field="enginePower">
+          <Input
+            type="text"
+            ref={enginePowerInputRef}
+            defaultValue={carInfo.enginePower || ""}
+            onBlur={handleEnginePowerBlur}
+            placeholder={labels.enterEnginePower}
+            className="w-full text-primary"
+          />
+        </FormField>
 
+        {/* Plate Number */}
+        <FormField label={labels.plateNumber} field="plateNumber" >
+          <Input
+            type="text"
+            ref={plateInputRef}
+            defaultValue={carInfo.plateNumber || ""}
+            placeholder={labels.enterPlateNumber}
+            onBlur={handlePlateBlur}
+            className="w-full text-primary"
+            required
+          />
+        </FormField>
 
-          {/* Plate Number */}
-          <FormField label={labels.plateNumber} field="plateNumber" >
-            <Input
-              type="text"
-              ref={plateInputRef}
-              defaultValue={carInfo.plateNumber || ""}
-              placeholder={labels.enterPlateNumber}
-              onBlur={handlePlateBlur}
-              className="w-full text-primary"
-              required
-            />
-          </FormField>
-
-          {/* VIN */}
+        {/* VIN - Full width on mobile for easier input */}
+        <div className="sm:col-span-2 lg:col-span-1">
           <FormField label={labels.vin} field="vin">
             <Input
               type="text"
@@ -183,56 +195,56 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
               className="w-full text-primary"
             />
           </FormField>
-
-               {/* Exterior Color */}
-          <SelectField
-            label={labels.colorExterior}
-            field="colorExterior"
-            options={options.colors}
-            placeholder={labels.selectColorExterior}
-            optionsLabel={labels.extColors}
-            required
-          />
-      <SelectField
-            label={labels.engineSize}
-            field="engineSize"
-            options={engineSizeOptions}
-            placeholder={labels.enterEngineSize}
-            required
-          />
-          {/* Fuel Type */}
-          <SelectField
-            label={labels.fuelType}
-            field="fuelType"
-            options={options.fuelType}
-            placeholder={labels.selectFuelType}
-            optionsLabel={labels.fuelTypes}
-            required
-          />
-
-          {/* Transmission */}
-          <SelectField
-            label={labels.transmission}
-            field="transmission"
-            options={options.transmission}
-            placeholder={labels.selectTransmission}
-            optionsLabel={labels.transmissions}
-            required
-          />
-
-          {/* Body Type */}
-          <SelectField
-            label={labels.bodyType}
-            field="bodyType"
-            options={options.bodyType}
-            placeholder={labels.selectBodyType}
-            optionsLabel={labels.bodyTypes}
-            required
-          />
-
-        {/* Right column - SelectFields */}
-        <div className="space-y-6">
         </div>
+
+        {/* Exterior Color */}
+        <SelectField
+          label={labels.colorExterior}
+          field="colorExterior"
+          options={options.colors}
+          placeholder={labels.selectColorExterior}
+          optionsLabel={labels.extColors}
+          required
+        />
+        
+        {/* Engine Size */}
+        <SelectField
+          label={labels.engineSize}
+          field="engineSize"
+          options={engineSizeOptions}
+          placeholder={labels.enterEngineSize}
+          required
+        />
+        
+        {/* Fuel Type */}
+        <SelectField
+          label={labels.fuelType}
+          field="fuelType"
+          options={options.fuelType}
+          placeholder={labels.selectFuelType}
+          optionsLabel={labels.fuelTypes}
+          required
+        />
+
+        {/* Transmission */}
+        <SelectField
+          label={labels.transmission}
+          field="transmission"
+          options={options.transmission}
+          placeholder={labels.selectTransmission}
+          optionsLabel={labels.transmissions}
+          required
+        />
+
+        {/* Body Type */}
+        <SelectField
+          label={labels.bodyType}
+          field="bodyType"
+          options={options.bodyType}
+          placeholder={labels.selectBodyType}
+          optionsLabel={labels.bodyTypes}
+          required
+        />
       </div>
     </div>
   )

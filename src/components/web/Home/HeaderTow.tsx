@@ -1,77 +1,100 @@
+// HeaderTwo.tsx - Simplified mobile design
 "use client"
 import { useSession } from "@/hooks/auth/use-session"
 import type { HeaderTowProps } from "@/types/homePageTypes"
-import { MenuIcon } from "lucide-react"
+import { MenuIcon, ChevronDown } from "lucide-react"
 import { Link } from "@/i18n/routing"
-import Image from "next/image"
 import type React from "react"
-import { useMenuToggle } from "./useMenuToggle"
-import MobileMenu from "./MobileMenu"
-import Text from "@/components/text/text"
+import { useState } from "react"
 import { useLocale } from "next-intl"
-import { useRouter } from "next/navigation"
+import { Button } from "../../ui/button"
 
-const HeaderTow: React.FC<HeaderTowProps> = ({ translations }) => {
-  const { isOpen, setIsOpen, toggleMenu } = useMenuToggle()
+const HeaderTwo: React.FC<HeaderTowProps> = ({ translations }) => {
+  const [showMobileNav, setShowMobileNav] = useState(false)
   const session = useSession()
   const locale = useLocale()
-  const router = useRouter()
+  const isRTL = locale === 'ar'
+
+  const navItems = [
+    { href: "/", label: translations.home },
+    { href: "/rentProducts", label: translations.rent },
+    { href: "/saleProducts", label: translations.sale },
+    { href: "/products", label: translations.BrowseAll },
+    { href: "/Privacypolicy", label: translations.Privacypolicy },
+  ]
+
   return (
-    <nav className="bg-primary text-white relative pt-1">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="flex items-center md:justify-center xs:justify-between  h-10 sm:h-12">
-          
-
-          {/* Desktop Navigation */}
-          <div className="hidden md:block">
-            <div className="flex space-x-2 lg:space-x-4">
-              <Link href="/" className="hover:bg-primary-light transition-all px-2 py-1 text-sm rounded">
-                {translations.home}
+    <div className="bg-primary text-white relative">
+      {/* Desktop Navigation */}
+      <div className="hidden md:block">
+        <div className="px-4 py-3">
+          <nav className="flex justify-center space-x-6">
+            {navItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="text-white hover:text-emerald-100 transition-colors duration-200 px-3 py-2 rounded-md text-sm font-medium"
+              >
+                {item.label}
               </Link>
-              <Link href="/rentProducts" className="hover:bg-primary-light transition-all px-2 py-1 text-sm rounded">
-                {translations.rent}
+            ))}
+            {!session.user.id && (
+              <Link
+                href="/auth/sign-in"
+                className="text-white hover:text-emerald-100 transition-colors duration-200 px-3 py-2 rounded-md text-sm font-medium"
+              >
+                {translations.join}
               </Link>
-              <Link href="/saleProducts" className="hover:bg-primary-light transition-all px-2 py-1 text-sm rounded">
-                {translations.sale}
-              </Link>
-              <Link href="/products" className="hover:bg-primary-light transition-all px-2 py-1 text-sm rounded">
-                {translations.BrowseAll}
-              </Link>
-               <Link href="/Privacypolicy" className="hover:bg-primary-light transition-all px-2 py-1 text-sm rounded">
-                {translations.Privacypolicy}
-              </Link>
-              {!session.user.id && (
-                <Link href="/auth/sign-in" className="hover:bg-primary-light transition-all px-2 py-1 text-sm rounded">
-                  {translations.join}
-                </Link>
-              )}
-            </div>
-          </div>
-
-          {/* Mobile Menu Button */}
-          <div className="md:hidden">
-            <button
-              onClick={toggleMenu}
-              className="inline-flex items-center justify-center p-1.5 rounded-md text-white hover:bg-primary-light transition-all focus:outline-none"
-              aria-expanded={isOpen}
-              type="button"
-              aria-label="Toggle menu"
-            >
-              <MenuIcon className="h-5 w-5" />
-            </button>
-          </div>
+            )}
+          </nav>
         </div>
       </div>
 
-      {/* Mobile Menu - Separate component for better organization */}
-      <MobileMenu
-        isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
-        translations={translations}
-        isAuthenticated={!!session.user.id}
-      />
-    </nav>
+      {/* Mobile Navigation */}
+      <div className="md:hidden">
+        <div className="px-4 py-3">
+          <Button
+            variant="ghost"
+            className="w-full text-white hover:bg-emerald-700 flex items-center justify-between py-2"
+            onClick={() => setShowMobileNav(!showMobileNav)}
+          >
+            <span className="flex items-center gap-2">
+              <MenuIcon className="w-4 h-4" />
+              <span className="text-sm font-medium">{isRTL ? 'التصفح' : 'Browse'}</span>
+            </span>
+            <ChevronDown className={`w-4 h-4 transition-transform ${showMobileNav ? 'rotate-180' : ''}`} />
+          </Button>
+
+          {/* Mobile Dropdown */}
+          {showMobileNav && (
+            <div className="mt-2 bg-emerald-700 rounded-lg overflow-hidden">
+              <nav className="py-2">
+                {navItems.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="block px-4 py-3 text-white hover:bg-emerald-800 transition-colors duration-200 text-sm"
+                    onClick={() => setShowMobileNav(false)}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+                {!session.user.id && (
+                  <Link
+                    href="/auth/sign-in"
+                    className="block px-4 py-3 text-white hover:bg-emerald-800 transition-colors duration-200 text-sm"
+                    onClick={() => setShowMobileNav(false)}
+                  >
+                    {translations.join}
+                  </Link>
+                )}
+              </nav>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
   )
 }
 
-export default HeaderTow
+export default HeaderTwo

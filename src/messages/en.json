@@ -16,7 +16,8 @@
       "adsButton": "create Ads",
       "loginButton": "Login / SignUp",
       "profileButton": "Profile",
-        "logoutButton": "Logout"
+        "logoutButton": "Logout",
+        "menuTitle" : "Menu"
 
     },
     "headerTow": {
@@ -325,25 +326,25 @@
       "showMore": "Show all",
       "questions": {
         "question1": {
-          "question": "It is a long established fact that the readable content of a page?",
-          "answer": "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like)."
-        },
-        "question2": {
-          "question": "It is a long established fact that the readable content of a page?",
-          "answer": "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like)."
-        },
-        "question3": {
-          "question": "It is a long established fact that the readable content of a page?",
-          "answer": "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like)."
-        },
-        "question4": {
-          "question": "It is a long established fact that the readable content of a page?",
-          "answer": "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like)."
-        },
-        "question5": {
-          "question": "It is a long established fact that the readable content of a page?",
-          "answer": "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like)."
-        }
+        "question": "What are the requirements to rent a car?",
+        "answer": "To rent a car with us, you need to be at least 21 years old and have a valid driver's license for at least 1 year. You'll also need a valid ID or passport, and a credit card for the security deposit. International visitors need an International Driving Permit along with their home country license. Some luxury or specialty vehicles may require you to be 25 or older."
+      },
+      "question2": {
+        "question": "How does the car buying process work?",
+        "answer": "Our car buying process is simple and transparent. First, browse our inventory online or visit our showroom. Schedule a test drive for any vehicle you're interested in. We provide detailed vehicle history reports and inspection certificates. Once you decide, we handle all paperwork including financing options, insurance, and registration. We offer competitive financing rates and accept trade-ins to reduce your purchase price."
+      },
+      "question3": {
+        "question": "Do you offer vehicle delivery and pickup services?",
+        "answer": "Yes, we provide convenient delivery and pickup services for both rentals and sales. For rentals, we can deliver the vehicle to your hotel, airport, office, or any location within the city limits at no extra charge. For vehicle purchases, we offer home delivery service for a small fee. We also provide pickup services when your rental period ends - just give us a call and we'll collect the vehicle from your location. This service is especially popular with business travelers and customers who prefer the convenience of not visiting our office."
+      },
+      "question4": {
+        "question": "What payment methods do you accept?",
+        "answer": "We accept multiple payment methods for your convenience. For rentals, we accept all major credit cards (Visa, MasterCard, American Express), debit cards, and cash deposits. For vehicle purchases, we accept credit cards, bank transfers, certified checks, and cash payments. We also offer flexible financing options with competitive interest rates and flexible terms. Corporate clients can set up monthly billing accounts. All transactions are secure and processed through encrypted payment systems for your protection."
+      },
+      "question5": {
+        "question": "What is your fuel and mileage policy for rentals?",
+        "answer": "Our rental vehicles are provided with a full tank of fuel, and we expect them to be returned with a full tank. If returned with less fuel, a refueling charge will apply at current market rates plus a service fee. For mileage, most of our rental packages include unlimited kilometers within the city limits. For long-distance travel or intercity trips, we offer special packages with generous mileage allowances. Premium and luxury vehicles may have specific mileage restrictions. We'll clearly explain all policies during the rental agreement to avoid any surprises."
+      }
       }
     }
   },
@@ -1160,5 +1161,96 @@
     "next": "Next",
     "page": "Page",
     "of": "of"
+  },
+  "emailVerification": {
+    "pageTitle": "Email Verification",
+    "pageSubtitle": "Your email verification result",
+    "success": {
+      "title": "Email Verified Successfully!",
+      "description": "Your email has been successfully verified. You can now sign in to your account.",
+      "signInButton": "Sign In Now"
+    },
+    "error": {
+      "title": "Verification Failed",
+      "description": "There was an error verifying your email. The link may be expired or invalid.",
+      "resendButton": "Resend Verification Link",
+      "backButton": "Back to Sign In"
+    },
+    "resend": {
+      "pageTitle": "Verify Your Email",
+      "pageSubtitle": "Enter your email to receive a verification link",
+      "emailLabel": "Email Address",
+      "emailPlaceholder": "Enter your email address",
+      "submitButton": "Send Verification Email",
+      "submittingButton": "Sending...",
+      "successMessage": "Verification email sent successfully!",
+      "checkInbox": "Please check your inbox and click the verification link.",
+      "instructionsTitle": "What happens next?",
+      "instructionsText": "We'll send you a verification link to confirm your email address. Click the link in the email to activate your account."
+    },
+    "footer": {
+      "needHelp": "Need help?",
+      "contactSupport": "Contact Support",
+      "newToBishola": "New to Bishola?",
+      "registerNow": "Register Now",
+      "alreadyVerified": "Already verified your account?",
+      "signInNow": "Sign In Now",
+      "backToHome": "Back to Home"
+    },
+    "trustIndicators": {
+      "secure": "Secure & Protected",
+      "support": "24/7 Support"
+    }
+  },
+  "resetPassword": {
+    "pageTitle": "Reset Your Password",
+    "pageSubtitle": "Enter your new password to secure your account",
+    "newPasswordLabel": "New Password",
+    "newPasswordPlaceholder": "Enter your new password",
+    "confirmPasswordLabel": "Confirm Password",
+    "confirmPasswordPlaceholder": "Enter your password again",
+    "submitButton": "Reset Password",
+    "submittingButton": "Resetting...",
+    "successMessage": "Password reset successfully!",
+    "successSubtitle": "You can now sign in with your new password.",
+    "passwordRequirements": {
+      "title": "Password Requirements",
+      "minLength": "At least 8 characters long",
+      "specialChar": "Include special characters (!@#$%^&*)",
+      "upperLower": "Mix of uppercase and lowercase letters"
+    },
+    "securityNotice": "For your security, you'll be signed out of all devices after password reset.",
+    "footer": {
+      "passwordReset": "Successfully reset your password?",
+      "signInNow": "Sign In Now",
+      "backToHome": "Back to Home"
+    },
+    "trustIndicators": {
+      "secure": "256-bit Encryption",
+      "encrypted": "Secure Connection"
+    }
+  },
+  "forgotPassword": {
+    "pageTitle": "Forgot Password?",
+    "pageSubtitle": "Enter your email to receive a password reset link",
+    "emailLabel": "Email Address",
+    "emailPlaceholder": "Enter your email address",
+    "submitButton": "Send Reset Password Email",
+    "submittingButton": "Sending...",
+    "successMessage": "Password reset email sent successfully!",
+    "checkInbox": "Please check your inbox and follow the instructions to reset your password.",
+    "instructionsTitle": "How it works",
+    "instructionsText": "We'll send you a secure link to reset your password. The link will expire in 24 hours for your security.",
+    "footer": {
+      "newToBishola": "New to Bishola?",
+      "registerNow": "Register Now",
+      "rememberedPassword": "Remembered your password?",
+      "signInNow": "Sign In Now",
+      "backToHome": "Back to Home"
+    },
+    "trustIndicators": {
+      "secure": "Secure & Protected",
+      "support": "24/7 Support"
+    }
   }
 }

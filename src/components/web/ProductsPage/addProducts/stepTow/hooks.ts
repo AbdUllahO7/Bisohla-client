@@ -56,7 +56,8 @@ export const useAddProductStepTwo = (onValidationChange: (isValid: boolean) => v
     if (featuresData?.data?.data) {
       const features = featuresData.data.data as SelectFeatureDto[];
       setAllFeatures(features);
-      
+            window.scrollTo(0, 0);
+
       // Group features by category
       const grouped = groupFeaturesByCategory(features);
       setFeatureCategories(grouped);

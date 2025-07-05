@@ -14,7 +14,7 @@ import { ResetPasswordDto } from '@/core/entities/models/auth/reset-password.dto
 import { SendVerificationEmailDto } from '@/core/entities/models/auth/send-verification-email.dto';
 
 import { getInjection } from '@/di/container';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { redirect } from 'next/navigation';
 
 export const signInAction = async (
@@ -30,9 +30,16 @@ export const signInAction = async (
 
   const res = await authController.login(fields as LoginDto);
 
-
   if (res.success) {
-    revalidatePath('/');
+    // Revalidate all paths and auth-related cache tags
+    revalidatePath('/', 'layout');
+    revalidateTag('auth');
+    revalidateTag('session');
+    revalidateTag('user');
+    
+    // Add a small delay to ensure cache invalidation completes
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
     redirect(allRoutes.user.children.homePage.path);
   }
 
@@ -55,11 +62,41 @@ export const RegisterAction = async (
   const res = await authController.register(fields as RegisterDto);
 
   if (res.success) {
-    revalidatePath('/');
+    // Revalidate all paths and auth-related cache tags
+    revalidatePath('/', 'layout');
+    revalidateTag('auth');
+    revalidateTag('session');
+    revalidateTag('user');
+    
+    // Add a small delay to ensure cache invalidation completes
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
     redirect(allRoutes.user.children.homePage.path);
   }
 
   return res;
+};
+
+export const logoutAction = async (): Promise<void> => {
+  const authController = getInjection('IAuthController');
+  
+  try {
+    // Call your logout API if you have one
+    await authController.signOut?.();
+  } catch (error) {
+    console.error('Logout API error:', error);
+  }
+  
+  // Revalidate all paths and clear auth cache
+  revalidatePath('/', 'layout');
+  revalidateTag('auth');
+  revalidateTag('session');
+  revalidateTag('user');
+  
+  // Add a small delay to ensure cache invalidation completes
+  await new Promise(resolve => setTimeout(resolve, 100));
+  
+  redirect('/');
 };
 
 export const sendVerificationEmailAction = async (
@@ -77,6 +114,8 @@ export const sendVerificationEmailAction = async (
   );
 
   if (res.success) {
+    // Revalidate email verification related paths
+    revalidatePath('/auth/verify-email');
   }
 
   return res;
@@ -97,6 +136,8 @@ export const sendResetpasswordEmailAction = async (
   );
 
   if (res.success) {
+    // Revalidate password reset related paths
+    revalidatePath('/auth/reset-password');
   }
 
   return res;
@@ -117,6 +158,8 @@ export const resetPasswordAction = async (
   const res = await authController.resetPassword(fields as ResetPasswordDto);
 
   if (res.success) {
+    // Revalidate auth paths after successful password reset
+    revalidatePath('/auth/sign-in');
   }
 
   return res;
@@ -130,6 +173,7 @@ export const validateResetPasswordTokenAction = async (
   const res = await authController.validateResetPasswordToken(token);
 
   if (res.success) {
+    // No revalidation needed for token validation
   }
 
   return res;

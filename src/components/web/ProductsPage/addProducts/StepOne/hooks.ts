@@ -35,7 +35,8 @@ export const useProductStepOne = (onValidationChange: (isValid: boolean) => void
     // Set isClient to true once the component has mounted
     useEffect(() => {
         setIsClient(true);
-        
+              window.scrollTo(0, 0);
+
         // Mark when the initial load is complete
         const timer = setTimeout(() => {
             isInitialLoad.current = false;

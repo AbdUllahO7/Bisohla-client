@@ -5,182 +5,321 @@ import { Button } from "../../ui/button"
 import Box from "../../box/box"
 import LocaleSwitcher from "../../local/LocalSwitcher"
 import { Link } from "@/i18n/routing"
-import { UserCheck2Icon, LogOut } from "lucide-react"
+import { UserCheck2Icon, LogOut, Plus, Menu, X, Bell } from "lucide-react"
 import NotificationDropdown from "./NotificationDropdown"
-import { useRouter, usePathname } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { useSession } from "@/hooks/auth/use-session"
-import { useCheckAuth } from "@/core/infrastructure-adapters/use-actions/auth/auth.use-actions"
-import { useTranslations } from "next-intl"
+import { useTranslations, useLocale } from "next-intl"
 import { useEffect, useState } from "react"
 import { deleteSession } from "@/lib/session"
+import { logoutAction } from "@/app/[locale]/auth/actions"
 
 const HeaderOne = () => {
   const t = useTranslations("homePage")
-  const { user, accessToken, refetchSession, isLoading } = useSession()
-  const authResult = useCheckAuth()
+  const locale = useLocale()
+  const isRTL = locale === 'ar'
+  const { user, accessToken, isLoading, invalidateSession, refetchSession } = useSession()
   const router = useRouter()
-  const pathname = usePathname()
   const [isClient, setIsClient] = useState(false)
+  const [showMobileMenu, setShowMobileMenu] = useState(false)
+
+  // Determine if user is authenticated
+  const isAuthenticated = !!accessToken && !!user
 
   // Ensure client-side rendering
   useEffect(() => {
     setIsClient(true)
   }, [])
 
-  // Refresh session on mount and route changes
+  // Refetch session on component mount and when route changes
   useEffect(() => {
-    refetchSession()
-  }, [refetchSession, pathname]) // Added pathname dependency
-
-  // Listen for storage events (useful if session is stored in localStorage)
-  useEffect(() => {
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'session' || e.key === 'accessToken') {
-        refetchSession()
-      }
+    if (isClient) {
+      refetchSession()
     }
+  }, [isClient, refetchSession])
 
-    window.addEventListener('storage', handleStorageChange)
-    return () => window.removeEventListener('storage', handleStorageChange)
-  }, [refetchSession])
-
-  // Listen for focus events to refresh session
+  // Listen for login success events
   useEffect(() => {
-    const handleFocus = () => {
+    const handleLoginSuccess = () => {
+      invalidateSession()
       refetchSession()
     }
 
-    window.addEventListener('focus', handleFocus)
-    return () => window.removeEventListener('focus', handleFocus)
-  }, [refetchSession])
-
-  // Periodic session check (optional - every 30 seconds)
-  useEffect(() => {
-    const interval = setInterval(() => {
-      refetchSession()
-    }, 30000) // 30 seconds
-
-    return () => clearInterval(interval)
-  }, [refetchSession])
+    window.addEventListener('login-success', handleLoginSuccess)
+    return () => window.removeEventListener('login-success', handleLoginSuccess)
+  }, [invalidateSession, refetchSession])
 
   // Handle logout
   const handleLogout = async () => {
     try {
       await deleteSession()
-      // Force immediate session refresh
-      await refetchSession()
-      router.push("/")
+      invalidateSession()
+      window.dispatchEvent(new CustomEvent('logout-success'))
+      window.dispatchEvent(new CustomEvent('auth-changed'))
+      await logoutAction()
     } catch (error) {
       console.error("Logout error:", error)
+      router.push("/")
     }
   }
 
-  return (
-    <Box className="flex justify-between items-center py-1.5 w-full px-2 sm:px-3 md:px-4">
-      {/* Logo */}
-      <div className="flex items-center cursor-pointer" onClick={() => router.push("/")}>
-        <Image
-          src="/assets/images/logo/bishola.png"
-          alt="Logo"
-          width={500}
-          height={500}
-          className="min-w-[60px] min-h-[14px] w-[60px] h-[14px] xs:w-[70px] xs:h-[16px] sm:w-[90px] sm:h-[20px] lg:w-[100px] lg:h-[22px]"
-          priority
-          onError={(e) => {
-            console.error("Failed to load logo image")
-            e.currentTarget.style.display = "none"
-          }}
-        />
-      </div>
+  // Show loading state during hydration or when session is loading
+  if (!isClient || isLoading) {
+    return (
+      <Box className="flex justify-between items-center py-3 w-full px-4 border-b border-gray-100">
+        {/* Logo */}
+        <div className="flex items-center cursor-pointer" onClick={() => router.push("/")}>
+          <Image
+            src="/assets/images/logo/bishola.png"
+            alt="Logo"
+            width={100}
+            height={24}
+            className="h-5 w-auto sm:h-6"
+            priority
+          />
+        </div>
 
-      {/* Actions */}
-      <div className="flex items-center gap-1 xs:gap-1.5 sm:gap-2 lg:gap-3">
-        {/* Add Listing Button */}
-        <Box className="flex-shrink-0">
+        {/* Loading state */}
+        <div className="flex items-center gap-2">
+          <div className="h-8 w-16 bg-gray-200 rounded-lg animate-pulse"></div>
+          <div className="h-8 w-8 bg-gray-200 rounded-lg animate-pulse"></div>
+        </div>
+      </Box>
+    )
+  }
+
+  return (
+    <>
+      <Box className="flex justify-between items-center py-3 w-full px-4 container border-b border-gray-100 bg-white">
+        {/* Logo */}
+        <div className="flex items-center cursor-pointer" onClick={() => router.push("/")}>
+          <Image
+            src="/assets/images/logo/bishola.png"
+            alt="Logo"
+            width={100}
+            height={24}
+            className="h-5 w-auto sm:h-6"
+            priority
+            onError={(e) => {
+              console.error("Failed to load logo image")
+              e.currentTarget.style.display = "none"
+            }}
+          />
+        </div>
+
+        {/* Desktop Actions - Hidden on mobile */}
+        <div className="hidden md:flex items-center gap-3">
+          {/* Add Listing Button */}
           <Link href="/products/AddProducts">
             <Button
               variant="default"
-              className="text-white rounded-full h-6 sm:h-7 lg:h-8 px-1.5 sm:px-2 md:px-3 text-[9px] xs:text-[10px] sm:text-xs flex items-center gap-0.5"
+              className="text-white rounded-full h-9 px-4 text-sm font-medium flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700"
               size="sm"
             >
               <span className="whitespace-nowrap">{t("headerOne.adsButton")}</span>
-              <Image
-                src="/assets/icons/Glyph.png"
-                alt="Glyph Icon"
-                width={12}
-                height={12}
-                className="w-2.5 h-2.5 xs:w-3 xs:h-3 sm:w-3.5 sm:h-3.5 lg:w-4 lg:h-4"
-              />
+              <Plus className="w-4 h-4" />
             </Button>
           </Link>
-        </Box>
 
-        {/* Login/Profile/Logout Button */}
-        <Box className="flex-shrink-0">
-          {isClient && !accessToken ? (
+          {/* Auth Buttons */}
+          {!isAuthenticated ? (
             <Link href="/auth/sign-in">
               <Button
-                variant="default"
-                className="text-primary bg-transparent shadow-none rounded-full h-6 sm:h-7 lg:h-8 px-1.5 sm:px-2 md:px-3 border border-primary text-[9px] xs:text-[10px] sm:text-xs flex items-center gap-0.5"
+                variant="outline"
+                className="text-emerald-600 bg-transparent rounded-full h-9 px-4 border border-emerald-600 text-sm font-medium flex items-center gap-2 hover:bg-primary-light"
                 size="sm"
               >
                 <span className="whitespace-nowrap">{t("headerOne.loginButton")}</span>
                 <Image
                   src="/assets/icons/user.png"
                   alt="User Icon"
-                  width={12}
-                  height={12}
-                  className="w-2.5 h-2.5 xs:w-3 xs:h-3 sm:w-3.5 sm:h-3.5 lg:w-4 lg:h-4"
+                  width={16}
+                  height={16}
+                  className="w-4 h-4"
                 />
               </Button>
             </Link>
           ) : (
-            <div className="flex items-center gap-1 xs:gap-1.5 sm:gap-2">
+            <div className="flex items-center gap-2">
               <Link href="/userProfile">
                 <Button
-                  variant="default"
-                  className="text-primary bg-transparent shadow-none rounded-full h-6 sm:h-7 lg:h-8 px-1.5 sm:px-2 md:px-3 border border-primary text-[9px] xs:text-[10px] sm:text-xs flex items-center gap-0.5"
+                  variant="outline"
+                  className="text-primarybg-transparent rounded-full h-9 px-4 border border-primary text-sm font-medium flex items-center gap-2 hover:bg-primary-light"
                   size="sm"
                 >
-                  <span className="hidden xs:inline whitespace-nowrap truncate max-w-[40px] xs:max-w-[50px] sm:max-w-[70px] md:max-w-[90px] lg:max-w-none">
-                    {t("headerOne.profileButton")}
-                    {user?.name && (
-                      <>
-                        {" / "}
-                        <span className="font-medium">{user.name}</span>
-                      </>
-                    )}
+                  <span className="whitespace-nowrap truncate max-w-[120px]">
+                    {user?.name || t("headerOne.profileButton")}
                   </span>
-                  <span className="xs:hidden">{t("headerOne.profileButton")}</span>
-                  <UserCheck2Icon className="w-2.5 h-2.5 xs:w-3 xs:h-3 sm:w-3.5 sm:h-3.5 lg:w-4 lg:h-4" />
+                  <UserCheck2Icon className="w-4 h-4" />
                 </Button>
               </Link>
               <Button
                 variant="outline"
-                className="text-primary bg-transparent shadow-none rounded-full h-6 sm:h-7 lg:h-8 px-1.5 sm:px-2 md:px-3 border border-primary text-[9px] xs:text-[10px] sm:text-xs flex items-center gap-0.5"
+                className="text-red-600 bg-transparent rounded-full h-9 px-4 border border-red-300 text-sm font-medium flex items-center gap-2 hover:bg-red-900"
                 size="sm"
                 onClick={handleLogout}
               >
-                <LogOut className="w-2.5 h-2.5 xs:w-3 xs:h-3 sm:w-3.5 sm:h-3.5 lg:w-4 lg:h-4" />
+                <LogOut className="w-4 h-4" />
                 <span className="whitespace-nowrap">{t("headerOne.logoutButton")}</span>
               </Button>
             </div>
+            
           )}
-        </Box>
 
-        {/* Notification Icon - Only show when authenticated */}
-        {isClient && accessToken && (
-          <div className="flex-shrink-0 scale-75 xs:scale-85 sm:scale-90 lg:scale-100">
-            <NotificationDropdown />
+          {/* Notification Icon */}
+          {isAuthenticated && (
+            <div className="flex-shrink-0">
+              <NotificationDropdown />
+            </div>
+          )}
+
+          {/* Language Switcher */}
+          <div className="flex-shrink-0">
+            <LocaleSwitcher />
           </div>
-        )}
-
-        {/* Language Switcher */}
-        <div className="flex-shrink-0 scale-75 xs:scale-85 sm:scale-90 lg:scale-100">
-          <LocaleSwitcher />
         </div>
-      </div>
-    </Box>
+
+        {/* Mobile Actions - Compact design */}
+        <div className="flex md:hidden items-center gap-2">
+      {isAuthenticated && (
+            <div className="flex-shrink-0">
+              <NotificationDropdown />
+            </div>
+          )}
+
+           <Link href="/products/AddProducts">
+            <Button
+              variant="default"
+              className="text-white rounded-full h-9 px-4 text-sm font-medium flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700"
+              size="sm"
+            >
+              <Plus className="w-4 h-4" />
+            </Button>
+          </Link>
+    
+          {/* Language Switcher - Minimal */}
+          <div className="flex-shrink-0">
+            <LocaleSwitcher />
+          </div>
+
+          {/* Mobile Menu Toggle */}
+          <Button
+            variant="ghost"
+            className="h-9 w-9 p-0 rounded-lg text-gray-600"
+            size="sm"
+            onClick={() => setShowMobileMenu(!showMobileMenu)}
+          >
+            {showMobileMenu ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </Button>
+        </div>
+      </Box>
+
+      {/* Mobile Menu Overlay */}
+      {showMobileMenu && (
+        <>
+          {/* Backdrop */}
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+            onClick={() => setShowMobileMenu(false)}
+          />
+          
+          {/* Menu Panel */}
+          <div className={`fixed top-0 ${isRTL ? 'left-0' : 'right-0'} h-full w-80 max-w-[85vw] bg-white shadow-xl z-50 md:hidden transform transition-transform duration-300`}>
+            {/* Menu Header */}
+            <div className="flex items-center justify-between p-4 border-b border-gray-200">
+              <h2 className="text-lg font-semibold text-gray-900">
+                {t("headerOne.menuTitle") || "القائمة"}
+              </h2>
+              <Button
+                variant="ghost"
+                className="h-8 w-8 p-0 rounded-full"
+                onClick={() => setShowMobileMenu(false)}
+              >
+                <X className="w-5 h-5" />
+              </Button>
+            </div>
+
+            {/* Menu Content */}
+            <div className="p-4 space-y-4">
+              {/* Add Listing Button */}
+              <Link href="/products/AddProducts" onClick={() => setShowMobileMenu(false)}>
+                <Button
+                  variant="default"
+                  className="w-full text-white rounded-lg h-12 text-base font-medium flex items-center justify-center gap-3 bg-emerald-600 hover:bg-emerald-700"
+                >
+                  <Plus className="w-5 h-5" />
+                  <span>{t("headerOne.adsButton")}</span>
+                </Button>
+              </Link>
+
+              {/* Auth Section */}
+              <div className="space-y-3">
+                {!isAuthenticated ? (
+                  <Link href="/auth/sign-in" onClick={() => setShowMobileMenu(false)}>
+                    <Button
+                      variant="outline"
+                      className="w-full text-emerald-600 bg-transparent rounded-lg h-12 border border-emerald-600 text-base font-medium flex items-center justify-center gap-3 hover:bg-emerald-50"
+                    >
+                      <Image
+                        src="/assets/icons/user.png"
+                        alt="User Icon"
+                        width={20}
+                        height={20}
+                        className="w-5 h-5"
+                      />
+                      <span>{t("headerOne.loginButton")}</span>
+                    </Button>
+                  </Link>
+                ) : (
+                  <div className="space-y-3">
+                    {/* User Info */}
+                    <div className="bg-gray-50 rounded-lg p-3">
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 bg-emerald-100 rounded-full flex items-center justify-center">
+                          <UserCheck2Icon className="w-5 h-5 text-emerald-600" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-900 truncate">
+                            {user?.name || t("headerOne.profileButton")}
+                          </p>
+                          <p className="text-xs text-gray-500 truncate">
+                            {user?.email}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Profile Button */}
+                    <Link href="/userProfile" onClick={() => setShowMobileMenu(false)}>
+                      <Button
+                        variant="outline"
+                        className="w-full text-emerald-600 bg-transparent rounded-lg h-11 border border-emerald-600 text-base font-medium flex items-center justify-center gap-3 hover:bg-emerald-50"
+                      >
+                        <UserCheck2Icon className="w-5 h-5" />
+                        <span>{t("headerOne.profileButton")}</span>
+                      </Button>
+                    </Link>
+
+                    {/* Logout Button */}
+                    <Button
+                      variant="outline"
+                      className="w-full text-red-600 bg-transparent rounded-lg h-11 border border-red-300 text-base font-medium flex items-center justify-center gap-3 hover:bg-red-50"
+                      onClick={() => {
+                        setShowMobileMenu(false)
+                        handleLogout()
+                      }}
+                    >
+                      <LogOut className="w-5 h-5" />
+                      <span>{t("headerOne.logoutButton")}</span>
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+    </>
   )
 }
 

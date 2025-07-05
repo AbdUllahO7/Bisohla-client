@@ -38,17 +38,17 @@ return (
             </Link>
             </Box>
         </Box>
-            <Box variant="container" className="w-[83%]">
+            <Box variant="container" className="w-[100%] p-0">
                 <Box variant="column" className="justify-start items-start w-full space-y-4">
                     {data.map((item, index) => (
                         <div key={index} className="shadow-xl bg-white p-6 rounded-xl w-full">
                         <button
                             onClick={() => toggleAccordion(index)}
-                            className="w-full flex items-center justify-between font-cairo font-bold"
+                            className="w-full flex items-center justify-start font-cairo font-bold"
                             aria-expanded={openIndex === index}
                         >
                             <span
-                            className={`text-left transition-colors duration-200 ${openIndex === index ? "text-primary-light" : "text-gray-700"}`}
+                            className={`text-start transition-colors duration-200 ${openIndex === index ? "text-primary-light" : "text-gray-700"}`}
                             >
                             {item.question}
                             </span>
