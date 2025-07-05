@@ -27,6 +27,10 @@ export class CarUserUseCase implements ICarUserUseCase {
     return await this.carUserStrategy.getMyCars(params);
   }
 
+  async getMyCarById(id: number): Promise<ApiResponse<SelectCarListingDto>> {
+    return await this.carUserStrategy.getMyCarById(id);
+  }
+
   async getCarFavorites(
     params: QueryParams,
   ): Promise<PaginatedResponse<UserFavoriteCarListing>> {

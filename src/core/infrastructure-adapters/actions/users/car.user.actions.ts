@@ -109,3 +109,12 @@ export const getMyCarListings = async (
   return res;
 };
 
+export const getMyCarById = async (
+  id: number,
+): Promise<ApiResponse<SelectCarListingDto>> => {
+  const carListingController = getInjection('ICarUserController');
+
+  const res = await carListingController.getMyCarById(id);
+
+  return res;
+};
