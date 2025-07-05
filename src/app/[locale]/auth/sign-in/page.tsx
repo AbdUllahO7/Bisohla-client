@@ -11,16 +11,32 @@ import { useLocale } from "next-intl"
 import LocaleSwitcher from "@/components/local/LocalSwitcher"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Car, Mail, Lock } from "lucide-react"
+import { useEffect } from "react"
+import { useQueryClient } from "@tanstack/react-query"
+import { triggerAuthStateChange } from "@/lib/utils/auth-utils"
 
 const SignInPage = () => {
   const locale = useLocale()
   const isRTL = locale === "ar"
+  const queryClient = useQueryClient()
 
   const [state, action] = useActionState<ApiResponse<LoginResponse>, FormData>(signInAction, defaultActionState)
 
+  // Trigger auth state change when login is successful
+  useEffect(() => {
+    if (state.success) {
+      // Invalidate auth-related queries
+      queryClient.invalidateQueries({ queryKey: ['session'] })
+      queryClient.invalidateQueries({ queryKey: ['check-auth-user'] })
+      
+      // Trigger custom events for UI updates
+      triggerAuthStateChange()
+    }
+  }, [state.success, queryClient])
+
   return (
-    <div className="min-h-screen h-full md:w-[500px]  lg:w-[500px] items-center justify-center ">
-      <div className="w-full min-h-screen flex  flex-col justify-center items-center">
+    <div className="min-h-screen h-full md:w-[500px] lg:w-[500px] items-center justify-center ">
+      <div className="w-full min-h-screen flex flex-col justify-center items-center">
         {/* Logo and Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-4">

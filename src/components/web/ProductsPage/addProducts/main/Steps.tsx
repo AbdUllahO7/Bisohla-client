@@ -3,6 +3,7 @@ import Box from '@/components/box/box';
 import React, { useState, useEffect } from 'react';
 import { Tabs, TabsList } from "@/components/ui/tabs";
 import { useLocale } from 'next-intl';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 // Import components
 import { getRequiredFieldsMessage, getErrorDialogTexts } from './utils';
@@ -13,7 +14,7 @@ import AddProductStepTwo from '../stepTow/AddProductStepTwo';
 import AddProductStepThree from '../stepThree/AddProductStepThree';
 import AddProductStepFour from '../stepFour/AddProductStepFowr';
 import ErrorDialog from './Components/ErrorDialog';
-import { StepTrigger } from './Components/StepTrigger';
+import { StepTrigger, StepperContainer } from './Components/StepTrigger';
 import { useStepManagement } from './hooks/useStepManagement';
 import { STORAGE_KEYS } from './hooks/useLocalStorage';
 
@@ -21,14 +22,13 @@ import { STORAGE_KEYS } from './hooks/useLocalStorage';
 interface StepsProps {
   isEditMode?: boolean;
   carId?: number;
-  initialData?: any; // You can define a proper type for this
+  initialData?: any;
 }
 
 const Steps: React.FC<StepsProps> = ({ isEditMode = false, carId, initialData }) => {
   const locale = useLocale();
   const direction = locale === 'ar' ? 'rtl' : 'ltr';
   const isArabic = direction === 'rtl';
-  console.log("initialData",initialData)
   
   // Add state for step four validation
   const [stepFourIsValid, setStepFourIsValid] = useState(false);
@@ -37,7 +37,7 @@ const Steps: React.FC<StepsProps> = ({ isEditMode = false, carId, initialData })
   const {
     steps,
     currentStep,
-    setCurrentStep, // Direct step navigation function
+    setCurrentStep,
     isSubmitting,
     showErrorDialog,
     errorMessage,
@@ -48,8 +48,8 @@ const Steps: React.FC<StepsProps> = ({ isEditMode = false, carId, initialData })
     updateStepValidation,
     handleTryAgain,
     setShowErrorDialog,
-    isStepAccessible, // Step accessibility checker
-    getStepProgress, // Progress information
+    isStepAccessible,
+    getStepProgress,
   } = useStepManagement(isEditMode);
 
   // Set edit mode flag in localStorage on component mount if in edit mode
@@ -59,7 +59,6 @@ const Steps: React.FC<StepsProps> = ({ isEditMode = false, carId, initialData })
     }
     
     return () => {
-      // Only clean up edit mode flag if we're not on the edit page
       if (!window.location.pathname.includes('/edit')) {
         localStorage.removeItem(STORAGE_KEYS.EDIT_MODE_FLAG);
       }
@@ -68,11 +67,9 @@ const Steps: React.FC<StepsProps> = ({ isEditMode = false, carId, initialData })
 
   // Function to handle direct step navigation
   const handleStepClick = (targetStep: string) => {
-    // Use the setCurrentStep function from the hook
     const success = setCurrentStep(targetStep);
     
     if (!success) {
-      // Show user-friendly feedback
       const messages = getStepNavigationMessages(isArabic);
       showStepNavigationToast(messages.stepLocked, 'warning');
     }
@@ -88,131 +85,163 @@ const Steps: React.FC<StepsProps> = ({ isEditMode = false, carId, initialData })
   const progress = getStepProgress();
 
   return (
-    <Box variant="column" className="w-full flex flex-col mt-0 justify-start items-start">
-      {/* Page title based on mode */}
-      <div className="mb-6">
-        <h1 className="text-xl font-bold text-primary mb-2">
-          {isEditMode 
-            ? (isArabic ? 'تعديل السيارة' : 'Edit Car Listing') 
-            : (isArabic ? 'إضافة سيارة جديدة' : 'Add New Car Listing')}
-        </h1>
-        
-        {/* Progress indicator */}
-        <div className="flex items-center gap-2 text-sm text-gray-600">
-          <span>
-            {isArabic 
-              ? `الخطوة ${progress.currentStepIndex + 1} من ${progress.totalSteps}` 
-              : `Step ${progress.currentStepIndex + 1} of ${progress.totalSteps}`}
-          </span>
-          <div className="flex-1 bg-gray-200 rounded-full h-2 max-w-xs">
-            <div 
-              className="bg-primary h-2 rounded-full transition-all duration-300"
-              style={{ width: `${progress.progressPercentage}%` }}
-            ></div>
+    <div className="w-full min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+        {/* Header Section */}
+        <div className="mb-6 sm:mb-8">
+          {/* Page title */}
+          <div className="flex items-center gap-3 mb-4">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
+              {isEditMode 
+                ? (isArabic ? 'تعديل السيارة' : 'Edit Car Listing') 
+                : (isArabic ? 'إضافة سيارة جديدة' : 'Add New Car Listing')}
+            </h1>
           </div>
-          <span className="text-xs">{progress.progressPercentage}%</span>
+          
+          {/* Progress indicator - Mobile */}
+          <div className="block sm:hidden bg-white rounded-lg p-4 shadow-sm border">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-sm font-medium text-gray-700">
+                {isArabic 
+                  ? `الخطوة ${progress.currentStepIndex + 1} من ${progress.totalSteps}` 
+                  : `Step ${progress.currentStepIndex + 1} of ${progress.totalSteps}`}
+              </span>
+              <span className="text-sm font-bold text-emerald-600">
+                {progress.progressPercentage}%
+              </span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div 
+                className="bg-emerald-500 h-2 rounded-full transition-all duration-500 ease-out"
+                style={{ width: `${progress.progressPercentage}%` }}
+              />
+            </div>
+          </div>
+
+          {/* Progress indicator - Desktop */}
+          <div className="hidden sm:flex items-center gap-4">
+            <span className="text-sm font-medium text-gray-600">
+              {isArabic 
+                ? `الخطوة ${progress.currentStepIndex + 1} من ${progress.totalSteps}` 
+                : `Step ${progress.currentStepIndex + 1} of ${progress.totalSteps}`}
+            </span>
+            <div className="flex-1 max-w-md bg-gray-200 rounded-full h-2">
+              <div 
+                className="bg-emerald-500 h-2 rounded-full transition-all duration-500 ease-out"
+                style={{ width: `${progress.progressPercentage}%` }}
+              />
+            </div>
+            <span className="text-sm font-bold text-emerald-600">
+              {progress.progressPercentage}%
+            </span>
+          </div>
         </div>
+
+        {/* Steps Navigation */}
+        <div className="mb-6 sm:mb-8">
+          <StepperContainer>
+            {steps.map((step, index) => (
+              <StepTrigger 
+                key={step}
+                totalSteps={steps.length} 
+                step={step} 
+                index={index} 
+                currentStep={currentStep}
+                stepValidation={stepValidation}
+                validationAttempted={validationAttempted}
+                onStepClick={handleStepClick}
+                isStepAccessible={(stepIndex) => isStepAccessible(stepIndex)}
+              />
+            ))}
+          </StepperContainer>
+        </div>
+
+        {/* Main Content Area */}
+        <Tabs value={currentStep} className="w-full">
+          <div className="bg-white rounded-lg shadow-sm border min-h-[600px]">
+            {/* Step Content */}
+            <div className="p-4 sm:p-6 lg:p-8">
+              <StepContent 
+                handleBack={handleBack} 
+                handleNext={handleNext} 
+                direction={direction} 
+                step="productType"
+                isNextDisabled={validationAttempted.productType && !stepValidation.productType || isSubmitting}
+                requiredFieldsMessage={requiredFieldsMessage}
+              >
+                <AddProductStepOne 
+                  onValidationChange={(isValid) => updateStepValidation('productType', isValid)}
+                  isEditMode={isEditMode}
+                  initialData={initialData}
+                />
+              </StepContent>
+              
+              <StepContent 
+                handleBack={handleBack} 
+                handleNext={handleNext} 
+                direction={direction} 
+                step="location"
+                isNextDisabled={validationAttempted.location && !stepValidation.location || isSubmitting}
+                requiredFieldsMessage={requiredFieldsMessage}
+              >
+                <AddProductStepTwo 
+                  onValidationChange={(isValid) => updateStepValidation('location', isValid)}
+                  isEditMode={isEditMode}
+                  initialData={initialData}
+                />
+              </StepContent>
+              
+              <StepContent 
+                handleBack={handleBack} 
+                handleNext={handleNext} 
+                direction={direction} 
+                step="productInfo"
+                isNextDisabled={validationAttempted.productInfo && !stepValidation.productInfo || isSubmitting}
+                requiredFieldsMessage={requiredFieldsMessage}
+              >
+                <AddProductStepThree   
+                  onValidationChange={(isValid) => updateStepValidation('productInfo', isValid)}
+                  isEditMode={isEditMode}
+                  initialData={initialData}
+                />
+              </StepContent>
+              
+              <StepContent 
+                handleBack={handleBack} 
+                handleNext={handleNext} 
+                direction={direction} 
+                step="adsInfo"
+                isNextDisabled={!stepFourIsValid || isSubmitting}
+                requiredFieldsMessage={requiredFieldsMessage}
+                isLastStep={true}
+              >
+                <AddProductStepFour   
+                  onValidationChange={(isValid) => {
+                    setStepFourIsValid(isValid);
+                    updateStepValidation('adsInfo', isValid);
+                  }}
+                  isEditMode={isEditMode}
+                  initialData={initialData}
+                />    
+              </StepContent>
+            </div>
+
+     
+          </div>
+        </Tabs>
+
+        {/* Error Dialog */}
+        <ErrorDialog
+          open={showErrorDialog}
+          onOpenChange={setShowErrorDialog}
+          title={errorDialogTexts.title}
+          description={errorDialogTexts.description}
+          errorMessage={errorMessage}
+          tryAgainText={errorDialogTexts.tryAgainText || "Try Again"}
+          onTryAgain={handleTryAgain}
+        />
       </div>
-
-      {/* Fix the type error by explicitly setting value as a string */}
-      <Tabs value={currentStep} className="w-full flex flex-col justify-start items-start">
-        <TabsList
-          className="bg-transparent flex h-auto gap-0 w-full items-stretch mb-6 p-0"
-          dir={direction}
-        >
-          {steps.map((step, index) => (
-            <StepTrigger 
-              key={step}
-              totalSteps={steps.length} 
-              step={step} 
-              index={index} 
-              currentStep={currentStep}
-              stepValidation={stepValidation}
-              validationAttempted={validationAttempted}
-              onStepClick={handleStepClick}
-              isStepAccessible={(stepIndex) => isStepAccessible(stepIndex)}
-            />
-          ))}
-        </TabsList>
-
-        <div className="w-full mt-6 h-full">
-          <StepContent 
-            handleBack={handleBack} 
-            handleNext={handleNext} 
-            direction={direction} 
-            step="productType"
-            isNextDisabled={validationAttempted.productType && !stepValidation.productType || isSubmitting}
-            requiredFieldsMessage={requiredFieldsMessage}
-          >
-            <AddProductStepOne 
-              onValidationChange={(isValid) => updateStepValidation('productType', isValid)}
-              isEditMode={isEditMode}
-              initialData={initialData}
-            />
-          </StepContent>
-          
-          <StepContent 
-            handleBack={handleBack} 
-            handleNext={handleNext} 
-            direction={direction} 
-            step="location"
-            isNextDisabled={validationAttempted.location && !stepValidation.location || isSubmitting}
-            requiredFieldsMessage={requiredFieldsMessage}
-          >
-            <AddProductStepTwo 
-              onValidationChange={(isValid) => updateStepValidation('location', isValid)}
-              isEditMode={isEditMode}
-              initialData={initialData}
-            />
-          </StepContent>
-          
-          <StepContent 
-            handleBack={handleBack} 
-            handleNext={handleNext} 
-            direction={direction} 
-            step="productInfo"
-            isNextDisabled={validationAttempted.productInfo && !stepValidation.productInfo || isSubmitting}
-            requiredFieldsMessage={requiredFieldsMessage}
-          >
-            <AddProductStepThree   
-              onValidationChange={(isValid) => updateStepValidation('productInfo', isValid)}
-              isEditMode={isEditMode}
-              initialData={initialData}
-            />
-          </StepContent>
-          
-          <StepContent 
-            handleBack={handleBack} 
-            handleNext={handleNext} 
-            direction={direction} 
-            step="adsInfo"
-            isNextDisabled={!stepFourIsValid || isSubmitting}
-            requiredFieldsMessage={requiredFieldsMessage}
-            isLastStep={true}
-          >
-            <AddProductStepFour   
-              onValidationChange={(isValid) => {
-                setStepFourIsValid(isValid);
-                updateStepValidation('adsInfo', isValid);
-              }}
-              isEditMode={isEditMode}
-              initialData={initialData}
-            />    
-          </StepContent>
-        </div>
-      </Tabs>
-
-      {/* Error Dialog */}
-      <ErrorDialog
-        open={showErrorDialog}
-        onOpenChange={setShowErrorDialog}
-        title={errorDialogTexts.title}
-        description={errorDialogTexts.description}
-        errorMessage={errorMessage}
-        tryAgainText={errorDialogTexts.tryAgainText || "Try Again"}
-        onTryAgain={handleTryAgain}
-      />
-    </Box>
+    </div>
   );
 };
 

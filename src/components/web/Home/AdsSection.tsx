@@ -13,8 +13,8 @@ const AdsSection = () => {
     const isRTL = locale === 'ar';
 
     return (
-        <Box variant="container" className="flex justify-center" dir="rtl">
-            <Box variant="center" className="bg-primary w-[90%] lg:w-full  h-[300px]  text-white relative overflow-hidden rounded-lg">
+        <Box variant="container" className="flex justify-center p-0" dir="rtl">
+            <Box variant="center" className="bg-primary w-[100%] lg:w-full  h-[300px]  text-white relative overflow-hidden rounded-lg">
                 {/* Green Circular Background Design */}
                 <Box className="hidden lg:block">
                     <Box className="absolute top-0 left-[807px]">

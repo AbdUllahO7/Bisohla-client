@@ -71,7 +71,7 @@ const SelectFieldWithSearch: React.FC<SelectFieldWithSearchProps> = ({
   }
 
   return (
-    <div className={cn("w-full relative z-[50]", className)}>
+    <div className={cn("w-full  ", className)}>
       {label && (
         <label className="block text-sm font-medium mb-1">
           {label}

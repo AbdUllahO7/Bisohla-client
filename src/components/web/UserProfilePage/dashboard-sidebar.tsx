@@ -107,7 +107,7 @@ export function DashboardSidebar() {
       {/* Mobile Menu Button - Only visible on mobile */}
       {isMobile && (
         <Button
-          className="fixed top-11 left-10 bg-transparent z-[99] md:hidden inline-flex items-center justify-center p-2 rounded-md text-white h transition-all focus:outline-none"
+          className="fixed top-30 bg-primary right-5  z-[99] md:hidden inline-flex items-center justify-center p-2 rounded-md text-white  transition-all focus:outline-none"
           type="button"
           aria-label="Toggle menu"
           onClick={() => setOpenMobile(true)}

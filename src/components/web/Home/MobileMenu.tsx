@@ -1,9 +1,8 @@
+// MobileMenu.tsx - Simplified mobile menu
 "use client"
-
-import LocaleSwitcher from "@/components/local/LocalSwitcher"
-import {Link} from "@/i18n/routing"
-import { XIcon } from "lucide-react"
-import { useEffect, useRef } from "react"
+import { Link } from "@/i18n/routing"
+import { X } from "lucide-react"
+import { useLocale } from "next-intl"
 
 interface MobileMenuProps {
   isOpen: boolean
@@ -12,101 +11,81 @@ interface MobileMenuProps {
     home: string
     rent: string
     sale: string
+    join: string
     BrowseAll: string
-    join?: string
+    Privacypolicy: string
   }
   isAuthenticated: boolean
 }
 
-export default function MobileMenu({ isOpen, onClose, translations, isAuthenticated }: MobileMenuProps) {
-  const menuRef = useRef<HTMLDivElement>(null)
-
-  // Handle click outside to close menu
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        menuRef.current &&
-        !menuRef.current.contains(event.target as Node) &&
-        !(event.target as HTMLElement).closest("button[aria-expanded]")
-      ) {
-        onClose()
-      }
-    }
-
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside)
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside)
-    }
-  }, [isOpen, onClose])
+const MobileMenu: React.FC<MobileMenuProps> = ({
+  isOpen,
+  onClose,
+  translations,
+  isAuthenticated,
+}) => {
+  const locale = useLocale()
+  const isRTL = locale === 'ar'
 
   if (!isOpen) return null
 
+  const navItems = [
+    { href: "/", label: translations.home },
+    { href: "/rentProducts", label: translations.rent },
+    { href: "/saleProducts", label: translations.sale },
+    { href: "/products", label: translations.BrowseAll },
+    { href: "/Privacypolicy", label: translations.Privacypolicy },
+  ]
+
   return (
-    <div className="fixed inset-0  bg-opacity-50 z-50 md:hidden" aria-modal="true" role="dialog">
-      <div
-        ref={menuRef}
-        className="fixed top-[74px] left-0 right-0 bg-primary shadow-lg max-h-[calc(100vh-74px)] overflow-y-auto"
-        role="menu"
-      >
-        <div className="px-2 pt-2 pb-3 space-y-1 flex flex-col items-center">
+    <>
+      {/* Backdrop */}
+      <div 
+        className="fixed inset-0 bg-black/50 z-40 md:hidden"
+        onClick={onClose}
+      />
+      
+      {/* Menu Panel */}
+      <div className={`fixed top-0 ${isRTL ? 'left-0' : 'right-0'} h-full w-80 max-w-[85vw] bg-white shadow-xl z-50 md:hidden`}>
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-emerald-600 text-white">
+          <h2 className="text-lg font-semibold">
+            {isRTL ? 'التصفح' : 'Navigation'}
+          </h2>
           <button
             onClick={onClose}
-            className="self-end p-2 text-white hover:bg-primary-light rounded-full mb-2"
-            aria-label="Close menu"
+            className="p-2 hover:bg-emerald-700 rounded-full transition-colors"
           >
-            <XIcon className="h-5 w-5" />
+            <X className="w-5 h-5" />
           </button>
+        </div>
 
-          <Link
-            href="/"
-            className="hover:bg-primary-light transition-all px-3 py-2 text-sm w-full text-center rounded"
-            onClick={onClose}
-            role="menuitem"
-          >
-            {translations.home}
-          </Link>
-          <Link
-            href="/rentProducts"
-            className="hover:bg-primary-light  transition-all px-3 py-2 text-sm w-full text-center rounded"
-            onClick={onClose}
-            role="menuitem"
-          >
-            {translations.rent}
-          </Link>
-          <Link
-            href="/saleProducts"
-            className="hover:bg-primary-light  transition-all px-3 py-2 text-sm w-full text-center rounded"
-            onClick={onClose}
-            role="menuitem"
-          >
-            {translations.sale}
-          </Link>
-          <Link
-            href="/products"
-            className="hover:bg-primary-light  transition-all px-3 py-2 text-sm w-full text-center rounded"
-            onClick={onClose}
-            role="menuitem"
-          >
-            {translations.BrowseAll}
-          </Link>
+        {/* Navigation Links */}
+        <nav className="p-4 space-y-2">
+          {navItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="block px-4 py-3 text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 rounded-lg transition-colors font-medium"
+              onClick={onClose}
+            >
+              {item.label}
+            </Link>
+          ))}
+          
           {!isAuthenticated && (
             <Link
-              href="auth/sign-in"
-              className="hover:bg-primary-light  transition-all px-3 py-2 text-sm w-full text-center rounded"
+              href="/auth/sign-in"
+              className="block px-4 py-3 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors font-medium border-t border-gray-200 mt-4 pt-4"
               onClick={onClose}
-              role="menuitem"
             >
               {translations.join}
             </Link>
           )}
-          <div className="py-2 w-full flex justify-center">
-            <LocaleSwitcher />
-          </div>
-        </div>
+        </nav>
       </div>
-    </div>
+    </>
   )
 }
+
+export default MobileMenu
