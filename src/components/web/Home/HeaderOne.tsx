@@ -282,9 +282,7 @@ const HeaderOne = () => {
                           <p className="text-sm font-medium text-gray-900 truncate">
                             {user?.name || t("headerOne.profileButton")}
                           </p>
-                          <p className="text-xs text-gray-500 truncate">
-                            {user?.email}
-                          </p>
+                         
                         </div>
                       </div>
                     </div>

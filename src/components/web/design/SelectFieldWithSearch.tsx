@@ -34,6 +34,7 @@ const SelectFieldWithSearch: React.FC<SelectFieldWithSearchProps> = ({
   SelectTriggerStyle,
   required = false,
   error,
+  
 }) => {
   const [open, setOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")

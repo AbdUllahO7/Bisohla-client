@@ -1,6 +1,6 @@
 "use client"
 
-import { Heart, Home, Layers, LayoutDashboard, Menu, MenuIcon, Settings, LogOut } from "lucide-react"
+import { Heart, Home, Layers, LayoutDashboard, Menu, MenuIcon, Settings, LogOut, HomeIcon } from "lucide-react"
 import {
   Sidebar,
   SidebarContent,
@@ -100,6 +100,8 @@ export function DashboardSidebar() {
     { href: "/userProfile/Favorites", icon: Heart, label: locale === "ar" ? "المفضلة" : "Favorites" },
     { href: "/userProfile/Notification", icon: Heart, label: locale === "ar" ? "الإشعارات" : "Notifications" },
     { href: "/userProfile/UserInfo", icon: Settings, label: locale === "ar" ? "الإعدادات" : "Settings" },
+    { href: "/", icon: HomeIcon, label: locale === "ar" ? "الصفحة الرئيسية" : "Home" },
+
   ]
 
   return (
@@ -107,7 +109,7 @@ export function DashboardSidebar() {
       {/* Mobile Menu Button - Only visible on mobile */}
       {isMobile && (
         <Button
-          className="fixed top-30 bg-primary right-5  z-[99] md:hidden inline-flex items-center justify-center p-2 rounded-md text-white  transition-all focus:outline-none"
+          className="fixed top-32 bg-primary right-5  z-[30] md:hidden inline-flex items-center justify-center p-2 rounded-md text-white  transition-all focus:outline-none"
           type="button"
           aria-label="Toggle menu"
           onClick={() => setOpenMobile(true)}
@@ -117,7 +119,7 @@ export function DashboardSidebar() {
         </Button>
       )}
 
-      <Sidebar className="" collapsible={isMobile ? "offcanvas" : "icon"} dir={locale === "ar" ? "rtl" : "ltr"}>
+      <Sidebar className="z-50 mt-20 bg-primary" collapsible={isMobile ? "offcanvas" : "icon"} dir={locale === "ar" ? "rtl" : "ltr"}>
         <SidebarHeader className="flex h-14 items-center pt-5 px-4  bg-primary" dir="ltr">
           <div className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary">
@@ -127,7 +129,7 @@ export function DashboardSidebar() {
           </div>
         </SidebarHeader>
 
-        <SidebarContent className="px-2 bg-primary pt-5">
+        <SidebarContent className="px-2 bg-primary pt-5 z-50 relative top-0 left-0">
           <SidebarMenu>
             {navItems.map(({ href, icon: Icon, label }) => (
               <SidebarMenuItem key={href}>
@@ -149,7 +151,7 @@ export function DashboardSidebar() {
           </SidebarMenu>
         </SidebarContent>
 
-        <SidebarFooter className="p-4 bg-primary">
+        <SidebarFooter className="p-4 bg-primary mb-20">
           <div className="flex flex-col gap-3">
             <div className="flex items-center gap-3">
               <Avatar className="h-8 w-8 border-2 border-gray-100 shadow-sm transition-all duration-300 hover:shadow-md hover:border-primary/30">

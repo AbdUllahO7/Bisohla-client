@@ -25,6 +25,7 @@ interface ExtendedCarCardItemPropsProfile extends CarCardItemPropsProfile {
     onFavoriteToggle?: (productId: number, isFavorite: boolean) => void;
     isMarkedFavorite?: boolean;
     isAuthenticated?: boolean; // Add prop to receive auth status from parent
+    userProdcut?:boolean;
     onDelete?: (productId: number) => void; // Optional callback for after successful deletion
 }
 
