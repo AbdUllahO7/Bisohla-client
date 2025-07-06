@@ -14,6 +14,7 @@ import { checkAuth } from "@/core/infrastructure-adapters/actions/auth/auth.acti
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
 import { useLocale } from "next-intl"
 import { useSession } from "@/hooks/auth/use-session";
+import { useMyCarById } from "@/core/infrastructure-adapters/use-actions/users/car.user.use-actions";
 
 const Product = () => {
   const { id } = useParams(); // Get the product ID from the URL params
@@ -22,10 +23,9 @@ const Product = () => {
   const locale = useLocale();
   const session = useSession();
   // Fetch car listing data
-  const { data, isLoading, error } = useCarListingById({
-    id: Number(id),
-    userId: session?.user?.id,
-  });
+  const { data, isLoading } = useMyCarById(
+    Number(id)
+  );
 
   // Verify authentication status on component mount
   useEffect(() => {

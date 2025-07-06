@@ -17,6 +17,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Car, Mail, CheckCircle, ArrowRight, LogIn, UserPlus, Shield } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import LocaleSwitcher from '@/components/local/LocalSwitcher';
+import Image from 'next/image';
 
 const SendResetPasswordEmailPage = () => {
   const t = useTranslations('forgotPassword');
@@ -29,33 +30,38 @@ const SendResetPasswordEmailPage = () => {
   >(sendResetpasswordEmailAction, defaultActionState);
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-emerald-50 via-white to-emerald-50">
-      <div className="w-full max-w-md">
-        {/* Logo and Header */}
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center mb-6">
-            <div className="bg-emerald-600 p-4 rounded-3xl">
-              <Car className="h-10 w-10 text-white" />
-            </div>
+    <div className="w-full max-w-md mx-auto">
+      <div className="w-full flex flex-col space-y-4">
+        {/* Logo and Header - Compact */}
+        <div className="text-center">
+          <div className="flex items-center justify-center mb-1">
+            <div className="p-2.5 rounded-2xl shadow-lg">
+                  <Image
+                    src="/assets/images/logo/bishola.png"
+                    alt="Bishola Logo"
+                    width={120}
+                    height={120}
+                    className="relative mx-auto transition-all duration-700 hover:scale-110 drop-shadow-2xl"
+                    priority
+                  />
+        </div>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 ">
             {t('pageTitle')}
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-600 text-sm">
             {t('pageSubtitle')}
           </p>
         </div>
 
-        {/* Language Switcher */}
-        <div className={`mb-6 ${isRTL ? "text-right" : "text-left"}`}>
-          <div className="flex justify-center">
-            <LocaleSwitcher />
-          </div>
+        {/* Language Switcher - Compact */}
+        <div className={`flex ${isRTL ? "justify-start" : "justify-end"}`}>
+          <LocaleSwitcher />
         </div>
 
-        {/* Reset Password Email Form Card */}
-        <Card className="shadow-xl border-0 bg-white/90 backdrop-blur-sm">
-          <CardHeader className="space-y-1 pb-4">
+        {/* Reset Password Email Form Card - Compact */}
+        <Card className="shadow-xl border-0 bg-white/95 backdrop-blur-sm w-full">
+          <CardHeader className="space-y-1 pb-1">
             <FormStateMessage state={state} />
 
             {/* Success Message */}
@@ -76,8 +82,8 @@ const SendResetPasswordEmailPage = () => {
             )}
           </CardHeader>
 
-          <CardContent>
-            <form action={action} className={`space-y-6 ${isRTL ? "rtl" : "ltr"}`} dir={isRTL ? "rtl" : "ltr"}>
+          <CardContent className="px-4 sm:px-6 pb-2">
+            <form action={action} className={`space-y-4 ${isRTL ? "rtl" : "ltr"}`} dir={isRTL ? "rtl" : "ltr"}>
               {/* Email Input */}
               <DetailedInput
                 placeholder={t('emailPlaceholder')}
@@ -88,37 +94,37 @@ const SendResetPasswordEmailPage = () => {
                 icon={<Mail className="h-5 w-5 text-gray-400" />}
               />
 
-              {/* Instructions */}
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              {/* Instructions - More compact */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
                 <div className="flex">
                   <div className="flex-shrink-0">
-                    <Shield className="h-5 w-5 text-blue-400" />
+                    <Shield className="h-4 w-4 text-blue-400" />
                   </div>
-                  <div className={`${isRTL ? 'mr-3' : 'ml-3'}`}>
-                    <h3 className="text-sm font-medium text-blue-800">
+                  <div className={`${isRTL ? 'mr-2' : 'ml-2'}`}>
+                    <h3 className="text-xs font-medium text-blue-800">
                       {t('instructionsTitle')}
                     </h3>
-                    <div className="mt-2 text-sm text-blue-700">
+                    <div className="mt-1 text-xs text-blue-700">
                       <p>{t('instructionsText')}</p>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Submit Button */}
-              <div className="pt-2">
+              {/* Submit Button - More compact */}
+              <div className="pt-1">
                 <SubmitButton
                   title={t('submitButton')}
                   submittingTitle={t('submittingButton')}
-                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 transform hover:scale-[1.02] shadow-lg"
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 px-4 rounded-xl transition-all duration-200 transform hover:scale-[1.02] shadow-lg"
                 />
               </div>
             </form>
           </CardContent>
         </Card>
 
-        {/* Footer Links */}
-        <div className="mt-8 space-y-4 text-center">
+        {/* Footer Links - More compact */}
+        <div className="space-y-2 text-center">
           <div className="text-sm text-gray-600">
             {t('footer.newToBishola')}{' '}
             <Link
@@ -150,13 +156,13 @@ const SendResetPasswordEmailPage = () => {
           </div>
         </div>
 
-        {/* Trust Indicators */}
-        <div className="mt-6 flex items-center justify-center space-x-6 text-xs text-gray-500">
-          <div className="flex items-center space-x-1">
+        {/* Trust Indicators - More compact */}
+        <div className="flex items-center justify-center gap-4 text-xs text-gray-500">
+          <div className="flex items-center gap-1">
             <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
             <span>{t('trustIndicators.secure')}</span>
           </div>
-          <div className="flex items-center space-x-1">
+          <div className="flex items-center gap-1">
             <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
             <span>{t('trustIndicators.support')}</span>
           </div>

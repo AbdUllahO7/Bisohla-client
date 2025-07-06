@@ -5,7 +5,7 @@ import { ZodError, ZodTypeAny } from 'zod';
 import { ApiResponse, BaseApiResponse } from '../entities/api/success.response';
 import { ValidationError } from '../entities/errors/validation-error';
 import { AppError } from '../entities/errors/app-error';
-import { QueryParams } from '../entities/api/api';
+import { Filter, FilterGroup, QueryParams } from '../entities/api/api';
 import { getLocale } from 'next-intl/server';
 import { BACKEND_URL } from './web/constants';
 import { getSession } from './web/session';
@@ -49,17 +49,89 @@ const buildUrl = (baseUrl: string, params?: QueryParams): string => {
   if (!params) return baseUrl;
 
   const searchParams = new URLSearchParams();
+  // Handle basic params
   Object.entries(params).forEach(([key, value]) => {
     if (value !== undefined && value !== null) {
-      if (
-        key === 'search' &&
-        typeof value === 'object' &&
-        'key' in value &&
-        'term' in value
-      ) {
-        searchParams.append('search[key]', value.key);
-        searchParams.append('search[term]', value.term);
-      } else {
+      // Handle search object format
+      if (key === 'searchKey' && params.searchTerm !== undefined) {
+        searchParams.append('search[key]', value.toString());
+        searchParams.append(
+          'search[term]',
+          params.searchTerm?.toString() || '',
+        );
+        return;
+      }
+
+      // Handle simple arrays (like id array)
+      if (Array.isArray(value) && key !== 'where' && key !== 'filterGroups') {
+        value.forEach((item) => {
+          searchParams.append(`${key}[]`, item.toString());
+        });
+        return;
+      }
+
+      // Handle where conditions array
+      if (key === 'where' && Array.isArray(value)) {
+        value.forEach((filter: Filter, index) => {
+          searchParams.append(`where[${index}][field]`, filter.field);
+          searchParams.append(`where[${index}][operator]`, filter.operator);
+
+          if (Array.isArray(filter.value)) {
+            filter.value.forEach((item, valueIndex) => {
+              searchParams.append(
+                `where[${index}][value][${valueIndex}]`,
+                item?.toString() || '',
+              );
+            });
+          } else {
+            searchParams.append(
+              `where[${index}][value]`,
+              filter.value?.toString() || '',
+            );
+          }
+        });
+        return;
+      }
+
+      // Handle filter groups
+      if (key === 'filterGroups' && Array.isArray(value)) {
+        value.forEach((group: FilterGroup, groupIndex) => {
+          // Add the group operator if it exists
+          if (group.operator) {
+            searchParams.append(
+              `filterGroups[${groupIndex}][operator]`,
+              group.operator,
+            );
+          }
+
+          // Add each filter in the group
+          group.filters.forEach((filter, filterIndex) => {
+            const baseKey = `filterGroups[${groupIndex}][filters][${filterIndex}]`;
+
+            searchParams.append(`${baseKey}[field]`, filter.field);
+            searchParams.append(`${baseKey}[operator]`, filter.operator);
+
+            if (Array.isArray(filter.value)) {
+              filter.value.forEach((item, valueIndex) => {
+                searchParams.append(
+                  `${baseKey}[value][${valueIndex}]`,
+                  item?.toString() || '',
+                );
+              });
+            } else {
+              searchParams.append(
+                `${baseKey}[value]`,
+                filter.value?.toString() || '',
+              );
+            }
+          });
+        });
+        return;
+      }
+
+      // Handle standard key-value
+      if (key !== 'searchTerm') {
+        // Skip searchTerm as it's handled with searchKey
         searchParams.append(key, value.toString());
       }
     }
@@ -186,6 +258,7 @@ export async function makeRequest<
     };
 
     const fullUrl = buildUrl(BACKEND_URL + url, params);
+    console.log('URL from api.ts: ', fullUrl);
     const response = await fetchWithRetry(fullUrl, fetchOptions, retry);
     clearTimeout(timeoutId);
 

@@ -45,5 +45,5 @@ export interface ICarUserStrategy {
   getMyCars(
     params: QueryParams,
   ): Promise<PaginatedResponse<SelectCarListingDto>>;
-  
+  getMyCarById(id: number): Promise<ApiResponse<SelectCarListingDto>>;
 }

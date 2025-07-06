@@ -96,7 +96,6 @@ const EnumSelect = ({
                 zIndex: 99999,
                 position: 'fixed'
               }}
-              modal={false}
             >
               {options.map((option) => (
                 <SelectItem

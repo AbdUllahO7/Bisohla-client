@@ -473,7 +473,8 @@
       "features" :  {
         "categories"  : {
           "safety" : "الحماية",
-          "entertainment":"الترفيه"
+          "entertainment":"الترفيه",
+          "technology":"التكنولوجيا"
         }
       
       }

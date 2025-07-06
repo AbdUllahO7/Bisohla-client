@@ -7,18 +7,20 @@ import { type ApiResponse, defaultActionState } from "@/interfaces/api-response.
 import { Link } from "@/i18n/routing"
 import { useActionState } from "react"
 import { signInAction } from "../actions"
-import { useLocale } from "next-intl"
+import { useLocale, useTranslations } from "next-intl"
 import LocaleSwitcher from "@/components/local/LocalSwitcher"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { Car, Mail, Lock } from "lucide-react"
+import { Car, Mail, Lock, ArrowRight } from "lucide-react"
 import { useEffect } from "react"
 import { useQueryClient } from "@tanstack/react-query"
 import { triggerAuthStateChange } from "@/lib/utils/auth-utils"
+import Image from "next/image"
 
 const SignInPage = () => {
   const locale = useLocale()
   const isRTL = locale === "ar"
   const queryClient = useQueryClient()
+  const t = useTranslations('forgotPassword');
 
   const [state, action] = useActionState<ApiResponse<LoginResponse>, FormData>(signInAction, defaultActionState)
 
@@ -35,33 +37,42 @@ const SignInPage = () => {
   }, [state.success, queryClient])
 
   return (
-    <div className="min-h-screen h-full md:w-[500px] lg:w-[500px] items-center justify-center ">
-      <div className="w-full min-h-screen flex flex-col justify-center items-center">
+    <div className="w-full max-w-xl mx-auto">
+      <div className="w-full flex flex-col space-y-6">
         {/* Logo and Header */}
-        <div className="text-center mb-8">
+        <div className="text-center">
           <div className="flex items-center justify-center mb-4">
-            <div className="bg-emerald-600 p-3 rounded-2xl">
-              <Car className="h-8 w-8 text-white" />
+            <div className=" p-3 rounded-2xl shadow-lg">
+                <Image
+                  src="/assets/images/logo/bishola.png"
+                  alt="Bishola Logo"
+                  width={120}
+                  height={120}
+                  className="relative mx-auto transition-all duration-700 hover:scale-110 drop-shadow-2xl"
+                  priority
+                />
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">{isRTL ? "مرحباً بعودتك" : "Welcome Back"}</h1>
-          <p className="text-gray-600">{isRTL ? "سجل دخولك للوصول إلى حسابك" : "Sign in to access your account"}</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+            {isRTL ? "مرحباً بعودتك" : "Welcome Back"}
+          </h1>
+          <p className="text-gray-600 text-sm sm:text-base">
+            {isRTL ? "سجل دخولك للوصول إلى حسابك" : "Sign in to access your account"}
+          </p>
         </div>
 
         {/* Language Switcher */}
-        <div className={`mb-6 ${isRTL ? "text-right" : "text-left"}`}>
-          <div className="xs:hidden lg:block md:block">
-            <LocaleSwitcher />
-          </div>
+        <div className={`flex ${isRTL ? "justify-start" : "justify-end"}`}>
+          <LocaleSwitcher />
         </div>
 
         {/* Sign In Card */}
-        <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm w-full">
+        <Card className="shadow-xl border-0 bg-white/95 backdrop-blur-sm w-full">
           <CardHeader className="space-y-1 pb-4">
             <FormStateMessage state={state} />
           </CardHeader>
-          <CardContent>
-            <form action={action} className={`space-y-6 ${isRTL ? "rtl" : "ltr"}`} dir={isRTL ? "rtl" : "ltr"}>
+          <CardContent className="px-4 sm:px-6">
+            <form action={action} className={`space-y-5 ${isRTL ? "rtl" : "ltr"}`} dir={isRTL ? "rtl" : "ltr"}>
               {/* Email Input */}
               <DetailedInput
                 placeholder={isRTL ? "أدخل بريدك الإلكتروني" : "Enter your email address"}
@@ -94,7 +105,7 @@ const SignInPage = () => {
         </Card>
 
         {/* Footer Links */}
-        <div className="mt-8 space-y-4 text-center">
+        <div className="space-y-3 text-center">
           <div className="text-sm text-gray-600">
             {isRTL ? "جديد في Bishola؟" : "New to Bishola?"}{" "}
             <Link
@@ -112,19 +123,19 @@ const SignInPage = () => {
               {isRTL ? "هل نسيت كلمة المرور؟" : "Forgot your password?"}
             </Link>
           </div>
+          <div className="text-sm text-gray-600">
+            <Link
+              href="/"
+              className="font-medium text-gray-700 hover:text-emerald-600 transition-colors inline-flex items-center gap-1"
+            >
+              {t('footer.backToHome')}
+              <ArrowRight className={`h-3 w-3 ${isRTL ? 'rotate-180' : ''}`} />
+            </Link>
+          </div>
         </div>
 
         {/* Trust Indicators */}
-        <div className="mt-8 flex items-center justify-center space-x-6 text-xs text-gray-500">
-          <div className="flex items-center space-x-1">
-            <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
-            <span>{isRTL ? "آمن ومحمي" : "Secure & Protected"}</span>
-          </div>
-          <div className="flex items-center space-x-1">
-            <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
-            <span>{isRTL ? "دعم 24/7" : "24/7 Support"}</span>
-          </div>
-        </div>
+          
       </div>
     </div>
   )

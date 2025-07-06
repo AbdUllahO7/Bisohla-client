@@ -1,6 +1,7 @@
+"use client"
+
 import Box from '@/components/box/box';
 import Text from '@/components/text/text';
-import Image from 'next/image';
 import { PropsWithChildren, Suspense } from 'react';
 import Hero from './components/Hero';
 import { useLocale } from 'next-intl';
@@ -31,82 +32,44 @@ const AuthLayout = ({
         customConfig={customMetadata}
       />
 
-      {/* Main Layout */}
-      <Box className={`w-full h-[100vh] flex-col md:flex-row ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>
+      {/* Main Layout - Fixed height without scrolling */}
+      <div className={`w-full h-screen overflow-hidden flex `} dir={isRTL ? 'rtl' : 'ltr'}>
         
         {/* Left Section - Auth Content */}
-        <Box className="lg:w-[35%] md:w-[100%] xs:w-[100%] justify-center items-center bg-white">
-          <Box className="flex-col w-full items-center justify-center p-6 md:p-8">
+        <div className="w-full md:w-3/5 lg:w-1/2 xl:w-2/5 2xl:w-1/3 flex flex-col bg-white relative z-10">
+          <div className="flex-1 flex flex-col justify-center items-center p-4 sm:p-6 md:p-8 lg:p-10 overflow-y-auto">
             
-            {/* Logo Section */}
-            <Box className="w-full items-center justify-center mb-8">
-              <Image
-                src="/assets/images/logo/bishola.png"
-                alt={locale === 'ar' ? 'شعار بسهولة' : 'Bishola Logo'}
-                width={150}
-                height={50}
-                priority
-                className="object-contain"
-              />
-            </Box>
-            
-            {/* Auth Form Content */}
-            <Box className="w-full max-w-md items-center justify-center">
+            {/* Auth Form Content - Centered */}
+            <div className="w-full max-w-md mx-auto my-auto">
               <Suspense fallback={
-                <Box className="w-full h-64 items-center justify-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                <div className="w-full h-64 flex flex-col items-center justify-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
                   <Text className="mt-4 text-gray-500">
                     {locale === 'ar' ? 'جاري التحميل...' : 'Loading...'}
                   </Text>
-                </Box>
+                </div>
               }>
                 {children}
               </Suspense>
-            </Box>
+            </div>
             
-            {/* Footer */}
-            <Box className="w-full items-center justify-center mt-8 text-center">
-              <Text className="text-sm text-gray-500">
+            {/* Footer - Always at bottom */}
+            <div className="w-full text-center mt-auto pt-4">
+              <Text className="text-xs text-gray-400">
                 {locale === 'ar' 
-                  ? '© 2024 بيشولا. جميع الحقوق محفوظة.' 
+                  ? '© 2024 بسهولة. جميع الحقوق محفوظة.' 
                   : '© 2024 Bishola. All rights reserved.'
                 }
               </Text>
-            </Box>
-          </Box>
-        </Box>
+            </div>
+          </div>
+        </div>
 
-        {/* Right Section - Hero */}
-        <Box className="w-[65%] hidden lg:flex bg-background relative overflow-hidden">
+        {/* Right Section - Hero (Responsive visibility) */}
+        <div className="hidden md:flex md:w-2/5 lg:w-1/2 xl:w-3/5 2xl:w-2/3 relative overflow-hidden">
           <Hero />
-          
-          {/* Branding Overlay */}
-          <Box className="absolute bottom-8 left-8 right-8 text-white z-10">
-            <Text className="text-3xl font-bold mb-3">
-              {locale === 'ar' ? 'مرحباً بك في بيشولا' : 'Welcome to Bishola'}
-            </Text>
-            <Text className="text-lg opacity-90 leading-relaxed">
-              {locale === 'ar' 
-                ? 'منصتك الموثوقة لتأجير وبيع السيارات بأفضل الأسعار والخدمات' 
-                : 'Your trusted platform for car rental and sales with the best prices and services'
-              }
-            </Text>
-            
-            {/* Feature Highlights */}
-            <Box className="flex-col gap-2 mt-4">
-              <Text className="text-sm opacity-80">
-                {locale === 'ar' ? '✓ تأجير آمن ومضمون' : '✓ Safe & Guaranteed Rental'}
-              </Text>
-              <Text className="text-sm opacity-80">
-                {locale === 'ar' ? '✓ أفضل أسعار البيع' : '✓ Best Sales Prices'}
-              </Text>
-              <Text className="text-sm opacity-80">
-                {locale === 'ar' ? '✓ خدمة عملاء 24/7' : '✓ 24/7 Customer Service'}
-              </Text>
-            </Box>
-          </Box>
-        </Box>
-      </Box>
+        </div>
+      </div>
     </>
   );
 };

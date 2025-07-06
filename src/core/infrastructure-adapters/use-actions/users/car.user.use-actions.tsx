@@ -19,6 +19,7 @@ import {
   createCarListing,
   deleteCarListing,
   getCarFavorites,
+  getMyCarById,
   getMyCarListings,
   removeCarListingFromFavorites,
   toggleCarListingFavorite,
@@ -129,8 +130,16 @@ export const useDeleteCarListing = () =>
 
 export const useMyCarListings = (params: QueryParams) =>
   useLocaleQuery<PaginatedResponse<SelectCarListingDto>>({
-    queryKey: ['visitors-car-listings', params],
+    queryKey: ['my-car-listings', params],
     queryFn: async () => await getMyCarListings(params),
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
-});
+  });
+
+export const useMyCarById = (id: number) =>
+  useLocaleQuery<ApiResponse<SelectCarListingDto>>({
+    queryKey: ['my-car-by-id', id],
+    queryFn: async () => await getMyCarById(id),
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });

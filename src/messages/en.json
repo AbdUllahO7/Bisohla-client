@@ -458,7 +458,8 @@
       "features" :  {
         "categories"  : {
           "safety" : "Safety",
-          "entertainment":"Entertainment"
+          "entertainment":"Entertainment",
+          "technology": "Technology"
         }
       
       }

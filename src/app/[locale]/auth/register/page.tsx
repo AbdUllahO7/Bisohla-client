@@ -8,44 +8,51 @@ import { handleRegister } from "@/services/auth/auth.service"
 import type { RegisterFormValues } from "@/zod-schemas/auth/register-form-schema"
 import { Link } from "@/i18n/routing"
 import { useActionState } from "react"
-import { useLocale } from "next-intl"
+import { useLocale, useTranslations } from "next-intl"
 import LocaleSwitcher from "@/components/local/LocalSwitcher"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Car, Mail, User, Lock, CheckCircle, ArrowRight } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import Image from "next/image"
 
 const RegisterPage = () => {
   const locale = useLocale()
   const isRTL = locale === "ar"
+  const t = useTranslations('forgotPassword');
 
   const [state, action] = useActionState<ApiResponse<RegisterFormValues>, FormData>(handleRegister, defaultActionState)
 
   return (
-    <div className="md:w-[500px]  lg:w-[500px] items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        {/* Logo and Header */}
-        <div className="text-center ">
-          <div className="flex items-center justify-center mb-4">
-            <div className="bg-emerald-600 p-3 rounded-2xl">
-              <Car className="h-8 w-8 text-white" />
+    <div className="w-full max-w-md max-h-[85vh] mx-auto">
+      <div className="w-full flex flex-col space-y-4">
+        {/* Logo and Header - More compact */}
+        <div className="text-center">
+          <div className="flex items-center justify-center ">
+            <div className="p-2 rounded-2xl shadow-lg mb-2">
+                  <Image
+                    src="/assets/images/logo/bishola.png"
+                    alt="Bishola Logo"
+                    width={100}
+                    height={100}
+                    className="relative mx-auto transition-all duration-700 hover:scale-110 drop-shadow-2xl"
+                    priority
+                  />
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">{isRTL ? "إنشاء حساب جديد" : "Create Your Account"}</h1>
-          <p className="text-gray-600">
-            {isRTL ? "انضم إلى Bishola واستمتع بخدماتنا المميزة" : "Join Bishola and enjoy our premium services"}
+       
+          <p className="text-gray-600 text-sm">
+            {isRTL ? "انضم إلى بسهولة واستمتع بخدماتنا المميزة" : "Join Bishola and enjoy our premium services"}
           </p>
         </div>
 
-        {/* Language Switcher */}
-        <div className={`mb-6 ${isRTL ? "text-right" : "text-left"}`}>
-          <div className="xs:hidden lg:block md:block">
-            <LocaleSwitcher />
-          </div>
+        {/* Language Switcher - More compact */}
+        <div className={`flex ${isRTL ? "justify-start" : "justify-end"}`}>
+          <LocaleSwitcher />
         </div>
 
-        {/* Registration Card */}
-        <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
-          <CardHeader className="space-y-1 pb-4">
+        {/* Registration Card - More compact */}
+        <Card className="shadow-xl border-0 bg-white/95 backdrop-blur-sm w-full">
+          <CardHeader className="space-y-1 pb-1">
             <FormStateMessage state={state} />
 
             {/* Success Message with Email Verification Link */}
@@ -53,7 +60,7 @@ const RegisterPage = () => {
               <Alert className="border-emerald-200 bg-emerald-50">
                 <CheckCircle className="h-4 w-4 text-emerald-600" />
                 <AlertDescription className="text-emerald-800">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between flex-wrap gap-2">
                     <span className="text-sm">
                       {isRTL ? "تم إنشاء الحساب بنجاح!" : "Account created successfully!"}
                     </span>
@@ -70,8 +77,8 @@ const RegisterPage = () => {
             )}
           </CardHeader>
 
-          <CardContent>
-            <form action={action} className={`space-y-6 ${isRTL ? "rtl" : "ltr"}`} dir={isRTL ? "rtl" : "ltr"}>
+          <CardContent className="px-4 sm:px-6 pb-2">
+            <form action={action} className={`space-y-4 ${isRTL ? "rtl" : "ltr"}`} dir={isRTL ? "rtl" : "ltr"}>
               {/* Email Input */}
               <DetailedInput
                 name="email"
@@ -112,8 +119,8 @@ const RegisterPage = () => {
                 icon={<Lock className="h-5 w-5 text-gray-400" />}
               />
 
-              {/* Terms and Privacy Notice */}
-              <div className="text-xs text-gray-500 text-center leading-relaxed">
+              {/* Terms and Privacy Notice - More compact */}
+              <div className="text-xs text-gray-500 text-center leading-relaxed px-1">
                 {isRTL ? (
                   <>
                     بإنشاء حساب، فإنك توافق على{" "}
@@ -139,20 +146,20 @@ const RegisterPage = () => {
                 )}
               </div>
 
-              {/* Submit Button */}
-              <div className="pt-2">
+              {/* Submit Button - More compact */}
+              <div className="pt-1">
                 <SubmitButton
                   title={isRTL ? "إنشاء الحساب" : "Create Account"}
                   submittingTitle={isRTL ? "جار الإنشاء..." : "Creating Account..."}
-                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 transform hover:scale-[1.02] shadow-lg"
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 px-4 rounded-xl transition-all duration-200 transform hover:scale-[1.02] shadow-lg"
                 />
               </div>
             </form>
           </CardContent>
         </Card>
 
-        {/* Footer Links */}
-        <div className="mt-8 text-center">
+        {/* Footer Links - More compact */}
+        <div className="text-center ">
           <div className="text-sm text-gray-600">
             {isRTL ? "لديك حساب بالفعل؟" : "Already have an account?"}{" "}
             <Link
@@ -162,9 +169,16 @@ const RegisterPage = () => {
               {isRTL ? "تسجيل الدخول الآن" : "Sign in here"}
             </Link>
           </div>
+             <div className="text-sm text-gray-600">
+            <Link
+              href="/"
+              className="font-medium text-gray-700 hover:text-emerald-600 transition-colors inline-flex items-center gap-1"
+            >
+              {t('footer.backToHome')}
+              <ArrowRight className={`h-3 w-3 ${isRTL ? 'rotate-180' : ''}`} />
+            </Link>
+          </div>
         </div>
-
-       
       </div>
     </div>
   )

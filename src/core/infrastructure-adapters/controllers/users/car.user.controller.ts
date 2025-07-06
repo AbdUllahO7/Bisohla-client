@@ -32,6 +32,14 @@ export class CarUserController implements ICarUserController {
     }
   }
 
+  async getMyCarById(id: number): Promise<ApiResponse<SelectCarListingDto>> {
+    try {
+      return await this.carUserUseCase.getMyCarById(id);
+    } catch (e) {
+      return catchClientRequest(e);
+    }
+  }
+
   async getCarFavorites(
     params: QueryParams,
   ): Promise<PaginatedResponse<UserFavoriteCarListing>> {
