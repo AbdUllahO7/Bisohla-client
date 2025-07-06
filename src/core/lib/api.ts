@@ -245,6 +245,7 @@ export async function makeRequest<
         ...(!(validatedBody instanceof FormData) && {
           'Content-Type': 'application/json',
           'Accept-Language': locale,
+          'x-app-source':'web-app'
         }),
         ...headers,
       },
