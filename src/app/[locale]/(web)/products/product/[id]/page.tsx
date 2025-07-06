@@ -68,7 +68,7 @@ const Product = () => {
 
   return (
     <div className="mt-[10px] bg-background w-full">
-      <Box variant="container" className="w-full mb-4">
+        <Box variant="container" className="w-full mb-2 pt-5">
         <Breadcrumb dir={locale === 'ar' ? 'rtl' : 'ltr'}>
           <BreadcrumbList dir={locale === 'ar' ? 'rtl' : 'ltr'}>
             <BreadcrumbItem dir={locale === 'ar' ? 'rtl' : 'ltr'}>
