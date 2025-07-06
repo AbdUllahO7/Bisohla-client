@@ -10,7 +10,7 @@ import NotificationDropdown from "./NotificationDropdown"
 import { useRouter } from "next/navigation"
 import { useSession } from "@/hooks/auth/use-session"
 import { useTranslations, useLocale } from "next-intl"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { deleteSession } from "@/lib/session"
 import { logoutAction } from "@/app/[locale]/auth/actions"
 
@@ -22,9 +22,41 @@ const HeaderOne = () => {
   const router = useRouter()
   const [isClient, setIsClient] = useState(false)
   const [showMobileMenu, setShowMobileMenu] = useState(false)
+  const [isAuthChanging, setIsAuthChanging] = useState(false)
+  const prevAuthState = useRef<boolean | null>(null)
 
   // Determine if user is authenticated
   const isAuthenticated = !!accessToken && !!user
+
+  // Track authentication state changes
+  useEffect(() => {
+    // Skip first render when prevAuthState is null
+    if (prevAuthState.current !== null && prevAuthState.current !== isAuthenticated) {
+      setIsAuthChanging(true)
+      
+      // Reset the changing state after a short delay
+      const timer = setTimeout(() => {
+        setIsAuthChanging(false)
+      }, 1000) // Adjust timing as needed
+      
+      return () => clearTimeout(timer)
+    }
+    
+    // Update previous state
+    prevAuthState.current = isAuthenticated
+  }, [isAuthenticated])
+
+  // Listen for logout completion to ensure skeleton is hidden
+  useEffect(() => {
+    const handleLogoutSuccess = () => {
+      setTimeout(() => {
+        setIsAuthChanging(false)
+      }, 300)
+    }
+
+    window.addEventListener('logout-success', handleLogoutSuccess)
+    return () => window.removeEventListener('logout-success', handleLogoutSuccess)
+  }, [])
 
   // Ensure client-side rendering
   useEffect(() => {
@@ -63,26 +95,32 @@ const HeaderOne = () => {
     }
   }
 
-  // Show loading state during hydration or when session is loading
-  if (!isClient || isLoading) {
+  // Show loading state during hydration, session loading, or auth changing
+  if (!isClient || isLoading || isAuthChanging) {
     return (
-      <Box className="flex justify-between items-center py-3 w-full px-4 border-b border-gray-100">
-        {/* Logo */}
-        <div className="flex items-center cursor-pointer" onClick={() => router.push("/")}>
-          <Image
-            src="/assets/images/logo/bishola.png"
-            alt="Logo"
-            width={100}
-            height={24}
-            className="h-5 w-auto sm:h-6"
-            priority
-          />
+      <Box className="flex justify-between items-center py-3  w-full px-4 ≈ß border-b border-gray-100 bg-white">
+        {/* Logo Skeleton */}
+        <div className="flex items-center">
+          <div className="h-5 w-24 bg-gray-200 rounded animate-pulse sm:h-6 sm:w-28"></div>
         </div>
 
-        {/* Loading state */}
-        <div className="flex items-center gap-2">
-          <div className="h-8 w-16 bg-gray-200 rounded-lg animate-pulse"></div>
-          <div className="h-8 w-8 bg-gray-200 rounded-lg animate-pulse"></div>
+        {/* Right side skeleton */}
+        <div className="flex items-center gap-2  justify-start w-full container">
+          {/* Desktop skeleton */}
+          <div className="hidden md:flex items-center gap-3 justify-end  w-full">
+            <div className="h-9 w-32 bg-gray-200 rounded-full animate-pulse"></div>
+            <div className="h-9 w-24 bg-gray-200 rounded-full animate-pulse"></div>
+            <div className="h-9 w-9 bg-gray-200 rounded-full animate-pulse"></div>
+            <div className="h-9 w-16 bg-gray-200 rounded-full animate-pulse"></div>
+          </div>
+          
+          {/* Mobile skeleton */}
+          <div className="flex md:hidden items-center gap-2 justify-start container  w-full">
+            <div className="h-9 w-9 bg-gray-200 rounded-full animate-pulse"></div>
+            <div className="h-9 w-9 bg-gray-200 rounded-full animate-pulse"></div>
+            <div className="h-9 w-16 bg-gray-200 rounded-full animate-pulse"></div>
+            <div className="h-9 w-9 bg-gray-200 rounded-lg animate-pulse"></div>
+          </div>
         </div>
       </Box>
     )

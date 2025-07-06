@@ -143,6 +143,7 @@ export async function makeRequest<
       headers: {
         'Content-Type': 'application/json',
         'Accept-Language': locale,
+          'x-app-source':'web-app',
 
         ...headers,
       },
