@@ -236,6 +236,7 @@ const UserProductPage = () => {
                     onFavoriteToggle={handleFavoriteToggle}
                     isAuthenticated={true}
                     onDelete={handleDelete}
+                    profile = {true}
                   />
                 </React.Fragment>
               );

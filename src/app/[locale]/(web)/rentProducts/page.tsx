@@ -76,9 +76,9 @@ const RentProducts = () => {
     }, []);
 
     return (
-        <Box variant="row" className="mt-[10px] bg-background flex-wrap">
+        <Box variant="row" className="mt-[10px] bg-background flex-wrap pb-10">
             {/* Header Section */}
-             <Box variant="container" className="w-full mb-2 mt-2">
+             <Box variant="container" className="w-full mb-2 mt-5">
                     <Breadcrumb dir={locale === "ar" ? "rtl" : "ltr"}>
                     <BreadcrumbList dir={locale === "ar" ? "rtl" : "ltr"}>
                         <BreadcrumbItem dir={locale === "ar" ? "rtl" : "ltr"}>
