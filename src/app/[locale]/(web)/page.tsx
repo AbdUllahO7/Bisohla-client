@@ -19,7 +19,6 @@ const WebPage = async () => {
       <RentCar />
       <SpaceAds />
       <FAQ />
-      <Footer />
     </Box>
   );
 };

@@ -5,12 +5,11 @@ import ProductBasicInfo from "@/components/web/ProductsPage/product/ProductBasic
 import ProductHeader from "@/components/web/ProductsPage/product/ProductHeader"
 import ProductImages from "@/components/web/ProductsPage/product/ProductImages"
 import ProductInfo from "@/components/web/ProductsPage/product/ProductInfo"
-import { useParams } from "next/navigation"
+import { useParams, useSearchParams } from "next/navigation"
 import { useState, useEffect } from "react"
 import TabsSection from "@/components/web/ProductsPage/product/TabsSection"
 import { useCarListingById } from "@/core/infrastructure-adapters/use-actions/visitors/car.visitor.use-actions"
 import { checkAuth } from "@/core/infrastructure-adapters/actions/auth/auth.actions"
-
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
 import { useLocale } from "next-intl"
 import { useSession } from "@/hooks/auth/use-session";
@@ -18,14 +17,27 @@ import { useMyCarById } from "@/core/infrastructure-adapters/use-actions/users/c
 
 const Product = () => {
   const { id } = useParams(); // Get the product ID from the URL params
+  const searchParams = useSearchParams(); // Get query parameters
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [favoriteStatus, setFavoriteStatus] = useState(false);
   const locale = useLocale();
   const session = useSession();
-  // Fetch car listing data
-  const { data, isLoading } = useMyCarById(
+  
+  // Read the profile parameter from the URL query string
+  const isProfileView = searchParams.get('profile') === 'true';
+
+  // Call both hooks but we'll only use the data from the relevant one
+  const visitorCarData = useCarListingById({
+    id: Number(id),
+    userId: session?.user?.id
+  });
+
+  const userCarData = useMyCarById(
     Number(id)
   );
+
+  // Determine which data to use based on profile query parameter
+  const { data, isLoading } = isProfileView ? userCarData : visitorCarData;
 
   // Verify authentication status on component mount
   useEffect(() => {
@@ -86,7 +98,7 @@ const Product = () => {
         </Breadcrumb>
       </Box>
 
-      <div className="w-full  mb-3 bg-white">
+      <div className="w-full mb-3 bg-white">
         <Box variant="container">
           <ProductHeader
             productName={data?.data?.title}

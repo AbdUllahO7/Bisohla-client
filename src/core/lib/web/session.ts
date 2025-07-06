@@ -30,7 +30,6 @@ export const createSession = async (payload: Session): Promise<void> => {
       ),
       sameSite: 'lax',
       path: '/',
-      domain: COOKIE_DOMAIN,
     });
   } catch (error) {
     console.error('Error creating session:', error);

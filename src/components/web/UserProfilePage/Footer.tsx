@@ -11,7 +11,7 @@ const Footer = () => {
         const locale = useLocale(); // Get the current language
     
     return (
-    <Box variant="column" className='bg-white  pt-10 pb-10 justify-around w-full ' >
+    <Box variant="column" className='bg-white  pt-10 mt-10 pb-10 justify-around w-full ' >
         <Box  variant='row' className='max-w-[1300px] w-full container justify-between  md:flex-wrap xs:flex-wrap'>
 
                     {/*  create ad */}
@@ -111,8 +111,8 @@ const Footer = () => {
                     </Link>
                     <Link href="https://www.facebook.com/profile.php?id=61571070664886" target='_blank'>
                         <Image 
-                            src="/assets/icons/faceBook.png"
-                            alt='twitter'
+                            src="/assets/icons/facebook.png"
+                            alt='facebook'
                             width={20}
                             height={20}
                         />
