@@ -20,8 +20,8 @@ export default async function Dashboard({ children }: PropsWithChildren) {
     }
 
     return (
-        <SidebarProvider>
-            <div className="min-h-screen flex flex-col bg-background w-full">
+        <SidebarProvider className="bg-primary">
+            <div className="min-h-screen flex flex-col bg-white w-full">
                 {/* Main content area with sidebar */}
                 <HeaderOne/>
                 <HeaderTow 
@@ -34,7 +34,7 @@ export default async function Dashboard({ children }: PropsWithChildren) {
                       Privacypolicy :t("headerTow.Privacypolicy"),
                     }}
                 />
-                <div className="flex flex-1" dir="ltr">
+                <div className="flex flex-1 bg-primary" dir="ltr">
                     <DashboardSidebar />
                     
                     <SidebarInset className="flex-1 flex flex-col">
@@ -47,8 +47,7 @@ export default async function Dashboard({ children }: PropsWithChildren) {
                     </SidebarInset>
                 </div>
                 
-                {/* Footer at bottom */}
-                <Footer/>
+
             </div>
         </SidebarProvider>
     )

@@ -111,13 +111,8 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
                 className="w-full text-primary relative z-20"
                 required={required}
                 error={errorMessage}
-                // Add portal prop if available to render dropdown in document body
-                portal={true}
                 // Add z-index style for dropdown
-                dropdownClassName="z-[9999] relative"
-                contentProps={{
-                  style: { zIndex: 9999 }
-                }}
+              
               />
             </div>
           </FormField>
