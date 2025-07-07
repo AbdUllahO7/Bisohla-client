@@ -75,7 +75,7 @@ const AdsSectionProduct = () => {
           </div>
 
           <Link
-            href="#"
+            href="https://api.whatsapp.com/send/?phone=905389370863&text&type=phone_number&app_absent=0" target="_blank"
             className="bg-[#B6E253] px-2 py-1 sm:px-3 sm:py-1.5 md:px-4 md:py-2 rounded-md text-center inline-block mt-1 sm:mt-2"
           >
             <Text className="text-[#2A3B36] font-bold font-cairo text-[10px] sm:text-xs md:text-sm lg:text-base whitespace-nowrap">

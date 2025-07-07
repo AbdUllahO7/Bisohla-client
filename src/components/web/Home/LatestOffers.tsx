@@ -59,8 +59,6 @@ const LatestOffers: React.FC<LatestOffersProps> = ({ count, title, showTitle = t
         ]
     });
 
-    console.log("data", data)
-
 
     // Extract car listings array safely and limit to count items
     const carListings = React.useMemo(() => {
