@@ -30,7 +30,6 @@ async function validateSession(): Promise<boolean> {
 }
 
 async function middleware(req: NextRequest) {
-  console.log('Middleware triggered');
 
   // Apply intl middleware first to handle localization
   const response = await intlMiddleware(req);
@@ -116,8 +115,6 @@ async function middleware(req: NextRequest) {
       }
     }
 
-    // For all other routes, return the intl middleware response
-    console.log('Returning intl middleware response');
     return response;
   } catch (error) {
     console.error('Middleware error:', error);
