@@ -349,6 +349,11 @@
     }
   },
   "productsPage": {
+    "currency": {
+      "syp" :"Syrian Pound",
+      "usd" :"US Dollar",
+      "eur" : "Euro"
+    },
     "header": {
       "adCounter": " ad",
       "orderBy": "Short by:",

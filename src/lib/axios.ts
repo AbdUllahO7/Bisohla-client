@@ -14,7 +14,6 @@ export const api = axios.create({
       return true;
     }
     if (status === 401) {
-      console.log('Unauthorized. Refreshing token...');
       return true;
     }
     return true;

@@ -274,7 +274,6 @@ const Products = () => {
 
   // Callback to update total items count
 const handleTotalItemsChange = useCallback((count: number) => {
-  console.log("Updating totalItems:", count);
   setTotalItems(count);
 }, []);
 

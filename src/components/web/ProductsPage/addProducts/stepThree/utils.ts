@@ -27,16 +27,13 @@ export const loadFromStorage = (): CarConditionState => {
     if (typeof window === "undefined") return defaultState;
     
     const key = getStorageKey();
-    console.log(`📂 Loading data from localStorage key: ${key}`);
     
     const savedData = localStorage.getItem(key);
     if (savedData) {
       const parsedData = JSON.parse(savedData);
-      console.log(`✅ Loaded data:`, parsedData);
       return parsedData;
     }
     
-    console.log(`❌ No data found in localStorage for key: ${key}`);
     return defaultState;
   } catch (e) {
     console.error(`Failed to load data from ${getStorageKey()}:`, e);
@@ -52,10 +49,8 @@ export const saveToStorage = (data: CarConditionState): void => {
     if (typeof window === "undefined") return;
     
     const key = getStorageKey();
-    console.log(`💾 Saving data to localStorage key: ${key}`, data);
     
     localStorage.setItem(key, JSON.stringify(data));
-    console.log(`✅ Data saved successfully to ${key}`);
   } catch (e) {
     console.error(`Failed to save data to ${getStorageKey()}:`, e);
   }
@@ -71,38 +66,23 @@ export const validateForm = (
   carCondition: CarConditionState,
   carSections?: any[]
 ): boolean => {
-  console.log(`🔍 Running validation on:`, carCondition);
   
   // Check if at least cover image is provided
   const coverImages = carCondition.coverImage || [];
   const hasCoverImage = Array.isArray(coverImages) && coverImages.length > 0;
   
-  console.log(`📸 Cover image validation:`, {
-    coverImages,
-    coverImageCount: coverImages.length,
-    hasCoverImage,
-    imageDetails: coverImages.map((img, index) => `${index + 1}: ${img?.substring(0, 50)}...`)
-  });
+
 
   // Additional validation checks (currently not required but good to have)
   const sectionStatus = carCondition.sectionStatus || {};
   const hasSelectedConditions = Object.keys(sectionStatus).length > 0;
   
-  console.log(`🔧 Section status validation:`, {
-    sectionStatus,
-    sectionCount: Object.keys(sectionStatus).length,
-    hasSelectedConditions
-  });
+
 
   // Overall validation - only photos are now required
   const isValid = hasCoverImage;
   
-  console.log(`✅ Validation result:`, {
-    hasCoverImage,
-    hasSelectedConditions,
-    isValid,
-    reason: !isValid ? 'Missing cover image' : 'All requirements met'
-  });
+
 
   return isValid;
 };
@@ -235,7 +215,6 @@ export const clearFormData = (specificKey?: string): void => {
     
     const keyToClear = specificKey || getStorageKey();
     localStorage.removeItem(keyToClear);
-    console.log(`🗑️ Cleared data from localStorage key: ${keyToClear}`);
   } catch (e) {
     console.error(`Failed to clear data from localStorage:`, e);
   }

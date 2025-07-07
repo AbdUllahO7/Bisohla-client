@@ -15,8 +15,6 @@ const EditProductPage = () => {
     const router = useRouter();
     const [isInitialized, setIsInitialized] = useState(false);
     const userSession =  useSession();
-    console.log(userSession.user.id)
-    console.log(id)
     // Fetch car listing data
     const {data} = useMyCarListings({ id :Number(id),});
 
@@ -25,8 +23,6 @@ const EditProductPage = () => {
     // Prepare data and initialize local storage on component mount
     useEffect(() => {
         if (data && data.data && !isInitialized) {
-            console.log('Initializing edit data for car ID:', id);
-
             // Clear existing edit-mode data to prevent stale values
             clearFormData(true);
 
@@ -88,12 +84,7 @@ const EditProductPage = () => {
                     localStorage.setItem(STORAGE_KEYS.EDIT_MODE_FLAG, id.toString());
                 }
 
-                // Verify storage
-                console.log('Stored Step One:', localStorage.getItem(EDIT_STORAGE_KEYS.STEP_ONE));
-                console.log('Stored Step Two:', localStorage.getItem(EDIT_STORAGE_KEYS.STEP_TWO));
-                console.log('Stored Step Three:', localStorage.getItem(EDIT_STORAGE_KEYS.STEP_THREE));
-                console.log('Stored Step Four:', localStorage.getItem(EDIT_STORAGE_KEYS.STEP_FOUR));
-
+              
                 setIsInitialized(true);
             } catch (error) {
                 console.error('Error setting local storage:', error);

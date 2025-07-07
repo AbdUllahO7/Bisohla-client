@@ -69,7 +69,7 @@ const AdsSection = () => {
                         className="z-[10] flex justify-center items-center w-full lg:w-auto"
                     >
                         <Link
-                            href="#"
+                            href="https://api.whatsapp.com/send/?phone=905389370863&text&type=phone_number&app_absent=0" target='_blank'
                             className="bg-primary-foreground px-6 py-3 rounded-lg text-center"
                         >
                             <Text className="text-primary font-bold font-cairo text-[20px]">

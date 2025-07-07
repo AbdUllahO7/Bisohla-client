@@ -196,10 +196,10 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
           href={generateWhatsAppLink()}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center justify-center gap-1 px-3 py-2 sm:px-2 sm:py-1.5 bg-primary-foreground text-white rounded-md hover:bg-primary transition-all duration-300 min-w-[120px] sm:min-w-0"
+          className="flex items-center justify-center gap-1 px-3 py-2 sm:px-2 sm:py-1.5 bg-primary-foreground text-primary hover:text-primary-foreground rounded-md hover:bg-primary transition-all duration-300 min-w-[120px] sm:min-w-0"
         >
-          <span className="text-black font-bold text-sm">{t("header.whatsApp")}</span>
-          <MessageCircle className="h-4 w-4 sm:h-3 sm:w-3 text-black" />
+          <span className=" font-bold text-sm">{t("header.whatsApp")}</span>
+          <MessageCircle className="h-4 w-4 sm:h-3 sm:w-3 " />
         </Link>
       </Box>
     </Box>

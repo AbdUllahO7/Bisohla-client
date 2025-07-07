@@ -207,9 +207,8 @@
             description: formatErrorMessage(response),
           });
 
-          console.log(carListingDto)
 
-                console.error("Error submitting form:", response);
+            console.error("Error submitting form:", response);
 
           
           return null;

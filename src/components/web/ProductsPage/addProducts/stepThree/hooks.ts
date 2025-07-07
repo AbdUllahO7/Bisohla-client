@@ -96,16 +96,11 @@ export const useAddProductStepThree = (
   const runValidation = useCallback((currentState: CarConditionState) => {
     const isValid = validateForm(currentState, options.carSections);
     
-    console.log('🔍 Validation check:', {
-      coverImageCount: currentState.coverImage?.length || 0,
-      sectionStatusCount: Object.keys(currentState.sectionStatus || {}).length,
-      isValid
-    });
+
     
     if (isValid !== prevValidState.current) {
       prevValidState.current = isValid;
       onValidationChange(isValid);
-      console.log('✅ Validation state changed to:', isValid);
     }
   }, [onValidationChange, options.carSections]);
 
@@ -174,7 +169,6 @@ export const useAddProductStepThree = (
           // Mark initial load as complete
           initialLoadComplete.current = true;
         } else {
-          console.log("❌ No saved data found in localStorage");
           // Run validation even with default state
           setTimeout(() => {
             runValidation(defaultState);
@@ -290,7 +284,6 @@ export const useAddProductStepThree = (
 
   // Image handlers - FIXED VERSION
   const handleCoverImageChange = useCallback((urls: string[]) => {
-    console.log('📸 Cover image change:', urls);
     
     setCarCondition(prev => {
       const updatedState: CarConditionState = {

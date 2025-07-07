@@ -53,7 +53,6 @@ export const ProductCardItem: React.FC<ExtendedCarCardItemPropsProfile> = ({
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const authChecked = useRef(false);
-    console.log("profile" ,profile)
     // Get locale and direction
     const locale = useLocale();
     const direction = locale === "ar" ? "rtl" : "ltr";
