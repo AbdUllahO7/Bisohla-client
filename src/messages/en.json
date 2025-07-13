@@ -961,111 +961,111 @@
     }
     }
   },
-  "UserProfile" : {
-    "SideBar" : {
-        "home" : "Home",
-        "products" : "products",
-        "favorites" : "Favorites",
-        "messages" :"Messages",
-        "userInfo" : "User Info",
-        "logout" : "LogOut"
+    "UserProfile" : {
+      "SideBar" : {
+          "home" : "Home",
+          "products" : "products",
+          "favorites" : "Favorites",
+          "messages" :"Messages",
+          "userInfo" : "User Info",
+          "logout" : "LogOut"
+      },
+      "profile" : {
+        "YourProfile":"Your Profile",
+        "editProfile": "Edit Profile",
+        "resetPassword": "Reset Password",
+        "name": "Name",
+        "email": "Email",
+        "phoneNumber": "Phone Number",
+        "location": "Location",
+        "oldPassword": "Old Password",
+        "newPassword": "New Password",
+        "repeatPassword": "Repeat Password",
+        "saveChanges": "Save Changes"
+      },
+      "home" : {
+        "welcome": "Welcome",
+        "overview": "Here's an overview of your car listings and activity",
+        "memberSince": "Member since",
+        "lastUpdated": "Last updated",
+        "carsForSale": "Cars For Sale",
+        "activeListings": "Active listings",
+        "carsForRent": "Cars For Rent",
+        "favorites": "Favorites",
+        "savedListings": "Saved listings",
+        "activitySummary": "Activity Summary",
+        "recentActivity": "Your recent activity and performance",
+        "totalListings": "Total Listings",
+        "combinedSaleRental": "Combined sale & rental",
+        "accountAge": "Account Age",
+        "months": "Months",
+        "engagement": "Engagement",
+        "favoritesRatio": "Favorites ratio",
+        "listCarSale": "List a Car for Sale",
+        "createSaleListing": "Create a new listing to sell your vehicle and reach potential buyers.",
+        "createSaleButton": "Create Sale Listing",
+        "listCarRent": "List a Car for Rent",
+        "createRentListing": "Create a new rental listing and start earning passive income.",
+        "createRentButton": "Create Rental Listing",
+        "errorLoading": "Error Loading Profile",
+        "errorMessage": "There was a problem loading your profile data. Please try again later.",
+        "switchToArabic": "العربية",
+        "switchToEnglish": "English"
+      }
     },
-    "profile" : {
-      "YourProfile":"Your Profile",
-      "editProfile": "Edit Profile",
-      "resetPassword": "Reset Password",
-      "name": "Name",
-      "email": "Email",
-      "phoneNumber": "Phone Number",
-      "location": "Location",
-      "oldPassword": "Old Password",
-      "newPassword": "New Password",
-      "repeatPassword": "Repeat Password",
-      "saveChanges": "Save Changes"
-    },
-    "home" : {
-      "welcome": "Welcome",
-      "overview": "Here's an overview of your car listings and activity",
-      "memberSince": "Member since",
-      "lastUpdated": "Last updated",
-      "carsForSale": "Cars For Sale",
-      "activeListings": "Active listings",
-      "carsForRent": "Cars For Rent",
-      "favorites": "Favorites",
-      "savedListings": "Saved listings",
-      "activitySummary": "Activity Summary",
-      "recentActivity": "Your recent activity and performance",
-      "totalListings": "Total Listings",
-      "combinedSaleRental": "Combined sale & rental",
-      "accountAge": "Account Age",
-      "months": "Months",
-      "engagement": "Engagement",
-      "favoritesRatio": "Favorites ratio",
-      "listCarSale": "List a Car for Sale",
-      "createSaleListing": "Create a new listing to sell your vehicle and reach potential buyers.",
-      "createSaleButton": "Create Sale Listing",
-      "listCarRent": "List a Car for Rent",
-      "createRentListing": "Create a new rental listing and start earning passive income.",
-      "createRentButton": "Create Rental Listing",
-      "errorLoading": "Error Loading Profile",
-      "errorMessage": "There was a problem loading your profile data. Please try again later.",
-      "switchToArabic": "العربية",
-      "switchToEnglish": "English"
-    }
-  },
-  "saleProduct": {
-      "hero": {
-        "title": "Cars For Sale",
-        "subtitle": "Find your perfect car from our extensive collection of quality vehicles"
+    "saleProduct": {
+        "hero": {
+          "title": "Cars For Sale",
+          "subtitle": "Find your perfect car from our extensive collection of quality vehicles"
+        },
+        "search": {
+          "placeholder": "Search by make, model, or keywords..."
+        },
+        "filters": {
+          "button": "Filters",
+          "title": "Filter Options",
+          "close": "Close",
+          "make": "Make",
+          "allMakes": "All Makes",
+          "priceRange": "Price Range",
+          "anyPrice": "Any Price",
+          "fuelType": "Fuel Type",
+          "allTypes": "All Types",
+          "reset": "Reset",
+          "apply": "Apply Filters"
+        },
+        "results": {
+          "title": "Cars For Sale",
+          "found": "vehicles found"
+        },
+        "sort": {
+          "label": "Sort by:",
+          "newest": "Newest First",
+          "oldest": "Oldest First",
+          "priceLow": "Price: Low to High",
+          "priceHigh": "Price: High to Low"
+        },
+        "error": {
+          "title": "Failed to load car listings",
+          "message": "There was a problem loading the car listings. Please try again later.",
+          "retry": "Try Again"
+        },
+        "empty": {
+          "title": "No cars found",
+          "message": "There are currently no car listings available. Please check back later.",
+          "searchMessage": "No cars match your search criteria. Try different keywords or clear your filters.",
+          "clearSearch": "Clear Search"
+        },
+        "pagination": {
+          "previous": "Previous",
+          "next": "Next",
+          "showing": "Showing",
+          "to": "to",
+          "of": "of",
+          "items": "items"
+        },
+        "price": "Price"
       },
-      "search": {
-        "placeholder": "Search by make, model, or keywords..."
-      },
-      "filters": {
-        "button": "Filters",
-        "title": "Filter Options",
-        "close": "Close",
-        "make": "Make",
-        "allMakes": "All Makes",
-        "priceRange": "Price Range",
-        "anyPrice": "Any Price",
-        "fuelType": "Fuel Type",
-        "allTypes": "All Types",
-        "reset": "Reset",
-        "apply": "Apply Filters"
-      },
-      "results": {
-        "title": "Cars For Sale",
-        "found": "vehicles found"
-      },
-      "sort": {
-        "label": "Sort by:",
-        "newest": "Newest First",
-        "oldest": "Oldest First",
-        "priceLow": "Price: Low to High",
-        "priceHigh": "Price: High to Low"
-      },
-      "error": {
-        "title": "Failed to load car listings",
-        "message": "There was a problem loading the car listings. Please try again later.",
-        "retry": "Try Again"
-      },
-      "empty": {
-        "title": "No cars found",
-        "message": "There are currently no car listings available. Please check back later.",
-        "searchMessage": "No cars match your search criteria. Try different keywords or clear your filters.",
-        "clearSearch": "Clear Search"
-      },
-      "pagination": {
-        "previous": "Previous",
-        "next": "Next",
-        "showing": "Showing",
-        "to": "to",
-        "of": "of",
-        "items": "items"
-      },
-      "price": "Price"
-    },
     "rentProduct": {
       "hero": {
         "title": "Cars For Rent",

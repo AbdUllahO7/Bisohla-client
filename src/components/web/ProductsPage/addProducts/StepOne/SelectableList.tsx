@@ -8,11 +8,13 @@ import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Input } from "@/components/ui/input"
 import { Search, X } from "lucide-react"
+import Image from "next/image"
 
 // Option interface to use instead of directly using SelectCarMakeDto
 interface Option {
   value: string
   label: string
+  logoUrl?: string | null // Handle both undefined and null cases
 }
 
 interface SelectableListProps {
@@ -37,6 +39,8 @@ const SelectableList: React.FC<SelectableListProps> = ({
   // State for search input
   const [searchTerm, setSearchTerm] = useState("")
 
+  console.log("options", options)
+
   // Ensure direction is always a valid value for components that expect "rtl" | "ltr"
   const safeDirection = direction === "rtl" || direction === "ltr" ? direction : "ltr"
 
@@ -54,6 +58,9 @@ const SelectableList: React.FC<SelectableListProps> = ({
 
   // Placeholder text based on direction
   const searchPlaceholder = safeDirection === "ltr" ? `Search ${title.toLowerCase()}...` : `بحث ${title}...`
+
+  // Check if this is a car make type (should show logos)
+  const shouldShowLogo = type === "marka"
 
   return (
     <Box className="min-w-[250px] px-5 py-5" variant="column">
@@ -109,11 +116,28 @@ const SelectableList: React.FC<SelectableListProps> = ({
                 <Button
                   key={option.value}
                   onClick={() => onSelect(type, option.value)}
-                  className={`w-full py-6 px-4 text-primary bg-white font-semibold border-b border-b-gray-200 hover:bg-primary hover:text-white duration-500 ${selectedValue === option.value ? "bg-primary-foreground text-primary" : ""}`}
+                  className={`w-full py-6 px-4 text-primary bg-white font-semibold border-b border-b-gray-200 hover:bg-primary hover:text-white duration-500 ${selectedValue === option.value ? "bg-primary-foreground text-primary" : ""} ${shouldShowLogo ? "flex items-center justify-between" : ""}`}
                 >
-                  <span className={`w-full ${safeDirection === "ltr" ? "text-left" : "text-right"}`}>
+                  <span className={`${shouldShowLogo ? "flex-1" : "w-full"} ${safeDirection === "ltr" ? "text-left" : "text-right"}`}>
                     {option.label}
                   </span>
+                  {/* Only show logo for car makes and if logoUrl exists and is not null */}
+                  {shouldShowLogo && option.logoUrl && (
+                    <div className="flex-shrink-0 ml-2">
+                      <Image
+                        alt={`${option.label} logo`}
+                        src={option.logoUrl}
+                        width={24}
+                        height={24}
+                        className="object-contain"
+                        onError={(e) => {
+                          // Hide image if it fails to load
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                        }}
+                      />
+                    </div>
+                  )}
                 </Button>
               ))
             ) : (

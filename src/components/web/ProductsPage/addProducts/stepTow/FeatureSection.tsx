@@ -11,6 +11,7 @@ interface FeatureSectionProps {
   featureCategories: GroupedFeatures;
   selectedFeatures: CarInfoState['selectedFeatures'];
   allFeatures: SelectFeatureDto[];
+  getTranslatedCategoryName: (categoryKey: string) => string; // Add this prop
   labels: {
     loading: string;
     noFeatures: string;
@@ -26,6 +27,7 @@ const FeatureSection: React.FC<FeatureSectionProps> = ({
   featureCategories,
   selectedFeatures,
   allFeatures,
+  getTranslatedCategoryName, // Accept the translation function
   labels,
   onFeatureToggle,
 }) => {
@@ -38,6 +40,10 @@ const FeatureSection: React.FC<FeatureSectionProps> = ({
     },
     [selectedFeatures]
   );
+
+  console.log("allFeatures",allFeatures)
+
+  console.log("featureCategories",featureCategories)
 
   // Loading state
   if (isLoading) {
@@ -123,7 +129,7 @@ const FeatureSection: React.FC<FeatureSectionProps> = ({
               <CardHeader className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200 pb-3">
                 <div className="flex items-center justify-between">
                   <Text className="text-primary text-lg font-bold group-hover:text-primary-dark transition-colors">
-                    {categoryData.label}
+                    {getTranslatedCategoryName(categoryKey)} {/* Use the translation function */}
                   </Text>
                   {selectedCount > 0 && (
                     <div className="bg-primary text-white text-xs px-2 py-1 rounded-full font-medium">

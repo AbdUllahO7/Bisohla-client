@@ -16,6 +16,7 @@ const AddProductStepTwo: React.FC<AddProductStepTwoProps> = ({ onValidationChang
     validationErrors,
     allFeatures,
     featureCategories,
+    getTranslatedCategoryName, // Make sure this is being used
     isFeaturesLoading,
     labels,
     options,
@@ -23,7 +24,7 @@ const AddProductStepTwo: React.FC<AddProductStepTwoProps> = ({ onValidationChang
     direction,
     handleSelectChange,
     handleTextFieldBlur,
-    handleFeatureToggle
+    handleFeatureToggle,
   } = useAddProductStepTwo(onValidationChange);
   
   return (
@@ -58,6 +59,7 @@ const AddProductStepTwo: React.FC<AddProductStepTwoProps> = ({ onValidationChang
             featureCategories={featureCategories}
             selectedFeatures={carInfo.selectedFeatures}
             allFeatures={allFeatures}
+            getTranslatedCategoryName={getTranslatedCategoryName} // Pass the translation function
             labels={{
               loading: labels.loading,
               noFeatures: labels.noFeatures

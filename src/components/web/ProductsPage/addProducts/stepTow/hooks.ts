@@ -2,7 +2,14 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useCarFeatrues } from "@/core/infrastructure-adapters/use-actions/visitors/car.visitor.use-actions";
-import { getBodyTypeOptions, getColorOptions, getFuelTypeOptions, getTransmissionOptions, FeatureCategory } from "@/core/entities/enums/cars.enums";
+import { 
+  getBodyTypeOptions, 
+  getColorOptions, 
+  getFuelTypeOptions, 
+  getTransmissionOptions, 
+  getFeatureCategoryOptions,
+  FeatureCategory 
+} from "@/core/entities/enums/cars.enums";
 import { CarInfoState, ValidationErrors, GroupedFeatures } from "./types";
 import { groupFeaturesByCategory, loadFromStorage, saveToStorage, validateForm } from "./utils";
 import { SelectFeatureDto, CarListingFeature } from "@/core/entities/models/cars/cars.dto";
@@ -48,15 +55,24 @@ export const useAddProductStepTwo = (onValidationChange: (isValid: boolean) => v
   
   // Use the hook to fetch features from backend
   const { data: featuresData, isLoading: isFeaturesLoading } = useCarFeatrues({ 
-    page: 1
+    pageSize: 100,
   });
+
+  // Helper function to get translated category name
+  const getTranslatedCategoryName = useCallback((categoryKey: string) => {
+    try {
+      return t(`featureCategory.${categoryKey.toLowerCase()}`) || categoryKey;
+    } catch (error) {
+      return categoryKey;
+    }
+  }, [t]);
   
   // Update features when data is loaded
   useEffect(() => {
     if (featuresData?.data?.data) {
       const features = featuresData.data.data as SelectFeatureDto[];
       setAllFeatures(features);
-            window.scrollTo(0, 0);
+      window.scrollTo(0, 0);
 
       // Group features by category
       const grouped = groupFeaturesByCategory(features);
@@ -85,8 +101,6 @@ export const useAddProductStepTwo = (onValidationChange: (isValid: boolean) => v
   // Validate loaded data
   const validateLoadedData = useCallback((data: CarInfoState) => {
     const newValidationErrors = { ...validationErrors };
-    
-  
     
     // Check doors
     const doorsValue = parseInt(data.doors);
@@ -128,7 +142,6 @@ export const useAddProductStepTwo = (onValidationChange: (isValid: boolean) => v
   // Handle text field blur events with validation
   const handleTextFieldBlur = useCallback((field: string, value: string) => {
     setCarInfo(prev => ({ ...prev, [field]: value }));
-    
     
     if (field === 'doors') {
       const doorsValue = parseInt(value);
@@ -290,6 +303,7 @@ export const useAddProductStepTwo = (onValidationChange: (isValid: boolean) => v
     setValidationErrors,
     allFeatures,
     featureCategories,
+    getTranslatedCategoryName, // Return helper function
     isFeaturesLoading,
     labels,
     options,
