@@ -146,8 +146,8 @@ export enum CarStatus {
  * Represents categories for car features
  */
 export enum FeatureCategory {
-  SAFETY = 'safety',
-  COMFORT = 'comfort',
+  SAFETY = 'Safety',
+  COMFORT = 'Comfort',
   TECHNOLOGY = 'technology',
   PERFORMANCE = 'performance',
   EXTERIOR = 'exterior',
@@ -331,14 +331,14 @@ export function getRentTypeOptions(t: any): SelectOption[] {
  */
 export const getFeatureCategoryOptions = (t: any): SelectOption[] => {
   const options = [
-    { value: FeatureCategory.SAFETY, label: t('featureCategory.safety', { defaultValue: 'Safety' }) },
-    { value: FeatureCategory.COMFORT, label: t('featureCategory.comfort', { defaultValue: 'Comfort' }) },
-    { value: FeatureCategory.TECHNOLOGY, label: t('featureCategory.technology', { defaultValue: 'Technology' }) },
-    { value: FeatureCategory.PERFORMANCE, label: t('featureCategory.performance', { defaultValue: 'Performance' }) },
-    { value: FeatureCategory.EXTERIOR, label: t('featureCategory.exterior', { defaultValue: 'Exterior' }) },
-    { value: FeatureCategory.INTERIOR, label: t('featureCategory.interior', { defaultValue: 'Interior' }) },
-    { value: FeatureCategory.ENTERTAINMENT, label: t('featureCategory.entertainment', { defaultValue: 'Entertainment' }) },
-    { value: FeatureCategory.OTHER, label: t('featureCategory.other', { defaultValue: 'Other' }) },
+    { value: FeatureCategory.SAFETY, label: t('featureCategory.safety') },
+    { value: FeatureCategory.COMFORT, label: t('featureCategory.comfort') },
+    { value: FeatureCategory.TECHNOLOGY, label: t('featureCategory.technology') },
+    { value: FeatureCategory.PERFORMANCE, label: t('featureCategory.performance') },
+    { value: FeatureCategory.EXTERIOR, label: t('featureCategory.exterior') },
+    { value: FeatureCategory.INTERIOR, label: t('featureCategory.interior') },
+    { value: FeatureCategory.ENTERTAINMENT, label: t('featureCategory.entertainment') },
+    { value: FeatureCategory.OTHER, label: t('featureCategory.other') },
   ];
   return sortOptionsAlphabetically(options);
 };
@@ -346,81 +346,6 @@ export const getFeatureCategoryOptions = (t: any): SelectOption[] => {
 /**
  * Get features by category with translation support
  */
-export const getFeaturesByCategory = (t: any): FeaturesData => {
-  const features = {
-    [FeatureCategory.SAFETY]: [
-      { id: 'airbags', label: t('features.safety.airbags', { defaultValue: 'Airbags' }) },
-      { id: 'abs', label: t('features.safety.abs', { defaultValue: 'ABS' }) },
-      { id: 'parkingSensors', label: t('features.safety.parkingSensors', { defaultValue: 'Parking Sensors' }) },
-      { id: 'blindSpotMonitoring', label: t('features.safety.blindSpotMonitoring', { defaultValue: 'Blind Spot Monitoring' }) },
-      { id: 'crashSensors', label: t('features.safety.crashSensors', { defaultValue: 'Crash Sensors' }) },
-      { id: 'laneAssist', label: t('features.safety.laneAssist', { defaultValue: 'Lane Assist' }) },
-    ],
-    [FeatureCategory.COMFORT]: [
-      { id: 'airConditioning', label: t('features.comfort.airConditioning', { defaultValue: 'Air Conditioning' }) },
-      { id: 'heatedSeats', label: t('features.comfort.heatedSeats', { defaultValue: 'Heated Seats' }) },
-      { id: 'powerSeats', label: t('features.comfort.powerSeats', { defaultValue: 'Power Seats' }) },
-      { id: 'leatherSeats', label: t('features.comfort.leatherSeats', { defaultValue: 'Leather Seats' }) },
-      { id: 'sunroof', label: t('features.comfort.sunroof', { defaultValue: 'Sunroof' }) },
-      { id: 'keylessEntry', label: t('features.comfort.keylessEntry', { defaultValue: 'Keyless Entry' }) },
-    ],
-    [FeatureCategory.TECHNOLOGY]: [
-      { id: 'bluetooth', label: t('features.technology.bluetooth', { defaultValue: 'Bluetooth' }) },
-      { id: 'navigationSystem', label: t('features.technology.navigationSystem', { defaultValue: 'Navigation System' }) },
-      { id: 'smartphoneIntegration', label: t('features.technology.smartphoneIntegration', { defaultValue: 'Smartphone Integration' }) },
-      { id: 'wirelessCharging', label: t('features.technology.wirelessCharging', { defaultValue: 'Wireless Charging' }) },
-      { id: 'digitalDashboard', label: t('features.technology.digitalDashboard', { defaultValue: 'Digital Dashboard' }) },
-      { id: 'voiceControl', label: t('features.technology.voiceControl', { defaultValue: 'Voice Control' }) },
-    ],
-    [FeatureCategory.PERFORMANCE]: [
-      { id: 'turboEngine', label: t('features.performance.turboEngine', { defaultValue: 'Turbo Engine' }) },
-      { id: 'sportSuspension', label: t('features.performance.sportSuspension', { defaultValue: 'Sport Suspension' }) },
-      { id: 'allWheelDrive', label: t('features.performance.allWheelDrive', { defaultValue: 'All Wheel Drive' }) },
-      { id: 'sportMode', label: t('features.performance.sportMode', { defaultValue: 'Sport Mode' }) },
-      { id: 'hillAssist', label: t('features.performance.hillAssist', { defaultValue: 'Hill Assist' }) },
-      { id: 'ecoMode', label: t('features.performance.ecoMode', { defaultValue: 'Eco Mode' }) },
-    ],
-    [FeatureCategory.EXTERIOR]: [
-      { id: 'alloyWheels', label: t('features.exterior.alloyWheels', { defaultValue: 'Alloy Wheels' }) },
-      { id: 'ledHeadlights', label: t('features.exterior.ledHeadlights', { defaultValue: 'LED Headlights' }) },
-      { id: 'fogLights', label: t('features.exterior.fogLights', { defaultValue: 'Fog Lights' }) },
-      { id: 'roofRails', label: t('features.exterior.roofRails', { defaultValue: 'Roof Rails' }) },
-      { id: 'panoramicRoof', label: t('features.exterior.panoramicRoof', { defaultValue: 'Panoramic Roof' }) },
-      { id: 'tintedWindows', label: t('features.exterior.tintedWindows', { defaultValue: 'Tinted Windows' }) },
-    ],
-    [FeatureCategory.INTERIOR]: [
-      { id: 'woodTrim', label: t('features.interior.woodTrim', { defaultValue: 'Wood Trim' }) },
-      { id: 'ambientLighting', label: t('features.interior.ambientLighting', { defaultValue: 'Ambient Lighting' }) },
-      { id: 'rearSeatsControl', label: t('features.interior.rearSeatsControl', { defaultValue: 'Rear Seats Control' }) },
-      { id: 'foldableSeats', label: t('features.interior.foldableSeats', { defaultValue: 'Foldable Seats' }) },
-      { id: 'cupHolders', label: t('features.interior.cupHolders', { defaultValue: 'Cup Holders' }) },
-      { id: 'luggageCompartment', label: t('features.interior.luggageCompartment', { defaultValue: 'Luggage Compartment' }) },
-    ],
-    [FeatureCategory.ENTERTAINMENT]: [
-      { id: 'premiumAudio', label: t('features.entertainment.premiumAudio', { defaultValue: 'Premium Audio' }) },
-      { id: 'rearScreens', label: t('features.entertainment.rearScreens', { defaultValue: 'Rear Screens' }) },
-      { id: 'hdRadio', label: t('features.entertainment.hdRadio', { defaultValue: 'HD Radio' }) },
-      { id: 'usbPorts', label: t('features.entertainment.usbPorts', { defaultValue: 'USB Ports' }) },
-      { id: 'wifiHotspot', label: t('features.entertainment.wifiHotspot', { defaultValue: 'WiFi Hotspot' }) },
-      { id: 'subwoofer', label: t('features.entertainment.subwoofer', { defaultValue: 'Subwoofer' }) },
-    ],
-    [FeatureCategory.OTHER]: [
-      { id: 'cargoBox', label: t('features.other.cargoBox', { defaultValue: 'Cargo Box' }) },
-      { id: 'trailerHitch', label: t('features.other.trailerHitch', { defaultValue: 'Trailer Hitch' }) },
-      { id: 'bikeRack', label: t('features.other.bikeRack', { defaultValue: 'Bike Rack' }) },
-      { id: 'childSeat', label: t('features.other.childSeat', { defaultValue: 'Child Seat' }) },
-      { id: 'winterTires', label: t('features.other.winterTires', { defaultValue: 'Winter Tires' }) },
-      { id: 'alarmSystem', label: t('features.other.alarmSystem', { defaultValue: 'Alarm System' }) },
-    ],
-  };
-  // Sort features within each category
-  return Object.fromEntries(
-    Object.entries(features).map(([category, featureList]) => [
-      category,
-      sortOptionsAlphabetically(featureList),
-    ])
-  );
-};
 
 /**
  * Get transmission options for select components with translation support
