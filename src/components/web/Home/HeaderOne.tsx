@@ -128,7 +128,7 @@ const HeaderOne = () => {
 
   return (
     <>
-      <Box className="flex justify-between items-center py-3 w-full px-4 container border-b border-gray-100 bg-white">
+      <Box className="flex justify-between items-center py-1 w-full px-4 container border-b border-gray-100 bg-white">
         {/* Logo */}
         <div className="flex items-center cursor-pointer" onClick={() => router.push("/")}>
           <Image
