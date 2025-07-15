@@ -137,7 +137,7 @@ export const sendResetpasswordEmailAction = async (
 
   if (res.success) {
     // Revalidate password reset related paths
-    revalidatePath('/auth/reset-password');
+    revalidatePath('/auth/sign-in');
   }
 
   return res;
@@ -159,7 +159,7 @@ export const resetPasswordAction = async (
 
   if (res.success) {
     // Revalidate auth paths after successful password reset
-    revalidatePath('/auth/sign-in');
+    redirect('/auth/sign-in')
   }
 
   return res;

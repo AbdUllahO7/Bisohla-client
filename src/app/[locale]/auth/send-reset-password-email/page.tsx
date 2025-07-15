@@ -65,21 +65,7 @@ const SendResetPasswordEmailPage = () => {
             <FormStateMessage state={state} />
 
             {/* Success Message */}
-            {state.success && (
-              <Alert className="border-emerald-200 bg-emerald-50">
-                <CheckCircle className="h-4 w-4 text-emerald-600" />
-                <AlertDescription className="text-emerald-800">
-                  <div className="text-center">
-                    <p className="text-sm font-medium">
-                      {t('successMessage')}
-                    </p>
-                    <p className="text-xs mt-1 opacity-75">
-                      {t('checkInbox')}
-                    </p>
-                  </div>
-                </AlertDescription>
-              </Alert>
-            )}
+           
           </CardHeader>
 
           <CardContent className="px-4 sm:px-6 pb-2">
