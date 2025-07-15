@@ -58,22 +58,7 @@ const ResetPasswordForm = ({ token }: { token: string }) => {
           <CardHeader className="space-y-1 pb-4">
             <FormStateMessage state={state} />
 
-            {/* Success Message */}
-            {state.success && (
-              <Alert className="border-emerald-200 bg-emerald-50">
-                <CheckCircle className="h-4 w-4 text-emerald-600" />
-                <AlertDescription className="text-emerald-800">
-                  <div className="text-center">
-                    <p className="text-sm font-medium">
-                      {t('successMessage')}
-                    </p>
-                    <p className="text-xs mt-1 opacity-75">
-                      {t('successSubtitle')}
-                    </p>
-                  </div>
-                </AlertDescription>
-              </Alert>
-            )}
+            
           </CardHeader>
 
           <CardContent>
@@ -122,20 +107,7 @@ const ResetPasswordForm = ({ token }: { token: string }) => {
                 icon={<Lock className="h-5 w-5 text-gray-400" />}
               />
 
-              {/* Security Notice */}
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-                <div className="flex">
-                  <div className="flex-shrink-0">
-                    <Eye className="h-4 w-4 text-amber-400" />
-                  </div>
-                  <div className={`${isRTL ? 'mr-2' : 'ml-2'}`}>
-                    <p className="text-xs text-amber-800">
-                      {t('securityNotice')}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
+             
               {/* Submit Button */}
               <div className="pt-2">
                 <SubmitButton

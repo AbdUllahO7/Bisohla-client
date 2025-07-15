@@ -1246,7 +1246,7 @@
     "successMessage": "Password reset email sent successfully!",
     "checkInbox": "Please check your inbox and follow the instructions to reset your password.",
     "instructionsTitle": "How it works",
-    "instructionsText": "We'll send you a secure link to reset your password. The link will expire in 24 hours for your security.",
+    "instructionsText": "We'll send you a secure link to reset your password. The link will expire in 1 hours for your security.",
     "footer": {
       "newToBishola": "New to Bishola?",
       "registerNow": "Register Now",
