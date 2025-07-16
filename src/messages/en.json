@@ -1,11 +1,10 @@
 {
   "homePage": {
-
     "lang": "en",
     "metadata": {
-        "title": "Bishola - Car Rental & Car Sales Platform",
-        "description": "Rent or buy your perfect car with Bishola. Premium car rental services and quality used cars for sale. Find the best deals on vehicles in Saudi Arabia."
-      },
+      "title": "Bishola - Car Rental & Car Sales Platform",
+      "description": "Rent or buy your perfect car with Bishola. Premium car rental services and quality used cars for sale. Find the best deals on vehicles in Saudi Arabia."
+    },
     "Rating": "Rating",
     "Support": "Support",
     "CarsAvailable": "Available Cars",
@@ -16,9 +15,8 @@
       "adsButton": "create Ads",
       "loginButton": "Login / SignUp",
       "profileButton": "Profile",
-        "logoutButton": "Logout",
-        "menuTitle" : "Menu"
-
+      "logoutButton": "Logout",
+      "menuTitle": "Menu"
     },
     "headerTow": {
       "home": "Home",
@@ -26,9 +24,8 @@
       "sale": "Sale",
       "news": "news",
       "join": "Join",
-      "BrowseAll" : "Browse All",
-      "Privacypolicy" : "Privacy Policy"
-
+      "BrowseAll": "Browse All",
+      "Privacypolicy": "Privacy Policy"
     },
     "hero": {
       "title": "Bishola",
@@ -48,10 +45,10 @@
       "priceLow": "Price Low",
       "selectPrice": "Select Price",
       "search": "Search",
-      "reset" : "Reset",
-      "productPrice" : {
-        "highestPrice" : "Highest Price",
-        "lessPrice" :"Less Price"
+      "reset": "Reset",
+      "productPrice": {
+        "highestPrice": "Highest Price",
+        "lessPrice": "Less Price"
       }
     },
     "latestOffers": {
@@ -193,18 +190,18 @@
       "cities": {
         "idlib": { "title": "Idlib", "productCount": "150" },
         "aleppo": { "title": "Aleppo", "productCount": "223" },
-        "damascus": { "title": "Damascus",  "productCount": "240" },
-        "hama": { "title": "Hama",  "productCount": "110" },
+        "damascus": { "title": "Damascus", "productCount": "240" },
+        "hama": { "title": "Hama", "productCount": "110" },
         "homs": { "title": "Homs", "productCount": "310" },
-        "latakia": { "title": "Latakia",  "productCount": "55" },
-        "tartus": { "title": "Tartus",  "productCount": "105" },
-        "daraa": { "title": "Daraa",  "productCount": "102" },
+        "latakia": { "title": "Latakia", "productCount": "55" },
+        "tartus": { "title": "Tartus", "productCount": "105" },
+        "daraa": { "title": "Daraa", "productCount": "102" },
         "quneitra": { "title": "Quneitra", "productCount": "202" },
-        "as_suwayda": { "title": "As-Suwayda",  "productCount": "50" },
-        "deir_ez_zor": { "title": "Deir ez-Zor","productCount": "90" },
-        "raqqa": { "title": "Raqqa",  "productCount": "305" },
-        "al_hasakah": { "title": "Al-Hasakah",  "productCount": "302" },
-        "rif_dimashq": { "title": "Rif Dimashq",  "productCount": "400" }
+        "as_suwayda": { "title": "As-Suwayda", "productCount": "50" },
+        "deir_ez_zor": { "title": "Deir ez-Zor", "productCount": "90" },
+        "raqqa": { "title": "Raqqa", "productCount": "305" },
+        "al_hasakah": { "title": "Al-Hasakah", "productCount": "302" },
+        "rif_dimashq": { "title": "Rif Dimashq", "productCount": "400" }
       }
     },
     "rentProduct": {
@@ -326,40 +323,40 @@
       "showMore": "Show all",
       "questions": {
         "question1": {
-        "question": "What are the requirements to rent a car?",
-        "answer": "To rent a car with us, you need to be at least 21 years old and have a valid driver's license for at least 1 year. You'll also need a valid ID or passport, and a credit card for the security deposit. International visitors need an International Driving Permit along with their home country license. Some luxury or specialty vehicles may require you to be 25 or older."
-      },
-      "question2": {
-        "question": "How does the car buying process work?",
-        "answer": "Our car buying process is simple and transparent. First, browse our inventory online or visit our showroom. Schedule a test drive for any vehicle you're interested in. We provide detailed vehicle history reports and inspection certificates. Once you decide, we handle all paperwork including financing options, insurance, and registration. We offer competitive financing rates and accept trade-ins to reduce your purchase price."
-      },
-      "question3": {
-        "question": "Do you offer vehicle delivery and pickup services?",
-        "answer": "Yes, we provide convenient delivery and pickup services for both rentals and sales. For rentals, we can deliver the vehicle to your hotel, airport, office, or any location within the city limits at no extra charge. For vehicle purchases, we offer home delivery service for a small fee. We also provide pickup services when your rental period ends - just give us a call and we'll collect the vehicle from your location. This service is especially popular with business travelers and customers who prefer the convenience of not visiting our office."
-      },
-      "question4": {
-        "question": "What payment methods do you accept?",
-        "answer": "We accept multiple payment methods for your convenience. For rentals, we accept all major credit cards (Visa, MasterCard, American Express), debit cards, and cash deposits. For vehicle purchases, we accept credit cards, bank transfers, certified checks, and cash payments. We also offer flexible financing options with competitive interest rates and flexible terms. Corporate clients can set up monthly billing accounts. All transactions are secure and processed through encrypted payment systems for your protection."
-      },
-      "question5": {
-        "question": "What is your fuel and mileage policy for rentals?",
-        "answer": "Our rental vehicles are provided with a full tank of fuel, and we expect them to be returned with a full tank. If returned with less fuel, a refueling charge will apply at current market rates plus a service fee. For mileage, most of our rental packages include unlimited kilometers within the city limits. For long-distance travel or intercity trips, we offer special packages with generous mileage allowances. Premium and luxury vehicles may have specific mileage restrictions. We'll clearly explain all policies during the rental agreement to avoid any surprises."
-      }
+          "question": "What are the requirements to rent a car?",
+          "answer": "To rent a car with us, you need to be at least 21 years old and have a valid driver's license for at least 1 year. You'll also need a valid ID or passport, and a credit card for the security deposit. International visitors need an International Driving Permit along with their home country license. Some luxury or specialty vehicles may require you to be 25 or older."
+        },
+        "question2": {
+          "question": "How does the car buying process work?",
+          "answer": "Our car buying process is simple and transparent. First, browse our inventory online or visit our showroom. Schedule a test drive for any vehicle you're interested in. We provide detailed vehicle history reports and inspection certificates. Once you decide, we handle all paperwork including financing options, insurance, and registration. We offer competitive financing rates and accept trade-ins to reduce your purchase price."
+        },
+        "question3": {
+          "question": "Do you offer vehicle delivery and pickup services?",
+          "answer": "Yes, we provide convenient delivery and pickup services for both rentals and sales. For rentals, we can deliver the vehicle to your hotel, airport, office, or any location within the city limits at no extra charge. For vehicle purchases, we offer home delivery service for a small fee. We also provide pickup services when your rental period ends - just give us a call and we'll collect the vehicle from your location. This service is especially popular with business travelers and customers who prefer the convenience of not visiting our office."
+        },
+        "question4": {
+          "question": "What payment methods do you accept?",
+          "answer": "We accept multiple payment methods for your convenience. For rentals, we accept all major credit cards (Visa, MasterCard, American Express), debit cards, and cash deposits. For vehicle purchases, we accept credit cards, bank transfers, certified checks, and cash payments. We also offer flexible financing options with competitive interest rates and flexible terms. Corporate clients can set up monthly billing accounts. All transactions are secure and processed through encrypted payment systems for your protection."
+        },
+        "question5": {
+          "question": "What is your fuel and mileage policy for rentals?",
+          "answer": "Our rental vehicles are provided with a full tank of fuel, and we expect them to be returned with a full tank. If returned with less fuel, a refueling charge will apply at current market rates plus a service fee. For mileage, most of our rental packages include unlimited kilometers within the city limits. For long-distance travel or intercity trips, we offer special packages with generous mileage allowances. Premium and luxury vehicles may have specific mileage restrictions. We'll clearly explain all policies during the rental agreement to avoid any surprises."
+        }
       }
     }
   },
   "productsPage": {
     "currency": {
-      "syp" :"Syrian Pound",
-      "usd" :"US Dollar",
-      "eur" : "Euro"
+      "syp": "Syrian Pound",
+      "usd": "US Dollar",
+      "eur": "Euro"
     },
     "header": {
       "adCounter": " ad",
       "orderBy": "Short by:",
       "selectPrice": "Select Price",
       "options": {
-        "newest" : "Newest First",
+        "newest": "Newest First",
         "priceHigh": "Price High",
         "priceLow": "Price Low"
       }
@@ -368,21 +365,20 @@
       "title": "What are you looking for",
       "searchInput": "Search",
       "filterOptions": {
-        "bodyType" : {
-          "placeholder" : "Body Type"
+        "bodyType": {
+          "placeholder": "Body Type"
         },
         "mileage": {
-            "title": "Mileage Range",
-            "minMileage": "Min Mileage",
-            "maxMileage": "Max Mileage"
-              },
+          "title": "Mileage Range",
+          "minMileage": "Min Mileage",
+          "maxMileage": "Max Mileage"
+        },
         "address": {
           "filterOptionsTitle": "Address",
           "placeHolder": "City",
-          "governorate" : "Governorate",
-          "city" : "City",
-          "selectGovernorateFirst" : "select Governorate First"
-
+          "governorate": "Governorate",
+          "city": "City",
+          "selectGovernorateFirst": "select Governorate First"
         },
         "states": {
           "placeHolder": "State",
@@ -401,10 +397,10 @@
         "productModels": {
           "title": "product model",
           "minYear": "Less Year",
-          "maxYear" :"Max Year",
+          "maxYear": "Max Year",
           "highestYear": "Highest year",
-          "selectMarkaFirst" : "select Marka First",
-          "selectModelFirst" : "select Model First"
+          "selectMarkaFirst": "select Marka First",
+          "selectModelFirst": "select Model First"
         },
         "productPrice": {
           "title": "product Price",
@@ -422,9 +418,9 @@
           "gasoline": "Gasoline",
           "diesel": "Diesel"
         },
-          "currency": {
-        "title" :"Currency"
-      },
+        "currency": {
+          "title": "Currency"
+        },
         "search": "Search",
         "resetSearch": "reset Search"
       }
@@ -438,98 +434,105 @@
       "cat_name_six": "Economy"
     }
   },
-  "product" : {
-    "header" : {
-      "whatsApp" : "Text us on WhatsApp"
+  "product": {
+    "header": {
+      "whatsApp": "Text us on WhatsApp"
     },
-    "BasicInfo" : {
-      "price" : "Price",
-      "carType" : "Car Type",
-      "model" : "Model",
-      "controlType" : "Control Type",
-      "distance" : "Distance",
-      "modelYear" : "Model Year",
-      "adsNumber" : "Ads Number",
-      "dateOfAds" : "Date Of Ads",
-      "gaz" : "Gaz",
-      "bodyType" : "Body Type"
+    "BasicInfo": {
+      "price": "Price",
+      "carType": "Car Type",
+      "model": "Model",
+      "controlType": "Control Type",
+      "distance": "Distance",
+      "modelYear": "Model Year",
+      "adsNumber": "Ads Number",
+      "dateOfAds": "Date Of Ads",
+      "gaz": "Gaz",
+      "bodyType": "Body Type"
     },
-    "tabs" : {
-      "adsInfo" : "Ads Info",
-      "location" : "Location",
-      "productInfo" : "Car Info",
+    "tabs": {
+      "adsInfo": "Ads Info",
+      "location": "Location",
+      "productInfo": "Car Info",
       "productDetails": "Details",
       "productFeatures": "Features",
-      "features" :  {
-        "categories"  : {
-          "safety" : "Safety",
-          "entertainment":"Entertainment",
+      "productDamages": "Car Damages",
+      "contactLocationInfo": "Contact & Location Information",
+      "descriptionStory": "Description & Story",
+      "features": {
+        "categories": {
+          "safety": "Safety",
+          "entertainment": "Entertainment",
           "technology": "Technology"
         }
-      
       }
-    },  
-    "accordionDetails" : {
-      "details" : {
-        "noDamage" : "No Damages",
-          "carDetails" : {
-            "question" : "Ads Details",
-            "answer" : "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like)."
-          },
-          "adsDetails" : {
-            "question" : "Car Details",
-            "answer" : "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like)."
-          },
-          "productDetailsTitles": {
-            "scratch": "خدش",
-            "paint": "طلاء",
-            "replacement": "استبدال"
-
-          },
-          "productDetailsBoxes" : {
-            "scratch" : "Scratch",
-            "paint" : "Paint",
-            "replacement" : "Replacement"
-          },
-          "affectedAreas":"Affected Areas",
-          "damageZone" : {
-            "hood": "Hood",
-            "roof": "Roof",
-            "trunk" : "trunk",
-            "right_headlight" : "Right headlight",
-            "left_headlight" : "left Headlight",
-            "front_grill" : "Front Grill",
-            "rear_bumper" : "Rear Bumper",
-            "left_taillight":"Left Taillight",
-            "front_bumper" :"front Bumper",
-            "right_taillight" : "Right Taillight",
-            "left_front_fender": "Left Front Fender",
-            "right_front_fender": "Right Front Fender",
-            "left_front_door": "Left Front Door",
-            "right_front_door": "Right Front Door",
-            "left_rear_door": "Left Rear Door",
-            "right_rear_door": "Right Rear Door",
-            "Package": "Package",
-            "left_rear_fender": "Left Rear Fender",
-            "right_rear_fender": "Right Rear Fender"
-          }
+    },
+    "accordionDetails": {
+      "details": {
+        "noDamageReported": "No damage reported",
+        "issuesFound": "Issues Found",
+        "allClear": "All Clear",
+        "excellentCondition": "Excellent Condition",
+        "damageSummary": "Damage Summary",
+        "totalDamageReports": "Total of {{count}} damage reports found across different categories",
+        "noDamage": "No Damages",
+        "carDetails": {
+          "question": "Ads Details",
+          "answer": "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like)."
+        },
+        "adsDetails": {
+          "question": "Car Details",
+          "answer": "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like)."
+        },
+        "productDetailsTitles": {
+          "scratch": "Scratches",
+          "paint": "Paint Damage",
+          "replacement": "Requires Replacement"
+        },
+        "productDetailsBoxes": {
+          "scratch": "Scratch",
+          "paint": "Paint",
+          "replacement": "Replacement"
+        },
+        "affectedAreas": "Affected Areas",
+        "damageZone": {
+          "hood": "Hood",
+          "roof": "Roof",
+          "trunk": "trunk",
+          "right_headlight": "Right headlight",
+          "left_headlight": "left Headlight",
+          "front_grill": "Front Grill",
+          "rear_bumper": "Rear Bumper",
+          "left_taillight": "Left Taillight",
+          "front_bumper": "front Bumper",
+          "right_taillight": "Right Taillight",
+          "left_front_fender": "Left Front Fender",
+          "right_front_fender": "Right Front Fender",
+          "left_front_door": "Left Front Door",
+          "right_front_door": "Right Front Door",
+          "left_rear_door": "Left Rear Door",
+          "right_rear_door": "Right Rear Door",
+          "Package": "Package",
+          "left_rear_fender": "Left Rear Fender",
+          "right_rear_fender": "Right Rear Fender"
         }
-    },
-    "accordionSafety" : {
-      "list": {
-      "one": "Airbag (Passenger)",
-      "two": "Airbag (Driver)",
-      "three": "Anti-lock Braking System (ABS)",
-      "four": "Electronic Brakeforce Distribution (EBD)",
-      "five": "Rear Camera",
-      "six": "Hill Assist",
-      "seven": "Manual Air Conditioning",
-      "eight": "Cloth Seats",
-      "nine": "Audio System with Bluetooth",
-      "ten": "Electric Windows"
       }
     },
-    "CarDetailsContent" : {
+    "accordionSafety": {
+      "list": {
+        "one": "Airbag (Passenger)",
+        "two": "Airbag (Driver)",
+        "three": "Anti-lock Braking System (ABS)",
+        "four": "Electronic Brakeforce Distribution (EBD)",
+        "five": "Rear Camera",
+        "six": "Hill Assist",
+        "seven": "Manual Air Conditioning",
+        "eight": "Cloth Seats",
+        "nine": "Audio System with Bluetooth",
+        "ten": "Electric Windows"
+      }
+    },
+    "CarDetailsContent": {
       "title": "Title",
       "description": "Description",
       "contactNumber": "Contact Number",
@@ -539,17 +542,17 @@
       "model": "Model",
       "trim": "Trim",
       "fullDescription": "Full Description",
-      "governorate" : "Governorate",
-      "address" : "Address",
-      "city" : "City",
-      "story" : "Story",
-      "engineSize" : "engine Size",
-      "year" : "year",
-      "enginePower" : "Engine Power",
-      "plateNumber" : "plate Number",
-      "mileage" : "mile Age",
-      "doors" : "Doors",
-      "vin" : "vin"
+      "governorate": "Governorate",
+      "address": "Address",
+      "city": "City",
+      "story": "Story",
+      "engineSize": "engine Size",
+      "year": "year",
+      "enginePower": "Engine Power",
+      "plateNumber": "plate Number",
+      "mileage": "mile Age",
+      "doors": "Doors",
+      "vin": "vin"
     }
   },
   "adminPage": {
@@ -632,7 +635,7 @@
       "productDetails": "Details",
       "productFeatures": "Features"
     },
-   
+
     "accordionSafety": {
       "list": {
         "one": "Airbag (Passenger)",
@@ -676,9 +679,7 @@
         "trims": {
           "title": "Car Trims",
           "description": "Add Car Trims Not Found",
-          "options": {
-  
-          }
+          "options": {}
         },
         "madeYear": {
           "title": "Year of Manufacture",
@@ -704,82 +705,81 @@
       },
       "stepTow": {
         "price": {
-        "options": {
-        "usd": "US Dollar",
-        "eur": "Euro",
-        "try": "Turkish Lira",
-        "gbp": "British Pound"
-        }
+          "options": {
+            "usd": "US Dollar",
+            "eur": "Euro",
+            "try": "Turkish Lira",
+            "gbp": "British Pound"
+          }
         },
-    
+
         "color": {
-        "options": {
-        "red": "red",
-        "green": "green",
-        "blue": "blue",
-        "yellow": "yellow",
-        "orange": "orange",
-        "purple": "purple",
-        "pink": "pink",
-        "brown": "brown",
-        "black": "black",
-        "white": "white",
-        "gray": "gray",
+          "options": {
+            "red": "red",
+            "green": "green",
+            "blue": "blue",
+            "yellow": "yellow",
+            "orange": "orange",
+            "purple": "purple",
+            "pink": "pink",
+            "brown": "brown",
+            "black": "black",
+            "white": "white",
+            "gray": "gray",
 
-        "light_red": "light red",
-        "light_green": "light green",
-        "light_blue": "light blue",
-        "light_yellow": "light yellow",
-        "light_orange": "light orange",
-        "light_purple": "light purple",
-        "light_pink": "light pink",
-        "light_brown": "light brown",
-        "light_gray": "light gray",
+            "light_red": "light red",
+            "light_green": "light green",
+            "light_blue": "light blue",
+            "light_yellow": "light yellow",
+            "light_orange": "light orange",
+            "light_purple": "light purple",
+            "light_pink": "light pink",
+            "light_brown": "light brown",
+            "light_gray": "light gray",
 
-        "dark_red": "Dark red",
-        "dark_green": "Dark green",
-        "dark_blue": "Dark blue",
-        "dark_yellow": "Dark yellow",
-        "dark_orange": "Dark orange",
-        "dark_purple": "Dark purple",
-        "dark_pink": "Dark pink",
-        "dark_brown": "Dark brown",
-        "dark_gray": "Dark gray",
+            "dark_red": "Dark red",
+            "dark_green": "Dark green",
+            "dark_blue": "Dark blue",
+            "dark_yellow": "Dark yellow",
+            "dark_orange": "Dark orange",
+            "dark_purple": "Dark purple",
+            "dark_pink": "Dark pink",
+            "dark_brown": "Dark brown",
+            "dark_gray": "Dark gray",
 
-        "turquoise": "turquoise",
-        "teal": "Blue-green",
-        "navy": "Dark blue",
-        "indigo": "Indigo",
-        "violet": "Violet",
-        "magenta": "Purple",
-        "crimson": "Crimson",
-        "maroon": "Chestnut",
-        "olive": "Olive",
-        "lime": "Lime",
-        "aqua": "aquatic",
-        "cyan": "sky blue",
-        "silver": "silver",
-        "gold": "gold",
-        "beige": "beige",
-        "coral": "coral",
-        "ivory": "ivory",
-        "lavender": "lavender",
-        "mint": "mint",
-        "peach": "peach",
-        "plum": "plum"
-        }
+            "turquoise": "turquoise",
+            "teal": "Blue-green",
+            "navy": "Dark blue",
+            "indigo": "Indigo",
+            "violet": "Violet",
+            "magenta": "Purple",
+            "crimson": "Crimson",
+            "maroon": "Chestnut",
+            "olive": "Olive",
+            "lime": "Lime",
+            "aqua": "aquatic",
+            "cyan": "sky blue",
+            "silver": "silver",
+            "gold": "gold",
+            "beige": "beige",
+            "coral": "coral",
+            "ivory": "ivory",
+            "lavender": "lavender",
+            "mint": "mint",
+            "peach": "peach",
+            "plum": "plum"
+          }
         },
         "fuelType": {
-        "gasoline": "Petrol",
-        "diesel": "Diesel",
-        "electric": "Electric",
-        "hybrid": "Hybrid",
-        "plug_in_hybrid": "Plug in Hybrid",
-        "gasoline_gas" : "Petrol / Gas"
-
+          "gasoline": "Petrol",
+          "diesel": "Diesel",
+          "electric": "Electric",
+          "hybrid": "Hybrid",
+          "plug_in_hybrid": "Plug in Hybrid",
+          "gasoline_gas": "Petrol / Gas"
         },
         "bodyType": {
-          "placeholder" : "Body Type",
+          "placeholder": "Body Type",
           "suv": "suv",
           "sedan": "Sedan",
           "hatchback": "Hatchback",
@@ -792,10 +792,10 @@
           "other": "Other"
         },
         "transmission": {
-        "automatic": "Automatic",
-        "manual": "Manual",
-        "semi_automatic": "Semi-automatic",
-        "cvt": "Continuously Variable Transmission"
+          "automatic": "Automatic",
+          "manual": "Manual",
+          "semi_automatic": "Semi-automatic",
+          "cvt": "Continuously Variable Transmission"
         },
         "featureCategory": {
           "safety": "Safety",
@@ -874,13 +874,13 @@
           }
         },
         "carStatus": {
-        "pending": "Pending",
-        "approved": "Approved",
-        "rejected": "Rejected",
-        "expired": "Expired",
-        "sold": "Sold"
+          "pending": "Pending",
+          "approved": "Approved",
+          "rejected": "Rejected",
+          "expired": "Expired",
+          "sold": "Sold"
         }
-        },
+      },
       "stepThree": {
         "carInfo": "Car Condition",
         "carPhotos": "Car Photos",
@@ -898,7 +898,7 @@
         "carSection": {
           "Hood": "Hood",
           "Roof": "Roof",
-          "trunk":"trunk",
+          "trunk": "trunk",
           "Left Front Fender": "Left Front Fender",
           "Right Front Fender": "Right Front Fender",
           "Left Front Door": "Left Front Door",
@@ -926,199 +926,199 @@
         }
       },
       "currency": {
-            "syp": "Syrian Pound",
-            "usd": "US Dollar",
-            "eur": "Euro"
+        "syp": "Syrian Pound",
+        "usd": "US Dollar",
+        "eur": "Euro"
+      },
+      "stepFour": {
+        "title": "Ad Details",
+        "adTitle": "Ad Title",
+        "price": "Price",
+        "adDescription": "Ad Description",
+        "contactNumber": "Contact Number",
+        "adType": "Ad Type",
+        "currencyLabel": "Currency",
+        "publicationDate": "Publish Date",
+        "saveStatus": "Save Status",
+        "saveStatusOptions": {
+          "draft": "Draft",
+          "published": "Publish"
         },
-      "stepFour" : {
-          "title" : "Ad Details",
-          "adTitle" : "Ad Title",
-          "price":"Price",
-          "adDescription" : "Ad Description",
-          "contactNumber" : "Contact Number",
-          "adType" : "Ad Type",
-          "currencyLabel" :"Currency",
-          "publicationDate" : "Publish Date",
-          "saveStatus" : "Save Status",
-          "saveStatusOptions" : {
-            "draft": "Draft",
-            "published" : "Publish"
-          },
-       
-          "rentType" : "Rent Type",
-          "dateValue" : {
-          "forSale" : "For Sale",
-          "forRent" : "For Rent",
-          "test" : "Test",
-          "test1" : "Test 1",
-          "RentType" : {
-          "daily" : "Daily",
-          "weekly" : "Weekly",
-          "monthly" : "Monthly",
-          "yearly" : "Yearly"
+
+        "rentType": "Rent Type",
+        "dateValue": {
+          "forSale": "For Sale",
+          "forRent": "For Rent",
+          "test": "Test",
+          "test1": "Test 1",
+          "RentType": {
+            "daily": "Daily",
+            "weekly": "Weekly",
+            "monthly": "Monthly",
+            "yearly": "Yearly"
+          }
         }
-        }
-    }
+      }
     }
   },
-    "UserProfile" : {
-      "SideBar" : {
-          "home" : "Home",
-          "products" : "products",
-          "favorites" : "Favorites",
-          "messages" :"Messages",
-          "userInfo" : "User Info",
-          "logout" : "LogOut"
-      },
-      "profile" : {
-        "YourProfile":"Your Profile",
-        "editProfile": "Edit Profile",
-        "resetPassword": "Reset Password",
-        "name": "Name",
-        "email": "Email",
-        "phoneNumber": "Phone Number",
-        "location": "Location",
-        "oldPassword": "Old Password",
-        "newPassword": "New Password",
-        "repeatPassword": "Repeat Password",
-        "saveChanges": "Save Changes"
-      },
-      "home" : {
-        "welcome": "Welcome",
-        "overview": "Here's an overview of your car listings and activity",
-        "memberSince": "Member since",
-        "lastUpdated": "Last updated",
-        "carsForSale": "Cars For Sale",
-        "activeListings": "Active listings",
-        "carsForRent": "Cars For Rent",
-        "favorites": "Favorites",
-        "savedListings": "Saved listings",
-        "activitySummary": "Activity Summary",
-        "recentActivity": "Your recent activity and performance",
-        "totalListings": "Total Listings",
-        "combinedSaleRental": "Combined sale & rental",
-        "accountAge": "Account Age",
-        "months": "Months",
-        "engagement": "Engagement",
-        "favoritesRatio": "Favorites ratio",
-        "listCarSale": "List a Car for Sale",
-        "createSaleListing": "Create a new listing to sell your vehicle and reach potential buyers.",
-        "createSaleButton": "Create Sale Listing",
-        "listCarRent": "List a Car for Rent",
-        "createRentListing": "Create a new rental listing and start earning passive income.",
-        "createRentButton": "Create Rental Listing",
-        "errorLoading": "Error Loading Profile",
-        "errorMessage": "There was a problem loading your profile data. Please try again later.",
-        "switchToArabic": "العربية",
-        "switchToEnglish": "English"
-      }
+  "UserProfile": {
+    "SideBar": {
+      "home": "Home",
+      "products": "products",
+      "favorites": "Favorites",
+      "messages": "Messages",
+      "userInfo": "User Info",
+      "logout": "LogOut"
     },
-    "saleProduct": {
-        "hero": {
-          "title": "Cars For Sale",
-          "subtitle": "Find your perfect car from our extensive collection of quality vehicles"
-        },
-        "search": {
-          "placeholder": "Search by make, model, or keywords..."
-        },
-        "filters": {
-          "button": "Filters",
-          "title": "Filter Options",
-          "close": "Close",
-          "make": "Make",
-          "allMakes": "All Makes",
-          "priceRange": "Price Range",
-          "anyPrice": "Any Price",
-          "fuelType": "Fuel Type",
-          "allTypes": "All Types",
-          "reset": "Reset",
-          "apply": "Apply Filters"
-        },
-        "results": {
-          "title": "Cars For Sale",
-          "found": "vehicles found"
-        },
-        "sort": {
-          "label": "Sort by:",
-          "newest": "Newest First",
-          "oldest": "Oldest First",
-          "priceLow": "Price: Low to High",
-          "priceHigh": "Price: High to Low"
-        },
-        "error": {
-          "title": "Failed to load car listings",
-          "message": "There was a problem loading the car listings. Please try again later.",
-          "retry": "Try Again"
-        },
-        "empty": {
-          "title": "No cars found",
-          "message": "There are currently no car listings available. Please check back later.",
-          "searchMessage": "No cars match your search criteria. Try different keywords or clear your filters.",
-          "clearSearch": "Clear Search"
-        },
-        "pagination": {
-          "previous": "Previous",
-          "next": "Next",
-          "showing": "Showing",
-          "to": "to",
-          "of": "of",
-          "items": "items"
-        },
-        "price": "Price"
-      },
-    "rentProduct": {
-      "hero": {
-        "title": "Cars For Rent",
-        "subtitle": "Find your perfect car from our extensive collection of quality vehicles"
-      },
-      "search": {
-        "placeholder": "Search by make, model, or keywords..."
-      },
-      "filters": {
-        "button": "Filters",
-        "title": "Filter Options",
-        "close": "Close",
-        "make": "Make",
-        "allMakes": "All Makes",
-        "priceRange": "Price Range",
-        "anyPrice": "Any Price",
-        "fuelType": "Fuel Type",
-        "allTypes": "All Types",
-        "reset": "Reset",
-        "apply": "Apply Filters"
-      },
-      "results": {
-        "title": "Cars For Rent",
-        "found": "vehicles found"
-      },
-      "sort": {
-        "label": "Sort by:",
-        "newest": "Newest First",
-        "oldest": "Oldest First",
-        "priceLow": "Price: Low to High",
-        "priceHigh": "Price: High to Low"
-      },
-      "error": {
-        "title": "Failed to load car listings",
-        "message": "There was a problem loading the car listings. Please try again later.",
-        "retry": "Try Again"
-      },
-      "empty": {
-        "title": "No cars found",
-        "message": "There are currently no car listings available. Please check back later.",
-        "searchMessage": "No cars match your search criteria. Try different keywords or clear your filters.",
-        "clearSearch": "Clear Search"
-      },
-      "pagination": {
-        "previous": "Previous",
-        "next": "Next",
-        "showing": "Showing",
-        "to": "to",
-        "of": "of",
-        "items": "items"
-      },
-      "price": "Price"
+    "profile": {
+      "YourProfile": "Your Profile",
+      "editProfile": "Edit Profile",
+      "resetPassword": "Reset Password",
+      "name": "Name",
+      "email": "Email",
+      "phoneNumber": "Phone Number",
+      "location": "Location",
+      "oldPassword": "Old Password",
+      "newPassword": "New Password",
+      "repeatPassword": "Repeat Password",
+      "saveChanges": "Save Changes"
     },
+    "home": {
+      "welcome": "Welcome",
+      "overview": "Here's an overview of your car listings and activity",
+      "memberSince": "Member since",
+      "lastUpdated": "Last updated",
+      "carsForSale": "Cars For Sale",
+      "activeListings": "Active listings",
+      "carsForRent": "Cars For Rent",
+      "favorites": "Favorites",
+      "savedListings": "Saved listings",
+      "activitySummary": "Activity Summary",
+      "recentActivity": "Your recent activity and performance",
+      "totalListings": "Total Listings",
+      "combinedSaleRental": "Combined sale & rental",
+      "accountAge": "Account Age",
+      "months": "Months",
+      "engagement": "Engagement",
+      "favoritesRatio": "Favorites ratio",
+      "listCarSale": "List a Car for Sale",
+      "createSaleListing": "Create a new listing to sell your vehicle and reach potential buyers.",
+      "createSaleButton": "Create Sale Listing",
+      "listCarRent": "List a Car for Rent",
+      "createRentListing": "Create a new rental listing and start earning passive income.",
+      "createRentButton": "Create Rental Listing",
+      "errorLoading": "Error Loading Profile",
+      "errorMessage": "There was a problem loading your profile data. Please try again later.",
+      "switchToArabic": "العربية",
+      "switchToEnglish": "English"
+    }
+  },
+  "saleProduct": {
+    "hero": {
+      "title": "Cars For Sale",
+      "subtitle": "Find your perfect car from our extensive collection of quality vehicles"
+    },
+    "search": {
+      "placeholder": "Search by make, model, or keywords..."
+    },
+    "filters": {
+      "button": "Filters",
+      "title": "Filter Options",
+      "close": "Close",
+      "make": "Make",
+      "allMakes": "All Makes",
+      "priceRange": "Price Range",
+      "anyPrice": "Any Price",
+      "fuelType": "Fuel Type",
+      "allTypes": "All Types",
+      "reset": "Reset",
+      "apply": "Apply Filters"
+    },
+    "results": {
+      "title": "Cars For Sale",
+      "found": "vehicles found"
+    },
+    "sort": {
+      "label": "Sort by:",
+      "newest": "Newest First",
+      "oldest": "Oldest First",
+      "priceLow": "Price: Low to High",
+      "priceHigh": "Price: High to Low"
+    },
+    "error": {
+      "title": "Failed to load car listings",
+      "message": "There was a problem loading the car listings. Please try again later.",
+      "retry": "Try Again"
+    },
+    "empty": {
+      "title": "No cars found",
+      "message": "There are currently no car listings available. Please check back later.",
+      "searchMessage": "No cars match your search criteria. Try different keywords or clear your filters.",
+      "clearSearch": "Clear Search"
+    },
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "showing": "Showing",
+      "to": "to",
+      "of": "of",
+      "items": "items"
+    },
+    "price": "Price"
+  },
+  "rentProduct": {
+    "hero": {
+      "title": "Cars For Rent",
+      "subtitle": "Find your perfect car from our extensive collection of quality vehicles"
+    },
+    "search": {
+      "placeholder": "Search by make, model, or keywords..."
+    },
+    "filters": {
+      "button": "Filters",
+      "title": "Filter Options",
+      "close": "Close",
+      "make": "Make",
+      "allMakes": "All Makes",
+      "priceRange": "Price Range",
+      "anyPrice": "Any Price",
+      "fuelType": "Fuel Type",
+      "allTypes": "All Types",
+      "reset": "Reset",
+      "apply": "Apply Filters"
+    },
+    "results": {
+      "title": "Cars For Rent",
+      "found": "vehicles found"
+    },
+    "sort": {
+      "label": "Sort by:",
+      "newest": "Newest First",
+      "oldest": "Oldest First",
+      "priceLow": "Price: Low to High",
+      "priceHigh": "Price: High to Low"
+    },
+    "error": {
+      "title": "Failed to load car listings",
+      "message": "There was a problem loading the car listings. Please try again later.",
+      "retry": "Try Again"
+    },
+    "empty": {
+      "title": "No cars found",
+      "message": "There are currently no car listings available. Please check back later.",
+      "searchMessage": "No cars match your search criteria. Try different keywords or clear your filters.",
+      "clearSearch": "Clear Search"
+    },
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "showing": "Showing",
+      "to": "to",
+      "of": "of",
+      "items": "items"
+    },
+    "price": "Price"
+  },
 
   "common": {
     "myProducts": "My Products",
