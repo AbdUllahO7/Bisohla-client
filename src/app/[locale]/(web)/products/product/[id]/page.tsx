@@ -1,169 +1,134 @@
-'use client';
+import { Metadata } from 'next';
+import { notFound } from 'next/navigation';
+import { getLocale } from 'next-intl/server';
+import { generateWebMetadata } from '../../../MetaData';
+import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions';
+import { ApiResponse } from '@/core/entities/api/success.response';
+import { SelectCarListingDto } from '@/core/entities/models/cars/cars.dto';
+import { getMyCarById } from '@/core/infrastructure-adapters/actions/users/car.user.actions';
+import { QueryParams } from '@/core/entities/api/api';
+import { getCarListingById } from '@/core/infrastructure-adapters/actions/visitors/car.visitor.actions';
+import { getSession } from '@/core/lib/web/session';
+import ProductClient from './product-client';
 
-import Box from "@/components/box/box"
-import ProductBasicInfo from "@/components/web/ProductsPage/product/ProductBasicInfo"
-import ProductHeader from "@/components/web/ProductsPage/product/ProductHeader"
-import ProductImages from "@/components/web/ProductsPage/product/ProductImages"
-import ProductInfo from "@/components/web/ProductsPage/product/ProductInfo"
-import { useParams, useSearchParams } from "next/navigation"
-import { useState, useEffect } from "react"
-import TabsSection from "@/components/web/ProductsPage/product/TabsSection"
-import { useCarListingById } from "@/core/infrastructure-adapters/use-actions/visitors/car.visitor.use-actions"
-import { checkAuth } from "@/core/infrastructure-adapters/actions/auth/auth.actions"
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
-import { useLocale } from "next-intl"
-import { useSession } from "@/hooks/auth/use-session";
-import { useMyCarById } from "@/core/infrastructure-adapters/use-actions/users/car.user.use-actions";
+interface ProductPageProps {
+  params: Promise<{
+    id: string;
+  }>;
+  searchParams: Promise<{
+    profile?: string;
+  }>;
+}
 
-const Product = () => {
-  const { id } = useParams(); // Get the product ID from the URL params
-  const searchParams = useSearchParams(); // Get query parameters
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [favoriteStatus, setFavoriteStatus] = useState(false);
-  const locale = useLocale();
-  const session = useSession();
-  
-  // Read the profile parameter from the URL query string
-  const isProfileView = searchParams.get('profile') === 'true';
-
-  // Call both hooks but we'll only use the data from the relevant one
-  const visitorCarData = useCarListingById({
-    id: Number(id),
-    userId: session?.user?.id
-  });
-
-  const userCarData = useMyCarById(
-    Number(id)
-  );
-
-  // Determine which data to use based on profile query parameter
-  const { data, isLoading } = isProfileView ? userCarData : visitorCarData;
-
-  // Verify authentication status on component mount
-  useEffect(() => {
-    const verifyAuth = async () => {
-      try {
-        const authResponse = await checkAuth();
-        setIsAuthenticated(authResponse.success);
-      } catch (error) {
-        console.error('Auth check failed:', error);
-        setIsAuthenticated(false);
-      }
+async function fetchCarData(
+  id: number,
+  isProfileView: boolean,
+  userId?: number,
+): Promise<ApiResponse<SelectCarListingDto>> {
+  if (isProfileView) {
+    return await getMyCarById(id);
+  } else {
+    const params: QueryParams = {
+      id,
+      userId,
     };
+    return await getCarListingById(params);
+  }
+}
 
-    verifyAuth();
-  }, []);
+export async function generateMetadata({
+  params,
+  searchParams,
+}: ProductPageProps): Promise<Metadata> {
+  const { id } = await params;
+  const isProfileView = (await searchParams).profile === 'true';
 
-  // Update favorite status when data is loaded
-  useEffect(() => {
-    if (data?.data?.isFavorite !== undefined) {
-      setFavoriteStatus(data?.data?.isFavorite ?? false);
+  try {
+    // Get session for user ID
+    const session = await getSession();
+    const userId = session?.user?.id;
+
+    // Fetch car data
+    const carResponse = await fetchCarData(Number(id), isProfileView, userId);
+
+    if (!carResponse.success || !carResponse.data) {
+      return generateWebMetadata('car-detail');
     }
-  }, [data]);
 
-  // Handle favorite toggle from child component
-  const handleFavoriteToggle = (productId: number, isFavorite: boolean) => {
-    setFavoriteStatus(isFavorite);
-  };
+    const car = carResponse.data;
+    const carTitle = `${car.make?.name || ''} ${car.model?.name || ''} ${
+      car.details?.year || ''
+    }`.trim();
+    const carDescription = `${carTitle} - ${car.details?.fuelType || ''} - ${
+      car.details?.transmission || ''
+    } - Price: ${car.price || 'N/A'}`;
 
-  return (
-    <div className="mt-[10px] bg-background w-full">
-        <Box variant="container" className="w-full mb-2 pt-5">
-        <Breadcrumb dir={locale === 'ar' ? 'rtl' : 'ltr'}>
-          <BreadcrumbList dir={locale === 'ar' ? 'rtl' : 'ltr'}>
-            <BreadcrumbItem dir={locale === 'ar' ? 'rtl' : 'ltr'}>
-              <BreadcrumbLink className="hover:text-black text-black" href="/">
-                {locale === 'ar' ? 'الرئيسية' : 'Home'}
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator lang={locale === 'ar' ? 'ar' : 'en'} />
-            <BreadcrumbItem>
-              <BreadcrumbLink
-                className="text-primary hover:text-primary-light"
-                href="/products"
-              >
-                {locale === 'ar' ? 'السيارات' : 'Cars'}
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator lang={locale === 'ar' ? 'ar' : 'en'} />
-            <BreadcrumbItem>
-              <BreadcrumbLink
-                className="text-primary hover:text-primary-light"
-                href="#"
-              >
-                {locale === 'ar' ? data?.data?.title : data?.data?.title}
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-      </Box>
+    const webMetadata = await generateWebMetadata('car-detail', {
+      title: carTitle || 'Car Details',
+      description: carDescription,
+      keywords: [
+        car.make?.name || '',
+        car.model?.name || '',
+        car.details?.year?.toString() || '',
+        car.details?.fuelType || '',
+        car.details?.transmission || '',
+        'car for sale',
+        'vehicle details',
+      ].filter(Boolean),
+      ogImage:
+        car.images?.find((img) => img.isPrimary)?.url ||
+        car.images?.[0]?.url ||
+        undefined,
+      canonical: `/products/${id}${isProfileView ? '?profile=true' : ''}`,
+    });
 
-      <div className="w-full mb-3 bg-white">
-        <Box variant="container">
-          <ProductHeader
-            productName={data?.data?.title}
-            ContactNumber={data?.data?.contactNumber?.toString()}
-            isLoading={isLoading}
-            productId={Number(id)}
-            isMarkedFavorite={favoriteStatus}
-            isAuthenticated={isAuthenticated}
-            onFavoriteToggle={handleFavoriteToggle}
-          />
-        </Box>
-      </div>
+    return {
+      ...webMetadata,
+      icons: {
+        icon: '/favicon.ico',
+      },
+    };
+  } catch (error) {
+    console.error('Error generating metadata:', error);
+    return generateWebMetadata('car-detail');
+  }
+}
 
-      <Box variant="container">
-        {/* Product Details Section */}
-        <Box className="mt-1 w-full mb-3">
-          <ProductBasicInfo
-            isLoading={isLoading}
-            carType={data?.data?.make?.name || ''}
-            model={data?.data?.model?.name || ''}
-            controlType={data?.data?.details?.transmission || ''}
-            distance={data?.data?.details?.mileage?.toString() || ''}
-            modelYear={data?.data?.details?.year?.toString() || ''}
-            gaz={data?.data?.details?.fuelType || ''}
-            bodyType={data?.data?.details?.bodyType || ''}
-          />
-        </Box>
+const ProductPage = async ({ params, searchParams }: ProductPageProps) => {
+  const { id } = await params;
+  const isProfileView = (await searchParams).profile === 'true';
 
-        {/* images  */}
-        <Box className="w-full">
-          <Box
-            variant="row"
-            className="w-full gap-4 items-start justify-start md:flex-wrap xs:flex-wrap xs:justify-center"
-          >
-            <Box className="xs:w-[90%] lg:w-fit">
-              <ProductInfo
-                isLoading={isLoading}
-                carType={data?.data?.make?.name || ''}
-                model={data?.data?.model?.name || ''}
-                controlType={data?.data?.details?.transmission || ''}
-                distance={data?.data?.details?.mileage?.toString() || ''}
-                modelYear={data?.data?.details?.year?.toString() || ''}
-                gaz={data?.data?.details?.fuelType || ''}
-                price={data?.data?.price?.toString() || ''}
-                adsNumber={data?.data?.id?.toString() || ''}
-                adsDate={data?.data?.publishedAt?.toString() || ''}
-              />
-            </Box>
+  try {
+    // Get session and check auth
+    const session = await getSession();
+    const userId = session?.user?.id;
 
-            <Box className="lg:flex-1 xs:w-full">
-              <ProductImages
-                isLoading={isLoading}
-                images={data?.data?.images || []}
-              />
-            </Box>
-          </Box>
-        </Box>
+    // Check authentication status
+    const authResponse = await checkAuth();
+    const isAuthenticated = authResponse.success;
 
-        {/* Tabs */}
-        <Box className="lg:w-full xs:w-[90%] mt-5">
-          <TabsSection data={data} isLoading={isLoading} />
-        </Box>
-      </Box>
-    </div>
-  );
+    // Fetch car data (this will be cached/deduplicated with metadata generation)
+    const carResponse = await fetchCarData(Number(id), isProfileView, userId);
+
+    if (!carResponse.success || !carResponse.data) {
+      notFound();
+    }
+
+    const locale = await getLocale();
+
+    // Pass the fetched data to the client component
+    return (
+      <ProductClient
+        carDataRes={carResponse}
+        isAuthenticated={isAuthenticated}
+        locale={locale}
+        isProfileView={isProfileView}
+      />
+    );
+  } catch (error) {
+    console.error('Error in ProductPage:', error);
+    notFound();
+  }
 };
 
-export default Product;
+export default ProductPage;

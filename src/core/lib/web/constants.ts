@@ -1,10 +1,10 @@
-import { env } from '../env';
+import prodConfig from '@/../config.prod.json';
+import devConfig from '@/../config.dev.json';
 
-export const BACKEND_URL = env(
-  'NEXT_PUBLIC_BACKEND_URL',
-  'http://localhost:4000/api/v1',
-);
+export const isProduction = process.env.NODE_ENV === 'production';
 
-export const APP_URL = env('APP_URL', 'http://localhost:3000');
+const config = isProduction ? prodConfig : devConfig;
 
-export const COOKIE_DOMAIN = env('COOKIE_DOMAIN', '');
+// constants
+export const BACKEND_URL = config.BACKEND_URL;
+export const APP_URL = config.APP_URL;
