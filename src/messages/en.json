@@ -463,7 +463,13 @@
         "categories": {
           "safety": "Safety",
           "entertainment": "Entertainment",
-          "technology": "Technology"
+          "technology": "Technology",
+          "comfort" :"Comfort",
+          "other" : "Other",
+          "exterior" :"Exterior",
+          "performance":"Performance",
+          "interior" :"Interior"
+
         }
       }
     },
@@ -496,25 +502,25 @@
         },
         "affectedAreas": "Affected Areas",
         "damageZone": {
-          "hood": "Hood",
-          "roof": "Roof",
+          "Hood": "Hood",
+          "Roof": "Roof",
           "trunk": "trunk",
           "right_headlight": "Right headlight",
           "left_headlight": "left Headlight",
           "front_grill": "Front Grill",
           "rear_bumper": "Rear Bumper",
-          "left_taillight": "Left Taillight",
+          "left_taillight":"Left Taillight",
           "front_bumper": "front Bumper",
           "right_taillight": "Right Taillight",
-          "left_front_fender": "Left Front Fender",
-          "right_front_fender": "Right Front Fender",
-          "left_front_door": "Left Front Door",
-          "right_front_door": "Right Front Door",
-          "left_rear_door": "Left Rear Door",
-          "right_rear_door": "Right Rear Door",
+          "Left Front Fender": "Left Front Fender",
+          "Right Front Fender": "Right Front Fender",
+          "Left Front Door": "Left Front Door",
+          "Right Front Door": "Right Front Door",
+          "Left Rear Door": "Left Rear Door",
+          "Right Rear Door": "Right Rear Door",
           "Package": "Package",
-          "left_rear_fender": "Left Rear Fender",
-          "right_rear_fender": "Right Rear Fender"
+          "Left Rear Fender": "Left Rear Fender",
+          "Right Rear Fender": "Right Rear Fender"
         }
       }
     },

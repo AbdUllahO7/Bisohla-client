@@ -159,7 +159,7 @@ export const transformDamages = (sectionStatus: Record<string, string | { status
     [CarSection.LeftRearDoor]: 'Left Rear Door',
     [CarSection.RightRearDoor]: 'Right Rear Door',
     [CarSection.Package]: 'Package', 
-    [CarSection.LeftRearFender]: ' Left Rear Fender',
+    [CarSection.LeftRearFender]: 'Left Rear Fender',
     [CarSection.RightRearFender]: 'Right Rear Fender',
   };
   

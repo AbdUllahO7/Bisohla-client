@@ -474,7 +474,12 @@
         "categories": {
           "safety": "الحماية",
           "entertainment": "الترفيه",
-          "technology": "التكنولوجيا"
+          "technology": "التكنولوجيا",
+          "comfort" :"الراحة",
+          "other" : "أخرى",
+          "exterior" :"الخارجية",
+          "performance":"الأداء",
+          "interior" :"الداخلية"
         }
       }
     },
