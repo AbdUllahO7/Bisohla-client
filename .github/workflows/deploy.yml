@@ -42,14 +42,11 @@ jobs:
 
             # Update next-website subdirectory from its separate repository
             echo "📥 Updating next-website code..."
-            if [ -d "next-website/.git" ]; then
-              cd next-website
-              git pull origin main || git pull origin master
-              cd ..
-            else
-              echo "⚠️  next-website is not a git repository. Ensure it's properly linked."
-              exit 1
-            fi
+
+            # pull last changes of the next-website repository
+            cd next-website
+            git pull origin main || git pull origin master
+            cd ..
 
             # Make deployment script executable
             chmod +x deploy.sh
