@@ -55,7 +55,7 @@ jobs:
 
             # Deploy only the Next.js Website service
             echo "🔄 Deploying Next.js Website..."
-            ./deploy.sh next-website --force
+            ./deploy.sh next-website
 
             # Verify Website deployment
             echo "✅ Verifying Next.js Website deployment..."
