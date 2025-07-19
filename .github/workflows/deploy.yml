@@ -45,6 +45,8 @@ jobs:
 
             # pull last changes of the next-website repository
             cd next-website
+            echo "🔄 Pulling latest changes from next-website repository:"
+            pwd
             git pull origin main || git pull origin master
             cd ..
 
@@ -53,7 +55,7 @@ jobs:
 
             # Deploy only the Next.js Website service
             echo "🔄 Deploying Next.js Website..."
-            ./deploy.sh next-website
+            ./deploy.sh next-website --force
 
             # Verify Website deployment
             echo "✅ Verifying Next.js Website deployment..."
