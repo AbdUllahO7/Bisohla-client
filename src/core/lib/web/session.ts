@@ -5,7 +5,6 @@ import { jwtVerify, SignJWT } from 'jose';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { sessionConfig } from './config/session.config';
-import { COOKIE_DOMAIN } from './constants';
 
 const encodedKey = new TextEncoder().encode(sessionConfig.secretKey);
 const SESSION_KEY = 'session';
@@ -20,7 +19,6 @@ export const createSession = async (payload: Session): Promise<void> => {
           sessionConfig.expirationTime.toSeconds(),
       )
       .sign(encodedKey);
-
 
     (await cookies()).set(SESSION_KEY, session, {
       httpOnly: true,

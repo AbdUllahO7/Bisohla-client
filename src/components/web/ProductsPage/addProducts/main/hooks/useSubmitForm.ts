@@ -163,6 +163,8 @@
             description: d.description
           })),
         };
+
+        console.log("carListingDto",carListingDto)
         
         // Call the API - use different methods for create vs update
         let response;
