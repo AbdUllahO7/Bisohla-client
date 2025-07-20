@@ -68,6 +68,8 @@ const ProductClient = ({
           <ProductHeader
             productName={carData.title}
             ContactNumber={carData.contactNumber?.toString()}
+            price={carData.price?.toString() || ''}
+            currency={carData.currency}
             isLoading={false}
             productId={carData.id}
             isMarkedFavorite={favoriteStatus}
@@ -108,6 +110,7 @@ const ProductClient = ({
                 modelYear={carData.details?.year?.toString() || ''}
                 gaz={carData.details?.fuelType || ''}
                 price={carData.price?.toString() || ''}
+                currency={carData.currency}
                 adsNumber={carData.id?.toString() || ''}
                 adsDate={carData.publishedAt?.toString() || ''}
               />

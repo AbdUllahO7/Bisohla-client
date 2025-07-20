@@ -269,7 +269,7 @@ const ProductImages: React.FC<ProductImagesProps> = ({
 
             {/* Mobile: Dot indicators */}
             {allImageUrls.length > 1 && (
-              <div className="flex justify-center mt-3 space-x-2">
+              <div className="flex justify-center mt-3 gap-2">
                 {allImageUrls.map((_, index) => (
                   <button
                     key={index}

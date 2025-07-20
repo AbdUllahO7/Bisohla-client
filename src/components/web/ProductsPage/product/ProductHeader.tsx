@@ -14,6 +14,7 @@ import { toggleCarListingFavorite } from '@/core/infrastructure-adapters/actions
 interface ProductHeaderProps {
   productName?: string;
   price?: number | string;
+  currency?: string;
   ContactNumber?: string;
   isLoading?: boolean;
   productId?: number;
@@ -25,6 +26,7 @@ interface ProductHeaderProps {
 const ProductHeader: React.FC<ProductHeaderProps> = ({
   productName = '',
   price,
+  currency,
   ContactNumber = '',
   isLoading = false,
   productId,
@@ -203,7 +205,7 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
               variant="h3"
               className="font-bold text-primary-light text-center"
             >
-              {price} {currentLocale === 'ar' ? 'ريال' : 'SAR'}
+              {price} {currency}
             </Text>
           </Box>
 

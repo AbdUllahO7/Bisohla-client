@@ -22,6 +22,7 @@ export interface ProductInfoProps {
   modelYear?: string;
   gaz?: string;
   price?: string | number;
+  currency?: string;
   adsNumber?: string | number;
   adsDate?: string;
 }
@@ -35,6 +36,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
   model = '',
   modelYear = '',
   price = '',
+  currency = '',
   adsNumber = '',
   adsDate = '',
 }: ProductInfoProps) => {
@@ -69,7 +71,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
 
   // Dynamic info list with translated values
   const productDetails = [
-    { label: productT('BasicInfo.price'), value: price },
+    { label: productT('BasicInfo.price'), value: `${price} ${currency}` },
     { label: productT('BasicInfo.controlType'), value: translatedControlType },
     { label: productT('BasicInfo.modelYear'), value: modelYear },
     { label: productT('BasicInfo.gaz'), value: translatedGaz },
@@ -174,7 +176,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
                   {locale === 'ar' ? 'السعر' : 'Price'}
                 </Text>
                 <Text className="font-cairo font-bold text-primary-light text-lg">
-                  {price} {locale === 'ar' ? 'ريال' : 'SAR'}
+                  {price} {currency}
                 </Text>
               </div>
             </div>
