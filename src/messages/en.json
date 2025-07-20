@@ -435,6 +435,8 @@
     }
   },
   "product": {
+    "whatsapp": "WhatsApp",
+    "call": "Call",
     "header": {
       "whatsApp": "Text us on WhatsApp"
     },
@@ -464,12 +466,11 @@
           "safety": "Safety",
           "entertainment": "Entertainment",
           "technology": "Technology",
-          "comfort" :"Comfort",
-          "other" : "Other",
-          "exterior" :"Exterior",
-          "performance":"Performance",
-          "interior" :"Interior"
-
+          "comfort": "Comfort",
+          "other": "Other",
+          "exterior": "Exterior",
+          "performance": "Performance",
+          "interior": "Interior"
         }
       }
     },
@@ -509,7 +510,7 @@
           "left_headlight": "left Headlight",
           "front_grill": "Front Grill",
           "rear_bumper": "Rear Bumper",
-          "left_taillight":"Left Taillight",
+          "left_taillight": "Left Taillight",
           "front_bumper": "front Bumper",
           "right_taillight": "Right Taillight",
           "Left Front Fender": "Left Front Fender",

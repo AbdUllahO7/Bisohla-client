@@ -445,6 +445,8 @@
     }
   },
   "product": {
+    "whatsapp": "واتساب",
+    "call": "اتصل",
     "header": {
       "whatsApp": "مراسة عبر الواتس"
     },
@@ -475,11 +477,11 @@
           "safety": "الحماية",
           "entertainment": "الترفيه",
           "technology": "التكنولوجيا",
-          "comfort" :"الراحة",
-          "other" : "أخرى",
-          "exterior" :"الخارجية",
-          "performance":"الأداء",
-          "interior" :"الداخلية"
+          "comfort": "الراحة",
+          "other": "أخرى",
+          "exterior": "الخارجية",
+          "performance": "الأداء",
+          "interior": "الداخلية"
         }
       }
     },
