@@ -120,18 +120,25 @@ const ProductPage = async ({ params, searchParams }: ProductPageProps) => {
     // Pass the fetched data to the client component
     return (
       <>
-        <ProductClient
-          carDataRes={carResponse}
-          isAuthenticated={isAuthenticated}
-          locale={locale}
-          isProfileView={isProfileView}
-        />
-        <MobileProductClient
-          carDataRes={carResponse}
-          isAuthenticated={isAuthenticated}
-          locale={locale}
-          isProfileView={isProfileView}
-        />
+        {/* Desktop Version */}
+        <div className="hidden md:block">
+          <ProductClient
+            carDataRes={carResponse}
+            isAuthenticated={isAuthenticated}
+            locale={locale}
+            isProfileView={isProfileView}
+          />
+        </div>
+
+        {/* Mobile Version */}
+        <div className="block md:hidden">
+          <MobileProductClient
+            carDataRes={carResponse}
+            isAuthenticated={isAuthenticated}
+            locale={locale}
+            isProfileView={isProfileView}
+          />
+        </div>
       </>
     );
   } catch (error) {

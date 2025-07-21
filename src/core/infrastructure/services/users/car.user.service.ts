@@ -27,9 +27,12 @@ export class CarUserService implements ICarUserService {
   async getCarFavorites(
     params: QueryParams,
   ): Promise<PaginatedResponse<UserFavoriteCarListing>> {
-    const res = await postAuthReq<QueryParams, UserFavoriteCarListing>({
+    const res = await getAuthReq<
+      Record<string, unknown>,
+      UserFavoriteCarListing
+    >({
       url: '/user-favorites',
-      body: params,
+      params: params,
     });
 
     return res;

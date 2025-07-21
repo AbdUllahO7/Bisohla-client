@@ -1,6 +1,7 @@
 import { useFormStatus } from 'react-dom';
 import { Button, ButtonProps } from './ui/button';
 import { cn } from '@/lib/utils';
+import { useLocale } from 'next-intl';
 
 interface SubmitButtonProps extends ButtonProps {
   title: string;
@@ -15,6 +16,7 @@ const SubmitButton = ({
   ...props
 }: SubmitButtonProps) => {
   const { pending: isSubmitting } = useFormStatus();
+  const locale = useLocale();
   return (
     <Button
       type="submit"
@@ -22,7 +24,11 @@ const SubmitButton = ({
       className={cn('w-full', className)}
       {...props}
     >
-      {isSubmitting ? submittingTitle || 'Submitting...' : title}
+      {isSubmitting
+        ? submittingTitle || locale === 'en'
+          ? 'Submitting...'
+          : 'ارسال...'
+        : title}
     </Button>
   );
 };

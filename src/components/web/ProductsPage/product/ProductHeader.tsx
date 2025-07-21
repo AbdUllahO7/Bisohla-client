@@ -5,11 +5,13 @@ import type React from 'react';
 import Box from '@/components/box/box';
 import Text from '@/components/text/text';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Heart, MessageCircle, PhoneCall } from 'lucide-react';
+import { Heart, MessageCircle, PhoneCall, LogIn } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { toggleCarListingFavorite } from '@/core/infrastructure-adapters/actions/users/car.user.actions';
+import { useToast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
 
 interface ProductHeaderProps {
   productName?: string;
@@ -21,6 +23,7 @@ interface ProductHeaderProps {
   isMarkedFavorite?: boolean;
   isAuthenticated?: boolean;
   onFavoriteToggle?: (productId: number, isFavorite: boolean) => void;
+  onAuthRequired?: () => void; // Callback for when auth is required
 }
 
 const ProductHeader: React.FC<ProductHeaderProps> = ({
@@ -33,21 +36,13 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
   isMarkedFavorite = false,
   isAuthenticated = false,
   onFavoriteToggle,
+  onAuthRequired,
 }) => {
   const t = useTranslations('product');
-  const [favoriteStatus, setFavoriteStatus] = useState(isMarkedFavorite);
+  const { toast } = useToast();
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const currentLocale = useLocale();
-
-  // Update internal state when the favorite prop changes
-  const prevFavoriteRef = useRef(isMarkedFavorite);
-  useEffect(() => {
-    if (prevFavoriteRef.current !== isMarkedFavorite) {
-      setFavoriteStatus(isMarkedFavorite);
-      prevFavoriteRef.current = isMarkedFavorite;
-    }
-  }, [isMarkedFavorite]);
+  const route = useRouter();
 
   // Format phone number for WhatsApp link (remove spaces, dashes, etc.)
   const formatPhoneForWhatsApp = (phone: string) => {
@@ -75,77 +70,110 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
     e.preventDefault();
     e.stopPropagation();
 
-    // Only allow favorite action if authenticated and product ID exists
-    if (isAuthenticated && !isProcessing && productId) {
-      setIsProcessing(true);
-
-      try {
-        // Store current state for comparison/reversion
-        const currentState = favoriteStatus;
-
-        // Optimistically update UI
-        const newStatus = !currentState;
-        setFavoriteStatus(newStatus);
-
-        // Notify parent component if callback exists
-        if (onFavoriteToggle) {
-          onFavoriteToggle(productId, newStatus);
-        }
-
-        // Call API
-        const response = await toggleCarListingFavorite({
-          carListingId: Number(productId),
+    // If not authenticated, show auth prompt
+    if (!isAuthenticated) {
+      // Call the auth required callback if provided
+      if (onAuthRequired) {
+        onAuthRequired();
+      } else {
+        // Default behavior - show a toast and potentially redirect
+        toast({
+          title: t('authRequired', { defaultValue: 'Authentication Required' }),
+          description: t('pleaseSignIn', {
+            defaultValue: 'Please sign in to add favorites',
+          }),
+          action: (
+            <button
+              onClick={() => {
+                route.push('/auth/sign-in'); // Redirect to sign-in page
+              }}
+              className="px-3 py-1 bg-primary text-primary-foreground rounded text-sm"
+            >
+              {t('signIn', { defaultValue: 'Sign In' })}
+            </button>
+          ),
         });
-
-        // Handle API response
-        if (response.success) {
-          // Determine the actual status from API
-          let responseStatus: boolean;
-
-          if (typeof response.data === 'boolean') {
-            responseStatus = response.data;
-          } else if (
-            response.data &&
-            typeof response.data === 'object' &&
-            'isFavorite' in response.data
-          ) {
-            responseStatus = response.data.isFavorite as boolean;
-          } else {
-            // If response format is unexpected, keep optimistic update
-            responseStatus = newStatus;
-          }
-
-          // If API returned something different than our optimistic update
-          if (responseStatus !== newStatus) {
-            setFavoriteStatus(responseStatus);
-
-            // Notify parent component if callback exists
-            if (onFavoriteToggle) {
-              onFavoriteToggle(productId, responseStatus);
-            }
-          }
-        } else {
-          // API call failed, revert to original state
-          setFavoriteStatus(currentState);
-
-          // Notify parent component if callback exists
-          if (onFavoriteToggle) {
-            onFavoriteToggle(productId, currentState);
-          }
-        }
-      } catch (error) {
-        // Exception occurred, revert to initial state
-        setFavoriteStatus(isMarkedFavorite);
-
-        // Notify parent component if callback exists
-        if (onFavoriteToggle) {
-          onFavoriteToggle(productId, isMarkedFavorite);
-        }
-
-        console.error('Failed to toggle favorite:', error);
-      } finally {
-        setIsProcessing(false);
       }
+      return;
+    }
+
+    // Only proceed if we have a product ID and aren't already processing
+    if (!productId || isProcessing) {
+      return;
+    }
+
+    setIsProcessing(true);
+
+    try {
+      // Store current state for potential reversion
+      const previousState = isMarkedFavorite;
+      const newState = !previousState;
+
+      // IMMEDIATE optimistic update - notify parent right away
+      if (onFavoriteToggle) {
+        onFavoriteToggle(productId, newState);
+      }
+
+      // Make API call in background
+      const response = await toggleCarListingFavorite({
+        carListingId: Number(productId),
+      });
+
+      // Handle API response
+      if (response.success) {
+        // Determine the actual status from API
+        let actualStatus: boolean;
+
+        if (typeof response.data === 'boolean') {
+          actualStatus = response.data;
+        } else if (
+          response.data &&
+          typeof response.data === 'object' &&
+          'isFavorite' in response.data
+        ) {
+          actualStatus = response.data.isFavorite as boolean;
+        } else {
+          // If response format is unexpected, keep optimistic update
+          actualStatus = newState;
+        }
+
+        // Only update if API returned something different than our optimistic update
+        if (actualStatus !== newState && onFavoriteToggle) {
+          onFavoriteToggle(productId, actualStatus);
+        }
+      } else {
+        // API call failed, revert to original state
+        if (onFavoriteToggle) {
+          onFavoriteToggle(productId, previousState);
+        }
+
+        // Show error toast only on failure
+        toast({
+          title: t('error', { defaultValue: 'Error' }),
+          description: t('favoriteError', {
+            defaultValue: 'Failed to update favorite. Please try again.',
+          }),
+          variant: 'destructive',
+        });
+      }
+    } catch (error) {
+      // Exception occurred, revert to original state
+      if (onFavoriteToggle) {
+        onFavoriteToggle(productId, isMarkedFavorite);
+      }
+
+      console.error('Failed to toggle favorite:', error);
+
+      // Show error toast only on failure
+      toast({
+        title: t('error', { defaultValue: 'Error' }),
+        description: t('favoriteError', {
+          defaultValue: 'Failed to update favorite. Please try again.',
+        }),
+        variant: 'destructive',
+      });
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -190,7 +218,7 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
   return (
     <>
       {/* Mobile Layout (< md) */}
-      <div className="md:hidden w-full my-4">
+      <div className="md:hidden w-full my-4 relative">
         <Box variant="column" className="w-full gap-4 items-center">
           {/* Mobile: Title (if needed) */}
           {productName && (
@@ -210,22 +238,30 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
           </Box>
 
           {/* Mobile: Favorite button - top right positioned */}
-          <div className="absolute top-4 right-4 z-10">
+          <div className="absolute -top-4 -right-4 z-10">
             <button
-              className="p-3 rounded-full bg-white/90 backdrop-blur-sm hover:bg-white hover:shadow-lg transition-all duration-300 group border border-gray-200"
+              className={`p-3 rounded-full backdrop-blur-sm transition-all duration-200 group border ${
+                !isAuthenticated
+                  ? 'bg-white/90 border-gray-200 hover:bg-white hover:shadow-lg'
+                  : isMarkedFavorite
+                  ? 'bg-red-50 border-red-200 hover:bg-red-100'
+                  : 'bg-white/90 border-gray-200 hover:bg-white hover:shadow-lg'
+              }`}
               onClick={handleFavoriteClick}
-              disabled={!isAuthenticated || isProcessing}
+              disabled={isProcessing}
               aria-label={
-                favoriteStatus ? 'Remove from favorites' : 'Add to favorites'
+                !isAuthenticated
+                  ? 'Sign in to add favorites'
+                  : isMarkedFavorite
+                  ? 'Remove from favorites'
+                  : 'Add to favorites'
               }
             >
               <Heart
-                className={`h-6 w-6 ${
+                className={`h-6 w-6 transition-colors duration-200 ${
                   isProcessing
-                    ? 'animate-pulse'
-                    : !isAuthenticated
-                    ? 'text-gray-400'
-                    : favoriteStatus
+                    ? 'animate-pulse text-gray-400'
+                    : isMarkedFavorite
                     ? 'text-red-500 fill-red-500'
                     : 'text-gray-600 group-hover:text-red-500'
                 }`}
@@ -256,7 +292,7 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
         </Box>
       </div>
 
-      {/* Desktop Layout (>= md) - Keep original */}
+      {/* Desktop Layout (>= md) */}
       <Box
         variant="rowBetween"
         className="items-center justify-start w-full gap-2 flex-col sm:flex-row py-2 hidden md:flex"
@@ -279,22 +315,30 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
           variant="row"
         >
           <button
-            className="p-2 sm:p-1.5 rounded-md bg-background hover:bg-white hover:shadow-md transition-all duration-300 group"
+            className={`p-2 sm:p-1.5 rounded-md transition-all duration-200 group ${
+              !isAuthenticated
+                ? 'bg-background hover:bg-white hover:shadow-md'
+                : isMarkedFavorite
+                ? 'bg-red-50 hover:bg-red-100'
+                : 'bg-background hover:bg-white hover:shadow-md'
+            }`}
             onClick={handleFavoriteClick}
-            disabled={!isAuthenticated || isProcessing}
+            disabled={isProcessing}
             aria-label={
-              favoriteStatus ? 'Remove from favorites' : 'Add to favorites'
+              !isAuthenticated
+                ? 'Sign in to add favorites'
+                : isMarkedFavorite
+                ? 'Remove from favorites'
+                : 'Add to favorites'
             }
           >
             <Heart
-              className={`h-5 w-5 sm:h-6 sm:w-6 ${
+              className={`h-5 w-5 sm:h-6 sm:w-6 transition-colors duration-200 ${
                 isProcessing
-                  ? 'animate-pulse'
-                  : !isAuthenticated
-                  ? 'text-gray-400'
-                  : favoriteStatus
+                  ? 'animate-pulse text-gray-400'
+                  : isMarkedFavorite
                   ? 'text-red-500 fill-red-500'
-                  : 'group-hover:text-red-500'
+                  : 'text-gray-600 group-hover:text-red-500'
               }`}
             />
           </button>

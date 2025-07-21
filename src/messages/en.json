@@ -437,6 +437,12 @@
   "product": {
     "whatsapp": "WhatsApp",
     "call": "Call",
+    "authRequired": "Authentication Required",
+    "pleaseSignIn": "Please sign in to add favorites",
+    "signIn": "Sign In",
+    "error": "Error",
+    "favoriteError": "Failed to update favorite. Please try again.",
+
     "header": {
       "whatsApp": "Text us on WhatsApp"
     },
@@ -969,6 +975,62 @@
     }
   },
   "UserProfile": {
+    "favorites": {
+      "title": "My Favorites",
+      "description": "Manage your saved car listings",
+      "itemsCount": "Items",
+      "searchPlaceholder": "Search favorites...",
+      "filters": {
+        "all": "All Types",
+        "forSale": "For Sale",
+        "forRent": "For Rent"
+      },
+      "error": {
+        "title": "Error Loading Favorites",
+        "message": "Failed to load your favorite cars",
+        "retry": "Try Again"
+      },
+      "empty": {
+        "title": "No Favorites Yet",
+        "message": "You haven't added any cars to your favorites yet. Start browsing to find cars you love!",
+        "browseButton": "Browse Cars"
+      },
+      "pagination": {
+        "showing": "Showing",
+        "to": "to",
+        "of": "of",
+        "results": "results",
+        "previous": "Previous",
+        "next": "Next"
+      },
+      "refreshing": "Refreshing...",
+      "priceLabel": "Price"
+    },
+    "products": {
+      "searchPlaceholder": "Search my cars...",
+      "allTypes": "All Types",
+      "forSale": "For Sale",
+      "forRent": "For Rent",
+      "allStatus": "All Status",
+      "active": "Active",
+      "pending": "Pending",
+      "rejected": "Rejected",
+      "newest": "Newest",
+      "oldest": "Oldest",
+      "priceHigh": "Price (High)",
+      "priceLow": "Price (Low)",
+      "titleAsc": "Title (A-Z)",
+      "titleDesc": "Title (Z-A)",
+      "reset": "Reset",
+      "cars": "cars",
+      "myCars": "My Cars",
+      "failedToLoad": "Failed to Load Cars",
+      "failedToLoadMessage": "We couldn't load your car listings. Please try again.",
+      "tryAgain": "Try Again",
+      "noCarsYet": "No Cars Yet",
+      "noCarsMessage": "You haven't created any car listings yet. Add your first car to get started!",
+      "addNewCar": "Add New Car"
+    },
     "SideBar": {
       "home": "Home",
       "products": "products",
@@ -1130,6 +1192,7 @@
   "common": {
     "myProducts": "My Products",
     "sale": "Sale",
+    "forSale": "For Sell",
     "rent": "Rent",
     "edit": "Edit",
     "delete": "Delete",
@@ -1140,7 +1203,12 @@
     "deleteWarning": "This action cannot be undone. This will permanently delete your listing and remove it from our servers.",
     "details": "Details",
     "viewDetails": "View Details",
-    "price": "Price"
+    "price": "Price",
+    "featured": "Featured",
+    "priceOnRequest": "Price on Request",
+    "km": "km",
+    "damageReported": "damage(s) reported",
+    "contact": "Contact"
   },
   "notifications": {
     "title": "Notifications",
