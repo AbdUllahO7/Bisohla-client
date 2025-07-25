@@ -99,7 +99,7 @@ const EnumSelect = ({
             >
               {options.map((option) => (
                 <SelectItem
-                  className="focus:bg-primary-light hover:text-white transition-all duration-200 font-cairo font-[700]"
+                  className="focus:bg-primary-light focus:text-white transition-all duration-200 font-cairo font-[700]"
                   key={option.value}
                   value={option.value}
                 >

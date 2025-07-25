@@ -466,7 +466,7 @@ export const EnhancedProductCardItem: React.FC<
             {isAuthenticated && (
               <Link
                 href={`/products/EditProduct/${ProductId}`}
-                className="bg-gradient-to-r from-primary-light to-primary hover:from-primary hover:to-primary-light px-4 py-2 text-white rounded-lg flex-1 text-center flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300"
+                className=" bg-primary hover:primary-light px-4 py-2 text-white rounded-lg flex-1 text-center flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300"
               >
                 <Edit className={iconMarginClass} size={16} />
                 {t('edit')}
