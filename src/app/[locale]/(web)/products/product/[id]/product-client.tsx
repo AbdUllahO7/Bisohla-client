@@ -21,8 +21,6 @@ interface ProductClientProps {
 const ProductClient = ({
   carDataRes,
   isAuthenticated,
-  locale,
-  isProfileView,
 }: ProductClientProps) => {
   const carData = carDataRes.data;
 
