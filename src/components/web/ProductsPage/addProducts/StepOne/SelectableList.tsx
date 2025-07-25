@@ -7,7 +7,7 @@ import Text from "@/components/text/text"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Input } from "@/components/ui/input"
-import { Search, X } from "lucide-react"
+import { Search, X, ChevronRight } from "lucide-react"
 import Image from "next/image"
 
 // Option interface to use instead of directly using SelectCarMakeDto
@@ -63,93 +63,152 @@ const SelectableList: React.FC<SelectableListProps> = ({
   const shouldShowLogo = type === "marka"
 
   return (
-    <Box className="min-w-[250px] px-5 py-5" variant="column">
-      <Box variant="row" className="flex items-center border-b border-primary-foreground pb-2">
-        <Text className="text-primary font-bold text-xl">{title}</Text>
-        {required && <Text className="text-red-500 ml-1 text-lg">*</Text>}
+    <Box className="min-w-[280px] px-6 py-6" variant="column">
+      {/* Enhanced Header */}
+      <Box variant="row" className="flex items-center pb-4 mb-2">
+        <div className="flex items-center">
+          <Text className="text-[#1a2b28] font-bold text-2xl tracking-tight">{title}</Text>
+          {required && <Text className="text-red-500 ml-2 text-xl">*</Text>}
+        </div>
         {required && !selectedValue && (
-          <Text className="text-red-500 text-xs ml-2">{safeDirection === "ltr" ? "(Required)" : "(مطلوب)"}</Text>
+          <div className="ml-auto">
+            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-50 text-red-700 border border-red-200">
+              {safeDirection === "ltr" ? "Required" : "مطلوب"}
+            </span>
+          </div>
         )}
       </Box>
+
+      {/* Enhanced Container */}
       <Box
         variant="column"
-        className={`min-w-[250px] max-w-[250px] border ${!selectedValue && required ? "border-red-300" : "border-gray-200"} px-5 rounded-lg mt-2`}
+        className={`min-w-[280px] max-w-[280px] bg-white border-2 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 ${
+          !selectedValue && required 
+            ? "border-red-300 shadow-red-100" 
+            : "border-[#198341]/20 hover:border-[#198341]/40"
+        } overflow-hidden`}
       >
-        {/* Search input */}
-        <Box variant="row" className="relative w-full mt-3 mb-2">
-          <Input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder={searchPlaceholder}
-            className={`w-full pr-8 pl-8 py-2 text-sm  border-primary-light border-2  rounded-lg focus:border-primary focus:ring-1 focus:ring-primary ${safeDirection === "rtl" ? "text-right" : "text-left"}`}
-            dir={safeDirection}
-          />
-          <div
-            className={`absolute ${safeDirection === "rtl" ? "left-2" : "right-2"} top-1/2 transform -translate-y-1/2 flex items-center`}
-          >
-            {searchTerm ? (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleClearSearch}
-                className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600"
-              >
-                <X size={16} />
-              </Button>
-            ) : null}
-          </div>
-          <div
-            className={`absolute ${safeDirection === "rtl" ? "right-2" : "left-2"} top-1/2 transform -translate-y-1/2`}
-          >
-            <Search size={16} className="text-gray-400" />
-          </div>
-        </Box>
+        {/* Enhanced Search Input */}
+        <div className="p-5 pb-3 bg-gradient-to-r from-gray-50 to-white border-b border-gray-100">
+          <Box variant="row" className="relative w-full">
+            <Input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder={searchPlaceholder}
+              className={`w-full pr-12 pl-12 py-3.5 text-sm border-2 border-[#198341]/30 rounded-xl 
+                focus:border-[#198341] focus:ring-4 focus:ring-[#ABDE3B]/20 
+                transition-all duration-300 bg-white shadow-sm hover:shadow-md
+                placeholder:text-gray-400
+                ${safeDirection === "rtl" ? "text-right" : "text-left"}`}
+              dir={safeDirection}
+            />
+            
+            {/* Search Icon */}
+            <div
+              className={`absolute ${safeDirection === "rtl" ? "right-4" : "left-4"} top-1/2 transform -translate-y-1/2`}
+            >
+              <Search size={18} className="text-[#198341]" />
+            </div>
 
+            {/* Clear Button */}
+            {searchTerm && (
+              <div
+                className={`absolute ${safeDirection === "rtl" ? "left-4" : "right-4"} top-1/2 transform -translate-y-1/2`}
+              >
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleClearSearch}
+                  className="h-7 w-7 p-0 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all duration-200"
+                >
+                  <X size={16} />
+                </Button>
+              </div>
+            )}
+          </Box>
+        </div>
+
+        {/* Enhanced Options List */}
         <ScrollArea
-          className="h-[250px] w-full overflow-y-auto scrollbar-thin scrollbar-thumb-[#198341] scrollbar-track-[#e5e7eb] scrollbar-thumb-rounded-full scrollbar-track-rounded-full"
+          className="h-[280px] w-full overflow-y-auto scrollbar-thin scrollbar-thumb-[#198341]/60 scrollbar-track-gray-100 scrollbar-thumb-rounded-full scrollbar-track-rounded-full"
           dir={safeDirection}
         >
-          <Box variant="column" className="w-full mt-2">
+          <Box variant="column" className="w-full p-2">
             {filteredOptions && filteredOptions.length > 0 ? (
-              filteredOptions.map((option) => (
+              filteredOptions.map((option, index) => (
                 <Button
                   key={option.value}
                   onClick={() => onSelect(type, option.value)}
-                  className={`w-full py-6 px-4 text-primary bg-white font-semibold border-b border-b-gray-200 hover:bg-primary hover:text-white duration-500 ${selectedValue === option.value ? "bg-primary-foreground text-primary" : ""} ${shouldShowLogo ? "flex items-center justify-between" : ""}`}
+                  className={`w-full py-4 px-4 mb-1 text-[#2C3C39] bg-white font-medium text-left
+                    hover:bg-gradient-to-r hover:from-[#ABDE3B]/10 hover:to-[#198341]/5
+                    hover:text-[#1a2b28] hover:shadow-md hover:scale-[1.02]
+                    transition-all duration-300 rounded-xl border border-transparent
+                    hover:border-[#198341]/20 group
+                    ${selectedValue === option.value 
+                      ? "bg-gradient-to-r from-[#198341] to-[#2C3C39] text-white shadow-lg scale-[1.02] border-[#198341]" 
+                      : "hover:border-gray-200"
+                    } 
+                    ${shouldShowLogo ? "flex items-center justify-between" : ""}`}
                 >
-                  <span className={`${shouldShowLogo ? "flex-1" : "w-full"} ${safeDirection === "ltr" ? "text-left" : "text-right"}`}>
-                    {option.label}
-                  </span>
-                  {/* Only show logo for car makes and if logoUrl exists and is not null */}
-                  {shouldShowLogo && option.logoUrl && (
-                    <div className="flex-shrink-0 ml-2">
-                      <Image
-                        alt={`${option.label} logo`}
-                        src={option.logoUrl}
-                        width={24}
-                        height={24}
-                        className="object-contain"
-                        onError={(e) => {
-                          // Hide image if it fails to load
-                          const target = e.target as HTMLImageElement;
-                          target.style.display = 'none';
-                        }}
-                      />
-                    </div>
-                  )}
+                  <div className={`flex items-center ${shouldShowLogo ? "flex-1" : "w-full"} ${safeDirection === "ltr" ? "text-left" : "text-right"}`}>
+                    {/* Logo for car makes */}
+                    {shouldShowLogo && option.logoUrl && (
+                      <div className="flex-shrink-0 mr-3">
+                        <div className={`w-8 h-8 rounded-lg p-1 shadow-sm transition-all duration-300 ${
+                          selectedValue === option.value ? "bg-white/20" : "bg-gray-100 group-hover:bg-white group-hover:shadow-md"
+                        }`}>
+                          <Image
+                            alt={`${option.label} logo`}
+                            src={option.logoUrl}
+                            width={32}
+                            height={32}
+                            className="object-contain w-full h-full"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = 'none';
+                            }}
+                          />
+                        </div>
+                      </div>
+                    )}
+                    
+                    <span className="flex-1 truncate">
+                      {option.label}
+                    </span>
+                  </div>
+
+                  {/* Arrow indicator */}
+                  <ChevronRight 
+                    size={16} 
+                    className={`ml-2 transition-all duration-300 ${
+                      selectedValue === option.value 
+                        ? "text-white" 
+                        : "text-gray-400 group-hover:text-[#198341] group-hover:translate-x-1"
+                    }`} 
+                  />
                 </Button>
               ))
             ) : (
-              <Text className="p-4 text-gray-500 text-center">
-                {searchTerm
-                  ? safeDirection === "ltr"
-                    ? "No matching options"
-                    : "لا توجد خيارات مطابقة"
-                  : safeDirection === "ltr"
-                    ? `No options available${required ? " (selection required)" : ""}`
-                    : `لا توجد خيارات متاحة${required ? " (الاختيار مطلوب)" : ""}`}
-              </Text>
+              <div className="flex flex-col items-center justify-center py-12 px-4">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                  <Search size={24} className="text-gray-400" />
+                </div>
+                <Text className="text-gray-500 text-center font-medium mb-2">
+                  {searchTerm
+                    ? safeDirection === "ltr"
+                      ? "No matching options found"
+                      : "لا توجد خيارات مطابقة"
+                    : safeDirection === "ltr"
+                      ? "No options available"
+                      : "لا توجد خيارات متاحة"}
+                </Text>
+                {required && !searchTerm && (
+                  <Text className="text-gray-400 text-center text-sm">
+                    {safeDirection === "ltr" ? "Selection is required" : "الاختيار مطلوب"}
+                  </Text>
+                )}
+              </div>
             )}
           </Box>
         </ScrollArea>

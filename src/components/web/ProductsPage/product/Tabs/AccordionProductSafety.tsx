@@ -53,7 +53,7 @@ const AccordionProductSafety: React.FC<AccordionProductSafetyProps> = ({ feature
   const categories = Object.keys(categorizedFeatures)
   const hasFeatures = categories.length > 0
 
-  // Render skeleton loading state
+  // Render skeleton loading state with subtle improvements
   if (isLoading) {
     return (
       <Box variant="column" className="w-full">
@@ -61,15 +61,15 @@ const AccordionProductSafety: React.FC<AccordionProductSafetyProps> = ({ feature
           <Box
             key={`skeleton-category-${categoryIndex}`}
             variant="column"
-            className="mb-6 w-full justify-start items-start"
+            className="mb-8 w-full justify-start items-start"
           >
-            <Box className="border-b pb-2 mb-4 mr-5 ml-5">
-              <Skeleton className="h-6 w-48" />
+            <Box className="border-b border-gray-200 pb-3 mb-6 mx-6">
+              <Skeleton className="h-7 w-48 rounded-lg" />
             </Box>
 
-            <Box variant="row" className="flex-wrap gap-3 mr-5 ml-5">
+            <Box variant="row" className="flex-wrap gap-4 mx-6">
               {Array.from({ length: 6 }).map((_, featureIndex) => (
-                <Skeleton key={`skeleton-feature-${categoryIndex}-${featureIndex}`} className="h-10 w-48 rounded-lg" />
+                <Skeleton key={`skeleton-feature-${categoryIndex}-${featureIndex}`} className="h-12 w-52 rounded-xl" />
               ))}
             </Box>
           </Box>
@@ -82,29 +82,34 @@ const AccordionProductSafety: React.FC<AccordionProductSafetyProps> = ({ feature
     <Box variant="column" className="w-full">
       {hasFeatures ? (
         categories.map((category) => (
-          <Box key={category} variant="column" className="mb-6 w-full justify-start items-start">
-            <Box className="border-b pb-2 mb-4 mr-5 ml-5">
-              <Text variant="large" className="font-bold text-primary capitalize">
+          <Box key={category} variant="column" className="mb-8 w-full justify-start items-start">
+            {/* Enhanced category header */}
+            <Box className="border-b-2 border-gray-200 pb-3 mb-6 mx-6 w-full">
+              <Text variant="large" className="font-bold text-gray-800 capitalize tracking-wide">
                 {t(`tabs.features.categories.${category.toLowerCase()}`)}
+              </Text>
+              <Text className="text-sm text-gray-500 mt-1">
+                {categorizedFeatures[category].length} 
               </Text>
             </Box>
 
-            <Box variant="row" className="flex-wrap gap-3 mr-5 ml-5">
+            {/* Enhanced features grid */}
+            <Box variant="row" className="flex-wrap gap-4 mx-6">
               {categorizedFeatures[category].map((featureItem) => (
                 <Box
                   key={`${featureItem.carListingId}-${featureItem.feature.id}`}
-                  className="flex items-center bg-white p-2 rounded-lg shadow-sm w-48 h-10"
+                  className="flex items-center bg-white p-3 rounded-xl shadow-sm border border-gray-100 hover:shadow-md hover:border-green-200 transition-all duration-300 w-62 h-12 group"
                 >
                   <Checkbox
                     id={`feature-${featureItem.carListingId}-${featureItem.feature.id}`}
                     checked={true}
                     onCheckedChange={() => {}}
-                    className="mr-2 h-4 w-4"
+                    className="mr-3 h-4 w-4 border-green-400 data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500"
                   />
 
                   <Label
                     htmlFor={`feature-${featureItem.carListingId}-${featureItem.feature.id}`}
-                    className="text-xs font-medium truncate"
+                    className="text-sm max-w-[500px] font-medium text-gray-700 truncate group-hover:text-green-700 transition-colors duration-200 cursor-pointer"
                   >
                     {featureItem.feature.name}
                   </Label>
@@ -114,8 +119,8 @@ const AccordionProductSafety: React.FC<AccordionProductSafetyProps> = ({ feature
           </Box>
         ))
       ) : (
-        <Box className="text-center py-4">
-          {/* <Text variant="mid">{t('features.noFeatures', { fallback: 'No features available' })}</Text> */}
+        <Box className="text-center py-8 mx-6">
+          <Text variant="mid" className="text-gray-500">No features available</Text>
         </Box>
       )}
     </Box>

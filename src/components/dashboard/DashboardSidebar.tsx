@@ -5,13 +5,11 @@ import { useState, useEffect } from 'react';
 import {
   Heart,
   Home,
-  Layers,
   LayoutDashboard,
   Settings,
   HomeIcon,
   Bell,
-  ChevronLeft,
-  ChevronRight,
+
 } from 'lucide-react';
 import {
   Sidebar,
@@ -25,7 +23,6 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
 import { Link } from '@/i18n/routing';
 import { usePathname } from 'next/navigation';
 import { useSession } from '@/hooks/auth/use-session';
@@ -39,7 +36,7 @@ export function DashboardSidebar() {
   const session = useSession();
   const direction = useDirection();
   const { profile } = useProfileContext();
-  const { state, isMobile } = useSidebar();
+  const { state } = useSidebar();
 
   const isCollapsed = state === 'collapsed';
 
