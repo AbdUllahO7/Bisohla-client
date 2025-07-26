@@ -137,7 +137,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
         <div className="bg-white rounded-2xl overflow-hidden border-2 border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300">
           {/* Enhanced Mobile Header */}
           <div className="bg-gradient-to-r from-primary to-primary-light p-4 border-b border-gray-100">
-            <Text className="font-bold font-cairo text-gray-800 text-lg tracking-wide">
+            <Text className="font-bold font-cairo text-white text-lg tracking-wide">
               {locale === 'ar' ? 'معلومات السيارة' : 'Car Info'}
             </Text>
           </div>
