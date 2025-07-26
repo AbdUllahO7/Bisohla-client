@@ -22,7 +22,7 @@ import NotificationDropdown from '@/components/web/Home/NotificationDropdown';
 import { useRouter } from 'next/navigation';
 import { useSession } from '@/hooks/auth/use-session';
 import { useTranslations } from 'next-intl';
-import { deleteSession } from '@/lib/session';
+import { deleteSession } from '@/core/lib/web/session';
 import { logoutAction } from '@/app/[locale]/auth/actions';
 import { useDirection } from '@/hooks/use-direction';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
