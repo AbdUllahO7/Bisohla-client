@@ -14,8 +14,9 @@ import { ResetPasswordDto } from '@/core/entities/models/auth/reset-password.dto
 import { SendVerificationEmailDto } from '@/core/entities/models/auth/send-verification-email.dto';
 
 import { getInjection } from '@/di/container';
+import { redirect } from '@/i18n/routing';
+import { getLocale } from 'next-intl/server';
 import { revalidatePath, revalidateTag } from 'next/cache';
-import { redirect } from 'next/navigation';
 
 export const signInAction = async (
   state: ApiResponse<LoginResponse>,
@@ -36,11 +37,13 @@ export const signInAction = async (
     revalidateTag('auth');
     revalidateTag('session');
     revalidateTag('user');
-    
+
     // Add a small delay to ensure cache invalidation completes
-    await new Promise(resolve => setTimeout(resolve, 100));
-    
-    redirect(allRoutes.user.children.homePage.path);
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    const locale = await getLocale();
+
+    redirect({ href: allRoutes.user.children.homePage.path, locale: locale });
   }
 
   return res;
@@ -67,11 +70,13 @@ export const RegisterAction = async (
     revalidateTag('auth');
     revalidateTag('session');
     revalidateTag('user');
-    
+
     // Add a small delay to ensure cache invalidation completes
-    await new Promise(resolve => setTimeout(resolve, 100));
-    
-    redirect(allRoutes.user.children.homePage.path);
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    const locale = await getLocale();
+
+    redirect({ href: allRoutes.user.children.homePage.path, locale: locale });
   }
 
   return res;
@@ -79,24 +84,26 @@ export const RegisterAction = async (
 
 export const logoutAction = async (): Promise<void> => {
   const authController = getInjection('IAuthController');
-  
+
   try {
     // Call your logout API if you have one
     await authController.signOut?.();
   } catch (error) {
     console.error('Logout API error:', error);
   }
-  
+
   // Revalidate all paths and clear auth cache
   revalidatePath('/', 'layout');
   revalidateTag('auth');
   revalidateTag('session');
   revalidateTag('user');
-  
+
   // Add a small delay to ensure cache invalidation completes
-  await new Promise(resolve => setTimeout(resolve, 100));
-  
-  redirect('/');
+  await new Promise((resolve) => setTimeout(resolve, 100));
+
+  const locale = await getLocale();
+
+  redirect({ href: '/', locale: locale });
 };
 
 export const sendVerificationEmailAction = async (
@@ -159,7 +166,8 @@ export const resetPasswordAction = async (
 
   if (res.success) {
     // Revalidate auth paths after successful password reset
-    redirect('/auth/sign-in')
+    const locale = await getLocale();
+    redirect({ href: '/auth/sign-in', locale: locale });
   }
 
   return res;
