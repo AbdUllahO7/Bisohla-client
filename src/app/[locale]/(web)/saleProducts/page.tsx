@@ -1,51 +1,34 @@
 'use client';
 
+import { useState, useCallback, useMemo } from 'react';
 import Box from '@/components/box/box';
 import Categories from '@/components/web/ProductsPage/Categories';
-import Filter from '@/components/web/ProductsPage/Filter';
 import Header from '@/components/web/ProductsPage/Header';
-import AdsSection from '@/components/web/Home/AdsSection';
-import React, { useCallback, useMemo, useState } from 'react';
 import AllCarListings from '../products/AllCarListings';
-import { Filter as FilterType, QueryParams } from '@/core/entities/api/api';
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb';
-import { useLocale } from 'next-intl';
 import SmartBreadcrumb from '@/components/smart-breadcrumbs';
 
-const SaleProducts = () => {
-  // Initialize with the special filter for sale cars
-  const [queryParams, setQueryParams] = useState<QueryParams>({
-    page: 1,
-    pageSize: 8,
+// Import the filter provider
+
+// Import types
+import type { QueryParams, FilterGroup } from '@/core/entities/api/api';
+import { FilterProvider, useFilters } from '@/providers/filters.provider';
+import ProductsFilter from '@/components/web/ProductsPage/Filter';
+
+// Inner component that uses the filter context
+const SaleProductsContent = () => {
+  const { queryParams } = useFilters();
+  const [totalItems, setTotalItems] = useState<number>(0);
+  const [currentSort, setCurrentSort] = useState({
     sortBy: 'createdAt',
-    sortDirection: 'desc',
-    where: [
-      {
-        field: 'listingType',
-        operator: 'eq',
-        value: 'for_sale',
-      },
-    ],
+    sortDirection: 'desc' as 'asc' | 'desc',
   });
 
-  // Use a key to force remount of AllCarListings when needed
-  const [listingKey, setListingKey] = useState<number>(0);
-  const [totalItems, setTotalItems] = useState<number>(0);
-  const locale = useLocale();
-
-  // Current sort settings - memoized for performance
-  const currentSort = useMemo(
-    () => ({
-      sortBy: queryParams.sortBy || 'createdAt',
-      sortDirection: queryParams.sortDirection || 'desc',
-    }),
-    [queryParams.sortBy, queryParams.sortDirection],
+  // Handle sort change from Header component
+  const handleSortChange = useCallback(
+    (sortBy: string, sortDirection: 'asc' | 'desc') => {
+      setCurrentSort({ sortBy, sortDirection });
+    },
+    [],
   );
 
   // Callback to update total items count
@@ -53,50 +36,38 @@ const SaleProducts = () => {
     setTotalItems(count);
   }, []);
 
-  // Handle filter changes from Filter component
-  const handleFilterChange = useCallback((newParams: QueryParams) => {
-    // Always include the listingType filter, regardless of other filters
-    const saleFilter: FilterType = {
-      field: 'listingType',
-      operator: 'eq',
-      value: 'for_sale',
+  // Override queryParams to always include the sale listing type filter
+  const finalQueryParams: QueryParams = useMemo(() => {
+    // Create a copy of the query params from the provider
+    const baseParams = { ...queryParams };
+
+    // Always ensure we have the sale filter
+    const saleFilterGroup: FilterGroup = {
+      operator: 'and',
+      filters: [
+        {
+          field: 'listingType',
+          operator: 'eq',
+          value: 'for_sale',
+        },
+      ],
     };
 
-    // Ensure we keep the special filter while adding new filters
-    const updatedWhere = newParams.where
-      ? [...newParams.where, saleFilter]
-      : [saleFilter];
+    // Add our sale filter to the existing filter groups
+    const existingFilterGroups = baseParams.filterGroups || [];
+    const finalFilterGroups = [...existingFilterGroups, saleFilterGroup];
 
-    // Create the updated params with merged filterGroups
-    const updatedParams: QueryParams = {
-      ...newParams,
-      where: updatedWhere,
-      // Preserve any filterGroups from the new parameters
-      filterGroups: newParams.filterGroups,
+    return {
+      ...baseParams,
+      sortBy: currentSort.sortBy,
+      sortDirection: currentSort.sortDirection,
+      filterGroups: finalFilterGroups,
     };
-
-    setQueryParams(updatedParams);
-
-    // If this is a reset, force remount
-    if (!newParams.where && !newParams.filterGroups) {
-      setListingKey((prevKey) => prevKey + 1);
-    }
-  }, []);
-
-  const handleSortChange = useCallback(
-    (sortBy: string, sortDirection: 'asc' | 'desc') => {
-      setQueryParams((prevParams) => ({
-        ...prevParams,
-        sortBy,
-        sortDirection,
-      }));
-    },
-    [],
-  );
+  }, [queryParams, currentSort]);
 
   return (
-    <Box variant="row" className=" bg-background flex-wrap pb-10">
-      {/* Header Section */}
+    <Box variant="row" className="bg-background flex-wrap pb-10">
+      {/* Breadcrumb Navigation */}
       <Box variant="container" className="w-full mb-2 mt-5">
         <SmartBreadcrumb
           items={[
@@ -111,7 +82,8 @@ const SaleProducts = () => {
         />
       </Box>
 
-      <Box className=" w-full shadow-xl bg-white pb-3 pt-3">
+      {/* Header Section with sort functionality */}
+      <Box className="w-full shadow-xl bg-white pb-3 pt-3">
         <Header
           onSortChange={handleSortChange}
           totalItems={totalItems}
@@ -124,26 +96,36 @@ const SaleProducts = () => {
         variant="container"
         className="flex flex-col lg:flex-row justify-between items-start gap-6"
       >
-        {/* Filter Section */}
-        <div className="w-full lg:w-[300px] lg:flex-shrink-0">
-          <Filter onChange={handleFilterChange} />
+        {/* Filter Section - Fixed position on desktop */}
+        <div className="w-full lg:w-[300px] lg:flex-shrink-0 relative">
+          <div className="lg:sticky lg:top-5 w-full">
+            <ProductsFilter />
+          </div>
         </div>
 
         {/* Categories and Content Section */}
         <Box className="w-full lg:w-[70%] xs:w-[100%]" variant="column">
           <Categories />
-          {/* Pass filter parameters to AllCarListings with the key for remount */}
+          {/* Use the AllCarListings component with enhanced queryParams */}
           <AllCarListings
-            key={listingKey}
             showTitle={false}
             pageSize={8}
-            queryParams={queryParams}
+            queryParams={finalQueryParams}
             onTotalItemsChange={handleTotalItemsChange}
             container={false}
           />
         </Box>
       </Box>
     </Box>
+  );
+};
+
+// Main SaleProducts component with provider wrapper
+const SaleProducts = () => {
+  return (
+    <FilterProvider>
+      <SaleProductsContent />
+    </FilterProvider>
   );
 };
 
