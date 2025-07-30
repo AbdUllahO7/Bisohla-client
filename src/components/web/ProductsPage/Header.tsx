@@ -1,5 +1,4 @@
 "use client"
-import Box from "@/components/box/box"
 import SelectDropdown from "@/components/SelectDropdown"
 import Text from "@/components/text/text"
 import { useTranslations } from "next-intl"
