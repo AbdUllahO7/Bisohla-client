@@ -8,6 +8,7 @@ import { getTranslations } from 'next-intl/server';
 import type { PropsWithChildren } from 'react';
 import WebMetadataProvider, { generateWebMetadata } from './MetaData';
 import HeaderTwo from '@/components/web/Home/HeaderTow';
+import ChatbotWidget from '@/components/web/Home/ChatbotWidget';
 
 // Generate metadata using the reusable metadata generator
 export async function generateMetadata(): Promise<Metadata> {
@@ -111,6 +112,7 @@ const WebLayout = async ({
 
         {/* Footer */}
         <Footer />
+         <ChatbotWidget />
 
         {/* Toast Notifications */}
         <Toaster />
