@@ -9,7 +9,7 @@ const ResetPasswordPage = async ({
   searchParams: Promise<{ token: string }>;
 }) => {
   const { token } = await searchParams;
-/* 
+
   if (!token) {
     // If no token is provided, redirect to the sign-in page
     redirect(allRoutes.auth.children.signIn.path);
@@ -20,7 +20,7 @@ const ResetPasswordPage = async ({
 
   if (!isValidToken.success || isValidToken.data?.message === 'Token expired') {
     redirect(allRoutes.auth.children.signIn.path);
-  } */
+  }
   return <ResetPasswordForm token={token} />;
 };
 
