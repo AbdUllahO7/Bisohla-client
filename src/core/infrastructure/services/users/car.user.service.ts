@@ -119,9 +119,9 @@ export class CarUserService implements ICarUserService {
   async getMyCars(
     params: QueryParams,
   ): Promise<PaginatedResponse<SelectCarListingDto>> {
-    const res = await postAuthReq<QueryParams, SelectCarListingDto>({
-      url: '/car-listings-user/my-cars',
-      body: params,
+    const res = await getAuthReq<Record<string, unknown>, SelectCarListingDto>({
+      url: '/car-listings-user/get-my-cars',
+      params: params,
     });
 
     return res;

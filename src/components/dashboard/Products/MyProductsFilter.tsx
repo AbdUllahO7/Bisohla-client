@@ -3,6 +3,7 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import {
   Select,
   SelectContent,
@@ -10,10 +11,36 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Search, Filter, RefreshCw, Grid, List } from 'lucide-react';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
+import {
+  Search,
+  Filter,
+  RefreshCw,
+  Grid,
+  List,
+  ChevronDown,
+  X,
+  Car,
+} from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useState, useEffect } from 'react';
 import type { QueryParams, FilterGroup } from '@/core/entities/api/api';
+import ServerSelect from '@/components/server-select';
+
+import {
+  SelectCarMakeDto,
+  SelectCarModelDto,
+  SelectCarTrimDto,
+} from '@/core/entities/models/cars/cars.dto';
+import {
+  getCarMakes,
+  getCarModels,
+  getCarTrims,
+} from '@/core/infrastructure-adapters/actions/visitors/car.visitor.actions';
 
 // View mode type
 type ViewMode = 'grid' | 'list';
@@ -77,12 +104,22 @@ const MyProductsFilter: React.FC<SimpleProductsFilterProps> = ({
   const [status, setStatus] = useState<StatusFilter>('all');
   const [sortBy, setSortBy] = useState<SortOption>('newest');
 
+  // Car filter states
+  const [makeId, setMakeId] = useState<number | undefined>(undefined);
+  const [modelId, setModelId] = useState<number | undefined>(undefined);
+  const [trimId, setTrimId] = useState<number | undefined>(undefined);
+
+  // UI states
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+
   // Debounced search query
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
 
+  // Count active car filters
+  const activeCarFilters = [makeId, modelId, trimId].filter(Boolean).length;
+
   // Build filter query
   useEffect(() => {
-    // Build filter query inside useEffect
     const filterGroups: FilterGroup[] = [];
 
     // Listing type filter
@@ -110,6 +147,37 @@ const MyProductsFilter: React.FC<SimpleProductsFilterProps> = ({
             value: status,
           },
         ],
+      });
+    }
+
+    // Car filters
+    const carFilters = [];
+    if (makeId) {
+      carFilters.push({
+        field: 'makeId',
+        operator: 'eq',
+        value: makeId,
+      });
+    }
+    if (modelId) {
+      carFilters.push({
+        field: 'modelId',
+        operator: 'eq',
+        value: modelId,
+      });
+    }
+    if (trimId) {
+      carFilters.push({
+        field: 'trimId',
+        operator: 'eq',
+        value: trimId,
+      });
+    }
+
+    if (carFilters.length > 0) {
+      filterGroups.push({
+        operator: 'and',
+        filters: carFilters,
       });
     }
 
@@ -159,12 +227,21 @@ const MyProductsFilter: React.FC<SimpleProductsFilterProps> = ({
       queryParams.searchTerm = debouncedSearchQuery.trim();
     }
 
-    console.log('Sending query params:', queryParams); // Add this to debug
+    console.log('Sending query params:', queryParams);
 
     if (onChange) {
       onChange(queryParams);
     }
-  }, [debouncedSearchQuery, listingType, status, sortBy]);
+  }, [
+    debouncedSearchQuery,
+    listingType,
+    status,
+    sortBy,
+    makeId,
+    modelId,
+    trimId,
+    onChange,
+  ]);
 
   // Handle reset filters
   const handleReset = () => {
@@ -172,6 +249,9 @@ const MyProductsFilter: React.FC<SimpleProductsFilterProps> = ({
     setListingType('all');
     setStatus('all');
     setSortBy('newest');
+    setMakeId(undefined);
+    setModelId(undefined);
+    setTrimId(undefined);
   };
 
   // Handle view mode change
@@ -179,6 +259,22 @@ const MyProductsFilter: React.FC<SimpleProductsFilterProps> = ({
     if (onViewModeChange) {
       onViewModeChange(mode);
     }
+  };
+
+  // Handle make change and reset dependent fields
+  const handleMakeChange = (value: number | number[] | undefined) => {
+    // If value is an array, pick the first element or undefined
+    const selectedValue = Array.isArray(value) ? value[0] : value;
+    setMakeId(selectedValue);
+    setModelId(undefined);
+    setTrimId(undefined);
+  };
+
+  // Handle model change and reset dependent fields
+  const handleModelChange = (value: number | number[] | undefined) => {
+    const selectedValue = Array.isArray(value) ? value[0] : value;
+    setModelId(selectedValue);
+    setTrimId(undefined);
   };
 
   return (
@@ -229,7 +325,7 @@ const MyProductsFilter: React.FC<SimpleProductsFilterProps> = ({
         </div>
       </div>
 
-      {/* Filters */}
+      {/* Basic Filters */}
       <Card>
         <CardContent className="p-4">
           <div className="flex flex-col lg:flex-row gap-4 items-center">
@@ -326,6 +422,31 @@ const MyProductsFilter: React.FC<SimpleProductsFilterProps> = ({
               </SelectContent>
             </Select>
 
+            {/* Advanced Filters Toggle */}
+            <Button
+              variant="outline"
+              onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+              className="w-full lg:w-auto px-4"
+            >
+              <Car className={`h-4 w-4 ${isRTL ? 'ml-2' : 'mr-2'}`} />
+              {isRTL ? 'مرشحات متقدمة' : 'Car Filters'}
+              {activeCarFilters > 0 && (
+                <Badge
+                  variant="secondary"
+                  className={`${isRTL ? 'mr-2' : 'ml-2'}`}
+                >
+                  {activeCarFilters}
+                </Badge>
+              )}
+              <ChevronDown
+                className={`h-4 w-4 ${
+                  isRTL ? 'mr-2' : 'ml-2'
+                } transition-transform ${
+                  showAdvancedFilters ? 'rotate-180' : ''
+                }`}
+              />
+            </Button>
+
             {/* Reset Button */}
             <Button
               variant="outline"
@@ -337,6 +458,176 @@ const MyProductsFilter: React.FC<SimpleProductsFilterProps> = ({
           </div>
         </CardContent>
       </Card>
+
+      {/* Advanced Car Filters */}
+      <Collapsible
+        open={showAdvancedFilters}
+        onOpenChange={setShowAdvancedFilters}
+      >
+        <CollapsibleContent>
+          <Card>
+            <CardContent className="p-4 space-y-4">
+              <div className="flex items-center gap-2 mb-4">
+                <Car className="h-5 w-5 text-primary" />
+                <h3 className="text-lg font-semibold">
+                  {isRTL ? 'مرشحات السيارة' : 'Car Filters'}
+                </h3>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Car Make */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">
+                    {isRTL ? 'ماركة السيارة' : 'Car Make'}
+                  </label>
+                  <ServerSelect<SelectCarMakeDto, 'id'>
+                    queryKey={['car-makes']}
+                    fetchFn={getCarMakes}
+                    labelField="name"
+                    valueField="id"
+                    placeholder={isRTL ? 'اختر الماركة...' : 'Select make...'}
+                    value={makeId}
+                    onChange={handleMakeChange}
+                    pageSize={20}
+                    searchPlaceholder={
+                      isRTL ? 'ابحث عن الماركات...' : 'Search makes...'
+                    }
+                    noOptionsMessage={
+                      isRTL ? 'لم يتم العثور على ماركات' : 'No makes found'
+                    }
+                  />
+                </div>
+
+                {/* Car Model - Only show if make is selected */}
+                {makeId && (
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">
+                      {isRTL ? 'موديل السيارة' : 'Car Model'}
+                    </label>
+                    <ServerSelect<SelectCarModelDto, 'id'>
+                      queryKey={['car-models', makeId.toString()]}
+                      fetchFn={(params) =>
+                        getCarModels({
+                          ...params,
+                          where: [
+                            {
+                              field: 'makeId',
+                              operator: 'eq',
+                              value: makeId,
+                            },
+                          ],
+                        })
+                      }
+                      labelField="name"
+                      valueField="id"
+                      placeholder={
+                        isRTL ? 'اختر الموديل...' : 'Select model...'
+                      }
+                      value={modelId}
+                      onChange={handleModelChange}
+                      pageSize={20}
+                      searchPlaceholder={
+                        isRTL ? 'ابحث عن الموديلات...' : 'Search models...'
+                      }
+                      noOptionsMessage={
+                        isRTL ? 'لم يتم العثور على موديلات' : 'No models found'
+                      }
+                    />
+                  </div>
+                )}
+
+                {/* Car Trim - Only show if model is selected */}
+                {modelId && (
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">
+                      {isRTL ? 'فئة السيارة' : 'Car Trim'}
+                    </label>
+                    <ServerSelect<SelectCarTrimDto, 'id'>
+                      queryKey={['car-trims', modelId.toString()]}
+                      fetchFn={(params) =>
+                        getCarTrims({
+                          ...params,
+                          where: [
+                            {
+                              field: 'modelId',
+                              operator: 'eq',
+                              value: modelId,
+                            },
+                          ],
+                        })
+                      }
+                      labelField="name"
+                      valueField="id"
+                      placeholder={isRTL ? 'اختر الفئة...' : 'Select trim...'}
+                      value={trimId}
+                      onChange={(value) => {
+                        const selectedValue = Array.isArray(value)
+                          ? value[0]
+                          : value;
+                        setTrimId(selectedValue);
+                      }}
+                      pageSize={20}
+                      searchPlaceholder={
+                        isRTL ? 'ابحث عن الفئات...' : 'Search trims...'
+                      }
+                      noOptionsMessage={
+                        isRTL ? 'لم يتم العثور على فئات' : 'No trims found'
+                      }
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Active Car Filters Display */}
+              {activeCarFilters > 0 && (
+                <div className="pt-4 border-t">
+                  <p className="text-sm font-medium mb-2">
+                    {isRTL ? 'المرشحات النشطة:' : 'Active Car Filters:'}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {makeId && (
+                      <Badge
+                        variant="outline"
+                        className="flex items-center gap-1"
+                      >
+                        {isRTL ? 'ماركة محددة' : 'Make Selected'}
+                        <X
+                          className="h-3 w-3 cursor-pointer"
+                          onClick={() => handleMakeChange(undefined)}
+                        />
+                      </Badge>
+                    )}
+                    {modelId && (
+                      <Badge
+                        variant="outline"
+                        className="flex items-center gap-1"
+                      >
+                        {isRTL ? 'موديل محدد' : 'Model Selected'}
+                        <X
+                          className="h-3 w-3 cursor-pointer"
+                          onClick={() => handleModelChange(undefined)}
+                        />
+                      </Badge>
+                    )}
+                    {trimId && (
+                      <Badge
+                        variant="outline"
+                        className="flex items-center gap-1"
+                      >
+                        {isRTL ? 'فئة محددة' : 'Trim Selected'}
+                        <X
+                          className="h-3 w-3 cursor-pointer"
+                          onClick={() => setTrimId(undefined)}
+                        />
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </CollapsibleContent>
+      </Collapsible>
     </div>
   );
 };

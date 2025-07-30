@@ -3,151 +3,245 @@
 import React, { useMemo } from 'react';
 import Box from '@/components/box/box';
 import Text from '@/components/text/text';
-import {Link} from "@/i18n/routing"
+import { Link } from '@/i18n/routing';
 import { useRouter } from 'next/navigation';
 import { useTranslations, useLocale } from 'next-intl';
 import CarouselComponent from '../design/CarouselComponent';
 import { useProductStepOne } from '@/components/web/ProductsPage/addProducts/StepOne/hooks';
+import { useGetCityCounts } from '@/core/infrastructure-adapters/use-actions/visitors/car.visitor.use-actions';
+
+interface CityData {
+  governorate: string;
+  count: number;
+}
+
+interface CityCarouselItem {
+  title: string;
+  carCount: string;
+  image: string;
+  governorateId?: string;
+  actualCount: number;
+}
 
 const WorldOfProduct = () => {
-    const t = useTranslations('homePage');
-    const locale = useLocale(); // Get current locale
-    const direction = locale === 'ar' ? 'rtl' : 'ltr'; // Determine direction
-    const router = useRouter();
+  const t = useTranslations('homePage');
+  const locale = useLocale();
+  const direction = locale === 'ar' ? 'rtl' : 'ltr';
+  const router = useRouter();
 
-    // Initialize the hook with a dummy validation handler
-    const handleValidationChange = (isValid: boolean) => {};
-    
-    // Use the hook to get governorate options
-    const { governorateOptions } = useProductStepOne(handleValidationChange);
+  // Initialize the hook with a dummy validation handler
+  const handleValidationChange = (isValid: boolean) => {};
 
-    // Create an enhanced data array with governorate IDs
-    const carouselData = useMemo(() => {
-        const citiesData = [
-        
-            { 
-                title: t('worldOfProducts.cities.aleppo.title'), 
-                carCount: t('worldOfProducts.cities.aleppo.productCount'), 
-                image: '/assets/images/aleppo.png' 
-            },
-            { 
-                title: t('worldOfProducts.cities.damascus.title'), 
-                carCount: t('worldOfProducts.cities.damascus.productCount'), 
-                image: '/assets/images/damascus.jpg' 
-            },
-            { 
-                title: t('worldOfProducts.cities.hama.title'), 
-                carCount: t('worldOfProducts.cities.hama.productCount'), 
-                image: '/assets/images/hama.png' 
-            },
-            { 
-                title: t('worldOfProducts.cities.idlib.title'), 
-                carCount: t('worldOfProducts.cities.idlib.productCount'), 
-                image: '/assets/images/idlib.png' 
-            },
-            { 
-                title: t('worldOfProducts.cities.homs.title'), 
-                carCount: t('worldOfProducts.cities.homs.productCount'), 
-                image: '/assets/images/homs.png' 
-            },
-            { 
-                title: t('worldOfProducts.cities.latakia.title'), 
-                carCount: t('worldOfProducts.cities.latakia.productCount'), 
-                image: '/assets/images/latakia.jpg' 
-            },
-            { 
-                title: t('worldOfProducts.cities.tartus.title'), 
-                carCount: t('worldOfProducts.cities.tartus.productCount'), 
-                image: '/assets/images/tartus.jpg' 
-            },
-            { 
-                title: t('worldOfProducts.cities.daraa.title'), 
-                carCount: t('worldOfProducts.cities.daraa.productCount'), 
-                image: '/assets/images/draa.jpg' 
-            },
-            { 
-                title: t('worldOfProducts.cities.quneitra.title'), 
-                carCount: t('worldOfProducts.cities.quneitra.productCount'), 
-                image: '/assets/images/quneitra.jpg' 
-            },
-            { 
-                title: t('worldOfProducts.cities.as_suwayda.title'), 
-                carCount: t('worldOfProducts.cities.as_suwayda.productCount'), 
-                image: '/assets/images/as_suwayda.jpg' 
-            },
-            { 
-                title: t('worldOfProducts.cities.deir_ez_zor.title'), 
-                carCount: t('worldOfProducts.cities.deir_ez_zor.productCount'), 
-                image: '/assets/images/deir_ez_zor.jpg' 
-            },
-            { 
-                title: t('worldOfProducts.cities.raqqa.title'), 
-                carCount: t('worldOfProducts.cities.raqqa.productCount'), 
-                image: '/assets/images/raqqa.jpg' 
-            },
-            { 
-                title: t('worldOfProducts.cities.al_hasakah.title'), 
-                carCount: t('worldOfProducts.cities.al_hasakah.productCount'), 
-                image: '/assets/images/al_hasakah.jpg' 
-            },
-            { 
-                title: t('worldOfProducts.cities.rif_dimashq.title'), 
-                carCount: t('worldOfProducts.cities.rif_dimashq.productCount'), 
-                image: '/assets/images/rif_dimashq.jpg' 
-            },
-        ];
+  // Use the hook to get governorate options
+  const { governorateOptions } = useProductStepOne(handleValidationChange);
 
-        // Match the city names with governorate options to get the IDs
-        return citiesData.map(city => {
-            // Find matching governorate by name
-            const matchingGov = governorateOptions.find(gov => 
-                gov.label.toLowerCase() === city.title.toLowerCase()
-            );
-            
-            return {
-                ...city,
-                governorateId: matchingGov ? matchingGov.value : undefined
-            };
-        });
-    }, [t, governorateOptions]);
+  const { data, isLoading, error } = useGetCityCounts();
 
-    // Handle city click to navigate to products page with filter
-    const handleCityClick = (cityTitle: string, governorateId?: string) => {
-        // If we have a governorate ID, use it; otherwise, try to match by name
-        const govId = governorateId || 
-            governorateOptions.find(gov => gov.label.toLowerCase() === cityTitle.toLowerCase())?.value;
-            
-        if (govId) {
-            // Create URL parameters
-            const params = new URLSearchParams();
-            params.set("governorate", govId);
-            
-            // Navigate to products page with filter
-            router.push(`/products?${params.toString()}`);
-        }
+  // Static image mapping for cities
+  const cityImageMap: Record<string, string> = {
+    Damascus: '/assets/images/damascus.jpg',
+    Idlib: '/assets/images/idlib.png',
+    Aleppo: '/assets/images/aleppo.png',
+    Homs: '/assets/images/homs.png',
+    Hama: '/assets/images/hama.png',
+    Latakia: '/assets/images/latakia.jpg',
+    'Al-Hasakah': '/assets/images/al_hasakah.jpg',
+    'Deir ez-Zor': '/assets/images/deir_ez_zor.jpg',
+    Tartus: '/assets/images/tartus.jpg',
+    Raqqa: '/assets/images/raqqa.jpg',
+    Daraa: '/assets/images/draa.jpg',
+    'As-Suwayda': '/assets/images/as_suwayda.jpg',
+    Quneitra: '/assets/images/quneitra.jpg',
+    'Damascus-Countryside': '/assets/images/rif_dimashq.jpg',
+  };
+
+  // Create translation key mapping for governorate names
+  const getTranslationKey = (governorate: string): string => {
+    const keyMap: Record<string, string> = {
+      Damascus: 'damascus',
+      Idlib: 'idlib',
+      Aleppo: 'aleppo',
+      Homs: 'homs',
+      Hama: 'hama',
+      Latakia: 'latakia',
+      'Al-Hasakah': 'al_hasakah',
+      'Deir ez-Zor': 'deir_ez_zor',
+      Tartus: 'tartus',
+      Raqqa: 'raqqa',
+      Daraa: 'daraa',
+      'As-Suwayda': 'as_suwayda',
+      Quneitra: 'quneitra',
+      'Damascus-Countryside': 'rif_dimashq',
     };
 
     return (
-        <Box variant="column" className="w-full">
-            <Box variant="column" className="">
-                <Text variant="h3" className="font-bold text-[20px] font-cairo mb-5">
-                    {t('worldOfProducts.title')}
-                </Text>
-                {/* <Link href="/AllCities">
-                    <Text variant="mid" className="text-[20px] font-cairo text-primary-light">
-                        {t('worldOfProducts.showMore')}
-                    </Text>
-                </Link> */}
-            </Box>
-            <Box className="w-full overflow-hidden">
-                <CarouselComponent 
-                    data={carouselData} 
-                    direction={direction} 
-                    onCityClick={handleCityClick}
-                />
-            </Box>
-        </Box>
+      keyMap[governorate] || governorate.toLowerCase().replace(/[\s-]/g, '_')
     );
+  };
+
+  // Create carousel data from backend response
+  const carouselData = useMemo(() => {
+    if (!data?.data || isLoading) {
+      return [];
+    }
+
+    const cityDataArray: CityData[] = data.data;
+
+    return (
+      cityDataArray
+        .map((cityData: CityData) => {
+          const translationKey = getTranslationKey(cityData.governorate);
+
+          // Find matching governorate option to get the ID
+          const matchingGov = governorateOptions.find(
+            (gov) =>
+              gov.label.toLowerCase() === cityData.governorate.toLowerCase() ||
+              gov.label
+                .toLowerCase()
+                .includes(cityData.governorate.toLowerCase()) ||
+              cityData.governorate
+                .toLowerCase()
+                .includes(gov.label.toLowerCase()),
+          );
+
+          // Get translated title, fallback to English name if translation doesn't exist
+          let cityTitle: string;
+          try {
+            cityTitle = t(`worldOfProducts.cities.${translationKey}.title`);
+            // If the translation returns the key itself, use the original governorate name
+            if (
+              cityTitle === `worldOfProducts.cities.${translationKey}.title`
+            ) {
+              cityTitle = cityData.governorate;
+            }
+          } catch {
+            cityTitle = cityData.governorate;
+          }
+
+          // Format car count with proper pluralization
+          const carCount =
+            locale === 'ar'
+              ? `${cityData.count} ${cityData.count <= 1 ? 'سيارة' : 'سيارات'}`
+              : `${cityData.count} ${cityData.count <= 1 ? 'Car' : 'Cars'}`;
+
+          return {
+            title: cityTitle,
+            carCount: carCount,
+            image:
+              cityImageMap[cityData.governorate] ||
+              '/assets/images/default-city.jpg',
+            governorateId: matchingGov?.value,
+            actualCount: cityData.count,
+          } as CityCarouselItem;
+        })
+        // Sort by count (highest first) to show cities with more cars first
+        .sort((a, b) => b.actualCount - a.actualCount)
+    );
+  }, [data, isLoading, governorateOptions, locale, t]);
+
+  // Handle city click to navigate to products page with filter
+  const handleCityClick = (cityTitle: string, governorateId?: string) => {
+    if (governorateId) {
+      // Create URL parameters
+      const params = new URLSearchParams();
+      params.set('governorate', governorateId);
+
+      // Navigate to products page with filter
+      router.push(`/products?${params.toString()}`);
+    } else {
+      // Fallback: try to find governorate by name matching
+      const matchingGov = governorateOptions.find(
+        (gov) =>
+          gov.label.toLowerCase() === cityTitle.toLowerCase() ||
+          gov.label.toLowerCase().includes(cityTitle.toLowerCase()) ||
+          cityTitle.toLowerCase().includes(gov.label.toLowerCase()),
+      );
+
+      if (matchingGov) {
+        const params = new URLSearchParams();
+        params.set('governorate', matchingGov.value);
+        router.push(`/products?${params.toString()}`);
+      }
+    }
+  };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <Box variant="column" className="w-full">
+        <Box variant="column" className="">
+          <Text variant="h3" className="font-bold text-[20px] font-cairo mb-5">
+            {t('worldOfProducts.title')}
+          </Text>
+        </Box>
+        <Box className="w-full overflow-hidden">
+          <div className="flex space-x-4 animate-pulse">
+            {[...Array(6)].map((_, index) => (
+              <div
+                key={index}
+                className="flex-shrink-0 w-64 h-40 bg-gray-200 rounded-lg"
+              />
+            ))}
+          </div>
+        </Box>
+      </Box>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <Box variant="column" className="w-full">
+        <Box variant="column" className="">
+          <Text variant="h3" className="font-bold text-[20px] font-cairo mb-5">
+            {t('worldOfProducts.title')}
+          </Text>
+        </Box>
+        <Box className="w-full overflow-hidden p-4">
+          <Text className="text-red-500">
+            {locale === 'ar'
+              ? 'خطأ في تحميل بيانات المدن'
+              : 'Error loading cities data'}
+          </Text>
+        </Box>
+      </Box>
+    );
+  }
+
+  // Empty state
+  if (!carouselData.length) {
+    return (
+      <Box variant="column" className="w-full">
+        <Box variant="column" className="">
+          <Text variant="h3" className="font-bold text-[20px] font-cairo mb-5">
+            {t('worldOfProducts.title')}
+          </Text>
+        </Box>
+        <Box className="w-full overflow-hidden p-4">
+          <Text className="text-gray-500">
+            {locale === 'ar' ? 'لا توجد بيانات متاحة' : 'No data available'}
+          </Text>
+        </Box>
+      </Box>
+    );
+  }
+
+  return (
+    <Box variant="column" className="w-full">
+      <Box variant="column" className="">
+        <Text variant="h3" className="font-bold text-[20px] font-cairo mb-5">
+          {t('worldOfProducts.title')}
+        </Text>
+      </Box>
+      <Box className="w-full overflow-hidden">
+        <CarouselComponent
+          data={carouselData}
+          direction={direction}
+          onCityClick={handleCityClick}
+        />
+      </Box>
+    </Box>
+  );
 };
 
 export default WorldOfProduct;

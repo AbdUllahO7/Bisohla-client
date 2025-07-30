@@ -362,6 +362,8 @@
       }
     },
     "filter": {
+      "listingTypeSelect": "اختر نوع القوائم",
+
       "activeFilters": "{count} مرشح نشط",
       "activeFilters_other": "{count} مرشحات نشطة",
       "mobileDescription": "تصفية السيارات حسب تفضيلاتك",
@@ -402,6 +404,8 @@
         },
         "address": {
           "filterOptionsTitle": "العنوان",
+          "listingTypeTitle": "نوع القوائم",
+
           "placeHolder": "المدينة",
           "governorate": "المحافظة",
           "city": "المدينة",

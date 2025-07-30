@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import React from 'react';
 
 import {
@@ -44,6 +44,7 @@ import { getPriceRanges, getMileageRanges } from '@/constants/filterData';
 import { getCurrencyOptions } from '@/core/entities/enums/currency.enum';
 import { useFilters } from '@/providers/filters.provider';
 import NestedCarFilter from './nested-car-filter';
+import { getListingTypeOptions } from '@/core/entities/enums/cars.enums';
 
 // Types for components
 interface FilterOptionDropdownProps {
@@ -223,6 +224,8 @@ const FilterContent = React.memo(
     t,
     isMobile = false,
   }: any) => {
+    const trans = useTranslations('addProduct.enteredData');
+
     return (
       <>
         {/* Search Input */}
@@ -247,6 +250,37 @@ const FilterContent = React.memo(
                 onValueChange={handleAccordionChange}
                 className="space-y-2"
               >
+                {/* Listing Type Filter - FIXED: Changed value to "listing-type" */}
+                <AccordionItem
+                  value="listing-type"
+                  className="border border-slate-200 rounded-lg overflow-hidden bg-white hover:shadow-sm transition-shadow"
+                >
+                  <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 transition-colors duration-200">
+                    <AccordionHeader
+                      title={t('filter.listingTypeSelect', {
+                        defaultValue: 'Listing Type',
+                      })}
+                      hasActiveFilters={
+                        getActiveFiltersCount('listing-type') > 0
+                      }
+                      activeCount={getActiveFiltersCount('listing-type')}
+                    />
+                  </AccordionTrigger>
+                  <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50">
+                    <div className="space-y-3">
+                      <FilterOptionDropdown
+                        options={getListingTypeOptions(trans)}
+                        placeholder={t('filter.listingTypeSelect', {
+                          defaultValue: 'Select listing type',
+                        })}
+                        onChange={handleFilterChange}
+                        value={filters.listingType}
+                        name="listingType"
+                      />
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+
                 {/* Location Filter */}
                 <AccordionItem
                   value="address"
@@ -319,9 +353,6 @@ const FilterContent = React.memo(
                       noOptionsMessage={t('filter.noBrands', {
                         defaultValue: 'No brands found',
                       })}
-                      // loadingMessage={t('filter.loadingBrands', {
-                      //   defaultValue: 'Loading brands...',
-                      // })}
                       className="w-full"
                     />
                   </AccordionContent>
@@ -601,10 +632,11 @@ const ProductsFilter: React.FC = React.memo(() => {
   const priceRanges = getPriceRanges;
   const mileageRanges = getMileageRanges;
 
-  // Auto-manage accordion states based on active filters
+  // FIXED: Auto-manage accordion states based on active filters including listing type
   useEffect(() => {
     const newOpenAccordions: string[] = [];
 
+    if (filters.listingType) newOpenAccordions.push('listing-type'); // ADDED
     if (filters.governorate || filters.city) newOpenAccordions.push('address');
     if (filters.selectedBrands.length > 0 || filters.model || filters.trim)
       newOpenAccordions.push('car-marka');
@@ -646,6 +678,8 @@ const ProductsFilter: React.FC = React.memo(() => {
     handleStepTwoSelectChange('fuelType', filters.fuelType);
     handleStepTwoSelectChange('bodyType', filters.bodyType);
     handleStepTwoSelectChange('currency', filters.currency);
+    // ADDED: Sync listing type
+    handleStepOneSelectChange('listingType', filters.listingType);
   }, [filters, handleStepOneSelectChange, handleStepTwoSelectChange]);
 
   // Calculate active filters count
@@ -715,15 +749,19 @@ const ProductsFilter: React.FC = React.memo(() => {
     handleStepTwoSelectChange('fuelType', '');
     handleStepTwoSelectChange('bodyType', '');
     handleStepTwoSelectChange('currency', '');
+    // ADDED: Reset listing type
+    handleStepOneSelectChange('listingType', '');
   };
 
   const handleAccordionChange = (value: string[]) => {
     setOpenAccordions(value);
   };
 
-  // Helper function to count active filters per section
+  // FIXED: Helper function to count active filters per section - added listing-type case
   const getActiveFiltersCount = (section: string) => {
     switch (section) {
+      case 'listing-type':
+        return filters.listingType ? 1 : 0; // ADDED
       case 'address':
         return [filters.governorate, filters.city].filter(Boolean).length;
       case 'car-marka':

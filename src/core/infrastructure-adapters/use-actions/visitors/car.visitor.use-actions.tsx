@@ -9,6 +9,7 @@ import {
 import {
   BodyTypeCategoryCount,
   FacetCount,
+  GovernorateCategoryCount,
   SelectCarListingDto,
   SelectCarMakeDto,
   SelectCarModelDto,
@@ -24,6 +25,7 @@ import {
   getCarMakes,
   getCarModels,
   getCarTrims,
+  getCityCounts,
   getPublicFilterFacets,
 } from '../../actions/visitors/car.visitor.actions';
 import { useLocaleQuery } from '../common/use-locale-query';
@@ -40,6 +42,14 @@ export const useGetBodyTypeCategoryCounts = () =>
   useLocaleQuery<ApiResponse<BodyTypeCategoryCount[]>>({
     queryKey: ['body-type-category-counts'],
     queryFn: async () => await getBodyTypeCategoryCounts(),
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+
+export const useGetCityCounts = () =>
+  useLocaleQuery<ApiResponse<GovernorateCategoryCount[]>>({
+    queryKey: ['governorate-category-counts'],
+    queryFn: async () => await getCityCounts(),
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
   });

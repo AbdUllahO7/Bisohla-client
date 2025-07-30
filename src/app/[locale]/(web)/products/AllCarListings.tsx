@@ -11,6 +11,7 @@ import AllCarListingsSkeleton from '@/components/web/design/AllCarListingsSkelet
 import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions';
 import { useSession } from '@/hooks/auth/use-session';
 import { RentProductCard } from '@/components/web/design/RentProductCard';
+import { RentProductListCard } from '@/components/web/design/rent-product-list-product';
 
 interface AllCarListingsProps {
   pageSize?: number;
@@ -33,7 +34,24 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
   const [favoriteStatuses, setFavoriteStatuses] = useState<
     Record<number, boolean>
   >({});
+  const [isMobile, setIsMobile] = useState(false);
   const session = useSession();
+
+  // Check for mobile screen size
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    // Check on initial load
+    checkIsMobile();
+
+    // Add event listener for window resize
+    window.addEventListener('resize', checkIsMobile);
+
+    // Cleanup
+    return () => window.removeEventListener('resize', checkIsMobile);
+  }, []);
 
   // Build final query params with current page
   const queryParams: QueryParams = {
@@ -175,8 +193,47 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
     window.scrollTo(0, 0);
   };
 
+  // Render car listing component based on screen size
+  const renderCarListing = (card: any, index: number) => {
+    const isFavorite =
+      favoriteStatuses[card.id] !== undefined
+        ? favoriteStatuses[card.id]
+        : !!card.isFavorite;
+
+    const commonProps = {
+      title: card.title,
+      marka: card.make?.name || card.marka || '',
+      price: card.price.toString(),
+      type: card.listingType,
+      imageSrc:
+        card.images?.find((img: any) => img.isPrimary)?.url ||
+        card.images?.[0]?.url ||
+        card.imageSrc ||
+        '',
+      ProductId: card.id,
+      priceWord: t('latestOffers.price'),
+      isMarkedFavorite: isFavorite,
+      onFavoriteToggle: handleFavoriteToggle,
+      details: card.details || [],
+    };
+
+    if (isMobile) {
+      return (
+        <RentProductListCard
+          key={card.id || index}
+          car={card}
+          isMarkedFavorite={isFavorite}
+          onFavoriteToggle={handleFavoriteToggle}
+          priceWord={t('latestOffers.price')}
+        />
+      );
+    } else {
+      return <RentProductCard key={card.id || index} {...commonProps} />;
+    }
+  };
+
   return (
-    <Box variant={container ? 'container' : 'center'} className="mb-5 mt-5">
+    <Box className="mb-5 mt-5 w-full">
       <Box variant="column" className="w-full">
         {showTitle && (
           <Box variant="column" className="mb-4">
@@ -214,57 +271,25 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
 
         {!isLoading && !error && carListings.length > 0 && (
           <>
-            <Box
-              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 w-full"
-              variant="center"
-            >
-              {carListings.map(
-                (
-                  card: {
-                    id: number;
-                    details: any;
-                    title: string;
-                    make: { name: any };
-                    marka: any;
-                    price: Number;
-                    listingType: string | undefined;
-                    images: any[];
-                    imageSrc: any;
-                    gaz: any;
-                    type: any;
-                    isFavorite?: boolean;
-                  },
-                  index: number,
-                ) => {
-                  const isFavorite =
-                    favoriteStatuses[card.id] !== undefined
-                      ? favoriteStatuses[card.id]
-                      : !!card.isFavorite;
-
-                  return (
-                    <React.Fragment key={card.id || index}>
-                      <RentProductCard
-                        title={card.title}
-                        marka={card.make?.name || card.marka || ''}
-                        price={card.price.toString()}
-                        type={card.listingType}
-                        imageSrc={
-                          card.images?.find((img) => img.isPrimary)?.url ||
-                          card.images?.[0]?.url ||
-                          card.imageSrc ||
-                          ''
-                        }
-                        ProductId={card.id}
-                        priceWord={t('latestOffers.price')}
-                        isMarkedFavorite={isFavorite}
-                        onFavoriteToggle={handleFavoriteToggle}
-                        details={card.details || []}
-                      />
-                    </React.Fragment>
-                  );
-                },
-              )}
-            </Box>
+            {/* Conditional rendering based on screen size */}
+            {isMobile ? (
+              // Mobile: List layout
+              <Box className="w-full flex-col">
+                {carListings.map((card, index) =>
+                  renderCarListing(card, index),
+                )}
+              </Box>
+            ) : (
+              // Desktop: Grid layout
+              <Box
+                className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 w-full"
+                variant="center"
+              >
+                {carListings.map((card, index) =>
+                  renderCarListing(card, index),
+                )}
+              </Box>
+            )}
 
             <AdsSectionProduct />
 
