@@ -30,7 +30,7 @@ export interface FilterState {
   transmission: string;
   fuelType: string;
   bodyType: string;
-  listingType: string;
+  listingType: string; // ADDED: Listing type filter
   selectedBrands: string[]; // This is the main source of truth for brands
 }
 
@@ -56,7 +56,7 @@ const initialFilterState: FilterState = {
   transmission: '',
   fuelType: '',
   bodyType: '',
-  listingType: '',
+  listingType: '', // ADDED: Initialize listing type
   selectedBrands: [],
 };
 
@@ -118,12 +118,18 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
     useState<SearchState>(initialSearchState);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Refs for optimization
-  const isInitialMount = useRef(true);
+  // Refs for optimization and tracking
+  const isInitialized = useRef(false);
   const lastApiCallParams = useRef<string>('');
   const urlUpdateTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
-  const hasUncommittedChanges = useRef(false);
-  const lastSearchParamsString = useRef<string>('');
+  const isUpdatingFromUrl = useRef(false);
+  const lastSyncedUrlParams = useRef<string>('');
+  const userInitiatedChange = useRef(false);
+
+  // Watch for search params changes - this is key for URL reactivity
+  const searchParamsString = useMemo(() => {
+    return searchParams?.toString() || '';
+  }, [searchParams]);
 
   // Separate debounce instances with different delays
   const debouncedSearchText = useDebounce(searchState.searchText, 1000);
@@ -157,7 +163,7 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
         });
       }
 
-      // Listing type filter
+      // UPDATED: Listing type filter - moved to top for priority
       if (currentFilters.listingType) {
         filterGroups.push({
           operator: 'and',
@@ -171,7 +177,7 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
         });
       }
 
-      // FIXED: Car brands filter group - supports multiple brands with "in" operator
+      // Car brands filter group - supports multiple brands with "in" operator
       const carDetailsFilters: Filter[] = [];
 
       // Use selectedBrands array instead of single marka
@@ -370,7 +376,7 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
   // Filter actions with optimizations
   const updateFilter = useCallback(
     (key: keyof FilterState, value: string | string[]) => {
-      hasUncommittedChanges.current = true;
+      userInitiatedChange.current = true;
 
       setFilters((prev) => {
         const newFilters = { ...prev, [key]: value };
@@ -380,7 +386,7 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
           newFilters.city = '';
         }
 
-        // FIXED: Handle selectedBrands updates properly
+        // Handle selectedBrands updates properly
         if (key === 'selectedBrands') {
           const brands = Array.isArray(value) ? value : [value].filter(Boolean);
           newFilters.selectedBrands = brands;
@@ -413,19 +419,19 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
   );
 
   const updateFilters = useCallback((updates: Partial<FilterState>) => {
-    hasUncommittedChanges.current = true;
+    userInitiatedChange.current = true;
     setFilters((prev) => ({ ...prev, ...updates }));
   }, []);
 
   const resetFilters = useCallback(() => {
-    hasUncommittedChanges.current = true;
+    userInitiatedChange.current = true;
     setFilters(initialFilterState);
     setSearchState(initialSearchState);
   }, []);
 
-  // FIXED: Multi-brand toggle support
+  // Multi-brand toggle support
   const toggleBrand = useCallback((brandId: string) => {
-    hasUncommittedChanges.current = true;
+    userInitiatedChange.current = true;
     setFilters((prev) => {
       const isSelected = prev.selectedBrands.includes(brandId);
       let newSelectedBrands: string[];
@@ -436,7 +442,7 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
         // Remove the brand
         newSelectedBrands = prev.selectedBrands.filter((id) => id !== brandId);
       } else {
-        // Add the brand - FIXED: Now supports multiple brands
+        // Add the brand - supports multiple brands
         newSelectedBrands = [...prev.selectedBrands, brandId];
       }
 
@@ -455,7 +461,7 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
   }, []);
 
   const selectModel = useCallback((modelId: string) => {
-    hasUncommittedChanges.current = true;
+    userInitiatedChange.current = true;
     setFilters((prev) => ({
       ...prev,
       model: modelId,
@@ -464,7 +470,7 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
   }, []);
 
   const selectTrim = useCallback((trimId: string) => {
-    hasUncommittedChanges.current = true;
+    userInitiatedChange.current = true;
     setFilters((prev) => ({
       ...prev,
       trim: trimId,
@@ -472,13 +478,28 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
   }, []);
 
   const updateSearchText = useCallback((text: string) => {
-    hasUncommittedChanges.current = true;
+    userInitiatedChange.current = true;
     setSearchState((prev) => ({ ...prev, searchText: text }));
   }, []);
 
-  // FIXED: URL sync with multiple makes support
+  // IMPROVED: URL sync with better error handling and comparison
   const syncFromUrl = useCallback(() => {
     if (!searchParams) return;
+
+    // Prevent infinite loops
+    if (isUpdatingFromUrl.current) return;
+
+    const currentUrlParams = searchParams.toString();
+
+    // Only sync if URL actually changed
+    if (lastSyncedUrlParams.current === currentUrlParams) {
+      return;
+    }
+
+    console.log('Syncing from URL:', currentUrlParams);
+
+    isUpdatingFromUrl.current = true;
+    lastSyncedUrlParams.current = currentUrlParams;
 
     const newFilters: Partial<FilterState> = {};
     const newSearchState: Partial<SearchState> = {};
@@ -488,18 +509,29 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
       const value = searchParams.get(key);
       if (!value) return null;
 
-      // Decode URI component and replace + with spaces for search terms
-      if (key === 'search') {
-        return decodeURIComponent(value.replace(/\+/g, ' '));
+      try {
+        // Decode URI component and replace + with spaces for search terms
+        if (key === 'search') {
+          return decodeURIComponent(value.replace(/\+/g, ' '));
+        }
+        return decodeURIComponent(value);
+      } catch (error) {
+        console.warn(`Failed to decode URL parameter ${key}:`, error);
+        return value; // Return raw value if decoding fails
       }
-
-      return decodeURIComponent(value);
     };
 
-    // FIXED: Support multiple makes from URL
+    // Support multiple makes from URL
     const getDecodedArrayParam = (key: string): string[] => {
       const values = searchParams.getAll(key);
-      return values.map((value) => decodeURIComponent(value));
+      return values.map((value) => {
+        try {
+          return decodeURIComponent(value);
+        } catch (error) {
+          console.warn(`Failed to decode URL array parameter ${key}:`, error);
+          return value;
+        }
+      });
     };
 
     const urlParams = {
@@ -523,9 +555,14 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
       listingType: getDecodedParam('listingType'),
     };
 
-    if (urlParams.search) newSearchState.searchText = urlParams.search;
+    // Build new state based on URL params
+    if (urlParams.search !== null) {
+      newSearchState.searchText = urlParams.search;
+    } else {
+      newSearchState.searchText = '';
+    }
 
-    // FIXED: Handle both single and multiple makes
+    // Handle both single and multiple makes
     if (urlParams.makes.length > 0) {
       // Multiple makes from 'makes' parameter
       newFilters.selectedBrands = urlParams.makes;
@@ -534,134 +571,147 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
       // Single make from 'make' parameter (backward compatibility)
       newFilters.selectedBrands = [urlParams.make];
       newFilters.marka = urlParams.make;
+    } else {
+      // No makes in URL - reset to empty
+      newFilters.selectedBrands = [];
+      newFilters.marka = '';
     }
 
-    if (urlParams.model) newFilters.model = urlParams.model;
-    if (urlParams.trim) newFilters.trim = urlParams.trim;
-    if (urlParams.minYear) newFilters.minYear = urlParams.minYear;
-    if (urlParams.maxYear) newFilters.maxYear = urlParams.maxYear;
-    if (urlParams.minPrice) newFilters.minPrice = urlParams.minPrice;
-    if (urlParams.maxPrice) newFilters.maxPrice = urlParams.maxPrice;
-    if (urlParams.minMileage) newFilters.minMileage = urlParams.minMileage;
-    if (urlParams.maxMileage) newFilters.maxMileage = urlParams.maxMileage;
-    if (urlParams.currency) newFilters.currency = urlParams.currency;
-    if (urlParams.governorate) newFilters.governorate = urlParams.governorate;
-    if (urlParams.city) newFilters.city = urlParams.city;
-    if (urlParams.transmission)
-      newFilters.transmission = urlParams.transmission;
-    if (urlParams.fuelType) newFilters.fuelType = urlParams.fuelType;
-    if (urlParams.bodyType) newFilters.bodyType = urlParams.bodyType;
-    if (urlParams.listingType) newFilters.listingType = urlParams.listingType;
+    // Set all other filters, defaulting to empty string if not in URL
+    newFilters.model = urlParams.model || '';
+    newFilters.trim = urlParams.trim || '';
+    newFilters.minYear = urlParams.minYear || '';
+    newFilters.maxYear = urlParams.maxYear || '';
+    newFilters.minPrice = urlParams.minPrice || '';
+    newFilters.maxPrice = urlParams.maxPrice || '';
+    newFilters.minMileage = urlParams.minMileage || '';
+    newFilters.maxMileage = urlParams.maxMileage || '';
+    newFilters.currency = urlParams.currency || '';
+    newFilters.governorate = urlParams.governorate || '';
+    newFilters.city = urlParams.city || '';
+    newFilters.transmission = urlParams.transmission || '';
+    newFilters.fuelType = urlParams.fuelType || '';
+    newFilters.bodyType = urlParams.bodyType || '';
+    newFilters.listingType = urlParams.listingType || '';
 
-    if (Object.keys(newFilters).length > 0) {
-      setFilters((prev) => ({ ...prev, ...newFilters }));
-    }
-    if (Object.keys(newSearchState).length > 0) {
-      setSearchState((prev) => ({ ...prev, ...newSearchState }));
-    }
+    // Update state
+    setFilters((prev) => ({ ...prev, ...newFilters }));
+    setSearchState((prev) => ({ ...prev, ...newSearchState }));
+
+    // Reset the flag after a short delay
+    setTimeout(() => {
+      isUpdatingFromUrl.current = false;
+    }, 100);
   }, [searchParams]);
 
-  // FIXED: URL update with multiple makes support
+  // IMPROVED: URL update with better conflict resolution
   const updateUrl = useCallback(() => {
+    // Don't update URL if we're currently syncing from URL
+    if (isUpdatingFromUrl.current) return;
+
+    // Only update URL for user-initiated changes
+    if (!userInitiatedChange.current) return;
+
     if (urlUpdateTimeoutRef.current) {
       clearTimeout(urlUpdateTimeoutRef.current);
     }
 
     urlUpdateTimeoutRef.current = setTimeout(() => {
-      const params = new URLSearchParams();
+      try {
+        const params = new URLSearchParams();
 
-      // Special handling for search text to preserve spaces
-      if (debouncedSearchForUrl) {
-        params.set('search', encodeURIComponent(debouncedSearchForUrl));
-      }
-
-      // FIXED: Handle multiple makes in URL
-      if (debouncedFiltersForUrl.selectedBrands.length > 0) {
-        if (debouncedFiltersForUrl.selectedBrands.length === 1) {
-          // Single make - use 'make' for backward compatibility
-          params.set('make', debouncedFiltersForUrl.selectedBrands[0]);
-        } else {
-          // Multiple makes - use 'makes' parameter
-          debouncedFiltersForUrl.selectedBrands.forEach((brand) => {
-            params.append('makes', brand);
-          });
+        // Special handling for search text to preserve spaces
+        if (debouncedSearchForUrl) {
+          params.set('search', encodeURIComponent(debouncedSearchForUrl));
         }
+
+        // Handle multiple makes in URL
+        if (debouncedFiltersForUrl.selectedBrands.length > 0) {
+          if (debouncedFiltersForUrl.selectedBrands.length === 1) {
+            // Single make - use 'make' for backward compatibility
+            params.set('make', debouncedFiltersForUrl.selectedBrands[0]);
+          } else {
+            // Multiple makes - use 'makes' parameter
+            debouncedFiltersForUrl.selectedBrands.forEach((brand) => {
+              params.append('makes', brand);
+            });
+          }
+        }
+
+        // Add other parameters only if they have values
+        const paramMap = {
+          model: debouncedFiltersForUrl.model,
+          trim: debouncedFiltersForUrl.trim,
+          minYear: debouncedFiltersForUrl.minYear,
+          maxYear: debouncedFiltersForUrl.maxYear,
+          minPrice: debouncedFiltersForUrl.minPrice,
+          maxPrice: debouncedFiltersForUrl.maxPrice,
+          minMileage: debouncedFiltersForUrl.minMileage,
+          maxMileage: debouncedFiltersForUrl.maxMileage,
+          currency: debouncedFiltersForUrl.currency,
+          governorate: debouncedFiltersForUrl.governorate,
+          city: debouncedFiltersForUrl.city,
+          transmission: debouncedFiltersForUrl.transmission,
+          fuelType: debouncedFiltersForUrl.fuelType,
+          bodyType: debouncedFiltersForUrl.bodyType,
+          listingType: debouncedFiltersForUrl.listingType,
+        };
+
+        Object.entries(paramMap).forEach(([key, value]) => {
+          if (value) {
+            params.set(key, value);
+          }
+        });
+
+        const newUrl = params.toString()
+          ? `${pathname}?${params.toString()}`
+          : pathname;
+
+        // Only update if URL actually changed
+        const currentUrl = `${pathname}${window.location.search}`;
+        if (currentUrl !== newUrl) {
+          router.push(newUrl, { scroll: false });
+        }
+
+        userInitiatedChange.current = false;
+      } catch (error) {
+        console.error('Error updating URL:', error);
+        userInitiatedChange.current = false;
       }
-
-      if (debouncedFiltersForUrl.model)
-        params.set('model', debouncedFiltersForUrl.model);
-      if (debouncedFiltersForUrl.trim)
-        params.set('trim', debouncedFiltersForUrl.trim);
-      if (debouncedFiltersForUrl.minYear)
-        params.set('minYear', debouncedFiltersForUrl.minYear);
-      if (debouncedFiltersForUrl.maxYear)
-        params.set('maxYear', debouncedFiltersForUrl.maxYear);
-      if (debouncedFiltersForUrl.minPrice)
-        params.set('minPrice', debouncedFiltersForUrl.minPrice);
-      if (debouncedFiltersForUrl.maxPrice)
-        params.set('maxPrice', debouncedFiltersForUrl.maxPrice);
-      if (debouncedFiltersForUrl.minMileage)
-        params.set('minMileage', debouncedFiltersForUrl.minMileage);
-      if (debouncedFiltersForUrl.maxMileage)
-        params.set('maxMileage', debouncedFiltersForUrl.maxMileage);
-      if (debouncedFiltersForUrl.currency)
-        params.set('currency', debouncedFiltersForUrl.currency);
-      if (debouncedFiltersForUrl.governorate)
-        params.set('governorate', debouncedFiltersForUrl.governorate);
-      if (debouncedFiltersForUrl.city)
-        params.set('city', debouncedFiltersForUrl.city);
-      if (debouncedFiltersForUrl.transmission)
-        params.set('transmission', debouncedFiltersForUrl.transmission);
-      if (debouncedFiltersForUrl.fuelType)
-        params.set('fuelType', debouncedFiltersForUrl.fuelType);
-      if (debouncedFiltersForUrl.bodyType)
-        params.set('bodyType', debouncedFiltersForUrl.bodyType);
-      if (debouncedFiltersForUrl.listingType)
-        params.set('listingType', debouncedFiltersForUrl.listingType);
-
-      const newUrl = params.toString()
-        ? `?${params.toString()}`
-        : window.location.pathname;
-
-      router.push(newUrl, { scroll: false });
-      hasUncommittedChanges.current = false;
     }, 100);
-  }, [debouncedFiltersForUrl, debouncedSearchForUrl, router]);
+  }, [debouncedFiltersForUrl, debouncedSearchForUrl, router, pathname]);
 
-  // Initial URL sync
+  // IMPROVED: Initial sync and URL change detection
   useEffect(() => {
-    if (isInitialMount.current) {
+    if (!isInitialized.current && searchParams) {
+      console.log('Initial URL sync');
       syncFromUrl();
-      isInitialMount.current = false;
+      isInitialized.current = true;
     }
-  }, [syncFromUrl]);
+  }, [syncFromUrl, searchParams]);
 
-  // Listen for URL changes after initial mount
+  // IMPROVED: Listen for search params changes with better detection
   useEffect(() => {
-    if (!isInitialMount.current && searchParams) {
-      const currentSearchParamsString = searchParams.toString();
-
-      // Only sync if search params actually changed
-      if (lastSearchParamsString.current !== currentSearchParamsString) {
-        lastSearchParamsString.current = currentSearchParamsString;
-
-        // Don't trigger URL updates for changes we detect from URL
-        hasUncommittedChanges.current = false;
-        syncFromUrl();
-      }
+    if (isInitialized.current && !isUpdatingFromUrl.current) {
+      console.log('Search params changed, syncing from URL');
+      syncFromUrl();
     }
-  }, [searchParams, syncFromUrl]);
+  }, [searchParamsString, syncFromUrl]);
 
-  // Update URL when debounced values change (only if changes came from user interaction)
+  // Update URL when debounced values change (only for user-initiated changes)
   useEffect(() => {
-    if (!isInitialMount.current && hasUncommittedChanges.current) {
+    if (
+      isInitialized.current &&
+      userInitiatedChange.current &&
+      !isUpdatingFromUrl.current
+    ) {
       updateUrl();
     }
   }, [debouncedFiltersForUrl, debouncedSearchForUrl, updateUrl]);
 
   // Call API callback only when heavily debounced params change
   useEffect(() => {
-    if (!isInitialMount.current && onFiltersChange) {
+    if (isInitialized.current && onFiltersChange) {
       onFiltersChange(apiQueryParams);
     }
   }, [apiQueryParams, onFiltersChange]);

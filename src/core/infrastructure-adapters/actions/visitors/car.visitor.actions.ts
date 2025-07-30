@@ -8,6 +8,7 @@ import {
 import {
   BodyTypeCategoryCount,
   FacetCount,
+  GovernorateCategoryCount,
   SelectCarListingDto,
   SelectCarMakeDto,
   SelectCarModelDto,
@@ -38,6 +39,20 @@ export const getBodyTypeCategoryCounts = async (): Promise<
     });
 
     return res as ApiResponse<BodyTypeCategoryCount[]>;
+  } catch (error) {
+    return catchClientRequest(error);
+  }
+};
+
+export const getCityCounts = async (): Promise<
+  ApiResponse<GovernorateCategoryCount[]>
+> => {
+  try {
+    const res = await getReq({
+      url: '/car-listings-visitor/governorate-category-counts',
+    });
+
+    return res as ApiResponse<GovernorateCategoryCount[]>;
   } catch (error) {
     return catchClientRequest(error);
   }

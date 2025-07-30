@@ -365,6 +365,7 @@
       }
     },
     "filter": {
+      "listingTypeSelect": "select listing type",
       "activeFilters": "{count} active filter",
       "activeFilters_other": "{count} active filters",
       "mobileDescription": "Filter cars by your preferences",
@@ -405,6 +406,7 @@
         },
         "address": {
           "filterOptionsTitle": "Address",
+          "listingTypeTitle": "Listing Type",
           "placeHolder": "City",
           "governorate": "Governorate",
           "city": "City",

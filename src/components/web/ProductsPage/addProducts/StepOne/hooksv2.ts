@@ -15,6 +15,7 @@ import {
   validateForm,
 } from './utils';
 import { loadSelections, saveSelections } from './StorageUtils';
+import { getListingTypeOptions } from '@/core/entities/enums/cars.enums';
 
 /**
  * Custom hook for managing the product step one form with infinite scroll support
@@ -128,6 +129,7 @@ export const useProductStepOne = (
     () => getGovernorateOptions(isArabic),
     [isArabic],
   );
+
   const cityOptions = useMemo(
     () => getCityOptions(selectedOptions.governorate, isArabic),
     [selectedOptions.governorate, isArabic],

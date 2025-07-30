@@ -177,3 +177,8 @@ export interface BodyTypeCategoryCount {
   bodyType: string;
   count: number;
 }
+
+export interface GovernorateCategoryCount {
+  governorate: string;
+  count: number;
+}
