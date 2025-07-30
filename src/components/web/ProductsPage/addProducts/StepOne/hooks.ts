@@ -81,7 +81,6 @@ export const useProductStepOne = (onValidationChange: (isValid: boolean) => void
     const { data: carModelsResponse, error: modelsError } = useCarModels({ where: makeFilter , pageSize: 200 });
     const { data: carTrimsResponse, error: trimsError } = useCarTrims({ where: modelFilter , pageSize: 200 });
 
-    console.log("carMakesResponse",carMakesResponse)
 
     // Transform data for SelectableList components
     const carMarka = useMemo(() => 

@@ -173,7 +173,6 @@ const UserFavoritesEnhanced = () => {
     return item !== null;
   };
 
-  console.log(queryParams);
 
   // Transform favorites data for display
   const favoriteListings = useMemo(() => {
