@@ -1,4 +1,4 @@
-// EnhancedNestedCarFilterV3.tsx - RTL Enhanced Version
+// NestedCarFilter.tsx - Fixed Multi-Brand Support
 'use client';
 
 import React, {
@@ -25,48 +25,47 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import { useLocale } from 'next-intl';
-import { useSearchParams } from 'next/navigation';
 import {
   SelectCarMakeDto,
   SelectCarModelDto,
   SelectCarTrimDto,
 } from '@/core/entities/models/cars/cars.dto';
 
-// Enhanced types for better data management
-interface EnhancedCarMake {
+// =============================================================================
+// TYPES & INTERFACES
+// =============================================================================
+
+interface CarMake {
   value: string;
   label: string;
   logoUrl?: string;
-  isSelected?: boolean;
+  isSelected: boolean;
 }
 
-interface EnhancedCarModel {
+interface CarModel {
   value: string;
   label: string;
   makeId: string;
-  isSelected?: boolean;
+  isSelected: boolean;
 }
 
-interface EnhancedCarTrim {
+interface CarTrim {
   value: string;
   label: string;
   modelId: string;
-  isSelected?: boolean;
+  isSelected: boolean;
 }
 
-interface EnhancedNestedCarFilterV3Props {
-  // Car Makes Configuration
+interface SimplifiedNestedCarFilterProps {
   carMakesConfig: {
     queryKey: string[];
     fetchFn: (
-      params: QueryParams,
+      params: QueryParams & { selectedCarMakes?: number[] },
     ) => Promise<PaginatedResponse<SelectCarMakeDto>>;
     labelField: keyof SelectCarMakeDto;
     valueField: keyof SelectCarMakeDto;
     logoField?: keyof SelectCarMakeDto;
   };
-
-  // Car Models Configuration
   carModelsConfig: {
     queryKey: string[];
     fetchFn: (
@@ -74,10 +73,7 @@ interface EnhancedNestedCarFilterV3Props {
     ) => Promise<PaginatedResponse<SelectCarModelDto>>;
     labelField: keyof SelectCarModelDto;
     valueField: keyof SelectCarModelDto;
-    additionalFilters: any[];
   };
-
-  // Car Trims Configuration
   carTrimsConfig: {
     queryKey: string[];
     fetchFn: (
@@ -85,30 +81,25 @@ interface EnhancedNestedCarFilterV3Props {
     ) => Promise<PaginatedResponse<SelectCarTrimDto>>;
     labelField: keyof SelectCarTrimDto;
     valueField: keyof SelectCarTrimDto;
-    additionalFilters: any[];
   };
-
-  // Current selections
   selectedBrands: string[];
   selectedModel: string;
   selectedTrim: string;
-
-  // Callbacks
   onBrandToggle: (brandId: string) => void;
   onModelSelect: (modelId: string) => void;
   onTrimSelect: (trimId: string) => void;
-
-  // UI configuration
   searchPlaceholder?: string;
   noOptionsMessage?: string;
-  loadingMessage?: string;
   className?: string;
   pageSize?: number;
-  searchDebounce?: number;
   maxHeight?: string;
 }
 
-const EnhancedNestedCarFilterV3: React.FC<EnhancedNestedCarFilterV3Props> = ({
+// =============================================================================
+// MAIN COMPONENT
+// =============================================================================
+
+const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
   carMakesConfig,
   carModelsConfig,
   carTrimsConfig,
@@ -120,89 +111,32 @@ const EnhancedNestedCarFilterV3: React.FC<EnhancedNestedCarFilterV3Props> = ({
   onTrimSelect,
   searchPlaceholder = 'Search brands...',
   noOptionsMessage = 'No options found',
-  loadingMessage = 'Loading...',
   className = '',
   pageSize = 20,
-  searchDebounce = 300,
-  maxHeight = '20rem', // 320px
+  maxHeight = '30rem',
 }) => {
+  // =============================================================================
+  // HOOKS & STATE
+  // =============================================================================
+
   const locale = useLocale();
   const isRTL = locale === 'ar';
-  const searchParams = useSearchParams();
 
-  // Get URL parameters for initial state
-  const urlMake = searchParams?.get('make') || '';
-  const urlModel = searchParams?.get('model') || '';
-  const urlTrim = searchParams?.get('trim') || '';
-
-  // Search and UI state
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedBrands, setExpandedBrands] = useState<Set<string>>(new Set());
   const [expandedModels, setExpandedModels] = useState<Set<string>>(new Set());
   const [isFocused, setIsFocused] = useState(false);
-  const [isInitialized, setIsInitialized] = useState(false);
 
-  // Enhanced scroll management state
-  const [isUserScrolling, setIsUserScrolling] = useState(false);
-  const [canFetchNext, setCanFetchNext] = useState(true);
-
-  // Track selections including URL parameters
-  const effectiveSelectedBrands = useMemo(() => {
-    const fromProps = selectedBrands || [];
-    const fromUrl = urlMake ? [urlMake] : [];
-    return [...new Set([...fromProps, ...fromUrl])];
-  }, [selectedBrands, urlMake]);
-
-  const effectiveSelectedModel = useMemo(() => {
-    return selectedModel || urlModel;
-  }, [selectedModel, urlModel]);
-
-  const effectiveSelectedTrim = useMemo(() => {
-    return selectedTrim || urlTrim;
-  }, [selectedTrim, urlTrim]);
-
-  // Refs for scroll management
-  const scrollTimeout = useRef<NodeJS.Timeout | null>(null);
-  const fetchCooldownTimeout = useRef<NodeJS.Timeout | null>(null);
-  const debouncedSearch = useDebounce(searchTerm, searchDebounce);
   const listRef = useRef<HTMLDivElement>(null);
   const observerRef = useRef<HTMLDivElement>(null);
 
-  // Initialize expansion state based on URL parameters
-  useEffect(() => {
-    if (!isInitialized) {
-      const initialExpandedBrands = new Set<string>();
-      const initialExpandedModels = new Set<string>();
+  const debouncedSearch = useDebounce(searchTerm, 300);
 
-      // Auto-expand based on URL parameters
-      if (urlMake) {
-        initialExpandedBrands.add(urlMake);
-      }
-      if (urlModel) {
-        initialExpandedModels.add(urlModel);
-      }
+  // =============================================================================
+  // DATA FETCHING
+  // =============================================================================
 
-      // Also include current selections
-      effectiveSelectedBrands.forEach((brand) =>
-        initialExpandedBrands.add(brand),
-      );
-      if (effectiveSelectedModel) {
-        initialExpandedModels.add(effectiveSelectedModel);
-      }
-
-      setExpandedBrands(initialExpandedBrands);
-      setExpandedModels(initialExpandedModels);
-      setIsInitialized(true);
-    }
-  }, [
-    urlMake,
-    urlModel,
-    effectiveSelectedBrands,
-    effectiveSelectedModel,
-    isInitialized,
-  ]);
-
-  // Car Makes Query with enhanced error handling
+  // Query params for makes
   const makesQueryParams = useMemo(
     (): QueryParams => ({
       page: 1,
@@ -213,6 +147,7 @@ const EnhancedNestedCarFilterV3: React.FC<EnhancedNestedCarFilterV3Props> = ({
     [debouncedSearch, pageSize, carMakesConfig.labelField],
   );
 
+  // Fetch car makes with infinite scroll
   const {
     data: makesData,
     fetchNextPage: fetchNextMakesPage,
@@ -220,25 +155,20 @@ const EnhancedNestedCarFilterV3: React.FC<EnhancedNestedCarFilterV3Props> = ({
     isFetchingNextPage: isFetchingNextMakesPage,
     isLoading: isLoadingMakes,
     isError: isErrorMakes,
-    error: makesError,
   } = useInfiniteQuery({
     queryKey: [...carMakesConfig.queryKey, makesQueryParams, locale],
     queryFn: async ({ pageParam = 1 }) => {
-      try {
-        const response = await carMakesConfig.fetchFn({
-          ...makesQueryParams,
-          page: Number(pageParam),
-        });
+      const response = await carMakesConfig.fetchFn({
+        ...makesQueryParams,
+        page: Number(pageParam),
+        selectedCarMakes: selectedBrands.map((id) => Number(id)),
+      });
 
-        if (!response.success) {
-          throw new Error(response.message || 'Failed to fetch car makes');
-        }
-
-        return response;
-      } catch (error) {
-        console.error('Error fetching car makes:', error);
-        throw error;
+      if (!response.success) {
+        throw new Error(response.message || 'Failed to fetch car makes');
       }
+
+      return response;
     },
     getNextPageParam: (lastPage) => {
       if (!lastPage.data) return undefined;
@@ -249,195 +179,78 @@ const EnhancedNestedCarFilterV3: React.FC<EnhancedNestedCarFilterV3Props> = ({
     initialPageParam: 1,
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
-    retry: 2,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 
-  // If we have URL parameters but no data yet, we need to ensure those items are fetched
-  // This is a special query to fetch specific makes/models/trims from URL
-  const urlItemsQuery = useInfiniteQuery<{
-    success: boolean;
-    data: {
-      data: {
-        makes: SelectCarMakeDto[];
-        models: SelectCarModelDto[];
-        trims: SelectCarTrimDto[];
-      };
-    };
-  }>({
-    queryKey: ['url-specific-items', urlMake, urlModel, urlTrim, locale],
-    queryFn: async () => {
-      // Fetch specific items mentioned in URL
-      const results: {
-        makes: SelectCarMakeDto[];
-        models: SelectCarModelDto[];
-        trims: SelectCarTrimDto[];
-      } = { makes: [], models: [], trims: [] };
+  // =============================================================================
+  // DATA TRANSFORMATION
+  // =============================================================================
 
-      try {
-        // Fetch specific make if in URL
-        if (urlMake) {
-          const makeResponse = await carMakesConfig.fetchFn({
-            page: 1,
-            pageSize: 1,
-            where: [{ field: 'id', operator: 'eq', value: urlMake }],
-          });
-          if (makeResponse.success && makeResponse.data?.data) {
-            results.makes = makeResponse.data.data;
-          }
-        }
-
-        // Fetch specific model if in URL
-        if (urlModel) {
-          const modelResponse = await carModelsConfig.fetchFn({
-            page: 1,
-            pageSize: 1,
-            where: [{ field: 'id', operator: 'eq', value: urlModel }],
-          });
-          if (modelResponse.success && modelResponse.data?.data) {
-            results.models = modelResponse.data.data;
-          }
-        }
-
-        // Fetch specific trim if in URL
-        if (urlTrim) {
-          const trimResponse = await carTrimsConfig.fetchFn({
-            page: 1,
-            pageSize: 1,
-            where: [{ field: 'id', operator: 'eq', value: urlTrim }],
-          });
-          if (trimResponse.success && trimResponse.data?.data) {
-            results.trims = trimResponse.data.data;
-          }
-        }
-
-        return { success: true, data: { data: results } };
-      } catch (error) {
-        console.error('Error fetching URL-specific items:', error);
-        return {
-          success: false,
-          data: { data: { makes: [], models: [], trims: [] } },
-        };
-      }
-    },
-    getNextPageParam: () => undefined, // No pagination for this query
-    initialPageParam: 1,
-    enabled: !!(urlMake || urlModel || urlTrim), // Only run if we have URL params
-    staleTime: 10 * 60 * 1000, // Cache longer since these are specific items
-    refetchOnWindowFocus: false,
-  });
-
-  // Transform and sort makes data - selected items first
+  // FIXED: Transform and sort makes data with proper multi-brand support
   const makes = useMemo(() => {
-    if (!makesData?.pages && !urlItemsQuery.data?.pages) return [];
+    const allMakes = new Map<string, CarMake>();
 
-    try {
-      // Combine regular makes data with URL-specific makes
-      let allMakes: EnhancedCarMake[] = [];
+    // 2. Then, add makes from search results
+    if (makesData?.pages) {
+      makesData.pages.forEach((page) => {
+        page.data?.data.forEach((item) => {
+          const makeValue = String(item[carMakesConfig.valueField]);
 
-      // Add makes from regular query
-      if (makesData?.pages) {
-        const regularMakes = makesData.pages.flatMap(
-          (page) =>
-            page.data?.data.map((item) => ({
-              value: String(item[carMakesConfig.valueField]),
+          // Only add if not already exists (selected items take priority)
+          if (!allMakes.has(makeValue)) {
+            const make: CarMake = {
+              value: makeValue,
               label: String(item[carMakesConfig.labelField]),
               logoUrl: carMakesConfig.logoField
                 ? String(item[carMakesConfig.logoField])
                 : undefined,
-              isSelected: effectiveSelectedBrands.includes(
-                String(item[carMakesConfig.valueField]),
-              ),
-            })) || [],
-        );
-        allMakes = [...allMakes, ...regularMakes];
-      }
-
-      // Add URL-specific makes if not already present
-      if (urlItemsQuery.data?.pages) {
-        const urlMakes = urlItemsQuery.data.pages.flatMap((page) => {
-          const urlData = page?.data?.data?.makes || [];
-          return urlData.map((item: any) => ({
-            value: String(item[carMakesConfig.valueField]),
-            label: String(item[carMakesConfig.labelField]),
-            logoUrl: carMakesConfig.logoField
-              ? String(item[carMakesConfig.logoField])
-              : undefined,
-            isSelected: effectiveSelectedBrands.includes(
-              String(item[carMakesConfig.valueField]),
-            ),
-          }));
-        });
-
-        // Add URL makes that aren't already in the list
-        urlMakes.forEach((urlMake) => {
-          if (!allMakes.find((make) => make.value === urlMake.value)) {
-            allMakes.push(urlMake);
+              isSelected: selectedBrands.includes(makeValue), // FIXED: Proper multi-brand check
+            };
+            allMakes.set(make.value, make);
+          } else {
+            // Update selection status if make already exists
+            const existingMake = allMakes.get(makeValue);
+            if (existingMake) {
+              existingMake.isSelected = selectedBrands.includes(makeValue);
+            }
           }
         });
-      }
-
-      // Remove duplicates and sort: selected items first, then alphabetically
-      const uniqueMakes = allMakes.filter(
-        (make, index, self) =>
-          index === self.findIndex((m) => m.value === make.value),
-      );
-
-      return uniqueMakes.sort((a, b) => {
-        if (a.isSelected && !b.isSelected) return -1;
-        if (!a.isSelected && b.isSelected) return 1;
-        return a.label.localeCompare(b.label);
       });
-    } catch (error) {
-      console.error('Error transforming makes data:', error);
-      return [];
     }
-  }, [
-    makesData?.pages,
-    urlItemsQuery.data?.pages,
-    carMakesConfig,
-    effectiveSelectedBrands,
-  ]);
 
-  // Car Models Query hook - enhanced to handle URL parameters
+    // 3. Convert to array and sort: selected first, then alphabetically
+    return Array.from(allMakes.values()).sort((a, b) => {
+      // Selected items always come first
+      if (a.isSelected && !b.isSelected) return -1;
+      if (!a.isSelected && b.isSelected) return 1;
+
+      // Within same selection status, sort alphabetically
+      return a.label.localeCompare(b.label, locale, {
+        numeric: true,
+        sensitivity: 'base',
+      });
+    });
+  }, [makesData?.pages, selectedBrands, carMakesConfig, locale]);
+
+  // =============================================================================
+  // HOOKS FOR MODELS AND TRIMS
+  // =============================================================================
+
   const useModelsForBrand = useCallback(
     (brandId: string) => {
-      const modelsQueryParams = useMemo(
-        (): QueryParams => ({
-          page: 1,
-          pageSize: 100,
-          where: [{ field: 'makeId', operator: 'eq', value: brandId }],
-        }),
-        [brandId],
-      );
-
       return useInfiniteQuery({
-        queryKey: [
-          ...carModelsConfig.queryKey,
-          brandId,
-          modelsQueryParams,
-          locale,
-        ],
+        queryKey: [...carModelsConfig.queryKey, brandId, locale],
         queryFn: async ({ pageParam = 1 }) => {
-          try {
-            const response = await carModelsConfig.fetchFn({
-              ...modelsQueryParams,
-              page: Number(pageParam),
-            });
+          const response = await carModelsConfig.fetchFn({
+            page: Number(pageParam),
+            pageSize: 100,
+            where: [{ field: 'makeId', operator: 'eq', value: brandId }],
+          });
 
-            if (!response.success) {
-              throw new Error(response.message || 'Failed to fetch car models');
-            }
-
-            return response;
-          } catch (error) {
-            console.error(
-              'Error fetching car models for brand:',
-              brandId,
-              error,
-            );
-            throw error;
+          if (!response.success) {
+            throw new Error(response.message || 'Failed to fetch car models');
           }
+
+          return response;
         },
         getNextPageParam: (lastPage) => {
           if (!lastPage.data) return undefined;
@@ -447,56 +260,30 @@ const EnhancedNestedCarFilterV3: React.FC<EnhancedNestedCarFilterV3Props> = ({
         },
         initialPageParam: 1,
         enabled:
-          (effectiveSelectedBrands.includes(brandId) &&
-            expandedBrands.has(brandId)) ||
-          urlMake === brandId, // Also enable if this brand is in URL
+          selectedBrands.includes(brandId) && expandedBrands.has(brandId),
         staleTime: 5 * 60 * 1000,
         refetchOnWindowFocus: false,
-        retry: 2,
       });
     },
-    [carModelsConfig, effectiveSelectedBrands, expandedBrands, urlMake],
+    [carModelsConfig, selectedBrands, expandedBrands],
   );
 
-  // Car Trims Query hook - enhanced to handle URL parameters
   const useTrimsForModel = useCallback(
     (modelId: string) => {
-      const trimsQueryParams = useMemo(
-        (): QueryParams => ({
-          page: 1,
-          pageSize: 100,
-          where: [{ field: 'modelId', operator: 'eq', value: modelId }],
-        }),
-        [modelId],
-      );
-
       return useInfiniteQuery({
-        queryKey: [
-          ...carTrimsConfig.queryKey,
-          modelId,
-          trimsQueryParams,
-          locale,
-        ],
+        queryKey: [...carTrimsConfig.queryKey, modelId, locale],
         queryFn: async ({ pageParam = 1 }) => {
-          try {
-            const response = await carTrimsConfig.fetchFn({
-              ...trimsQueryParams,
-              page: Number(pageParam),
-            });
+          const response = await carTrimsConfig.fetchFn({
+            page: Number(pageParam),
+            pageSize: 100,
+            where: [{ field: 'modelId', operator: 'eq', value: modelId }],
+          });
 
-            if (!response.success) {
-              throw new Error(response.message || 'Failed to fetch car trims');
-            }
-
-            return response;
-          } catch (error) {
-            console.error(
-              'Error fetching car trims for model:',
-              modelId,
-              error,
-            );
-            throw error;
+          if (!response.success) {
+            throw new Error(response.message || 'Failed to fetch car trims');
           }
+
+          return response;
         },
         getNextPageParam: (lastPage) => {
           if (!lastPage.data) return undefined;
@@ -505,565 +292,379 @@ const EnhancedNestedCarFilterV3: React.FC<EnhancedNestedCarFilterV3Props> = ({
             : undefined;
         },
         initialPageParam: 1,
-        enabled:
-          (!!modelId && expandedModels.has(modelId)) || urlModel === modelId, // Also enable if this model is in URL
+        enabled: !!modelId && expandedModels.has(modelId),
         staleTime: 5 * 60 * 1000,
         refetchOnWindowFocus: false,
-        retry: 2,
       });
     },
-    [carTrimsConfig, expandedModels, urlModel],
+    [carTrimsConfig, expandedModels],
   );
 
-  // Enhanced scroll handling
-  const handleScroll = useCallback(() => {
-    if (!listRef.current) return;
+  // =============================================================================
+  // EFFECTS
+  // =============================================================================
 
-    const { scrollTop, scrollHeight, clientHeight } = listRef.current;
-    const isNearBottom = scrollTop + clientHeight >= scrollHeight - 100;
-
-    setIsUserScrolling(true);
-
-    if (scrollTimeout.current) {
-      clearTimeout(scrollTimeout.current);
+  // FIXED: Auto-expand selected items properly
+  useEffect(() => {
+    setExpandedBrands(new Set(selectedBrands));
+    if (selectedModel) {
+      setExpandedModels((prev) => new Set([...prev, selectedModel]));
     }
+  }, [selectedBrands, selectedModel]);
 
-    scrollTimeout.current = setTimeout(() => {
-      setIsUserScrolling(false);
-      if (isNearBottom) {
-        setCanFetchNext(true);
-      }
-    }, 150);
-  }, []);
-
-  // Enhanced intersection observer
+  // Infinite scroll observer
   useEffect(() => {
     if (!observerRef.current || !listRef.current) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
         const [entry] = entries;
-
         if (
           entry.isIntersecting &&
           hasNextMakesPage &&
-          !isFetchingNextMakesPage &&
-          canFetchNext &&
-          !isUserScrolling
+          !isFetchingNextMakesPage
         ) {
-          setCanFetchNext(false);
-
-          fetchNextMakesPage().finally(() => {
-            if (fetchCooldownTimeout.current) {
-              clearTimeout(fetchCooldownTimeout.current);
-            }
-
-            fetchCooldownTimeout.current = setTimeout(() => {
-              setCanFetchNext(true);
-            }, 1000);
-          });
+          fetchNextMakesPage();
         }
       },
-      {
-        root: listRef.current,
-        threshold: 0.1,
-        rootMargin: '20px',
-      },
+      { root: listRef.current, threshold: 0.1, rootMargin: '20px' },
     );
 
     observer.observe(observerRef.current);
+    return () => observer.disconnect();
+  }, [hasNextMakesPage, isFetchingNextMakesPage, fetchNextMakesPage]);
 
-    return () => {
-      observer.disconnect();
-      if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
-      if (fetchCooldownTimeout.current)
-        clearTimeout(fetchCooldownTimeout.current);
-    };
-  }, [
-    hasNextMakesPage,
-    isFetchingNextMakesPage,
-    fetchNextMakesPage,
-    canFetchNext,
-    isUserScrolling,
-  ]);
+  // =============================================================================
+  // EVENT HANDLERS
+  // =============================================================================
 
-  // Add scroll listener
-  useEffect(() => {
-    const scrollContainer = listRef.current;
-    if (!scrollContainer) return;
-
-    scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
-
-    return () => {
-      scrollContainer.removeEventListener('scroll', handleScroll);
-    };
-  }, [handleScroll]);
-
-  // Input handlers
-  const handleSearchChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setSearchTerm(e.target.value);
-    },
-    [],
-  );
-
-  const handleClearSearch = useCallback(() => {
-    setSearchTerm('');
-  }, []);
-
-  const handleSearchFocus = useCallback(() => {
-    setIsFocused(true);
-  }, []);
-
-  const handleSearchBlur = useCallback(() => {
-    setIsFocused(false);
-  }, []);
-
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === 'Escape') {
-        handleClearSearch();
-        e.currentTarget.blur();
-      }
-    },
-    [handleClearSearch],
-  );
-
-  // Selection handlers
+  // FIXED: Brand toggle handler with proper expansion logic
   const handleBrandToggle = useCallback(
     (brandId: string) => {
       onBrandToggle(brandId);
 
-      setExpandedBrands((prev) => {
-        const newSet = new Set(prev);
-        if (newSet.has(brandId)) {
+      // Only auto-expand when selecting a brand, not when deselecting
+      const willBeSelected = !selectedBrands.includes(brandId);
+
+      if (willBeSelected) {
+        setExpandedBrands((prev) => new Set([...prev, brandId]));
+      } else {
+        // Optionally collapse when deselecting
+        setExpandedBrands((prev) => {
+          const newSet = new Set(prev);
           newSet.delete(brandId);
-        } else {
-          newSet.add(brandId);
-        }
-        return newSet;
-      });
+          return newSet;
+        });
+      }
     },
-    [onBrandToggle],
+    [onBrandToggle, selectedBrands],
   );
 
   const handleModelSelect = useCallback(
     (modelId: string) => {
       onModelSelect(modelId);
-      setExpandedModels((prev) => new Set([...prev, modelId]));
+      if (modelId) {
+        setExpandedModels((prev) => new Set([...prev, modelId]));
+      }
     },
     [onModelSelect],
   );
 
-  const handleTrimSelect = useCallback(
-    (trimId: string) => {
-      onTrimSelect(trimId);
-    },
-    [onTrimSelect],
-  );
+  // =============================================================================
+  // RENDER COMPONENTS
+  // =============================================================================
 
-  // Brand Item Component with enhanced selected styling and RTL support
-  const BrandItem: React.FC<{ brand: EnhancedCarMake }> = ({ brand }) => {
-    const isSelected = effectiveSelectedBrands.includes(brand.value);
+  const BrandItem: React.FC<{ brand: CarMake }> = React.memo(({ brand }) => {
     const isExpanded = expandedBrands.has(brand.value);
-
     const modelsQuery = useModelsForBrand(brand.value);
 
-    // Transform and sort models data - selected model first, including URL models
     const models = useMemo(() => {
       if (!modelsQuery.data?.pages) return [];
 
-      try {
-        let allModels = modelsQuery.data.pages.flatMap(
-          (page) =>
-            page.data?.data.map((item) => ({
-              value: String(item[carModelsConfig.valueField]),
-              label: String(item[carModelsConfig.labelField]),
-              makeId: String(item.makeId),
-              isSelected:
-                effectiveSelectedModel ===
-                String(item[carModelsConfig.valueField]),
-            })) || [],
-        );
-
-        // If we have a URL model that's not in the current list, add it
-        if (urlModel && urlItemsQuery.data?.pages) {
-          const urlModels = urlItemsQuery.data.pages.flatMap((page) => {
-            const urlData = page?.data?.data?.models || [];
-            return urlData.map((item: any) => ({
-              value: String(item[carModelsConfig.valueField]),
-              label: String(item[carModelsConfig.labelField]),
-              makeId: String(item.makeId),
-              isSelected:
-                effectiveSelectedModel ===
-                String(item[carModelsConfig.valueField]),
-            }));
-          });
-
-          // Add URL models that aren't already in the list and belong to this make
-          urlModels.forEach((urlModel) => {
-            if (
-              urlModel.makeId === brand.value &&
-              !allModels.find((model) => model.value === urlModel.value)
-            ) {
-              allModels.push(urlModel);
-            }
-          });
-        }
-
-        // Sort: selected model first, then alphabetically
-        return allModels.sort((a, b) => {
+      return modelsQuery.data.pages
+        .flatMap((page) => page.data?.data || [])
+        .map((item) => ({
+          value: String(item[carModelsConfig.valueField]),
+          label: String(item[carModelsConfig.labelField]),
+          makeId: String(item.makeId),
+          isSelected:
+            selectedModel === String(item[carModelsConfig.valueField]),
+        }))
+        .sort((a, b) => {
           if (a.isSelected && !b.isSelected) return -1;
           if (!a.isSelected && b.isSelected) return 1;
-          return a.label.localeCompare(b.label, locale);
+          return a.label.localeCompare(b.label, locale, {
+            numeric: true,
+            sensitivity: 'base',
+          });
         });
-      } catch (error) {
-        console.error('Error transforming models data:', error);
-        return [];
-      }
-    }, [
-      modelsQuery.data?.pages,
-      effectiveSelectedModel,
-      urlModel,
-      urlItemsQuery.data?.pages,
-      brand.value,
-      locale,
-    ]);
+    }, [modelsQuery.data?.pages]);
 
     return (
-      <div className="mb-1">
-        {/* Enhanced Brand Checkbox with selected styling and RTL support */}
+      <div className="mb-2">
         <div
-          className={`flex items-center p-2 rounded-md transition-all duration-200 group ${
-            isSelected
-              ? 'bg-primary/10 border border-primary/20 shadow-sm'
-              : 'hover:bg-slate-50'
+          className={`rounded-lg border transition-all duration-200 ${
+            brand.isSelected
+              ? 'bg-primary/10 border-primary/30 shadow-sm'
+              : 'bg-white border-slate-200 hover:border-slate-300'
           }`}
         >
-          <div
-            className={`flex items-center flex-1 ${
-              isRTL ? 'flex-row-reverse' : ''
-            }`}
-          >
-            <Checkbox
-              id={`brand-${brand.value}`}
-              checked={isSelected}
-              onCheckedChange={() => handleBrandToggle(brand.value)}
-              className="border-slate-300 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-            />
-            <Label
-              htmlFor={`brand-${brand.value}`}
-              className={`text-sm font-medium cursor-pointer flex items-center transition-colors ${
-                isSelected
-                  ? 'text-primary'
-                  : 'text-slate-700 group-hover:text-slate-900'
-              } ${isRTL ? 'pr-2 flex-row-reverse' : 'pl-2'}`}
+          <div className="p-3">
+            <div
+              className={`flex items-center w-full ${
+                isRTL ? 'text-right' : 'text-left'
+              }`}
             >
-              {isSelected && (
-                <Star
-                  className={`w-3 h-3 text-primary fill-current ${
-                    isRTL ? 'ml-1' : 'mr-1'
-                  }`}
-                />
-              )}
-              {brand.logoUrl && (
-                <div
-                  className={`relative w-6 h-6 flex-shrink-0 ${
-                    isRTL ? 'ml-2' : 'mr-2'
-                  }`}
-                >
-                  <Image
-                    src={brand.logoUrl || '/placeholder.svg'}
-                    alt={brand.label}
-                    fill
-                    className="object-contain rounded"
-                    sizes="24px"
-                  />
-                </div>
-              )}
-              <span className="truncate">{brand.label}</span>
-            </Label>
-          </div>
-
-          {/* Expand/Collapse indicator with RTL support */}
-          {isSelected && (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setExpandedBrands((prev) => {
-                  const newSet = new Set(prev);
-                  if (newSet.has(brand.value)) {
-                    newSet.delete(brand.value);
-                  } else {
-                    newSet.add(brand.value);
-                  }
-                  return newSet;
-                });
-              }}
-              className="p-1 hover:bg-primary/20 rounded transition-colors flex-shrink-0"
-              title={isExpanded ? 'Collapse models' : 'Expand models'}
-            >
-              {isExpanded ? (
-                <ChevronDown className="w-4 h-4 text-primary" />
-              ) : (
-                <ChevronRight
-                  className={`w-4 h-4 text-primary ${
-                    isRTL ? 'rotate-180' : ''
-                  }`}
-                />
-              )}
-            </button>
-          )}
-        </div>
-
-        {/* Models (nested under brand) with RTL support */}
-        {isSelected && isExpanded && (
-          <div
-            className={`border-l-2 border-primary/30 mt-1 ${
-              isRTL ? 'pr-6 border-l-0 border-r-2 mr-4' : 'pl-6 ml-4'
-            }`}
-          >
-            {modelsQuery.isLoading ? (
               <div
-                className={`flex items-center p-2 text-sm text-slate-500 ${
-                  isRTL ? 'flex-row-reverse' : ''
+                className={`flex items-center flex-1 ${
+                  isRTL ? 'flex-row' : 'justify-start'
                 }`}
               >
-                <Loader2
-                  className={`w-4 h-4 animate-spin ${isRTL ? 'ml-2' : 'mr-2'}`}
+                <Checkbox
+                  id={`brand-${brand.value}`}
+                  checked={brand.isSelected}
+                  onCheckedChange={() => handleBrandToggle(brand.value)}
+                  className="border-slate-300 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                 />
-                Loading models...
+                <Label
+                  htmlFor={`brand-${brand.value}`}
+                  className={`text-sm font-medium cursor-pointer flex items-center ${
+                    brand.isSelected ? 'text-primary' : 'text-slate-700'
+                  } ${isRTL ? 'pr-3' : 'pl-3'}`}
+                >
+                  {brand.isSelected && (
+                    <Star
+                      className={`w-3 h-3 text-primary fill-current ${
+                        isRTL ? 'ml-2' : 'mr-2'
+                      }`}
+                    />
+                  )}
+                  {brand.logoUrl && (
+                    <div
+                      className={`relative w-6 h-6 flex-shrink-0 ${
+                        isRTL ? 'ml-2' : 'mr-2'
+                      }`}
+                    >
+                      <Image
+                        src={brand.logoUrl}
+                        alt={brand.label}
+                        fill
+                        className="object-contain rounded"
+                        sizes="24px"
+                      />
+                    </div>
+                  )}
+                  <span className="truncate">{brand.label}</span>
+                </Label>
               </div>
-            ) : modelsQuery.isError ? (
-              <div className="p-2 text-sm text-red-500">
-                Failed to load models. Try again.
-              </div>
-            ) : models.length === 0 ? (
-              <div className="p-2 text-sm text-slate-500">No models found</div>
-            ) : (
-              models.map((model) => (
-                <ModelItem
-                  key={model.value}
-                  model={model}
-                  brandId={brand.value}
-                />
-              ))
-            )}
+
+              {brand.isSelected && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setExpandedBrands((prev) => {
+                      const newSet = new Set(prev);
+                      if (newSet.has(brand.value)) {
+                        newSet.delete(brand.value);
+                      } else {
+                        newSet.add(brand.value);
+                      }
+                      return newSet;
+                    });
+                  }}
+                  className="p-1.5 hover:bg-primary/20 rounded-md transition-colors border border-primary/20"
+                >
+                  {isExpanded ? (
+                    <ChevronDown className="w-4 h-4 text-primary" />
+                  ) : (
+                    <ChevronRight
+                      className={`w-4 h-4 text-primary ${
+                        isRTL ? 'rotate-180' : ''
+                      }`}
+                    />
+                  )}
+                </button>
+              )}
+            </div>
           </div>
-        )}
+
+          {brand.isSelected && isExpanded && (
+            <div className="border-t border-primary/20 bg-primary/5 p-3 space-y-2">
+              {modelsQuery.isLoading ? (
+                <div className="flex items-center p-2 text-sm text-slate-500">
+                  <Loader2
+                    className={`w-4 h-4 animate-spin ${
+                      isRTL ? 'ml-2' : 'mr-2'
+                    }`}
+                  />
+                  {isRTL ? 'جارٍ تحميل الموديلات...' : 'Loading models...'}
+                </div>
+              ) : models.length === 0 ? (
+                <div className="p-2 text-sm text-slate-500">
+                  {isRTL ? 'لم يتم العثور على موديلات' : 'No models found'}
+                </div>
+              ) : (
+                models.map((model) => (
+                  <ModelItem key={model.value} model={model} />
+                ))
+              )}
+            </div>
+          )}
+        </div>
       </div>
     );
-  };
+  });
 
-  // Model Item Component with enhanced selected styling and RTL support
-  const ModelItem: React.FC<{ model: EnhancedCarModel; brandId: string }> = ({
-    model,
-    brandId,
-  }) => {
-    const isSelected = effectiveSelectedModel === model.value;
+  const ModelItem: React.FC<{ model: CarModel }> = React.memo(({ model }) => {
     const isExpanded = expandedModels.has(model.value);
-
     const trimsQuery = useTrimsForModel(model.value);
 
-    // Transform and sort trims data - selected trim first, including URL trims
     const trims = useMemo(() => {
       if (!trimsQuery.data?.pages) return [];
 
-      try {
-        let allTrims = trimsQuery.data.pages.flatMap(
-          (page) =>
-            page.data?.data.map((item) => ({
-              value: String(item[carTrimsConfig.valueField]),
-              label: String(item[carTrimsConfig.labelField]),
-              modelId: String(item.modelId),
-              isSelected:
-                effectiveSelectedTrim ===
-                String(item[carTrimsConfig.valueField]),
-            })) || [],
-        );
-
-        // If we have a URL trim that's not in the current list, add it
-        if (urlTrim && urlItemsQuery.data?.pages) {
-          const urlTrims = urlItemsQuery.data.pages.flatMap((page) => {
-            const urlData = page?.data?.data?.trims || [];
-            return urlData.map((item: any) => ({
-              value: String(item[carTrimsConfig.valueField]),
-              label: String(item[carTrimsConfig.labelField]),
-              modelId: String(item.modelId),
-              isSelected:
-                effectiveSelectedTrim ===
-                String(item[carTrimsConfig.valueField]),
-            }));
-          });
-
-          // Add URL trims that aren't already in the list and belong to this model
-          urlTrims.forEach((urlTrim) => {
-            if (
-              urlTrim.modelId === model.value &&
-              !allTrims.find((trim) => trim.value === urlTrim.value)
-            ) {
-              allTrims.push(urlTrim);
-            }
-          });
-        }
-
-        // Sort: selected trim first, then alphabetically
-        return allTrims.sort((a, b) => {
+      return trimsQuery.data.pages
+        .flatMap((page) => page.data?.data || [])
+        .map((item) => ({
+          value: String(item[carTrimsConfig.valueField]),
+          label: String(item[carTrimsConfig.labelField]),
+          modelId: String(item.modelId),
+          isSelected: selectedTrim === String(item[carTrimsConfig.valueField]),
+        }))
+        .sort((a, b) => {
           if (a.isSelected && !b.isSelected) return -1;
           if (!a.isSelected && b.isSelected) return 1;
-          return a.label.localeCompare(b.label, locale);
+          return a.label.localeCompare(b.label, locale, {
+            numeric: true,
+            sensitivity: 'base',
+          });
         });
-      } catch (error) {
-        console.error('Error transforming trims data:', error);
-        return [];
-      }
-    }, [
-      trimsQuery.data?.pages,
-      effectiveSelectedTrim,
-      urlTrim,
-      urlItemsQuery.data?.pages,
-      model.value,
-      locale,
-    ]);
+    }, [trimsQuery.data?.pages]);
 
     return (
       <div className="mb-1">
-        {/* Enhanced Model Selection with selected styling and RTL support */}
         <div
-          className={`flex items-center p-2 rounded-md transition-all duration-200 group ${
-            isSelected
-              ? 'bg-primary/5 border border-primary/10'
-              : 'hover:bg-slate-50'
+          className={`rounded-md border transition-all duration-200 ${
+            model.isSelected
+              ? 'bg-white border-primary/30 shadow-sm'
+              : 'bg-white/70 border-slate-200 hover:bg-white'
           }`}
         >
-          <div
-            className={`flex items-center flex-1 ${
-              isRTL ? 'flex-row-reverse' : ''
-            }`}
-          >
-            <Checkbox
-              id={`model-${model.value}`}
-              checked={isSelected}
-              onCheckedChange={() => handleModelSelect(model.value)}
-              className="border-slate-300 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-            />
-            <Label
-              htmlFor={`model-${model.value}`}
-              className={`text-sm cursor-pointer transition-colors flex items-center ${
-                isSelected
-                  ? 'text-primary font-medium'
-                  : 'text-slate-600 group-hover:text-slate-800'
-              } ${isRTL ? 'pr-2 flex-row-reverse' : 'pl-2'}`}
+          <div className="p-2">
+            <div
+              className={`flex items-center w-full ${
+                isRTL ? 'text-right' : 'text-left'
+              }`}
             >
-              {isSelected && (
-                <Star
-                  className={`w-3 h-3 text-primary fill-current ${
-                    isRTL ? 'ml-1' : 'mr-1'
-                  }`}
-                />
-              )}
-              <span className="truncate">{model.label}</span>
-            </Label>
-          </div>
-
-          {/* Expand/Collapse indicator for trims with RTL support */}
-          {isSelected && trims.length > 0 && (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setExpandedModels((prev) => {
-                  const newSet = new Set(prev);
-                  if (newSet.has(model.value)) {
-                    newSet.delete(model.value);
-                  } else {
-                    newSet.add(model.value);
-                  }
-                  return newSet;
-                });
-              }}
-              className="p-1 hover:bg-primary/20 rounded transition-colors flex-shrink-0"
-              title={isExpanded ? 'Collapse trims' : 'Expand trims'}
-            >
-              {isExpanded ? (
-                <ChevronDown className="w-4 h-4 text-primary" />
-              ) : (
-                <ChevronRight
-                  className={`w-4 h-4 text-primary ${
-                    isRTL ? 'rotate-180' : ''
-                  }`}
-                />
-              )}
-            </button>
-          )}
-        </div>
-
-        {/* Trims (nested under model) with RTL support */}
-        {isSelected && isExpanded && (
-          <div
-            className={`border-l-2 border-primary/20 mt-1 ${
-              isRTL ? 'pr-6 border-l-0 border-r-2 mr-4' : 'pl-6 ml-4'
-            }`}
-          >
-            {trimsQuery.isLoading ? (
               <div
-                className={`flex items-center p-2 text-sm text-slate-500 ${
-                  isRTL ? 'flex-row-reverse' : ''
+                className={`flex items-center flex-1 ${
+                  isRTL ? 'flex-row' : 'justify-start'
                 }`}
               >
-                <Loader2
-                  className={`w-4 h-4 animate-spin ${isRTL ? 'ml-2' : 'mr-2'}`}
+                <Checkbox
+                  id={`model-${model.value}`}
+                  checked={model.isSelected}
+                  onCheckedChange={() => handleModelSelect(model.value)}
+                  className="border-slate-300 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                 />
-                Loading trims...
+                <Label
+                  htmlFor={`model-${model.value}`}
+                  className={`text-sm cursor-pointer flex items-center ${
+                    model.isSelected
+                      ? 'text-primary font-medium'
+                      : 'text-slate-600'
+                  } ${isRTL ? 'pr-2' : 'pl-2'}`}
+                >
+                  {model.isSelected && (
+                    <Star
+                      className={`w-3 h-3 text-primary fill-current ${
+                        isRTL ? 'ml-1' : 'mr-1'
+                      }`}
+                    />
+                  )}
+                  <span className="truncate">{model.label}</span>
+                </Label>
               </div>
-            ) : trimsQuery.isError ? (
-              <div className="p-2 text-sm text-red-500">
-                Failed to load trims. Try again.
-              </div>
-            ) : trims.length === 0 ? (
-              <div className="p-2 text-sm text-slate-500">No trims found</div>
-            ) : (
-              trims.map((trim) => <TrimItem key={trim.value} trim={trim} />)
-            )}
+
+              {model.isSelected && trims.length > 0 && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setExpandedModels((prev) => {
+                      const newSet = new Set(prev);
+                      if (newSet.has(model.value)) {
+                        newSet.delete(model.value);
+                      } else {
+                        newSet.add(model.value);
+                      }
+                      return newSet;
+                    });
+                  }}
+                  className="p-1 hover:bg-primary/20 rounded transition-colors border border-primary/20"
+                >
+                  {isExpanded ? (
+                    <ChevronDown className="w-3 h-3 text-primary" />
+                  ) : (
+                    <ChevronRight
+                      className={`w-3 h-3 text-primary ${
+                        isRTL ? 'rotate-180' : ''
+                      }`}
+                    />
+                  )}
+                </button>
+              )}
+            </div>
           </div>
-        )}
+
+          {model.isSelected && isExpanded && trims.length > 0 && (
+            <div className="border-t border-primary/20 bg-primary/5 p-2 space-y-1">
+              {trimsQuery.isLoading ? (
+                <div className="flex items-center p-2 text-sm text-slate-500">
+                  <Loader2
+                    className={`w-4 h-4 animate-spin ${
+                      isRTL ? 'ml-2' : 'mr-2'
+                    }`}
+                  />
+                  {isRTL ? 'جارٍ تحميل الفئات...' : 'Loading trims...'}
+                </div>
+              ) : (
+                trims.map((trim) => <TrimItem key={trim.value} trim={trim} />)
+              )}
+            </div>
+          )}
+        </div>
       </div>
     );
-  };
+  });
 
-  // Trim Item Component with enhanced selected styling and RTL support
-  const TrimItem: React.FC<{ trim: EnhancedCarTrim }> = ({ trim }) => {
-    const isSelected = effectiveSelectedTrim === trim.value;
-
-    return (
-      <div
-        className={`flex items-center p-2 rounded-md transition-all duration-200 group ${
-          isSelected
-            ? 'bg-primary/5 border border-primary/10'
-            : 'hover:bg-slate-50'
-        }`}
-      >
+  const TrimItem: React.FC<{ trim: CarTrim }> = React.memo(({ trim }) => (
+    <div
+      className={`rounded border transition-all duration-200 ${
+        trim.isSelected
+          ? 'bg-white border-primary/30 shadow-sm'
+          : 'bg-white/50 border-slate-200 hover:bg-white'
+      }`}
+    >
+      <div className="p-2">
         <div
-          className={`flex items-center flex-1 ${
-            isRTL ? 'flex-row-reverse' : ''
+          className={`flex items-center w-full ${
+            isRTL ? 'text-right' : 'text-left'
           }`}
         >
           <Checkbox
             id={`trim-${trim.value}`}
-            checked={isSelected}
-            onCheckedChange={() => handleTrimSelect(trim.value)}
+            checked={trim.isSelected}
+            onCheckedChange={() => onTrimSelect(trim.value)}
             className="border-slate-300 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
           />
           <Label
             htmlFor={`trim-${trim.value}`}
-            className={`text-sm cursor-pointer transition-colors flex items-center ${
-              isSelected
-                ? 'text-primary font-medium'
-                : 'text-slate-500 group-hover:text-slate-700'
-            } ${isRTL ? 'pr-2 flex-row-reverse' : 'pl-2'}`}
+            className={`text-sm cursor-pointer flex items-center ${
+              trim.isSelected ? 'text-primary font-medium' : 'text-slate-500'
+            } ${isRTL ? 'pr-2' : 'pl-2'}`}
           >
-            {isSelected && (
+            {trim.isSelected && (
               <Star
                 className={`w-3 h-3 text-primary fill-current ${
                   isRTL ? 'ml-1' : 'mr-1'
@@ -1074,238 +675,143 @@ const EnhancedNestedCarFilterV3: React.FC<EnhancedNestedCarFilterV3Props> = ({
           </Label>
         </div>
       </div>
-    );
-  };
+    </div>
+  ));
+
+  // Add display names
+  BrandItem.displayName = 'BrandItem';
+  ModelItem.displayName = 'ModelItem';
+  TrimItem.displayName = 'TrimItem';
+
+  // =============================================================================
+  // MAIN RENDER
+  // =============================================================================
 
   return (
-    <div className={className} dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* Enhanced Search Input with RTL support */}
-      <div className="mb-3">
+    <div className={`${className} space-y-3`} dir={isRTL ? 'rtl' : 'ltr'}>
+      {/* Search Input */}
+      <div className="relative">
         <div className="relative group">
           <Search
             className={`absolute ${
               isRTL ? 'right-3' : 'left-3'
-            } top-1/2 transform -translate-y-1/2 transition-colors duration-200 h-4 w-4 ${
-              isFocused || searchTerm
-                ? 'text-primary'
-                : 'text-slate-400 group-hover:text-slate-500'
+            } top-1/2 transform -translate-y-1/2 h-4 w-4 ${
+              isFocused || searchTerm ? 'text-primary' : 'text-slate-400'
             }`}
           />
           <input
             type="text"
             value={searchTerm}
-            onChange={handleSearchChange}
-            onFocus={handleSearchFocus}
-            onBlur={handleSearchBlur}
-            onKeyDown={handleKeyDown}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+            onKeyDown={(e) => e.key === 'Escape' && setSearchTerm('')}
             placeholder={searchPlaceholder}
             className={`w-full border border-slate-200 bg-[#EFEFEF] transition-all duration-200 ${
               isRTL ? 'pr-9 pl-8 text-right' : 'pl-9 pr-8 text-left'
-            } h-8 rounded-md text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 hover:border-slate-300 ${
+            } h-10 rounded-lg text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 hover:border-slate-300 ${
               isFocused ? 'bg-white shadow-sm' : ''
             }`}
-            dir={isRTL ? 'rtl' : 'ltr'}
           />
           {searchTerm && (
             <button
               type="button"
-              onClick={handleClearSearch}
+              onClick={() => setSearchTerm('')}
               className={`absolute ${
                 isRTL ? 'left-2' : 'right-2'
-              } top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors duration-200 opacity-0 group-hover:opacity-100 ${
-                isFocused || searchTerm ? 'opacity-100' : ''
-              }`}
-              title="Clear search"
+              } top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600`}
             >
               <X className="h-4 w-4" />
             </button>
           )}
         </div>
-
-        {/* Search Status with RTL support */}
-        {searchTerm && (
-          <div
-            className={`mt-1 text-xs text-slate-500 px-1 ${
-              isRTL ? 'text-right' : 'text-left'
-            }`}
-          >
-            {searchTerm.length < 2
-              ? 'Type at least 2 characters to search'
-              : `Searching for "${searchTerm}"...`}
-          </div>
-        )}
       </div>
 
-      {/* Main Content Area with RTL-aware scrollbar */}
+      {/* Main Content */}
       <div
         ref={listRef}
-        className={`overflow-y-auto transition-all duration-200 ${
-          isRTL ? 'pl-1' : 'pr-1'
-        }`}
-        style={{
-          maxHeight,
-          scrollbarWidth: 'thin',
-          scrollbarColor: '#cbd5e1 transparent',
-          direction: isRTL ? 'rtl' : 'ltr',
-        }}
+        className="overflow-y-auto rounded-lg border border-slate-200 bg-white shadow-sm"
+        style={{ maxHeight, scrollbarWidth: 'thin' }}
       >
-        {/* Error State */}
-        {isErrorMakes ? (
-          <div className="p-4 text-center">
-            <div className="text-red-500 text-sm font-medium mb-2">
-              Failed to load car brands
+        <div className="p-3">
+          {isErrorMakes ? (
+            <div className="p-4 text-center text-red-500 text-sm">
+              {isRTL
+                ? 'فشل في تحميل العلامات التجارية'
+                : 'Failed to load car brands'}
             </div>
-            <div className="text-xs text-slate-500 mb-3">
-              {makesError?.message ||
-                'Please check your connection and try again'}
+          ) : makes.length === 0 && !isLoadingMakes ? (
+            <div className="p-4 text-center">
+              <Search className="h-8 w-8 mx-auto opacity-50 mb-2" />
+              <div className="text-sm text-slate-500">{noOptionsMessage}</div>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => window.location.reload()}
-              className="text-xs"
-            >
-              Retry
-            </Button>
-          </div>
-        ) : (
-          <>
-            {/* Empty State */}
-            {makes.length === 0 &&
-            !isLoadingMakes &&
-            !urlItemsQuery.isLoading ? (
-              <div className="p-4 text-center">
-                <div className="text-slate-400 mb-2">
-                  <Search className="h-8 w-8 mx-auto opacity-50" />
-                </div>
-                <div className="text-sm text-slate-500 font-medium mb-1">
-                  {noOptionsMessage}
-                </div>
-                {searchTerm && (
-                  <div className="text-xs text-slate-400">
-                    Try adjusting your search terms
-                  </div>
-                )}
+          ) : (
+            <>
+              <div className="space-y-2">
+                {makes.map((brand) => (
+                  <BrandItem key={brand.value} brand={brand} />
+                ))}
               </div>
-            ) : (
-              <>
-                {/* Car Brands List - Selected items appear first */}
-                <div className="space-y-1">
-                  {makes.map((brand) => (
-                    <BrandItem key={brand.value} brand={brand} />
-                  ))}
+
+              {(isLoadingMakes || isFetchingNextMakesPage) && (
+                <div className="flex justify-center items-center p-4">
+                  <Loader2 className="w-5 h-5 animate-spin text-primary mr-2" />
+                  <span className="text-sm text-slate-500">
+                    {isRTL ? 'جارٍ التحميل...' : 'Loading...'}
+                  </span>
                 </div>
+              )}
 
-                {/* Loading States with RTL support */}
-                {(isLoadingMakes || isFetchingNextMakesPage) && (
-                  <div
-                    className={`flex justify-center items-center p-4 ${
-                      isRTL ? 'flex-row-reverse' : ''
-                    }`}
-                  >
-                    <Loader2
-                      className={`w-5 h-5 animate-spin text-primary ${
-                        isRTL ? 'ml-2' : 'mr-2'
-                      }`}
-                    />
-                    <span className="text-sm text-slate-500">
-                      {isLoadingMakes ? loadingMessage : 'Loading more...'}
-                    </span>
-                  </div>
-                )}
-
-                {/* Infinite Scroll Trigger */}
-                {hasNextMakesPage && canFetchNext && !isUserScrolling && (
-                  <div
-                    ref={observerRef}
-                    className="h-4 w-full flex items-center justify-center"
-                    style={{ minHeight: '20px' }}
-                  >
-                    {/* Visual indicator for infinite scroll */}
-                    <div className="text-xs text-slate-400 opacity-50">
-                      {isRTL ? 'اسحب لأسفل للمزيد ↓' : '↓ Scroll for more'}
-                    </div>
-                  </div>
-                )}
-
-                {/* End of List Indicator */}
-                {!hasNextMakesPage && makes.length > 0 && (
-                  <div className="py-3 text-center">
-                    <div className="text-xs text-slate-400">
-                      {isRTL
-                        ? `تم تحميل جميع العلامات التجارية (${makes.length} إجمالي)`
-                        : `All brands loaded (${makes.length} total)`}
-                    </div>
-                  </div>
-                )}
-              </>
-            )}
-          </>
-        )}
+              {hasNextMakesPage && (
+                <div ref={observerRef} className="h-4 w-full" />
+              )}
+            </>
+          )}
+        </div>
       </div>
 
-      {/* Selection Status Footer with RTL support */}
-      {(effectiveSelectedBrands.length > 0 ||
-        effectiveSelectedModel ||
-        effectiveSelectedTrim) && (
-        <div className="mt-3 pt-3 border-t border-slate-200">
+      {/* FIXED: Selection Status with proper multi-brand display */}
+      {(selectedBrands.length > 0 || selectedModel || selectedTrim) && (
+        <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg">
           <div
             className={`flex items-center justify-between text-xs ${
               isRTL ? 'flex-row-reverse' : ''
             }`}
           >
-            <div
-              className={`text-slate-600 ${isRTL ? 'text-right' : 'text-left'}`}
-            >
+            <div className={isRTL ? 'text-right' : 'text-left'}>
               <span className="font-medium">
                 {isRTL ? 'المحدد:' : 'Selected:'}
               </span>
-              {effectiveSelectedBrands.length > 0 && (
-                <span
-                  className={`text-primary font-medium ${
-                    isRTL ? 'mr-1' : 'ml-1'
-                  }`}
-                >
-                  {effectiveSelectedBrands.length}{' '}
-                  {isRTL ? 'علامة تجارية' : 'brand'}
-                  {effectiveSelectedBrands.length !== 1 && !isRTL ? 's' : ''}
+              {selectedBrands.length > 0 && (
+                <span className="text-primary font-medium ml-1">
+                  {selectedBrands.length} {isRTL ? 'علامة تجارية' : 'brand'}
+                  {selectedBrands.length !== 1 && !isRTL ? 's' : ''}
                 </span>
               )}
-              {effectiveSelectedModel && (
-                <span
-                  className={`text-primary font-medium ${
-                    isRTL ? 'mr-1' : 'ml-1'
-                  }`}
-                >
+              {selectedModel && (
+                <span className="text-primary font-medium ml-1">
                   {isRTL ? '• 1 موديل' : '• 1 model'}
                 </span>
               )}
-              {effectiveSelectedTrim && (
-                <span
-                  className={`text-primary font-medium ${
-                    isRTL ? 'mr-1' : 'ml-1'
-                  }`}
-                >
+              {selectedTrim && (
+                <span className="text-primary font-medium ml-1">
                   {isRTL ? '• 1 تريم' : '• 1 trim'}
                 </span>
               )}
             </div>
 
-            {/* Quick Clear Button with RTL support */}
             <Button
               variant="ghost"
               size="sm"
               onClick={() => {
-                // Clear all selections
-                effectiveSelectedBrands.forEach((brandId) =>
-                  onBrandToggle(brandId),
-                );
-                if (effectiveSelectedModel) onModelSelect('');
-                if (effectiveSelectedTrim) onTrimSelect('');
+                // FIXED: Clear all selected brands properly
+                selectedBrands.forEach((brandId) => onBrandToggle(brandId));
+                if (selectedModel) onModelSelect('');
+                if (selectedTrim) onTrimSelect('');
                 setExpandedBrands(new Set());
                 setExpandedModels(new Set());
               }}
-              className="h-auto p-1 text-xs text-slate-500 hover:text-red-600 hover:bg-red-50"
+              className="h-auto p-1.5 text-xs text-slate-500 hover:text-red-600 hover:bg-red-50"
             >
               {isRTL ? 'مسح الكل' : 'Clear All'}
             </Button>
@@ -1316,7 +822,4 @@ const EnhancedNestedCarFilterV3: React.FC<EnhancedNestedCarFilterV3Props> = ({
   );
 };
 
-// Export with display name for debugging
-EnhancedNestedCarFilterV3.displayName = 'EnhancedNestedCarFilterV3';
-
-export default EnhancedNestedCarFilterV3;
+export default NestedCarFilter;

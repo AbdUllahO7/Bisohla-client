@@ -44,7 +44,7 @@ export const getBodyTypeCategoryCounts = async (): Promise<
 };
 
 export const getCarMakes = async (
-  params: QueryParams,
+  params: QueryParams & { selectedCarMakes?: number[] },
 ): Promise<PaginatedResponse<SelectCarMakeDto>> => {
   const carListingController = getInjection('ICarVisitorController');
 

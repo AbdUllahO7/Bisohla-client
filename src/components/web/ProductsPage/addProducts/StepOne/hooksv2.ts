@@ -6,7 +6,7 @@ import {
   getCarModels,
   getCarTrims,
 } from '@/core/infrastructure-adapters/actions/visitors/car.visitor.actions';
-import { Filter } from '@/core/entities/api/api';
+import { Filter, QueryParams } from '@/core/entities/api/api';
 import { SelectedOptions } from './types';
 import {
   getGovernorateOptions,
@@ -96,9 +96,12 @@ export const useProductStepOne = (
     : undefined;
 
   // Create fetch functions for infinite scroll dropdowns
-  const fetchCarMakes = useCallback(async (params: any) => {
-    return await getCarMakes(params);
-  }, []);
+  const fetchCarMakes = useCallback(
+    async (params: QueryParams & { selectedCarMakes?: number[] }) => {
+      return await getCarMakes(params);
+    },
+    [],
+  );
 
   const fetchCarModels = useCallback(
     async (params: any) => {
