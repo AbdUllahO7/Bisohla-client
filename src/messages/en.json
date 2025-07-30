@@ -346,6 +346,9 @@
     }
   },
   "productsPage": {
+    "latestOffers": {
+      "price": "Price"
+    },
     "currency": {
       "syp": "Syrian Pound",
       "usd": "US Dollar",
@@ -362,6 +365,13 @@
       }
     },
     "filter": {
+      "activeFilters": "{count} active filter",
+      "activeFilters_other": "{count} active filters",
+      "mobileDescription": "Filter cars by your preferences",
+      "filtersApplied": "{count} filter applied",
+      "filtersApplied_other": "{count} filters applied",
+      "noFiltersApplied": "No filters applied",
+      "applyFilters": "Apply Filters",
       "search": {
         "brands": "Search brands...",
         "models": "Search models...",
@@ -452,7 +462,8 @@
       "noResults": "No cars found",
       "noResultsMessage": "Try adjusting your search criteria or filters",
       "totalFound": "cars found",
-      "loadingMore": "Loading more cars..."
+      "loadingMore": "Loading more cars...",
+      "failedToGet": "Failed to load car listings"
     },
     "categories": {
       "cat_name_one": "Economy",

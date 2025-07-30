@@ -9,7 +9,7 @@ import React, {
   useMemo,
   useRef,
 } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import type { QueryParams, FilterGroup, Filter } from '@/core/entities/api/api';
 import { useDebounce } from '@/hooks/use-debounce';
 
@@ -110,6 +110,7 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
 }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const pathname = usePathname(); // Add pathname to detect URL changes
 
   // State
   const [filters, setFilters] = useState<FilterState>(initialFilterState);
@@ -122,12 +123,13 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
   const lastApiCallParams = useRef<string>('');
   const urlUpdateTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
   const hasUncommittedChanges = useRef(false);
+  const lastSearchParamsString = useRef<string>(''); // Track search params changes
 
   // Separate debounce instances with different delays
-  const debouncedSearchText = useDebounce(searchState.searchText, 1000); // Longer delay for search
-  const debouncedFiltersForApi = useDebounce(filters, 800); // API calls
-  const debouncedFiltersForUrl = useDebounce(filters, 200); // URL updates
-  const debouncedSearchForUrl = useDebounce(searchState.searchText, 200); // URL updates
+  const debouncedSearchText = useDebounce(searchState.searchText, 1000);
+  const debouncedFiltersForApi = useDebounce(filters, 800);
+  const debouncedFiltersForUrl = useDebounce(filters, 200);
+  const debouncedSearchForUrl = useDebounce(searchState.searchText, 200);
 
   // Memoized function to build query params
   const buildQueryParams = useCallback(
@@ -452,24 +454,37 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
     const newFilters: Partial<FilterState> = {};
     const newSearchState: Partial<SearchState> = {};
 
+    // Helper function to decode URL parameters properly
+    const getDecodedParam = (key: string): string | null => {
+      const value = searchParams.get(key);
+      if (!value) return null;
+
+      // Decode URI component and replace + with spaces for search terms
+      if (key === 'search') {
+        return decodeURIComponent(value.replace(/\+/g, ' '));
+      }
+
+      return decodeURIComponent(value);
+    };
+
     const urlParams = {
-      search: searchParams.get('search'),
-      make: searchParams.get('make'),
-      model: searchParams.get('model'),
-      trim: searchParams.get('trim'),
-      minYear: searchParams.get('minYear'),
-      maxYear: searchParams.get('maxYear'),
-      minPrice: searchParams.get('minPrice'),
-      maxPrice: searchParams.get('maxPrice'),
-      minMileage: searchParams.get('minMileage'),
-      maxMileage: searchParams.get('maxMileage'),
-      currency: searchParams.get('currency'),
-      governorate: searchParams.get('governorate'),
-      city: searchParams.get('city'),
-      transmission: searchParams.get('transmission'),
-      fuelType: searchParams.get('fuelType'),
-      bodyType: searchParams.get('bodyType'),
-      listingType: searchParams.get('listingType'),
+      search: getDecodedParam('search'),
+      make: getDecodedParam('make'),
+      model: getDecodedParam('model'),
+      trim: getDecodedParam('trim'),
+      minYear: getDecodedParam('minYear'),
+      maxYear: getDecodedParam('maxYear'),
+      minPrice: getDecodedParam('minPrice'),
+      maxPrice: getDecodedParam('maxPrice'),
+      minMileage: getDecodedParam('minMileage'),
+      maxMileage: getDecodedParam('maxMileage'),
+      currency: getDecodedParam('currency'),
+      governorate: getDecodedParam('governorate'),
+      city: getDecodedParam('city'),
+      transmission: getDecodedParam('transmission'),
+      fuelType: getDecodedParam('fuelType'),
+      bodyType: getDecodedParam('bodyType'),
+      listingType: getDecodedParam('listingType'),
     };
 
     if (urlParams.search) newSearchState.searchText = urlParams.search;
@@ -511,7 +526,11 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
     urlUpdateTimeoutRef.current = setTimeout(() => {
       const params = new URLSearchParams();
 
-      if (debouncedSearchForUrl) params.set('search', debouncedSearchForUrl);
+      // Special handling for search text to preserve spaces
+      if (debouncedSearchForUrl) {
+        params.set('search', encodeURIComponent(debouncedSearchForUrl));
+      }
+
       if (debouncedFiltersForUrl.marka)
         params.set('make', debouncedFiltersForUrl.marka);
       if (debouncedFiltersForUrl.model)
@@ -562,7 +581,23 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
     }
   }, [syncFromUrl]);
 
-  // Update URL when debounced values change
+  // NEW: Listen for URL changes after initial mount
+  useEffect(() => {
+    if (!isInitialMount.current && searchParams) {
+      const currentSearchParamsString = searchParams.toString();
+
+      // Only sync if search params actually changed
+      if (lastSearchParamsString.current !== currentSearchParamsString) {
+        lastSearchParamsString.current = currentSearchParamsString;
+
+        // Don't trigger URL updates for changes we detect from URL
+        hasUncommittedChanges.current = false;
+        syncFromUrl();
+      }
+    }
+  }, [searchParams, syncFromUrl]);
+
+  // Update URL when debounced values change (only if changes came from user interaction)
   useEffect(() => {
     if (!isInitialMount.current && hasUncommittedChanges.current) {
       updateUrl();

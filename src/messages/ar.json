@@ -348,6 +348,9 @@
     }
   },
   "productsPage": {
+    "latestOffers": {
+      "price": "السعر"
+    },
     "header": {
       "adCounter": " اعلان",
       "orderBy": "ترتيب حسب:",
@@ -359,6 +362,13 @@
       }
     },
     "filter": {
+      "activeFilters": "{count} مرشح نشط",
+      "activeFilters_other": "{count} مرشحات نشطة",
+      "mobileDescription": "تصفية السيارات حسب تفضيلاتك",
+      "filtersApplied": "تم تطبيق {count} مرشح",
+      "filtersApplied_other": "تم تطبيق {count} مرشحات",
+      "noFiltersApplied": "لم يتم تطبيق أي مرشحات",
+      "applyFilters": "تطبيق المرشحات",
       "search": {
         "brands": "البحث عن العلامات التجارية...",
         "models": "البحث عن الموديلات...",
@@ -460,6 +470,7 @@
       "loading": "جاري تحميل السيارات...",
       "error": "فشل في تحميل قوائم السيارات",
       "noResults": "لم يتم العثور على سيارات",
+
       "noResultsMessage": "حاول تعديل معايير البحث أو المرشحات",
       "totalFound": "سيارة موجودة",
       "loadingMore": "جاري تحميل المزيد من السيارات..."

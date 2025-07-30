@@ -7,6 +7,7 @@ import {
 } from '@/core/entities/api/success.response';
 
 import {
+  BodyTypeCategoryCount,
   FacetCount,
   SelectCarListingDto,
   SelectCarMakeDto,
@@ -16,6 +17,7 @@ import {
 } from '@/core/entities/models/cars/cars.dto';
 
 import {
+  getBodyTypeCategoryCounts,
   getCarFeatures,
   getCarListingById,
   getCarListings,
@@ -30,6 +32,14 @@ export const useCarListings = (params: QueryParams) =>
   useLocaleQuery<PaginatedResponse<SelectCarListingDto>>({
     queryKey: ['visitors-car-listings', params],
     queryFn: async () => await getCarListings(params),
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+
+export const useGetBodyTypeCategoryCounts = () =>
+  useLocaleQuery<ApiResponse<BodyTypeCategoryCount[]>>({
+    queryKey: ['body-type-category-counts'],
+    queryFn: async () => await getBodyTypeCategoryCounts(),
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
   });

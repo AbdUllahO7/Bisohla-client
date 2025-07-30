@@ -105,7 +105,7 @@ const OptimizedSearchInput: React.FC = React.memo(() => {
         )}
 
         {/* Search hint */}
-        {localSearchText && (
+        {/* {localSearchText && (
           <div className="absolute top-full left-0 right-0 mt-1">
             <div className="text-xs text-slate-500 px-3">
               {localSearchText.length < 2
@@ -113,7 +113,7 @@ const OptimizedSearchInput: React.FC = React.memo(() => {
                 : `Searching for "${localSearchText}"...`}
             </div>
           </div>
-        )}
+        )} */}
       </div>
     </div>
   );

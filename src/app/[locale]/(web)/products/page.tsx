@@ -75,17 +75,17 @@ const ProductsContent = () => {
       {/* Main Content Section */}
       <Box
         variant="container"
-        className="flex flex-col lg:flex-row justify-between items-start gap-6"
+        className="flex flex-col xl:flex-row justify-between items-start gap-6"
       >
         {/* Filter Section - Fixed position on desktop */}
-        <div className="w-full lg:w-[360px] lg:flex-shrink-0 relative">
-          <div className="lg:sticky lg:top-5 w-full">
+        <div className="w-full xl:w-[360px] xl:flex-shrink-0 relative">
+          <div className="xl:sticky xl:top-5 w-full">
             <ProductsFilter />
           </div>
         </div>
 
         {/* Categories and Content Section */}
-        <Box className="w-full lg:w-[70%] xs:w-[100%]" variant="column">
+        <Box className="w-full xl:w-[70%] xs:w-[100%]" variant="column">
           <Categories />
           {/* Use the AllCarListings component with queryParams from provider */}
           <AllCarListings
