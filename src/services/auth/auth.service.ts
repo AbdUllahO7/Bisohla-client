@@ -6,12 +6,12 @@ import {
   RegisterFormValues,
 } from '../../zod-schemas/auth/register-form-schema';
 import { redirect } from 'next/navigation';
-import { deleteSession } from '@/lib/session';
+import { deleteSession, updateTokens } from '@/core/lib/web/session';
 import { allRoutes } from '@/constants/routes.constant';
-import { APP_URL } from '@/constants/constants';
 import { fetchAuth } from '@/lib/fetch-auth';
 import { revalidatePath } from 'next/cache';
 import { postReq } from '@/lib/fetch';
+import { APP_URL, BACKEND_URL } from '@/core/lib/web/constants';
 
 export const handleRegister = async (
   state: ApiResponse<RegisterFormValues>,
@@ -66,26 +66,33 @@ export const handleSignout = async () => {
 
 export const handleRefreshToken = async (oldRefreshToken: string) => {
   try {
-    // Create a single request to handle both token refresh and session update
-    const res = await fetch(APP_URL + '/api/auth/update-jwt', {
+    const backendRes = await fetch(BACKEND_URL + '/auth/refresh', {
       method: 'POST',
-      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ refresh: oldRefreshToken }),
     });
 
-    if (!res.ok) {
-      throw new Error('Failed to refresh token');
+    const responseData = await backendRes.json();
+
+    // console.log('Backend response:', responseData);
+
+    // Check if the request was successful
+    if (!backendRes.ok || !responseData.success) {
+      throw new Error(responseData.message || 'Failed to refresh token');
     }
 
-    const data = await res.json();
-    return data.accessToken; // Return the new access token
+    // Extract tokens from the data object
+    const { accessToken, refreshToken } = responseData.data;
+
+    // Update the session with new tokens
+    await updateTokens({ accessToken, refreshToken });
+
+    return accessToken;
   } catch (error) {
     console.warn('Refresh token error:', error);
     await deleteSession();
-
     throw error;
   }
 };

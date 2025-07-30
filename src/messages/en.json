@@ -362,6 +362,26 @@
       }
     },
     "filter": {
+      "search": {
+        "brands": "Search brands...",
+        "models": "Search models...",
+        "trims": "Search trims..."
+      },
+      "noBrands": "No brands found",
+      "noModels": "No models found",
+      "noTrims": "No trims found",
+      "loadingBrands": "Loading brands...",
+      "loadingModels": "Loading models...",
+      "loadingTrims": "Loading trims...",
+      "selectedItems": "Selected Items:",
+      "clearAll": "Clear All",
+      "retryLoading": "Retry Loading",
+      "connectionError": "Connection Error",
+      "tryAgain": "Try Again",
+      "allItemsLoaded": "All items loaded",
+      "scrollForMore": "Scroll for more",
+      "loadingMore": "Loading more...",
+      "selectionsFromUrl": "Selections loaded from URL parameters",
       "title": "What are you looking for",
       "searchInput": "Search",
       "filterOptions": {
@@ -425,13 +445,25 @@
         "resetSearch": "reset Search"
       }
     },
+    "allCars": {
+      "title": "All Cars",
+      "loading": "Loading cars...",
+      "error": "Failed to load car listings",
+      "noResults": "No cars found",
+      "noResultsMessage": "Try adjusting your search criteria or filters",
+      "totalFound": "cars found",
+      "loadingMore": "Loading more cars..."
+    },
     "categories": {
       "cat_name_one": "Economy",
       "cat_name_tow": "Economy",
       "cat_name_three": "Economy",
       "cat_name_four": "Economy",
       "cat_name_five": "Economy",
-      "cat_name_six": "Economy"
+      "cat_name_six": "Economy",
+      "title": "Browse by Category",
+      "loading": "Loading categories...",
+      "carCount": "cars available"
     }
   },
   "product": {

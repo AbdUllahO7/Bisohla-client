@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getSession } from './session';
+import { getSession } from '@/core/lib/web/session';
 // import { handleRefreshToken } from '@/services/auth.service';
 
 export const api = axios.create({

@@ -359,6 +359,26 @@
       }
     },
     "filter": {
+      "search": {
+        "brands": "البحث عن العلامات التجارية...",
+        "models": "البحث عن الموديلات...",
+        "trims": "البحث عن الإصدارات..."
+      },
+      "noBrands": "لم يتم العثور على علامات تجارية",
+      "noModels": "لم يتم العثور على موديلات",
+      "noTrims": "لم يتم العثور على إصدارات",
+      "loadingBrands": "جاري تحميل العلامات التجارية...",
+      "loadingModels": "جاري تحميل الموديلات...",
+      "loadingTrims": "جاري تحميل الإصدارات...",
+      "selectedItems": "العناصر المحددة:",
+      "clearAll": "مسح الكل",
+      "retryLoading": "إعادة المحاولة",
+      "connectionError": "خطأ في الاتصال",
+      "tryAgain": "حاول مرة أخرى",
+      "allItemsLoaded": "تم تحميل جميع العناصر",
+      "scrollForMore": "قم بالتمرير لعرض المزيد",
+      "loadingMore": "جاري تحميل المزيد...",
+      "selectionsFromUrl": "تم تحميل الاختيارات من معاملات الرابط",
       "title": "عن ماذا تبحث",
       "searchInput": "بحث",
       "filterOptions": {
@@ -435,13 +455,25 @@
       "usd": "دولار أمريكي",
       "eur": "يورو"
     },
+    "allCars": {
+      "title": "جميع السيارات",
+      "loading": "جاري تحميل السيارات...",
+      "error": "فشل في تحميل قوائم السيارات",
+      "noResults": "لم يتم العثور على سيارات",
+      "noResultsMessage": "حاول تعديل معايير البحث أو المرشحات",
+      "totalFound": "سيارة موجودة",
+      "loadingMore": "جاري تحميل المزيد من السيارات..."
+    },
     "categories": {
       "cat_name_one": "اقتصادي",
       "cat_name_tow": "اقتصادي",
       "cat_name_three": "اقتصادي",
       "cat_name_four": "اقتصادي",
       "cat_name_five": "اقتصادي",
-      "cat_name_six": "اقتصادي"
+      "cat_name_six": "اقتصادي",
+      "title": "تصفح حسب الفئة",
+      "loading": "جاري تحميل الفئات...",
+      "carCount": "سيارة متاحة"
     }
   },
   "product": {
