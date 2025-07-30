@@ -174,7 +174,7 @@ const MobileFilterButton = React.memo(({ activeFiltersCount, onOpen }: any) => {
       onClick={onOpen}
       size="icon"
       style={{ zIndex: 10000000 }}
-      className="fixed bottom-4 left-4 right-4 bg-primary hover:bg-primary/90 text-white shadow-lg rounded-xl h-12 w-12 font-semibold text-base xl:hidden flex items-center justify-center"
+      className="fixed bottom-4 left-4 bg-primary hover:bg-primary/90 text-white shadow-lg rounded-xl h-12 w-12 font-semibold text-base xl:hidden flex items-center justify-center"
     >
       <div className="relative">
         <SlidersHorizontal className="h-5 w-5" />
