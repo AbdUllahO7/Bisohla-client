@@ -1,8 +1,6 @@
 'use server';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import type { PropsWithChildren } from 'react';
-import { redirect } from 'next/navigation';
-import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions';
 import { getTranslations } from 'next-intl/server';
 import { ProfileProvider } from '@/providers/profile.provider';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
@@ -10,13 +8,7 @@ import { DashboardSidebar } from '@/components/dashboard/DashboardSidebar';
 
 export default async function DashboardLayout({ children }: PropsWithChildren) {
   // Check authentication status
-  const authResult = await checkAuth();
   const t = await getTranslations('homePage');
-
-  // If not authenticated, redirect to sign-in
-  if (!authResult.success) {
-    redirect('/auth/sign-in');
-  }
 
   return (
     <SidebarProvider className="bg-background">

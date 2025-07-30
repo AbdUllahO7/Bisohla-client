@@ -1,7 +1,7 @@
 'use server';
 
 import { handleRefreshToken } from '@/services/auth/auth.service';
-import { getSession } from './session';
+import { getSession } from '@/core/lib/web/session';
 import { BACKEND_URL } from '@/constants/constants';
 import { allRoutes } from '@/constants/routes.constant';
 import { redirect } from 'next/navigation';

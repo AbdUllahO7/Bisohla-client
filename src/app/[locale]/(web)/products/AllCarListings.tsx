@@ -3,10 +3,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Box from '@/components/box/box';
 import Text from '@/components/text/text';
 import { useTranslations } from 'next-intl';
-import { useSearchParams } from 'next/navigation';
 import { useCarListings } from '@/core/infrastructure-adapters/use-actions/visitors/car.visitor.use-actions';
 import Pagination from '@/components/Pagination';
-import { Filter, FilterGroup, QueryParams } from '@/core/entities/api/api';
+import { QueryParams } from '@/core/entities/api/api';
 import AdsSectionProduct from '@/components/web/ProductsPage/product/AdsSectionProduct';
 import AllCarListingsSkeleton from '@/components/web/design/AllCarListingsSkeleton';
 import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions';
@@ -25,24 +24,26 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
   pageSize = 8,
   showTitle = false,
   container = true,
-  queryParams: initialQueryParams,
+  queryParams: externalQueryParams,
   onTotalItemsChange,
 }) => {
   const t = useTranslations('homePage');
-  const searchParams = useSearchParams();
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [favoriteStatuses, setFavoriteStatuses] = useState<
     Record<number, boolean>
   >({});
   const session = useSession();
-  const [queryParams, setQueryParams] = useState<QueryParams>({
+
+  // Build final query params with current page
+  const queryParams: QueryParams = {
     userId: session.user?.id,
-    page: 1,
+    page: currentPage,
+    pageSize,
     sortBy: 'createdAt',
     sortDirection: 'desc',
-    ...initialQueryParams,
-  });
+    ...externalQueryParams, // This will override defaults with provider values
+  };
 
   // Verify authentication status on component mount
   useEffect(() => {
@@ -59,6 +60,19 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
     verifyAuth();
   }, []);
 
+  // Reset to page 1 when filters change (except when page itself changes)
+  useEffect(() => {
+    if (externalQueryParams) {
+      setCurrentPage(1);
+    }
+  }, [
+    externalQueryParams?.filterGroups,
+    externalQueryParams?.where,
+    externalQueryParams?.searchTerm,
+    externalQueryParams?.sortBy,
+    externalQueryParams?.sortDirection,
+  ]);
+
   // Handle favorite status update from child component
   const handleFavoriteToggle = useCallback(
     (productId: number, isFavorite: boolean) => {
@@ -69,181 +83,6 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
     },
     [],
   );
-
-  // Update from URL parameters or props
-  useEffect(() => {
-    if (initialQueryParams) {
-      setQueryParams({
-        ...queryParams,
-        ...initialQueryParams,
-        page: currentPage,
-        userId: session.user?.id,
-      });
-    } else if (searchParams) {
-      const filters: Filter[] = [];
-      const filterGroups: FilterGroup[] = [];
-
-      const make = searchParams.get('make');
-      if (make) {
-        filters.push({
-          field: 'makeId',
-          operator: 'eq',
-          value: make,
-        });
-      }
-
-      const model = searchParams.get('model');
-      if (model) {
-        filters.push({
-          field: 'modelId',
-          operator: 'eq',
-          value: model,
-        });
-      }
-
-      const trim = searchParams.get('trim');
-      if (trim) {
-        filters.push({
-          field: 'trimId',
-          operator: 'eq',
-          value: trim,
-        });
-      }
-
-      const governorate = searchParams.get('governorate');
-      if (governorate) {
-        filters.push({
-          field: 'governorate',
-          operator: 'eq',
-          value: governorate,
-        });
-      }
-
-      const city = searchParams.get('city');
-      if (city) {
-        filters.push({
-          field: 'city',
-          operator: 'eq',
-          value: city,
-        });
-      }
-
-      const currency = searchParams.get('currency');
-      if (currency) {
-        filters.push({
-          field: 'currency',
-          operator: 'eq',
-          value: currency,
-        });
-      }
-
-      const detailFilters: Filter[] = [];
-
-      const minYear = searchParams.get('minYear');
-      const maxYear = searchParams.get('maxYear');
-
-      if (minYear) {
-        detailFilters.push({
-          field: 'details.year',
-          operator: 'gte',
-          value: parseInt(minYear, 10),
-        });
-      }
-
-      if (maxYear) {
-        detailFilters.push({
-          field: 'details.year',
-          operator: 'lte',
-          value: parseInt(maxYear, 10),
-        });
-      }
-
-      const transmission = searchParams.get('transmission');
-      if (transmission) {
-        detailFilters.push({
-          field: 'details.transmission',
-          operator: 'eq',
-          value: transmission,
-        });
-      }
-
-      const fuelType = searchParams.get('fuelType');
-      if (fuelType) {
-        detailFilters.push({
-          field: 'details.fuelType',
-          operator: 'eq',
-          value: fuelType,
-        });
-      }
-
-      const bodyType = searchParams.get('bodyType');
-      if (bodyType) {
-        detailFilters.push({
-          field: 'details.bodyType',
-          operator: 'eq',
-          value: bodyType,
-        });
-      }
-
-      if (detailFilters.length > 0) {
-        filterGroups.push({
-          operator: 'and',
-          filters: detailFilters,
-        });
-      }
-
-      const minPrice = searchParams.get('minPrice');
-      const maxPrice = searchParams.get('maxPrice');
-
-      if (minPrice || maxPrice) {
-        const priceFilters: Filter[] = [];
-
-        if (minPrice) {
-          priceFilters.push({
-            field: 'price',
-            operator: 'gte',
-            value: parseInt(minPrice, 10),
-          });
-        }
-
-        if (maxPrice) {
-          priceFilters.push({
-            field: 'price',
-            operator: 'lte',
-            value: parseInt(maxPrice, 10),
-          });
-        }
-
-        if (priceFilters.length > 0) {
-          filterGroups.push({
-            operator: 'and',
-            filters: priceFilters,
-          });
-        }
-      }
-
-      const search = searchParams.get('search');
-      const sortBy = searchParams.get('sortBy');
-      const sortDirection = searchParams.get('sortDirection');
-
-      setQueryParams({
-        page: currentPage,
-        pageSize: pageSize,
-        sortBy: sortBy || 'createdAt',
-        sortDirection: (sortDirection as 'asc' | 'desc') || 'desc',
-        searchTerm: search || undefined,
-        where: filters.length > 0 ? filters : undefined,
-        filterGroups: filterGroups.length > 0 ? filterGroups : undefined,
-        userId: session.user?.id,
-      });
-    }
-  }, [
-    initialQueryParams,
-    searchParams,
-    currentPage,
-    pageSize,
-    session.user?.id,
-  ]);
 
   // Fetch all car listings with pagination and filters
   const { data, isLoading, error } = useCarListings(queryParams);
@@ -316,14 +155,15 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
     }
 
     return {
-      currentPage: 1,
+      currentPage: currentPage,
       totalPages: 1,
       hasNextPage: false,
       hasPreviousPage: false,
       totalItems: carListings.length,
     };
-  }, [data, carListings]);
+  }, [data, carListings, currentPage]);
 
+  // Update total items for parent component
   useEffect(() => {
     if (onTotalItemsChange && !isLoading) {
       onTotalItemsChange(paginationInfo.totalItems);
@@ -359,8 +199,16 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
         )}
 
         {!isLoading && !error && carListings.length === 0 && (
-          <Box className="w-full py-4" variant="center">
-            <Text>No car listings available</Text>
+          <Box className="w-full py-8 text-center" variant="center">
+            <div className="flex flex-col items-center space-y-4">
+              <div className="text-6xl opacity-50">🚗</div>
+              <Text className="text-xl font-semibold text-gray-600">
+                No cars found
+              </Text>
+              <Text className="text-gray-500">
+                Try adjusting your search criteria or filters
+              </Text>
+            </div>
           </Box>
         )}
 
@@ -386,7 +234,7 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
                     type: any;
                     isFavorite?: boolean;
                   },
-                  index: any,
+                  index: number,
                 ) => {
                   const isFavorite =
                     favoriteStatuses[card.id] !== undefined
@@ -419,17 +267,21 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
             </Box>
 
             <AdsSectionProduct />
-            <Pagination
-              currentPage={paginationInfo.currentPage}
-              totalPages={paginationInfo.totalPages}
-              hasNextPage={paginationInfo.hasNextPage}
-              hasPreviousPage={paginationInfo.hasPreviousPage}
-              totalItems={paginationInfo.totalItems}
-              pageSize={pageSize}
-              onPageChange={handlePageChange}
-              showItemsInfo={true}
-              className="mt-4"
-            />
+
+            {/* Only show pagination if we have multiple pages */}
+            {paginationInfo.totalPages > 1 && (
+              <Pagination
+                currentPage={paginationInfo.currentPage}
+                totalPages={paginationInfo.totalPages}
+                hasNextPage={paginationInfo.hasNextPage}
+                hasPreviousPage={paginationInfo.hasPreviousPage}
+                totalItems={paginationInfo.totalItems}
+                pageSize={pageSize}
+                onPageChange={handlePageChange}
+                showItemsInfo={true}
+                className="mt-4"
+              />
+            )}
           </>
         )}
       </Box>

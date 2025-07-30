@@ -1,4 +1,4 @@
-import { getSession } from './session';
+import { getSession } from '@/core/lib/web/session';
 
 export const checkPermission = async (permission: string) => {
   const session = await getSession();

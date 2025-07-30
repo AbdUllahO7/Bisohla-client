@@ -1,5 +1,5 @@
 import { fetchAuth } from '@/lib/fetch-auth';
-import { deleteSession } from '@/lib/session';
+import { deleteSession } from '@/core/lib/web/session';
 import { revalidatePath } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
 

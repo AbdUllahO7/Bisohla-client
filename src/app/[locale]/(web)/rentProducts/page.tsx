@@ -1,86 +1,34 @@
 'use client';
+
+import { useState, useCallback, useMemo } from 'react';
 import Box from '@/components/box/box';
 import Categories from '@/components/web/ProductsPage/Categories';
-import Filter from '@/components/web/ProductsPage/Filter';
 import Header from '@/components/web/ProductsPage/Header';
-import React, { useState, useCallback, useMemo } from 'react';
 import AllCarListings from '../products/AllCarListings';
-import { QueryParams } from '@/core/entities/api/api';
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb';
-import { useLocale } from 'next-intl';
 import SmartBreadcrumb from '@/components/smart-breadcrumbs';
 
-const RentProducts = () => {
-  // Initialize with the special filter for rental cars
-  const locale = useLocale();
-  const [queryParams, setQueryParams] = useState<QueryParams>({
-    page: 1,
-    pageSize: 8,
-    sortBy: 'createdAt',
-    sortDirection: 'desc',
-    where: [
-      {
-        field: 'listingType',
-        operator: 'eq',
-        value: 'for_rent',
-      },
-    ],
-  });
+// Import the filter provider
+
+// Import types
+import type { QueryParams, FilterGroup } from '@/core/entities/api/api';
+import { FilterProvider, useFilters } from '@/providers/filters.provider';
+import ProductsFilter from '@/components/web/ProductsPage/Filter';
+
+// Inner component that uses the filter context
+const RentProductsContent = () => {
+  const { queryParams } = useFilters();
   const [totalItems, setTotalItems] = useState<number>(0);
-  // Use a key to force remount of AllCarListings when needed
-  const [listingKey, setListingKey] = useState<number>(0);
+  const [currentSort, setCurrentSort] = useState({
+    sortBy: 'createdAt',
+    sortDirection: 'desc' as 'asc' | 'desc',
+  });
 
-  // Handle filter changes from Filter component
-  const handleFilterChange = useCallback((newParams: QueryParams) => {
-    // Always include the listingType filter, regardless of other filters
-    const rentalFilter = {
-      field: 'listingType',
-      operator: 'eq',
-      value: 'for_rent',
-    };
-
-    // Ensure we keep the special filter while adding new filters
-    const updatedWhere = newParams.where
-      ? [...newParams.where, rentalFilter]
-      : [rentalFilter];
-
-    // Create the updated params
-    const updatedParams = {
-      ...newParams,
-      where: updatedWhere,
-    };
-
-    setQueryParams(updatedParams);
-
-    // If this is a reset, force remount
-    if (!newParams.where && !newParams.filterGroups) {
-      setListingKey((prevKey) => prevKey + 1);
-    }
-  }, []);
-
+  // Handle sort change from Header component
   const handleSortChange = useCallback(
     (sortBy: string, sortDirection: 'asc' | 'desc') => {
-      setQueryParams((prevParams) => ({
-        ...prevParams,
-        sortBy,
-        sortDirection,
-      }));
+      setCurrentSort({ sortBy, sortDirection });
     },
     [],
-  );
-  // Current sort settings - memoized for performance
-  const currentSort = useMemo(
-    () => ({
-      sortBy: queryParams.sortBy || 'createdAt',
-      sortDirection: queryParams.sortDirection || 'desc',
-    }),
-    [queryParams.sortBy, queryParams.sortDirection],
   );
 
   // Callback to update total items count
@@ -88,9 +36,38 @@ const RentProducts = () => {
     setTotalItems(count);
   }, []);
 
+  // Override queryParams to always include the rental listing type filter
+  const finalQueryParams: QueryParams = useMemo(() => {
+    // Create a copy of the query params from the provider
+    const baseParams = { ...queryParams };
+
+    // Always ensure we have the rental filter
+    const rentalFilterGroup: FilterGroup = {
+      operator: 'and',
+      filters: [
+        {
+          field: 'listingType',
+          operator: 'eq',
+          value: 'for_rent',
+        },
+      ],
+    };
+
+    // Add our rental filter to the existing filter groups
+    const existingFilterGroups = baseParams.filterGroups || [];
+    const finalFilterGroups = [...existingFilterGroups, rentalFilterGroup];
+
+    return {
+      ...baseParams,
+      sortBy: currentSort.sortBy,
+      sortDirection: currentSort.sortDirection,
+      filterGroups: finalFilterGroups,
+    };
+  }, [queryParams, currentSort]);
+
   return (
-    <Box variant="row" className=" bg-background flex-wrap pb-10">
-      {/* Header Section */}
+    <Box variant="row" className="bg-background flex-wrap pb-10">
+      {/* Breadcrumb Navigation */}
       <Box variant="container" className="w-full mb-2 mt-5">
         <SmartBreadcrumb
           items={[
@@ -105,7 +82,8 @@ const RentProducts = () => {
         />
       </Box>
 
-      <Box className=" w-full shadow-xl bg-white pb-3 pt-3">
+      {/* Header Section with sort functionality */}
+      <Box className="w-full shadow-xl bg-white pb-3 pt-3">
         <Header
           onSortChange={handleSortChange}
           totalItems={totalItems}
@@ -118,26 +96,36 @@ const RentProducts = () => {
         variant="container"
         className="flex flex-col lg:flex-row justify-between items-start gap-6"
       >
-        {/* Filter Section */}
-        <div className="w-full lg:w-[300px] lg:flex-shrink-0">
-          <Filter onChange={handleFilterChange} />
+        {/* Filter Section - Fixed position on desktop */}
+        <div className="w-full lg:w-[300px] lg:flex-shrink-0 relative">
+          <div className="lg:sticky lg:top-5 w-full">
+            <ProductsFilter />
+          </div>
         </div>
 
         {/* Categories and Content Section */}
         <Box className="w-full lg:w-[70%] xs:w-[100%]" variant="column">
           <Categories />
-          {/* Pass filter parameters to AllCarListings */}
+          {/* Use the AllCarListings component with enhanced queryParams */}
           <AllCarListings
-            key={listingKey}
             showTitle={false}
             pageSize={8}
-            queryParams={queryParams}
+            queryParams={finalQueryParams}
             onTotalItemsChange={handleTotalItemsChange}
             container={false}
           />
         </Box>
       </Box>
     </Box>
+  );
+};
+
+// Main RentProducts component with provider wrapper
+const RentProducts = () => {
+  return (
+    <FilterProvider>
+      <RentProductsContent />
+    </FilterProvider>
   );
 };
 
