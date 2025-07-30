@@ -27,7 +27,7 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
   queryParams: externalQueryParams,
   onTotalItemsChange,
 }) => {
-  const t = useTranslations('homePage');
+  const t = useTranslations('productsPage');
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [favoriteStatuses, setFavoriteStatuses] = useState<
@@ -194,7 +194,7 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
 
         {error && (
           <Box className="w-full py-4" variant="center">
-            <Text className="text-red-500">Failed to load car listings</Text>
+            <Text className="text-red-500">{t('allCars.error')}</Text>
           </Box>
         )}
 
@@ -203,10 +203,10 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
             <div className="flex flex-col items-center space-y-4">
               <div className="text-6xl opacity-50">🚗</div>
               <Text className="text-xl font-semibold text-gray-600">
-                No cars found
+                {t('allCars.noResults')}
               </Text>
               <Text className="text-gray-500">
-                Try adjusting your search criteria or filters
+                {t('allCars.noResultsMessage')}
               </Text>
             </div>
           </Box>

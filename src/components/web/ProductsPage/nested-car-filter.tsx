@@ -1,4 +1,4 @@
-// EnhancedNestedCarFilterV3.tsx
+// EnhancedNestedCarFilterV3.tsx - RTL Enhanced Version
 'use client';
 
 import React, {
@@ -222,7 +222,7 @@ const EnhancedNestedCarFilterV3: React.FC<EnhancedNestedCarFilterV3Props> = ({
     isError: isErrorMakes,
     error: makesError,
   } = useInfiniteQuery({
-    queryKey: [...carMakesConfig.queryKey, makesQueryParams],
+    queryKey: [...carMakesConfig.queryKey, makesQueryParams, locale],
     queryFn: async ({ pageParam = 1 }) => {
       try {
         const response = await carMakesConfig.fetchFn({
@@ -265,7 +265,7 @@ const EnhancedNestedCarFilterV3: React.FC<EnhancedNestedCarFilterV3Props> = ({
       };
     };
   }>({
-    queryKey: ['url-specific-items', urlMake, urlModel, urlTrim],
+    queryKey: ['url-specific-items', urlMake, urlModel, urlTrim, locale],
     queryFn: async () => {
       // Fetch specific items mentioned in URL
       const results: {
@@ -412,7 +412,12 @@ const EnhancedNestedCarFilterV3: React.FC<EnhancedNestedCarFilterV3Props> = ({
       );
 
       return useInfiniteQuery({
-        queryKey: [...carModelsConfig.queryKey, brandId, modelsQueryParams],
+        queryKey: [
+          ...carModelsConfig.queryKey,
+          brandId,
+          modelsQueryParams,
+          locale,
+        ],
         queryFn: async ({ pageParam = 1 }) => {
           try {
             const response = await carModelsConfig.fetchFn({
@@ -466,7 +471,12 @@ const EnhancedNestedCarFilterV3: React.FC<EnhancedNestedCarFilterV3Props> = ({
       );
 
       return useInfiniteQuery({
-        queryKey: [...carTrimsConfig.queryKey, modelId, trimsQueryParams],
+        queryKey: [
+          ...carTrimsConfig.queryKey,
+          modelId,
+          trimsQueryParams,
+          locale,
+        ],
         queryFn: async ({ pageParam = 1 }) => {
           try {
             const response = await carTrimsConfig.fetchFn({
@@ -652,7 +662,7 @@ const EnhancedNestedCarFilterV3: React.FC<EnhancedNestedCarFilterV3Props> = ({
     [onTrimSelect],
   );
 
-  // Brand Item Component with enhanced selected styling
+  // Brand Item Component with enhanced selected styling and RTL support
   const BrandItem: React.FC<{ brand: EnhancedCarMake }> = ({ brand }) => {
     const isSelected = effectiveSelectedBrands.includes(brand.value);
     const isExpanded = expandedBrands.has(brand.value);
@@ -705,7 +715,7 @@ const EnhancedNestedCarFilterV3: React.FC<EnhancedNestedCarFilterV3Props> = ({
         return allModels.sort((a, b) => {
           if (a.isSelected && !b.isSelected) return -1;
           if (!a.isSelected && b.isSelected) return 1;
-          return a.label.localeCompare(b.label);
+          return a.label.localeCompare(b.label, locale);
         });
       } catch (error) {
         console.error('Error transforming models data:', error);
@@ -717,11 +727,12 @@ const EnhancedNestedCarFilterV3: React.FC<EnhancedNestedCarFilterV3Props> = ({
       urlModel,
       urlItemsQuery.data?.pages,
       brand.value,
+      locale,
     ]);
 
     return (
       <div className="mb-1">
-        {/* Enhanced Brand Checkbox with selected styling */}
+        {/* Enhanced Brand Checkbox with selected styling and RTL support */}
         <div
           className={`flex items-center p-2 rounded-md transition-all duration-200 group ${
             isSelected
@@ -729,7 +740,11 @@ const EnhancedNestedCarFilterV3: React.FC<EnhancedNestedCarFilterV3Props> = ({
               : 'hover:bg-slate-50'
           }`}
         >
-          <div className="flex items-center flex-1">
+          <div
+            className={`flex items-center flex-1 ${
+              isRTL ? 'flex-row-reverse' : ''
+            }`}
+          >
             <Checkbox
               id={`brand-${brand.value}`}
               checked={isSelected}
@@ -742,13 +757,21 @@ const EnhancedNestedCarFilterV3: React.FC<EnhancedNestedCarFilterV3Props> = ({
                 isSelected
                   ? 'text-primary'
                   : 'text-slate-700 group-hover:text-slate-900'
-              } ${isRTL ? 'pr-2 mr-auto' : 'pl-2'}`}
+              } ${isRTL ? 'pr-2 flex-row-reverse' : 'pl-2'}`}
             >
               {isSelected && (
-                <Star className="w-3 h-3 mr-1 text-primary fill-current" />
+                <Star
+                  className={`w-3 h-3 text-primary fill-current ${
+                    isRTL ? 'ml-1' : 'mr-1'
+                  }`}
+                />
               )}
               {brand.logoUrl && (
-                <div className="relative w-6 h-6 mr-2 flex-shrink-0">
+                <div
+                  className={`relative w-6 h-6 flex-shrink-0 ${
+                    isRTL ? 'ml-2' : 'mr-2'
+                  }`}
+                >
                   <Image
                     src={brand.logoUrl || '/placeholder.svg'}
                     alt={brand.label}
@@ -762,7 +785,7 @@ const EnhancedNestedCarFilterV3: React.FC<EnhancedNestedCarFilterV3Props> = ({
             </Label>
           </div>
 
-          {/* Expand/Collapse indicator */}
+          {/* Expand/Collapse indicator with RTL support */}
           {isSelected && (
             <button
               type="button"
@@ -784,22 +807,32 @@ const EnhancedNestedCarFilterV3: React.FC<EnhancedNestedCarFilterV3Props> = ({
               {isExpanded ? (
                 <ChevronDown className="w-4 h-4 text-primary" />
               ) : (
-                <ChevronRight className="w-4 h-4 text-primary" />
+                <ChevronRight
+                  className={`w-4 h-4 text-primary ${
+                    isRTL ? 'rotate-180' : ''
+                  }`}
+                />
               )}
             </button>
           )}
         </div>
 
-        {/* Models (nested under brand) */}
+        {/* Models (nested under brand) with RTL support */}
         {isSelected && isExpanded && (
           <div
-            className={`${
-              isRTL ? 'pr-6' : 'pl-6'
-            } border-l-2 border-primary/30 ml-4 mt-1`}
+            className={`border-l-2 border-primary/30 mt-1 ${
+              isRTL ? 'pr-6 border-l-0 border-r-2 mr-4' : 'pl-6 ml-4'
+            }`}
           >
             {modelsQuery.isLoading ? (
-              <div className="flex items-center p-2 text-sm text-slate-500">
-                <Loader2 className="w-4 h-4 animate-spin mr-2" />
+              <div
+                className={`flex items-center p-2 text-sm text-slate-500 ${
+                  isRTL ? 'flex-row-reverse' : ''
+                }`}
+              >
+                <Loader2
+                  className={`w-4 h-4 animate-spin ${isRTL ? 'ml-2' : 'mr-2'}`}
+                />
                 Loading models...
               </div>
             ) : modelsQuery.isError ? (
@@ -823,7 +856,7 @@ const EnhancedNestedCarFilterV3: React.FC<EnhancedNestedCarFilterV3Props> = ({
     );
   };
 
-  // Model Item Component with enhanced selected styling
+  // Model Item Component with enhanced selected styling and RTL support
   const ModelItem: React.FC<{ model: EnhancedCarModel; brandId: string }> = ({
     model,
     brandId,
@@ -879,7 +912,7 @@ const EnhancedNestedCarFilterV3: React.FC<EnhancedNestedCarFilterV3Props> = ({
         return allTrims.sort((a, b) => {
           if (a.isSelected && !b.isSelected) return -1;
           if (!a.isSelected && b.isSelected) return 1;
-          return a.label.localeCompare(b.label);
+          return a.label.localeCompare(b.label, locale);
         });
       } catch (error) {
         console.error('Error transforming trims data:', error);
@@ -891,11 +924,12 @@ const EnhancedNestedCarFilterV3: React.FC<EnhancedNestedCarFilterV3Props> = ({
       urlTrim,
       urlItemsQuery.data?.pages,
       model.value,
+      locale,
     ]);
 
     return (
       <div className="mb-1">
-        {/* Enhanced Model Selection with selected styling */}
+        {/* Enhanced Model Selection with selected styling and RTL support */}
         <div
           className={`flex items-center p-2 rounded-md transition-all duration-200 group ${
             isSelected
@@ -903,7 +937,11 @@ const EnhancedNestedCarFilterV3: React.FC<EnhancedNestedCarFilterV3Props> = ({
               : 'hover:bg-slate-50'
           }`}
         >
-          <div className="flex items-center flex-1">
+          <div
+            className={`flex items-center flex-1 ${
+              isRTL ? 'flex-row-reverse' : ''
+            }`}
+          >
             <Checkbox
               id={`model-${model.value}`}
               checked={isSelected}
@@ -916,16 +954,20 @@ const EnhancedNestedCarFilterV3: React.FC<EnhancedNestedCarFilterV3Props> = ({
                 isSelected
                   ? 'text-primary font-medium'
                   : 'text-slate-600 group-hover:text-slate-800'
-              } ${isRTL ? 'pr-2 mr-auto' : 'pl-2'}`}
+              } ${isRTL ? 'pr-2 flex-row-reverse' : 'pl-2'}`}
             >
               {isSelected && (
-                <Star className="w-3 h-3 mr-1 text-primary fill-current" />
+                <Star
+                  className={`w-3 h-3 text-primary fill-current ${
+                    isRTL ? 'ml-1' : 'mr-1'
+                  }`}
+                />
               )}
               <span className="truncate">{model.label}</span>
             </Label>
           </div>
 
-          {/* Expand/Collapse indicator for trims */}
+          {/* Expand/Collapse indicator for trims with RTL support */}
           {isSelected && trims.length > 0 && (
             <button
               type="button"
@@ -947,22 +989,32 @@ const EnhancedNestedCarFilterV3: React.FC<EnhancedNestedCarFilterV3Props> = ({
               {isExpanded ? (
                 <ChevronDown className="w-4 h-4 text-primary" />
               ) : (
-                <ChevronRight className="w-4 h-4 text-primary" />
+                <ChevronRight
+                  className={`w-4 h-4 text-primary ${
+                    isRTL ? 'rotate-180' : ''
+                  }`}
+                />
               )}
             </button>
           )}
         </div>
 
-        {/* Trims (nested under model) */}
+        {/* Trims (nested under model) with RTL support */}
         {isSelected && isExpanded && (
           <div
-            className={`${
-              isRTL ? 'pr-6' : 'pl-6'
-            } border-l-2 border-primary/20 ml-4 mt-1`}
+            className={`border-l-2 border-primary/20 mt-1 ${
+              isRTL ? 'pr-6 border-l-0 border-r-2 mr-4' : 'pl-6 ml-4'
+            }`}
           >
             {trimsQuery.isLoading ? (
-              <div className="flex items-center p-2 text-sm text-slate-500">
-                <Loader2 className="w-4 h-4 animate-spin mr-2" />
+              <div
+                className={`flex items-center p-2 text-sm text-slate-500 ${
+                  isRTL ? 'flex-row-reverse' : ''
+                }`}
+              >
+                <Loader2
+                  className={`w-4 h-4 animate-spin ${isRTL ? 'ml-2' : 'mr-2'}`}
+                />
                 Loading trims...
               </div>
             ) : trimsQuery.isError ? (
@@ -980,7 +1032,7 @@ const EnhancedNestedCarFilterV3: React.FC<EnhancedNestedCarFilterV3Props> = ({
     );
   };
 
-  // Trim Item Component with enhanced selected styling
+  // Trim Item Component with enhanced selected styling and RTL support
   const TrimItem: React.FC<{ trim: EnhancedCarTrim }> = ({ trim }) => {
     const isSelected = effectiveSelectedTrim === trim.value;
 
@@ -992,32 +1044,42 @@ const EnhancedNestedCarFilterV3: React.FC<EnhancedNestedCarFilterV3Props> = ({
             : 'hover:bg-slate-50'
         }`}
       >
-        <Checkbox
-          id={`trim-${trim.value}`}
-          checked={isSelected}
-          onCheckedChange={() => handleTrimSelect(trim.value)}
-          className="border-slate-300 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-        />
-        <Label
-          htmlFor={`trim-${trim.value}`}
-          className={`text-sm cursor-pointer transition-colors flex items-center ${
-            isSelected
-              ? 'text-primary font-medium'
-              : 'text-slate-500 group-hover:text-slate-700'
-          } ${isRTL ? 'pr-2 mr-auto' : 'pl-2'}`}
+        <div
+          className={`flex items-center flex-1 ${
+            isRTL ? 'flex-row-reverse' : ''
+          }`}
         >
-          {isSelected && (
-            <Star className="w-3 h-3 mr-1 text-primary fill-current" />
-          )}
-          <span className="truncate">{trim.label}</span>
-        </Label>
+          <Checkbox
+            id={`trim-${trim.value}`}
+            checked={isSelected}
+            onCheckedChange={() => handleTrimSelect(trim.value)}
+            className="border-slate-300 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+          />
+          <Label
+            htmlFor={`trim-${trim.value}`}
+            className={`text-sm cursor-pointer transition-colors flex items-center ${
+              isSelected
+                ? 'text-primary font-medium'
+                : 'text-slate-500 group-hover:text-slate-700'
+            } ${isRTL ? 'pr-2 flex-row-reverse' : 'pl-2'}`}
+          >
+            {isSelected && (
+              <Star
+                className={`w-3 h-3 text-primary fill-current ${
+                  isRTL ? 'ml-1' : 'mr-1'
+                }`}
+              />
+            )}
+            <span className="truncate">{trim.label}</span>
+          </Label>
+        </div>
       </div>
     );
   };
 
   return (
-    <div className={className}>
-      {/* Enhanced Search Input */}
+    <div className={className} dir={isRTL ? 'rtl' : 'ltr'}>
+      {/* Enhanced Search Input with RTL support */}
       <div className="mb-3">
         <div className="relative group">
           <Search
@@ -1038,10 +1100,11 @@ const EnhancedNestedCarFilterV3: React.FC<EnhancedNestedCarFilterV3Props> = ({
             onKeyDown={handleKeyDown}
             placeholder={searchPlaceholder}
             className={`w-full border border-slate-200 bg-[#EFEFEF] transition-all duration-200 ${
-              isRTL ? 'pr-9 pl-8' : 'pl-9 pr-8'
+              isRTL ? 'pr-9 pl-8 text-right' : 'pl-9 pr-8 text-left'
             } h-8 rounded-md text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 hover:border-slate-300 ${
               isFocused ? 'bg-white shadow-sm' : ''
             }`}
+            dir={isRTL ? 'rtl' : 'ltr'}
           />
           {searchTerm && (
             <button
@@ -1059,9 +1122,13 @@ const EnhancedNestedCarFilterV3: React.FC<EnhancedNestedCarFilterV3Props> = ({
           )}
         </div>
 
-        {/* Search Status */}
+        {/* Search Status with RTL support */}
         {searchTerm && (
-          <div className="mt-1 text-xs text-slate-500 px-1">
+          <div
+            className={`mt-1 text-xs text-slate-500 px-1 ${
+              isRTL ? 'text-right' : 'text-left'
+            }`}
+          >
             {searchTerm.length < 2
               ? 'Type at least 2 characters to search'
               : `Searching for "${searchTerm}"...`}
@@ -1069,24 +1136,17 @@ const EnhancedNestedCarFilterV3: React.FC<EnhancedNestedCarFilterV3Props> = ({
         )}
       </div>
 
-      {/* URL Parameters Loading Indicator */}
-      {/* {(urlMake || urlModel || urlTrim) && urlItemsQuery.isLoading && (
-        <div className="mb-3 p-2 bg-blue-50 border border-blue-200 rounded-md">
-          <div className="flex items-center text-sm text-blue-700">
-            <Loader2 className="w-4 h-4 animate-spin mr-2" />
-            Loading selected items from URL...
-          </div>
-        </div>
-      )} */}
-
-      {/* Main Content Area */}
+      {/* Main Content Area with RTL-aware scrollbar */}
       <div
         ref={listRef}
-        className="overflow-y-auto pr-1 transition-all duration-200"
+        className={`overflow-y-auto transition-all duration-200 ${
+          isRTL ? 'pl-1' : 'pr-1'
+        }`}
         style={{
           maxHeight,
           scrollbarWidth: 'thin',
           scrollbarColor: '#cbd5e1 transparent',
+          direction: isRTL ? 'rtl' : 'ltr',
         }}
       >
         {/* Error State */}
@@ -1136,10 +1196,18 @@ const EnhancedNestedCarFilterV3: React.FC<EnhancedNestedCarFilterV3Props> = ({
                   ))}
                 </div>
 
-                {/* Loading States */}
+                {/* Loading States with RTL support */}
                 {(isLoadingMakes || isFetchingNextMakesPage) && (
-                  <div className="flex justify-center items-center p-4">
-                    <Loader2 className="w-5 h-5 animate-spin text-primary mr-2" />
+                  <div
+                    className={`flex justify-center items-center p-4 ${
+                      isRTL ? 'flex-row-reverse' : ''
+                    }`}
+                  >
+                    <Loader2
+                      className={`w-5 h-5 animate-spin text-primary ${
+                        isRTL ? 'ml-2' : 'mr-2'
+                      }`}
+                    />
                     <span className="text-sm text-slate-500">
                       {isLoadingMakes ? loadingMessage : 'Loading more...'}
                     </span>
@@ -1155,7 +1223,7 @@ const EnhancedNestedCarFilterV3: React.FC<EnhancedNestedCarFilterV3Props> = ({
                   >
                     {/* Visual indicator for infinite scroll */}
                     <div className="text-xs text-slate-400 opacity-50">
-                      ↓ Scroll for more
+                      {isRTL ? 'اسحب لأسفل للمزيد ↓' : '↓ Scroll for more'}
                     </div>
                   </div>
                 )}
@@ -1164,7 +1232,9 @@ const EnhancedNestedCarFilterV3: React.FC<EnhancedNestedCarFilterV3Props> = ({
                 {!hasNextMakesPage && makes.length > 0 && (
                   <div className="py-3 text-center">
                     <div className="text-xs text-slate-400">
-                      All brands loaded ({makes.length} total)
+                      {isRTL
+                        ? `تم تحميل جميع العلامات التجارية (${makes.length} إجمالي)`
+                        : `All brands loaded (${makes.length} total)`}
                     </div>
                   </div>
                 )}
@@ -1174,29 +1244,54 @@ const EnhancedNestedCarFilterV3: React.FC<EnhancedNestedCarFilterV3Props> = ({
         )}
       </div>
 
-      {/* Selection Status Footer */}
+      {/* Selection Status Footer with RTL support */}
       {(effectiveSelectedBrands.length > 0 ||
         effectiveSelectedModel ||
         effectiveSelectedTrim) && (
         <div className="mt-3 pt-3 border-t border-slate-200">
-          <div className="flex items-center justify-between text-xs">
-            <div className="text-slate-600">
-              <span className="font-medium">Selected:</span>
+          <div
+            className={`flex items-center justify-between text-xs ${
+              isRTL ? 'flex-row-reverse' : ''
+            }`}
+          >
+            <div
+              className={`text-slate-600 ${isRTL ? 'text-right' : 'text-left'}`}
+            >
+              <span className="font-medium">
+                {isRTL ? 'المحدد:' : 'Selected:'}
+              </span>
               {effectiveSelectedBrands.length > 0 && (
-                <span className="ml-1 text-primary font-medium">
-                  {effectiveSelectedBrands.length} brand
-                  {effectiveSelectedBrands.length !== 1 ? 's' : ''}
+                <span
+                  className={`text-primary font-medium ${
+                    isRTL ? 'mr-1' : 'ml-1'
+                  }`}
+                >
+                  {effectiveSelectedBrands.length}{' '}
+                  {isRTL ? 'علامة تجارية' : 'brand'}
+                  {effectiveSelectedBrands.length !== 1 && !isRTL ? 's' : ''}
                 </span>
               )}
               {effectiveSelectedModel && (
-                <span className="ml-1 text-primary font-medium">• 1 model</span>
+                <span
+                  className={`text-primary font-medium ${
+                    isRTL ? 'mr-1' : 'ml-1'
+                  }`}
+                >
+                  {isRTL ? '• 1 موديل' : '• 1 model'}
+                </span>
               )}
               {effectiveSelectedTrim && (
-                <span className="ml-1 text-primary font-medium">• 1 trim</span>
+                <span
+                  className={`text-primary font-medium ${
+                    isRTL ? 'mr-1' : 'ml-1'
+                  }`}
+                >
+                  {isRTL ? '• 1 تريم' : '• 1 trim'}
+                </span>
               )}
             </div>
 
-            {/* Quick Clear Button */}
+            {/* Quick Clear Button with RTL support */}
             <Button
               variant="ghost"
               size="sm"
@@ -1212,16 +1307,9 @@ const EnhancedNestedCarFilterV3: React.FC<EnhancedNestedCarFilterV3Props> = ({
               }}
               className="h-auto p-1 text-xs text-slate-500 hover:text-red-600 hover:bg-red-50"
             >
-              Clear All
+              {isRTL ? 'مسح الكل' : 'Clear All'}
             </Button>
           </div>
-
-          {/* URL Parameters Info */}
-          {/* {(urlMake || urlModel || urlTrim) && (
-            <div className="mt-2 text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">
-              Selections loaded from URL parameters
-            </div>
-          )} */}
         </div>
       )}
     </div>

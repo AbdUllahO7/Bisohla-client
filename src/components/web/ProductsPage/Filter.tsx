@@ -3,7 +3,14 @@
 import { useState, useEffect, useRef } from 'react';
 import React from 'react';
 
-import { ListRestart, ChevronDown, Filter as FilterIcon } from 'lucide-react';
+import {
+  ListRestart,
+  ChevronDown,
+  Filter as FilterIcon,
+  X,
+  SlidersHorizontal,
+  Check,
+} from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 
 // UI Components
@@ -17,6 +24,15 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+  SheetClose,
+} from '@/components/ui/sheet';
 
 // Custom Components
 import OptimizedSearchInput from '@/components/optimized-search-input';
@@ -46,7 +62,7 @@ interface AccordionHeaderProps {
   activeCount?: number;
 }
 
-// Enhanced FilterOptionDropdown with better spacing and visual hierarchy
+// Enhanced FilterOptionDropdown
 const FilterOptionDropdown = React.memo(
   ({
     title,
@@ -87,7 +103,7 @@ const FilterOptionDropdown = React.memo(
 
 FilterOptionDropdown.displayName = 'FilterOptionDropdown';
 
-// Enhanced AccordionHeader with active state indicators
+// Enhanced AccordionHeader
 const AccordionHeader = React.memo(
   ({ title, hasActiveFilters, activeCount }: AccordionHeaderProps) => (
     <div className="flex items-center justify-between w-full py-1">
@@ -114,6 +130,7 @@ AccordionHeader.displayName = 'AccordionHeader';
 
 // Active filters summary component
 const ActiveFiltersSummary = React.memo(({ filters, onClearAll }: any) => {
+  const t = useTranslations('productsPage');
   const activeFiltersCount = Object.entries(filters).filter(([key, value]) => {
     if (key === 'selectedBrands')
       return Array.isArray(value) && value.length > 0;
@@ -128,8 +145,8 @@ const ActiveFiltersSummary = React.memo(({ filters, onClearAll }: any) => {
         <div className="flex items-center gap-2">
           <FilterIcon className="h-4 w-4 text-primary" />
           <span className="text-sm font-medium text-primary">
-            {activeFiltersCount} active filter
-            {activeFiltersCount > 1 ? 's' : ''}
+            {activeFiltersCount}{' '}
+            {t('filter.activeFilters', { count: activeFiltersCount })}
           </span>
         </div>
         <Button
@@ -138,7 +155,7 @@ const ActiveFiltersSummary = React.memo(({ filters, onClearAll }: any) => {
           onClick={onClearAll}
           className="text-xs text-slate-600 hover:text-primary p-1 h-auto"
         >
-          Clear all
+          {t('filter.clearAll')}
         </Button>
       </div>
     </div>
@@ -147,241 +164,81 @@ const ActiveFiltersSummary = React.memo(({ filters, onClearAll }: any) => {
 
 ActiveFiltersSummary.displayName = 'ActiveFiltersSummary';
 
-// Main Filter Component with enhanced UX
-const ProductsFilter: React.FC = React.memo(() => {
-  const locale = useLocale();
-  const isRTL = locale === 'ar';
+// Mobile Filter Button Component
+const MobileFilterButton = React.memo(({ activeFiltersCount, onOpen }: any) => {
   const t = useTranslations('productsPage');
-  const filterRef = useRef<HTMLDivElement>(null);
-  const [headerHeight, setHeaderHeight] = useState(80);
 
-  // Smart accordion state management with better defaults
-  const [openAccordions, setOpenAccordions] = useState<string[]>([]);
-  const [hasCarSelections, setHasCarSelections] = useState(false);
+  return (
+    <Button
+      onClick={onOpen}
+      size="icon"
+      style={{ zIndex: 10000000 }}
+      className="fixed bottom-4 left-4 right-4 bg-primary hover:bg-primary/90 text-white shadow-lg rounded-xl h-12 w-12 font-semibold text-base xl:hidden flex items-center justify-center"
+    >
+      <div className="relative">
+        <SlidersHorizontal className="h-5 w-5" />
+        {activeFiltersCount > 0 && (
+          <span className="absolute -top-4 -right-4 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+            {activeFiltersCount}
+          </span>
+        )}
+      </div>
+    </Button>
+  );
+});
 
-  // Use filter context
-  const { filters, updateFilter, resetFilters, toggleBrand } = useFilters();
+MobileFilterButton.displayName = 'MobileFilterButton';
 
-  // Get data from hooks (for options)
-  const handleValidationChangeStepOne = (isValid: boolean) => {};
-  const handleValidationChangeStepTwo = (isValid: boolean) => {};
-
-  const {
-    selectedOptions,
+// Filter Content Component (shared between desktop and mobile)
+const FilterContent = React.memo(
+  ({
+    filters,
+    updateFilter,
+    resetFilters,
+    toggleBrand,
     governorateOptions,
     cityOptions,
     carMakesConfig,
     carModelsConfig,
     carTrimsConfig,
     madeYear,
-    handleSelectChange: handleStepOneSelectChange,
-    titles: stepOneTitles,
-  } = useProductStepOne(handleValidationChangeStepOne);
-
-  const {
-    carInfo,
-    options: stepTwoOptions,
-    labels: stepTwoLabels,
-    handleSelectChange: handleStepTwoSelectChange,
-  } = useAddProductStepTwo(handleValidationChangeStepTwo);
-
-  const currencyOptions = getCurrencyOptions(t);
-  const priceRanges = getPriceRanges;
-  const mileageRanges = getMileageRanges;
-
-  // Monitor car selections and auto-manage accordion states
-  useEffect(() => {
-    const hasSelections =
-      filters.selectedBrands.length > 0 || !!filters.model || !!filters.trim;
-    setHasCarSelections(Boolean(hasSelections));
-
-    // Auto-open accordions with active filters
-    const newOpenAccordions: string[] = [];
-
-    if (filters.governorate || filters.city) newOpenAccordions.push('address');
-    if (hasSelections) newOpenAccordions.push('car-marka');
-    if (filters.minYear || filters.maxYear) newOpenAccordions.push('car-year');
-    if (filters.minPrice || filters.maxPrice || filters.currency)
-      newOpenAccordions.push('price-range');
-    if (filters.minMileage || filters.maxMileage)
-      newOpenAccordions.push('mileage-range');
-    if (filters.transmission) newOpenAccordions.push('control-type');
-    if (filters.fuelType) newOpenAccordions.push('fuel-type');
-    if (filters.bodyType) newOpenAccordions.push('body-type');
-
-    setOpenAccordions(newOpenAccordions);
-  }, [filters]);
-
-  // Calculate header height with better detection
-  useEffect(() => {
-    const calculateHeaderHeight = () => {
-      const header =
-        document.querySelector('header') ||
-        document.querySelector('.header') ||
-        document.querySelector('[data-header]');
-      if (header) {
-        const headerRect = header.getBoundingClientRect();
-        setHeaderHeight(headerRect.height + 20); // Add some padding
-      }
-    };
-
-    calculateHeaderHeight();
-    window.addEventListener('resize', calculateHeaderHeight);
-    return () => window.removeEventListener('resize', calculateHeaderHeight);
-  }, []);
-
-  // Sync external hook state with filter context
-  useEffect(() => {
-    handleStepOneSelectChange('governorate', filters.governorate);
-    handleStepOneSelectChange('city', filters.city);
-    handleStepTwoSelectChange('transmission', filters.transmission);
-    handleStepTwoSelectChange('fuelType', filters.fuelType);
-    handleStepTwoSelectChange('bodyType', filters.bodyType);
-    handleStepTwoSelectChange('currency', filters.currency);
-  }, [filters, handleStepOneSelectChange, handleStepTwoSelectChange]);
-
-  // Dynamic scroll height calculation
-  const scrollHeight = `calc(100vh - ${headerHeight + 200}px)`;
-
-  // Enhanced filter change handlers
-  const handleFilterChange = (name: string, value: string) => {
-    updateFilter(name as keyof typeof filters, value);
-    handleStepOneSelectChange(name, value);
-  };
-
-  const handleTransmissionChange = (name: string, value: string) => {
-    updateFilter(name as keyof typeof filters, value);
-    handleStepTwoSelectChange(name, value);
-  };
-
-  const handleYearChange = (type: 'min' | 'max', value: string) => {
-    const key = type === 'min' ? 'minYear' : 'maxYear';
-    updateFilter(key, value);
-  };
-
-  const handlePriceChange = (type: 'min' | 'max', value: string) => {
-    const key = type === 'min' ? 'minPrice' : 'maxPrice';
-    updateFilter(key, value);
-  };
-
-  const handleMileageChange = (type: 'min' | 'max', value: string) => {
-    const key = type === 'min' ? 'minMileage' : 'maxMileage';
-    updateFilter(key, value);
-  };
-
-  const handleCurrencyChange = (name: string, value: string) => {
-    updateFilter('currency', value);
-    handleStepTwoSelectChange(name, value);
-  };
-
-  // Enhanced nested car filter handlers
-  const handleBrandToggle = (brandId: string) => {
-    toggleBrand(brandId);
-  };
-
-  const handleModelSelect = (modelId: string) => {
-    updateFilter('model', modelId);
-    updateFilter('trim', '');
-    handleStepOneSelectChange('model', modelId);
-  };
-
-  const handleTrimSelect = (trimId: string) => {
-    updateFilter('trim', trimId);
-    handleStepOneSelectChange('trim', trimId);
-  };
-
-  const handleResetFilters = () => {
-    resetFilters();
-    setHasCarSelections(false);
-    setOpenAccordions([]);
-
-    // Reset external hooks
-    handleStepOneSelectChange('governorate', '');
-    handleStepOneSelectChange('city', '');
-    handleStepOneSelectChange('marka', '');
-    handleStepOneSelectChange('model', '');
-    handleStepOneSelectChange('trim', '');
-    handleStepTwoSelectChange('transmission', '');
-    handleStepTwoSelectChange('fuelType', '');
-    handleStepTwoSelectChange('bodyType', '');
-    handleStepTwoSelectChange('currency', '');
-  };
-
-  // Smart accordion change handler
-  const handleAccordionChange = (value: string[]) => {
-    setOpenAccordions(value);
-  };
-
-  // Helper function to count active filters per section
-  const getActiveFiltersCount = (section: string) => {
-    switch (section) {
-      case 'address':
-        return [filters.governorate, filters.city].filter(Boolean).length;
-      case 'car-marka':
-        return [
-          filters.selectedBrands.length > 0,
-          filters.model,
-          filters.trim,
-        ].filter(Boolean).length;
-      case 'car-year':
-        return [filters.minYear, filters.maxYear].filter(Boolean).length;
-      case 'price-range':
-        return [filters.minPrice, filters.maxPrice, filters.currency].filter(
-          Boolean,
-        ).length;
-      case 'mileage-range':
-        return [filters.minMileage, filters.maxMileage].filter(Boolean).length;
-      case 'control-type':
-        return filters.transmission ? 1 : 0;
-      case 'fuel-type':
-        return filters.fuelType ? 1 : 0;
-      case 'body-type':
-        return filters.bodyType ? 1 : 0;
-      default:
-        return 0;
-    }
-  };
-
-  return (
-    <div
-      ref={filterRef}
-      className="sticky transition-all duration-300"
-      style={{ top: `${headerHeight}px` }}
-      dir={isRTL ? 'rtl' : 'ltr'}
-    >
-      <div className="w-full bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
-        {/* Enhanced Filter Header */}
-        <div className="p-4 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <FilterIcon className="h-5 w-5 text-primary" />
-              <h2 className="text-lg font-bold text-slate-800">
-                {t('filter.title')}
-              </h2>
-            </div>
+    stepOneTitles,
+    stepTwoOptions,
+    stepTwoLabels,
+    currencyOptions,
+    priceRanges,
+    mileageRanges,
+    handleFilterChange,
+    handleTransmissionChange,
+    handleYearChange,
+    handlePriceChange,
+    handleMileageChange,
+    handleCurrencyChange,
+    handleBrandToggle,
+    handleModelSelect,
+    handleTrimSelect,
+    openAccordions,
+    handleAccordionChange,
+    getActiveFiltersCount,
+    t,
+    isMobile = false,
+  }: any) => {
+    return (
+      <>
+        {/* Search Input */}
+        {!isMobile && (
+          <div className="border-b border-slate-100">
+            <OptimizedSearchInput />
           </div>
-        </div>
-
-        {/* Search Input - Enhanced spacing */}
-        <div className="border-b border-slate-100">
-          <OptimizedSearchInput />
-        </div>
+        )}
 
         {/* Active Filters Summary */}
-        <ActiveFiltersSummary
-          filters={filters}
-          onClearAll={handleResetFilters}
-        />
+        <ActiveFiltersSummary filters={filters} onClearAll={resetFilters} />
 
-        {/* Enhanced Filter Body with better scrolling */}
-        <div className="relative">
+        {/* Filter Body */}
+        <div className="flex-1 overflow-hidden">
           <ScrollArea
-            className="px-0"
-            style={{
-              height: scrollHeight,
-              minHeight: '60vh',
-              maxHeight: '75vh',
-            }}
+            className={`px-0 ${isMobile ? 'h-[calc(100vh-200px)]' : ''}`}
           >
             <div className="px-4 py-2">
               <Accordion
@@ -684,19 +541,360 @@ const ProductsFilter: React.FC = React.memo(() => {
           </ScrollArea>
         </div>
 
-        {/* Enhanced Reset Button */}
+        {/* Reset Button */}
         <div className="p-4 border-t border-slate-200 bg-gradient-to-r from-slate-50 to-white">
           <Button
             variant="outline"
             className="w-full bg-white hover:bg-slate-50 hover:text-primary text-slate-700 border-slate-300 hover:border-primary font-medium transition-all duration-200 rounded-lg h-11 shadow-sm hover:shadow"
-            onClick={handleResetFilters}
+            onClick={resetFilters}
           >
-            <ListRestart className={`${isRTL ? 'ml-2' : 'mr-2'} h-4 w-4`} />
+            <ListRestart className="mr-2 h-4 w-4" />
             {t('filter.filterOptions.resetSearch')}
           </Button>
         </div>
+      </>
+    );
+  },
+);
+
+FilterContent.displayName = 'FilterContent';
+
+// Main Filter Component with mobile drawer
+const ProductsFilter: React.FC = React.memo(() => {
+  const locale = useLocale();
+  const isRTL = locale === 'ar';
+  const t = useTranslations('productsPage');
+  const filterRef = useRef<HTMLDivElement>(null);
+  const [headerHeight, setHeaderHeight] = useState(80);
+  const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
+
+  // Smart accordion state management
+  const [openAccordions, setOpenAccordions] = useState<string[]>([]);
+
+  // Use filter context
+  const { filters, updateFilter, resetFilters, toggleBrand } = useFilters();
+
+  // Get data from hooks
+  const handleValidationChangeStepOne = (isValid: boolean) => {};
+  const handleValidationChangeStepTwo = (isValid: boolean) => {};
+
+  const {
+    selectedOptions,
+    governorateOptions,
+    cityOptions,
+    carMakesConfig,
+    carModelsConfig,
+    carTrimsConfig,
+    madeYear,
+    handleSelectChange: handleStepOneSelectChange,
+    titles: stepOneTitles,
+  } = useProductStepOne(handleValidationChangeStepOne);
+
+  const {
+    carInfo,
+    options: stepTwoOptions,
+    labels: stepTwoLabels,
+    handleSelectChange: handleStepTwoSelectChange,
+  } = useAddProductStepTwo(handleValidationChangeStepTwo);
+
+  const currencyOptions = getCurrencyOptions(t);
+  const priceRanges = getPriceRanges;
+  const mileageRanges = getMileageRanges;
+
+  // Auto-manage accordion states based on active filters
+  useEffect(() => {
+    const newOpenAccordions: string[] = [];
+
+    if (filters.governorate || filters.city) newOpenAccordions.push('address');
+    if (filters.selectedBrands.length > 0 || filters.model || filters.trim)
+      newOpenAccordions.push('car-marka');
+    if (filters.minYear || filters.maxYear) newOpenAccordions.push('car-year');
+    if (filters.minPrice || filters.maxPrice || filters.currency)
+      newOpenAccordions.push('price-range');
+    if (filters.minMileage || filters.maxMileage)
+      newOpenAccordions.push('mileage-range');
+    if (filters.transmission) newOpenAccordions.push('control-type');
+    if (filters.fuelType) newOpenAccordions.push('fuel-type');
+    if (filters.bodyType) newOpenAccordions.push('body-type');
+
+    setOpenAccordions(newOpenAccordions);
+  }, [filters]);
+
+  // Calculate header height
+  useEffect(() => {
+    const calculateHeaderHeight = () => {
+      const header =
+        document.querySelector('header') ||
+        document.querySelector('.header') ||
+        document.querySelector('[data-header]');
+      if (header) {
+        const headerRect = header.getBoundingClientRect();
+        setHeaderHeight(headerRect.height + 20);
+      }
+    };
+
+    calculateHeaderHeight();
+    window.addEventListener('resize', calculateHeaderHeight);
+    return () => window.removeEventListener('resize', calculateHeaderHeight);
+  }, []);
+
+  // Sync external hook state with filter context
+  useEffect(() => {
+    handleStepOneSelectChange('governorate', filters.governorate);
+    handleStepOneSelectChange('city', filters.city);
+    handleStepTwoSelectChange('transmission', filters.transmission);
+    handleStepTwoSelectChange('fuelType', filters.fuelType);
+    handleStepTwoSelectChange('bodyType', filters.bodyType);
+    handleStepTwoSelectChange('currency', filters.currency);
+  }, [filters, handleStepOneSelectChange, handleStepTwoSelectChange]);
+
+  // Calculate active filters count
+  const activeFiltersCount = Object.entries(filters).filter(([key, value]) => {
+    if (key === 'selectedBrands')
+      return Array.isArray(value) && value.length > 0;
+    return value && value !== '';
+  }).length;
+
+  // Enhanced filter change handlers
+  const handleFilterChange = (name: string, value: string) => {
+    updateFilter(name as keyof typeof filters, value);
+    handleStepOneSelectChange(name, value);
+  };
+
+  const handleTransmissionChange = (name: string, value: string) => {
+    updateFilter(name as keyof typeof filters, value);
+    handleStepTwoSelectChange(name, value);
+  };
+
+  const handleYearChange = (type: 'min' | 'max', value: string) => {
+    const key = type === 'min' ? 'minYear' : 'maxYear';
+    updateFilter(key, value);
+  };
+
+  const handlePriceChange = (type: 'min' | 'max', value: string) => {
+    const key = type === 'min' ? 'minPrice' : 'maxPrice';
+    updateFilter(key, value);
+  };
+
+  const handleMileageChange = (type: 'min' | 'max', value: string) => {
+    const key = type === 'min' ? 'minMileage' : 'maxMileage';
+    updateFilter(key, value);
+  };
+
+  const handleCurrencyChange = (name: string, value: string) => {
+    updateFilter('currency', value);
+    handleStepTwoSelectChange(name, value);
+  };
+
+  const handleBrandToggle = (brandId: string) => {
+    toggleBrand(brandId);
+  };
+
+  const handleModelSelect = (modelId: string) => {
+    updateFilter('model', modelId);
+    updateFilter('trim', '');
+    handleStepOneSelectChange('model', modelId);
+  };
+
+  const handleTrimSelect = (trimId: string) => {
+    updateFilter('trim', trimId);
+    handleStepOneSelectChange('trim', trimId);
+  };
+
+  const handleResetFilters = () => {
+    resetFilters();
+    setOpenAccordions([]);
+
+    // Reset external hooks
+    handleStepOneSelectChange('governorate', '');
+    handleStepOneSelectChange('city', '');
+    handleStepOneSelectChange('marka', '');
+    handleStepOneSelectChange('model', '');
+    handleStepOneSelectChange('trim', '');
+    handleStepTwoSelectChange('transmission', '');
+    handleStepTwoSelectChange('fuelType', '');
+    handleStepTwoSelectChange('bodyType', '');
+    handleStepTwoSelectChange('currency', '');
+  };
+
+  const handleAccordionChange = (value: string[]) => {
+    setOpenAccordions(value);
+  };
+
+  // Helper function to count active filters per section
+  const getActiveFiltersCount = (section: string) => {
+    switch (section) {
+      case 'address':
+        return [filters.governorate, filters.city].filter(Boolean).length;
+      case 'car-marka':
+        return [
+          filters.selectedBrands.length > 0,
+          filters.model,
+          filters.trim,
+        ].filter(Boolean).length;
+      case 'car-year':
+        return [filters.minYear, filters.maxYear].filter(Boolean).length;
+      case 'price-range':
+        return [filters.minPrice, filters.maxPrice, filters.currency].filter(
+          Boolean,
+        ).length;
+      case 'mileage-range':
+        return [filters.minMileage, filters.maxMileage].filter(Boolean).length;
+      case 'control-type':
+        return filters.transmission ? 1 : 0;
+      case 'fuel-type':
+        return filters.fuelType ? 1 : 0;
+      case 'body-type':
+        return filters.bodyType ? 1 : 0;
+      default:
+        return 0;
+    }
+  };
+
+  // Props for FilterContent component
+  const filterContentProps = {
+    filters,
+    updateFilter,
+    resetFilters: handleResetFilters,
+    toggleBrand,
+    governorateOptions,
+    cityOptions,
+    carMakesConfig,
+    carModelsConfig,
+    carTrimsConfig,
+    madeYear,
+    stepOneTitles,
+    stepTwoOptions,
+    stepTwoLabels,
+    currencyOptions,
+    priceRanges,
+    mileageRanges,
+    handleFilterChange,
+    handleTransmissionChange,
+    handleYearChange,
+    handlePriceChange,
+    handleMileageChange,
+    handleCurrencyChange,
+    handleBrandToggle,
+    handleModelSelect,
+    handleTrimSelect,
+    openAccordions,
+    handleAccordionChange,
+    getActiveFiltersCount,
+    t,
+  };
+
+  return (
+    <>
+      {/* Desktop Filter - Hidden on mobile */}
+      <div
+        ref={filterRef}
+        className="hidden xl:block sticky transition-all duration-300"
+        style={{ top: `${headerHeight}px` }}
+        dir={isRTL ? 'rtl' : 'ltr'}
+      >
+        <div className="w-full bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
+          {/* Desktop Header */}
+          <div className="p-4 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <FilterIcon className="h-5 w-5 text-primary" />
+                <h2 className="text-lg font-bold text-slate-800">
+                  {t('filter.title')}
+                </h2>
+              </div>
+            </div>
+          </div>
+
+          {/* Desktop Filter Content */}
+          <div
+            className="flex flex-col"
+            style={{ maxHeight: 'calc(100vh - 120px)' }}
+          >
+            <FilterContent {...filterContentProps} />
+          </div>
+        </div>
       </div>
-    </div>
+
+      {/* Mobile Filter Button - Only visible on mobile */}
+      <MobileFilterButton
+        activeFiltersCount={activeFiltersCount}
+        onOpen={() => setIsMobileDrawerOpen(true)}
+      />
+
+      {/* Mobile Filter Drawer */}
+      <Sheet open={isMobileDrawerOpen} onOpenChange={setIsMobileDrawerOpen}>
+        <SheetContent
+          side={isRTL ? 'right' : 'left'}
+          className="w-full sm:w-[400px] p-0 flex flex-col"
+          style={{ zIndex: 10000 }}
+        >
+          {/* Mobile Header */}
+          <SheetHeader className="px-4 py-4 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <FilterIcon className="h-5 w-5 text-primary" />
+                <SheetTitle className="text-lg font-bold text-slate-800">
+                  {t('filter.title')}
+                </SheetTitle>
+              </div>
+              <SheetClose asChild>
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                  <X className="h-4 w-4" />
+                </Button>
+              </SheetClose>
+            </div>
+            <SheetDescription className="text-left text-sm text-slate-600">
+              {t('filter.mobileDescription')}
+            </SheetDescription>
+          </SheetHeader>
+
+          {/* Mobile Search Input */}
+          <div className="border-b border-slate-100">
+            <OptimizedSearchInput />
+          </div>
+
+          {/* Mobile Filter Content */}
+          <div className="flex-1 flex flex-col overflow-hidden">
+            <FilterContent {...filterContentProps} isMobile={true} />
+          </div>
+
+          {/* Mobile Footer with Apply Button */}
+          <div className="p-4 border-t border-slate-200 bg-white space-y-3">
+            <div className="flex items-center justify-between text-sm text-slate-600">
+              <span>
+                {activeFiltersCount > 0
+                  ? t('filter.filtersApplied', {
+                      count: String(activeFiltersCount),
+                    })
+                  : t('filter.noFiltersApplied')}
+              </span>
+              {activeFiltersCount > 0 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleResetFilters}
+                  className="text-xs text-slate-600 hover:text-primary p-1 h-auto"
+                >
+                  {t('filter.clearAll')}
+                </Button>
+              )}
+            </div>
+            <SheetClose asChild>
+              <Button className="w-full bg-primary hover:bg-primary/90 text-white font-semibold h-12 rounded-xl">
+                <Check className="mr-2 h-4 w-4" />
+                {t('filter.applyFilters')}
+                {activeFiltersCount > 0 && (
+                  <span className="ml-2 bg-white text-primary px-2 py-0.5 rounded-full text-sm font-bold">
+                    {activeFiltersCount}
+                  </span>
+                )}
+              </Button>
+            </SheetClose>
+          </div>
+        </SheetContent>
+      </Sheet>
+    </>
   );
 });
 

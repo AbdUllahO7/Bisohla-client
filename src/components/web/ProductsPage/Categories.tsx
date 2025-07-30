@@ -74,7 +74,7 @@ const Categories = () => {
   }
 
   return (
-    <Box className="xs:w-[300px] md:w-[600px] lg:w-full xs:mt-10 lg:m-0">
+    <Box className="w-full xs:mt-10 lg:m-0">
       <CategoryCarousel
         data={categoriesWithCounts}
         direction={direction}
