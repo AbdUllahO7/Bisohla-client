@@ -236,7 +236,7 @@ const FilterContent = React.memo(
         <ActiveFiltersSummary filters={filters} onClearAll={resetFilters} />
 
         {/* Filter Body */}
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1 overflow-auto">
           <ScrollArea
             className={`px-0 ${isMobile ? 'h-[calc(100vh-200px)]' : ''}`}
           >
@@ -319,9 +319,9 @@ const FilterContent = React.memo(
                       noOptionsMessage={t('filter.noBrands', {
                         defaultValue: 'No brands found',
                       })}
-                      loadingMessage={t('filter.loadingBrands', {
-                        defaultValue: 'Loading brands...',
-                      })}
+                      // loadingMessage={t('filter.loadingBrands', {
+                      //   defaultValue: 'Loading brands...',
+                      // })}
                       className="w-full"
                     />
                   </AccordionContent>

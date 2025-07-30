@@ -17,7 +17,7 @@ import { useDebounce } from '@/hooks/use-debounce';
 export interface FilterState {
   governorate: string;
   city: string;
-  marka: string;
+  marka: string; // Keep for backward compatibility, but will be derived from selectedBrands[0]
   model: string;
   trim: string;
   minYear: string;
@@ -31,7 +31,7 @@ export interface FilterState {
   fuelType: string;
   bodyType: string;
   listingType: string;
-  selectedBrands: string[];
+  selectedBrands: string[]; // This is the main source of truth for brands
 }
 
 // Search state interface
@@ -110,7 +110,7 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
 }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const pathname = usePathname(); // Add pathname to detect URL changes
+  const pathname = usePathname();
 
   // State
   const [filters, setFilters] = useState<FilterState>(initialFilterState);
@@ -123,7 +123,7 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
   const lastApiCallParams = useRef<string>('');
   const urlUpdateTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
   const hasUncommittedChanges = useRef(false);
-  const lastSearchParamsString = useRef<string>(''); // Track search params changes
+  const lastSearchParamsString = useRef<string>('');
 
   // Separate debounce instances with different delays
   const debouncedSearchText = useDebounce(searchState.searchText, 1000);
@@ -171,15 +171,28 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
         });
       }
 
-      // Car details filter group
+      // FIXED: Car brands filter group - supports multiple brands with "in" operator
       const carDetailsFilters: Filter[] = [];
-      if (currentFilters.marka) {
-        carDetailsFilters.push({
-          field: 'makeId',
-          operator: 'eq',
-          value: currentFilters.marka,
-        });
+
+      // Use selectedBrands array instead of single marka
+      if (currentFilters.selectedBrands.length > 0) {
+        if (currentFilters.selectedBrands.length === 1) {
+          // Single brand - use 'eq' operator
+          carDetailsFilters.push({
+            field: 'makeId',
+            operator: 'eq',
+            value: currentFilters.selectedBrands[0],
+          });
+        } else {
+          // Multiple brands - use 'in' operator
+          carDetailsFilters.push({
+            field: 'makeId',
+            operator: 'in',
+            value: currentFilters.selectedBrands,
+          });
+        }
       }
+
       if (currentFilters.model) {
         carDetailsFilters.push({
           field: 'modelId',
@@ -366,6 +379,19 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
         if (key === 'governorate' && value !== prev.governorate) {
           newFilters.city = '';
         }
+
+        // FIXED: Handle selectedBrands updates properly
+        if (key === 'selectedBrands') {
+          const brands = Array.isArray(value) ? value : [value].filter(Boolean);
+          newFilters.selectedBrands = brands;
+          // Update marka for backward compatibility (use first selected brand)
+          newFilters.marka = brands.length > 0 ? brands[0] : '';
+          // Clear model and trim when brands change
+          newFilters.model = '';
+          newFilters.trim = '';
+        }
+
+        // Handle single marka update (for backward compatibility)
         if (key === 'marka' && value !== prev.marka) {
           newFilters.model = '';
           newFilters.trim = '';
@@ -375,6 +401,7 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
             newFilters.selectedBrands = [];
           }
         }
+
         if (key === 'model' && value !== prev.model) {
           newFilters.trim = '';
         }
@@ -396,25 +423,27 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
     setSearchState(initialSearchState);
   }, []);
 
+  // FIXED: Multi-brand toggle support
   const toggleBrand = useCallback((brandId: string) => {
     hasUncommittedChanges.current = true;
     setFilters((prev) => {
       const isSelected = prev.selectedBrands.includes(brandId);
       let newSelectedBrands: string[];
-      let newMarka = prev.marka;
       let newModel = '';
       let newTrim = '';
 
       if (isSelected) {
+        // Remove the brand
         newSelectedBrands = prev.selectedBrands.filter((id) => id !== brandId);
-        if (prev.marka === brandId) {
-          newMarka = '';
-        }
       } else {
-        newSelectedBrands = [brandId];
-        newMarka = brandId;
+        // Add the brand - FIXED: Now supports multiple brands
+        newSelectedBrands = [...prev.selectedBrands, brandId];
       }
 
+      // Update marka for backward compatibility (use first selected brand)
+      const newMarka = newSelectedBrands.length > 0 ? newSelectedBrands[0] : '';
+
+      // Clear model and trim when any brand selection changes
       return {
         ...prev,
         selectedBrands: newSelectedBrands,
@@ -447,7 +476,7 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
     setSearchState((prev) => ({ ...prev, searchText: text }));
   }, []);
 
-  // Optimized URL sync
+  // FIXED: URL sync with multiple makes support
   const syncFromUrl = useCallback(() => {
     if (!searchParams) return;
 
@@ -467,9 +496,16 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
       return decodeURIComponent(value);
     };
 
+    // FIXED: Support multiple makes from URL
+    const getDecodedArrayParam = (key: string): string[] => {
+      const values = searchParams.getAll(key);
+      return values.map((value) => decodeURIComponent(value));
+    };
+
     const urlParams = {
       search: getDecodedParam('search'),
-      make: getDecodedParam('make'),
+      make: getDecodedParam('make'), // Single make for backward compatibility
+      makes: getDecodedArrayParam('makes'), // Multiple makes
       model: getDecodedParam('model'),
       trim: getDecodedParam('trim'),
       minYear: getDecodedParam('minYear'),
@@ -488,10 +524,18 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
     };
 
     if (urlParams.search) newSearchState.searchText = urlParams.search;
-    if (urlParams.make) {
-      newFilters.marka = urlParams.make;
+
+    // FIXED: Handle both single and multiple makes
+    if (urlParams.makes.length > 0) {
+      // Multiple makes from 'makes' parameter
+      newFilters.selectedBrands = urlParams.makes;
+      newFilters.marka = urlParams.makes[0]; // First one for backward compatibility
+    } else if (urlParams.make) {
+      // Single make from 'make' parameter (backward compatibility)
       newFilters.selectedBrands = [urlParams.make];
+      newFilters.marka = urlParams.make;
     }
+
     if (urlParams.model) newFilters.model = urlParams.model;
     if (urlParams.trim) newFilters.trim = urlParams.trim;
     if (urlParams.minYear) newFilters.minYear = urlParams.minYear;
@@ -517,7 +561,7 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
     }
   }, [searchParams]);
 
-  // Batch URL updates to prevent excessive history entries
+  // FIXED: URL update with multiple makes support
   const updateUrl = useCallback(() => {
     if (urlUpdateTimeoutRef.current) {
       clearTimeout(urlUpdateTimeoutRef.current);
@@ -531,8 +575,19 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
         params.set('search', encodeURIComponent(debouncedSearchForUrl));
       }
 
-      if (debouncedFiltersForUrl.marka)
-        params.set('make', debouncedFiltersForUrl.marka);
+      // FIXED: Handle multiple makes in URL
+      if (debouncedFiltersForUrl.selectedBrands.length > 0) {
+        if (debouncedFiltersForUrl.selectedBrands.length === 1) {
+          // Single make - use 'make' for backward compatibility
+          params.set('make', debouncedFiltersForUrl.selectedBrands[0]);
+        } else {
+          // Multiple makes - use 'makes' parameter
+          debouncedFiltersForUrl.selectedBrands.forEach((brand) => {
+            params.append('makes', brand);
+          });
+        }
+      }
+
       if (debouncedFiltersForUrl.model)
         params.set('model', debouncedFiltersForUrl.model);
       if (debouncedFiltersForUrl.trim)
@@ -581,7 +636,7 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
     }
   }, [syncFromUrl]);
 
-  // NEW: Listen for URL changes after initial mount
+  // Listen for URL changes after initial mount
   useEffect(() => {
     if (!isInitialMount.current && searchParams) {
       const currentSearchParamsString = searchParams.toString();
