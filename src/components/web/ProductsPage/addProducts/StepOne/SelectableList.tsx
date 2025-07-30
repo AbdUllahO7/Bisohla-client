@@ -39,7 +39,6 @@ const SelectableList: React.FC<SelectableListProps> = ({
   // State for search input
   const [searchTerm, setSearchTerm] = useState("")
 
-  console.log("options", options)
 
   // Ensure direction is always a valid value for components that expect "rtl" | "ltr"
   const safeDirection = direction === "rtl" || direction === "ltr" ? direction : "ltr"
