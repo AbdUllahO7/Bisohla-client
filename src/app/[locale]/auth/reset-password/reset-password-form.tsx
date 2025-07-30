@@ -17,6 +17,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Car, Lock, CheckCircle, ArrowRight, LogIn, Shield, Eye } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import LocaleSwitcher from '@/components/local/LocalSwitcher';
+import Image from 'next/image';
 
 const ResetPasswordForm = ({ token }: { token: string }) => {
   const t = useTranslations('resetPassword');
@@ -29,14 +30,21 @@ const ResetPasswordForm = ({ token }: { token: string }) => {
   >(resetPasswordAction, defaultActionState);
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-emerald-50 via-white to-emerald-50">
+    <div className=" flex items-center justify-center  bg-gradient-to-br ">
       <div className="w-full max-w-md">
         {/* Logo and Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-6">
-            <div className="bg-emerald-600 p-4 rounded-3xl">
-              <Car className="h-10 w-10 text-white" />
-            </div>
+                <div className=" p-3 rounded-2xl shadow-lg">
+                  <Image
+                    src="/assets/images/logo/bishola.png"
+                    alt="Bishola Logo"
+                    width={120}
+                    height={120}
+                    className="relative mx-auto transition-all duration-700 hover:scale-110 drop-shadow-2xl"
+                    priority
+                  />
+              </div>
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             {t('pageTitle')}
@@ -66,26 +74,7 @@ const ResetPasswordForm = ({ token }: { token: string }) => {
               {/* Hidden Token Input */}
               <input type="hidden" name="token" readOnly value={token} />
 
-              {/* Password Requirements Info */}
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <div className="flex">
-                  <div className="flex-shrink-0">
-                    <Shield className="h-5 w-5 text-blue-400" />
-                  </div>
-                  <div className={`${isRTL ? 'mr-3' : 'ml-3'}`}>
-                    <h3 className="text-sm font-medium text-blue-800">
-                      {t('passwordRequirements.title')}
-                    </h3>
-                    <div className="mt-2 text-sm text-blue-700">
-                      <ul className="list-disc list-inside space-y-1">
-                        <li>{t('passwordRequirements.minLength')}</li>
-                        <li>{t('passwordRequirements.specialChar')}</li>
-                        <li>{t('passwordRequirements.upperLower')}</li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              
 
               {/* New Password Input */}
               <DetailedInput
@@ -121,7 +110,7 @@ const ResetPasswordForm = ({ token }: { token: string }) => {
         </Card>
 
         {/* Footer Links */}
-        <div className="mt-8 space-y-4 text-center">
+        <div className="mt-3 space-y-4 text-center">
           <div className="text-sm text-gray-600">
             {t('footer.passwordReset')}{' '}
             <Link
@@ -142,18 +131,7 @@ const ResetPasswordForm = ({ token }: { token: string }) => {
             </Link>
           </div>
         </div>
-
-        {/* Trust Indicators */}
-        <div className="mt-6 flex items-center justify-center space-x-6 text-xs text-gray-500">
-          <div className="flex items-center space-x-1">
-            <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
-            <span>{t('trustIndicators.secure')}</span>
-          </div>
-          <div className="flex items-center space-x-1">
-            <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
-            <span>{t('trustIndicators.encrypted')}</span>
-          </div>
-        </div>
+        
       </div>
     </div>
   );
