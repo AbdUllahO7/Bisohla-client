@@ -41,9 +41,7 @@ const FeatureSection: React.FC<FeatureSectionProps> = ({
     [selectedFeatures]
   );
 
-  console.log("allFeatures",allFeatures)
 
-  console.log("featureCategories",featureCategories)
 
   // Loading state
   if (isLoading) {

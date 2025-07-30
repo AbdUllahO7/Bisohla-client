@@ -227,7 +227,6 @@ const MyProductsFilter: React.FC<SimpleProductsFilterProps> = ({
       queryParams.searchTerm = debouncedSearchQuery.trim();
     }
 
-    console.log('Sending query params:', queryParams);
 
     if (onChange) {
       onChange(queryParams);
