@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import React from 'react';
 
-import { ListRestart } from 'lucide-react';
+import { ListRestart, ChevronDown, Filter as FilterIcon } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 
 // UI Components
@@ -42,9 +42,11 @@ interface FilterOptionDropdownProps {
 
 interface AccordionHeaderProps {
   title: string;
+  hasActiveFilters?: boolean;
+  activeCount?: number;
 }
 
-// Components with React.memo for performance optimization
+// Enhanced FilterOptionDropdown with better spacing and visual hierarchy
 const FilterOptionDropdown = React.memo(
   ({
     title,
@@ -56,20 +58,22 @@ const FilterOptionDropdown = React.memo(
     disabled = false,
   }: FilterOptionDropdownProps) => {
     return (
-      <div className="mb-3 w-full">
+      <div className="mb-4 w-full">
         {title && (
-          <Label className="text-sm font-medium text-slate-700 mb-1.5">
+          <Label className="text-sm font-medium text-slate-700 mb-2 block">
             {title}
           </Label>
         )}
         <SelectDropdown
           options={options}
           placeholder={placeholder}
-          SelectTriggerStyle={`border border-[#EFEFEF] rounded-lg p-2.5 shadow-sm ${
+          SelectTriggerStyle={`border border-slate-200 rounded-lg p-3 shadow-sm ${
             disabled
-              ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-              : 'bg-white relatable hover:bg-slate-50'
-          } transition-colors w-full text-slate-800`}
+              ? 'bg-slate-50 text-slate-400 cursor-not-allowed'
+              : `bg-white hover:bg-slate-50 ${
+                  value ? 'border-primary/50 bg-primary/5' : ''
+                }`
+          } transition-all duration-200 w-full text-slate-800 text-sm font-medium`}
           className="w-full"
           onChange={onChange}
           value={value || ''}
@@ -83,15 +87,67 @@ const FilterOptionDropdown = React.memo(
 
 FilterOptionDropdown.displayName = 'FilterOptionDropdown';
 
-const AccordionHeader = React.memo(({ title }: AccordionHeaderProps) => (
-  <div className="flex items-center justify-between w-full">
-    <span className="text-slate-800 font-bold">{title}</span>
-  </div>
-));
+// Enhanced AccordionHeader with active state indicators
+const AccordionHeader = React.memo(
+  ({ title, hasActiveFilters, activeCount }: AccordionHeaderProps) => (
+    <div className="flex items-center justify-between w-full py-1">
+      <div className="flex items-center gap-3">
+        <span
+          className={`text-slate-800 font-semibold text-sm ${
+            hasActiveFilters ? 'text-primary' : ''
+          }`}
+        >
+          {title}
+        </span>
+        {hasActiveFilters && activeCount && (
+          <span className="bg-primary text-white text-xs px-2 py-0.5 rounded-full font-medium">
+            {activeCount}
+          </span>
+        )}
+      </div>
+      <ChevronDown className="h-4 w-4 transition-transform duration-200" />
+    </div>
+  ),
+);
 
 AccordionHeader.displayName = 'AccordionHeader';
 
-// Main Filter Component with React.memo for performance
+// Active filters summary component
+const ActiveFiltersSummary = React.memo(({ filters, onClearAll }: any) => {
+  const activeFiltersCount = Object.entries(filters).filter(([key, value]) => {
+    if (key === 'selectedBrands')
+      return Array.isArray(value) && value.length > 0;
+    return value && value !== '';
+  }).length;
+
+  if (activeFiltersCount === 0) return null;
+
+  return (
+    <div className="px-4 py-3 bg-primary/5 border-b border-primary/10">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <FilterIcon className="h-4 w-4 text-primary" />
+          <span className="text-sm font-medium text-primary">
+            {activeFiltersCount} active filter
+            {activeFiltersCount > 1 ? 's' : ''}
+          </span>
+        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onClearAll}
+          className="text-xs text-slate-600 hover:text-primary p-1 h-auto"
+        >
+          Clear all
+        </Button>
+      </div>
+    </div>
+  );
+});
+
+ActiveFiltersSummary.displayName = 'ActiveFiltersSummary';
+
+// Main Filter Component with enhanced UX
 const ProductsFilter: React.FC = React.memo(() => {
   const locale = useLocale();
   const isRTL = locale === 'ar';
@@ -99,9 +155,8 @@ const ProductsFilter: React.FC = React.memo(() => {
   const filterRef = useRef<HTMLDivElement>(null);
   const [headerHeight, setHeaderHeight] = useState(80);
 
-  // Enhanced accordion state management - keep car brands open when selections are made
-  const [carMarkaAccordionValue, setCarMarkaAccordionValue] =
-    useState<string>('car-marka');
+  // Smart accordion state management with better defaults
+  const [openAccordions, setOpenAccordions] = useState<string[]>([]);
   const [hasCarSelections, setHasCarSelections] = useState(false);
 
   // Use filter context
@@ -115,9 +170,9 @@ const ProductsFilter: React.FC = React.memo(() => {
     selectedOptions,
     governorateOptions,
     cityOptions,
-    carMakesConfig, // For nested filter
-    carModelsConfig, // For nested filter
-    carTrimsConfig, // For nested filter
+    carMakesConfig,
+    carModelsConfig,
+    carTrimsConfig,
     madeYear,
     handleSelectChange: handleStepOneSelectChange,
     titles: stepOneTitles,
@@ -134,30 +189,45 @@ const ProductsFilter: React.FC = React.memo(() => {
   const priceRanges = getPriceRanges;
   const mileageRanges = getMileageRanges;
 
-  // Monitor car selections to determine if accordion should stay open
+  // Monitor car selections and auto-manage accordion states
   useEffect(() => {
     const hasSelections =
       filters.selectedBrands.length > 0 || !!filters.model || !!filters.trim;
     setHasCarSelections(Boolean(hasSelections));
 
-    // Keep accordion open if there are car selections
-    if (hasSelections && carMarkaAccordionValue !== 'car-marka') {
-      setCarMarkaAccordionValue('car-marka');
-    }
-  }, [
-    filters.selectedBrands,
-    filters.model,
-    filters.trim,
-    carMarkaAccordionValue,
-  ]);
+    // Auto-open accordions with active filters
+    const newOpenAccordions: string[] = [];
 
-  // Calculate header height
+    if (filters.governorate || filters.city) newOpenAccordions.push('address');
+    if (hasSelections) newOpenAccordions.push('car-marka');
+    if (filters.minYear || filters.maxYear) newOpenAccordions.push('car-year');
+    if (filters.minPrice || filters.maxPrice || filters.currency)
+      newOpenAccordions.push('price-range');
+    if (filters.minMileage || filters.maxMileage)
+      newOpenAccordions.push('mileage-range');
+    if (filters.transmission) newOpenAccordions.push('control-type');
+    if (filters.fuelType) newOpenAccordions.push('fuel-type');
+    if (filters.bodyType) newOpenAccordions.push('body-type');
+
+    setOpenAccordions(newOpenAccordions);
+  }, [filters]);
+
+  // Calculate header height with better detection
   useEffect(() => {
-    const header = document.querySelector('.mt-\\[50px\\]');
-    if (header) {
-      const headerRect = header.getBoundingClientRect();
-      setHeaderHeight(headerRect.height + headerRect.top);
-    }
+    const calculateHeaderHeight = () => {
+      const header =
+        document.querySelector('header') ||
+        document.querySelector('.header') ||
+        document.querySelector('[data-header]');
+      if (header) {
+        const headerRect = header.getBoundingClientRect();
+        setHeaderHeight(headerRect.height + 20); // Add some padding
+      }
+    };
+
+    calculateHeaderHeight();
+    window.addEventListener('resize', calculateHeaderHeight);
+    return () => window.removeEventListener('resize', calculateHeaderHeight);
   }, []);
 
   // Sync external hook state with filter context
@@ -170,12 +240,12 @@ const ProductsFilter: React.FC = React.memo(() => {
     handleStepTwoSelectChange('currency', filters.currency);
   }, [filters, handleStepOneSelectChange, handleStepTwoSelectChange]);
 
-  const scrollHeight = `calc(100vh - ${headerHeight + 170}px)`;
+  // Dynamic scroll height calculation
+  const scrollHeight = `calc(100vh - ${headerHeight + 200}px)`;
 
-  // Handle filter changes - these now apply immediately
+  // Enhanced filter change handlers
   const handleFilterChange = (name: string, value: string) => {
     updateFilter(name as keyof typeof filters, value);
-    // Also update the external hooks for dependent data (like cities based on governorate)
     handleStepOneSelectChange(name, value);
   };
 
@@ -207,35 +277,23 @@ const ProductsFilter: React.FC = React.memo(() => {
   // Enhanced nested car filter handlers
   const handleBrandToggle = (brandId: string) => {
     toggleBrand(brandId);
-    // Keep accordion open when brand is toggled
-    if (carMarkaAccordionValue !== 'car-marka') {
-      setCarMarkaAccordionValue('car-marka');
-    }
   };
 
   const handleModelSelect = (modelId: string) => {
     updateFilter('model', modelId);
-    updateFilter('trim', ''); // Reset trim when model changes
+    updateFilter('trim', '');
     handleStepOneSelectChange('model', modelId);
-    // Keep accordion open when model is selected
-    if (carMarkaAccordionValue !== 'car-marka') {
-      setCarMarkaAccordionValue('car-marka');
-    }
   };
 
   const handleTrimSelect = (trimId: string) => {
     updateFilter('trim', trimId);
     handleStepOneSelectChange('trim', trimId);
-    // Keep accordion open when trim is selected
-    if (carMarkaAccordionValue !== 'car-marka') {
-      setCarMarkaAccordionValue('car-marka');
-    }
   };
 
   const handleResetFilters = () => {
     resetFilters();
-    setCarMarkaAccordionValue('car-marka');
     setHasCarSelections(false);
+    setOpenAccordions([]);
 
     // Reset external hooks
     handleStepOneSelectChange('governorate', '');
@@ -249,338 +307,388 @@ const ProductsFilter: React.FC = React.memo(() => {
     handleStepTwoSelectChange('currency', '');
   };
 
-  // Enhanced accordion change handler
-  const handleCarMarkaAccordionChange = (value: string) => {
-    // Don't allow closing if there are car selections (better UX)
-    if (hasCarSelections && value === '') {
-      return; // Keep it open
+  // Smart accordion change handler
+  const handleAccordionChange = (value: string[]) => {
+    setOpenAccordions(value);
+  };
+
+  // Helper function to count active filters per section
+  const getActiveFiltersCount = (section: string) => {
+    switch (section) {
+      case 'address':
+        return [filters.governorate, filters.city].filter(Boolean).length;
+      case 'car-marka':
+        return [
+          filters.selectedBrands.length > 0,
+          filters.model,
+          filters.trim,
+        ].filter(Boolean).length;
+      case 'car-year':
+        return [filters.minYear, filters.maxYear].filter(Boolean).length;
+      case 'price-range':
+        return [filters.minPrice, filters.maxPrice, filters.currency].filter(
+          Boolean,
+        ).length;
+      case 'mileage-range':
+        return [filters.minMileage, filters.maxMileage].filter(Boolean).length;
+      case 'control-type':
+        return filters.transmission ? 1 : 0;
+      case 'fuel-type':
+        return filters.fuelType ? 1 : 0;
+      case 'body-type':
+        return filters.bodyType ? 1 : 0;
+      default:
+        return 0;
     }
-    setCarMarkaAccordionValue(value);
   };
 
   return (
     <div
       ref={filterRef}
-      className="sticky top-[80px] transition-all min-h-[50vh]"
+      className="sticky transition-all duration-300"
+      style={{ top: `${headerHeight}px` }}
       dir={isRTL ? 'rtl' : 'ltr'}
     >
-      <div className="w-full bg-white rounded-t-xl shadow-sm border border-slate-100 overflow-hidden">
-        {/* Filter Header */}
-        <div className="p-4 border-b border-slate-100 flex justify-between items-center">
-          <div className="flex items-center">
-            <h2 className="text-lg font-semibold text-slate-800">
-              {t('filter.title')}
-            </h2>
+      <div className="w-full bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
+        {/* Enhanced Filter Header */}
+        <div className="p-4 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <FilterIcon className="h-5 w-5 text-primary" />
+              <h2 className="text-lg font-bold text-slate-800">
+                {t('filter.title')}
+              </h2>
+            </div>
           </div>
         </div>
 
-        {/* Search Input - Optimized to prevent re-renders */}
-        <OptimizedSearchInput />
+        {/* Search Input - Enhanced spacing */}
+        <div className="border-b border-slate-100">
+          <OptimizedSearchInput />
+        </div>
 
-        {/* Filter Body */}
-        <div className="transition-all duration-300">
+        {/* Active Filters Summary */}
+        <ActiveFiltersSummary
+          filters={filters}
+          onClearAll={handleResetFilters}
+        />
+
+        {/* Enhanced Filter Body with better scrolling */}
+        <div className="relative">
           <ScrollArea
-            className="px-4"
-            style={{ height: scrollHeight, minHeight: '70vh' }}
+            className="px-0"
+            style={{
+              height: scrollHeight,
+              minHeight: '60vh',
+              maxHeight: '75vh',
+            }}
           >
-            {/* Location Filter */}
-            <Accordion
-              type="single"
-              collapsible
-              defaultValue="address"
-              className="my-2"
-            >
-              <AccordionItem
-                value="address"
-                className="border-b border-[#EFEFEF] py-1"
-                dir={isRTL ? 'rtl' : 'ltr'}
+            <div className="px-4 py-2">
+              <Accordion
+                type="multiple"
+                value={openAccordions}
+                onValueChange={handleAccordionChange}
+                className="space-y-2"
               >
-                <AccordionTrigger className="!no-underline py-2 px-2 rounded-md transition-colors hover:bg-slate-50 group">
-                  <AccordionHeader
-                    title={t('filter.filterOptions.address.filterOptionsTitle')}
-                  />
-                </AccordionTrigger>
-                <AccordionContent className="pt-2 pb-3 px-2">
-                  <FilterOptionDropdown
-                    options={governorateOptions}
-                    placeholder={stepOneTitles.governorate}
-                    onChange={handleFilterChange}
-                    value={filters.governorate}
-                    name="governorate"
-                  />
-                  <FilterOptionDropdown
-                    options={cityOptions}
-                    placeholder={
-                      !filters.governorate
-                        ? t(
-                            'filter.filterOptions.address.selectGovernorateFirst',
-                          ) || 'Please select a governorate first'
-                        : stepOneTitles.city
-                    }
-                    onChange={handleFilterChange}
-                    value={filters.city}
-                    name="city"
-                    disabled={!filters.governorate}
-                  />
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-
-            {/* Enhanced Nested Car Brand/Model/Trim Filter */}
-            <Accordion
-              type="single"
-              collapsible
-              className="my-2"
-              value={carMarkaAccordionValue}
-              onValueChange={handleCarMarkaAccordionChange}
-            >
-              <AccordionItem
-                value="car-marka"
-                className="border-b border-slate-100 py-1"
-                dir={isRTL ? 'rtl' : 'ltr'}
-              >
-                <AccordionTrigger className="!no-underline py-2 px-2 rounded-md transition-colors hover:bg-slate-50 group">
-                  <AccordionHeader
-                    title={`${t(
-                      'filter.filterOptions.productMarka.filterOptionsTitle',
-                    )} ${hasCarSelections ? '(Selected)' : ''}`}
-                  />
-                </AccordionTrigger>
-                <AccordionContent className="pt-2 pb-3 px-2">
-                  <NestedCarFilter
-                    carMakesConfig={carMakesConfig}
-                    carModelsConfig={carModelsConfig}
-                    carTrimsConfig={carTrimsConfig}
-                    selectedBrands={filters.selectedBrands}
-                    selectedModel={filters.model}
-                    selectedTrim={filters.trim}
-                    onBrandToggle={handleBrandToggle}
-                    onModelSelect={handleModelSelect}
-                    onTrimSelect={handleTrimSelect}
-                    searchPlaceholder={t('filter.search.brands', {
-                      defaultValue: 'Search brands...',
-                    })}
-                    noOptionsMessage={t('filter.noBrands', {
-                      defaultValue: 'No brands found',
-                    })}
-                    loadingMessage={t('filter.loadingBrands', {
-                      defaultValue: 'Loading brands...',
-                    })}
-                    className="w-full"
-                  />
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-
-            {/* Car Year Range */}
-            <Accordion type="single" collapsible className="my-2">
-              <AccordionItem
-                value="car-year"
-                className="border-b border-slate-100 py-1"
-                dir={isRTL ? 'rtl' : 'ltr'}
-              >
-                <AccordionTrigger className="!no-underline py-2 px-2 rounded-md transition-colors hover:bg-slate-50 group">
-                  <AccordionHeader title={stepOneTitles.year} />
-                </AccordionTrigger>
-                <AccordionContent className="pt-2 pb-3 px-2">
-                  <div className="grid grid-cols-2 gap-3 mb-3">
-                    <FilterOptionDropdown
-                      options={madeYear}
-                      placeholder={t(
-                        'filter.filterOptions.productModels.minYear',
-                        { defaultValue: 'Min Year' },
+                {/* Location Filter */}
+                <AccordionItem
+                  value="address"
+                  className="border border-slate-200 rounded-lg overflow-hidden bg-white hover:shadow-sm transition-shadow"
+                >
+                  <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 transition-colors duration-200">
+                    <AccordionHeader
+                      title={t(
+                        'filter.filterOptions.address.filterOptionsTitle',
                       )}
-                      onChange={(name, value) => handleYearChange('min', value)}
-                      value={filters.minYear}
-                      name="minYear"
+                      hasActiveFilters={getActiveFiltersCount('address') > 0}
+                      activeCount={getActiveFiltersCount('address')}
                     />
-                    <FilterOptionDropdown
-                      options={madeYear}
-                      placeholder={t(
-                        'filter.filterOptions.productModels.maxYear',
-                        { defaultValue: 'Max Year' },
-                      )}
-                      onChange={(name, value) => handleYearChange('max', value)}
-                      value={filters.maxYear}
-                      name="maxYear"
-                    />
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
+                  </AccordionTrigger>
+                  <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50">
+                    <div className="space-y-3">
+                      <FilterOptionDropdown
+                        options={governorateOptions}
+                        placeholder={stepOneTitles.governorate}
+                        onChange={handleFilterChange}
+                        value={filters.governorate}
+                        name="governorate"
+                      />
+                      <FilterOptionDropdown
+                        options={cityOptions}
+                        placeholder={
+                          !filters.governorate
+                            ? t(
+                                'filter.filterOptions.address.selectGovernorateFirst',
+                              ) || 'Please select a governorate first'
+                            : stepOneTitles.city
+                        }
+                        onChange={handleFilterChange}
+                        value={filters.city}
+                        name="city"
+                        disabled={!filters.governorate}
+                      />
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
 
-            {/* Price Range */}
-            <Accordion type="single" collapsible className="my-2">
-              <AccordionItem
-                value="price-range"
-                className="border-b border-slate-100 py-1"
-                dir={isRTL ? 'rtl' : 'ltr'}
-              >
-                <AccordionTrigger className="!no-underline py-2 px-2 rounded-md transition-colors hover:bg-slate-50 group">
-                  <AccordionHeader
-                    title={t('filter.filterOptions.productPrice.title')}
-                  />
-                </AccordionTrigger>
-                <AccordionContent className="pt-2 pb-3 px-2">
-                  <div className="grid grid-cols-2 gap-3 mb-3">
-                    <FilterOptionDropdown
-                      options={priceRanges}
-                      placeholder={t(
-                        'filter.filterOptions.productPrice.lessPrice',
+                {/* Car Brand/Model/Trim Filter */}
+                <AccordionItem
+                  value="car-marka"
+                  className="border border-slate-200 rounded-lg overflow-hidden bg-white hover:shadow-sm transition-shadow"
+                >
+                  <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 transition-colors duration-200">
+                    <AccordionHeader
+                      title={t(
+                        'filter.filterOptions.productMarka.filterOptionsTitle',
                       )}
-                      onChange={(name, value) =>
-                        handlePriceChange('min', value)
+                      hasActiveFilters={getActiveFiltersCount('car-marka') > 0}
+                      activeCount={getActiveFiltersCount('car-marka')}
+                    />
+                  </AccordionTrigger>
+                  <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50">
+                    <NestedCarFilter
+                      carMakesConfig={carMakesConfig}
+                      carModelsConfig={carModelsConfig}
+                      carTrimsConfig={carTrimsConfig}
+                      selectedBrands={filters.selectedBrands}
+                      selectedModel={filters.model}
+                      selectedTrim={filters.trim}
+                      onBrandToggle={handleBrandToggle}
+                      onModelSelect={handleModelSelect}
+                      onTrimSelect={handleTrimSelect}
+                      searchPlaceholder={t('filter.search.brands', {
+                        defaultValue: 'Search brands...',
+                      })}
+                      noOptionsMessage={t('filter.noBrands', {
+                        defaultValue: 'No brands found',
+                      })}
+                      loadingMessage={t('filter.loadingBrands', {
+                        defaultValue: 'Loading brands...',
+                      })}
+                      className="w-full"
+                    />
+                  </AccordionContent>
+                </AccordionItem>
+
+                {/* Car Year Range */}
+                <AccordionItem
+                  value="car-year"
+                  className="border border-slate-200 rounded-lg overflow-hidden bg-white hover:shadow-sm transition-shadow"
+                >
+                  <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 transition-colors duration-200">
+                    <AccordionHeader
+                      title={stepOneTitles.year}
+                      hasActiveFilters={getActiveFiltersCount('car-year') > 0}
+                      activeCount={getActiveFiltersCount('car-year')}
+                    />
+                  </AccordionTrigger>
+                  <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50">
+                    <div className="grid grid-cols-2 gap-3">
+                      <FilterOptionDropdown
+                        options={madeYear}
+                        placeholder={t(
+                          'filter.filterOptions.productModels.minYear',
+                          { defaultValue: 'Min Year' },
+                        )}
+                        onChange={(name, value) =>
+                          handleYearChange('min', value)
+                        }
+                        value={filters.minYear}
+                        name="minYear"
+                      />
+                      <FilterOptionDropdown
+                        options={madeYear}
+                        placeholder={t(
+                          'filter.filterOptions.productModels.maxYear',
+                          { defaultValue: 'Max Year' },
+                        )}
+                        onChange={(name, value) =>
+                          handleYearChange('max', value)
+                        }
+                        value={filters.maxYear}
+                        name="maxYear"
+                      />
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+
+                {/* Price Range */}
+                <AccordionItem
+                  value="price-range"
+                  className="border border-slate-200 rounded-lg overflow-hidden bg-white hover:shadow-sm transition-shadow"
+                >
+                  <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 transition-colors duration-200">
+                    <AccordionHeader
+                      title={t('filter.filterOptions.productPrice.title')}
+                      hasActiveFilters={
+                        getActiveFiltersCount('price-range') > 0
                       }
-                      value={filters.minPrice}
-                      name="minPrice"
+                      activeCount={getActiveFiltersCount('price-range')}
                     />
-                    <FilterOptionDropdown
-                      options={priceRanges}
-                      placeholder={t(
-                        'filter.filterOptions.productPrice.highestPrice',
-                      )}
-                      onChange={(name, value) =>
-                        handlePriceChange('max', value)
+                  </AccordionTrigger>
+                  <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50">
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-2 gap-3">
+                        <FilterOptionDropdown
+                          options={priceRanges}
+                          placeholder={t(
+                            'filter.filterOptions.productPrice.lessPrice',
+                          )}
+                          onChange={(name, value) =>
+                            handlePriceChange('min', value)
+                          }
+                          value={filters.minPrice}
+                          name="minPrice"
+                        />
+                        <FilterOptionDropdown
+                          options={priceRanges}
+                          placeholder={t(
+                            'filter.filterOptions.productPrice.highestPrice',
+                          )}
+                          onChange={(name, value) =>
+                            handlePriceChange('max', value)
+                          }
+                          value={filters.maxPrice}
+                          name="maxPrice"
+                        />
+                      </div>
+                      <FilterOptionDropdown
+                        options={currencyOptions}
+                        placeholder={t('filter.filterOptions.currency.title')}
+                        onChange={handleCurrencyChange}
+                        value={filters.currency}
+                        name="currency"
+                      />
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+
+                {/* Mileage Range */}
+                <AccordionItem
+                  value="mileage-range"
+                  className="border border-slate-200 rounded-lg overflow-hidden bg-white hover:shadow-sm transition-shadow"
+                >
+                  <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 transition-colors duration-200">
+                    <AccordionHeader
+                      title={t('filter.filterOptions.mileage.title', {
+                        defaultValue: 'Mileage Range',
+                      })}
+                      hasActiveFilters={
+                        getActiveFiltersCount('mileage-range') > 0
                       }
-                      value={filters.maxPrice}
-                      name="maxPrice"
+                      activeCount={getActiveFiltersCount('mileage-range')}
                     />
-                  </div>
-                  <FilterOptionDropdown
-                    options={currencyOptions}
-                    placeholder={t('filter.filterOptions.currency.title')}
-                    onChange={handleCurrencyChange}
-                    value={filters.currency}
-                    name="currency"
-                  />
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
+                  </AccordionTrigger>
+                  <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50">
+                    <div className="grid grid-cols-2 gap-3">
+                      <FilterOptionDropdown
+                        options={mileageRanges}
+                        placeholder={t(
+                          'filter.filterOptions.mileage.minMileage',
+                          { defaultValue: 'Min Mileage' },
+                        )}
+                        onChange={(name, value) =>
+                          handleMileageChange('min', value)
+                        }
+                        value={filters.minMileage}
+                        name="minMileage"
+                      />
+                      <FilterOptionDropdown
+                        options={mileageRanges}
+                        placeholder={t(
+                          'filter.filterOptions.mileage.maxMileage',
+                          { defaultValue: 'Max Mileage' },
+                        )}
+                        onChange={(name, value) =>
+                          handleMileageChange('max', value)
+                        }
+                        value={filters.maxMileage}
+                        name="maxMileage"
+                      />
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
 
-            {/* Mileage Range */}
-            <Accordion type="single" collapsible className="my-2">
-              <AccordionItem
-                value="mileage-range"
-                className="border-b border-slate-100 py-1"
-                dir={isRTL ? 'rtl' : 'ltr'}
-              >
-                <AccordionTrigger className="!no-underline py-2 px-2 rounded-md transition-colors hover:bg-slate-50 group">
-                  <AccordionHeader
-                    title={t('filter.filterOptions.mileage.title', {
-                      defaultValue: 'Mileage Range',
-                    })}
-                  />
-                </AccordionTrigger>
-                <AccordionContent className="pt-2 pb-3 px-2">
-                  <div className="grid grid-cols-2 gap-3 mb-3">
-                    <FilterOptionDropdown
-                      options={mileageRanges}
-                      placeholder={t(
-                        'filter.filterOptions.mileage.minMileage',
-                        { defaultValue: 'Min Mileage' },
-                      )}
-                      onChange={(name, value) =>
-                        handleMileageChange('min', value)
+                {/* Control Type */}
+                <AccordionItem
+                  value="control-type"
+                  className="border border-slate-200 rounded-lg overflow-hidden bg-white hover:shadow-sm transition-shadow"
+                >
+                  <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 transition-colors duration-200">
+                    <AccordionHeader
+                      title={t('filter.filterOptions.ControlType.title')}
+                      hasActiveFilters={
+                        getActiveFiltersCount('control-type') > 0
                       }
-                      value={filters.minMileage}
-                      name="minMileage"
+                      activeCount={getActiveFiltersCount('control-type')}
                     />
+                  </AccordionTrigger>
+                  <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50">
                     <FilterOptionDropdown
-                      options={mileageRanges}
-                      placeholder={t(
-                        'filter.filterOptions.mileage.maxMileage',
-                        { defaultValue: 'Max Mileage' },
-                      )}
-                      onChange={(name, value) =>
-                        handleMileageChange('max', value)
-                      }
-                      value={filters.maxMileage}
-                      name="maxMileage"
+                      options={stepTwoOptions.transmission}
+                      placeholder={stepTwoLabels.selectTransmission}
+                      onChange={handleTransmissionChange}
+                      value={filters.transmission}
+                      name="transmission"
                     />
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
+                  </AccordionContent>
+                </AccordionItem>
 
-            {/* Control Type */}
-            <Accordion type="single" collapsible className="my-2">
-              <AccordionItem
-                value="control-type"
-                className="border-b border-slate-100 py-1"
-                dir={isRTL ? 'rtl' : 'ltr'}
-              >
-                <AccordionTrigger className="!no-underline py-2 px-2 rounded-md transition-colors hover:bg-slate-50 group">
-                  <AccordionHeader
-                    title={t('filter.filterOptions.ControlType.title')}
-                  />
-                </AccordionTrigger>
-                <AccordionContent className="pt-2 pb-3 px-2">
-                  <FilterOptionDropdown
-                    options={stepTwoOptions.transmission}
-                    placeholder={stepTwoLabels.selectTransmission}
-                    onChange={handleTransmissionChange}
-                    value={filters.transmission}
-                    name="transmission"
-                  />
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
+                {/* Fuel Type */}
+                <AccordionItem
+                  value="fuel-type"
+                  className="border border-slate-200 rounded-lg overflow-hidden bg-white hover:shadow-sm transition-shadow"
+                >
+                  <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 transition-colors duration-200">
+                    <AccordionHeader
+                      title={t('filter.filterOptions.FuelType.title')}
+                      hasActiveFilters={getActiveFiltersCount('fuel-type') > 0}
+                      activeCount={getActiveFiltersCount('fuel-type')}
+                    />
+                  </AccordionTrigger>
+                  <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50">
+                    <FilterOptionDropdown
+                      options={stepTwoOptions.fuelType}
+                      placeholder={stepTwoLabels.selectFuelType}
+                      onChange={handleTransmissionChange}
+                      value={filters.fuelType}
+                      name="fuelType"
+                    />
+                  </AccordionContent>
+                </AccordionItem>
 
-            {/* Fuel Type */}
-            <Accordion type="single" collapsible className="my-2">
-              <AccordionItem
-                value="fuel-type"
-                className="border-b border-slate-100 py-1"
-                dir={isRTL ? 'rtl' : 'ltr'}
-              >
-                <AccordionTrigger className="!no-underline py-2 px-2 rounded-md transition-colors hover:bg-slate-50 group">
-                  <AccordionHeader
-                    title={t('filter.filterOptions.FuelType.title')}
-                  />
-                </AccordionTrigger>
-                <AccordionContent className="pt-2 pb-3 px-2">
-                  <FilterOptionDropdown
-                    options={stepTwoOptions.fuelType}
-                    placeholder={stepTwoLabels.selectFuelType}
-                    onChange={handleTransmissionChange}
-                    value={filters.fuelType}
-                    name="fuelType"
-                  />
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-
-            {/* Body Type */}
-            <Accordion type="single" collapsible className="my-2">
-              <AccordionItem
-                value="body-type"
-                className="border-b border-slate-100 py-1"
-                dir={isRTL ? 'rtl' : 'ltr'}
-              >
-                <AccordionTrigger className="!no-underline py-2 px-2 rounded-md transition-colors hover:bg-slate-50 group">
-                  <AccordionHeader title={stepTwoLabels.bodyType} />
-                </AccordionTrigger>
-                <AccordionContent className="pt-2 pb-3 px-2">
-                  <FilterOptionDropdown
-                    options={stepTwoOptions.bodyType}
-                    placeholder={stepTwoLabels.selectBodyType}
-                    onChange={handleTransmissionChange}
-                    value={filters.bodyType}
-                    name="bodyType"
-                  />
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
+                {/* Body Type */}
+                <AccordionItem
+                  value="body-type"
+                  className="border border-slate-200 rounded-lg overflow-hidden bg-white hover:shadow-sm transition-shadow"
+                >
+                  <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 transition-colors duration-200">
+                    <AccordionHeader
+                      title={stepTwoLabels.bodyType}
+                      hasActiveFilters={getActiveFiltersCount('body-type') > 0}
+                      activeCount={getActiveFiltersCount('body-type')}
+                    />
+                  </AccordionTrigger>
+                  <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50">
+                    <FilterOptionDropdown
+                      options={stepTwoOptions.bodyType}
+                      placeholder={stepTwoLabels.selectBodyType}
+                      onChange={handleTransmissionChange}
+                      value={filters.bodyType}
+                      name="bodyType"
+                    />
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            </div>
           </ScrollArea>
         </div>
-      </div>
 
-      {/* Reset Button */}
-      <div className="p-4 border-t border-slate-100 rounded-b-lg shadow-lg bg-white mt-5 rounded-md">
-        <div className="flex flex-col items-center space-y-3">
+        {/* Enhanced Reset Button */}
+        <div className="p-4 border-t border-slate-200 bg-gradient-to-r from-slate-50 to-white">
           <Button
             variant="outline"
-            className="bg-white shadow-none hover:bg-transparent hover:text-black text-black border-none font-medium transition-colors rounded-lg h-10 w-full"
+            className="w-full bg-white hover:bg-slate-50 hover:text-primary text-slate-700 border-slate-300 hover:border-primary font-medium transition-all duration-200 rounded-lg h-11 shadow-sm hover:shadow"
             onClick={handleResetFilters}
           >
             <ListRestart className={`${isRTL ? 'ml-2' : 'mr-2'} h-4 w-4`} />

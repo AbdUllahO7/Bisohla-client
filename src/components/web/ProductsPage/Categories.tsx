@@ -5,7 +5,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import React, { useMemo } from 'react';
 import CategoryCarousel from '../design/CategoryCarousel';
 import { getBodyTypeOptions } from '@/core/entities/enums/cars.enums';
-import { useCarListings } from '@/core/infrastructure-adapters/use-actions/visitors/car.visitor.use-actions';
+import { useGetBodyTypeCategoryCounts } from '@/core/infrastructure-adapters/use-actions/visitors/car.visitor.use-actions';
 import { useFilters } from '@/providers/filters.provider';
 
 const Categories = () => {
@@ -16,63 +16,28 @@ const Categories = () => {
   // Use filter context to apply category filters
   const { updateFilter } = useFilters();
 
-  // Fetch car listings with empty params to get counts (no pagination to get all)
-  const { data: carListingsData, isLoading } = useCarListings({
-    page: 1,
-    pageSize: 999,
-  });
+  // Fetch body type category counts from backend
+  const { data: bodyTypeCategoryCounts, isLoading } =
+    useGetBodyTypeCategoryCounts();
 
   // Get body type options with translations
   const bodyTypeOptions = getBodyTypeOptions(t);
 
-  // Count cars per body type based on the car listings data
+  // Process the backend data to match the frontend format
   const categoriesWithCounts = useMemo(() => {
-    // Extract car listings data safely, checking all possible structures
-    let carListings = [];
-    const apiData = carListingsData as any;
-
-    if (Array.isArray(apiData?.data)) {
-      carListings = apiData.data;
-    } else if (apiData?.data?.data && Array.isArray(apiData.data.data)) {
-      carListings = apiData.data.data;
-    } else if (apiData?.items && Array.isArray(apiData.items)) {
-      carListings = apiData.items;
-    } else {
-      // No valid data structure found, use empty array
-      console.warn('Could not extract car listings data from API response');
+    if (!bodyTypeCategoryCounts?.data) {
+      return [];
     }
 
-    // Create a map to count cars per body type
-    const bodyCounts: Record<string, number> = {};
-
-    // Initialize all body types with 0 count
-    bodyTypeOptions.forEach((option) => {
-      bodyCounts[option.value] = 0;
+    // Create a map from backend data for quick lookup
+    const countsMap = new Map<string, number>();
+    bodyTypeCategoryCounts.data.forEach((item: any) => {
+      countsMap.set(item.bodyType, item.count);
     });
 
-    // Count cars for each body type
-    carListings.forEach((car: any) => {
-      // Handle both possible data structures
-      // 1. If details is a nested object
-      if (car.details && car.details.bodyType) {
-        const bodyType = car.details.bodyType;
-        if (bodyCounts[bodyType] !== undefined) {
-          bodyCounts[bodyType]++;
-        }
-      }
-      // 2. If bodyType is directly on the car object
-      else if (car.bodyType) {
-        const bodyType = car.bodyType;
-        if (bodyCounts[bodyType] !== undefined) {
-          bodyCounts[bodyType]++;
-        }
-      }
-    });
-
-    // Create categories array with counts and images
+    // Map body type options with their counts
     return bodyTypeOptions.map((option) => {
-      // Default count is 0 if no count found
-      const count = bodyCounts[option.value] || 0;
+      const count = countsMap.get(option.value) || 0;
 
       return {
         title: option.label,
@@ -85,8 +50,8 @@ const Categories = () => {
           updateFilter('bodyType', option.value);
         },
       };
-    });
-  }, [carListingsData, bodyTypeOptions, updateFilter]);
+    }); // Only show categories with cars
+  }, [bodyTypeCategoryCounts, bodyTypeOptions, updateFilter]);
 
   // Helper function to map body types to appropriate images
   function getImageForBodyType(bodyType: string): string {

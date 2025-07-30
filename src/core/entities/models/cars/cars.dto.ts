@@ -130,14 +130,14 @@ export interface SelectCarListingDto {
   price: number | null;
   currency: Currency;
   userId: number;
-  user?: SelectUserDto; 
+  user?: SelectUserDto;
   makeId: number;
   modelId: number;
   trimId: number | null;
   status: string;
   isFeatured: boolean;
   isTrend: boolean; // Added instead of isSold
-  isFavorite ?: boolean | null; 
+  isFavorite?: boolean | null;
   // Save status and listing type
   saveStatus: SaveStatus;
   listingType: ListingType;
@@ -170,5 +170,10 @@ export interface SelectCarListingDto {
 export interface FacetCount {
   field: string;
   value: string | number | boolean;
+  count: number;
+}
+
+export interface BodyTypeCategoryCount {
+  bodyType: string;
   count: number;
 }
