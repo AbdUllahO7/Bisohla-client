@@ -1,120 +1,120 @@
 # .github/workflows/deploy.yml
 # GitHub Action for Next.js Website (next-website repository)
-name: Deploy Next.js Website
+# name: Deploy Next.js Website
 
-on:
-  push:
-    branches: [main, master]
-  workflow_dispatch: # Allow manual trigger
+# on:
+#   push:
+#     branches: [main, master]
+#   workflow_dispatch: # Allow manual trigger
 
-env:
-  DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-  DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-  DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
-  SERVICE_NAME: 'next-website'
+# env:
+#   DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+#   DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+#   DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+#   SERVICE_NAME: 'next-website'
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v4
 
-      - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.7.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+#       - name: Setup SSH
+#         uses: webfactory/ssh-agent@v0.7.0
+#         with:
+#           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Add server to known hosts
-        run: |
-          ssh-keyscan -H ${{ secrets.DEPLOY_HOST }} >> ~/.ssh/known_hosts
+#       - name: Add server to known hosts
+#         run: |
+#           ssh-keyscan -H ${{ secrets.DEPLOY_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Deploy Next.js Website
-        run: |
-          ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} << 'EOF'
-            set -e
+#       - name: Deploy Next.js Website
+#         run: |
+#           ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} << 'EOF'
+#             set -e
 
-            echo "🚀 Starting Next.js Website deployment..."
+#             echo "🚀 Starting Next.js Website deployment..."
 
-            # Navigate to main deployment directory
-            cd ${{ secrets.DEPLOY_PATH }}
+#             # Navigate to main deployment directory
+#             cd ${{ secrets.DEPLOY_PATH }}
 
-            # Update next-website subdirectory from its separate repository
-            echo "📥 Updating next-website code..."
+#             # Update next-website subdirectory from its separate repository
+#             echo "📥 Updating next-website code..."
 
-            # pull last changes of the next-website repository
-            cd next-website
-            echo "🔄 Pulling latest changes from next-website repository:"
-            pwd
-            git pull origin main || git pull origin master
-            cd ..
+#             # pull last changes of the next-website repository
+#             cd next-website
+#             echo "🔄 Pulling latest changes from next-website repository:"
+#             pwd
+#             git pull origin main || git pull origin master
+#             cd ..
 
-            # Make deployment script executable
-            chmod +x deploy.sh
+#             # Make deployment script executable
+#             chmod +x deploy.sh
 
-            # Deploy only the Next.js Website service
-            echo "🔄 Deploying Next.js Website..."
-            ./deploy.sh next-website --force
+#             # Deploy only the Next.js Website service
+#             echo "🔄 Deploying Next.js Website..."
+#             ./deploy.sh next-website --force
 
-            # Verify Website deployment
-            echo "✅ Verifying Next.js Website deployment..."
-            sleep 15
+#             # Verify Website deployment
+#             echo "✅ Verifying Next.js Website deployment..."
+#             sleep 15
 
-            # Check if Website container is running
-            if ! docker ps | grep -q "bishola-website"; then
-              echo "❌ Website container not running!"
-              docker logs bishola-website --tail 30
-              exit 1
-            fi
+#             # Check if Website container is running
+#             if ! docker ps | grep -q "bishola-website"; then
+#               echo "❌ Website container not running!"
+#               docker logs bishola-website --tail 30
+#               exit 1
+#             fi
 
-            echo "✅ Next.js Website container is running successfully!"
+#             echo "✅ Next.js Website container is running successfully!"
 
-            # Check Website logs
-            echo "📋 Recent Website logs:"
-            docker logs bishola-website --tail 10
+#             # Check Website logs
+#             echo "📋 Recent Website logs:"
+#             docker logs bishola-website --tail 10
 
-            # Test website accessibility
-            echo "🧪 Testing Website accessibility..."
-            sleep 5
-            if curl -f -s https://www.bishola.com > /dev/null 2>&1; then
-              echo "✅ Website is accessible"
-            else
-              echo "⚠️  Website accessibility check failed - checking if service is starting..."
-              # Give it more time and try again
-              sleep 10
-              if curl -f -s https://www.bishola.com > /dev/null 2>&1; then
-                echo "✅ Website is now accessible"
-              else
-                echo "❌ Website still not accessible"
-                docker logs bishola-website --tail 20
-                exit 1
-              fi
-            fi
+#             # Test website accessibility
+#             echo "🧪 Testing Website accessibility..."
+#             sleep 5
+#             if curl -f -s https://www.bishola.com > /dev/null 2>&1; then
+#               echo "✅ Website is accessible"
+#             else
+#               echo "⚠️  Website accessibility check failed - checking if service is starting..."
+#               # Give it more time and try again
+#               sleep 10
+#               if curl -f -s https://www.bishola.com > /dev/null 2>&1; then
+#                 echo "✅ Website is now accessible"
+#               else
+#                 echo "❌ Website still not accessible"
+#                 docker logs bishola-website --tail 20
+#                 exit 1
+#               fi
+#             fi
 
-            # Also test the main domain without www
-            echo "🧪 Testing main domain accessibility..."
-            if curl -f -s https://bishola.com > /dev/null 2>&1; then
-              echo "✅ Main domain is accessible"
-            else
-              echo "⚠️  Main domain accessibility check failed"
-            fi
+#             # Also test the main domain without www
+#             echo "🧪 Testing main domain accessibility..."
+#             if curl -f -s https://bishola.com > /dev/null 2>&1; then
+#               echo "✅ Main domain is accessible"
+#             else
+#               echo "⚠️  Main domain accessibility check failed"
+#             fi
 
-            echo "🎉 Next.js Website deployment completed successfully!"
-            echo "🌐 Website is available at: https://www.bishola.com and https://bishola.com"
-          EOF
+#             echo "🎉 Next.js Website deployment completed successfully!"
+#             echo "🌐 Website is available at: https://www.bishola.com and https://bishola.com"
+#           EOF
 
-      - name: Notify deployment success
-        if: success()
-        run: |
-          echo "✅ Next.js Website deployment successful!"
-          echo "🌐 Website URLs:"
-          echo "   - https://www.bishola.com"
-          echo "   - https://bishola.com"
+#       - name: Notify deployment success
+#         if: success()
+#         run: |
+#           echo "✅ Next.js Website deployment successful!"
+#           echo "🌐 Website URLs:"
+#           echo "   - https://www.bishola.com"
+#           echo "   - https://bishola.com"
 
-      - name: Notify deployment failure
-        if: failure()
-        run: |
-          echo "❌ Next.js Website deployment failed!"
-          # You can add Slack/Discord/Email notifications here
-          # Example: curl -X POST -H 'Content-type: application/json' --data '{"text":"🚨 Next.js Website deployment failed!"}' $SLACK_WEBHOOK_URL
+#       - name: Notify deployment failure
+#         if: failure()
+#         run: |
+#           echo "❌ Next.js Website deployment failed!"
+#           # You can add Slack/Discord/Email notifications here
+#           # Example: curl -X POST -H 'Content-type: application/json' --data '{"text":"🚨 Next.js Website deployment failed!"}' $SLACK_WEBHOOK_URL
