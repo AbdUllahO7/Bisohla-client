@@ -111,7 +111,7 @@ export function DashboardSidebar() {
       collapsible="icon"
     >
       {/* Header */}
-      <SidebarHeader className="border-b bg-primary border-primary-light/20 p-2">
+      <SidebarHeader className="border-b text-primary border-primary-light/20 p-2">
         <div className="flex items-center gap-2">
           {!isCollapsed ? (
             <>
@@ -130,10 +130,10 @@ export function DashboardSidebar() {
                 />
               </div>
               <div className="flex flex-col overflow-hidden">
-                <span className="text-lg font-bold text-white truncate">
+                <span className="text-lg font-bold text-primary truncate">
                   {direction === 'ltr' ? 'Bishola' : 'بسهولة'}
                 </span>
-                <span className="text-xs text-primary-foreground/70 truncate">
+                <span className="text-xs text-primary truncate">
                   {direction === 'ltr' ? 'Dashboard' : 'لوحة التحكم'}
                 </span>
               </div>
@@ -161,17 +161,16 @@ export function DashboardSidebar() {
       </SidebarHeader>
 
       {/* Content */}
-      <SidebarContent className="px-2 py-4 bg-primary overflow-y-auto">
-        {/* Main Navigation */}
+      <SidebarContent className="px-2 py-4 overflow-y-auto">
         <div className="space-y-2">
           {!isCollapsed && (
             <div className="px-3 py-2">
-              <h2 className="text-xs font-semibold text-primary-foreground/70 uppercase tracking-wider">
+              <h2 className="text-xs font-semibold text-primary uppercase tracking-wider">
                 {direction === 'ltr' ? 'Main' : 'الرئيسي'}
               </h2>
             </div>
           )}
-          <SidebarMenu>
+          <SidebarMenu className=''>
             {navItems.map(({ href, icon: Icon, label }) => (
               <SidebarMenuItem key={href}>
                 <SidebarMenuButton
@@ -179,7 +178,7 @@ export function DashboardSidebar() {
                   className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 ${
                     isActiveRoute(href)
                       ? 'bg-primary-light text-white shadow-sm'
-                      : 'hover:bg-primary-light/50 text-primary-foreground hover:text-white'
+                      : 'hover:bg-primary-light/50 text-primary hover:text-white'
                   }`}
                   tooltip={isCollapsed ? label : undefined}
                 >
@@ -199,7 +198,7 @@ export function DashboardSidebar() {
         <div className="space-y-2 mt-8">
           {!isCollapsed && (
             <div className="px-3 py-2">
-              <h2 className="text-xs font-semibold text-primary-foreground/70 uppercase tracking-wider">
+              <h2 className="text-xs font-semibold text-primary uppercase tracking-wider">
                 {direction === 'ltr' ? 'Quick Access' : 'وصول سريع'}
               </h2>
             </div>
@@ -209,7 +208,7 @@ export function DashboardSidebar() {
               <SidebarMenuItem key={href}>
                 <SidebarMenuButton
                   asChild
-                  className="flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 hover:bg-primary-light/50 text-primary-foreground hover:text-white"
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200  text-primary hover:bg-primary-light/50 hover:text-white"
                   tooltip={isCollapsed ? label : undefined}
                 >
                   <Link href={href}>
@@ -248,7 +247,7 @@ export function DashboardSidebar() {
                   <p className="text-sm font-medium text-white truncate">
                     {profile?.name || session.user.name || 'User'}
                   </p>
-                  <p className="text-xs text-primary-foreground/70 truncate">
+                  <p className="text-xs text-white truncate">
                     {profile?.email || ''}
                   </p>
                 </div>

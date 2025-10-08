@@ -1,7 +1,7 @@
 // hooks/useStepManagement.ts
 import { useState, useCallback, useEffect } from 'react';
 import { useSubmitForm } from '../hooks/useSubmitForm';
-import { getStorageKey, STORAGE_KEYS } from './useLocalStorage';
+import { getStorageKey } from './useLocalStorage';
 
 interface StepValidation {
   productType: boolean;

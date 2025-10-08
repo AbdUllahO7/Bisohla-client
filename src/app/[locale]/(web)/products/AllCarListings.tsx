@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Box from '@/components/box/box';
 import Text from '@/components/text/text';
 import { useTranslations } from 'next-intl';
@@ -24,16 +24,13 @@ interface AllCarListingsProps {
 const AllCarListings: React.FC<AllCarListingsProps> = ({
   pageSize = 8,
   showTitle = false,
-  container = true,
   queryParams: externalQueryParams,
   onTotalItemsChange,
 }) => {
   const t = useTranslations('productsPage');
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [favoriteStatuses, setFavoriteStatuses] = useState<
-    Record<number, boolean>
-  >({});
+  const [favoriteStatuses, setFavoriteStatuses] = useState<Record<number, boolean>>({});
   const [isMobile, setIsMobile] = useState(false);
   const session = useSession();
 
@@ -43,25 +40,20 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
       setIsMobile(window.innerWidth < 768);
     };
 
-    // Check on initial load
     checkIsMobile();
-
-    // Add event listener for window resize
     window.addEventListener('resize', checkIsMobile);
-
-    // Cleanup
     return () => window.removeEventListener('resize', checkIsMobile);
   }, []);
 
-  // Build final query params with current page
-  const queryParams: QueryParams = {
+  // Build final query params with current page - USE USEMEMO
+  const queryParams: QueryParams = useMemo(() => ({
     userId: session.user?.id,
-    page: currentPage,
     pageSize,
     sortBy: 'createdAt',
     sortDirection: 'desc',
     ...externalQueryParams, // This will override defaults with provider values
-  };
+    page: currentPage,
+  }), [currentPage, pageSize, externalQueryParams, session.user?.id]);
 
   // Verify authentication status on component mount
   useEffect(() => {
@@ -104,9 +96,8 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
 
   // Fetch all car listings with pagination and filters
   const { data, isLoading, error } = useCarListings(queryParams);
-
   // Extract car listings array safely
-  const carListings = React.useMemo(() => {
+  const carListings = useMemo(() => {
     const apiData = data as any;
 
     let listings: Array<any> = [];
@@ -136,7 +127,7 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
   }, [data, favoriteStatuses]);
 
   // Get pagination information
-  const paginationInfo = React.useMemo(() => {
+  const paginationInfo = useMemo(() => {
     const apiData = data as any;
 
     if (apiData?.currentPage !== undefined) {
@@ -179,7 +170,7 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
       hasPreviousPage: false,
       totalItems: carListings.length,
     };
-  }, [data, carListings, currentPage]);
+  }, [data, carListings.length, currentPage]);
 
   // Update total items for parent component
   useEffect(() => {
@@ -188,13 +179,18 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
     }
   }, [paginationInfo.totalItems, onTotalItemsChange, isLoading]);
 
-  const handlePageChange = (page: number): void => {
+  const handlePageChange = useCallback((page: number): void => {
     setCurrentPage(page);
-    window.scrollTo(0, 0);
-  };
+    
+    // Smooth scroll to top
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  }, []);
 
   // Render car listing component based on screen size
-  const renderCarListing = (card: any, index: number) => {
+  const renderCarListing = useCallback((card: any, index: number) => {
     const isFavorite =
       favoriteStatuses[card.id] !== undefined
         ? favoriteStatuses[card.id]
@@ -230,7 +226,7 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
     } else {
       return <RentProductCard key={card.id || index} {...commonProps} />;
     }
-  };
+  }, [isMobile, favoriteStatuses, handleFavoriteToggle, t]);
 
   return (
     <Box className="mb-5 mt-5 w-full">
@@ -271,16 +267,13 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
 
         {!isLoading && !error && carListings.length > 0 && (
           <>
-            {/* Conditional rendering based on screen size */}
             {isMobile ? (
-              // Mobile: List layout
               <Box className="w-full flex-col">
                 {carListings.map((card, index) =>
                   renderCarListing(card, index),
                 )}
               </Box>
             ) : (
-              // Desktop: Grid layout
               <Box
                 className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 w-full"
                 variant="center"
@@ -293,7 +286,6 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
 
             <AdsSectionProduct />
 
-            {/* Only show pagination if we have multiple pages */}
             {paginationInfo.totalPages > 1 && (
               <Pagination
                 currentPage={paginationInfo.currentPage}

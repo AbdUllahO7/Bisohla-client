@@ -76,7 +76,6 @@ export const handleRefreshToken = async (oldRefreshToken: string) => {
 
     const responseData = await backendRes.json();
 
-    // console.log('Backend response:', responseData);
 
     // Check if the request was successful
     if (!backendRes.ok || !responseData.success) {
