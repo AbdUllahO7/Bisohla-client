@@ -5,6 +5,7 @@ import { useRef } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel"
 import Autoplay from "embla-carousel-autoplay"
+import type { EmblaOptionsType } from "embla-carousel"
 import Image from "next/image"
 import Box from "@/components/box/box"
 import Text from "@/components/text/text"
@@ -47,7 +48,7 @@ const CarouselComponent: React.FC<ExtendedCarouselComponentProps> = ({ data, dir
   return (
     <Carousel
       opts={{ align: "start", loop: true }}
-      plugins={[autoplayPlugin.current]}
+      plugins={[autoplayPlugin.current as any]} // Type assertion here
       className={`w-full ${direction === "rtl" ? "rtl" : "ltr"} cursor-pointer`}
       dir="ltr"
       onMouseEnter={() => autoplayPlugin.current.stop()}
@@ -93,12 +94,12 @@ const CarouselComponent: React.FC<ExtendedCarouselComponentProps> = ({ data, dir
                   variant="row"
                   dir={direction}
                   className={`
-                                        w-[190px] justify-between items-center absolute bottom-4 left-1/2 transform -translate-x-1/2
-                                        bg-white/95 backdrop-blur-md rounded-2xl p-3 shadow-lg
-                                        transition-all duration-500 group-hover:bg-gradient-to-r group-hover:from-[#198341] group-hover:to-[#2C3C39]
-                                        border border-white/20 group-hover:border-white/30
-                                        group-hover:scale-105 group-hover:shadow-xl
-                                    `}
+                    w-[190px] justify-between items-center absolute bottom-4 left-1/2 transform -translate-x-1/2
+                    bg-white/95 backdrop-blur-md rounded-2xl p-3 shadow-lg
+                    transition-all duration-500 group-hover:bg-gradient-to-r group-hover:from-[#198341] group-hover:to-[#2C3C39]
+                    border border-white/20 group-hover:border-white/30
+                    group-hover:scale-105 group-hover:shadow-xl
+                  `}
                 >
                   <Box variant="column" className="text-start gap-1 justify-start items-start flex-1">
                     <Box className="flex items-center gap-2 mb-1">
