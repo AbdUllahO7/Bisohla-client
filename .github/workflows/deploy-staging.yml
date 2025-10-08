@@ -1,0 +1,95 @@
+# .github/workflows/deploy-staging.yml
+# GitHub Action for Next.js Website Staging (next-website repository)
+name: Deploy Next.js Website (Staging)
+
+on:
+  push:
+    branches: [dev]
+  workflow_dispatch: # Allow manual trigger
+
+env:
+  DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+  DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+  DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+  SERVICE_NAME: 'next-website'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Add server to known hosts
+        run: |
+          ssh-keyscan -H ${{ secrets.DEPLOY_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy Next.js Website (Staging)
+        run: |
+          ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} << 'EOF'
+            set -e
+
+            echo "🚀 Starting Next.js Website staging deployment..."
+
+            # Navigate to deployment directory
+            cd ${{ secrets.DEPLOY_PATH }}
+
+            # Deploy using new deployment script
+            echo "🔄 Deploying Next.js Website to staging..."
+            ./scripts/deploy.sh --env staging --project next-website
+
+            # Verify deployment
+            echo "✅ Verifying Next.js Website staging deployment..."
+            sleep 15
+
+            # Check if Website staging container is running
+            if ! docker ps | grep -q "next-website-staging"; then
+              echo "❌ Website staging container not running!"
+              docker compose logs next-website-staging --tail 30
+              exit 1
+            fi
+
+            echo "✅ Next.js Website staging container is running successfully!"
+
+            # Check Website logs
+            echo "📋 Recent Website staging logs:"
+            docker compose logs next-website-staging --tail 10
+
+            # Test website accessibility
+            echo "🧪 Testing Website staging accessibility..."
+            sleep 5
+            if curl -f -s https://stage.bishola.com > /dev/null 2>&1; then
+              echo "✅ Website staging is accessible"
+            else
+              echo "⚠️  Website staging accessibility check failed - checking if service is starting..."
+              sleep 10
+              if curl -f -s https://stage.bishola.com > /dev/null 2>&1; then
+                echo "✅ Website staging is now accessible"
+              else
+                echo "❌ Website staging still not accessible"
+                docker compose logs next-website-staging --tail 20
+                exit 1
+              fi
+            fi
+
+            echo "🎉 Next.js Website staging deployment completed successfully!"
+            echo "🌐 Website staging is available at: https://stage.bishola.com"
+          EOF
+
+      - name: Notify deployment success
+        if: success()
+        run: |
+          echo "✅ Next.js Website staging deployment successful!"
+          echo "🌐 Website Staging URL: https://stage.bishola.com"
+
+      - name: Notify deployment failure
+        if: failure()
+        run: |
+          echo "❌ Next.js Website staging deployment failed!"
+          # You can add Slack/Discord/Email notifications here
