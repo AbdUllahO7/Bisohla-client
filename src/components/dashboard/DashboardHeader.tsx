@@ -36,6 +36,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useSidebar } from '@/components/ui/sidebar';
 import { useProfileContext } from '@/providers/profile.provider';
+import Image from 'next/image';
 
 interface DashboardHeaderImprovedProps {
   translations: {
@@ -456,6 +457,24 @@ export function DashboardHeader({
             </DropdownMenu>
           )}
         </div>
+         <div
+                  className="flex items-center cursor-pointer"
+                  onClick={() => router.push('/')}
+                >
+                  <Image
+                    src="/assets/images/logo/bishola.png"
+                    alt="Logo"
+                    width={100}
+                    height={24}
+                    className="h-5 w-auto sm:h-6"
+                    priority
+                    onError={(e: { currentTarget: { style: { display: string; }; }; }) => {
+                      console.error('Failed to load logo image');
+                      e.currentTarget.style.display = 'none';
+                    }}
+                  />
+                </div>
+        
       </div>
     </header>
   );

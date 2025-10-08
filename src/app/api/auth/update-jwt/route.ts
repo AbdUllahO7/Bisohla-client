@@ -19,7 +19,6 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({ refresh }),
     });
 
-    console.log('Backend response:', backendRes);
 
     if (!backendRes.ok) {
       // Clear the session cookie in the response
@@ -34,12 +33,10 @@ export async function POST(req: NextRequest) {
     const { data } = await backendRes.json();
     const { accessToken, refreshToken } = data;
 
-    console.log('New tokens received:', { accessToken, refreshToken });
 
     // Create new session with updated tokens
     await updateTokens({ accessToken, refreshToken });
 
-    console.log('Session updated with new tokens');
 
     // Return new tokens
     // revalidatePath(allRoutes.auth.children.signIn.path, 'layout');

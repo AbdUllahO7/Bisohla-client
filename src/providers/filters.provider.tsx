@@ -496,7 +496,6 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
       return;
     }
 
-    console.log('Syncing from URL:', currentUrlParams);
 
     isUpdatingFromUrl.current = true;
     lastSyncedUrlParams.current = currentUrlParams;
@@ -684,7 +683,6 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
   // IMPROVED: Initial sync and URL change detection
   useEffect(() => {
     if (!isInitialized.current && searchParams) {
-      console.log('Initial URL sync');
       syncFromUrl();
       isInitialized.current = true;
     }
@@ -693,7 +691,6 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
   // IMPROVED: Listen for search params changes with better detection
   useEffect(() => {
     if (isInitialized.current && !isUpdatingFromUrl.current) {
-      console.log('Search params changed, syncing from URL');
       syncFromUrl();
     }
   }, [searchParamsString, syncFromUrl]);

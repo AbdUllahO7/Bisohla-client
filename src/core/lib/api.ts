@@ -405,7 +405,6 @@ const makeAuthRequest = async <T, R>(
       response.status === 403 ||
       (response.status === 500 && response.message === 'Unauthorized'))
   ) {
-    // console.log('HERE IN MAKE AUTH REQUEST - Unauthorized response detected');
 
     try {
       // Get current session to access refresh token
@@ -416,12 +415,10 @@ const makeAuthRequest = async <T, R>(
         return response; // Return the original unauthorized response
       }
 
-      // console.log('HERE IN MAKE AUTH REQUEST 2 - Attempting token refresh');
 
       // Attempt to refresh the token
       const newAccessToken = await handleRefreshToken(session.refreshToken);
 
-      // console.log('NEW ACCESS TOKEN:', newAccessToken);
 
       // Retry the original request with the new token
       const retryConfig = {
@@ -433,11 +430,9 @@ const makeAuthRequest = async <T, R>(
         },
       };
 
-      // console.log('Retrying request with new token...');
       return await makeRequest(retryConfig);
     } catch (refreshError) {
       console.warn('Token refresh failed:', refreshError);
-      // If refresh fails, return the original unauthorized response
       return response;
     }
   }

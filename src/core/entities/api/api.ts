@@ -26,10 +26,10 @@ export interface QueryParams {
   sortDirection?: 'asc' | 'desc';
   searchKey?: string;
   searchTerm?: unknown | unknown[];
-  id?: number | number[]; // Modified to support arrays
+  id?: number | number[]; 
   userId?: number | null;
-  locale?: string; // Add this line
-  where?: Filter[]; // New field for explicit where conditions
+  locale?: string; 
+  where?: Filter[]; 
   filterGroups?: FilterGroup[];
 }
 

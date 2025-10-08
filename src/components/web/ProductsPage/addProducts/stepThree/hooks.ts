@@ -9,7 +9,7 @@ import {
   getGroupedCarSectionOptions
 } from "@/core/entities/enums/cars.damegs.enum"; 
 
-import { CarConditionState,  defaultState, STORAGE_KEY, EDIT_STORAGE_KEY, EDIT_MODE_FLAG, SectionStatusMap } from "./types";
+import { CarConditionState,  defaultState, STORAGE_KEY, EDIT_STORAGE_KEY, SectionStatusMap } from "./types";
 import { 
   validateForm, 
   isEditMode as checkIsEditMode,
@@ -283,32 +283,16 @@ export const useAddProductStepThree = (
   }, [carCondition.sectionStatus]);
 
   // Image handlers - FIXED VERSION
-  const handleCoverImageChange = useCallback((urls: string[]) => {
-    
-    setCarCondition(prev => {
-      const updatedState: CarConditionState = {
-        ...prev,
-        coverImage: urls
-      };
-      
-      // Save to localStorage immediately after state update
-      if (storageKey) {
-        try {
-          localStorage.setItem(storageKey, JSON.stringify(updatedState));
-        } catch (e) {
-          console.error(`Error saving cover image change to ${storageKey}:`, e);
-        }
-      }
-      
-      // Run validation immediately after state update
-      // Use setTimeout to ensure state has been updated
-      setTimeout(() => {
-        runValidation(updatedState);
-      }, 0);
-      
-      return updatedState;
-    });
-  }, [storageKey, runValidation]);
+const handleCoverImageChange = useCallback((urls: string[]) => {
+  setCarCondition(prev => {  // ✅ This is correct!
+    const updatedState: CarConditionState = {
+      ...prev,
+      coverImage: urls
+    };
+    // ... rest of the code
+    return updatedState;
+  });
+}, [storageKey, runValidation]);
 
   return {
     isClient,

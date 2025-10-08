@@ -208,11 +208,11 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
           />
         </Button>
 
-        <Text className="absolute bottom-32 left-2 bg-white px-2 py-1 rounded-lg shadow-md text-primary text-sm">
+        <Text className="absolute bottom-32 z-50 left-2 bg-primary-light px-2 py-1 rounded-lg shadow-md text-secondary text-sm">
           {type === 'for_rent' ? 'Rent' : 'Sale'}
         </Text>
 
-        <Box className="flex justify-between p-[8px] rounded-t-[10px] bg-primary-light group-hover:bg-primary duration-500">
+        <Box className="flex z-50 justify-between p-[8px] rounded-t-[10px] bg-primary-light group-hover:bg-primary duration-500">
           <Text className="mid font-cairo text-[500] text-[#EFEFEF] text-[14px]">
             {priceWord}
           </Text>
@@ -221,21 +221,22 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
 
         <Link href={`/products/product/${ProductId}`} className="block">
           <CardHeader className="p-0">
-            <CardTitle className="w-full">
-              <Image
-                src={imageSrc}
-                alt={title}
-                width={220}
-                height={300}
-                className="w-full h-48"
-              />
+         <CardTitle className="w-full relative h-48 overflow-hidden">
+            <Image
+              src={imageSrc}
+              alt={title}
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              className="object-cover"
+              priority={false}
+            />
               {/* Hover overlay with view icon */}
               <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
                 <div className="bg-white/90 backdrop-blur-sm rounded-full p-3 transform scale-75 group-hover:scale-100 transition-transform duration-300">
                   <Eye className="h-6 w-6 text-emerald-600" />
                 </div>
               </div>
-            </CardTitle>
+              </CardTitle>
             <CardDescription className="p-[8px]">
               <Text
                 variant="h4"

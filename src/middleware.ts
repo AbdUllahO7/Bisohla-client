@@ -17,7 +17,6 @@ async function validateSession(): Promise<boolean> {
     if (!session) return false;
 
     const res = await checkAuth();
-    // console.log('Session validation response:', res);
     if (!res.success) {
       await deleteSession();
       return false;

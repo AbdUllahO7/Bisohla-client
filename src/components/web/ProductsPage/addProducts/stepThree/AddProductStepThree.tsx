@@ -30,6 +30,7 @@ const AddProductStepThree: React.FC<AddProductStepThreeProps> = ({
     isEditMode: currentEditMode, // Get edit mode status from the hook
     storageKey, // Get the current storage key
   } = useAddProductStepThree(onValidationChange, isEditMode) // Pass isEditMode prop to hook
+  
 
   // Flag to track if edit data has been applied
   const editDataApplied = useRef(false)
