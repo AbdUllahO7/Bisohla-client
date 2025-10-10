@@ -27,8 +27,6 @@ const AddProductStepThree: React.FC<AddProductStepThreeProps> = ({
     isStatusSelected,
     handleCoverImageChange,
     setInitialDamages,
-    isEditMode: currentEditMode, // Get edit mode status from the hook
-    storageKey, // Get the current storage key
   } = useAddProductStepThree(onValidationChange, isEditMode) // Pass isEditMode prop to hook
   
 

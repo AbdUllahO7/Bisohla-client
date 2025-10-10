@@ -283,17 +283,31 @@ export const useAddProductStepThree = (
   }, [carCondition.sectionStatus]);
 
   // Image handlers - FIXED VERSION
+// Image handlers - COMPLETE FIXED VERSION
 const handleCoverImageChange = useCallback((urls: string[]) => {
-  setCarCondition(prev => {  // ✅ This is correct!
+  setCarCondition(prev => {
     const updatedState: CarConditionState = {
       ...prev,
       coverImage: urls
     };
-    // ... rest of the code
+    
+    // Save to localStorage immediately after state update
+    if (storageKey) {
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(updatedState));
+      } catch (e) {
+        console.error(`Error saving cover image change to ${storageKey}:`, e);
+      }
+    }
+    
+    // Run validation immediately with the updated state
+    setTimeout(() => {
+      runValidation(updatedState);
+    }, 0);
+    
     return updatedState;
   });
 }, [storageKey, runValidation]);
-
   return {
     isClient,
     direction,
