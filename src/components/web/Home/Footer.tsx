@@ -105,40 +105,49 @@ const Footer = ({ isUserProfile }: { isUserProfile?: boolean }) => {
               {locale === 'ar' ? 'اشتراك' : 'Subscribe'}
             </Button>
           </Box>
-          <Box variant="row" className="mt-5 w-full">
-            <Button className="bg-white shadow-none border border-primary-light h-full ">
-              <Box variant="column" className="gap-0 h-full">
-                <Text variant="small" className="text-primary-light">
-                  Availabel on the{' '}
-                </Text>
-                <Text variant="mid" className="text-primary-light">
-                  App Store{' '}
-                </Text>
-              </Box>
-              <Image
-                src="/assets/icons/apple-icon.png"
-                alt="apple"
-                width={20}
-                height={20}
-              />
-            </Button>
-            <Button className="bg-white shadow-none border border-primary-light h-full ">
-              <Box variant="column" className=" gap-0 h-full">
-                <Text variant="small" className="text-primary-light">
-                  Availabel on the{' '}
-                </Text>
-                <Text variant="mid" className="text-primary-light">
-                  Google Play
-                </Text>
-              </Box>
-              <Image
-                src="/assets/icons/play-google.png"
-                alt="apple"
-                width={30}
-                height={30}
-              />
-            </Button>
-          </Box>
+       <Box variant="row" className="mt-5 w-full">
+              <a 
+                href="https://apps.apple.com/tr/app/bishola/id6751427088"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-white shadow-none border border-primary-light h-full flex items-center gap-2 px-4 py-2 rounded hover:bg-gray-50 transition-colors"
+              >
+                <Box variant="column" className="gap-0 h-full">
+                  <Text variant="small" className="text-primary-light">
+                    Available on the                    App Store
+
+                  </Text>
+                  
+                </Box>
+                <Image
+                  src="/assets/icons/apple-icon.png"
+                  alt="apple"
+                  width={20}
+                  height={20}
+                />
+              </a>
+              
+              <a 
+                href="https://play.google.com/store/apps/details?id=com.bishola.app&hl=en"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-white shadow-none border border-primary-light h-full flex items-center gap-2 px-4 py-2 rounded hover:bg-gray-50 transition-colors"
+              >
+                <Box variant="column" className="gap-0 h-full">
+                  <Text variant="small" className="text-primary-light">
+                    Available on the Google Play
+
+                  </Text>
+                
+                </Box>
+                <Image
+                  src="/assets/icons/play-google.png"
+                  alt="google play"
+                  width={30}
+                  height={30}
+                />
+              </a>
+            </Box>
         </Box>
       </Box>
 

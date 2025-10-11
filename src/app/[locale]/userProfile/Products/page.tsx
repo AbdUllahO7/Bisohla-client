@@ -50,7 +50,10 @@ const UserProductPage = () => {
     searchKey: filterParams.searchKey, // Add this
     searchTerm: filterParams.searchTerm, // Add this
   });
-
+  useEffect(() => {
+    console.log("useEffect");
+    refetch();
+  }, []); 
   // Handle filter changes from the simple filter component
   const handleFilterChange = useCallback((params: QueryParams) => {
     setFilterParams({
