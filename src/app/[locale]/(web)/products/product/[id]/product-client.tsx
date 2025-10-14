@@ -51,7 +51,7 @@ const ProductClient = ({
   ];
 
   return (
-    <div className="bg-background w-full pb-10 pt-10 hidden md:block">
+    <div className="bg-background w-full mb-5 mt-5  hidden md:block">
       <Box variant="container" className="w-full mb-2">
         {/* Super simple breadcrumb usage! */}
         <SmartBreadcrumb
