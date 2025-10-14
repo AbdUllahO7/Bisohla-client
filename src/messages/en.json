@@ -25,7 +25,8 @@
       "news": "news",
       "join": "Join",
       "BrowseAll": "Browse All",
-      "Privacypolicy": "Privacy Policy"
+      "Privacypolicy": "Privacy Policy",
+      "ContactUs": "Contact Us"
     },
     "hero": {
       "title": "Bishola",
@@ -1378,5 +1379,17 @@
       "secure": "Secure & Protected",
       "support": "24/7 Support"
     }
+  },
+  "contactPage": {
+    "title": "Contact Us",
+    "subtitle": "We'd love to hear from you",
+    "email": {
+      "label": "Email"
+    },
+    "phone": {
+      "label": "Phone"
+    },
+    "availability": "Available to assist you with any inquiries",
+    "cta": "Get in Touch"
   }
 }

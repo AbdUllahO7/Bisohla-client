@@ -12,7 +12,7 @@ const Footer = ({ isUserProfile }: { isUserProfile?: boolean }) => {
   return (
     <Box
       variant="column"
-      className={`relative   pt-10 pb-10 justify-around w-full `}
+      className={`relative z-50   pt-10 pb-10 justify-around w-full `}
     >
       <Box
         variant="row"
@@ -188,7 +188,7 @@ const Footer = ({ isUserProfile }: { isUserProfile?: boolean }) => {
           >
             <Image
               src="/assets/icons/faceBook.png"
-              alt="twitter"
+              alt="facebook"
               width={20}
               height={20}
             />

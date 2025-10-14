@@ -10,6 +10,8 @@ import { useCarListings } from '@/core/infrastructure-adapters/use-actions/visit
 import ProductSkeleton from '../design/ProductSkeletonItem';
 import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions';
 import { useSession } from '@/hooks/auth/use-session';
+import SectionHeader from '@/components/SectionHeader';
+import { Car, HelpCircle } from 'lucide-react';
 
 const RentProduct = () => {
     const t = useTranslations('homePage');
@@ -100,17 +102,13 @@ const RentProduct = () => {
     return (
         <Box variant="container" className="mb-10">
             <Box variant="column">
-                <Box variant="column" className="">
-                    <Text variant="h3" className="font-bold text-[20px] font-cairo">
-                        {t('rentProduct.title')}
-                    </Text>
-                    <Link href="/AllCities">
-                        <Text variant="mid" className="text-[20px] font-cairo text-primary-light">
-                            {t('rentProduct.showMore')}
-                        </Text>
-                    </Link>
-                </Box>
                 
+                <SectionHeader
+                    title={t('rentProduct.title')}
+                    icon={Car}
+                    showMoreText= {t('rentProduct.showMore')}
+                    showMoreLink='/products'
+                />
                 {/* Show loading state */}
                 {isLoading && <ProductSkeleton showTitle={false} />}
                 
@@ -122,11 +120,11 @@ const RentProduct = () => {
                 )}
 
                 {/* Show empty state */}
-                {!isLoading && !error && rentListings.length === 0 && (
+               {/*  {!isLoading && !error && rentListings.length === 0 && (
                     <Box className="w-full py-4" variant="center">
                         <Text>No rental listings available</Text>
                     </Box>
-                )}
+                )} */}
                 
                 {/* Display Rental Cards */}
                 {!isLoading && !error && rentListings.length > 0 && (
