@@ -100,6 +100,7 @@ const WebLayout = async ({
               join: t('headerTow.join'),
               BrowseAll: t('headerTow.BrowseAll'),
               Privacypolicy: t('headerTow.Privacypolicy'),
+              ContactUs: t('headerTow.ContactUs'),
             }}
           />
         </div>
