@@ -25,7 +25,8 @@
       "news": "اخبار",
       "join": "أنضم بسهولة",
       "BrowseAll": "تصفح الكل",
-      "Privacypolicy": "سياسة الخصوصية"
+      "Privacypolicy": "سياسة الخصوصية",
+      "ContactUs": "اتصل بنا"
     },
 
     "hero": {
@@ -348,6 +349,9 @@
     }
   },
   "productsPage": {
+    "latestOffers": {
+      "price": "السعر"
+    },
     "header": {
       "adCounter": " اعلان",
       "orderBy": "ترتيب حسب:",
@@ -359,6 +363,35 @@
       }
     },
     "filter": {
+      "listingTypeSelect": "اختر نوع القوائم",
+
+      "activeFilters": "{count} مرشح نشط",
+      "activeFilters_other": "{count} مرشحات نشطة",
+      "mobileDescription": "تصفية السيارات حسب تفضيلاتك",
+      "filtersApplied": "تم تطبيق {count} مرشح",
+      "filtersApplied_other": "تم تطبيق {count} مرشحات",
+      "noFiltersApplied": "لم يتم تطبيق أي مرشحات",
+      "applyFilters": "تطبيق المرشحات",
+      "search": {
+        "brands": "البحث عن العلامات التجارية...",
+        "models": "البحث عن الموديلات...",
+        "trims": "البحث عن الإصدارات..."
+      },
+      "noBrands": "لم يتم العثور على علامات تجارية",
+      "noModels": "لم يتم العثور على موديلات",
+      "noTrims": "لم يتم العثور على إصدارات",
+      "loadingBrands": "جاري تحميل العلامات التجارية...",
+      "loadingModels": "جاري تحميل الموديلات...",
+      "loadingTrims": "جاري تحميل الإصدارات...",
+      "selectedItems": "العناصر المحددة:",
+      "clearAll": "مسح الكل",
+      "retryLoading": "إعادة المحاولة",
+      "connectionError": "خطأ في الاتصال",
+      "tryAgain": "حاول مرة أخرى",
+      "allItemsLoaded": "تم تحميل جميع العناصر",
+      "scrollForMore": "قم بالتمرير لعرض المزيد",
+      "loadingMore": "جاري تحميل المزيد...",
+      "selectionsFromUrl": "تم تحميل الاختيارات من معاملات الرابط",
       "title": "عن ماذا تبحث",
       "searchInput": "بحث",
       "filterOptions": {
@@ -372,6 +405,8 @@
         },
         "address": {
           "filterOptionsTitle": "العنوان",
+          "listingTypeTitle": "نوع القوائم",
+
           "placeHolder": "المدينة",
           "governorate": "المحافظة",
           "city": "المدينة",
@@ -435,16 +470,36 @@
       "usd": "دولار أمريكي",
       "eur": "يورو"
     },
+    "allCars": {
+      "title": "جميع السيارات",
+      "loading": "جاري تحميل السيارات...",
+      "error": "فشل في تحميل قوائم السيارات",
+      "noResults": "لم يتم العثور على سيارات",
+
+      "noResultsMessage": "حاول تعديل معايير البحث أو المرشحات",
+      "totalFound": "سيارة موجودة",
+      "loadingMore": "جاري تحميل المزيد من السيارات..."
+    },
     "categories": {
       "cat_name_one": "اقتصادي",
       "cat_name_tow": "اقتصادي",
       "cat_name_three": "اقتصادي",
       "cat_name_four": "اقتصادي",
       "cat_name_five": "اقتصادي",
-      "cat_name_six": "اقتصادي"
+      "cat_name_six": "اقتصادي",
+      "title": "تصفح حسب الفئة",
+      "loading": "جاري تحميل الفئات...",
+      "carCount": "سيارة متاحة"
     }
   },
   "product": {
+    "whatsapp": "واتساب",
+    "call": "اتصل",
+    "authRequired": "مطلوب تسجيل الدخول",
+    "pleaseSignIn": "يرجى تسجيل الدخول لإضافة المفضلة",
+    "signIn": "تسجيل الدخول",
+    "error": "خطأ",
+    "favoriteError": "فشل في تحديث المفضلة. يرجى المحاولة مرة أخرى.",
     "header": {
       "whatsApp": "مراسة عبر الواتس"
     },
@@ -475,11 +530,11 @@
           "safety": "الحماية",
           "entertainment": "الترفيه",
           "technology": "التكنولوجيا",
-          "comfort" :"الراحة",
-          "other" : "أخرى",
-          "exterior" :"الخارجية",
-          "performance":"الأداء",
-          "interior" :"الداخلية"
+          "comfort": "الراحة",
+          "other": "أخرى",
+          "exterior": "الخارجية",
+          "performance": "الأداء",
+          "interior": "الداخلية"
         }
       }
     },
@@ -967,6 +1022,54 @@
     }
   },
   "UserProfile": {
+    "favorites": {
+      "title": "المفضلة",
+      "description": "إدارة قوائم السيارات المحفوظة",
+      "itemsCount": "عنصر",
+      "searchPlaceholder": "البحث في المفضلة...",
+      "filters": {
+        "all": "جميع الأنواع",
+        "forSale": "للبيع",
+        "forRent": "للإيجار"
+      },
+      "error": {
+        "title": "خطأ في تحميل المفضلة",
+        "message": "فشل في تحميل سياراتك المفضلة",
+        "retry": "حاول مرة أخرى"
+      },
+      "empty": {
+        "title": "لا توجد مفضلة بعد",
+        "message": "لم تقم بإضافة أي سيارة إلى مفضلتك بعد. ابدأ في التصفح للعثور على السيارات التي تحبها!",
+        "browseButton": "تصفح السيارات"
+      },
+      "refreshing": "جارٍ التحديث...",
+      "priceLabel": "السعر"
+    },
+    "products": {
+      "searchPlaceholder": "البحث في سياراتي...",
+      "allTypes": "جميع الأنواع",
+      "forSale": "للبيع",
+      "forRent": "للإيجار",
+      "allStatus": "جميع الحالات",
+      "active": "نشط",
+      "pending": "قيد المراجعة",
+      "rejected": "مرفوض",
+      "newest": "الأحدث",
+      "oldest": "الأقدم",
+      "priceHigh": "السعر (الأعلى)",
+      "priceLow": "السعر (الأقل)",
+      "titleAsc": "العنوان (أ-ي)",
+      "titleDesc": "العنوان (ي-أ)",
+      "reset": "إعادة تعيين",
+      "cars": "سيارة",
+      "myCars": "سياراتي",
+      "failedToLoad": "فشل في تحميل السيارات",
+      "failedToLoadMessage": "لم نتمكن من تحميل قوائم سياراتك. يرجى المحاولة مرة أخرى.",
+      "tryAgain": "حاول مرة أخرى",
+      "noCarsYet": "لا توجد سيارات بعد",
+      "noCarsMessage": "لم تقم بإنشاء أي قوائم سيارات بعد. أضف سيارتك الأولى للبدء!",
+      "addNewCar": "إضافة سيارة جديدة"
+    },
     "SideBar": {
       "home": "الصفحة الرئيسية",
       "products": "المنتجات",
@@ -1128,6 +1231,8 @@
   "common": {
     "myProducts": "منتجاتي",
     "sale": "بيع",
+    "forSale": "للبيع",
+
     "rent": "إيجار",
     "edit": "تعديل",
     "delete": "حذف",
@@ -1137,8 +1242,13 @@
     "deleteConfirmation": "تأكيد الحذف",
     "deleteWarning": "لا يمكن التراجع عن هذا الإجراء. سيؤدي هذا إلى حذف القائمة الخاصة بك بشكل دائم وإزالتها من خوادمنا.",
     "details": "التفاصيل",
-    "viewDetails": "عرض التفاصيل",
-    "price": "السعر"
+    "price": "السعر",
+    "featured": "مميز",
+    "priceOnRequest": "السعر عند الطلب",
+    "km": "كم",
+    "damageReported": "ضرر مُبلغ عنه",
+    "contact": "اتصال",
+    "viewDetails": "عرض التفاصيل"
   },
   "emailVerification": {
     "pageTitle": "تأكيد البريد الإلكتروني",
@@ -1230,5 +1340,17 @@
       "secure": "آمن ومحمي",
       "support": "دعم 24/7"
     }
+  },
+   "contactPage": {
+    "title": "اتصل بنا",
+    "subtitle": "نحن نحب أن نسمع منك",
+    "email": {
+      "label": "البريد الإلكتروني"
+    },
+    "phone": {
+      "label": "الهاتف"
+    },
+    "availability": "متاحون لمساعدتك في أي استفسارات",
+    "cta": "تواصل معنا"
   }
 }

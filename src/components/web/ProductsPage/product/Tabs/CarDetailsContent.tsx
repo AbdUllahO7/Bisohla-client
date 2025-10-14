@@ -193,17 +193,22 @@ const CarDetailsContent: React.FC<CarDetailsContentProps> = ({
 
   const skeletonCount = getSkeletonCount();
 
-  // Render skeleton loading state
+  // Enhanced skeleton loading state
   if (isLoading) {
     return (
-      <div className="w-full space-y-6">
+      <div className="w-full space-y-8">
         {/* Regular fields skeleton */}
         {skeletonCount.regular > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {Array.from({ length: skeletonCount.regular }).map((_, index) => (
-              <div key={`skeleton-${index}`} className="space-y-2">
-                <Skeleton className="h-4 w-20" />
-                <Skeleton className="h-6 w-32" />
+              <div key={`skeleton-${index}`} className="p-4 bg-white rounded-xl border border-gray-100 shadow-sm space-y-3">
+                <div className="flex items-center gap-2">
+                  <Skeleton className="h-4 w-4 rounded" />
+                  <Skeleton className="h-4 w-24 rounded-lg" />
+                </div>
+                <div className="pl-6">
+                  <Skeleton className="h-6 w-32 rounded-lg" />
+                </div>
               </div>
             ))}
           </div>
@@ -213,9 +218,14 @@ const CarDetailsContent: React.FC<CarDetailsContentProps> = ({
         {skeletonCount.long > 0 && (
           <div className="space-y-6">
             {Array.from({ length: skeletonCount.long }).map((_, index) => (
-              <div key={`long-skeleton-${index}`} className="space-y-2">
-                <Skeleton className="h-4 w-24" />
-                <Skeleton className="h-20 w-full" />
+              <div key={`long-skeleton-${index}`} className="p-6 bg-white rounded-xl border border-gray-100 shadow-sm space-y-4">
+                <div className="flex items-center gap-2">
+                  <Skeleton className="h-4 w-4 rounded" />
+                  <Skeleton className="h-4 w-28 rounded-lg" />
+                </div>
+                <div className="pl-6">
+                  <Skeleton className="h-24 w-full rounded-lg" />
+                </div>
               </div>
             ))}
           </div>
@@ -224,26 +234,26 @@ const CarDetailsContent: React.FC<CarDetailsContentProps> = ({
     );
   }
 
-  // Function to render regular fields
+  // Enhanced function to render regular fields
   const renderRegularField = (detail: any, index: number) => (
-    <div key={index} className="group space-y-2">
-      <div className="flex items-center gap-2">
-        <div className="text-primary-light group-hover:text-primary transition-colors">
+    <div key={index} className="group p-4 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-primary-light transition-all duration-300 space-y-3">
+      <div className="flex items-center gap-3">
+        <div className="flex-shrink-0 w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center text-primary group-hover:bg-blue-100 group-hover:text-primary-light transition-all duration-200">
           {detail.icon}
         </div>
-        <label className="text-sm font-medium text-secondary-text uppercase tracking-wide">
+        <label className="text-sm font-semibold text-gray-600 uppercase tracking-wide group-hover:text-gray-700 transition-colors duration-200">
           {detail.label}
         </label>
       </div>
-      <div className="pl-6">
-        <p className="text-base font-semibold text-primary group-hover:text-primary-light transition-colors">
+      <div className="pl-11">
+        <p className="text-base font-bold text-gray-800 group-hover:text-gray-900 transition-colors duration-200">
           {detail.value}
         </p>
       </div>
     </div>
   );
 
-  // Function to render long text fields
+  // Enhanced function to render long text fields
   const renderLongTextField = (detail: any, index: number) => {
     const isExpanded = expandedFields[detail.key] || false;
     const maxLength = 200;
@@ -257,20 +267,20 @@ const CarDetailsContent: React.FC<CarDetailsContentProps> = ({
     return (
       <div
         key={index}
-        className="group space-y-3 py-4 border-t border-gray-100 first:border-t-0 first:pt-0"
+        className="group p-6 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-priamry-light transition-all duration-300 space-y-4"
       >
-        <div className="flex items-center gap-2">
-          <div className="text-primary-light group-hover:text-primary transition-colors">
+        <div className="flex items-center gap-3">
+          <div className="flex-shrink-0 w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center text-primary group-hover:bg-blue-100 group-hover:text-primary-light transition-all duration-200">
             {detail.icon}
           </div>
-          <label className="text-sm font-medium text-secondary-text uppercase tracking-wide">
+          <label className="text-sm font-semibold text-gray-600 uppercase tracking-wide group-hover:text-gray-700 transition-colors duration-200">
             {detail.label}
           </label>
         </div>
 
-        <div className="pl-6 space-y-2">
+        <div className="pl-11 space-y-3">
           <div className="prose prose-sm max-w-none">
-            <p className="text-primary leading-relaxed whitespace-pre-wrap m-0">
+            <p className="text-gray-700 leading-relaxed whitespace-pre-wrap m-0 group-hover:text-gray-800 transition-colors duration-200">
               {displayValue}
             </p>
           </div>
@@ -280,15 +290,15 @@ const CarDetailsContent: React.FC<CarDetailsContentProps> = ({
               variant="ghost"
               size="sm"
               onClick={() => toggleExpand(detail.key)}
-              className="text-primary-light hover:text-primary hover:bg-primary-light/10 px-0 h-auto font-medium"
+              className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 px-3 py-2 h-auto font-medium rounded-lg transition-all duration-200"
             >
               {isExpanded ? (
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-2">
                   <span>{t('showLess')}</span>
                   <ChevronUp className="h-4 w-4" />
                 </div>
               ) : (
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-2">
                   <span>{t('showMore')}</span>
                   <ChevronDown className="h-4 w-4" />
                 </div>
@@ -302,18 +312,18 @@ const CarDetailsContent: React.FC<CarDetailsContentProps> = ({
 
   return (
     <div className="w-full space-y-8">
-      {/* Regular Fields Section */}
+      {/* Enhanced Regular Fields Section */}
       {regularFields.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {regularFields.map((detail, index) =>
             renderRegularField(detail, index),
           )}
         </div>
       )}
 
-      {/* Long Text Fields Section */}
+      {/* Enhanced Long Text Fields Section */}
       {longTextFields.length > 0 && (
-        <div className="space-y-1">
+        <div className="space-y-6">
           {longTextFields.map((detail, index) =>
             renderLongTextField(detail, index),
           )}

@@ -17,15 +17,13 @@ const config: Config = {
       center: true,
       padding: '2rem',
       screens: {
-        '3xs': '175px',
-        '2xs': '275px',
-        xs: '375px',
-        sm: '640px',
-        md: '768px',
-        lg: '1024px',
-        xl: '1280px',
-        '2xl': '1400px',
-        '3xl': '1536px',
+        '3xs': '475px', // Added for very small screens
+        '2xs': '475px', // Between 3xs and xs
+        xs: '640px', // Default Tailwind `sm` size
+        sm: '768px', // Default Tailwind `md` size
+        md: '1024px', // Default Tailwind `lg` size
+        lg: '1280px', // Default Tailwind `xl` size
+        xl: '1536px', // Default Tailwind `2xl` size
       },
     },
     extend: {

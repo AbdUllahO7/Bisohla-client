@@ -10,6 +10,7 @@ import { QueryParams } from '@/core/entities/api/api';
 import { getCarListingById } from '@/core/infrastructure-adapters/actions/visitors/car.visitor.actions';
 import { getSession } from '@/core/lib/web/session';
 import ProductClient from './product-client';
+import MobileProductClient from './mobile-product-client';
 
 interface ProductPageProps {
   params: Promise<{
@@ -118,12 +119,27 @@ const ProductPage = async ({ params, searchParams }: ProductPageProps) => {
 
     // Pass the fetched data to the client component
     return (
-      <ProductClient
-        carDataRes={carResponse}
-        isAuthenticated={isAuthenticated}
-        locale={locale}
-        isProfileView={isProfileView}
-      />
+      <>
+        {/* Desktop Version */}
+        <div className="hidden md:block">
+          <ProductClient
+            carDataRes={carResponse}
+            isAuthenticated={isAuthenticated}
+            locale={locale}
+            isProfileView={isProfileView}
+          />
+        </div>
+
+        {/* Mobile Version */}
+        <div className="block md:hidden">
+          <MobileProductClient
+            carDataRes={carResponse}
+            isAuthenticated={isAuthenticated}
+            locale={locale}
+            isProfileView={isProfileView}
+          />
+        </div>
+      </>
     );
   } catch (error) {
     console.error('Error in ProductPage:', error);

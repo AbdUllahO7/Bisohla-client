@@ -1,5 +1,9 @@
-import { BACKEND_URL } from '@/constants/constants';
-import { createSession, deleteSession } from '@/lib/session';
+import { BACKEND_URL } from '@/core/lib/web/constants';
+import {
+  createSession,
+  deleteSession,
+  updateTokens,
+} from '@/core/lib/web/session';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
@@ -15,6 +19,7 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({ refresh }),
     });
 
+
     if (!backendRes.ok) {
       // Clear the session cookie in the response
       await deleteSession();
@@ -26,19 +31,12 @@ export async function POST(req: NextRequest) {
     }
 
     const { data } = await backendRes.json();
-    const { accessToken, refreshToken, id, name, roles, permissions } = data;
+    const { accessToken, refreshToken } = data;
+
 
     // Create new session with updated tokens
-    await createSession({
-      user: {
-        id: id,
-        name: name,
-        roles: roles,
-        permissions: permissions,
-      },
-      accessToken,
-      refreshToken,
-    });
+    await updateTokens({ accessToken, refreshToken });
+
 
     // Return new tokens
     // revalidatePath(allRoutes.auth.children.signIn.path, 'layout');

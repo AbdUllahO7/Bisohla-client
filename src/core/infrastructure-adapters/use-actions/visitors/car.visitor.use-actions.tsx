@@ -7,7 +7,9 @@ import {
 } from '@/core/entities/api/success.response';
 
 import {
+  BodyTypeCategoryCount,
   FacetCount,
+  GovernorateCategoryCount,
   SelectCarListingDto,
   SelectCarMakeDto,
   SelectCarModelDto,
@@ -16,12 +18,14 @@ import {
 } from '@/core/entities/models/cars/cars.dto';
 
 import {
+  getBodyTypeCategoryCounts,
   getCarFeatures,
   getCarListingById,
   getCarListings,
   getCarMakes,
   getCarModels,
   getCarTrims,
+  getCityCounts,
   getPublicFilterFacets,
 } from '../../actions/visitors/car.visitor.actions';
 import { useLocaleQuery } from '../common/use-locale-query';
@@ -30,6 +34,22 @@ export const useCarListings = (params: QueryParams) =>
   useLocaleQuery<PaginatedResponse<SelectCarListingDto>>({
     queryKey: ['visitors-car-listings', params],
     queryFn: async () => await getCarListings(params),
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+
+export const useGetBodyTypeCategoryCounts = () =>
+  useLocaleQuery<ApiResponse<BodyTypeCategoryCount[]>>({
+    queryKey: ['body-type-category-counts'],
+    queryFn: async () => await getBodyTypeCategoryCounts(),
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+
+export const useGetCityCounts = () =>
+  useLocaleQuery<ApiResponse<GovernorateCategoryCount[]>>({
+    queryKey: ['governorate-category-counts'],
+    queryFn: async () => await getCityCounts(),
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
   });

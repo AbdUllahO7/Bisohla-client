@@ -8,6 +8,7 @@ import { getTranslations } from 'next-intl/server';
 import type { PropsWithChildren } from 'react';
 import WebMetadataProvider, { generateWebMetadata } from './MetaData';
 import HeaderTwo from '@/components/web/Home/HeaderTow';
+import ChatbotWidget from '@/components/web/Home/ChatbotWidget';
 
 // Generate metadata using the reusable metadata generator
 export async function generateMetadata(): Promise<Metadata> {
@@ -99,18 +100,20 @@ const WebLayout = async ({
               join: t('headerTow.join'),
               BrowseAll: t('headerTow.BrowseAll'),
               Privacypolicy: t('headerTow.Privacypolicy'),
+              ContactUs: t('headerTow.ContactUs'),
             }}
           />
         </div>
 
         {/* Spacer for fixed headers */}
-        <div className="h-[120px] md:h-[100px] flex-shrink-0"></div>
+        <div className="h-[120px] md:h-[98px] flex-shrink-0 bg-background"></div>
 
         {/* Main Content */}
-        <main className="flex-1">{children}</main>
+        <main className="flex-1 bg-background">{children}</main>
 
         {/* Footer */}
         <Footer />
+         <ChatbotWidget />
 
         {/* Toast Notifications */}
         <Toaster />

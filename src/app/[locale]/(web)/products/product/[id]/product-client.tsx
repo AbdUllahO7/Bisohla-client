@@ -21,8 +21,6 @@ interface ProductClientProps {
 const ProductClient = ({
   carDataRes,
   isAuthenticated,
-  locale,
-  isProfileView,
 }: ProductClientProps) => {
   const carData = carDataRes.data;
 
@@ -53,8 +51,8 @@ const ProductClient = ({
   ];
 
   return (
-    <div className="bg-background w-full pb-10">
-      <Box variant="container" className="w-full mb-2 pt-5">
+    <div className="bg-background w-full mb-5 mt-5  hidden md:block">
+      <Box variant="container" className="w-full mb-2">
         {/* Super simple breadcrumb usage! */}
         <SmartBreadcrumb
           items={breadcrumbItems}
@@ -68,6 +66,8 @@ const ProductClient = ({
           <ProductHeader
             productName={carData.title}
             ContactNumber={carData.contactNumber?.toString()}
+            price={carData.price?.toString() || ''}
+            currency={carData.currency}
             isLoading={false}
             productId={carData.id}
             isMarkedFavorite={favoriteStatus}
@@ -108,6 +108,7 @@ const ProductClient = ({
                 modelYear={carData.details?.year?.toString() || ''}
                 gaz={carData.details?.fuelType || ''}
                 price={carData.price?.toString() || ''}
+                currency={carData.currency}
                 adsNumber={carData.id?.toString() || ''}
                 adsDate={carData.publishedAt?.toString() || ''}
               />

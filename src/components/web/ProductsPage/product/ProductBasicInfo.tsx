@@ -6,7 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import type React from 'react';
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import {
   getBodyTypeOptions,
   getFuelTypeOptions,
@@ -122,7 +122,28 @@ const ProductBasicInfo: React.FC<ProductBasicInfoProps> = ({
   if (isLoading) {
     return (
       <Box variant="center" className="w-full">
-        <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-2 sm:gap-3 md:gap-4 w-full">
+        {/* Mobile skeleton */}
+        <div className="md:hidden w-full">
+          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+            {Array.from({ length: 7 }).map((_, index) => (
+              <Card
+                key={`mobile-skeleton-${index}`}
+                className="bg-white border-none rounded-lg p-3 min-w-[140px] flex-shrink-0 shadow-sm"
+              >
+                <CardContent className="flex flex-col h-full p-0 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Skeleton className="h-6 w-6 rounded-md" />
+                    <Skeleton className="h-4 w-16" />
+                  </div>
+                  <Skeleton className="h-4 w-full" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+
+        {/* Desktop skeleton */}
+        <div className="hidden md:grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-2 sm:gap-3 md:gap-4 w-full">
           {Array.from({ length: 7 }).map((_, index) => (
             <Card
               key={`skeleton-${index}`}
@@ -144,7 +165,60 @@ const ProductBasicInfo: React.FC<ProductBasicInfoProps> = ({
 
   return (
     <Box variant="center" className="w-full">
-      <div className="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-4 xl:grid-cols-7 gap-2 sm:gap-3 md:gap-4 w-full">
+      {/* Mobile Layout (< md) - Horizontal Scrollable */}
+      <div className="md:hidden w-full">
+        <div className="flex gap-3 overflow-x-auto pb-2 px-1 scrollbar-hide">
+          {basicInfo.map((info) => (
+            <Card
+              key={info.key}
+              className="bg-white border-none rounded-lg p-3 min-w-[140px] flex-shrink-0 shadow-sm hover:shadow-md transition-shadow duration-300"
+            >
+              <CardContent className="flex flex-col h-full p-0 space-y-2">
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 bg-primary/10 rounded-lg">
+                    <Image
+                      src={info.icon || '/placeholder.svg'}
+                      alt={info.label}
+                      width={20}
+                      height={20}
+                      className="w-5 h-5 text-primary"
+                    />
+                  </div>
+                  <Text
+                    variant="small"
+                    className="text-primary font-cairo font-bold text-xs line-clamp-1 flex-1"
+                  >
+                    {info.label}
+                  </Text>
+                </div>
+                <Text
+                  variant="small"
+                  className="text-gray-700 font-cairo font-medium text-sm line-clamp-2 min-h-[2.5rem] flex items-center"
+                >
+                  {info.value || 'N/A'}
+                </Text>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Mobile: Scroll indicator */}
+        <div className="flex justify-center mt-2">
+          <div className="flex gap-2">
+            {Array.from({ length: Math.ceil(basicInfo.length / 3) }).map(
+              (_, index) => (
+                <div
+                  key={index}
+                  className="w-1.5 h-1.5 rounded-full bg-gray-300"
+                />
+              ),
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop Layout (>= md) - Keep original grid */}
+      <div className="hidden md:grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-4 xl:grid-cols-7 gap-2 sm:gap-3 md:gap-4 w-full">
         {basicInfo.map((info) => (
           <Card
             key={info.key}

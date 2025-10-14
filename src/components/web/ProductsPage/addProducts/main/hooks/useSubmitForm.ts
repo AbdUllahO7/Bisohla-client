@@ -3,8 +3,8 @@
   import { useRouter } from 'next/navigation';
   import { createCarListing, updateCarListing } from '@/core/infrastructure-adapters/actions/users/car.user.actions';
   import { Currency } from '@/core/entities/enums/currency.enum';
-  import { BodyType, DamageType, DamageZone, FuelType, ListingType, RentType, SaveStatus, Transmission } from '@/core/entities/enums/cars.enums';
-  import { StepOneData, StepTwoData, StepThreeData, StepFourData, CreateCarListingDto } from '../types';
+  import { BodyType, DamageType, DamageZone, FuelType, ListingType, RentType, Transmission } from '@/core/entities/enums/cars.enums';
+  import { CreateCarListingDto } from '../types';
   import { transformDamages } from '../../stepThree/utils';
   import { SyriaCity, SyriaGovernorate } from '@/core/entities/enums/syria.enums';
   import { 
@@ -95,14 +95,12 @@
           }
         }
     
-        // Process all images into a string array
         const imageUrls: string[] = [];
-        
-        // Add cover image
+
         if (storedData3.coverImage && Array.isArray(storedData3.coverImage) && storedData3.coverImage.length > 0) {
-          imageUrls.push(storedData3.coverImage[0]);
+          // Add all images
+          imageUrls.push(...storedData3.coverImage);
         }
-        
 
         // Transform car damages from sectionStatus to the backend format
         const damages = transformDamages(storedData3.sectionStatus || {});
@@ -139,7 +137,7 @@
           
           // Images
           images: imageUrls,
-          primaryImageIndex: imageUrls.length > 0 ? 0 : undefined,
+          primaryImageIndex: 0, 
           isTrend : false,
           
           // Car details - FLATTENED structure
@@ -164,15 +162,10 @@
           })),
         };
 
-        console.log("carListingDto",carListingDto)
-        
-        // Call the API - use different methods for create vs update
         let response;
         if (isEditMode) {
-          // Update existing car listing
           response = await updateCarListing(Number(carIdToEdit), carListingDto);
         } else {
-          // Create new car listing
           response = await createCarListing(carListingDto);
         }
         
@@ -194,7 +187,12 @@
           clearFormData(true);
           
           // Redirect to success page or next step
-          router.back();
+          router.push('/');
+          // Small delay to ensure navigation completes before refresh
+          setTimeout(() => {
+            router.refresh();
+          }, 100);
+
           
           return response;
         } else {
@@ -231,7 +229,7 @@
       } finally {
         setIsSubmitting(false);
       }
-    }, [router, toast, locale]); // Add locale to the dependency array
+    }, [router, toast, locale]); 
 
     return {
       isSubmitting,

@@ -1,26 +1,37 @@
 'use client';
 import Box from '@/components/box/box';
-import Text from '@/components/text/text';
 import { ProductCardItem } from '@/components/web/design/ProductCardItem';
+import { ProductCardListView } from '@/components/web/design/ProductCardListView';
 import { useLocale, useTranslations } from 'next-intl';
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { useMyCarListings } from '@/core/infrastructure-adapters/use-actions/users/car.user.use-actions';
 import ProductSkeleton from '@/components/web/design/ProductSkeletonItem';
 import { useSession } from '@/hooks/auth/use-session';
 import type { QueryParams } from '@/core/entities/api/api';
-import Filter from '@/components/web/ProductsPage/Filter';
 import Pagination from '@/components/Pagination';
+import { Card, CardContent } from '@/components/ui/card';
+import { Car, Plus } from 'lucide-react';
+import { Link } from '@/i18n/routing';
+import MyProductsFilter from '@/components/dashboard/Products/MyProductsFilter';
+import { EnhancedProductCardItem } from '@/components/web/design/ProductCardItemEnhanced';
+
+// View mode type
+type ViewMode = 'grid' | 'list';
 
 const UserProductPage = () => {
   const t = useTranslations('homePage');
   const locale = useLocale();
   const direction = locale === 'ar' ? 'rtl' : 'ltr';
   const session = useSession();
+
+  // State management
   const [favoriteStatuses, setFavoriteStatuses] = useState<
     Record<number, boolean>
   >({});
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 8; // Adjust as needed
+  const [viewMode, setViewMode] = useState<ViewMode>('grid');
+  const pageSize = 12; // Increased for better pagination
+
   const [filterParams, setFilterParams] = useState<QueryParams>({
     page: 1,
     pageSize: pageSize,
@@ -36,19 +47,26 @@ const UserProductPage = () => {
     sortBy: filterParams.sortBy || 'createdAt',
     sortDirection: filterParams.sortDirection || 'desc',
     filterGroups: filterParams.filterGroups,
-    searchTerm: filterParams.searchTerm,
+    searchKey: filterParams.searchKey, // Add this
+    searchTerm: filterParams.searchTerm, // Add this
   });
-
-  // Handle filter changes
+  useEffect(() => {
+    console.log("useEffect");
+    refetch();
+  }, []); 
+  // Handle filter changes from the simple filter component
   const handleFilterChange = useCallback((params: QueryParams) => {
-    // Preserve the current page when applying filters
-    setFilterParams((prev) => ({
+    setFilterParams({
       ...params,
-      pageSize: prev.pageSize,
-    }));
-
-    // Reset to first page when filters are applied
+      page: 1, // Reset to first page when filters change
+      pageSize: pageSize,
+    });
     setCurrentPage(1);
+  }, []);
+
+  // Handle view mode change
+  const handleViewModeChange = useCallback((mode: ViewMode) => {
+    setViewMode(mode);
   }, []);
 
   // Handle favorite status updates
@@ -80,9 +98,13 @@ const UserProductPage = () => {
     }));
   }, []);
 
-  // Reset filters effect
+  // Handle refresh
+  const handleRefresh = useCallback(() => {
+    refetch();
+  }, [refetch]);
+
+  // Reset page when filters change
   useEffect(() => {
-    // When the page loads, ensure filter params are synchronized with current page
     setFilterParams((prev) => ({
       ...prev,
       page: currentPage,
@@ -136,116 +158,141 @@ const UserProductPage = () => {
   }, [data, currentPage, carListings.length]);
 
   return (
-    <Box
-      variant="container"
-      className="flex flex-col md:flex-row gap-6"
-      dir={direction}
-    >
-      {/* Filter Section - Shows on Medium screens and above */}
-      <Box className="md:w-1/4 lg:w-1/5 hidden md:block sticky top-24 self-start">
-        <Filter onChange={handleFilterChange} />
-      </Box>
+    <div className="space-y-6" dir={direction}>
+      {/* Simple Filter Component */}
+      <MyProductsFilter
+        onChange={handleFilterChange}
+        onViewModeChange={handleViewModeChange}
+        viewMode={viewMode}
+        totalItems={paginationMeta.totalItems}
+        isLoading={isLoading}
+        onRefresh={handleRefresh}
+      />
 
-      {/* Content Section */}
-      <Box className="md:w-3/4 lg:w-4/5 flex flex-col">
-        {/* Header with filter toggle for mobile */}
-        <Box className="flex justify-between items-center mb-6">
-          <Text
-            variant="large"
-            dir={direction}
-            className="text-2xl text-primary-dark font-bold"
-          >
-            {direction === 'ltr' ? 'My Cars' : ' سياراتي'}
-          </Text>
+      {/* Loading state */}
+      {isLoading && (
+        <ProductSkeleton
+          count={viewMode === 'grid' ? 12 : 6}
+          showTitle={false}
+        />
+      )}
 
-          {/* Mobile Filter Button - Only visible on small screens */}
-          <button className="md:hidden bg-primary text-white p-2 rounded-lg flex items-center">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="h-4 w-4 mr-2"
-            >
-              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
-            </svg>
-            {direction === 'ltr' ? 'Filter' : 'تصفية'}
-          </button>
-        </Box>
-
-        {/* Loading state */}
-        {isLoading && <ProductSkeleton count={10} showTitle={false} />}
-
-        {/* Error state */}
-        {error && (
-          <Box className="w-full py-4" variant="center">
-            <Text className="text-red-500">Failed to load your listings</Text>
-          </Box>
-        )}
-
-        {/* Empty state */}
-        {!isLoading && !error && carListings.length === 0 && (
-          <Box className="w-full py-8 flex-col text-center" variant="center">
-            <Text className="text-gray-600">
-              {locale === 'ar'
-                ? 'لم تقم بإنشاء أي قوائم بعد.'
-                : "You haven't created any listings yet."}
-            </Text>
-            <Box className="mt-4">
-              <a
-                href="/products/AddProducts"
-                className="bg-primary text-white px-4 py-2 rounded-lg"
+      {/* Error state */}
+      {error && (
+        <Card>
+          <CardContent className="p-8 text-center">
+            <div className="flex flex-col items-center">
+              <Car className="h-12 w-12 text-destructive mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-destructive mb-2">
+                {direction === 'ltr'
+                  ? 'Failed to Load Cars'
+                  : 'فشل في تحميل السيارات'}
+              </h3>
+              <p className="text-muted-foreground mb-4">
+                {direction === 'ltr'
+                  ? "We couldn't load your car listings. Please try again."
+                  : 'لم نتمكن من تحميل قوائم سياراتك. يرجى المحاولة مرة أخرى.'}
+              </p>
+              <button
+                onClick={handleRefresh}
+                className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors"
               >
-                {locale === 'ar' ? 'إضافة سيارة جديدة' : 'Add New Car'}
-              </a>
-            </Box>
-          </Box>
-        )}
+                {direction === 'ltr' ? 'Try Again' : 'حاول مرة أخرى'}
+              </button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
-        {/* Display products */}
-        {!isLoading && !error && carListings.length > 0 && (
-          <Box className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 w-full">
-            {carListings.map((card) => {
-              // Get favorite status from local state or fallback to backend data
-              const isFavorite =
-                favoriteStatuses[card.id] !== undefined
-                  ? favoriteStatuses[card.id]
-                  : !!card.isFavorite;
+      {/* Empty state */}
+      {!isLoading && !error && carListings.length === 0 && (
+        <Card>
+          <CardContent className="p-12 text-center">
+            <Car className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-xl font-semibold mb-2">
+              {direction === 'ltr' ? 'No Cars Yet' : 'لا توجد سيارات بعد'}
+            </h3>
+            <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+              {direction === 'ltr'
+                ? "You haven't created any car listings yet. Add your first car to get started!"
+                : 'لم تقم بإنشاء أي قوائم سيارات بعد. أضف سيارتك الأولى للبدء!'}
+            </p>
+            <Link href="/products/AddProducts">
+              <button className="bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2 mx-auto">
+                <Plus className="h-4 w-4" />
+                {direction === 'ltr' ? 'Add New Car' : 'إضافة سيارة جديدة'}
+              </button>
+            </Link>
+          </CardContent>
+        </Card>
+      )}
 
+      {/* Display products */}
+      {!isLoading && !error && carListings.length > 0 && (
+        <div
+          className={
+            viewMode === 'grid'
+              ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4'
+              : 'space-y-4'
+          }
+        >
+          {carListings.map((car) => {
+            // Get favorite status from local state or fallback to backend data
+            const isFavorite =
+              favoriteStatuses[car.id] !== undefined
+                ? favoriteStatuses[car.id]
+                : !!car.isFavorite;
+
+            if (viewMode === 'list') {
+              // Use the new ProductCardListView for list mode
               return (
-                <React.Fragment key={card.id}>
-                  <ProductCardItem
-                    title={card.title}
-                    marka={card.make?.name || ''}
-                    price={card.price || 0}
-                    type={card.listingType}
-                    imageSrc={
-                      card.images?.find(
-                        (img: { isPrimary: any }) => img.isPrimary,
-                      )?.url ||
-                      card.images?.[0]?.url ||
-                      '/placeholder-car.jpg'
-                    }
-                    ProductId={card.id}
-                    priceWord={t('latestOffers.price')}
-                    isFavorites={false}
-                    isMarkedFavorite={isFavorite}
-                    onFavoriteToggle={handleFavoriteToggle}
-                    isAuthenticated={true}
-                    onDelete={handleDelete}
-                    profile = {true}
-                  />
-                </React.Fragment>
+                <ProductCardListView
+                  key={car.id}
+                  carListing={car}
+                  isMarkedFavorite={isFavorite}
+                  onFavoriteToggle={handleFavoriteToggle}
+                  showFavorites={false} // Don't show favorites in user's own listings
+                  profile={true}
+                  onDelete={handleDelete}
+                  isAuthenticated={true}
+                  isMine={true}
+                />
               );
-            })}
-          </Box>
-        )}
+            }
 
-        {/* Pagination component */}
-        {!isLoading && !error && carListings.length > 0 && (
+            // Grid view - use existing ProductCardItem
+            return (
+              <EnhancedProductCardItem
+                key={car.id}
+                title={car.title}
+                marka={car.make?.name || ''}
+                price={car.price || 0}
+                type={car.listingType}
+                imageSrc={
+                  car.images?.find((img: { isPrimary: any }) => img.isPrimary)
+                    ?.url ||
+                  car.images?.[0]?.url ||
+                  '/placeholder-car.jpg'
+                }
+                ProductId={car.id}
+                priceWord={t('latestOffers.price')}
+                isFavorites={false}
+                isMarkedFavorite={isFavorite}
+                onFavoriteToggle={handleFavoriteToggle}
+                isAuthenticated={true}
+                onDelete={handleDelete}
+                profile={true}
+              />
+            );
+          })}
+        </div>
+      )}
+
+      {/* Pagination component */}
+      {!isLoading &&
+        !error &&
+        carListings.length > 0 &&
+        paginationMeta.totalPages > 1 && (
           <Pagination
             currentPage={paginationMeta.currentPage}
             totalPages={paginationMeta.totalPages}
@@ -258,8 +305,7 @@ const UserProductPage = () => {
             className="mt-8"
           />
         )}
-      </Box>
-    </Box>
+    </div>
   );
 };
 

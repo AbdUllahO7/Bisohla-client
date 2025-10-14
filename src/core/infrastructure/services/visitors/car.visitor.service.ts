@@ -50,7 +50,7 @@ export class CarVisitorService implements ICarVisitorService {
     return res;
   }
   async findCarMakes(
-    queryParams: QueryParams,
+    queryParams: QueryParams & { selectedCarMakes?: number[] },
   ): Promise<PaginatedResponse<SelectCarMakeDto>> {
     // const locale = await getLocale();
     const res = await postReq<QueryParams, SelectCarMakeDto>({

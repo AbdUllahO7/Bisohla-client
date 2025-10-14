@@ -15,7 +15,7 @@ export const updateUserLocale = async (
   try {
     const res = await putAuthReq({
       url: '/locale/update/' + userId,
-      body: { locale },
+      body: { locale: locale },
     });
 
     return res;

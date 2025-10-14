@@ -52,17 +52,23 @@ const SmartBreadcrumb: React.FC<SmartBreadcrumbProps> = ({
       ]
     : items;
 
-  // Custom separator component
+  // Custom separator component - now returns the actual separator content without wrapper
   const CustomSeparator = () => {
     if (separator === 'chevron') {
       return (
-        <ChevronRight
-          className={`h-4 w-4 text-gray-400 ${isRTL ? 'rotate-180' : ''}`}
-        />
+        <BreadcrumbSeparator>
+          <ChevronRight
+            className={`h-4 w-4 text-gray-400 ${isRTL ? 'rotate-180' : ''}`}
+          />
+        </BreadcrumbSeparator>
       );
     }
     if (separator === 'slash') {
-      return <span className="text-gray-400 mx-2">/</span>;
+      return (
+        <BreadcrumbSeparator>
+          <span className="text-gray-400 mx-2">/</span>
+        </BreadcrumbSeparator>
+      );
     }
     return <BreadcrumbSeparator />;
   };
@@ -130,11 +136,8 @@ const SmartBreadcrumb: React.FC<SmartBreadcrumbProps> = ({
                   )}
                 </BreadcrumbItem>
 
-                {!isLast && (
-                  <li className="flex items-center">
-                    <CustomSeparator />
-                  </li>
-                )}
+                {/* Fixed: Removed the wrapping <li> element */}
+                {!isLast && <CustomSeparator />}
               </React.Fragment>
             );
           })}

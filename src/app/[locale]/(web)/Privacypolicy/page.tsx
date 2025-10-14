@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { ChevronRight, Shield, Eye, Users, Lock, Bell, FileText, HelpCircle } from 'lucide-react'
+import { ChevronRight, Shield, Eye, Users, Lock, Bell, FileText, HelpCircle, Sparkles, ArrowRight } from 'lucide-react'
 import { useLocale } from "next-intl"
 import Image from "next/image"
 
@@ -130,7 +130,7 @@ const translations = {
         title: "Contact Us",
         intro: "If you have any questions, concerns, or requests regarding this Privacy Policy or our privacy practices, please contact us at:",
         company: "Bishola",
-        
+        email: "Email: bishola4h@gmail.com",
         phone: "Phone: 009053489370863",
         address: "Address: Turkiye Istanbul",
       },
@@ -260,9 +260,8 @@ const translations = {
         title: "اتصل بنا",
         intro: "إذا كانت لديك أي أسئلة أو مخاوف أو طلبات بخصوص سياسة الخصوصية هذه أو ممارسات الخصوصية لدينا، فيرجى الاتصال بنا على:",
         company: "بسهولة",
-        email: "البريد الإلكتروني: privacy@yourcompany.com",
-        phone: "الهاتف: 7890-456 (123)",
-        address: "العنوان: 123 شارع رئيسي، المدينة، الولاية، الرمز البريدي",
+        email: "البريد الإلكتروني: bishola4h@gmail.com",
+        phone: "الهاتف: 009053489370863",
       },
       backToHome: "العودة إلى الصفحة الرئيسية",
     },
@@ -275,181 +274,365 @@ export default function PrivacyPolicyPage() {
   const t = translations[isArabic ? "ar" : "en"]
 
   return (
-    <div className={` w-full bg-[#f8f9fa] ${isArabic ? "rtl" : "ltr"}`} dir={isArabic ? "rtl" : "ltr"}>
-      {/* Hero section */}
-      <div className="bg-[#2C3C39] text-white">
-        <div className="flex flex-wrap items-center justify-between max-w-6xl mx-auto py-16 px-4 md:px-6">
-          <div className="max-w-3xl">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">{t.hero.title}</h1>
-            <p className="text-[#ABDE3B] text-xl">{t.hero.subtitle}</p>
-            <p className="mt-4 text-gray-200">{t.hero.lastUpdated}</p>
-          </div>
-          <div>
+    <div className={`w-full ${isArabic ? "rtl" : "ltr"}`} dir={isArabic ? "rtl" : "ltr"}>
+      {/* Animated Background */}
+      <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 w-96 h-96 rounded-full opacity-5 animate-pulse" 
+             style={{ backgroundColor: '#ABDE3B' }}></div>
+        <div className="absolute bottom-20 right-10 w-[500px] h-[500px] rounded-full opacity-5 animate-pulse" 
+             style={{ backgroundColor: '#198341', animationDelay: '1s' }}></div>
+        <div className="absolute top-1/2 left-1/3 w-80 h-80 rounded-full opacity-5 animate-pulse" 
+             style={{ backgroundColor: '#ABDE3B', animationDelay: '2s' }}></div>
+      </div>
+
+      {/* Hero Section */}
+      <div className="relative overflow-hidden" 
+           style={{ background: 'linear-gradient(135deg, #2C3C39 0%, #198341 100%)' }}>
+        {/* Decorative Elements */}
+        <div className="absolute top-0 right-0 w-96 h-96 rounded-full opacity-10" 
+             style={{ backgroundColor: '#ABDE3B', transform: 'translate(30%, -30%)' }}></div>
+        <div className="absolute bottom-0 left-0 w-80 h-80 rounded-full opacity-10" 
+             style={{ backgroundColor: '#ABDE3B', transform: 'translate(-30%, 30%)' }}></div>
+
+        <div className="relative max-w-7xl mx-auto py-20 px-4 md:px-6">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div className="text-white space-y-6 animate-fadeIn">
+              {/* Badge */}
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-sm"
+                   style={{ backgroundColor: 'rgba(171, 222, 59, 0.2)' }}>
+                <Sparkles className="w-4 h-4" style={{ color: '#ABDE3B' }} />
+                <span className="text-sm font-medium" style={{ color: '#ABDE3B' }}>Your Privacy Matters</span>
+              </div>
+
+              <h1 className="text-5xl md:text-6xl font-bold leading-tight">
+                {t.hero.title}
+              </h1>
+              <p className="text-xl text-white/90">
+                {t.hero.subtitle}
+              </p>
+              <div className="flex items-center gap-3 text-sm">
+                <div className="h-1 w-12 rounded-full" style={{ backgroundColor: '#ABDE3B' }}></div>
+                <span className="text-white/80">{t.hero.lastUpdated}</span>
+              </div>
+            </div>
+
+            <div className="relative animate-fadeIn" style={{ animationDelay: '0.2s' }}>
+              <div className="absolute inset-0 rounded-3xl opacity-20 blur-3xl"
+                   style={{ backgroundColor: '#ABDE3B' }}></div>
               <Image
-                        src="/assets/images/3-car.png"
-                        alt="logo"
-                        width={420}
-                        height={420}
-                        className="transition-all duration-700 hover:scale-105"
-                      />
+                src="/assets/images/3-car.png"
+                alt="logo"
+                width={500}
+                height={500}
+                className="relative transition-all duration-700 hover:scale-105 drop-shadow-2xl"
+              />
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Content */}
-      <div className="container max-w-4xl mx-auto py-12 px-4 md:px-6">
-        <div className="bg-white rounded-xl shadow-sm p-6 md:p-8 mb-8">
-          <div className="flex items-center space-x-3 mb-6 text-[#198341]">
-            <Shield size={24} />
-            <h2 className="text-2xl font-bold">{t.sections.introduction.title}</h2>
+      {/* Main Content */}
+      <div className="relative bg-gradient-to-b from-gray-50 to-white py-20">
+        <div className="container max-w-6xl mx-auto px-4 md:px-6 space-y-8">
+          
+          {/* Introduction */}
+          <div className="group animate-fadeIn" style={{ animationDelay: '0.1s' }}>
+            <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                 style={{ background: 'linear-gradient(135deg, #ABDE3B 0%, #198341 100%)', filter: 'blur(40px)' }}></div>
+            <div className="relative bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100 hover:shadow-2xl transition-all duration-500">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="p-4 rounded-2xl" style={{ background: 'linear-gradient(135deg, #198341 0%, #2C3C39 100%)' }}>
+                  <Shield size={32} className="text-white" />
+                </div>
+                <h2 className="text-3xl md:text-4xl font-bold" style={{ color: '#2C3C39' }}>
+                  {t.sections.introduction.title}
+                </h2>
+              </div>
+              <div className="space-y-4 text-gray-700 text-lg leading-relaxed">
+                {t.sections.introduction.content.map((paragraph, index) => (
+                  <p key={index}>{paragraph}</p>
+                ))}
+              </div>
+            </div>
           </div>
-          <div className="pl-9 space-y-4 text-gray-700">
-            {t.sections.introduction.content.map((paragraph, index) => (
-              <p key={index}>{paragraph}</p>
-            ))}
-          </div>
-        </div>
 
-        <div className="bg-white rounded-xl shadow-sm p-6 md:p-8 mb-8">
-          <div className="flex items-center space-x-3 mb-6 text-[#198341]">
-            <Eye size={24} />
-            <h2 className="text-2xl font-bold">{t.sections.informationCollect.title}</h2>
-          </div>
-          <div className="pl-9 space-y-4 text-gray-700">
-            <p>{t.sections.informationCollect.intro}</p>
-            <ul className="space-y-3">
-              {t.sections.informationCollect.items.map((item, index) => (
-                <li key={index} className="border-l-4 border-[#ABDE3B] pl-4 py-1">
-                  <span className="font-medium text-[#2C3C39]">{item.title}:</span> {item.description}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-sm p-6 md:p-8 mb-8">
-          <div className="flex items-center space-x-3 mb-6 text-[#198341]">
-            <FileText size={24} />
-            <h2 className="text-2xl font-bold">{t.sections.informationUse.title}</h2>
-          </div>
-          <div className="pl-9 space-y-4 text-gray-700">
-            <p>{t.sections.informationUse.intro}</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
-              {t.sections.informationUse.items.map((item, index) => (
-                <div key={index} className="flex items-start space-x-2">
-                  <div className="mt-1 text-[#ABDE3B]">
-                    <ChevronRight size={16} />
+          {/* Information We Collect */}
+          <div className="group animate-fadeIn" style={{ animationDelay: '0.2s' }}>
+            <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                 style={{ background: 'linear-gradient(135deg, #ABDE3B 0%, #198341 100%)', filter: 'blur(40px)' }}></div>
+            <div className="relative bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100 hover:shadow-2xl transition-all duration-500">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="p-4 rounded-2xl" style={{ background: 'linear-gradient(135deg, #198341 0%, #2C3C39 100%)' }}>
+                  <Eye size={32} className="text-white" />
+                </div>
+                <h2 className="text-3xl md:text-4xl font-bold" style={{ color: '#2C3C39' }}>
+                  {t.sections.informationCollect.title}
+                </h2>
+              </div>
+              <p className="text-gray-700 text-lg mb-6">{t.sections.informationCollect.intro}</p>
+              <div className="grid gap-4">
+                {t.sections.informationCollect.items.map((item, index) => (
+                  <div key={index} 
+                       className="group/item relative bg-gradient-to-br from-gray-50 to-white p-6 rounded-2xl border-2 border-transparent hover:border-opacity-50 transition-all duration-300 hover:shadow-lg"
+                       style={{ borderColor: '#ABDE3B' }}>
+                    <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-12 rounded-r-full transition-all duration-300 group-hover/item:h-16"
+                         style={{ backgroundColor: '#ABDE3B' }}></div>
+                    <h3 className="font-bold text-lg mb-2 ml-6" style={{ color: '#198341' }}>
+                      {item.title}
+                    </h3>
+                    <p className="text-gray-700 ml-6">{item.description}</p>
                   </div>
-                  <p>{item}</p>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* How We Use Your Information */}
+          <div className="group animate-fadeIn" style={{ animationDelay: '0.3s' }}>
+            <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                 style={{ background: 'linear-gradient(135deg, #ABDE3B 0%, #198341 100%)', filter: 'blur(40px)' }}></div>
+            <div className="relative bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100 hover:shadow-2xl transition-all duration-500">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="p-4 rounded-2xl" style={{ background: 'linear-gradient(135deg, #198341 0%, #2C3C39 100%)' }}>
+                  <FileText size={32} className="text-white" />
                 </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-sm p-6 md:p-8 mb-8">
-          <div className="flex items-center space-x-3 mb-6 text-[#198341]">
-            <Users size={24} />
-            <h2 className="text-2xl font-bold">{t.sections.informationSharing.title}</h2>
-          </div>
-          <div className="pl-9 space-y-4 text-gray-700">
-            <p>{t.sections.informationSharing.intro}</p>
-            <div className="grid gap-4 mt-4">
-              {t.sections.informationSharing.items.map((item, index) => (
-                <div key={index} className="bg-gray-50 p-4 rounded-lg">
-                  <h3 className="font-semibold text-[#2C3C39] mb-1">{item.title}</h3>
-                  <p>{item.description}</p>
-                </div>
-              ))}
-            </div>
-            <p className="mt-4">{t.sections.informationSharing.footer}</p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <div className="bg-white rounded-xl shadow-sm p-6 md:p-8">
-            <div className="flex items-center space-x-3 mb-6 text-[#198341]">
-              <Bell size={24} />
-              <h2 className="text-2xl font-bold">{t.sections.cookies.title}</h2>
-            </div>
-            <div className="space-y-4 text-gray-700">
-              {t.sections.cookies.content.map((paragraph, index) => (
-                <p key={index}>{paragraph}</p>
-              ))}
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-sm p-6 md:p-8">
-            <div className="flex items-center space-x-3 mb-6 text-[#198341]">
-              <Lock size={24} />
-              <h2 className="text-2xl font-bold">{t.sections.dataSecurity.title}</h2>
-            </div>
-            <div className="space-y-4 text-gray-700">
-              {t.sections.dataSecurity.content.map((paragraph, index) => (
-                <p key={index}>{paragraph}</p>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-sm p-6 md:p-8 mb-8">
-          <div className="flex items-center space-x-3 mb-6 text-[#198341]">
-            <HelpCircle size={24} />
-            <h2 className="text-2xl font-bold">{t.sections.rights.title}</h2>
-          </div>
-          <div className="pl-9 space-y-4 text-gray-700">
-            <p>{t.sections.rights.intro}</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
-              {t.sections.rights.items.map((item, index) => (
-                <div key={index} className="flex items-center space-x-2 bg-[#f8f9fa] p-3 rounded-lg">
-                  <div className="text-[#ABDE3B]">
-                    <ChevronRight size={16} />
+                <h2 className="text-3xl md:text-4xl font-bold" style={{ color: '#2C3C39' }}>
+                  {t.sections.informationUse.title}
+                </h2>
+              </div>
+              <p className="text-gray-700 text-lg mb-6">{t.sections.informationUse.intro}</p>
+              <div className="grid md:grid-cols-2 gap-4">
+                {t.sections.informationUse.items.map((item, index) => (
+                  <div key={index} 
+                       className="flex items-start gap-3 p-4 rounded-xl bg-gradient-to-br from-gray-50 to-white hover:shadow-md transition-all duration-300 group/item">
+                    <div className="flex-shrink-0 mt-1">
+                      <ChevronRight size={20} className="transition-transform duration-300 group-hover/item:translate-x-1" 
+                                    style={{ color: '#ABDE3B' }} />
+                    </div>
+                    <p className="text-gray-700">{item}</p>
                   </div>
-                  <p className="text-sm">{item}</p>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Information Sharing */}
+          <div className="group animate-fadeIn" style={{ animationDelay: '0.4s' }}>
+            <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                 style={{ background: 'linear-gradient(135deg, #ABDE3B 0%, #198341 100%)', filter: 'blur(40px)' }}></div>
+            <div className="relative bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100 hover:shadow-2xl transition-all duration-500">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="p-4 rounded-2xl" style={{ background: 'linear-gradient(135deg, #198341 0%, #2C3C39 100%)' }}>
+                  <Users size={32} className="text-white" />
                 </div>
-              ))}
-            </div>
-            <p className="mt-4">{t.sections.rights.footer}</p>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-sm p-6 md:p-8 mb-8">
-          <h2 className="text-2xl font-bold text-[#198341] mb-6">{t.sections.additional.title}</h2>
-
-          <div className="space-y-6">
-            <div className="border-l-4 border-[#ABDE3B] pl-4 py-2">
-              <h3 className="font-semibold text-[#2C3C39] mb-2">{t.sections.additional.children.title}</h3>
-              <p className="text-gray-700">{t.sections.additional.children.content}</p>
-            </div>
-
-            <div className="border-l-4 border-[#ABDE3B] pl-4 py-2">
-              <h3 className="font-semibold text-[#2C3C39] mb-2">{t.sections.additional.changes.title}</h3>
-              <p className="text-gray-700">{t.sections.additional.changes.content}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-[#2C3C39] text-white rounded-xl shadow-sm p-6 md:p-8 mb-8">
-          <h2 className="text-2xl font-bold mb-6 text-[#ABDE3B]">{t.sections.contact.title}</h2>
-          <p className="mb-4">{t.sections.contact.intro}</p>
-          <div className="bg-[#1a2422] p-5 rounded-lg">
-            <p className="font-medium text-[#ABDE3B]">{t.sections.contact.company}</p>
-            <div className="mt-3 space-y-2 text-gray-200">
-              <p>{t.sections.contact.phone}</p>
-              <p>{t.sections.contact.address}</p>
+                <h2 className="text-3xl md:text-4xl font-bold" style={{ color: '#2C3C39' }}>
+                  {t.sections.informationSharing.title}
+                </h2>
+              </div>
+              <p className="text-gray-700 text-lg mb-6">{t.sections.informationSharing.intro}</p>
+              <div className="grid md:grid-cols-2 gap-6 mb-6">
+                {t.sections.informationSharing.items.map((item, index) => (
+                  <div key={index} 
+                       className="relative group/card bg-gradient-to-br from-gray-50 to-white p-6 rounded-2xl hover:shadow-xl transition-all duration-300 border-2 border-transparent hover:border-opacity-30"
+                       style={{ borderColor: '#198341' }}>
+                    <div className="absolute top-0 right-0 w-20 h-20 rounded-full opacity-5 group-hover/card:opacity-10 transition-opacity"
+                         style={{ backgroundColor: '#ABDE3B', transform: 'translate(30%, -30%)' }}></div>
+                    <h3 className="font-bold text-xl mb-3" style={{ color: '#198341' }}>
+                      {item.title}
+                    </h3>
+                    <p className="text-gray-700">{item.description}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="p-6 rounded-2xl border-2 border-dashed" style={{ borderColor: '#ABDE3B', backgroundColor: 'rgba(171, 222, 59, 0.05)' }}>
+                <p className="text-gray-700 text-center font-medium">{t.sections.informationSharing.footer}</p>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="flex justify-center">
-          <Link
-            href="/"
-            className="inline-flex items-center px-6 py-3 rounded-full bg-[#198341] text-white hover:bg-[#146a34] transition-colors"
-          >
-            {t.sections.backToHome}
-          </Link>
+          {/* Cookies & Data Security - Side by Side */}
+          <div className="grid md:grid-cols-2 gap-8">
+            <div className="group animate-fadeIn" style={{ animationDelay: '0.5s' }}>
+              <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                   style={{ background: 'linear-gradient(135deg, #ABDE3B 0%, #198341 100%)', filter: 'blur(40px)' }}></div>
+              <div className="relative h-full bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 border border-gray-100 hover:shadow-2xl transition-all duration-500">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="p-3 rounded-xl" style={{ background: 'linear-gradient(135deg, #198341 0%, #2C3C39 100%)' }}>
+                    <Bell size={24} className="text-white" />
+                  </div>
+                  <h2 className="text-2xl font-bold" style={{ color: '#2C3C39' }}>
+                    {t.sections.cookies.title}
+                  </h2>
+                </div>
+                <div className="space-y-4 text-gray-700">
+                  {t.sections.cookies.content.map((paragraph, index) => (
+                    <p key={index}>{paragraph}</p>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="group animate-fadeIn" style={{ animationDelay: '0.6s' }}>
+              <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                   style={{ background: 'linear-gradient(135deg, #ABDE3B 0%, #198341 100%)', filter: 'blur(40px)' }}></div>
+              <div className="relative h-full bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 border border-gray-100 hover:shadow-2xl transition-all duration-500">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="p-3 rounded-xl" style={{ background: 'linear-gradient(135deg, #198341 0%, #2C3C39 100%)' }}>
+                    <Lock size={24} className="text-white" />
+                  </div>
+                  <h2 className="text-2xl font-bold" style={{ color: '#2C3C39' }}>
+                    {t.sections.dataSecurity.title}
+                  </h2>
+                </div>
+                <div className="space-y-4 text-gray-700">
+                  {t.sections.dataSecurity.content.map((paragraph, index) => (
+                    <p key={index}>{paragraph}</p>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Your Rights */}
+          <div className="group animate-fadeIn" style={{ animationDelay: '0.7s' }}>
+            <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                 style={{ background: 'linear-gradient(135deg, #ABDE3B 0%, #198341 100%)', filter: 'blur(40px)' }}></div>
+            <div className="relative bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100 hover:shadow-2xl transition-all duration-500">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="p-4 rounded-2xl" style={{ background: 'linear-gradient(135deg, #198341 0%, #2C3C39 100%)' }}>
+                  <HelpCircle size={32} className="text-white" />
+                </div>
+                <h2 className="text-3xl md:text-4xl font-bold" style={{ color: '#2C3C39' }}>
+                  {t.sections.rights.title}
+                </h2>
+              </div>
+              <p className="text-gray-700 text-lg mb-6">{t.sections.rights.intro}</p>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                {t.sections.rights.items.map((item, index) => (
+                  <div key={index} 
+                       className="group/right flex items-center gap-3 p-4 rounded-xl bg-gradient-to-br from-gray-50 to-white hover:shadow-lg transition-all duration-300 border border-transparent hover:border-opacity-50"
+                       style={{ borderColor: '#ABDE3B' }}>
+                    <div className="flex-shrink-0">
+                      <ChevronRight size={18} className="transition-transform duration-300 group-hover/right:translate-x-1" 
+                                    style={{ color: '#ABDE3B' }} />
+                    </div>
+                    <p className="text-sm text-gray-700">{item}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="p-6 rounded-2xl" style={{ backgroundColor: 'rgba(25, 131, 65, 0.05)', border: '2px solid rgba(25, 131, 65, 0.1)' }}>
+                <p className="text-gray-700">{t.sections.rights.footer}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Additional Information */}
+          <div className="group animate-fadeIn" style={{ animationDelay: '0.8s' }}>
+            <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                 style={{ background: 'linear-gradient(135deg, #ABDE3B 0%, #198341 100%)', filter: 'blur(40px)' }}></div>
+            <div className="relative bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100 hover:shadow-2xl transition-all duration-500">
+              <h2 className="text-3xl md:text-4xl font-bold mb-8" style={{ color: '#2C3C39' }}>
+                {t.sections.additional.title}
+              </h2>
+              <div className="space-y-6">
+                <div className="p-6 rounded-2xl bg-gradient-to-r from-gray-50 to-white border-l-4 hover:shadow-lg transition-all duration-300"
+                     style={{ borderColor: '#ABDE3B' }}>
+                  <h3 className="font-bold text-xl mb-3" style={{ color: '#198341' }}>
+                    {t.sections.additional.children.title}
+                  </h3>
+                  <p className="text-gray-700">{t.sections.additional.children.content}</p>
+                </div>
+
+                <div className="p-6 rounded-2xl bg-gradient-to-r from-gray-50 to-white border-l-4 hover:shadow-lg transition-all duration-300"
+                     style={{ borderColor: '#ABDE3B' }}>
+                  <h3 className="font-bold text-xl mb-3" style={{ color: '#198341' }}>
+                    {t.sections.additional.changes.title}
+                  </h3>
+                  <p className="text-gray-700">{t.sections.additional.changes.content}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Contact Section */}
+          <div className="group animate-fadeIn" style={{ animationDelay: '0.9s' }}>
+            <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                 style={{ background: 'linear-gradient(135deg, #ABDE3B 0%, #198341 100%)', filter: 'blur(40px)' }}></div>
+            <div className="relative overflow-hidden rounded-3xl shadow-2xl">
+              <div className="absolute inset-0"
+                   style={{ background: 'linear-gradient(135deg, #2C3C39 0%, #198341 100%)' }}></div>
+              <div className="absolute top-0 right-0 w-96 h-96 rounded-full opacity-10"
+                   style={{ backgroundColor: '#ABDE3B', transform: 'translate(30%, -30%)' }}></div>
+              
+              <div className="relative p-8 md:p-12 text-white">
+                <h2 className="text-3xl md:text-4xl font-bold mb-6" style={{ color: '#ABDE3B' }}>
+                  {t.sections.contact.title}
+                </h2>
+                <p className="text-white/90 text-lg mb-8">{t.sections.contact.intro}</p>
+                <div className="bg-white/10 backdrop-blur-lg p-8 rounded-2xl border border-white/20">
+                  <p className="font-bold text-2xl mb-6" style={{ color: '#ABDE3B' }}>
+                    {t.sections.contact.company}
+                  </p>
+                  <div className="space-y-3 text-white/90">
+                    <p className="flex items-center gap-3">
+                      <span className="font-medium">{t.sections.contact.email}</span>
+                    </p>
+                    <p className="flex items-center gap-3">
+                      <span className="font-medium">{t.sections.contact.phone}</span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Back to Home Button */}
+          <div className="flex justify-center pt-8 animate-fadeIn" style={{ animationDelay: '1s' }}>
+            <Link
+              href="/"
+              className="group inline-flex items-center gap-3 px-8 py-4 rounded-full font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
+              style={{ background: 'linear-gradient(135deg, #198341 0%, #2C3C39 100%)' }}
+            >
+              <span>{t.sections.backToHome}</span>
+              <ArrowRight size={20} className="transform group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
         </div>
       </div>
+
+      {/* Animations */}
+      <style jsx>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .animate-fadeIn {
+          animation: fadeIn 0.8s ease-out forwards;
+          opacity: 0;
+        }
+
+        @keyframes pulse {
+          0%, 100% {
+            transform: scale(1);
+            opacity: 0.05;
+          }
+          50% {
+            transform: scale(1.05);
+            opacity: 0.1;
+          }
+        }
+
+        .animate-pulse {
+          animation: pulse 6s ease-in-out infinite;
+        }
+      `}</style>
     </div>
   )
 }

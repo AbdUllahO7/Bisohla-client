@@ -30,7 +30,6 @@ async function validateSession(): Promise<boolean> {
 }
 
 async function middleware(req: NextRequest) {
-
   // Apply intl middleware first to handle localization
   const response = await intlMiddleware(req);
 
@@ -95,14 +94,17 @@ async function middleware(req: NextRequest) {
     }
 
     // User routes
-    if (routeType === 'user') {
+    if (routeType === 'userProfile') {
       try {
         const userRoleName = getUserRole()?.name || 'user';
         const isUser = await checkRole(userRoleName);
 
         if (!isUser) {
           return NextResponse.redirect(
-            new URL(`${allRoutes.home.path}`, req.nextUrl.origin),
+            new URL(
+              `${allRoutes.auth.children.signIn.path}`,
+              req.nextUrl.origin,
+            ),
           );
         }
 

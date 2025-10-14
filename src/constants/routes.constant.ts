@@ -39,7 +39,7 @@ export const allRoutes = {
     // path: '/user',
     children: {
       homePage: {
-        path: '/',
+        path: '/userProfile',
         pageName: 'home Page',
       },
     },

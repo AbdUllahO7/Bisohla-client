@@ -6,13 +6,17 @@ import {
   PaginatedResponse,
 } from '@/core/entities/api/success.response';
 import {
+  BodyTypeCategoryCount,
   FacetCount,
+  GovernorateCategoryCount,
   SelectCarListingDto,
   SelectCarMakeDto,
   SelectCarModelDto,
   SelectCarTrimDto,
   SelectFeatureDto,
 } from '@/core/entities/models/cars/cars.dto';
+import { getReq } from '@/core/lib/api';
+import { catchClientRequest } from '@/core/lib/error';
 
 import { getInjection } from '@/di/container';
 
@@ -26,8 +30,36 @@ export const getCarListings = async (
   return res;
 };
 
+export const getBodyTypeCategoryCounts = async (): Promise<
+  ApiResponse<BodyTypeCategoryCount[]>
+> => {
+  try {
+    const res = await getReq({
+      url: '/car-listings-visitor/body-type-category-counts',
+    });
+
+    return res as ApiResponse<BodyTypeCategoryCount[]>;
+  } catch (error) {
+    return catchClientRequest(error);
+  }
+};
+
+export const getCityCounts = async (): Promise<
+  ApiResponse<GovernorateCategoryCount[]>
+> => {
+  try {
+    const res = await getReq({
+      url: '/car-listings-visitor/governorate-category-counts',
+    });
+
+    return res as ApiResponse<GovernorateCategoryCount[]>;
+  } catch (error) {
+    return catchClientRequest(error);
+  }
+};
+
 export const getCarMakes = async (
-  params: QueryParams,
+  params: QueryParams & { selectedCarMakes?: number[] },
 ): Promise<PaginatedResponse<SelectCarMakeDto>> => {
   const carListingController = getInjection('ICarVisitorController');
 

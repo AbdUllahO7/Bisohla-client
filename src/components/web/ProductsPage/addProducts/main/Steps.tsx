@@ -1,9 +1,7 @@
 'use client'
-import Box from '@/components/box/box';
 import React, { useState, useEffect } from 'react';
-import { Tabs, TabsList } from "@/components/ui/tabs";
+import { Tabs } from "@/components/ui/tabs";
 import { useLocale } from 'next-intl';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 // Import components
 import { getRequiredFieldsMessage, getErrorDialogTexts } from './utils';

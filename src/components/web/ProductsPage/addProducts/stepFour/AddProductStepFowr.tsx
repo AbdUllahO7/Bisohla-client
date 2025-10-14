@@ -29,12 +29,16 @@ import {
 } from "./validationUtils"
 import {
   autoSaveAdInfoData,
+  combinePhoneNumber,
   defaultAdInfoData,
   loadAdInfoData,
+  parsePhoneNumber,
   saveAdInfoData
 } from "./storageUtils"
 import Text from "@/components/text/text"
 import { Currency, getCurrencyOptions } from "@/core/entities/enums/currency.enum"
+import { CountryCode, getCountryCodeOptions } from "@/core/entities/enums/country-codes.enum"
+import { SearchableCountrySelect } from "@/components/searchable-country-select"
 
 // Simplified EnumSelect component without internal state tracking
 interface EnumSelectProps {
@@ -99,7 +103,7 @@ const EnumSelect = ({
             >
               {options.map((option) => (
                 <SelectItem
-                  className="focus:bg-primary-light hover:text-white transition-all duration-200 font-cairo font-[700]"
+                  className="focus:bg-primary-light focus:text-white transition-all duration-200 font-cairo font-[700]"
                   key={option.value}
                   value={option.value}
                 >
@@ -132,8 +136,10 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
   const [rentTypeValue, setRentTypeValue] = useState<RentType | null>(null);
   const [saveStatusValue, setSaveStatusValue] = useState<SaveStatus | "">("");
   const [currencyValue, setCurrencyValue] = useState<Currency | "">("");
+  const [countryCodeValue, setCountryCodeValue] = useState<CountryCode>(CountryCode.SY);
 
   const t = useTranslations("addProduct.enteredData");
+  const countryCodeOptions = getCountryCodeOptions();
 
   const listingTypeOptions = getListingTypeOptions(t);
   const rentTypeOptions = getRentTypeOptions(t);
@@ -147,6 +153,10 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
     mode: "onChange",
   });
 
+  const handleCountryCodeChange = (value: string) => {
+    const countryCode = value as CountryCode;
+    setCountryCodeValue(countryCode);
+  };
   // Helper function to map API enums to form enums
   const mapApiEnumToFormEnum = (apiValue: string, enumType: any): any => {
     if (!apiValue) return Object.values(enumType)[0];
@@ -211,7 +221,15 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
   // Apply edit data once
   const applyEditData = (editData: AdInformationFormData) => {
     if (editModeDataApplied.current) return;
-    
+     let phoneOnly = editData.contactNumber || "";
+    let extractedCountryCode = countryCodeValue;
+
+     if (editData.contactNumber) {
+        const { countryCode, phoneNumber } = parsePhoneNumber(editData.contactNumber);
+        extractedCountryCode = countryCode as CountryCode;
+        phoneOnly = phoneNumber;
+      }
+
     const mappedListingType = typeof editData.listingType === 'string' 
       ? mapApiEnumToFormEnum(editData.listingType, ListingType)
       : editData.listingType;
@@ -234,9 +252,11 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
     if (mappedRentType) {
       setRentTypeValue(mappedRentType);
     }
-    
+      setCountryCodeValue(extractedCountryCode);
+
     const processedData = {
       ...editData,
+         contactNumber: phoneOnly,
       listingType: mappedListingType,
       saveStatus: mappedSaveStatus,
       rentType: mappedRentType,
@@ -285,14 +305,22 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
 
     if (!isEditMode && !editModeDataApplied.current) {
       const savedData = loadAdInfoData();
-      
+      let phoneOnly = savedData.contactNumber || "";
+      let extractedCountryCode = savedData.countryCode || CountryCode.SY;
+
       if (savedData.listingType) {
         setListingTypeValue(savedData.listingType);
         if (savedData.listingType === ListingType.FOR_RENT) {
           setShowRentType(true);
         }
       }
-      
+        if (savedData.contactNumber) {
+        const { countryCode, phoneNumber } = parsePhoneNumber(savedData.contactNumber);
+        extractedCountryCode = countryCode as CountryCode;
+        phoneOnly = phoneNumber;
+      }
+        setCountryCodeValue(extractedCountryCode);
+
       if (savedData.saveStatus) {
         setSaveStatusValue(savedData.saveStatus);
       }
@@ -353,16 +381,21 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
       
       timeout = setTimeout(() => {
         if (!formValues) return;
-        
-        const currentData = {
-          ...(formValues as Partial<AdInformationFormData>),
-          listingType: formValues.listingType || listingTypeValue || ListingType.FOR_SALE,
-          saveStatus: formValues.saveStatus || saveStatusValue || SaveStatus.PUBLISHED,
-          currency: formValues.currency || currencyValue || Currency.USD,
-          rentType: formValues.listingType === ListingType.FOR_RENT || listingTypeValue === ListingType.FOR_RENT
-            ? (formValues.rentType || rentTypeValue)
-            : null
-        };
+        const phoneOnly = formValues.contactNumber || "";
+      const fullContactNumber = countryCodeValue && phoneOnly
+        ? combinePhoneNumber(countryCodeValue, phoneOnly)
+        : phoneOnly;
+       const currentData = {
+        ...(formValues as Partial<AdInformationFormData>),
+        contactNumber: fullContactNumber, 
+        listingType: formValues.listingType || listingTypeValue || ListingType.FOR_SALE,
+        saveStatus: formValues.saveStatus || saveStatusValue || SaveStatus.PUBLISHED,
+        currency: formValues.currency || currencyValue || Currency.USD,
+        countryCode: countryCodeValue, // Keep for UI
+        rentType: formValues.listingType === ListingType.FOR_RENT || listingTypeValue === ListingType.FOR_RENT
+          ? (formValues.rentType || rentTypeValue)
+          : null
+      };
         
         if (currentData.title && currentData.description) {
           const prevData = previousFormData.current || undefined;
@@ -506,28 +539,46 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
               <div className="space-y-4 sm:space-y-6 w-full">
                 
                 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                  <FormField
-                    control={form.control}
-                    name="contactNumber"
-                    render={({ field }) => (
-                      <FormItem className="text-primary">
-                        <FormLabel className="text-primary font-medium">
-                          {t("stepFour.contactNumber")}
-                          <span className="text-red-500 ml-1">*</span>
-                        </FormLabel>
-                        <FormControl>
-                          <Input 
-                            placeholder={t("stepFour.contactNumber")} 
-                            className="h-11" 
-                            {...field} 
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {/* Country Code + Contact Number */}
+    <div className="sm:col-span-2 lg:col-span-1">
+  <FormLabel className="text-primary font-medium mb-2 block">
+    {t("stepFour.contactNumber")}
+    <span className="text-red-500 ml-1">*</span>
+  </FormLabel>
+  <div className="flex gap-2">
+    {/* Searchable Country Code Selector */}
+    <div className="w-32">
+      <SearchableCountrySelect
+        value={countryCodeValue}
+        onChange={handleCountryCodeChange}
+        options={countryCodeOptions}
+        placeholder="+963"
+      />
+    </div>
+    
+    {/* Phone Number Input */}
+    <FormField
+      control={form.control}
+      name="contactNumber"
+      render={({ field }) => (
+        <FormItem className="flex-1">
+          <FormControl>
+            <Input 
+              placeholder="5551234567" 
+              className="h-11" 
+              {...field}
+              type="tel"
+            />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  </div>
+</div>
+
+                  {/* Price field */}
                   <FormField
                     control={form.control}
                     name="price"
@@ -550,6 +601,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                     )}
                   />
 
+                  {/* Currency field */}
                   <EnumSelect
                     name="currency"
                     control={form.control}

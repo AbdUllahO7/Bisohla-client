@@ -1,7 +1,7 @@
 // hooks/useStepManagement.ts
 import { useState, useCallback, useEffect } from 'react';
 import { useSubmitForm } from '../hooks/useSubmitForm';
-import { getStorageKey, STORAGE_KEYS } from './useLocalStorage';
+import { getStorageKey } from './useLocalStorage';
 
 interface StepValidation {
   productType: boolean;
@@ -221,7 +221,7 @@ export const useStepManagement = (isEditMode = false) => {
   return {
     steps,
     currentStep,
-    setCurrentStep: goToStep, // Export direct navigation function
+    setCurrentStep: goToStep, 
     isSubmitting,
     showErrorDialog,
     errorMessage,
@@ -232,7 +232,7 @@ export const useStepManagement = (isEditMode = false) => {
     updateStepValidation,
     handleTryAgain,
     setShowErrorDialog,
-    isStepAccessible, // Export accessibility checker
-    getStepProgress, // Export progress information
+    isStepAccessible, 
+    getStepProgress, 
   };
 };

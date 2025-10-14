@@ -12,13 +12,12 @@ export type DrizzleOperator =
 
 export type LogicalOperator = 'and' | 'or';
 
-  
- export  interface FilterState {
-    make?: string;
-    price?: string;
-    fuelType?: string;
-    [key: string]: string | undefined;
-  }
+export interface FilterState {
+  make?: string;
+  price?: string;
+  fuelType?: string;
+  [key: string]: string | undefined;
+}
 
 export interface QueryParams {
   page?: number;
@@ -27,19 +26,16 @@ export interface QueryParams {
   sortDirection?: 'asc' | 'desc';
   searchKey?: string;
   searchTerm?: unknown | unknown[];
-  id?: number | number[]; // Modified to support arrays
-  userId?: number | null
-  locale?: string; // Add this line
-  where?: Filter[]; // New field for explicit where conditions
+  id?: number | number[]; 
+  userId?: number | null;
+  locale?: string; 
+  where?: Filter[]; 
   filterGroups?: FilterGroup[];
 }
 
-
-
-
 export interface SortOption {
   sortBy: string;
-  sortDirection: "asc" | "desc";
+  sortDirection: 'asc' | 'desc';
 }
 
 export interface PriceRange {
@@ -53,7 +49,6 @@ export interface FilterOption {
   value: string;
 }
 
-
 // Define interfaces for component usage
 export interface CarImage {
   isPrimary: boolean;
@@ -64,22 +59,13 @@ export interface CarMake {
   name: string;
 }
 
-
-
-// 
-
+//
 
 // Define proper TypeScript interfaces
 export interface FilterOption {
   id: string;
   label: string;
   value: string;
-}
-
-export interface Filter {
-  field: string;
-  operator: string;
-  value: string | number; // Allow both string and number values
 }
 
 export interface FilterGroup {
@@ -89,7 +75,7 @@ export interface FilterGroup {
 
 export interface SortOption {
   sortBy: string;
-  sortDirection: "asc" | "desc";
+  sortDirection: 'asc' | 'desc';
 }
 
 export interface CarImage {
@@ -123,13 +109,9 @@ export interface PaginationInfo {
   totalItems: number;
 }
 
-
 // types/car-listings.ts
 
-
-
 // Filter state for component use
-
 
 // Query parameters for the API
 export interface QueryParams {
@@ -148,7 +130,7 @@ export interface QueryParams {
 export interface Filter {
   field: string;
   operator: string;
-  value: string | number;
+  value: string | number | string[] | number[];
 }
 
 export interface FilterGroup {
@@ -165,7 +147,7 @@ export interface FilterOption {
 
 export interface SortOption {
   sortBy: string;
-  sortDirection: "asc" | "desc";
+  sortDirection: 'asc' | 'desc';
 }
 
 export interface PriceRange {

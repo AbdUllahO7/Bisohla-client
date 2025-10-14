@@ -2,18 +2,66 @@ import { ListingType, RentType, SaveStatus } from "@/core/entities/enums/cars.en
 import { AdInformationFormData } from "./schema";
 import { EDIT_STORAGE_KEYS, STORAGE_KEYS } from "../main/hooks/useLocalStorage";
 import { Currency } from "@/core/entities/enums/currency.enum";
+import { CountryCode } from "@/core/entities/enums/country-codes.enum";
+
+// Extended interface for localStorage (includes frontend-only fields)
+export interface AdInformationStorageData extends AdInformationFormData {
+    countryCode?: CountryCode; // Frontend-only: for UI selector
+}
 
 // Default values for the form
-export const defaultAdInfoData: AdInformationFormData = {
+export const defaultAdInfoData: AdInformationStorageData = {
     title: "",
     price: "",
     description: "",
-    contactNumber: "",
+    contactNumber: "", // Will store full phone with country code
     listingType: ListingType.FOR_SALE,
     rentType: null,
     publicationDate: new Date(),
     saveStatus: SaveStatus.PUBLISHED,
-    currency: Currency.USD // Default currency
+    currency: Currency.USD,
+    countryCode: CountryCode.SY, // Default to Syria (frontend-only)
+};
+
+/**
+ * Combines country code and phone number into full format for contactNumber
+ * @param countryCode - The country calling code (e.g., "+963")
+ * @param phoneNumber - The phone number without country code
+ * @returns Full phone number (e.g., "+963 5389370863")
+ */
+export const combinePhoneNumber = (countryCode: string, phoneNumber: string): string => {
+    if (!phoneNumber) return "";
+    // Remove any existing + or spaces from phone number
+    const cleanPhone = phoneNumber.replace(/[\s+-]/g, "");
+    return `${countryCode} ${cleanPhone}`;
+};
+
+/**
+ * Parses contactNumber into country code and phone number for UI
+ * @param contactNumber - Complete phone with country code (e.g., "+963 5389370863")
+ * @returns Object with countryCode and phoneNumber (without country code)
+ */
+export const parsePhoneNumber = (contactNumber: string): { countryCode: string; phoneNumber: string } => {
+    if (!contactNumber) {
+        return { countryCode: CountryCode.SY, phoneNumber: "" };
+    }
+    
+    // Try to extract country code (e.g., "+963" or "+1")
+    const match = contactNumber.match(/^(\+\d{1,4})\s*(.*)$/);
+    
+    if (match) {
+        const [, code, number] = match;
+        return {
+            countryCode: code as CountryCode,
+            phoneNumber: number.trim()
+        };
+    }
+    
+    // If no match, return the whole thing as phone number with default country code
+    return {
+        countryCode: CountryCode.SY,
+        phoneNumber: contactNumber.replace(/[\s+-]/g, "")
+    };
 };
 
 /**
@@ -33,10 +81,8 @@ export const getAdInfoStorageKey = (): string => {
 
 /**
  * Ensure enum values are preserved during serialization/deserialization
- * @param data The data to process
- * @returns Data with correct enum types
  */
-export const ensureEnumValues = (data: any): AdInformationFormData => {
+export const ensureEnumValues = (data: any): AdInformationStorageData => {
     const result = { ...data };
     
     // Handle listingType
@@ -83,14 +129,23 @@ export const ensureEnumValues = (data: any): AdInformationFormData => {
             }
         }
     }
+
+    // Handle countryCode (frontend-only)
+    if (data.countryCode && typeof data.countryCode === 'string') {
+        if (Object.values(CountryCode).includes(data.countryCode as CountryCode)) {
+            result.countryCode = data.countryCode as CountryCode;
+        } else {
+            result.countryCode = CountryCode.SY; // Default to Syria
+        }
+    }
     
-    return result as AdInformationFormData;
+    return result as AdInformationStorageData;
 };
 
 /**
  * Loads saved ad information data from localStorage with edit mode awareness
  */
-export const loadAdInfoData = (): AdInformationFormData => {
+export const loadAdInfoData = (): AdInformationStorageData => {
     try {
         if (typeof window === "undefined") {
             return defaultAdInfoData;
@@ -107,17 +162,22 @@ export const loadAdInfoData = (): AdInformationFormData => {
                 parsedData.publicationDate = new Date(parsedData.publicationDate);
             }
 
-            // Set default saveStatus if not present in saved data
+            // Set defaults if not present
             if (!parsedData.saveStatus) {
                 parsedData.saveStatus = SaveStatus.PUBLISHED;
             }
-
-            // Set default currency if not present in saved data
             if (!parsedData.currency) {
                 parsedData.currency = Currency.USD;
             }
 
-            // Ensure enum values are properly set
+            // Parse contactNumber to extract countryCode if not present
+            if (parsedData.contactNumber && !parsedData.countryCode) {
+                const { countryCode } = parsePhoneNumber(parsedData.contactNumber);
+                parsedData.countryCode = countryCode;
+            } else if (!parsedData.countryCode) {
+                parsedData.countryCode = CountryCode.SY;
+            }
+
             return ensureEnumValues(parsedData);
         }
 
@@ -130,8 +190,9 @@ export const loadAdInfoData = (): AdInformationFormData => {
 
 /**
  * Saves ad information data to localStorage with edit mode awareness
+ * contactNumber will contain the full phone number with country code
  */
-export const saveAdInfoData = (data: AdInformationFormData): void => {
+export const saveAdInfoData = (data: AdInformationStorageData): void => {
     try {
         if (typeof window !== "undefined") {
             const storageKey = getAdInfoStorageKey();
@@ -144,15 +205,11 @@ export const saveAdInfoData = (data: AdInformationFormData): void => {
 
 /**
  * Automatically saves form data as it changes with edit mode awareness
- * Preserves enum values during partial updates
- * @param data Current form data
- * @param previousData Previous form data for comparison (optional)
  */
 export const autoSaveAdInfoData = (
-    data: Partial<AdInformationFormData>, 
-    previousData?: Partial<AdInformationFormData>
+    data: Partial<AdInformationStorageData>, 
+    previousData?: Partial<AdInformationStorageData>
 ): void => {
-    // Don't save if the data hasn't changed
     if (previousData && 
         JSON.stringify(data) === JSON.stringify(previousData)) {
         return;
@@ -160,17 +217,15 @@ export const autoSaveAdInfoData = (
     
     try {
         if (typeof window !== "undefined") {
-            // Get existing data first so we don't overwrite fields not in the partial data
             const existingData = loadAdInfoData();
             
-            // Important: preserve enum values explicitly
             const updatedData = {
                 ...existingData,
                 ...data,
-                // Always preserve these enum values if they exist in original data
                 listingType: data.listingType || existingData.listingType,
                 saveStatus: data.saveStatus || existingData.saveStatus,
                 currency: data.currency || existingData.currency,
+                countryCode: data.countryCode || existingData.countryCode,
                 rentType: data.rentType !== undefined ? data.rentType : existingData.rentType
             };
             
@@ -194,6 +249,9 @@ export const useAdInfoData = () => {
         saveData: saveAdInfoData,
         autoSaveData: autoSaveAdInfoData,
         isEditMode: isCurrentEditMode,
-        storageKey
+        storageKey,
+        // Helper functions
+        combinePhoneNumber,
+        parsePhoneNumber
     };
 };

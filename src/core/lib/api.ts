@@ -9,6 +9,7 @@ import { Filter, FilterGroup, QueryParams } from '../entities/api/api';
 import { getLocale } from 'next-intl/server';
 import { BACKEND_URL } from './web/constants';
 import { getSession } from './web/session';
+import { handleRefreshToken } from '@/services/auth/auth.service';
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 
@@ -245,7 +246,7 @@ export async function makeRequest<
         ...(!(validatedBody instanceof FormData) && {
           'Content-Type': 'application/json',
           'Accept-Language': locale,
-          'x-app-source':'web-app'
+          'x-app-source': 'web-app',
         }),
         ...headers,
       },
@@ -389,37 +390,88 @@ const withAuth = async <T, R>(
   };
 };
 
+const makeAuthRequest = async <T, R>(
+  config: Omit<RequestConfig<T, R>, 'method'>,
+  method: HttpMethod,
+): Promise<BaseApiResponse> => {
+  // First attempt with current token
+  const authConfig = await withAuth<T, R>(config, method);
+  const response = await makeRequest(authConfig);
+
+  // Check if the response indicates unauthorized access
+  if (
+    !response.success &&
+    (response.status === 401 ||
+      response.status === 403 ||
+      (response.status === 500 && response.message === 'Unauthorized'))
+  ) {
+
+    try {
+      // Get current session to access refresh token
+      const session = await getSession();
+
+      if (!session?.refreshToken) {
+        console.warn('No refresh token available, redirecting to sign-in');
+        return response; // Return the original unauthorized response
+      }
+
+
+      // Attempt to refresh the token
+      const newAccessToken = await handleRefreshToken(session.refreshToken);
+
+
+      // Retry the original request with the new token
+      const retryConfig = {
+        ...config,
+        method,
+        headers: {
+          ...config.headers,
+          Authorization: `Bearer ${newAccessToken}`,
+        },
+      };
+
+      return await makeRequest(retryConfig);
+    } catch (refreshError) {
+      console.warn('Token refresh failed:', refreshError);
+      return response;
+    }
+  }
+
+  // If it's not an auth error, return the response as-is
+  return response;
+};
+
 export const postAuthReq = async <
   T = Record<string, FormDataEntryValue | null> | FormData,
   R = Record<string, unknown>,
 >(
   config: Omit<RequestConfig<T, R>, 'method'>,
-) => makeRequest(await withAuth<T, R>(config, 'POST'));
+) => makeAuthRequest<T, R>(config, 'POST');
 
 export const getAuthReq = async <
   T extends Record<string, unknown>,
   R = Record<string, unknown>,
 >(
   config: Omit<RequestConfig<T, R>, 'method' | 'body'>,
-) => makeRequest(await withAuth<T, R>(config, 'GET'));
+) => makeAuthRequest<T, R>(config, 'GET');
 
 export const putAuthReq = async <
   T = Record<string, FormDataEntryValue | null> | FormData,
   R = Record<string, unknown>,
 >(
   config: Omit<RequestConfig<T, R>, 'method'>,
-) => makeRequest(await withAuth<T, R>(config, 'PUT'));
+) => makeAuthRequest<T, R>(config, 'PUT');
 
 export const patchAuthReq = async <
   T = Record<string, FormDataEntryValue | null> | FormData,
   R = Record<string, unknown>,
 >(
   config: Omit<RequestConfig<T, R>, 'method'>,
-) => makeRequest(await withAuth<T, R>(config, 'PATCH'));
+) => makeAuthRequest<T, R>(config, 'PATCH');
 
 export const deleteAuthReq = async <
   T extends Record<string, unknown>,
   R = Record<string, unknown>,
 >(
   config: Omit<RequestConfig<T, R>, 'method'>,
-) => makeRequest(await withAuth<T, R>(config, 'DELETE'));
+) => makeAuthRequest<T, R>(config, 'DELETE');

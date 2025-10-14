@@ -32,8 +32,8 @@ const AddressField: React.FC<AddressFieldProps> = ({
                     placeholder={placeholder}
                     value={value}
                     onChange={onChange}
-                    cols={30}
-                    rows={13}
+                     cols={50}
+                    rows={16}
                     dir={direction}
                 />
             </Box>
