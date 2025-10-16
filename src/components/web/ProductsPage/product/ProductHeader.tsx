@@ -222,72 +222,100 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
         <Box variant="column" className="w-full gap-4 items-center">
           {/* Mobile: Title (if needed) */}
           {productName && (
-            <Text variant="h4" className="font-bold text-center w-full" as="h1">
+            <Text variant="h4" className="font-bold text-center w-full text-[#2C3C39]" as="h1">
               {productName}
             </Text>
           )}
 
-          {/* Price - Prominent */}
-          <Box variant="center" className="w-full">
-            <Text
-              variant="h3"
-              className="font-bold text-primary-light text-center"
-            >
-              {price} {currency}
-            </Text>
+          {/* Price - Enhanced with gradient background */}
+          <Box variant="center" className="w-full relative">
+            {/* Glow effect behind price */}
+            <div className="absolute inset-0 bg-[#ABDE3B]/20 blur-2xl rounded-full"></div>
+            
+            <div className="relative bg-gradient-to-r from-[#198341]/10 via-[#ABDE3B]/10 to-[#198341]/10 px-6 py-3 rounded-lg border-2 border-[#198341]/30">
+              <Text
+                variant="h3"
+                className="font-bold text-[#198341] text-center"
+              >
+                {price} {currency}
+              </Text>
+              {/* Pulsing indicator */}
+              <div className="absolute -top-1 -right-1 w-3 h-3 bg-[#ABDE3B] rounded-full animate-pulse"></div>
+            </div>
           </Box>
 
-          {/* Mobile: Favorite button - top right positioned */}
+          {/* Mobile: Favorite button - enhanced */}
           <div className="absolute -top-4 -right-4 z-10">
-            <button
-              className={`p-3 rounded-full backdrop-blur-sm transition-all duration-200 group border ${
-                !isAuthenticated
-                  ? 'bg-white/90 border-gray-200 hover:bg-white hover:shadow-lg'
-                  : isMarkedFavorite
-                  ? 'bg-red-50 border-red-200 hover:bg-red-100'
-                  : 'bg-white/90 border-gray-200 hover:bg-white hover:shadow-lg'
-              }`}
-              onClick={handleFavoriteClick}
-              disabled={isProcessing}
-              aria-label={
-                !isAuthenticated
-                  ? 'Sign in to add favorites'
-                  : isMarkedFavorite
-                  ? 'Remove from favorites'
-                  : 'Add to favorites'
-              }
-            >
-              <Heart
-                className={`h-6 w-6 transition-colors duration-200 ${
-                  isProcessing
-                    ? 'animate-pulse text-gray-400'
+            <div className="relative group">
+              {/* Glow effect on hover */}
+              <div className="absolute inset-0 bg-gradient-to-r from-[#198341] to-[#ABDE3B] blur-lg opacity-0 group-hover:opacity-40 transition-opacity duration-300 rounded-full"></div>
+              
+              <button
+                className={`relative p-3 rounded-full backdrop-blur-sm transition-all duration-300 border-2 shadow-lg ${
+                  !isAuthenticated
+                    ? 'bg-white/90 border-gray-200 hover:bg-white hover:shadow-xl hover:border-[#198341]'
                     : isMarkedFavorite
-                    ? 'text-red-500 fill-red-500'
-                    : 'text-gray-600 group-hover:text-red-500'
+                    ? 'bg-red-50 border-red-200 hover:bg-red-100 hover:shadow-xl'
+                    : 'bg-white/90 border-gray-200 hover:bg-white hover:shadow-xl hover:border-[#198341]'
                 }`}
-              />
-            </button>
+                onClick={handleFavoriteClick}
+                disabled={isProcessing}
+                aria-label={
+                  !isAuthenticated
+                    ? 'Sign in to add favorites'
+                    : isMarkedFavorite
+                    ? 'Remove from favorites'
+                    : 'Add to favorites'
+                }
+              >
+                <Heart
+                  className={`h-6 w-6 transition-all duration-300 ${
+                    isProcessing
+                      ? 'animate-pulse text-gray-400'
+                      : isMarkedFavorite
+                      ? 'text-red-500 fill-red-500 scale-110'
+                      : 'text-gray-600 group-hover:text-red-500 group-hover:scale-110'
+                  }`}
+                />
+              </button>
+            </div>
           </div>
 
-          {/* Mobile: Action buttons - full width */}
+          {/* Mobile: Action buttons - enhanced */}
           <Box className="w-full flex gap-3 px-4" variant="row">
-            <Link
-              href={`tel:${ContactNumber}`}
-              className="flex-1 flex items-center justify-center font-bold gap-2 text-base px-4 py-3 border-2 border-primary text-primary rounded-lg hover:bg-primary hover:text-white transition-all duration-300 min-h-[48px]"
-            >
-              <PhoneCall className="h-5 w-5" />
-              <span>{t('call')}</span>
-            </Link>
+            <div className="flex-1 relative group">
+              {/* Glow effect */}
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-[#198341] to-[#ABDE3B] rounded-lg opacity-0 group-hover:opacity-30 blur transition-opacity duration-300"></div>
+              
+              <Link
+                href={`tel:${ContactNumber}`}
+                className="relative flex items-center justify-center font-bold gap-2 text-base px-4 py-3 border-2 border-[#198341] text-[#198341] rounded-lg hover:bg-[#198341] hover:text-white transition-all duration-300 min-h-[48px] overflow-hidden group"
+              >
+                {/* Animated shine effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                
+                <PhoneCall className="h-5 w-5 relative z-10" />
+                <span className="relative z-10">{t('call')}</span>
+              </Link>
+            </div>
 
-            <Link
-              href={generateWhatsAppLink()}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-300 min-h-[48px] font-bold text-base"
-            >
-              <MessageCircle className="h-5 w-5" />
-              <span>{t('whatsapp')}</span>
-            </Link>
+            <div className="flex-1 relative group">
+              {/* Glow effect */}
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-green-500 to-green-600 rounded-lg opacity-0 group-hover:opacity-50 blur transition-opacity duration-300"></div>
+              
+              <Link
+                href={generateWhatsAppLink()}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="relative flex items-center justify-center gap-2 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-300 min-h-[48px] font-bold text-base overflow-hidden group"
+              >
+                {/* Animated shine effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                
+                <MessageCircle className="h-5 w-5 relative z-10" />
+                <span className="relative z-10">{t('whatsapp')}</span>
+              </Link>
+            </div>
           </Box>
         </Box>
       </div>
@@ -303,7 +331,7 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
         >
           <Text
             variant="h5"
-            className="font-bold md:text-start xs:text-center min-w-[300px] w-full"
+            className="font-bold md:text-start xs:text-center min-w-[300px] w-full text-[#2C3C39]"
             as="h1"
           >
             {productName}
@@ -314,53 +342,77 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
           className="justify-center sm:justify-end items-center flex-wrap gap-2 w-full sm:flex-nowrap"
           variant="row"
         >
-          <button
-            className={`p-2 sm:p-1.5 rounded-md transition-all duration-200 group ${
-              !isAuthenticated
-                ? 'bg-background hover:bg-white hover:shadow-md'
-                : isMarkedFavorite
-                ? 'bg-red-50 hover:bg-red-100'
-                : 'bg-background hover:bg-white hover:shadow-md'
-            }`}
-            onClick={handleFavoriteClick}
-            disabled={isProcessing}
-            aria-label={
-              !isAuthenticated
-                ? 'Sign in to add favorites'
-                : isMarkedFavorite
-                ? 'Remove from favorites'
-                : 'Add to favorites'
-            }
-          >
-            <Heart
-              className={`h-5 w-5 sm:h-6 sm:w-6 transition-colors duration-200 ${
-                isProcessing
-                  ? 'animate-pulse text-gray-400'
+          {/* Desktop Favorite Button - Enhanced */}
+          <div className="relative group">
+            {/* Glow effect */}
+            <div className="absolute inset-0 bg-gradient-to-r from-[#198341] to-[#ABDE3B] blur-md opacity-0 group-hover:opacity-30 transition-opacity duration-300 rounded-md"></div>
+            
+            <button
+              className={`relative p-2 sm:p-1.5 rounded-md transition-all duration-300 border-2 ${
+                !isAuthenticated
+                  ? 'bg-background hover:bg-white hover:shadow-md border-transparent hover:border-[#198341]'
                   : isMarkedFavorite
-                  ? 'text-red-500 fill-red-500'
-                  : 'text-gray-600 group-hover:text-red-500'
+                  ? 'bg-red-50 hover:bg-red-100 border-red-200'
+                  : 'bg-background hover:bg-white hover:shadow-md border-transparent hover:border-[#198341]'
               }`}
-            />
-          </button>
+              onClick={handleFavoriteClick}
+              disabled={isProcessing}
+              aria-label={
+                !isAuthenticated
+                  ? 'Sign in to add favorites'
+                  : isMarkedFavorite
+                  ? 'Remove from favorites'
+                  : 'Add to favorites'
+              }
+            >
+              <Heart
+                className={`h-5 w-5 sm:h-6 sm:w-6 transition-all duration-300 ${
+                  isProcessing
+                    ? 'animate-pulse text-gray-400'
+                    : isMarkedFavorite
+                    ? 'text-red-500 fill-red-500 scale-110'
+                    : 'text-gray-600 group-hover:text-red-500 group-hover:scale-110'
+                }`}
+              />
+            </button>
+          </div>
 
-          <Link
-            href={`tel:${ContactNumber}`}
-            className="flex items-center justify-center font-bold gap-1 text-sm px-3 py-2 sm:px-4 sm:py-1.5 border border-primary rounded-md hover:bg-primary hover:text-white transition-all duration-300 min-w-[80px] sm:min-w-0"
-          >
-            <PhoneCall className="h-4 w-4 sm:h-4 sm:w-4 fill-primary" />
-            <span className="hidden sm:inline">{ContactNumber}</span>
-            <span className="sm:hidden">Call</span>
-          </Link>
+          {/* Desktop Call Button - Enhanced */}
+          <div className="relative group">
+            {/* Glow effect */}
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-[#198341] to-[#ABDE3B] rounded-md opacity-0 group-hover:opacity-30 blur transition-opacity duration-300"></div>
+            
+            <Link
+              href={`tel:${ContactNumber}`}
+              className="relative flex items-center justify-center font-bold gap-1 text-sm px-3 py-2 sm:px-4 sm:py-1.5 border-2 border-[#198341] text-[#198341] rounded-md hover:bg-[#198341] hover:text-white transition-all duration-300 min-w-[80px] sm:min-w-0 overflow-hidden"
+            >
+              {/* Animated shine effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+              
+              <PhoneCall className="h-4 w-4 sm:h-4 sm:w-4 relative z-10" />
+              <span className="hidden sm:inline relative z-10">{ContactNumber}</span>
+              <span className="sm:hidden relative z-10">Call</span>
+            </Link>
+          </div>
 
-          <Link
-            href={generateWhatsAppLink()}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-center gap-1 px-3 py-2 sm:px-4 sm:py-1.5 bg-primary-foreground text-primary hover:text-primary-foreground rounded-md hover:bg-primary transition-all duration-300 min-w-[120px] sm:min-w-0"
-          >
-            <MessageCircle className="h-4 w-4 sm:h-4 sm:w-4" />
-            <span className="font-bold text-sm">{t('header.whatsApp')}</span>
-          </Link>
+          {/* Desktop WhatsApp Button - Enhanced */}
+          <div className="relative group">
+            {/* Glow effect */}
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-[#198341] to-[#ABDE3B] rounded-md opacity-0 group-hover:opacity-50 blur transition-opacity duration-300"></div>
+            
+            <Link
+              href={generateWhatsAppLink()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="relative flex items-center justify-center gap-1 px-3 py-2 sm:px-4 sm:py-1.5 bg-gradient-to-r from-[#198341] to-[#198341] text-white hover:from-[#2C3C39] hover:to-[#198341] rounded-md transition-all duration-300 min-w-[120px] sm:min-w-0 overflow-hidden"
+            >
+              {/* Animated shine effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+              
+              <MessageCircle className="h-4 w-4 sm:h-4 sm:w-4 relative z-10" />
+              <span className="font-bold text-sm relative z-10">{t('header.whatsApp')}</span>
+            </Link>
+          </div>
         </Box>
       </Box>
     </>

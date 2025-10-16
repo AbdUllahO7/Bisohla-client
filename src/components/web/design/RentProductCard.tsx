@@ -221,22 +221,22 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
 
         <Link href={`/products/product/${ProductId}`} className="block">
           <CardHeader className="p-0">
-         <CardTitle className="w-full relative h-48 overflow-hidden">
-            <Image
-              src={imageSrc}
-              alt={title}
-              fill
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              className="object-cover"
-              priority={false}
-            />
+            <CardTitle className="w-full relative h-48 overflow-hidden">
+              <Image
+                src={imageSrc}
+                alt={title}
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                className="object-cover"
+                priority={false}
+              />
               {/* Hover overlay with view icon */}
               <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
                 <div className="bg-white/90 backdrop-blur-sm rounded-full p-3 transform scale-75 group-hover:scale-100 transition-transform duration-300">
                   <Eye className="h-6 w-6 text-emerald-600" />
                 </div>
               </div>
-              </CardTitle>
+            </CardTitle>
             <CardDescription className="p-[8px]">
               <Text
                 variant="h4"
@@ -275,7 +275,12 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
             <ArrowRight className="h-5 w-5 text-emerald-600" />
           </div>
         </CardFooter>
+        
         <div className="h-1 bg-gradient-to-r from-emerald-500 to-teal-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
+        
+        {/* Side accent indicators - ONLY NEW ADDITION */}
+        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-0 group-hover:h-20 bg-gradient-to-b from-[#198341] to-[#ABDE3B] transition-all duration-500 rounded-r-full"></div>
+        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-0 group-hover:h-20 bg-gradient-to-b from-[#ABDE3B] to-[#198341] transition-all duration-500 rounded-l-full"></div>
       </Card>
     </div>
   );

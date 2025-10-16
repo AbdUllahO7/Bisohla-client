@@ -4,19 +4,14 @@ import React, { JSX, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import {
   Car,
-  Tag,
   Phone,
   DollarSign,
   Info,
-  Layers,
   Settings,
   Bookmark,
   MessageSquare,
   MapPin,
-  Calendar,
-  BarChart,
   Key,
-  Palette,
   Hash,
   ChevronDown,
   ChevronUp,
@@ -236,19 +231,38 @@ const CarDetailsContent: React.FC<CarDetailsContentProps> = ({
 
   // Enhanced function to render regular fields
   const renderRegularField = (detail: any, index: number) => (
-    <div key={index} className="group p-4 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-primary-light transition-all duration-300 space-y-3">
-      <div className="flex items-center gap-3">
-        <div className="flex-shrink-0 w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center text-primary group-hover:bg-blue-100 group-hover:text-primary-light transition-all duration-200">
-          {detail.icon}
+    <div key={index} className="group relative">
+      {/* Outer glow effect */}
+      <div className="absolute -inset-0.5 bg-gradient-to-r from-[#198341] to-[#ABDE3B] rounded-xl opacity-0 group-hover:opacity-20 blur transition-opacity duration-300"></div>
+      
+      <div className="relative p-4 bg-white rounded-xl border-2 border-slate-200 shadow-sm hover:shadow-lg hover:border-[#198341] transition-all duration-300 space-y-3 overflow-hidden">
+        {/* Top accent line */}
+        <div className="absolute top-0 left-0 w-0 group-hover:w-full h-0.5 bg-gradient-to-r from-[#198341] to-[#ABDE3B] transition-all duration-300"></div>
+        
+        {/* Side accent indicator */}
+        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-0 group-hover:h-16 bg-gradient-to-b from-[#198341] to-[#ABDE3B] transition-all duration-300 rounded-r-full"></div>
+        
+        {/* Background gradient on hover */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#198341]/5 to-[#ABDE3B]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        
+        <div className="flex items-center gap-3 relative z-10">
+          <div className="relative group/icon">
+            {/* Icon glow */}
+            <div className="absolute inset-0 bg-[#198341] blur-md opacity-0 group-hover:opacity-30 transition-opacity duration-300 rounded-lg"></div>
+            
+            <div className="relative flex-shrink-0 w-8 h-8 bg-gradient-to-br from-[#198341]/10 to-[#ABDE3B]/10 rounded-lg flex items-center justify-center text-[#198341] group-hover:from-[#198341]/20 group-hover:to-[#ABDE3B]/20 group-hover/icon:scale-110 transition-all duration-300">
+              {detail.icon}
+            </div>
+          </div>
+          <label className="text-sm font-semibold text-[#2C3C39] uppercase tracking-wide group-hover:text-[#198341] transition-colors duration-300">
+            {detail.label}
+          </label>
         </div>
-        <label className="text-sm font-semibold text-gray-600 uppercase tracking-wide group-hover:text-gray-700 transition-colors duration-200">
-          {detail.label}
-        </label>
-      </div>
-      <div className="pl-11">
-        <p className="text-base font-bold text-gray-800 group-hover:text-gray-900 transition-colors duration-200">
-          {detail.value}
-        </p>
+        <div className="pl-11 relative z-10">
+          <p className="text-base font-bold text-[#2C3C39] group-hover:text-[#198341] transition-colors duration-300">
+            {detail.value}
+          </p>
+        </div>
       </div>
     </div>
   );
@@ -267,44 +281,75 @@ const CarDetailsContent: React.FC<CarDetailsContentProps> = ({
     return (
       <div
         key={index}
-        className="group p-6 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-priamry-light transition-all duration-300 space-y-4"
+        className="group relative"
       >
-        <div className="flex items-center gap-3">
-          <div className="flex-shrink-0 w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center text-primary group-hover:bg-blue-100 group-hover:text-primary-light transition-all duration-200">
-            {detail.icon}
+        {/* Outer glow effect */}
+        <div className="absolute -inset-1 bg-gradient-to-r from-[#198341] via-[#ABDE3B] to-[#198341] rounded-xl opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500"></div>
+        
+        <div className="relative p-6 bg-white rounded-xl border-2 border-slate-200 shadow-sm hover:shadow-xl transition-all duration-500 space-y-4 overflow-hidden">
+          {/* Decorative corner accents */}
+          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-[#ABDE3B]/10 to-transparent rounded-bl-full pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          <div className="absolute bottom-0 left-0 w-20 h-20 bg-gradient-to-tr from-[#198341]/10 to-transparent rounded-tr-full pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          
+          {/* Top accent line */}
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#198341] via-[#ABDE3B] to-[#198341]"></div>
+          
+          {/* Side accent indicator */}
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-0 group-hover:h-32 bg-gradient-to-b from-[#198341] to-[#ABDE3B] transition-all duration-500 rounded-r-full"></div>
+          
+          {/* Background gradient on hover */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[#198341]/3 to-[#ABDE3B]/3 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          
+          <div className="flex items-center gap-3 relative z-10">
+            <div className="relative group/icon">
+              {/* Icon glow */}
+              <div className="absolute inset-0 bg-[#198341] blur-lg opacity-0 group-hover:opacity-40 transition-opacity duration-300 rounded-lg"></div>
+              
+              <div className="relative flex-shrink-0 w-8 h-8 bg-gradient-to-br from-[#198341]/10 to-[#ABDE3B]/10 rounded-lg flex items-center justify-center text-[#198341] group-hover:from-[#198341]/20 group-hover:to-[#ABDE3B]/20 group-hover/icon:scale-110 transition-all duration-300">
+                {detail.icon}
+              </div>
+            </div>
+            <label className="text-sm font-semibold text-[#2C3C39] uppercase tracking-wide group-hover:text-[#198341] transition-colors duration-300">
+              {detail.label}
+            </label>
           </div>
-          <label className="text-sm font-semibold text-gray-600 uppercase tracking-wide group-hover:text-gray-700 transition-colors duration-200">
-            {detail.label}
-          </label>
-        </div>
 
-        <div className="pl-11 space-y-3">
-          <div className="prose prose-sm max-w-none">
-            <p className="text-gray-700 leading-relaxed whitespace-pre-wrap m-0 group-hover:text-gray-800 transition-colors duration-200">
-              {displayValue}
-            </p>
+          <div className="pl-11 space-y-3 relative z-10">
+            <div className="prose prose-sm max-w-none">
+              <p className="text-gray-700 leading-relaxed whitespace-pre-wrap m-0 group-hover:text-[#2C3C39] transition-colors duration-300">
+                {displayValue}
+              </p>
+            </div>
+
+            {shouldTruncate && (
+              <div className="relative inline-block group/button">
+                {/* Button glow */}
+                <div className="absolute -inset-1 bg-gradient-to-r from-[#198341] to-[#ABDE3B] rounded-lg opacity-0 group-hover/button:opacity-30 blur transition-opacity duration-300"></div>
+                
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => toggleExpand(detail.key)}
+                  className="relative text-[#198341] hover:text-white hover:bg-gradient-to-r hover:from-[#198341] hover:to-[#ABDE3B] px-4 py-2 h-auto font-semibold rounded-lg transition-all duration-300 border-2 border-[#198341] hover:border-[#198341] overflow-hidden group/btn"
+                >
+                  {/* Animated shine effect */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700"></div>
+                  
+                  {isExpanded ? (
+                    <div className="flex items-center gap-2 relative z-10">
+                      <span>{t('showLess')}</span>
+                      <ChevronUp className="h-4 w-4" />
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 relative z-10">
+                      <span>{t('showMore')}</span>
+                      <ChevronDown className="h-4 w-4" />
+                    </div>
+                  )}
+                </Button>
+              </div>
+            )}
           </div>
-
-          {shouldTruncate && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => toggleExpand(detail.key)}
-              className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 px-3 py-2 h-auto font-medium rounded-lg transition-all duration-200"
-            >
-              {isExpanded ? (
-                <div className="flex items-center gap-2">
-                  <span>{t('showLess')}</span>
-                  <ChevronUp className="h-4 w-4" />
-                </div>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <span>{t('showMore')}</span>
-                  <ChevronDown className="h-4 w-4" />
-                </div>
-              )}
-            </Button>
-          )}
         </div>
       </div>
     );

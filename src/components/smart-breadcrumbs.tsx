@@ -52,47 +52,59 @@ const SmartBreadcrumb: React.FC<SmartBreadcrumbProps> = ({
       ]
     : items;
 
-  // Custom separator component - now returns the actual separator content without wrapper
+  // Custom separator component with enhanced styling
   const CustomSeparator = () => {
     if (separator === 'chevron') {
       return (
         <BreadcrumbSeparator>
-          <ChevronRight
-            className={`h-4 w-4 text-gray-400 ${isRTL ? 'rotate-180' : ''}`}
-          />
+          <div className="relative group/sep">
+            {/* Glow effect on hover */}
+            <div className="absolute inset-0 bg-[#ABDE3B] blur-md opacity-0 group-hover/sep:opacity-30 transition-opacity duration-300"></div>
+            
+            <ChevronRight
+              className={`relative h-4 w-4 text-gray-400 group-hover/sep:text-[#198341] transition-colors duration-300 ${isRTL ? 'rotate-180' : ''}`}
+            />
+          </div>
         </BreadcrumbSeparator>
       );
     }
     if (separator === 'slash') {
       return (
         <BreadcrumbSeparator>
-          <span className="text-gray-400 mx-2">/</span>
+          <span className="text-gray-400 mx-2 group-hover:text-[#198341] transition-colors duration-300">/</span>
         </BreadcrumbSeparator>
       );
     }
-    return <BreadcrumbSeparator />;
+    return (
+      <BreadcrumbSeparator>
+        <div className="relative group/sep">
+          <div className="absolute inset-0 bg-[#ABDE3B] blur-md opacity-0 group-hover/sep:opacity-30 transition-opacity duration-300"></div>
+          <span className="relative text-gray-400 group-hover/sep:text-[#198341] transition-colors duration-300">/</span>
+        </div>
+      </BreadcrumbSeparator>
+    );
   };
 
-  // Get variant styles
+  // Get variant styles with enhanced colors
   const getVariantStyles = () => {
     switch (variant) {
       case 'minimal':
         return {
           container: 'bg-transparent',
-          link: 'text-gray-600 hover:text-gray-900 text-sm',
-          active: 'text-gray-900 font-medium',
+          link: 'text-gray-600 hover:text-[#198341] text-sm',
+          active: 'text-[#2C3C39] font-medium',
         };
       case 'modern':
         return {
-          container: 'bg-gray-50 rounded-lg px-4 py-2',
-          link: 'text-gray-700 hover:text-primary-light text-sm font-medium',
-          active: 'text-primary font-semibold',
+          container: 'bg-gradient-to-r from-white via-[#ABDE3B]/5 to-white rounded-lg px-4 py-2 border border-slate-200',
+          link: 'text-gray-700 hover:text-[#198341] text-sm font-medium',
+          active: 'text-[#198341] font-semibold',
         };
       default:
         return {
-          container: 'bg-background',
-          link: 'hover:text-black text-black',
-          active: 'text-primary hover:text-primary-light',
+          container: '',
+          link: 'hover:text-[#198341] text-[#2C3C39]',
+          active: 'text-[#198341] hover:text-[#2C3C39]',
         };
     }
   };
@@ -100,8 +112,20 @@ const SmartBreadcrumb: React.FC<SmartBreadcrumbProps> = ({
   const styles = getVariantStyles();
 
   return (
-    <div className={`w-full ${styles.container} ${className}`}>
-      <Breadcrumb dir={isRTL ? 'rtl' : 'ltr'}>
+    <div className={`w-full ${styles.container} ${className} relative overflow-hidden`}>
+      {/* Decorative elements for modern variant */}
+      {variant === 'modern' && (
+        <>
+          {/* Top gradient accent */}
+          <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#198341] via-[#ABDE3B] to-[#198341]"></div>
+          
+          {/* Corner accents */}
+          <div className="absolute top-0 left-0 w-16 h-16 bg-gradient-to-br from-[#198341]/10 to-transparent rounded-br-full pointer-events-none"></div>
+          <div className="absolute bottom-0 right-0 w-16 h-16 bg-gradient-to-tl from-[#ABDE3B]/10 to-transparent rounded-tl-full pointer-events-none"></div>
+        </>
+      )}
+      
+      <Breadcrumb dir={isRTL ? 'rtl' : 'ltr'} className="relative z-10">
         <BreadcrumbList dir={isRTL ? 'rtl' : 'ltr'}>
           {allItems.map((item, index) => {
             const isLast = index === allItems.length - 1;
@@ -112,31 +136,53 @@ const SmartBreadcrumb: React.FC<SmartBreadcrumbProps> = ({
               <React.Fragment key={index}>
                 <BreadcrumbItem dir={isRTL ? 'rtl' : 'ltr'}>
                   {item.href && !isLast ? (
-                    <BreadcrumbLink
-                      className={`${styles.link} transition-colors duration-200`}
-                      href={item.href}
-                    >
-                      {index === 0 && showHome && variant === 'modern' ? (
-                        <span className="flex items-center gap-1">
-                          <Home className="h-4 w-4" />
-                          {displayLabel}
-                        </span>
-                      ) : (
-                        displayLabel
-                      )}
-                    </BreadcrumbLink>
+                    <div className="relative group">
+                      {/* Hover glow effect */}
+                      <div className="absolute -inset-1 bg-gradient-to-r from-[#198341] to-[#ABDE3B] rounded-lg opacity-0 group-hover:opacity-20 blur transition-all duration-300"></div>
+                      
+                      <BreadcrumbLink
+                        className={`${styles.link} transition-all duration-300 relative px-2 py-1 rounded-md group-hover:bg-[#ABDE3B]/10`}
+                        href={item.href}
+                      >
+                        {index === 0 && showHome && variant === 'modern' ? (
+                          <span className="flex items-center gap-1.5">
+                            <div className="relative">
+                              {/* Icon glow */}
+                              <div className="absolute inset-0 bg-[#198341] blur-md opacity-0 group-hover:opacity-30 transition-opacity duration-300"></div>
+                              <Home className="relative h-4 w-4 group-hover:scale-110 transition-transform duration-300" />
+                            </div>
+                            <span className="group-hover:font-semibold transition-all duration-300">{displayLabel}</span>
+                          </span>
+                        ) : (
+                          <span className="group-hover:font-semibold transition-all duration-300">{displayLabel}</span>
+                        )}
+                        
+                        {/* Bottom accent line on hover */}
+                        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#198341] to-[#ABDE3B] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
+                      </BreadcrumbLink>
+                    </div>
                   ) : (
-                    <span
-                      className={`${styles.active} ${
-                        isLast ? 'cursor-default' : 'cursor-pointer'
-                      }`}
-                    >
-                      {displayLabel}
-                    </span>
+                    <div className="relative">
+                      {/* Active item background glow */}
+                      {isLast && (
+                        <div className="absolute inset-0 bg-[#ABDE3B]/10 blur-xl rounded-full"></div>
+                      )}
+                      
+                      <span
+                        className={`${styles.active} ${
+                          isLast ? 'cursor-default' : 'cursor-pointer'
+                        } relative px-2 py-1 inline-block`}
+                      >
+                        {/* Active indicator dot */}
+                        {isLast && (
+                          <span className="absolute -left-2 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-[#ABDE3B] rounded-full animate-pulse"></span>
+                        )}
+                        <span className={isLast ? 'font-bold' : ''}>{displayLabel}</span>
+                      </span>
+                    </div>
                   )}
                 </BreadcrumbItem>
 
-                {/* Fixed: Removed the wrapping <li> element */}
                 {!isLast && <CustomSeparator />}
               </React.Fragment>
             );
