@@ -133,92 +133,85 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
   return (
     <Box variant="center" className="w-full">
       {/* Enhanced Mobile Layout */}
-      <div className="md:hidden w-full">
-        <div className="bg-white rounded-2xl overflow-hidden border-2 border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300">
-          {/* Enhanced Mobile Header */}
-          <div className="bg-gradient-to-r from-primary to-primary-light p-4 border-b border-gray-100">
-            <Text className="font-bold font-cairo text-white text-lg tracking-wide">
+      <div className="md:hidden w-full relative">
+        {/* Outer glow effect */}
+    
+      </div>
+
+      {/* Enhanced Desktop Layout */}
+      <div className="relative hidden md:flex">
+        {/* Outer glow effect */}
+        <div className="absolute -inset-1 bg-gradient-to-r from-[#198341] via-[#198341] to-[#198341] rounded-2xl opacity-20 blur-xl"></div>
+        
+        <Box
+          className="relative 2xl:w-[400px] lg:w-[300px] xs:w-full bg-white rounded-2xl overflow-hidden border-2 border-[#198341]/30 shadow-xl hover:shadow-2xl hover:border-[#198341] transition-all duration-300 justify-center"
+          variant="column"
+        >
+          {/* Decorative corner accents */}
+          <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-[#198341]/20 to-transparent rounded-bl-full pointer-events-none"></div>
+          <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-[#198341]/20 to-transparent rounded-tr-full pointer-events-none"></div>
+          
+          {/* Enhanced Header */}
+          <div className="w-full bg-gradient-to-r from-[#198341] to-[#198341] p-4 border-b border-gray-100 relative overflow-hidden z-10">
+            {/* Animated shine effect */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-shimmer"></div>
+            
+            {/* Top accent bar */}
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#ABDE3B] via-white to-[#ABDE3B]"></div>
+            
+            <Text className="font-bold font-cairo text-white text-lg tracking-wide relative z-10 flex items-center gap-2">
+              <span className="w-1.5 h-6 bg-[#ABDE3B] rounded-full"></span>
               {locale === 'ar' ? 'معلومات السيارة' : 'Car Info'}
             </Text>
           </div>
 
-          {/* Enhanced Mobile Content */}
-          <div className="p-6" dir={locale === 'ar' ? 'rtl' : 'ltr'}>
-            <div className="space-y-4">
-              {productDetails.map((detail, index) => (
-                <div
-                  key={index}
-                  className={`flex justify-between items-center py-3 px-2 rounded-lg hover:bg-gray-50 transition-colors duration-200 ${
-                    index !== productDetails.length - 1
-                      ? 'border-b border-gray-100'
-                      : ''
-                  }`}
-                >
-                  <Text className="font-cairo font-medium text-gray-600 text-sm flex-1">
-                    {detail.label}
-                  </Text>
-                  <Text className="font-cairo font-semibold text-gray-800 text-sm text-right ml-3">
-                    {detail.value || 'N/A'}
-                  </Text>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Enhanced Mobile Price Highlight */}
-          {price && (
-            <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 border-t border-gray-100">
-              <div className="flex justify-between items-center">
-                <Text className="font-cairo font-bold text-green-700 text-base">
-                  {locale === 'ar' ? 'السعر' : 'Price'}
+          {/* Enhanced Scroll Area */}
+          <ScrollArea
+            className="h-[470px] w-full overflow-y-auto scrollbar-thin scrollbar-thumb-[#198341] scrollbar-track-gray-100 scrollbar-thumb-rounded-full scrollbar-track-rounded-full"
+            dir={locale === 'ar' ? 'rtl' : 'ltr'}
+          >
+            {productDetails.map((detail, index) => (
+              <Box
+                key={index}
+                variant="rowBetween"
+                dir={locale === 'ar' ? 'rtl' : 'ltr'}
+                className={`group relative w-full px-6 hover:bg-gradient-to-r hover:from-[#198341]/5 hover:to-[#ABDE3B]/5 transition-all duration-300 ${
+                  index !== productDetails.length - 1
+                    ? 'border-b border-gray-100'
+                    : ''
+                } py-4`}
+              >
+                {/* Hover indicator */}
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-0 group-hover:h-10 bg-gradient-to-b from-[#198341] to-[#ABDE3B] transition-all duration-300 rounded-r-full"></div>
+                
+                {/* Hover glow effect */}
+                <div className="absolute inset-0 bg-[#ABDE3B]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                
+                <Text className="relative font-cairo font-medium text-[#2C3C39] group-hover:text-[#198341] group-hover:font-semibold transition-all duration-300">
+                  {detail.label}
                 </Text>
-                <Text className="font-cairo font-bold text-green-600 text-xl">
-                  {price} {currency}
+                <Text className="relative font-cairo font-semibold text-[#2C3C39] group-hover:text-[#198341] transition-colors duration-300">
+                  {detail.value || 'N/A'}
                 </Text>
-              </div>
-            </div>
-          )}
-        </div>
+              </Box>
+            ))}
+          </ScrollArea>
+        </Box>
       </div>
 
-      {/* Enhanced Desktop Layout */}
-      <Box
-        className="2xl:w-[400px] lg:w-[300px] xs:w-full bg-white rounded-2xl overflow-hidden border-2 border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300 justify-center hidden md:flex"
-        variant="column"
-      >
-        {/* Enhanced Header */}
-        <div className="w-full bg-gradient-to-r from-primary to-primary-light p-4 border-b border-gray-100">
-          <Text className="font-bold font-cairo text-white text-lg tracking-wide">
-            {locale === 'ar' ? 'معلومات السيارة' : 'Car Info'}
-          </Text>
-        </div>
-
-        {/* Enhanced Scroll Area */}
-        <ScrollArea
-          className="h-[470px] w-full overflow-y-auto scrollbar-thin scrollbar-thumb-green-400 scrollbar-track-gray-100 scrollbar-thumb-rounded-full scrollbar-track-rounded-full"
-          dir={locale === 'ar' ? 'rtl' : 'ltr'}
-        >
-          {productDetails.map((detail, index) => (
-            <Box
-              key={index}
-              variant="rowBetween"
-              dir={locale === 'ar' ? 'rtl' : 'ltr'}
-              className={`w-full px-6 hover:bg-gray-50 transition-colors duration-200 group ${
-                index !== productDetails.length - 1
-                  ? 'border-b border-gray-100'
-                  : ''
-              } py-4`}
-            >
-              <Text className="font-cairo font-medium text-gray-600 group-hover:text-gray-700 transition-colors duration-200">
-                {detail.label}
-              </Text>
-              <Text className="font-cairo font-semibold text-gray-800 group-hover:text-gray-900 transition-colors duration-200">
-                {detail.value || 'N/A'}
-              </Text>
-            </Box>
-          ))}
-        </ScrollArea>
-      </Box>
+      <style jsx>{`
+        @keyframes shimmer {
+          0% {
+            transform: translateX(-100%);
+          }
+          100% {
+            transform: translateX(100%);
+          }
+        }
+        .animate-shimmer {
+          animation: shimmer 3s infinite;
+        }
+      `}</style>
     </Box>
   );
 };

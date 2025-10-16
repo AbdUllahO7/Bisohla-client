@@ -596,6 +596,8 @@
       "description": "Description",
       "contactNumber": "Contact Number",
       "price": "Price",
+      "showMore":"Show More",
+      "showLess":"Show Less",
       "currency": "Currency",
       "make": "Make",
       "model": "Model",

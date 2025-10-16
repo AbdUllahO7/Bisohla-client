@@ -68,27 +68,60 @@ const Header: React.FC<HeaderProps> = ({
   }
 
   return (
-    <div  className="w-full overflow-hidden container">
-      <div className="  flex justify-between  overflow-hidden">
-        <div className="flex  justify-between  items-center w-full overflow-hidden">
-          <div className="flex items-center ">
-            <Text variant="mid" className="text-center overflow-hidden font-bold text-primary text-xl">
-              {totalItems} {t("header.adCounter")}
-            </Text>
+    <div className="w-full overflow-hidden container">
+      <div className="flex justify-between overflow-hidden">
+        <div className="flex justify-between items-center w-full overflow-hidden">
+          
+          {/* Enhanced Total Items Section */}
+          <div className="flex items-center gap-3 relative">
+            {/* Accent Bar */}
+            <div className="w-1 h-12 rounded-full bg-gradient-to-b from-[#ABDE3B] to-[#198341] shadow-lg"></div>
+            
+            {/* Counter with Background Effect */}
+            <div className="relative">
+              {/* Glow Background */}
+              <div className="absolute inset-0 bg-[#ABDE3B]/10 blur-xl rounded-full"></div>
+              
+              {/* Text Content */}
+              <Text variant="mid" className="relative text-center overflow-hidden font-bold text-[#2C3C39] text-xl">
+                {totalItems} {t("header.adCounter")}
+              </Text>
+            </div>
           </div>
 
-          <div className="flex items-center gap-2 flex-shrink-1">
-            <Text className="whitespace-nowrap">{t("header.orderBy")}</Text>
-            <div>
-              <SelectDropdown
-                options={sortOptions}
-                placeholder={t("header.selectPrice")}
-                SelectTriggerStyle="shadow-none p-0 border-none"
-                className="w-[150px] xs:w-[120px]"
-                disabled={false}
-                onChange={handleSortChange}
-                value={getCurrentSortValue()}
-              />
+          {/* Enhanced Sort Section */}
+          <div className="flex items-center gap-3 flex-shrink-1">
+            {/* Label with Underline Effect */}
+            <div className="relative">
+              <Text className="whitespace-nowrap text-[#2C3C39] font-semibold">
+                {t("header.orderBy")}
+              </Text>
+              <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-[#198341] to-transparent"></div>
+            </div>
+            
+            {/* Enhanced Dropdown Container */}
+            <div className="relative group">
+              {/* Outer Glow on Hover */}
+              <div className="absolute -inset-1 bg-gradient-to-r from-[#198341] via-[#ABDE3B] to-[#198341] rounded-lg opacity-0 group-hover:opacity-30 blur transition-all duration-300"></div>
+              
+              {/* Dropdown Wrapper */}
+              <div className="relative">
+                {/* Pulsing Indicator Dot */}
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-[#ABDE3B] animate-pulse z-10 pointer-events-none"></div>
+                
+                <SelectDropdown
+                  options={sortOptions}
+                  placeholder={t("header.selectPrice")}
+                  SelectTriggerStyle="shadow-none pl-6 pr-3 py-2.5  hover:border-[#198341] focus:border-[#198341] transition-all duration-300 bg-white font-medium text-[#2C3C39]"
+                  className="w-[150px] xs:w-[120px]"
+                  disabled={false}
+                  onChange={handleSortChange}
+                  value={getCurrentSortValue()}
+                />
+                
+                {/* Bottom Accent Line */}
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-[#ABDE3B] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              </div>
             </div>
           </div>
         </div>

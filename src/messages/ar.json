@@ -625,6 +625,8 @@
       "description": "الوصف",
       "contactNumber": "رقم الاتصال",
       "price": "السعر",
+      "showMore":"عرض المزيد",
+      "showLess":"عرض أقل",
       "currency": "العملة",
       "make": "الماركة",
       "model": "الطراز",
