@@ -187,7 +187,12 @@
           clearFormData(true);
           
           // Redirect to success page or next step
-          router.back();
+          router.push('/');
+          // Small delay to ensure navigation completes before refresh
+          setTimeout(() => {
+            router.refresh();
+          }, 100);
+
           
           return response;
         } else {
@@ -224,7 +229,7 @@
       } finally {
         setIsSubmitting(false);
       }
-    }, [router, toast, locale]); // Add locale to the dependency array
+    }, [router, toast, locale]); 
 
     return {
       isSubmitting,

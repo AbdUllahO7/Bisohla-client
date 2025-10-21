@@ -77,12 +77,13 @@ const WebLayout = async ({
               join: t('headerTow.join'),
               BrowseAll: t('headerTow.BrowseAll'),
               Privacypolicy: t('headerTow.Privacypolicy'),
+              ContactUs: t('headerTow.ContactUs'),
             }}
           />
         </div>
 
         {/* Spacer for fixed headers */}
-        <div className="h-[120px] md:h-[100px] flex-shrink-0 bg-background"></div>
+        <div className="h-[120px] md:h-[98px] flex-shrink-0 bg-background"></div>
 
         {/* Main Content */}
         <main className="flex-1 bg-background">{children}</main>

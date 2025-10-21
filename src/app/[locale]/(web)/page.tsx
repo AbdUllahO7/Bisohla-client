@@ -12,6 +12,7 @@ import { Locale } from '@/i18n/routing';
 import { generateSettingsBasedMetadata } from '@/utils/settings-metadata.utils';
 import { Metadata } from 'next';
 import { getLocale } from 'next-intl/server';
+import AnimatedPageWrapper from '@/components/AnimatedPageWrapper';
 
 // Generate metadata based on locale and settings
 export async function generateMetadata(): Promise<Metadata> {
@@ -128,15 +129,17 @@ export async function generateMetadata(): Promise<Metadata> {
 
 const WebPage = async () => {
   return (
-    <Box variant="column" className="gap-10 w-full bg-background">
-      <Hero />
-      <LatestOffers />
-      <AdsSection />
-      <WorldOfCar />
-      <RentCar />
-      <SpaceAds />
-      <FAQ />
-    </Box>
+    <AnimatedPageWrapper>
+      <Box variant="column" className="gap-10 w-full bg-background">
+        <Hero />
+        <LatestOffers />
+        <AdsSection />
+        <WorldOfCar />
+        <RentCar />
+        <SpaceAds />
+        <FAQ />
+      </Box>
+    </AnimatedPageWrapper>
   );
 };
 

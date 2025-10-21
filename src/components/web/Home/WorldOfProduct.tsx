@@ -8,6 +8,8 @@ import { useTranslations, useLocale } from "next-intl"
 import CarouselComponent from "../design/CarouselComponent"
 import { useProductStepOne } from "@/components/web/ProductsPage/addProducts/StepOne/hooks"
 import { useGetCityCounts } from "@/core/infrastructure-adapters/use-actions/visitors/car.visitor.use-actions"
+import SectionHeader from "@/components/SectionHeader"
+import { ClipboardTypeIcon, SearchCodeIcon, SearchSlashIcon } from "lucide-react"
 
 interface CityData {
   governorate: string
@@ -201,6 +203,7 @@ const WorldOfProduct = () => {
             {t("worldOfProducts.title")}
           </Text>
         </Box>
+       
         <Box className="w-full overflow-hidden p-4">
           <Text className="text-gray-500">{locale === "ar" ? "لا توجد بيانات متاحة" : "No data available"}</Text>
         </Box>
@@ -209,11 +212,46 @@ const WorldOfProduct = () => {
   }
 
   return (
-    <Box variant="column" className="w-full">
+    <Box variant="column" className="w-full relative">
+        <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
+                {/* Large Gradient Orbs */}
+          
+                <div 
+                    className="absolute top-1/4 -right-40 w-[600px] h-[600px] rounded-full opacity-20 animate-float"
+                    style={{ 
+                        background: 'radial-gradient(circle, rgba(171, 222, 59, 0.3) 0%, transparent 70%)',
+                        animationDelay: '2s'
+                    }}
+                ></div>
+                <div 
+                    className="absolute bottom-0 left-1/3 w-[400px] h-[400px] rounded-full opacity-20 animate-float"
+                    style={{ 
+                        background: 'radial-gradient(circle, rgba(44, 60, 57, 0.2) 0%, transparent 70%)',
+                        animationDelay: '4s'
+                    }}
+                ></div>
+
+                {/* Decorative Grid Pattern */}
+                <div 
+                    className="absolute inset-0 opacity-[0.02]"
+                    style={{
+                        backgroundImage: `linear-gradient(#198341 1px, transparent 1px), linear-gradient(90deg, #198341 1px, transparent 1px)`,
+                        backgroundSize: '50px 50px'
+                    }}
+                ></div>
+
+              
+                {/* Animated Dots */}
+                <div className="absolute top-20 left-1/4 w-2 h-2 rounded-full bg-primary-light opacity-40 animate-pulse"></div>
+                <div className="absolute top-40 right-1/3 w-3 h-3 rounded-full bg-primary-light opacity-30 animate-pulse" style={{ animationDelay: '1s' }}></div>
+                <div className="absolute bottom-32 left-1/2 w-2 h-2 rounded-full bg-primary-light opacity-40 animate-pulse" style={{ animationDelay: '2s' }}></div>
+                <div className="absolute top-1/2 right-1/4 w-3 h-3 rounded-full bg-primary-light opacity-30 animate-pulse" style={{ animationDelay: '3s' }}></div>
+            </div>
       <Box variant="column" className="">
-        <Text variant="h3" className="font-bold text-[20px] font-cairo mb-5">
-          {t("worldOfProducts.title")}
-        </Text>
+         <SectionHeader
+                    title={t("worldOfProducts.title")}
+                    icon={SearchCodeIcon}
+                />
       </Box>
       <Box className="w-full overflow-hidden">
         <CarouselComponent data={carouselData} direction={direction} onCityClick={handleCityClick} />

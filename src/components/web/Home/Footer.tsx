@@ -25,7 +25,7 @@ const Footer = ({ isUserProfile }: { isUserProfile?: boolean }) => {
   return (
     <Box
       variant="column"
-      className={`relative   pt-10 pb-10 justify-around w-full `}
+      className={`relative z-50   pt-10 pb-10 justify-around w-full `}
     >
       <Box
         variant="row"
@@ -82,10 +82,10 @@ const Footer = ({ isUserProfile }: { isUserProfile?: boolean }) => {
           <Link href="/" className="text-primary">
             {locale === 'ar' ? 'الصفحة الرئيسية' : 'Home Page'}
           </Link>
-          <Link href="/rentProducts" className="text-primary">
+          <Link href="/products?listingType=for_rent" className="text-primary">
             {locale === 'ar' ? 'الاستئجار' : 'Rent'}
           </Link>
-          <Link href="/saleProducts" className="text-primary">
+          <Link href="/products?listingType=for_sale" className="text-primary">
             {locale === 'ar' ? ' البيع' : 'Sale'}
           </Link>
         </Box>
@@ -229,7 +229,10 @@ const Footer = ({ isUserProfile }: { isUserProfile?: boolean }) => {
                 <div>
                   <Link href={socialLinks.tiktok_url} target="_blank">
                     <Image
-                      src={socialLinks.tiktok_image || "/assets/icons/tiktokpng.png"}
+                      src={
+                        socialLinks.tiktok_image ||
+                        '/assets/icons/tiktokpng.png'
+                      }
                       alt="TikTok"
                       width={30}
                       height={30}
@@ -240,7 +243,10 @@ const Footer = ({ isUserProfile }: { isUserProfile?: boolean }) => {
               {socialLinks.instagram_url && (
                 <Link href={socialLinks.instagram_url} target="_blank">
                   <Image
-                    src={socialLinks.instagram_image || "/assets/icons/instagram.png"}
+                    src={
+                      socialLinks.instagram_image ||
+                      '/assets/icons/instagram.png'
+                    }
                     alt="Instagram"
                     width={20}
                     height={20}
@@ -250,7 +256,9 @@ const Footer = ({ isUserProfile }: { isUserProfile?: boolean }) => {
               {socialLinks.facebook_url && (
                 <Link href={socialLinks.facebook_url} target="_blank">
                   <Image
-                    src={socialLinks.facebook_image || "/assets/icons/faceBook.png"}
+                    src={
+                      socialLinks.facebook_image || '/assets/icons/faceBook.png'
+                    }
                     alt="Facebook"
                     width={20}
                     height={20}
@@ -260,7 +268,9 @@ const Footer = ({ isUserProfile }: { isUserProfile?: boolean }) => {
               {socialLinks.youtube_url && (
                 <Link href={socialLinks.youtube_url} target="_blank">
                   <Image
-                    src={socialLinks.youtube_image || "/assets/icons/youtube.png"}
+                    src={
+                      socialLinks.youtube_image || '/assets/icons/youtube.png'
+                    }
                     alt="YouTube"
                     width={24}
                     height={24}
@@ -270,7 +280,9 @@ const Footer = ({ isUserProfile }: { isUserProfile?: boolean }) => {
               {socialLinks.twitter_url && (
                 <Link href={socialLinks.twitter_url} target="_blank">
                   <Image
-                    src={socialLinks.twitter_image || "/assets/icons/twitter.png"}
+                    src={
+                      socialLinks.twitter_image || '/assets/icons/twitter.png'
+                    }
                     alt="Twitter"
                     width={20}
                     height={20}
@@ -280,7 +292,9 @@ const Footer = ({ isUserProfile }: { isUserProfile?: boolean }) => {
               {socialLinks.linkedin_url && (
                 <Link href={socialLinks.linkedin_url} target="_blank">
                   <Image
-                    src={socialLinks.linkedin_image || "/assets/icons/linkedin.png"}
+                    src={
+                      socialLinks.linkedin_image || '/assets/icons/linkedin.png'
+                    }
                     alt="LinkedIn"
                     width={20}
                     height={20}

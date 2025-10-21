@@ -1,4 +1,5 @@
 import { Currency } from "@/core/entities/enums/currency.enum";
+import { CountryCode } from "@/core/entities/enums/country-codes.enum";
 
 // Complete AdInfoState interface with all fields
 export interface AdInfoState {
@@ -12,12 +13,13 @@ export interface AdInfoState {
     publicationDate: string | null;
     saveStatus?: string;
     currency: string;
+    countryCode?: string; // Frontend-only field
 }
 
 export interface AddProductStepFourProps {
     onValidationChange: (isValid: boolean) => void;
     isEditMode?: boolean;
-    initialData?: any; // This could be more specific based on your API response type
+    initialData?: any;
 }
 
 export interface FormFieldProps {
@@ -41,7 +43,7 @@ export interface PublicationDateProps {
     direction: string;
     onDateChange?: (date: string | null) => void;
     showError: boolean;
-    initialDate?: string | null; // Optional prop for initial date
+    initialDate?: string | null;
 }
 
 // Constants
@@ -55,7 +57,8 @@ export const defaultState: AdInfoState = {
     contactNumber: "",
     listingType: "",
     rentType: "",
-    publicationDate: new Date().toISOString().split('T')[0], // Format: YYYY-MM-DD
+    publicationDate: new Date().toISOString().split('T')[0],
     saveStatus: "",
-    currency: Currency.USD
+    currency: Currency.USD,
+    countryCode: CountryCode.US // Default country code
 };

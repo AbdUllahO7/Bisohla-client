@@ -21,6 +21,8 @@ const HeaderTwo: React.FC<HeaderTowProps> = ({ translations }) => {
     { href: '/products?listingType=for_sale', label: translations.sale },
     { href: '/products', label: translations.BrowseAll },
     { href: '/Privacypolicy', label: translations.Privacypolicy },
+    { href: '/ContactUs', label: translations.ContactUs},
+
   ];
 
   return (
