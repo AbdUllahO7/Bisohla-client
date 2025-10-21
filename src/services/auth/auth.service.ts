@@ -10,8 +10,8 @@ import { deleteSession, updateTokens } from '@/core/lib/web/session';
 import { allRoutes } from '@/constants/routes.constant';
 import { fetchAuth } from '@/lib/fetch-auth';
 import { revalidatePath } from 'next/cache';
-import { postReq } from '@/lib/fetch';
-import { APP_URL, BACKEND_URL } from '@/core/lib/web/constants';
+import { BACKEND_URL } from '@/core/lib/web/constants';
+import { postReq } from '@/core/lib/api';
 
 export const handleRegister = async (
   state: ApiResponse<RegisterFormValues>,
@@ -75,7 +75,6 @@ export const handleRefreshToken = async (oldRefreshToken: string) => {
     });
 
     const responseData = await backendRes.json();
-
 
     // Check if the request was successful
     if (!backendRes.ok || !responseData.success) {

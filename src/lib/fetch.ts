@@ -1,23 +1,30 @@
 'use server';
 
-import { BACKEND_URL } from '@/constants/constants';
-import { ApiResponse } from '@/interfaces/api-response.interface';
 import { verifyZodFields } from './validation';
-import { ZodTypeAny } from 'zod';
-import { ValidationError } from '@/interfaces/errors/validation.error';
-import { AppError } from '@/interfaces/errors/app-error';
+import { ZodError, ZodTypeAny } from 'zod';
 import { getLocale } from 'next-intl/server';
+import { handleRefreshToken } from '@/services/auth/auth.service';
+import { Filter, FilterGroup, QueryParams } from '@/core/entities/api/api';
+import {
+  ApiResponse,
+  BaseApiResponse,
+} from '@/core/entities/api/success.response';
+import { BACKEND_URL } from '@/core/lib/web/constants';
+import { ValidationError } from '@/core/entities/errors/validation-error';
+import { AppError } from '@/core/entities/errors/app-error';
+import { getSession } from '@/core/lib/web/session';
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 
 interface RequestConfig<
-  T = Record<string, FormDataEntryValue | null>,
+  T = Record<string, FormDataEntryValue | null> | FormData,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _R = Record<string, unknown>,
+  R = Record<string, unknown>,
 > {
   url: string;
   method?: HttpMethod;
   body?: T;
+  params?: QueryParams;
   validationSchema?: ZodTypeAny;
   headers?: Record<string, string>;
   errorDefaultMessage?: string;
@@ -34,12 +41,109 @@ interface FetchError extends Error {
   path?: string;
   timestamp?: string;
   fields?: Record<string, undefined | string | number>;
+  message: string;
 }
 
 const DEFAULT_TIMEOUT = 10000;
 const DEFAULT_RETRY = { attempts: 3, delay: 1000 };
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const buildUrl = (baseUrl: string, params?: QueryParams): string => {
+  if (!params) return baseUrl;
+
+  const searchParams = new URLSearchParams();
+  // Handle basic params
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null) {
+      // Handle search object format
+      if (key === 'searchKey' && params.searchTerm !== undefined) {
+        searchParams.append('search[key]', value.toString());
+        searchParams.append(
+          'search[term]',
+          params.searchTerm?.toString() || '',
+        );
+        return;
+      }
+
+      // Handle simple arrays (like id array)
+      if (Array.isArray(value) && key !== 'where' && key !== 'filterGroups') {
+        value.forEach((item) => {
+          searchParams.append(`${key}[]`, item.toString());
+        });
+        return;
+      }
+
+      // Handle where conditions array
+      if (key === 'where' && Array.isArray(value)) {
+        value.forEach((filter: Filter, index) => {
+          searchParams.append(`where[${index}][field]`, filter.field);
+          searchParams.append(`where[${index}][operator]`, filter.operator);
+
+          if (Array.isArray(filter.value)) {
+            filter.value.forEach((item, valueIndex) => {
+              searchParams.append(
+                `where[${index}][value][${valueIndex}]`,
+                item?.toString() || '',
+              );
+            });
+          } else {
+            searchParams.append(
+              `where[${index}][value]`,
+              filter.value?.toString() || '',
+            );
+          }
+        });
+        return;
+      }
+
+      // Handle filter groups
+      if (key === 'filterGroups' && Array.isArray(value)) {
+        value.forEach((group: FilterGroup, groupIndex) => {
+          // Add the group operator if it exists
+          if (group.operator) {
+            searchParams.append(
+              `filterGroups[${groupIndex}][operator]`,
+              group.operator,
+            );
+          }
+
+          // Add each filter in the group
+          group.filters.forEach((filter, filterIndex) => {
+            const baseKey = `filterGroups[${groupIndex}][filters][${filterIndex}]`;
+
+            searchParams.append(`${baseKey}[field]`, filter.field);
+            searchParams.append(`${baseKey}[operator]`, filter.operator);
+
+            if (Array.isArray(filter.value)) {
+              filter.value.forEach((item, valueIndex) => {
+                searchParams.append(
+                  `${baseKey}[value][${valueIndex}]`,
+                  item?.toString() || '',
+                );
+              });
+            } else {
+              searchParams.append(
+                `${baseKey}[value]`,
+                filter.value?.toString() || '',
+              );
+            }
+          });
+        });
+        return;
+      }
+
+      // Handle standard key-value
+      if (key !== 'searchTerm') {
+        // Skip searchTerm as it's handled with searchKey
+        searchParams.append(key, value.toString());
+      }
+    }
+  });
+
+  const queryString = searchParams.toString();
+  return queryString ? `${baseUrl}?${queryString}` : baseUrl;
+};
 
 const createFetchError = (
   message: string,
@@ -48,7 +152,7 @@ const createFetchError = (
   path?: string,
   timestamp?: string,
   fields?: Record<string, undefined | string | number>,
-): FetchError => {
+): Error => {
   const error = new Error(message) as FetchError;
   error.status = status;
   error.errors = errors;
@@ -114,18 +218,19 @@ async function fetchWithRetry(
 }
 
 export async function makeRequest<
-  T = Record<string, FormDataEntryValue | null>,
+  T = Record<string, FormDataEntryValue | null> | FormData,
   R = Record<string, unknown>,
 >({
   url,
   method = 'POST',
   body,
+  params,
   validationSchema,
   headers = {},
   errorDefaultMessage = 'An unexpected error occurred',
   timeout = DEFAULT_TIMEOUT,
   retry = DEFAULT_RETRY,
-}: RequestConfig<T, R>): Promise<ApiResponse<R>> {
+}: RequestConfig<T, R>): Promise<BaseApiResponse> {
   try {
     let validatedBody = body;
     if (validationSchema && body) {
@@ -141,34 +246,72 @@ export async function makeRequest<
     const fetchOptions: RequestInit = {
       method,
       headers: {
-        'Content-Type': 'application/json',
-        'Accept-Language': locale,
-          'x-app-source':'web-app',
-
+        ...(!(validatedBody instanceof FormData) && {
+          'Content-Type': 'application/json',
+          'Accept-Language': locale,
+          'x-app-source': 'web-app',
+        }),
         ...headers,
       },
       signal: controller.signal,
-      ...(validatedBody && { body: JSON.stringify(validatedBody) }),
+      body:
+        validatedBody instanceof FormData
+          ? validatedBody
+          : validatedBody
+          ? JSON.stringify(validatedBody)
+          : undefined,
     };
 
-    const fullUrl = BACKEND_URL + url;
+    const fullUrl = buildUrl(BACKEND_URL + url, params);
     const response = await fetchWithRetry(fullUrl, fetchOptions, retry);
     clearTimeout(timeoutId);
 
     return await handleResponse<R>(response);
   } catch (error) {
-    return await catchActionRequest(error, errorDefaultMessage);
+    if (error instanceof ZodError) {
+      const formattedErrors = error.errors.reduce((acc, curr) => {
+        const field = curr.path[0].toString();
+        acc[field] = curr.message;
+        return acc;
+      }, {} as Record<string, string>);
+
+      return {
+        success: false,
+        message: 'Validation failed',
+        errors: formattedErrors,
+        status: 400,
+      };
+    }
+
+    if (error instanceof Error) {
+      const fetchError = error as FetchError;
+      return {
+        success: false,
+        message: fetchError.message || errorDefaultMessage,
+        errors: fetchError.errors,
+        status: fetchError.status || 500,
+        path: fetchError.path,
+        timestamp: fetchError.timestamp,
+        fields: fetchError.fields,
+      };
+    }
+
+    return {
+      success: false,
+      message: errorDefaultMessage,
+      status: 500,
+    };
   }
 }
 
-export async function catchActionRequest<T>(
+export const catchActionRequest = async <T>(
   error: unknown,
-  errorDefaultMessage: string,
-): Promise<ApiResponse<T>> {
+  errorMessage?: string,
+): Promise<ApiResponse<T>> => {
   if (error instanceof ValidationError) {
     return {
       success: false,
-      message: error.message || errorDefaultMessage,
+      message: errorMessage || error.message,
       errors: error.errors,
       status: 400,
     };
@@ -177,34 +320,32 @@ export async function catchActionRequest<T>(
   if (error instanceof AppError) {
     return {
       success: false,
-      message: error.message || errorDefaultMessage,
+      message: errorMessage || error.message,
       errors: error.errors,
       status: error.status,
       path: error.path,
       timestamp: error.timestamp,
-      fields: error.fields,
     };
   }
 
   if (error instanceof Error) {
     return {
       success: false,
-      message: error.message || errorDefaultMessage,
+      message: errorMessage || error.message || 'An unexpected error occurred',
       status: 500,
     };
   }
 
-  // Handle unknown errors
   return {
     success: false,
-    message: errorDefaultMessage || 'An unexpected error occurred',
+    message: errorMessage || 'An unexpected error occurred',
     status: 500,
   };
-}
+};
 
 // Type-safe convenience methods
 export const postReq = async <
-  T extends Record<string, unknown>,
+  T = Record<string, FormDataEntryValue | null> | FormData,
   R = Record<string, unknown>,
 >(
   config: Omit<RequestConfig<T, R>, 'method'>,
@@ -218,7 +359,7 @@ export const getReq = async <
 ) => makeRequest<T, R>({ ...config, method: 'GET' });
 
 export const putReq = async <
-  T extends Record<string, unknown>,
+  T = Record<string, FormDataEntryValue | null> | FormData,
   R = Record<string, unknown>,
 >(
   config: Omit<RequestConfig<T, R>, 'method'>,
@@ -230,3 +371,107 @@ export const deleteReq = async <
 >(
   config: Omit<RequestConfig<T, R>, 'method'>,
 ) => makeRequest<T, R>({ ...config, method: 'DELETE' });
+
+// Helper function to create authenticated request config
+const withAuth = async <T, R>(
+  config: Omit<RequestConfig<T, R>, 'method'>,
+  method: HttpMethod,
+): Promise<RequestConfig<T, R>> => {
+  const session = await getSession();
+
+  if (!session?.accessToken) {
+    throw new Error('No authentication token available');
+  }
+
+  return {
+    ...config,
+    method,
+    headers: {
+      ...config.headers,
+      Authorization: `Bearer ${session.accessToken}`,
+    },
+  };
+};
+
+const makeAuthRequest = async <T, R>(
+  config: Omit<RequestConfig<T, R>, 'method'>,
+  method: HttpMethod,
+): Promise<BaseApiResponse> => {
+  // First attempt with current token
+  const authConfig = await withAuth<T, R>(config, method);
+  const response = await makeRequest(authConfig);
+
+  // Check if the response indicates unauthorized access
+  if (
+    !response.success &&
+    (response.status === 401 ||
+      response.status === 403 ||
+      (response.status === 500 && response.message === 'Unauthorized'))
+  ) {
+    try {
+      // Get current session to access refresh token
+      const session = await getSession();
+
+      if (!session?.refreshToken) {
+        console.warn('No refresh token available, redirecting to sign-in');
+        return response; // Return the original unauthorized response
+      }
+
+      // Attempt to refresh the token
+      const newAccessToken = await handleRefreshToken(session.refreshToken);
+
+      // Retry the original request with the new token
+      const retryConfig = {
+        ...config,
+        method,
+        headers: {
+          ...config.headers,
+          Authorization: `Bearer ${newAccessToken}`,
+        },
+      };
+
+      return await makeRequest(retryConfig);
+    } catch (refreshError) {
+      console.warn('Token refresh failed:', refreshError);
+      return response;
+    }
+  }
+
+  // If it's not an auth error, return the response as-is
+  return response;
+};
+
+export const postAuthReq = async <
+  T = Record<string, FormDataEntryValue | null> | FormData,
+  R = Record<string, unknown>,
+>(
+  config: Omit<RequestConfig<T, R>, 'method'>,
+) => makeAuthRequest<T, R>(config, 'POST');
+
+export const getAuthReq = async <
+  T extends Record<string, unknown>,
+  R = Record<string, unknown>,
+>(
+  config: Omit<RequestConfig<T, R>, 'method' | 'body'>,
+) => makeAuthRequest<T, R>(config, 'GET');
+
+export const putAuthReq = async <
+  T = Record<string, FormDataEntryValue | null> | FormData,
+  R = Record<string, unknown>,
+>(
+  config: Omit<RequestConfig<T, R>, 'method'>,
+) => makeAuthRequest<T, R>(config, 'PUT');
+
+export const patchAuthReq = async <
+  T = Record<string, FormDataEntryValue | null> | FormData,
+  R = Record<string, unknown>,
+>(
+  config: Omit<RequestConfig<T, R>, 'method'>,
+) => makeAuthRequest<T, R>(config, 'PATCH');
+
+export const deleteAuthReq = async <
+  T extends Record<string, unknown>,
+  R = Record<string, unknown>,
+>(
+  config: Omit<RequestConfig<T, R>, 'method'>,
+) => makeAuthRequest<T, R>(config, 'DELETE');
