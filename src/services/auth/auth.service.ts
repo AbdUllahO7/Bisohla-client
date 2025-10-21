@@ -10,8 +10,8 @@ import { deleteSession, updateTokens } from '@/core/lib/web/session';
 import { allRoutes } from '@/constants/routes.constant';
 import { fetchAuth } from '@/lib/fetch-auth';
 import { revalidatePath } from 'next/cache';
+import { postReq } from '@/lib/fetch';
 import { BACKEND_URL } from '@/core/lib/web/constants';
-import { postReq } from '@/core/lib/api';
 
 export const handleRegister = async (
   state: ApiResponse<RegisterFormValues>,
