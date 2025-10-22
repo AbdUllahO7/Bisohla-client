@@ -1,12 +1,12 @@
 'use server';
 
-import { BACKEND_URL } from '@/constants/constants';
 import { ApiResponse } from '@/interfaces/api-response.interface';
 import { verifyZodFields } from './validation';
 import { ZodTypeAny } from 'zod';
 import { ValidationError } from '@/interfaces/errors/validation.error';
 import { AppError } from '@/interfaces/errors/app-error';
 import { getLocale } from 'next-intl/server';
+import { BACKEND_URL } from '@/core/lib/web/constants';
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 
@@ -143,7 +143,7 @@ export async function makeRequest<
       headers: {
         'Content-Type': 'application/json',
         'Accept-Language': locale,
-          'x-app-source':'web-app',
+        'x-app-source': 'web-app',
 
         ...headers,
       },
