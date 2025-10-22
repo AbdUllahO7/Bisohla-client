@@ -357,7 +357,7 @@
     },
     "header": {
       "adCounter": " ad",
-      "orderBy": "Short by:",
+      "orderBy": "Sort by:",
       "selectPrice": "Select Price",
       "options": {
         "newest": "Newest First",

@@ -174,9 +174,7 @@ const SmartBreadcrumb: React.FC<SmartBreadcrumbProps> = ({
                         } relative px-2 py-1 inline-block`}
                       >
                         {/* Active indicator dot */}
-                        {isLast && (
-                          <span className="absolute -left-2 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-[#ABDE3B] rounded-full animate-pulse"></span>
-                        )}
+                      
                         <span className={isLast ? 'font-bold' : ''}>{displayLabel}</span>
                       </span>
                     </div>

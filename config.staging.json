@@ -1,4 +1,4 @@
 {
-  "BACKEND_URL": "https://stage-api.bishola.com",
+  "BACKEND_URL": "https://stage-api.bishola.com/api/v1",
   "APP_URL": "https://stage.bishola.com"
 }

@@ -96,7 +96,6 @@ const Header: React.FC<HeaderProps> = ({
               <Text className="whitespace-nowrap text-[#2C3C39] font-semibold">
                 {t("header.orderBy")}
               </Text>
-              <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-[#198341] to-transparent"></div>
             </div>
             
             {/* Enhanced Dropdown Container */}
@@ -107,7 +106,6 @@ const Header: React.FC<HeaderProps> = ({
               {/* Dropdown Wrapper */}
               <div className="relative">
                 {/* Pulsing Indicator Dot */}
-                <div className="absolute left-3 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-[#ABDE3B] animate-pulse z-10 pointer-events-none"></div>
                 
                 <SelectDropdown
                   options={sortOptions}

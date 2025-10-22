@@ -157,7 +157,6 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-shimmer"></div>
             
             {/* Top accent bar */}
-            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#ABDE3B] via-white to-[#ABDE3B]"></div>
             
             <Text className="font-bold font-cairo text-white text-lg tracking-wide relative z-10 flex items-center gap-2">
               <span className="w-1.5 h-6 bg-[#ABDE3B] rounded-full"></span>
