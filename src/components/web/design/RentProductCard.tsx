@@ -20,6 +20,7 @@ import { useTranslations } from 'next-intl';
 import {
   getFuelTypeOptions,
   getTransmissionOptions,
+  SaveStatus,
 } from '@/core/entities/enums/cars.enums';
 
 // Extended props interface to include the callback and favorite status
@@ -40,6 +41,7 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
   type,
   onFavoriteToggle,
   isMarkedFavorite = false,
+  saveStatus, // published, sold, draft
 }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [favoriteStatus, setFavoriteStatus] = useState(isMarkedFavorite);
@@ -175,30 +177,37 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
     }
   };
 
+  const isSold = saveStatus === SaveStatus.SOLD;
+
   return (
     <div className="w-full ">
       <Card
-        className="border-none h-[370px] bg-white relative group hover:shadow-2xl hover:shadow-emerald-500/10 transition-all duration-500 ease-out overflow-hidden"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
+        className={`border-none h-[370px] bg-white relative group transition-all duration-500 ease-out overflow-hidden ${
+          isSold
+            ? 'opacity-75 cursor-default'
+            : 'hover:shadow-2xl hover:shadow-emerald-500/10'
+        }`}
+        onMouseEnter={() => !isSold && setIsHovered(true)}
+        onMouseLeave={() => !isSold && setIsHovered(false)}
         style={{
-          transform: isHovered
-            ? 'translateY(-8px) scale(1.02)'
-            : 'translateY(0) scale(1)',
+          transform:
+            isHovered && !isSold
+              ? 'translateY(-8px) scale(1.02)'
+              : 'translateY(0) scale(1)',
         }}
       >
         {/* Heart Icon with favorite status */}
         <Button
           className="absolute top-12 left-2 bg-white p-2 rounded-full shadow-md z-10"
           onClick={handleFavoriteClick}
-          disabled={!isAuthenticated || isProcessing}
+          disabled={!isAuthenticated || isProcessing || isSold}
         >
           <HeartIcon
             size={24}
             className={
               isProcessing
                 ? 'text-gray-400 animate-pulse'
-                : !isAuthenticated
+                : !isAuthenticated || isSold
                 ? 'text-gray-400'
                 : favoriteStatus
                 ? 'text-red-500'
@@ -207,6 +216,21 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
             fill={favoriteStatus ? 'currentColor' : 'none'}
           />
         </Button>
+
+        {/* SOLD Badge and Overlay */}
+        {isSold && (
+          <>
+            {/* Semi-transparent overlay */}
+            <div className="absolute inset-0 bg-gray-900/20 z-20 pointer-events-none" />
+
+            {/* SOLD Badge */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none">
+              <div className="bg-red-600 text-white font-bold text-2xl px-8 py-4 rounded-lg shadow-2xl border-4 border-white transform -rotate-12">
+                SOLD
+              </div>
+            </div>
+          </>
+        )}
 
         <Text className="absolute bottom-32 z-50 left-2 bg-primary-light px-2 py-1 rounded-lg shadow-md text-secondary text-sm">
           {type === 'for_rent' ? 'Rent' : 'Sale'}
@@ -231,11 +255,13 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
                 priority={false}
               />
               {/* Hover overlay with view icon */}
-              <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
-                <div className="bg-white/90 backdrop-blur-sm rounded-full p-3 transform scale-75 group-hover:scale-100 transition-transform duration-300">
-                  <Eye className="h-6 w-6 text-emerald-600" />
+              {!isSold && (
+                <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
+                  <div className="bg-white/90 backdrop-blur-sm rounded-full p-3 transform scale-75 group-hover:scale-100 transition-transform duration-300">
+                    <Eye className="h-6 w-6 text-emerald-600" />
+                  </div>
                 </div>
-              </div>
+              )}
             </CardTitle>
             <CardDescription className="p-[8px]">
               <Text
@@ -271,16 +297,22 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
           </div>
 
           {/* View details arrow - appears on hover */}
-          <div className="opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
-            <ArrowRight className="h-5 w-5 text-emerald-600" />
-          </div>
+          {!isSold && (
+            <div className="opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
+              <ArrowRight className="h-5 w-5 text-emerald-600" />
+            </div>
+          )}
         </CardFooter>
-        
-        <div className="h-1 bg-gradient-to-r from-emerald-500 to-teal-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
-        
-        {/* Side accent indicators - ONLY NEW ADDITION */}
-        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-0 group-hover:h-20 bg-gradient-to-b from-[#198341] to-[#ABDE3B] transition-all duration-500 rounded-r-full"></div>
-        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-0 group-hover:h-20 bg-gradient-to-b from-[#ABDE3B] to-[#198341] transition-all duration-500 rounded-l-full"></div>
+
+        {!isSold && (
+          <>
+            <div className="h-1 bg-gradient-to-r from-emerald-500 to-teal-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
+
+            {/* Side accent indicators - ONLY NEW ADDITION */}
+            <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-0 group-hover:h-20 bg-gradient-to-b from-[#198341] to-[#ABDE3B] transition-all duration-500 rounded-r-full"></div>
+            <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-0 group-hover:h-20 bg-gradient-to-b from-[#ABDE3B] to-[#198341] transition-all duration-500 rounded-l-full"></div>
+          </>
+        )}
       </Card>
     </div>
   );
