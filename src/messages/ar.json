@@ -1354,5 +1354,16 @@
     },
     "availability": "متاحون لمساعدتك في أي استفسارات",
     "cta": "تواصل معنا"
-  }
+  },
+    "linksPage": {
+    "Download":"تنزيل بسـهولـــة",
+    "getOurApp": "حمّل التطبيق على منصتك المفضلة",
+    "downloadOnThe": "حمّل من",
+    "AppStore":"App Store",
+    "GooglePlay":"GooglePlay",
+    "GetItOn": "حمّله من",
+    "Visit":"تفضل بزيارة موقعنا",
+    "WebSite":"موقعنا الإلكتروني",
+    "Available":"متوفر على جميع أجهزتك"
+    }
 }
