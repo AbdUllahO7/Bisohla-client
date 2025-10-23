@@ -41,7 +41,7 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
   type,
   onFavoriteToggle,
   isMarkedFavorite = false,
-  saveStatus, // published, sold, draft
+  saveStatus, 
 }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [favoriteStatus, setFavoriteStatus] = useState(isMarkedFavorite);
@@ -49,7 +49,7 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
   const [isHovered, setIsHovered] = useState(false);
 
   // Get translators for different namespaces - similar to ProductBasicInfo
-  const productT = useTranslations('product');
+  const t = useTranslations('SoldCard');
   const bodyTypeT = useTranslations('addProduct.enteredData.stepTow');
 
   // Get the translated options from the car enums - similar to ProductBasicInfo
@@ -184,7 +184,7 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
       <Card
         className={`border-none h-[370px] bg-white relative group transition-all duration-500 ease-out overflow-hidden ${
           isSold
-            ? 'opacity-75 cursor-default'
+            ? 'opacity-90 cursor-pointer shadow-lg'
             : 'hover:shadow-2xl hover:shadow-emerald-500/10'
         }`}
         onMouseEnter={() => !isSold && setIsHovered(true)}
@@ -217,33 +217,55 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
           />
         </Button>
 
-        {/* SOLD Badge and Overlay */}
+        {/* SOLD Badge and Overlay - Enhanced Design */}
         {isSold && (
           <>
-            {/* Semi-transparent overlay */}
-            <div className="absolute inset-0 bg-gray-900/20 z-20 pointer-events-none" />
+            {/* Gradient overlay with blur effect */}
+            <div className="absolute inset-0 bg-gradient-to-br from-gray-900/40 via-gray-800/30 to-black/40 backdrop-blur-[2px] z-20 pointer-events-none" />
 
-            {/* SOLD Badge */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none">
-              <div className="bg-red-600 text-white font-bold text-2xl px-8 py-4 rounded-lg shadow-2xl border-4 border-white transform -rotate-12">
-                SOLD
+            {/* Diagonal ribbon in top right corner */}
+            <div className="absolute top-0 right-0 z-30 pointer-events-none overflow-hidden w-32 h-32">
+              <div className="absolute top-6 -right-8 bg-gradient-to-r from-red-600 to-red-700 text-white text-xs font-bold py-1.5 px-10 transform rotate-45 shadow-2xl">
+                {t('soldOut')}
               </div>
+            </div>
+
+            {/* Main SOLD Badge - Stamp Style */}
+           
+            {/* Bottom status bar */}
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-r from-red-600 to-red-700 text-white text-center py-2 z-30 pointer-events-none">
+              <Text className="text-sm font-bold tracking-wider">
+                {t('desc')}
+              </Text>
             </div>
           </>
         )}
 
-        <Text className="absolute bottom-32 z-50 left-2 bg-primary-light px-2 py-1 rounded-lg shadow-md text-secondary text-sm">
+        <Text className="absolute bottom-32 z-20 left-2 bg-primary-light px-2 py-1 rounded-lg shadow-md text-secondary text-sm">
           {type === 'for_rent' ? 'Rent' : 'Sale'}
         </Text>
 
-        <Box className="flex z-50 justify-between p-[8px] rounded-t-[10px] bg-primary-light group-hover:bg-primary duration-500">
-          <Text className="mid font-cairo text-[500] text-[#EFEFEF] text-[14px]">
+        <Box className={`flex z-40 justify-between p-[8px] rounded-t-[10px] duration-500 ${
+          isSold 
+            ? 'bg-gray-400' 
+            : 'bg-primary-light group-hover:bg-primary'
+        }`}>
+          <Text className={`mid font-cairo text-[500] text-[14px] ${
+            isSold ? 'text-gray-200' : 'text-[#EFEFEF]'
+          }`}>
             {priceWord}
           </Text>
-          <Text className="mid font-cairo text-white font-bold">{price}</Text>
+          <Text className={`mid font-cairo font-bold ${
+            isSold ? 'text-gray-200 line-through' : 'text-white'
+          }`}>
+            {price}
+          </Text>
         </Box>
 
-        <Link href={`/products/product/${ProductId}`} className="block">
+        <Link 
+          href={`/products/product/${ProductId}`} 
+          className="block"
+        >
           <CardHeader className="p-0">
             <CardTitle className="w-full relative h-48 overflow-hidden">
               <Image
@@ -251,7 +273,9 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
                 alt={title}
                 fill
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                className="object-cover"
+                className={`object-cover transition-all duration-500 ${
+                  isSold ? 'grayscale' : ''
+                }`}
                 priority={false}
               />
               {/* Hover overlay with view icon */}
@@ -266,11 +290,18 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
             <CardDescription className="p-[8px]">
               <Text
                 variant="h4"
-                className="text-primary pr-2 pl-2 line-clamp-1"
+                className={`pr-2 pl-2 line-clamp-1 ${
+                  isSold ? 'text-gray-500' : 'text-primary'
+                }`}
               >
                 {title}
               </Text>
-              <Text variant="mid" className="text-primary pr-2 pl-2">
+              <Text 
+                variant="mid" 
+                className={`pr-2 pl-2 ${
+                  isSold ? 'text-gray-400' : 'text-primary'
+                }`}
+              >
                 {marka}
               </Text>
             </CardDescription>
@@ -280,16 +311,32 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
         <CardFooter className="flex justify-between items-center p-4 pt-0 gap-4">
           <div className="flex gap-4">
             {/* Fuel type with enhanced styling */}
-            <div className="flex items-center gap-2 text-sm text-gray-600 group-hover:text-emerald-600 transition-colors duration-300">
-              <div className="p-1.5 bg-gray-100 rounded-lg group-hover:bg-emerald-100 transition-colors duration-300">
+            <div className={`flex items-center gap-2 text-sm transition-colors duration-300 ${
+              isSold 
+                ? 'text-gray-400' 
+                : 'text-gray-600 group-hover:text-emerald-600'
+            }`}>
+              <div className={`p-1.5 rounded-lg transition-colors duration-300 ${
+                isSold 
+                  ? 'bg-gray-200' 
+                  : 'bg-gray-100 group-hover:bg-emerald-100'
+              }`}>
                 <Fuel className="h-4 w-4" />
               </div>
               <span className="font-medium">{translatedFuelType}</span>
             </div>
 
             {/* Transmission with enhanced styling */}
-            <div className="flex items-center gap-2 text-sm text-gray-600 group-hover:text-emerald-600 transition-colors duration-300">
-              <div className="p-1.5 bg-gray-100 rounded-lg group-hover:bg-emerald-100 transition-colors duration-300">
+            <div className={`flex items-center gap-2 text-sm transition-colors duration-300 ${
+              isSold 
+                ? 'text-gray-400' 
+                : 'text-gray-600 group-hover:text-emerald-600'
+            }`}>
+              <div className={`p-1.5 rounded-lg transition-colors duration-300 ${
+                isSold 
+                  ? 'bg-gray-200' 
+                  : 'bg-gray-100 group-hover:bg-emerald-100'
+              }`}>
                 <LifeBuoy className="h-4 w-4" />
               </div>
               <span className="font-medium">{translatedTransmission}</span>
@@ -308,7 +355,7 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
           <>
             <div className="h-1 bg-gradient-to-r from-emerald-500 to-teal-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
 
-            {/* Side accent indicators - ONLY NEW ADDITION */}
+            {/* Side accent indicators */}
             <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-0 group-hover:h-20 bg-gradient-to-b from-[#198341] to-[#ABDE3B] transition-all duration-500 rounded-r-full"></div>
             <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-0 group-hover:h-20 bg-gradient-to-b from-[#ABDE3B] to-[#198341] transition-all duration-500 rounded-l-full"></div>
           </>

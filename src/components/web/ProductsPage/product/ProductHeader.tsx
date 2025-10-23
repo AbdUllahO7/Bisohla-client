@@ -12,6 +12,7 @@ import { useState } from 'react';
 import { toggleCarListingFavorite } from '@/core/infrastructure-adapters/actions/users/car.user.actions';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import { SaveStatus } from '@/core/entities/enums/cars.enums';
 
 interface ProductHeaderProps {
   productName?: string;
@@ -22,6 +23,7 @@ interface ProductHeaderProps {
   productId?: number;
   isMarkedFavorite?: boolean;
   isAuthenticated?: boolean;
+  saveStatus?: SaveStatus;
   onFavoriteToggle?: (productId: number, isFavorite: boolean) => void;
   onAuthRequired?: () => void; // Callback for when auth is required
 }
@@ -37,12 +39,15 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
   isAuthenticated = false,
   onFavoriteToggle,
   onAuthRequired,
+  saveStatus
 }) => {
   const t = useTranslations('product');
   const { toast } = useToast();
   const [isProcessing, setIsProcessing] = useState(false);
-
+  const sold = useTranslations('SoldCard')
   const route = useRouter();
+  const isSold = saveStatus === SaveStatus.SOLD;
+
 
   // Format phone number for WhatsApp link (remove spaces, dashes, etc.)
   const formatPhoneForWhatsApp = (phone: string) => {
@@ -193,22 +198,21 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
         </Box>
 
         <Box
-          className="justify-end items-center flex-wrap gap-2 flex-1 sm:flex-nowrap hidden md:flex"
+          className="justify-center items-center gap-2 hidden md:flex"
           variant="row"
         >
-          <Skeleton className="h-8 w-8 rounded-md" />
-          <Skeleton className="h-8 w-8 rounded-md" />
-          <Skeleton className="h-8 w-[120px] rounded-md" />
-          <Skeleton className="h-8 w-[100px] rounded-md" />
+          <Skeleton className="h-8 w-8 rounded-full" />
+          <Skeleton className="h-8 w-[100px]" />
+          <Skeleton className="h-8 w-[120px]" />
         </Box>
 
         {/* Mobile skeleton */}
-        <div className="md:hidden w-full space-y-3">
-          <Skeleton className="h-8 w-[250px] mx-auto" />
-          <Skeleton className="h-12 w-[200px] mx-auto" />
-          <div className="flex gap-3 justify-center">
-            <Skeleton className="h-12 flex-1 max-w-[120px] rounded-lg" />
-            <Skeleton className="h-12 flex-1 max-w-[120px] rounded-lg" />
+        <div className="w-full flex md:hidden flex-col gap-4 p-4">
+          <Skeleton className="h-8 w-full" />
+          <Skeleton className="h-16 w-full rounded-lg" />
+          <div className="flex gap-3">
+            <Skeleton className="h-12 flex-1" />
+            <Skeleton className="h-12 flex-1" />
           </div>
         </div>
       </Box>
@@ -218,8 +222,8 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
   return (
     <>
       {/* Mobile Layout (< md) */}
-      <div className="md:hidden w-full my-4 relative">
-        <Box variant="column" className="w-full gap-4 items-center">
+      <div className="w-full flex md:hidden flex-col gap-4 p-4 relative">
+        <div className="w-full gap-4 flex-col ">
           {/* Mobile: Title (if needed) */}
           {productName && (
             <Text variant="h4" className="font-bold text-center w-full text-[#2C3C39]" as="h1">
@@ -232,15 +236,23 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
             {/* Glow effect behind price */}
             <div className="absolute inset-0 bg-[#ABDE3B]/20 blur-2xl rounded-full"></div>
             
-            <div className="relative bg-gradient-to-r from-[#198341]/10 via-[#ABDE3B]/10 to-[#198341]/10 px-6 py-3 rounded-lg border-2 border-[#198341]/30">
+            <div className={`relative px-6 py-3 rounded-lg border-2 ${
+              isSold 
+                ? 'bg-gray-200 border-gray-400' 
+                : 'bg-gradient-to-r from-[#198341]/10 via-[#ABDE3B]/10 to-[#198341]/10 border-[#198341]/30'
+            }`}>
               <Text
                 variant="h3"
-                className="font-bold text-[#198341] text-center"
+                className={`font-bold text-center ${
+                  isSold ? 'text-gray-500 line-through' : 'text-[#198341]'
+                }`}
               >
                 {price} {currency}
               </Text>
-              {/* Pulsing indicator */}
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-[#ABDE3B] rounded-full animate-pulse"></div>
+              {/* Pulsing indicator - only when not sold */}
+              {!isSold && (
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-[#ABDE3B] rounded-full animate-pulse"></div>
+              )}
             </div>
           </Box>
 
@@ -252,14 +264,14 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
               
               <button
                 className={`relative p-3 rounded-full backdrop-blur-sm transition-all duration-300 border-2 shadow-lg ${
-                  !isAuthenticated
+                  !isAuthenticated || isSold
                     ? 'bg-white/90 border-gray-200 hover:bg-white hover:shadow-xl hover:border-[#198341]'
                     : isMarkedFavorite
                     ? 'bg-red-50 border-red-200 hover:bg-red-100 hover:shadow-xl'
                     : 'bg-white/90 border-gray-200 hover:bg-white hover:shadow-xl hover:border-[#198341]'
                 }`}
                 onClick={handleFavoriteClick}
-                disabled={isProcessing}
+                disabled={isProcessing || isSold}
                 aria-label={
                   !isAuthenticated
                     ? 'Sign in to add favorites'
@@ -272,6 +284,8 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
                   className={`h-6 w-6 transition-all duration-300 ${
                     isProcessing
                       ? 'animate-pulse text-gray-400'
+                      : isSold
+                      ? 'text-gray-400'
                       : isMarkedFavorite
                       ? 'text-red-500 fill-red-500 scale-110'
                       : 'text-gray-600 group-hover:text-red-500 group-hover:scale-110'
@@ -281,43 +295,58 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
             </div>
           </div>
 
-          {/* Mobile: Action buttons - enhanced */}
-          <Box className="w-full flex gap-3 px-4" variant="row">
-            <div className="flex-1 relative group">
-              {/* Glow effect */}
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-[#198341] to-[#ABDE3B] rounded-lg opacity-0 group-hover:opacity-30 blur transition-opacity duration-300"></div>
-              
-              <Link
-                href={`tel:${ContactNumber}`}
-                className="relative flex items-center justify-center font-bold gap-2 text-base px-4 py-3 border-2 border-[#198341] text-[#198341] rounded-lg hover:bg-[#198341] hover:text-white transition-all duration-300 min-h-[48px] overflow-hidden group"
-              >
-                {/* Animated shine effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+          {/* Mobile: Action buttons or SOLD message */}
+          {isSold ? (
+            // SOLD Message for Mobile
+            <Box className="w-full px-4 flex-col mt-2" variant="center">
+              <div className="w-full bg-gradient-to-r from-red-600 to-red-700 text-white rounded-lg py-6 px-4 border-4 border-red-800 shadow-xl">
+                <div className="flex flex-col items-center gap-3">
+                  <div className="text-5xl font-black tracking-wider">{sold('sold')}</div>
+                  <div className="text-sm font-semibold tracking-wide uppercase">
+                    {sold('desc')}
+                  </div>
+                  <div className="h-1 w-24 bg-white/50 rounded-full mt-2"></div>
+                </div>
+              </div>
+            </Box>
+          ) : (
+            <Box className="w-full flex gap-3 px-4 pt-2" variant="row">
+              <div className="flex-1 relative group">
+                {/* Glow effect */}
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-[#198341] to-[#ABDE3B] rounded-lg opacity-0 group-hover:opacity-30 blur transition-opacity duration-300"></div>
                 
-                <PhoneCall className="h-5 w-5 relative z-10" />
-                <span className="relative z-10">{t('call')}</span>
-              </Link>
-            </div>
+                <Link
+                  href={`tel:${ContactNumber}`}
+                  className="relative flex items-center justify-center font-bold gap-2 text-base px-4 py-3 border-2 border-[#198341] text-[#198341] rounded-lg hover:bg-[#198341] hover:text-white transition-all duration-300 min-h-[48px] overflow-hidden group"
+                >
+                  {/* Animated shine effect */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                  
+                  <PhoneCall className="h-5 w-5 relative z-10" />
+                  <span className="relative z-10">{t('call')}</span>
+                </Link>
+              </div>
 
-            <div className="flex-1 relative group">
-              {/* Glow effect */}
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-green-500 to-green-600 rounded-lg opacity-0 group-hover:opacity-50 blur transition-opacity duration-300"></div>
-              
-              <Link
-                href={generateWhatsAppLink()}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="relative flex items-center justify-center gap-2 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-300 min-h-[48px] font-bold text-base overflow-hidden group"
-              >
-                {/* Animated shine effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+              <div className="flex-1 relative group">
+                {/* Glow effect */}
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-green-500 to-green-600 rounded-lg opacity-0 group-hover:opacity-50 blur transition-opacity duration-300"></div>
                 
-                <MessageCircle className="h-5 w-5 relative z-10" />
-                <span className="relative z-10">{t('whatsapp')}</span>
-              </Link>
-            </div>
-          </Box>
-        </Box>
+                <Link
+                  href={generateWhatsAppLink()}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="relative flex items-center justify-center gap-2 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-300 min-h-[48px] font-bold text-base overflow-hidden group"
+                >
+                  {/* Animated shine effect */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                  
+                  <MessageCircle className="h-5 w-5 relative z-10" />
+                  <span className="relative z-10">{t('whatsapp')}</span>
+                </Link>
+              </div>
+            </Box>
+          )}
+        </div>
       </div>
 
       {/* Desktop Layout (>= md) */}
@@ -349,14 +378,14 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
             
             <button
               className={`relative p-2 sm:p-1.5 rounded-md transition-all duration-300 border-2 ${
-                !isAuthenticated
+                !isAuthenticated || isSold
                   ? 'bg-background hover:bg-white hover:shadow-md border-transparent hover:border-[#198341]'
                   : isMarkedFavorite
                   ? 'bg-red-50 hover:bg-red-100 border-red-200'
                   : 'bg-background hover:bg-white hover:shadow-md border-transparent hover:border-[#198341]'
               }`}
               onClick={handleFavoriteClick}
-              disabled={isProcessing}
+              disabled={isProcessing || isSold}
               aria-label={
                 !isAuthenticated
                   ? 'Sign in to add favorites'
@@ -369,6 +398,8 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
                 className={`h-5 w-5 sm:h-6 sm:w-6 transition-all duration-300 ${
                   isProcessing
                     ? 'animate-pulse text-gray-400'
+                    : isSold
+                    ? 'text-gray-400'
                     : isMarkedFavorite
                     ? 'text-red-500 fill-red-500 scale-110'
                     : 'text-gray-600 group-hover:text-red-500 group-hover:scale-110'
@@ -377,42 +408,58 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
             </button>
           </div>
 
-          {/* Desktop Call Button - Enhanced */}
-          <div className="relative group">
-            {/* Glow effect */}
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-[#198341] to-[#ABDE3B] rounded-md opacity-0 group-hover:opacity-30 blur transition-opacity duration-300"></div>
-            
-            <Link
-              href={`tel:${ContactNumber}`}
-              className="relative flex items-center justify-center font-bold gap-1 text-sm px-3 py-2 sm:px-4 sm:py-1.5 border-2 border-[#198341] text-[#198341] rounded-md hover:bg-[#198341] hover:text-white transition-all duration-300 min-w-[80px] sm:min-w-0 overflow-hidden"
-            >
-              {/* Animated shine effect */}
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
-              
-              <PhoneCall className="h-4 w-4 sm:h-4 sm:w-4 relative z-10" />
-              <span className="hidden sm:inline relative z-10">{ContactNumber}</span>
-              <span className="sm:hidden relative z-10">Call</span>
-            </Link>
-          </div>
+          {/* Desktop: Action buttons or SOLD badge */}
+          {isSold ? (
+            // SOLD Badge for Desktop
+            <div className="bg-gradient-to-r from-red-600 to-red-700 text-white px-8 py-3 rounded-md border-2 border-red-800 shadow-lg">
+              <div className="flex items-center gap-3">
+                <div className="text-2xl font-black tracking-wider">{sold('sold')}</div>
+                <div className="h-6 w-px bg-white/50"></div>
+                <div className="text-xs font-semibold tracking-wide uppercase">
+                  {sold('desc')}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <>
+              {/* Desktop Call Button - Enhanced */}
+              <div className="relative group">
+                {/* Glow effect */}
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-[#198341] to-[#ABDE3B] rounded-md opacity-0 group-hover:opacity-30 blur transition-opacity duration-300"></div>
+                
+                <Link
+                  href={`tel:${ContactNumber}`}
+                  className="relative flex items-center justify-center font-bold gap-1 text-sm px-3 py-2 sm:px-4 sm:py-1.5 border-2 border-[#198341] text-[#198341] rounded-md hover:bg-[#198341] hover:text-white transition-all duration-300 min-w-[80px] sm:min-w-0 overflow-hidden"
+                >
+                  {/* Animated shine effect */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                  
+                  <PhoneCall className="h-4 w-4 sm:h-4 sm:w-4 relative z-10" />
+                  <span className="hidden sm:inline relative z-10">{ContactNumber}</span>
+                  <span className="sm:hidden relative z-10">Call</span>
+                </Link>
+              </div>
 
-          {/* Desktop WhatsApp Button - Enhanced */}
-          <div className="relative group">
-            {/* Glow effect */}
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-[#198341] to-[#ABDE3B] rounded-md opacity-0 group-hover:opacity-50 blur transition-opacity duration-300"></div>
-            
-            <Link
-              href={generateWhatsAppLink()}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="relative flex items-center justify-center gap-1 px-3 py-2 sm:px-4 sm:py-1.5 bg-gradient-to-r from-[#198341] to-[#198341] text-white hover:from-[#2C3C39] hover:to-[#198341] rounded-md transition-all duration-300 min-w-[120px] sm:min-w-0 overflow-hidden"
-            >
-              {/* Animated shine effect */}
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
-              
-              <MessageCircle className="h-4 w-4 sm:h-4 sm:w-4 relative z-10" />
-              <span className="font-bold text-sm relative z-10">{t('header.whatsApp')}</span>
-            </Link>
-          </div>
+              {/* Desktop WhatsApp Button - Enhanced */}
+              <div className="relative group">
+                {/* Glow effect */}
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-[#198341] to-[#ABDE3B] rounded-md opacity-0 group-hover:opacity-50 blur transition-opacity duration-300"></div>
+                
+                <Link
+                  href={generateWhatsAppLink()}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="relative flex items-center justify-center gap-1 px-3 py-2 sm:px-4 sm:py-1.5 bg-gradient-to-r from-[#198341] to-[#198341] text-white hover:from-[#2C3C39] hover:to-[#198341] rounded-md transition-all duration-300 min-w-[120px] sm:min-w-0 overflow-hidden"
+                >
+                  {/* Animated shine effect */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                  
+                  <MessageCircle className="h-4 w-4 sm:h-4 sm:w-4 relative z-10" />
+                  <span className="font-bold text-sm relative z-10">{t('header.whatsApp')}</span>
+                </Link>
+              </div>
+            </>
+          )}
         </Box>
       </Box>
     </>

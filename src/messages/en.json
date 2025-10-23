@@ -1404,5 +1404,11 @@
      "Visit":"Visit our",
      "WebSite":"Website",
      "Available":"Available on all your devices"
+  },
+  "SoldCard":{
+    "soldOut":"SOLD OUT",
+    "sold":"SOLD",
+    "desc":"THIS VEHICLE HAS BEEN SOLD"
   }
+
 }
