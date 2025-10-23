@@ -1393,5 +1393,16 @@
     },
     "availability": "Available to assist you with any inquiries",
     "cta": "Get in Touch"
+  },
+    "linksPage" : {
+     "Download":"Download Bishola",
+     "getOurApp": "Get the app on your favorite platform",
+     "downloadOnThe":" Download on the",
+     "AppStore":"App Store",
+     "GooglePlay":"GoogleP lay",
+     "GetItOn":"Get it on",
+     "Visit":"Visit our",
+     "WebSite":"Website",
+     "Available":"Available on all your devices"
   }
 }
