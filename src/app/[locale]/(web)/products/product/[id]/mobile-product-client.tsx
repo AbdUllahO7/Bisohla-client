@@ -26,7 +26,6 @@ const MobileProductClient = ({
   locale,
   isProfileView,
 }: ProductClientProps) => {
-  const currentLocale = useLocale();
   const carData = carDataRes.data;
 
   if (!carData) {

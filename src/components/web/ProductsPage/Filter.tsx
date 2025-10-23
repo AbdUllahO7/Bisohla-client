@@ -77,31 +77,26 @@ const FilterOptionDropdown = React.memo(
     return (
       <div className="mb-4 w-full">
         {title && (
-          <Label className="text-sm font-medium text-[#2C3C39] mb-2 block">
+          <Label className="text-sm font-medium text-slate-700 mb-2 block">
             {title}
           </Label>
         )}
-        <div className="relative group">
-          {/* Subtle hover glow */}
-          <div className="absolute -inset-0.5 bg-gradient-to-r from-[#198341] via-[#ABDE3B] to-[#198341] rounded-lg opacity-0 group-hover:opacity-20 blur transition-all duration-300"></div>
-          
-          <SelectDropdown
-            options={options}
-            placeholder={placeholder}
-            SelectTriggerStyle={`relative border border-slate-200 rounded-lg p-3 shadow-sm ${
-              disabled
-                ? 'bg-slate-50 text-slate-400 cursor-not-allowed'
-                : `bg-white hover:bg-slate-50 hover:border-[#198341] ${
-                    value ? 'border-[#198341] bg-[#ABDE3B]/5' : ''
-                  }`
-            } transition-all duration-200 w-full text-[#2C3C39] text-sm font-medium`}
-            className="w-full"
-            onChange={onChange}
-            value={value || ''}
-            name={name || ''}
-            disabled={disabled}
-          />
-        </div>
+        <SelectDropdown
+          options={options}
+          placeholder={placeholder}
+          SelectTriggerStyle={`border border-slate-200 rounded-lg p-3 shadow-sm ${
+            disabled
+              ? 'bg-slate-50 text-slate-400 cursor-not-allowed'
+              : `bg-white hover:bg-slate-50 ${
+                  value ? 'border-primary/50 bg-primary/5' : ''
+                }`
+          } transition-all duration-200 w-full text-slate-800 text-sm font-medium`}
+          className="w-full"
+          onChange={onChange}
+          value={value || ''}
+          name={name || ''}
+          disabled={disabled}
+        />
       </div>
     );
   },
@@ -114,24 +109,20 @@ const AccordionHeader = React.memo(
   ({ title, hasActiveFilters, activeCount }: AccordionHeaderProps) => (
     <div className="flex items-center justify-between w-full py-1">
       <div className="flex items-center gap-3">
-        {/* Active indicator dot */}
-        {hasActiveFilters && (
-          <div className="w-2 h-2 rounded-full bg-[#ABDE3B] animate-pulse"></div>
-        )}
         <span
-          className={`text-[#2C3C39] font-semibold text-sm ${
-            hasActiveFilters ? 'text-[#198341]' : ''
+          className={`text-slate-800 font-semibold text-sm ${
+            hasActiveFilters ? 'text-primary' : ''
           }`}
         >
           {title}
         </span>
         {hasActiveFilters && activeCount && (
-          <span className="bg-gradient-to-r from-[#198341] to-[#ABDE3B] text-white text-xs px-2 py-0.5 rounded-full font-medium shadow-sm">
+          <span className="bg-primary text-white text-xs px-2 py-0.5 rounded-full font-medium">
             {activeCount}
           </span>
         )}
       </div>
-      <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${hasActiveFilters ? 'text-[#198341]' : 'text-slate-600'}`} />
+      <ChevronDown className="h-4 w-4 transition-transform duration-200" />
     </div>
   ),
 );
@@ -150,22 +141,20 @@ const ActiveFiltersSummary = React.memo(({ filters, onClearAll }: any) => {
   if (activeFiltersCount === 0) return null;
 
   return (
-    <div className="px-4 py-3 bg-gradient-to-r from-[#198341]/10 via-[#ABDE3B]/10 to-[#198341]/10 border-b border-[#198341]/20 relative overflow-hidden">
-      {/* Animated background effect */}
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#ABDE3B]/5 to-transparent animate-pulse"></div>
-      
-      <div className="flex items-center justify-between relative z-10">
+    <div className="px-4 py-3 bg-primary/5 border-b border-primary/10">
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <FilterIcon className="h-4 w-4 text-[#198341]" />
-          <span className="text-sm font-medium text-[#198341]">
+          <FilterIcon className="h-4 w-4 text-primary" />
+          <span className="text-sm font-medium text-primary">
             {activeFiltersCount}{' '}
+            {t('filter.activeFilters', { count: activeFiltersCount })}
           </span>
         </div>
         <Button
           variant="ghost"
           size="sm"
           onClick={onClearAll}
-          className="text-xs text-[#2C3C39] hover:text-[#198341] hover:bg-[#ABDE3B]/20 p-1 h-auto"
+          className="text-xs text-slate-600 hover:text-primary p-1 h-auto"
         >
           {t('filter.clearAll')}
         </Button>
@@ -185,12 +174,12 @@ const MobileFilterButton = React.memo(({ activeFiltersCount, onOpen }: any) => {
       onClick={onOpen}
       size="icon"
       style={{ zIndex: 10000000 }}
-      className="fixed bottom-4 left-4 bg-gradient-to-r from-[#198341] to-[#ABDE3B] hover:from-[#2C3C39] hover:to-[#198341] text-white shadow-xl rounded-xl h-12 w-12 font-semibold text-base xl:hidden flex items-center justify-center transition-all duration-300 hover:shadow-2xl hover:scale-110"
+      className="fixed bottom-4 left-4 bg-primary hover:bg-primary/90 text-white shadow-lg rounded-xl h-12 w-12 font-semibold text-base xl:hidden flex items-center justify-center"
     >
       <div className="relative">
         <SlidersHorizontal className="h-5 w-5" />
         {activeFiltersCount > 0 && (
-          <span className="absolute -top-4 -right-4 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center animate-bounce">
+          <span className="absolute -top-4 -right-4 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
             {activeFiltersCount}
           </span>
         )}
@@ -241,9 +230,7 @@ const FilterContent = React.memo(
       <>
         {/* Search Input */}
         {!isMobile && (
-          <div className="border-b border-slate-100 relative overflow-hidden">
-            {/* Decorative bottom line */}
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-[#198341] to-transparent"></div>
+          <div className="border-b border-slate-100">
             <OptimizedSearchInput />
           </div>
         )}
@@ -263,15 +250,12 @@ const FilterContent = React.memo(
                 onValueChange={handleAccordionChange}
                 className="space-y-2"
               >
-                {/* Listing Type Filter */}
+                {/* Listing Type Filter - FIXED: Changed value to "listing-type" */}
                 <AccordionItem
                   value="listing-type"
-                  className="border-2 border-slate-200 rounded-lg overflow-hidden bg-white hover:shadow-md hover:border-[#198341] transition-all duration-300 relative group"
+                  className="border border-slate-200 rounded-lg overflow-hidden bg-white hover:shadow-sm transition-shadow"
                 >
-                  {/* Subtle gradient on hover */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-[#198341]/5 via-transparent to-[#ABDE3B]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-                  
-                  <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 transition-colors duration-200 relative z-10">
+                  <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 transition-colors duration-200">
                     <AccordionHeader
                       title={t('filter.listingTypeSelect', {
                         defaultValue: 'Listing Type',
@@ -282,7 +266,7 @@ const FilterContent = React.memo(
                       activeCount={getActiveFiltersCount('listing-type')}
                     />
                   </AccordionTrigger>
-                  <AccordionContent className="px-4 pb-4 pt-2 bg-gradient-to-b from-slate-50/50 to-white relative z-10">
+                  <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50">
                     <div className="space-y-3">
                       <FilterOptionDropdown
                         options={getListingTypeOptions(trans)}
@@ -300,11 +284,9 @@ const FilterContent = React.memo(
                 {/* Location Filter */}
                 <AccordionItem
                   value="address"
-                  className="border-2 border-slate-200 rounded-lg overflow-hidden bg-white hover:shadow-md hover:border-[#198341] transition-all duration-300 relative group"
+                  className="border border-slate-200 rounded-lg overflow-hidden bg-white hover:shadow-sm transition-shadow"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-[#198341]/5 via-transparent to-[#ABDE3B]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-                  
-                  <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 transition-colors duration-200 relative z-10">
+                  <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 transition-colors duration-200">
                     <AccordionHeader
                       title={t(
                         'filter.filterOptions.address.filterOptionsTitle',
@@ -313,7 +295,7 @@ const FilterContent = React.memo(
                       activeCount={getActiveFiltersCount('address')}
                     />
                   </AccordionTrigger>
-                  <AccordionContent className="px-4 pb-4 pt-2 bg-gradient-to-b from-slate-50/50 to-white relative z-10">
+                  <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50">
                     <div className="space-y-3">
                       <FilterOptionDropdown
                         options={governorateOptions}
@@ -343,11 +325,9 @@ const FilterContent = React.memo(
                 {/* Car Brand/Model/Trim Filter */}
                 <AccordionItem
                   value="car-marka"
-                  className="border-2 border-slate-200 rounded-lg overflow-hidden bg-white hover:shadow-md hover:border-[#198341] transition-all duration-300 relative group"
+                  className="border border-slate-200 rounded-lg overflow-hidden bg-white hover:shadow-sm transition-shadow"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-[#198341]/5 via-transparent to-[#ABDE3B]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-                  
-                  <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 transition-colors duration-200 relative z-10">
+                  <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 transition-colors duration-200">
                     <AccordionHeader
                       title={t(
                         'filter.filterOptions.productMarka.filterOptionsTitle',
@@ -356,7 +336,7 @@ const FilterContent = React.memo(
                       activeCount={getActiveFiltersCount('car-marka')}
                     />
                   </AccordionTrigger>
-                  <AccordionContent className="px-4 pb-4 pt-2 bg-gradient-to-b from-slate-50/50 to-white relative z-10">
+                  <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50">
                     <NestedCarFilter
                       carMakesConfig={carMakesConfig}
                       carModelsConfig={carModelsConfig}
@@ -381,18 +361,16 @@ const FilterContent = React.memo(
                 {/* Car Year Range */}
                 <AccordionItem
                   value="car-year"
-                  className="border-2 border-slate-200 rounded-lg overflow-hidden bg-white hover:shadow-md hover:border-[#198341] transition-all duration-300 relative group"
+                  className="border border-slate-200 rounded-lg overflow-hidden bg-white hover:shadow-sm transition-shadow"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-[#198341]/5 via-transparent to-[#ABDE3B]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-                  
-                  <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 transition-colors duration-200 relative z-10">
+                  <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 transition-colors duration-200">
                     <AccordionHeader
                       title={stepOneTitles.year}
                       hasActiveFilters={getActiveFiltersCount('car-year') > 0}
                       activeCount={getActiveFiltersCount('car-year')}
                     />
                   </AccordionTrigger>
-                  <AccordionContent className="px-4 pb-4 pt-2 bg-gradient-to-b from-slate-50/50 to-white relative z-10">
+                  <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50">
                     <div className="grid grid-cols-2 gap-3">
                       <FilterOptionDropdown
                         options={madeYear}
@@ -425,11 +403,9 @@ const FilterContent = React.memo(
                 {/* Price Range */}
                 <AccordionItem
                   value="price-range"
-                  className="border-2 border-slate-200 rounded-lg overflow-hidden bg-white hover:shadow-md hover:border-[#198341] transition-all duration-300 relative group"
+                  className="border border-slate-200 rounded-lg overflow-hidden bg-white hover:shadow-sm transition-shadow"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-[#198341]/5 via-transparent to-[#ABDE3B]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-                  
-                  <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 transition-colors duration-200 relative z-10">
+                  <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 transition-colors duration-200">
                     <AccordionHeader
                       title={t('filter.filterOptions.productPrice.title')}
                       hasActiveFilters={
@@ -438,7 +414,7 @@ const FilterContent = React.memo(
                       activeCount={getActiveFiltersCount('price-range')}
                     />
                   </AccordionTrigger>
-                  <AccordionContent className="px-4 pb-4 pt-2 bg-gradient-to-b from-slate-50/50 to-white relative z-10">
+                  <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50">
                     <div className="space-y-3">
                       <div className="grid grid-cols-2 gap-3">
                         <FilterOptionDropdown
@@ -478,11 +454,9 @@ const FilterContent = React.memo(
                 {/* Mileage Range */}
                 <AccordionItem
                   value="mileage-range"
-                  className="border-2 border-slate-200 rounded-lg overflow-hidden bg-white hover:shadow-md hover:border-[#198341] transition-all duration-300 relative group"
+                  className="border border-slate-200 rounded-lg overflow-hidden bg-white hover:shadow-sm transition-shadow"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-[#198341]/5 via-transparent to-[#ABDE3B]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-                  
-                  <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 transition-colors duration-200 relative z-10">
+                  <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 transition-colors duration-200">
                     <AccordionHeader
                       title={t('filter.filterOptions.mileage.title', {
                         defaultValue: 'Mileage Range',
@@ -493,7 +467,7 @@ const FilterContent = React.memo(
                       activeCount={getActiveFiltersCount('mileage-range')}
                     />
                   </AccordionTrigger>
-                  <AccordionContent className="px-4 pb-4 pt-2 bg-gradient-to-b from-slate-50/50 to-white relative z-10">
+                  <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50">
                     <div className="grid grid-cols-2 gap-3">
                       <FilterOptionDropdown
                         options={mileageRanges}
@@ -526,11 +500,9 @@ const FilterContent = React.memo(
                 {/* Control Type */}
                 <AccordionItem
                   value="control-type"
-                  className="border-2 border-slate-200 rounded-lg overflow-hidden bg-white hover:shadow-md hover:border-[#198341] transition-all duration-300 relative group"
+                  className="border border-slate-200 rounded-lg overflow-hidden bg-white hover:shadow-sm transition-shadow"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-[#198341]/5 via-transparent to-[#ABDE3B]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-                  
-                  <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 transition-colors duration-200 relative z-10">
+                  <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 transition-colors duration-200">
                     <AccordionHeader
                       title={t('filter.filterOptions.ControlType.title')}
                       hasActiveFilters={
@@ -539,7 +511,7 @@ const FilterContent = React.memo(
                       activeCount={getActiveFiltersCount('control-type')}
                     />
                   </AccordionTrigger>
-                  <AccordionContent className="px-4 pb-4 pt-2 bg-gradient-to-b from-slate-50/50 to-white relative z-10">
+                  <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50">
                     <FilterOptionDropdown
                       options={stepTwoOptions.transmission}
                       placeholder={stepTwoLabels.selectTransmission}
@@ -553,18 +525,16 @@ const FilterContent = React.memo(
                 {/* Fuel Type */}
                 <AccordionItem
                   value="fuel-type"
-                  className="border-2 border-slate-200 rounded-lg overflow-hidden bg-white hover:shadow-md hover:border-[#198341] transition-all duration-300 relative group"
+                  className="border border-slate-200 rounded-lg overflow-hidden bg-white hover:shadow-sm transition-shadow"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-[#198341]/5 via-transparent to-[#ABDE3B]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-                  
-                  <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 transition-colors duration-200 relative z-10">
+                  <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 transition-colors duration-200">
                     <AccordionHeader
                       title={t('filter.filterOptions.FuelType.title')}
                       hasActiveFilters={getActiveFiltersCount('fuel-type') > 0}
                       activeCount={getActiveFiltersCount('fuel-type')}
                     />
                   </AccordionTrigger>
-                  <AccordionContent className="px-4 pb-4 pt-2 bg-gradient-to-b from-slate-50/50 to-white relative z-10">
+                  <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50">
                     <FilterOptionDropdown
                       options={stepTwoOptions.fuelType}
                       placeholder={stepTwoLabels.selectFuelType}
@@ -578,18 +548,16 @@ const FilterContent = React.memo(
                 {/* Body Type */}
                 <AccordionItem
                   value="body-type"
-                  className="border-2 border-slate-200 rounded-lg overflow-hidden bg-white hover:shadow-md hover:border-[#198341] transition-all duration-300 relative group"
+                  className="border border-slate-200 rounded-lg overflow-hidden bg-white hover:shadow-sm transition-shadow"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-[#198341]/5 via-transparent to-[#ABDE3B]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-                  
-                  <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 transition-colors duration-200 relative z-10">
+                  <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 transition-colors duration-200">
                     <AccordionHeader
                       title={stepTwoLabels.bodyType}
                       hasActiveFilters={getActiveFiltersCount('body-type') > 0}
                       activeCount={getActiveFiltersCount('body-type')}
                     />
                   </AccordionTrigger>
-                  <AccordionContent className="px-4 pb-4 pt-2 bg-gradient-to-b from-slate-50/50 to-white relative z-10">
+                  <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50">
                     <FilterOptionDropdown
                       options={stepTwoOptions.bodyType}
                       placeholder={stepTwoLabels.selectBodyType}
@@ -605,20 +573,14 @@ const FilterContent = React.memo(
         </div>
 
         {/* Reset Button */}
-        <div className="p-4 border-t border-slate-200 bg-gradient-to-r from-white via-[#ABDE3B]/5 to-white relative overflow-hidden">
-          {/* Decorative top line */}
-          <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#198341] via-[#ABDE3B] to-[#198341]"></div>
-          
+        <div className="p-4 border-t border-slate-200 bg-gradient-to-r from-slate-50 to-white">
           <Button
             variant="outline"
-            className="relative w-full bg-white hover:bg-gradient-to-r hover:from-[#198341] hover:to-[#ABDE3B] hover:text-white text-[#2C3C39] border-2 border-[#2C3C39] hover:border-[#198341] font-medium transition-all duration-300 rounded-lg h-11 shadow-sm hover:shadow-lg group overflow-hidden"
+            className="w-full bg-white hover:bg-slate-50 hover:text-primary text-slate-700 border-slate-300 hover:border-primary font-medium transition-all duration-200 rounded-lg h-11 shadow-sm hover:shadow"
             onClick={resetFilters}
           >
-            {/* Animated background on hover */}
-            <div className="absolute inset-0 bg-gradient-to-r from-[#198341] via-[#ABDE3B] to-[#198341] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            
-            <ListRestart className="mr-2 h-4 w-4 relative z-10" />
-            <span className="relative z-10">{t('filter.filterOptions.resetSearch')}</span>
+            <ListRestart className="mr-2 h-4 w-4" />
+            {t('filter.filterOptions.resetSearch')}
           </Button>
         </div>
       </>
@@ -670,11 +632,11 @@ const ProductsFilter: React.FC = React.memo(() => {
   const priceRanges = getPriceRanges;
   const mileageRanges = getMileageRanges;
 
-  // Auto-manage accordion states based on active filters including listing type
+  // FIXED: Auto-manage accordion states based on active filters including listing type
   useEffect(() => {
     const newOpenAccordions: string[] = [];
 
-    if (filters.listingType) newOpenAccordions.push('listing-type');
+    if (filters.listingType) newOpenAccordions.push('listing-type'); // ADDED
     if (filters.governorate || filters.city) newOpenAccordions.push('address');
     if (filters.selectedBrands.length > 0 || filters.model || filters.trim)
       newOpenAccordions.push('car-marka');
@@ -716,6 +678,7 @@ const ProductsFilter: React.FC = React.memo(() => {
     handleStepTwoSelectChange('fuelType', filters.fuelType);
     handleStepTwoSelectChange('bodyType', filters.bodyType);
     handleStepTwoSelectChange('currency', filters.currency);
+    // ADDED: Sync listing type
     handleStepOneSelectChange('listingType', filters.listingType);
   }, [filters, handleStepOneSelectChange, handleStepTwoSelectChange]);
 
@@ -786,6 +749,7 @@ const ProductsFilter: React.FC = React.memo(() => {
     handleStepTwoSelectChange('fuelType', '');
     handleStepTwoSelectChange('bodyType', '');
     handleStepTwoSelectChange('currency', '');
+    // ADDED: Reset listing type
     handleStepOneSelectChange('listingType', '');
   };
 
@@ -793,11 +757,11 @@ const ProductsFilter: React.FC = React.memo(() => {
     setOpenAccordions(value);
   };
 
-  // Helper function to count active filters per section
+  // FIXED: Helper function to count active filters per section - added listing-type case
   const getActiveFiltersCount = (section: string) => {
     switch (section) {
       case 'listing-type':
-        return filters.listingType ? 1 : 0;
+        return filters.listingType ? 1 : 0; // ADDED
       case 'address':
         return [filters.governorate, filters.city].filter(Boolean).length;
       case 'car-marka':
@@ -867,36 +831,22 @@ const ProductsFilter: React.FC = React.memo(() => {
         style={{ top: `${headerHeight}px` }}
         dir={isRTL ? 'rtl' : 'ltr'}
       >
-        <div className="w-full bg-white rounded-xl shadow-xl border-2 border-slate-200 overflow-hidden relative">
-          {/* Decorative corner accents */}
-          <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-[#ABDE3B]/10 to-transparent rounded-bl-full pointer-events-none"></div>
-          <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-[#198341]/10 to-transparent rounded-tr-full pointer-events-none"></div>
-          
+        <div className="w-full bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
           {/* Desktop Header */}
-          <div className="p-4 border-b-2 border-slate-200 bg-gradient-to-r from-white via-[#ABDE3B]/5 to-white relative overflow-hidden">
-            {/* Top gradient accent */}
-            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#198341] via-[#ABDE3B] to-[#198341]"></div>
-            
-            <div className="flex items-center justify-between relative z-10">
-              <div className="flex items-center gap-3">
-                {/* Pulsing indicator */}
-                <div className="w-2 h-8 rounded-full bg-gradient-to-b from-[#ABDE3B] to-[#198341] shadow-lg"></div>
-                
-                <div className="flex items-center gap-2">
-                  <FilterIcon className="h-5 w-5 text-[#198341]" />
-                  <h2 className="text-lg font-bold text-[#2C3C39]">
-                    {t('filter.title')}
-                  </h2>
-                </div>
+          <div className="p-4 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <FilterIcon className="h-5 w-5 text-primary" />
+                <h2 className="text-lg font-bold text-slate-800">
+                  {t('filter.title')}
+                </h2>
               </div>
-              
-             
             </div>
           </div>
 
           {/* Desktop Filter Content */}
           <div
-            className="flex flex-col relative z-10"
+            className="flex flex-col"
             style={{ maxHeight: 'calc(100vh - 120px)' }}
           >
             <FilterContent {...filterContentProps} />
@@ -914,29 +864,21 @@ const ProductsFilter: React.FC = React.memo(() => {
       <Sheet open={isMobileDrawerOpen} onOpenChange={setIsMobileDrawerOpen}>
         <SheetContent
           side={isRTL ? 'right' : 'left'}
-          className="w-full sm:w-[400px] p-0 flex flex-col bg-gradient-to-b from-white to-slate-50"
+          className="w-full sm:w-[400px] p-0 flex flex-col"
           style={{ zIndex: 10000 }}
         >
-          {/* Top gradient accent bar */}
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#198341] via-[#ABDE3B] to-[#198341] z-50"></div>
-          
           {/* Mobile Header */}
-          <SheetHeader className="px-4 py-4 border-b-2 border-slate-200 bg-gradient-to-r from-white via-[#ABDE3B]/5 to-white relative">
+          <SheetHeader className="px-4 py-4 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                {/* Pulsing indicator */}
-                <div className="w-2 h-8 rounded-full bg-gradient-to-b from-[#ABDE3B] to-[#198341]"></div>
-                
-                <div className="flex items-center gap-2">
-                  <FilterIcon className="h-5 w-5 text-[#198341]" />
-                  <SheetTitle className="text-lg font-bold text-[#2C3C39]">
-                    {t('filter.title')}
-                  </SheetTitle>
-                </div>
+              <div className="flex items-center gap-2">
+                <FilterIcon className="h-5 w-5 text-primary" />
+                <SheetTitle className="text-lg font-bold text-slate-800">
+                  {t('filter.title')}
+                </SheetTitle>
               </div>
               <SheetClose asChild>
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-[#ABDE3B]/20">
-                  <X className="h-4 w-4 text-[#2C3C39]" />
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                  <X className="h-4 w-4" />
                 </Button>
               </SheetClose>
             </div>
@@ -946,8 +888,7 @@ const ProductsFilter: React.FC = React.memo(() => {
           </SheetHeader>
 
           {/* Mobile Search Input */}
-          <div className="border-b border-slate-100 relative">
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-[#198341] to-transparent"></div>
+          <div className="border-b border-slate-100">
             <OptimizedSearchInput />
           </div>
 
@@ -957,12 +898,9 @@ const ProductsFilter: React.FC = React.memo(() => {
           </div>
 
           {/* Mobile Footer with Apply Button */}
-          <div className="p-4 border-t-2 border-slate-200 bg-gradient-to-r from-white via-[#ABDE3B]/5 to-white space-y-3 relative">
-            {/* Top gradient accent */}
-            <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#198341] via-[#ABDE3B] to-[#198341]"></div>
-            
+          <div className="p-4 border-t border-slate-200 bg-white space-y-3">
             <div className="flex items-center justify-between text-sm text-slate-600">
-              <span className="text-[#2C3C39] font-medium">
+              <span>
                 {activeFiltersCount > 0
                   ? t('filter.filtersApplied', {
                       count: String(activeFiltersCount),
@@ -974,21 +912,18 @@ const ProductsFilter: React.FC = React.memo(() => {
                   variant="ghost"
                   size="sm"
                   onClick={handleResetFilters}
-                  className="text-xs text-[#2C3C39] hover:text-[#198341] hover:bg-[#ABDE3B]/20 p-1 h-auto"
+                  className="text-xs text-slate-600 hover:text-primary p-1 h-auto"
                 >
                   {t('filter.clearAll')}
                 </Button>
               )}
             </div>
             <SheetClose asChild>
-              <Button className="w-full bg-gradient-to-r from-[#198341] to-[#ABDE3B] hover:from-[#2C3C39] hover:to-[#198341] text-white font-semibold h-12 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 relative overflow-hidden group">
-                {/* Animated shine effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-                
-                <Check className="mr-2 h-4 w-4 relative z-10" />
-                <span className="relative z-10">{t('filter.applyFilters')}</span>
+              <Button className="w-full bg-primary hover:bg-primary/90 text-white font-semibold h-12 rounded-xl">
+                <Check className="mr-2 h-4 w-4" />
+                {t('filter.applyFilters')}
                 {activeFiltersCount > 0 && (
-                  <span className="ml-2 bg-white text-[#198341] px-2 py-0.5 rounded-full text-sm font-bold relative z-10">
+                  <span className="ml-2 bg-white text-primary px-2 py-0.5 rounded-full text-sm font-bold">
                     {activeFiltersCount}
                   </span>
                 )}
