@@ -322,28 +322,29 @@
     "faq": {
       "title": "FAQ",
       "showMore": "Show all",
-      "questions": {
-        "question1": {
-          "question": "What are the requirements to rent a car?",
-          "answer": "To rent a car with us, you need to be at least 21 years old and have a valid driver's license for at least 1 year. You'll also need a valid ID or passport, and a credit card for the security deposit. International visitors need an International Driving Permit along with their home country license. Some luxury or specialty vehicles may require you to be 25 or older."
-        },
-        "question2": {
-          "question": "How does the car buying process work?",
-          "answer": "Our car buying process is simple and transparent. First, browse our inventory online or visit our showroom. Schedule a test drive for any vehicle you're interested in. We provide detailed vehicle history reports and inspection certificates. Once you decide, we handle all paperwork including financing options, insurance, and registration. We offer competitive financing rates and accept trade-ins to reduce your purchase price."
-        },
-        "question3": {
-          "question": "Do you offer vehicle delivery and pickup services?",
-          "answer": "Yes, we provide convenient delivery and pickup services for both rentals and sales. For rentals, we can deliver the vehicle to your hotel, airport, office, or any location within the city limits at no extra charge. For vehicle purchases, we offer home delivery service for a small fee. We also provide pickup services when your rental period ends - just give us a call and we'll collect the vehicle from your location. This service is especially popular with business travelers and customers who prefer the convenience of not visiting our office."
-        },
-        "question4": {
-          "question": "What payment methods do you accept?",
-          "answer": "We accept multiple payment methods for your convenience. For rentals, we accept all major credit cards (Visa, MasterCard, American Express), debit cards, and cash deposits. For vehicle purchases, we accept credit cards, bank transfers, certified checks, and cash payments. We also offer flexible financing options with competitive interest rates and flexible terms. Corporate clients can set up monthly billing accounts. All transactions are secure and processed through encrypted payment systems for your protection."
-        },
-        "question5": {
-          "question": "What is your fuel and mileage policy for rentals?",
-          "answer": "Our rental vehicles are provided with a full tank of fuel, and we expect them to be returned with a full tank. If returned with less fuel, a refueling charge will apply at current market rates plus a service fee. For mileage, most of our rental packages include unlimited kilometers within the city limits. For long-distance travel or intercity trips, we offer special packages with generous mileage allowances. Premium and luxury vehicles may have specific mileage restrictions. We'll clearly explain all policies during the rental agreement to avoid any surprises."
-        }
-      }
+     
+  "questions": {
+    "question1": {
+      "question": "How do I list my car on the website?",
+      "answer": "Listing your car is super easy! Create a free account, click 'Add Listing', and fill in your car details like model, year, and condition. Upload clear photos from different angles, set your price or daily rental rate, and choose whether you want to sell or rent it. Your listing goes live immediately and reaches thousands of interested users."
+    },
+    "question2": {
+      "question": "How much does it cost to list on the platform?",
+      "answer": "Listing on our website is completely free! You can post your car for sale or rent without any charges. Our goal is to connect you with the largest number of potential buyers or renters as quickly as possible, without any extra costs."
+    },
+    "question3": {
+      "question": "How will interested people contact me?",
+      "answer": "Once your listing is live, interested users can contact you directly via phone or through the website's messaging system. All details and agreements are made directly between you and the buyer or renter. We simply provide the platform that makes it easy for you to connect."
+    },
+    "question4": {
+      "question": "Is the website responsible for the sale or rental process?",
+      "answer": "Our website is just a connecting platform - we link sellers with buyers, or car owners with renters. All transactions and financial agreements happen directly between you. We always recommend verifying the other party's identity, thoroughly inspecting the vehicle before any agreement, and documenting everything officially."
+    },
+    "question5": {
+      "question": "How long does my listing stay active?",
+      "answer": "Your listing stays active for 30 days from the posting date. You can renew it for free anytime, or delete it once you've sold or rented your car. You can also edit listing details or photos whenever you want from your dashboard."
+    }
+  }
     }
   },
   "productsPage": {

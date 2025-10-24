@@ -8,10 +8,10 @@ export default function DownloadPage() {
   const isRTL = locale === 'ar';
 
   return (
-    <div className="min-h-screen flex items-center pt-0 justify-center bg-[#2C3C39] p-4" dir={isRTL ? 'rtl' : 'ltr'}>
+    <div className=" flex items-center pt-0 justify-center bg-[#2C3C39] p-4" dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="max-w-md w-full">
         {/* Logo Section */}
-        <div className="flex justify-center mb-12">
+        <div className="flex justify-center mb-12  pt-10 ">
           <div className="relative w-32 h-32 rounded-full overflow-hidden shadow-2xl border-4 border-[#ABDE3B]">
             <Image
               src="/assets/images/logo/bisholaLogo2.jpg"
@@ -118,7 +118,7 @@ export default function DownloadPage() {
         </div>
 
         {/* Footer */}
-        <div className="text-center mt-12">
+        <div className="text-center mt-12 pb-[90px]">
           <p className="text-gray-400 text-sm">
             {t('Available')}
           </p>
