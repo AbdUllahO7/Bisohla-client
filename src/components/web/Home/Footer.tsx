@@ -1,3 +1,4 @@
+'use client';
 import Box from '@/components/box/box';
 import Text from '@/components/text/text';
 import { Button } from '@/components/ui/button';
@@ -6,9 +7,21 @@ import { useLocale } from 'next-intl';
 import Image from 'next/image';
 import { Link } from '@/i18n/routing';
 import React from 'react';
+import Logo from '@/components/logo';
+import { useSettings } from '@/providers/settings.provider';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const Footer = ({ isUserProfile }: { isUserProfile?: boolean }) => {
   const locale = useLocale(); // Get the current language
+  const { getCopyrightMessage, isLoading, getAppSettings, getSocialLinks } =
+    useSettings();
+
+  const appStoreUrl = getAppSettings().app_info?.app_store_url;
+  const playStoreUrl = getAppSettings().app_info?.play_store_url;
+  const socialLinks = getSocialLinks();
+
+  console.log('SOCIAL LINKS: ', socialLinks);
+
   return (
     <Box
       variant="column"
@@ -106,43 +119,90 @@ const Footer = ({ isUserProfile }: { isUserProfile?: boolean }) => {
             </Button>
           </Box>
           <Box variant="row" className="mt-5 w-full">
-            <a
-              href="https://apps.apple.com/tr/app/bishola/id6751427088"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-white shadow-none border border-primary-light h-full flex items-center gap-2 px-4 py-2 rounded hover:bg-gray-50 transition-colors"
-            >
-              <Box variant="column" className="gap-0 h-full">
-                <Text variant="small" className="text-primary-light">
-                  Available on the App Store
-                </Text>
-              </Box>
-              <Image
-                src="/assets/icons/apple-icon.png"
-                alt="apple"
-                width={20}
-                height={20}
-              />
-            </a>
+            {isLoading ? (
+              <>
+                <Skeleton className="w-32 h-12 mr-2" />
+                <Skeleton className="w-32 h-12" />
+              </>
+            ) : (
+              <>
+                {appStoreUrl ? (
+                  <Link href={appStoreUrl} target="_blank">
+                    <Button className="bg-white shadow-none border border-primary-light h-full ">
+                      <Box variant="column" className="gap-0 h-full">
+                        <Text variant="small" className="text-primary-light">
+                          Available on the{' '}
+                        </Text>
+                        <Text variant="mid" className="text-primary-light">
+                          App Store{' '}
+                        </Text>
+                      </Box>
+                      <Image
+                        src="/assets/icons/apple-icon.png"
+                        alt="apple"
+                        width={20}
+                        height={20}
+                      />
+                    </Button>
+                  </Link>
+                ) : (
+                  <Button className="bg-white shadow-none border border-primary-light h-full ">
+                    <Box variant="column" className="gap-0 h-full">
+                      <Text variant="small" className="text-primary-light">
+                        Available on the{' '}
+                      </Text>
+                      <Text variant="mid" className="text-primary-light">
+                        App Store{' '}
+                      </Text>
+                    </Box>
+                    <Image
+                      src="/assets/icons/apple-icon.png"
+                      alt="apple"
+                      width={20}
+                      height={20}
+                    />
+                  </Button>
+                )}
 
-            <a
-              href="https://play.google.com/store/apps/details?id=com.bishola.app&hl=en"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-white shadow-none border border-primary-light h-full flex items-center gap-2 px-4 py-2 rounded hover:bg-gray-50 transition-colors"
-            >
-              <Box variant="column" className="gap-0 h-full">
-                <Text variant="small" className="text-primary-light">
-                  Available on the Google Play
-                </Text>
-              </Box>
-              <Image
-                src="/assets/icons/play-google.png"
-                alt="google play"
-                width={30}
-                height={30}
-              />
-            </a>
+                {playStoreUrl ? (
+                  <Link href={playStoreUrl} target="_blank">
+                    <Button className="bg-white shadow-none border border-primary-light h-full ">
+                      <Box variant="column" className=" gap-0 h-full">
+                        <Text variant="small" className="text-primary-light">
+                          Available on the{' '}
+                        </Text>
+                        <Text variant="mid" className="text-primary-light">
+                          Google Play
+                        </Text>
+                      </Box>
+                      <Image
+                        src="/assets/icons/play-google.png"
+                        alt="google play"
+                        width={30}
+                        height={30}
+                      />
+                    </Button>
+                  </Link>
+                ) : (
+                  <Button className="bg-white shadow-none border border-primary-light h-full ">
+                    <Box variant="column" className=" gap-0 h-full">
+                      <Text variant="small" className="text-primary-light">
+                        Available on the{' '}
+                      </Text>
+                      <Text variant="mid" className="text-primary-light">
+                        Google Play
+                      </Text>
+                    </Box>
+                    <Image
+                      src="/assets/icons/play-google.png"
+                      alt="google play"
+                      width={30}
+                      height={30}
+                    />
+                  </Button>
+                )}
+              </>
+            )}
           </Box>
         </Box>
       </Box>
@@ -152,44 +212,112 @@ const Footer = ({ isUserProfile }: { isUserProfile?: boolean }) => {
         className="justify-between container w-full mt-10"
       >
         <Box className="">
-          <Image
-            src="/assets/images/logo/bishola.png" // Default image included in Next.js projects
-            alt="Test Image"
-            width={153}
-            height={33}
-          />
+          <Logo width={153} height={33} />
         </Box>
 
         {/* social */}
-        <Box variant="row" className="">
-          <Link href="https://www.tiktok.com/@bishola.sy" target="_blank">
-            <Image
-              src="/assets/icons/tiktokpng.png"
-              alt="twitter"
-              width={30}
-              height={30}
-            />
-          </Link>
-          <Link href="https://www.instagram.com/bishola.sy/" target="_blank">
-            <Image
-              src="/assets/icons/instagram.png"
-              alt="twitter"
-              width={20}
-              height={20}
-            />
-          </Link>
-          <Link
-            href="https://www.facebook.com/profile.php?id=61571070664886"
-            target="_blank"
-          >
-            <Image
-              src="/assets/icons/faceBook.png"
-              alt="facebook"
-              width={20}
-              height={20}
-            />
-          </Link>
+        <Box variant="row" className="gap-2">
+          {isLoading ? (
+            <>
+              <Skeleton className="w-8 h-8 mr-2" />
+              <Skeleton className="w-8 h-8 mr-2" />
+              <Skeleton className="w-8 h-8" />
+            </>
+          ) : (
+            <>
+              {socialLinks.tiktok_url && (
+                <div>
+                  <Link href={socialLinks.tiktok_url} target="_blank">
+                    <Image
+                      src={
+                        socialLinks.tiktok_image ||
+                        '/assets/icons/tiktokpng.png'
+                      }
+                      alt="TikTok"
+                      width={30}
+                      height={30}
+                    />
+                  </Link>
+                </div>
+              )}
+              {socialLinks.instagram_url && (
+                <Link href={socialLinks.instagram_url} target="_blank">
+                  <Image
+                    src={
+                      socialLinks.instagram_image ||
+                      '/assets/icons/instagram.png'
+                    }
+                    alt="Instagram"
+                    width={20}
+                    height={20}
+                  />
+                </Link>
+              )}
+              {socialLinks.facebook_url && (
+                <Link href={socialLinks.facebook_url} target="_blank">
+                  <Image
+                    src={
+                      socialLinks.facebook_image || '/assets/icons/faceBook.png'
+                    }
+                    alt="Facebook"
+                    width={20}
+                    height={20}
+                  />
+                </Link>
+              )}
+              {socialLinks.youtube_url && (
+                <Link href={socialLinks.youtube_url} target="_blank">
+                  <Image
+                    src={
+                      socialLinks.youtube_image || '/assets/icons/youtube.png'
+                    }
+                    alt="YouTube"
+                    width={24}
+                    height={24}
+                  />
+                </Link>
+              )}
+              {socialLinks.twitter_url && (
+                <Link href={socialLinks.twitter_url} target="_blank">
+                  <Image
+                    src={
+                      socialLinks.twitter_image || '/assets/icons/twitter.png'
+                    }
+                    alt="Twitter"
+                    width={20}
+                    height={20}
+                  />
+                </Link>
+              )}
+              {socialLinks.linkedin_url && (
+                <Link href={socialLinks.linkedin_url} target="_blank">
+                  <Image
+                    src={
+                      socialLinks.linkedin_image || '/assets/icons/linkedin.png'
+                    }
+                    alt="LinkedIn"
+                    width={20}
+                    height={20}
+                  />
+                </Link>
+              )}
+            </>
+          )}
         </Box>
+      </Box>
+
+      {/* Copyright */}
+      <Box
+        variant="center"
+        className="container w-full mt-8 pt-8 border-t border-gray-200"
+      >
+        {!isLoading ? (
+          <Text variant="small" className="text-primary-light text-center">
+            {getCopyrightMessage()}
+          </Text>
+        ) : (
+          <Skeleton className="w-20 h-2" />
+        )}
       </Box>
     </Box>
   );

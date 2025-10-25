@@ -10,6 +10,7 @@ import TabsSection from '@/components/web/ProductsPage/product/TabsSection';
 import { ApiResponse } from '@/core/entities/api/success.response';
 import { SelectCarListingDto } from '@/core/entities/models/cars/cars.dto';
 import SmartBreadcrumb from '@/components/smart-breadcrumbs';
+import { SaveStatus } from '../../../../../../core/entities/enums/cars.enums';
 
 interface ProductClientProps {
   carDataRes: ApiResponse<SelectCarListingDto>;
@@ -24,6 +25,7 @@ const ProductClient = ({
 }: ProductClientProps) => {
   const carData = carDataRes.data;
 
+  console.log("carData",carData?.saveStatus)
   if (!carData) {
     return <>no car data</>;
   }
@@ -64,6 +66,7 @@ const ProductClient = ({
       <div className="w-full mb-3 bg-white">
         <Box variant="container">
           <ProductHeader
+            saveStatus={carData.saveStatus}
             productName={carData.title}
             ContactNumber={carData.contactNumber?.toString()}
             price={carData.price?.toString() || ''}
@@ -81,6 +84,7 @@ const ProductClient = ({
         {/* Product Details Section */}
         <Box className="mt-1 w-full mb-3">
           <ProductBasicInfo
+          
             isLoading={false}
             carType={carData.make?.name || ''}
             model={carData.model?.name || ''}

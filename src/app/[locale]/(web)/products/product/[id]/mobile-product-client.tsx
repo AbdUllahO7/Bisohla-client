@@ -26,7 +26,6 @@ const MobileProductClient = ({
   locale,
   isProfileView,
 }: ProductClientProps) => {
-  const currentLocale = useLocale();
   const carData = carDataRes.data;
 
   if (!carData) {
@@ -80,6 +79,7 @@ const MobileProductClient = ({
           <Box variant="column" className="w-full gap-3">
             {/* Action Buttons - Full Width */}
             <ProductHeader
+              saveStatus={carData.saveStatus}
               productName={carData.title}
               price={carData.price?.toString() || ''}
               currency={carData.currency}

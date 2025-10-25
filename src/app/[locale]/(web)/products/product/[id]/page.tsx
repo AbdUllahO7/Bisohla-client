@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getLocale } from 'next-intl/server';
 import { generateWebMetadata } from '../../../MetaData';
+import { generateProductMetadata } from '@/utils/settings-metadata.utils';
 import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions';
 import { ApiResponse } from '@/core/entities/api/success.response';
 import { SelectCarListingDto } from '@/core/entities/models/cars/cars.dto';
@@ -53,6 +54,7 @@ export async function generateMetadata({
     const carResponse = await fetchCarData(Number(id), isProfileView, userId);
 
     if (!carResponse.success || !carResponse.data) {
+      // Fallback to settings-based metadata for car-detail page
       return generateWebMetadata('car-detail');
     }
 
@@ -64,9 +66,14 @@ export async function generateMetadata({
       car.details?.transmission || ''
     } - Price: ${car.price || 'N/A'}`;
 
-    const webMetadata = await generateWebMetadata('car-detail', {
+    // Use product-specific metadata with settings as fallback for global config
+    return await generateProductMetadata({
       title: carTitle || 'Car Details',
       description: carDescription,
+      images: [
+        car.images?.find((img) => img.isPrimary)?.url ||
+        car.images?.[0]?.url,
+      ].filter(Boolean),
       keywords: [
         car.make?.name || '',
         car.model?.name || '',
@@ -76,19 +83,8 @@ export async function generateMetadata({
         'car for sale',
         'vehicle details',
       ].filter(Boolean),
-      ogImage:
-        car.images?.find((img) => img.isPrimary)?.url ||
-        car.images?.[0]?.url ||
-        undefined,
       canonical: `/products/${id}${isProfileView ? '?profile=true' : ''}`,
     });
-
-    return {
-      ...webMetadata,
-      icons: {
-        icon: '/favicon.ico',
-      },
-    };
   } catch (error) {
     console.error('Error generating metadata:', error);
     return generateWebMetadata('car-detail');

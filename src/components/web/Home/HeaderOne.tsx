@@ -13,6 +13,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { useEffect, useState, useRef } from 'react';
 import { deleteSession } from '@/core/lib/web/session';
 import { logoutAction } from '@/app/[locale]/auth/actions';
+import Logo from '@/components/logo';
 
 const HeaderOne = () => {
   const t = useTranslations('homePage');
@@ -136,23 +137,7 @@ const HeaderOne = () => {
     <>
       <Box className="flex justify-between items-center py-1 w-full px-4 container border-b border-gray-100 bg-white">
         {/* Logo */}
-        <div
-          className="flex items-center cursor-pointer"
-          onClick={() => router.push('/')}
-        >
-          <Image
-            src="/assets/images/logo/bishola.png"
-            alt="Logo"
-            width={100}
-            height={24}
-            className="h-5 w-auto sm:h-6"
-            priority
-            onError={(e) => {
-              console.error('Failed to load logo image');
-              e.currentTarget.style.display = 'none';
-            }}
-          />
-        </div>
+        <Logo />
 
         {/* Desktop Actions - Hidden on mobile */}
         <div className="hidden md:flex items-center gap-3">

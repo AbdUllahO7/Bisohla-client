@@ -27,6 +27,7 @@ import { useTranslations } from 'next-intl';
 import {
   getFuelTypeOptions,
   getTransmissionOptions,
+  SaveStatus,
 } from '@/core/entities/enums/cars.enums';
 import { SelectCarListingDto } from '@/core/entities/models/cars/cars.dto';
 
@@ -82,7 +83,10 @@ export const RentProductListCard: React.FC<RentProductListCardProps> = ({
     images,
     details,
     currency,
+    saveStatus,
   } = car;
+
+  const isSold = saveStatus === SaveStatus.SOLD;
 
   // Get primary image or first available image
   const imageSrc =
@@ -179,25 +183,46 @@ export const RentProductListCard: React.FC<RentProductListCardProps> = ({
 
   return (
     <Link href={`/products/product/${productId}`} className="block w-full">
-      <Card className="border border-gray-200 bg-white hover:shadow-lg transition-all duration-300 ease-out overflow-hidden mb-4">
-        <div className="flex flex-row h-32">
+      <Card
+        className={`border border-gray-200 bg-white transition-all duration-300 ease-out overflow-hidden mb-4 ${
+          isSold ? 'opacity-75 cursor-default' : 'hover:shadow-lg'
+        }`}
+      >
+        <div className="flex flex-row h-32 relative">
+          {/* SOLD Badge and Overlay */}
+          {isSold && (
+            <>
+              {/* Semi-transparent overlay */}
+              <div className="absolute inset-0 bg-gray-900/20 z-20 pointer-events-none rounded" />
+
+              {/* SOLD Badge */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none">
+                <div className="bg-red-600 text-white font-bold text-lg px-6 py-2 rounded-lg shadow-2xl border-2 border-white transform -rotate-12">
+                  SOLD
+                </div>
+              </div>
+            </>
+          )}
+
           {/* Image Section - Fixed width */}
           <div className="relative w-32 h-full flex-shrink-0">
             <Image src={imageSrc} alt={title} fill className="object-cover" />
 
             {/* Type Badge */}
-            <div className="absolute top-2 left-2">
+            <div className="absolute top-2 left-2 z-10">
               <span className="bg-primary text-white px-2 py-1 rounded text-xs font-medium">
                 {listingType === 'for_rent' ? 'Rent' : 'Sale'}
               </span>
             </div>
 
             {/* Hover overlay */}
-            <div className="absolute inset-0 bg-black/20 opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-              <div className="bg-white/90 backdrop-blur-sm rounded-full p-2">
-                <Eye className="h-4 w-4 text-emerald-600" />
+            {!isSold && (
+              <div className="absolute inset-0 bg-black/20 opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                <div className="bg-white/90 backdrop-blur-sm rounded-full p-2">
+                  <Eye className="h-4 w-4 text-emerald-600" />
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Content Section - Flexible width */}
@@ -220,14 +245,14 @@ export const RentProductListCard: React.FC<RentProductListCardProps> = ({
               <Button
                 className="p-1 h-8 w-8 bg-transparent hover:bg-gray-100 rounded-full"
                 onClick={handleFavoriteClick}
-                disabled={!isAuthenticated || isProcessing}
+                disabled={!isAuthenticated || isProcessing || isSold}
               >
                 <HeartIcon
                   size={16}
                   className={
                     isProcessing
                       ? 'text-gray-400 animate-pulse'
-                      : !isAuthenticated
+                      : !isAuthenticated || isSold
                       ? 'text-gray-400'
                       : favoriteStatus
                       ? 'text-red-500'
@@ -275,7 +300,7 @@ export const RentProductListCard: React.FC<RentProductListCardProps> = ({
                 </Text>
               </div>
 
-              <ArrowRight className="h-4 w-4 text-emerald-600" />
+              {!isSold && <ArrowRight className="h-4 w-4 text-emerald-600" />}
             </div>
           </div>
         </div>

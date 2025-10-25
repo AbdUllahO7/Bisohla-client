@@ -30,7 +30,9 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
   const t = useTranslations('productsPage');
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [favoriteStatuses, setFavoriteStatuses] = useState<Record<number, boolean>>({});
+  const [favoriteStatuses, setFavoriteStatuses] = useState<
+    Record<number, boolean>
+  >({});
   const [isMobile, setIsMobile] = useState(false);
   const session = useSession();
 
@@ -46,14 +48,17 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
   }, []);
 
   // Build final query params with current page - USE USEMEMO
-  const queryParams: QueryParams = useMemo(() => ({
-    userId: session.user?.id,
-    pageSize,
-    sortBy: 'createdAt',
-    sortDirection: 'desc',
-    ...externalQueryParams, // This will override defaults with provider values
-    page: currentPage,
-  }), [currentPage, pageSize, externalQueryParams, session.user?.id]);
+  const queryParams: QueryParams = useMemo(
+    () => ({
+      userId: session.user?.id,
+      pageSize,
+      sortBy: 'createdAt',
+      sortDirection: 'desc',
+      ...externalQueryParams, // This will override defaults with provider values
+      page: currentPage,
+    }),
+    [currentPage, pageSize, externalQueryParams, session.user?.id],
+  );
 
   // Verify authentication status on component mount
   useEffect(() => {
@@ -181,52 +186,56 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
 
   const handlePageChange = useCallback((page: number): void => {
     setCurrentPage(page);
-    
+
     // Smooth scroll to top
     window.scrollTo({
       top: 0,
-      behavior: 'smooth'
+      behavior: 'smooth',
     });
   }, []);
 
   // Render car listing component based on screen size
-  const renderCarListing = useCallback((card: any, index: number) => {
-    const isFavorite =
-      favoriteStatuses[card.id] !== undefined
-        ? favoriteStatuses[card.id]
-        : !!card.isFavorite;
+  const renderCarListing = useCallback(
+    (card: any, index: number) => {
+      const isFavorite =
+        favoriteStatuses[card.id] !== undefined
+          ? favoriteStatuses[card.id]
+          : !!card.isFavorite;
 
-    const commonProps = {
-      title: card.title,
-      marka: card.make?.name || card.marka || '',
-      price: card.price.toString(),
-      type: card.listingType,
-      imageSrc:
-        card.images?.find((img: any) => img.isPrimary)?.url ||
-        card.images?.[0]?.url ||
-        card.imageSrc ||
-        '',
-      ProductId: card.id,
-      priceWord: t('latestOffers.price'),
-      isMarkedFavorite: isFavorite,
-      onFavoriteToggle: handleFavoriteToggle,
-      details: card.details || [],
-    };
+      const commonProps = {
+        title: card.title,
+        marka: card.make?.name || card.marka || '',
+        price: card.price.toString(),
+        type: card.listingType,
+        imageSrc:
+          card.images?.find((img: any) => img.isPrimary)?.url ||
+          card.images?.[0]?.url ||
+          card.imageSrc ||
+          '',
+        ProductId: card.id,
+        priceWord: t('latestOffers.price'),
+        isMarkedFavorite: isFavorite,
+        onFavoriteToggle: handleFavoriteToggle,
+        details: card.details || [],
+        saveStatus: card.saveStatus,
+      };
 
-    if (isMobile) {
-      return (
-        <RentProductListCard
-          key={card.id || index}
-          car={card}
-          isMarkedFavorite={isFavorite}
-          onFavoriteToggle={handleFavoriteToggle}
-          priceWord={t('latestOffers.price')}
-        />
-      );
-    } else {
-      return <RentProductCard key={card.id || index} {...commonProps} />;
-    }
-  }, [isMobile, favoriteStatuses, handleFavoriteToggle, t]);
+      if (isMobile) {
+        return (
+          <RentProductListCard
+            key={card.id || index}
+            car={card}
+            isMarkedFavorite={isFavorite}
+            onFavoriteToggle={handleFavoriteToggle}
+            priceWord={t('latestOffers.price')}
+          />
+        );
+      } else {
+        return <RentProductCard key={card.id || index} {...commonProps} />;
+      }
+    },
+    [isMobile, favoriteStatuses, handleFavoriteToggle, t],
+  );
 
   return (
     <Box className="mb-5 mt-5 w-full">

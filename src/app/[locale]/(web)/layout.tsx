@@ -1,27 +1,11 @@
 // WebLayout.tsx - Fixed mobile layout
-import Box from '@/components/box/box';
 import { Toaster } from '@/components/ui/toaster';
 import Footer from '@/components/web/Home/Footer';
 import HeaderOne from '@/components/web/Home/HeaderOne';
-import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import type { PropsWithChildren } from 'react';
-import WebMetadataProvider, { generateWebMetadata } from './MetaData';
 import HeaderTwo from '@/components/web/Home/HeaderTow';
 import ChatbotWidget from '@/components/web/Home/ChatbotWidget';
-
-// Generate metadata using the reusable metadata generator
-export async function generateMetadata(): Promise<Metadata> {
-  const webMetadata = await generateWebMetadata('home');
-
-  return {
-    ...webMetadata,
-    icons: {
-      icon: '/favicon.ico',
-    },
-  };
-}
-
 interface WebLayoutProps extends PropsWithChildren {
   pageType?:
     | 'home'
@@ -78,13 +62,6 @@ const WebLayout = async ({
 
   return (
     <>
-      {/* Metadata Provider Component */}
-      <WebMetadataProvider
-        pageType={pageType}
-        customConfig={customMetadata}
-        businessInfo={customBusinessInfo}
-      />
-
       <div className="min-h-screen bg-gray-50 flex flex-col">
         {/* Fixed Header Container */}
         <div className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm">
@@ -106,14 +83,14 @@ const WebLayout = async ({
         </div>
 
         {/* Spacer for fixed headers */}
-        <div className="h-[120px] md:h-[98px] flex-shrink-0 bg-background"></div>
+        <div className="h-[100px] md:h-[98px] flex-shrink-0 bg-background"></div>
 
         {/* Main Content */}
         <main className="flex-1 bg-background">{children}</main>
 
         {/* Footer */}
         <Footer />
-         <ChatbotWidget />
+        <ChatbotWidget />
 
         {/* Toast Notifications */}
         <Toaster />

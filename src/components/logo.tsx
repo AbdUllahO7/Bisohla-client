@@ -5,49 +5,47 @@ import { useTheme } from 'next-themes';
 import Image from 'next/image';
 import Box from './box/box';
 import { useEffect, useState } from 'react';
+import { useRouter } from '@/i18n/routing';
+import { useSettings } from '@/providers/settings.provider';
 
-const Logo = (props: { size?: 'sm' | 'md' | 'lg'; className?: string }) => {
-  const { size = 'md', className } = props;
-  const { resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+const Logo = ({
+  className,
+  width,
+  height,
+}: {
+  className?: string;
+  width?: number;
+  height?: number;
+}) => {
+  const router = useRouter();
 
-  // Prevent hydration mismatch by only rendering after mount
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const { getLogo, isLoading } = useSettings();
 
-  const sizeClasses =
-    size === 'sm' ? 'w-15 h-7' : size === 'md' ? 'w-20 h-12' : 'w-25 h-20';
-
-  if (!mounted) {
+  if (isLoading) {
     return (
-      <Box variant="center" className={cn(sizeClasses, className)}>
-        <Image
-          src="/assets/images/logo/lightLogo.png"
-          alt={'website logo alt'}
-          width={80}
-          height={80}
-          className={'w-full h-full object-contain'}
-          priority
-        />
-      </Box>
+      <div className="flex items-center">
+        <div className="h-5 w-24 bg-gray-200 rounded animate-pulse sm:h-6 sm:w-28"></div>
+      </div>
     );
   }
 
-  const imageSrc =
-    resolvedTheme === 'dark' ?  '/assets/images/logo/darkLogo.png' : '/assets/images/logo/lightLogo.png';
-
   return (
-    <Box variant="center" className={cn(sizeClasses, className)}>
+    <div
+      className={cn('flex cursor-pointer items-center', className)}
+      onClick={() => router.push('/')}
+    >
       <Image
-        src={imageSrc}
-        alt={'website logo alt'}
-        width={80}
-        height={80}
-        className={'w-full h-full object-contain'}
+        src={getLogo()}
+        alt="Logo"
+        width={width || 100}
+        height={height || 24}
         priority
+        onError={(e) => {
+          console.error('Failed to load logo image');
+          e.currentTarget.style.display = 'none';
+        }}
       />
-    </Box>
+    </div>
   );
 };
 
