@@ -322,29 +322,29 @@
     "faq": {
       "title": "FAQ",
       "showMore": "Show all",
-     
-  "questions": {
-    "question1": {
-      "question": "How do I list my car on the website?",
-      "answer": "Listing your car is super easy! Create a free account, click 'Add Listing', and fill in your car details like model, year, and condition. Upload clear photos from different angles, set your price or daily rental rate, and choose whether you want to sell or rent it. Your listing goes live immediately and reaches thousands of interested users."
-    },
-    "question2": {
-      "question": "How much does it cost to list on the platform?",
-      "answer": "Listing on our website is completely free! You can post your car for sale or rent without any charges. Our goal is to connect you with the largest number of potential buyers or renters as quickly as possible, without any extra costs."
-    },
-    "question3": {
-      "question": "How will interested people contact me?",
-      "answer": "Once your listing is live, interested users can contact you directly via phone or through the website's messaging system. All details and agreements are made directly between you and the buyer or renter. We simply provide the platform that makes it easy for you to connect."
-    },
-    "question4": {
-      "question": "Is the website responsible for the sale or rental process?",
-      "answer": "Our website is just a connecting platform - we link sellers with buyers, or car owners with renters. All transactions and financial agreements happen directly between you. We always recommend verifying the other party's identity, thoroughly inspecting the vehicle before any agreement, and documenting everything officially."
-    },
-    "question5": {
-      "question": "How long does my listing stay active?",
-      "answer": "Your listing stays active for 30 days from the posting date. You can renew it for free anytime, or delete it once you've sold or rented your car. You can also edit listing details or photos whenever you want from your dashboard."
-    }
-  }
+
+      "questions": {
+        "question1": {
+          "question": "How do I list my car on the website?",
+          "answer": "Listing your car is super easy! Create a free account, click 'Add Listing', and fill in your car details like model, year, and condition. Upload clear photos from different angles, set your price or daily rental rate, and choose whether you want to sell or rent it. Your listing goes live immediately and reaches thousands of interested users."
+        },
+        "question2": {
+          "question": "How much does it cost to list on the platform?",
+          "answer": "Listing on our website is completely free! You can post your car for sale or rent without any charges. Our goal is to connect you with the largest number of potential buyers or renters as quickly as possible, without any extra costs."
+        },
+        "question3": {
+          "question": "How will interested people contact me?",
+          "answer": "Once your listing is live, interested users can contact you directly via phone or through the website's messaging system. All details and agreements are made directly between you and the buyer or renter. We simply provide the platform that makes it easy for you to connect."
+        },
+        "question4": {
+          "question": "Is the website responsible for the sale or rental process?",
+          "answer": "Our website is just a connecting platform - we link sellers with buyers, or car owners with renters. All transactions and financial agreements happen directly between you. We always recommend verifying the other party's identity, thoroughly inspecting the vehicle before any agreement, and documenting everything officially."
+        },
+        "question5": {
+          "question": "How long does my listing stay active?",
+          "answer": "Your listing stays active for 30 days from the posting date. You can renew it for free anytime, or delete it once you've sold or rented your car. You can also edit listing details or photos whenever you want from your dashboard."
+        }
+      }
     }
   },
   "productsPage": {
@@ -358,7 +358,7 @@
     },
     "header": {
       "adCounter": " ad",
-      "orderBy": "Short by:",
+      "orderBy": "Sort by:",
       "selectPrice": "Select Price",
       "options": {
         "newest": "Newest First",
@@ -597,8 +597,8 @@
       "description": "Description",
       "contactNumber": "Contact Number",
       "price": "Price",
-      "showMore":"Show More",
-      "showLess":"Show Less",
+      "showMore": "Show More",
+      "showLess": "Show Less",
       "currency": "Currency",
       "make": "Make",
       "model": "Model",
@@ -1395,21 +1395,20 @@
     "availability": "Available to assist you with any inquiries",
     "cta": "Get in Touch"
   },
-    "linksPage" : {
-     "Download":"Download Bishola",
-     "getOurApp": "Get the app on your favorite platform",
-     "downloadOnThe":" Download on the",
-     "AppStore":"App Store",
-     "GooglePlay":"GoogleP lay",
-     "GetItOn":"Get it on",
-     "Visit":"Visit our",
-     "WebSite":"Website",
-     "Available":"Available on all your devices"
+  "linksPage": {
+    "Download": "Download Bishola",
+    "getOurApp": "Get the app on your favorite platform",
+    "downloadOnThe": " Download on the",
+    "AppStore": "App Store",
+    "GooglePlay": "GoogleP lay",
+    "GetItOn": "Get it on",
+    "Visit": "Visit our",
+    "WebSite": "Website",
+    "Available": "Available on all your devices"
   },
-  "SoldCard":{
-    "soldOut":"SOLD OUT",
-    "sold":"SOLD",
-    "desc":"THIS VEHICLE HAS BEEN SOLD"
+  "SoldCard": {
+    "soldOut": "SOLD OUT",
+    "sold": "SOLD",
+    "desc": "THIS VEHICLE HAS BEEN SOLD"
   }
-
 }
