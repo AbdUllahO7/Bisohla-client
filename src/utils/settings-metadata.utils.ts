@@ -9,6 +9,7 @@ import {
   GlobalSEOData,
   SiteInfoData,
 } from '@/core/entities/models/settings/settings.dto';
+import { APP_URL } from '@/core/lib/web/constants';
 
 // Type for different page configurations
 type WebPageType =
@@ -45,7 +46,7 @@ const DEFAULT_FALLBACKS = {
     en: 'Rent or buy your perfect car with Bishola. Premium car rental services and quality used cars for sale.',
     ar: 'استأجر أو اشتري سيارتك المثالية مع بسهولة. خدمات تأجير السيارات المميزة والسيارات المستعملة عالية الجودة للبيع.',
   },
-  baseUrl: 'https://bishola.com',
+  baseUrl: APP_URL,
   logo: '/assets/images/logo/bishola.png',
   defaultOgImage: '/og-image.jpg',
   defaultTwitterImage: '/twitter-image.jpg',
@@ -161,7 +162,7 @@ function extractSEOData(
     faviconFromSettings: general.appearance?.favicon,
     finalFavicon: siteInfo.favicon,
     hasGeneralAppearance: !!general.appearance,
-    locale
+    locale,
   });
 
   return {
