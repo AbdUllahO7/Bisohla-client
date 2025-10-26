@@ -12,6 +12,7 @@ import { getCarListingById } from '@/core/infrastructure-adapters/actions/visito
 import { getSession } from '@/core/lib/web/session';
 import ProductClient from './product-client';
 import MobileProductClient from './mobile-product-client';
+import { APP_URL } from '@/core/lib/web/constants';
 
 interface ProductPageProps {
   params: Promise<{
@@ -58,6 +59,7 @@ export async function generateMetadata({
       return generateWebMetadata('car-detail');
     }
 
+    const locale = await getLocale();
     const car = carResponse.data;
     const carTitle = `${car.make?.name || ''} ${car.model?.name || ''} ${
       car.details?.year || ''
@@ -66,13 +68,18 @@ export async function generateMetadata({
       car.details?.transmission || ''
     } - Price: ${car.price || 'N/A'}`;
 
+    // Build absolute canonical URL for social media
+    const baseUrl = APP_URL;
+    const canonicalPath = `${baseUrl}/${locale}/products/product/${id}${
+      isProfileView ? '?profile=true' : ''
+    }`;
+
     // Use product-specific metadata with settings as fallback for global config
     return await generateProductMetadata({
       title: carTitle || 'Car Details',
       description: carDescription,
       images: [
-        car.images?.find((img) => img.isPrimary)?.url ||
-        car.images?.[0]?.url,
+        car.images?.find((img) => img.isPrimary)?.url || car.images?.[0]?.url,
       ].filter(Boolean),
       keywords: [
         car.make?.name || '',
@@ -83,7 +90,7 @@ export async function generateMetadata({
         'car for sale',
         'vehicle details',
       ].filter(Boolean),
-      canonical: `/products/${id}${isProfileView ? '?profile=true' : ''}`,
+      canonical: canonicalPath,
     });
   } catch (error) {
     console.error('Error generating metadata:', error);
