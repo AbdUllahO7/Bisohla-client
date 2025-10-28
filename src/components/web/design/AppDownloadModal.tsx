@@ -34,23 +34,22 @@ const AppDownloadModal: React.FC<AppDownloadModalProps> = ({ open, onOpenChange 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className="sm:max-w-md p-0 gap-0 overflow-hidden"
+        className="w-[calc(100%-2rem)] max-w-md mx-auto p-0 gap-0 overflow-hidden rounded-xl"
         dir={isRTL ? 'rtl' : 'ltr'}
       >
         {/* Header with gradient background */}
-        <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 p-6 text-white">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-3">
-              <div className="bg-white/20 p-2 rounded-lg backdrop-blur-sm">
-                <Smartphone className="h-6 w-6" />
+        <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 p-4 sm:p-6 text-white">
+          <div className="flex items-center justify-between mb-2 sm:mb-3">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="bg-white/20 p-1.5 sm:p-2 rounded-lg backdrop-blur-sm">
+                <Smartphone className="h-4 w-4 sm:h-6 sm:w-6" />
               </div>
-              <DialogTitle className="text-xl font-bold text-white">
+              <DialogTitle className="text-lg sm:text-xl font-bold text-white">
                 {isRTL ? 'حمّل تطبيق بسهولة' : 'Get Bishola App'}
               </DialogTitle>
             </div>
-        
           </div>
-          <p className="text-white/90 text-sm">
+          <p className="text-white/90 text-xs sm:text-sm">
             {isRTL 
               ? 'احصل على تجربة أفضل مع تطبيقنا المحمول'
               : 'Get a better experience with our mobile app'}
@@ -58,9 +57,9 @@ const AppDownloadModal: React.FC<AppDownloadModalProps> = ({ open, onOpenChange 
         </div>
 
         {/* Body */}
-        <div className="p-6 space-y-4">
+        <div className="p-4 sm:p-6 space-y-3 sm:space-y-4">
           {/* Features */}
-          <div className="space-y-3">
+          <div className="space-y-2 sm:space-y-3">
             <FeatureItem 
               isRTL={isRTL}
               text={isRTL ? 'تصفح أسرع وأكثر سلاسة' : 'Faster and smoother browsing'}
@@ -76,11 +75,11 @@ const AppDownloadModal: React.FC<AppDownloadModalProps> = ({ open, onOpenChange 
           </div>
 
           {/* App Store Buttons */}
-          <div className="space-y-3 pt-2">
+          <div className="space-y-2 sm:space-y-3 pt-1 sm:pt-2">
             {isLoading ? (
               <>
-                <Skeleton className="w-full h-14" />
-                <Skeleton className="w-full h-14" />
+                <Skeleton className="w-full h-12 sm:h-14" />
+                <Skeleton className="w-full h-12 sm:h-14" />
               </>
             ) : (
               <>
@@ -89,27 +88,28 @@ const AppDownloadModal: React.FC<AppDownloadModalProps> = ({ open, onOpenChange 
                   <Link href={appStoreUrl} target="_blank" className="block">
                     <Button 
                       variant="outline"
-                      className="w-full h-auto py-3 px-4 hover:bg-gray-50 transition-all duration-200 border-2 hover:border-emerald-600"
+                      className="w-full h-auto py-2.5 sm:py-3 px-3 sm:px-4 hover:bg-gray-50 transition-all duration-200 border-2 hover:border-emerald-600"
                       onClick={() => onOpenChange(false)}
                     >
                       <Box variant="row" className="items-center justify-between w-full">
-                        <Box variant="row" className="items-center gap-3">
+                        <Box variant="row" className="items-center gap-2 sm:gap-3">
                           <Image
                             src="/assets/icons/apple-icon.png"
                             alt="Apple"
-                            width={28}
-                            height={28}
+                            width={24}
+                            height={24}
+                            className="w-5 h-5 sm:w-7 sm:h-7"
                           />
                           <Box variant="column" className="items-start gap-0">
-                            <Text variant="small" className="text-xs text-gray-600">
+                            <Text variant="small" className="text-[10px] sm:text-xs text-gray-600 leading-tight">
                               {isRTL ? 'حمّل من' : 'Download on'}
                             </Text>
-                            <Text variant="mid" className="font-semibold text-gray-900">
+                            <Text variant="mid" className="text-sm sm:text-base font-semibold text-gray-900">
                               App Store
                             </Text>
                           </Box>
                         </Box>
-                        <ChevronRight className={`h-5 w-5 text-gray-400 ${isRTL ? 'rotate-180' : ''}`} />
+                        <ChevronRight className={`h-4 w-4 sm:h-5 sm:w-5 text-gray-400 flex-shrink-0 ${isRTL ? 'rotate-180' : ''}`} />
                       </Box>
                     </Button>
                   </Link>
@@ -120,27 +120,28 @@ const AppDownloadModal: React.FC<AppDownloadModalProps> = ({ open, onOpenChange 
                   <Link href={playStoreUrl} target="_blank" className="block">
                     <Button 
                       variant="outline"
-                      className="w-full h-auto py-3 px-4 hover:bg-gray-50 transition-all duration-200 border-2 hover:border-emerald-600"
+                      className="w-full h-auto py-2.5 sm:py-3 px-3 sm:px-4 hover:bg-gray-50 transition-all duration-200 border-2 hover:border-emerald-600"
                       onClick={() => onOpenChange(false)}
                     >
                       <Box variant="row" className="items-center justify-between w-full">
-                        <Box variant="row" className="items-center gap-3">
+                        <Box variant="row" className="items-center gap-2 sm:gap-3">
                           <Image
                             src="/assets/icons/play-google.png"
                             alt="Google Play"
-                            width={28}
-                            height={28}
+                            width={24}
+                            height={24}
+                            className="w-5 h-5 sm:w-7 sm:h-7"
                           />
                           <Box variant="column" className="items-start gap-0">
-                            <Text variant="small" className="text-xs text-gray-600">
+                            <Text variant="small" className="text-[10px] sm:text-xs text-gray-600 leading-tight">
                               {isRTL ? 'حمّل من' : 'Get it on'}
                             </Text>
-                            <Text variant="mid" className="font-semibold text-gray-900">
+                            <Text variant="mid" className="text-sm sm:text-base font-semibold text-gray-900">
                               Google Play
                             </Text>
                           </Box>
                         </Box>
-                        <ChevronRight className={`h-5 w-5 text-gray-400 ${isRTL ? 'rotate-180' : ''}`} />
+                        <ChevronRight className={`h-4 w-4 sm:h-5 sm:w-5 text-gray-400 flex-shrink-0 ${isRTL ? 'rotate-180' : ''}`} />
                       </Box>
                     </Button>
                   </Link>
@@ -150,10 +151,10 @@ const AppDownloadModal: React.FC<AppDownloadModalProps> = ({ open, onOpenChange 
           </div>
 
           {/* Continue on Web Button */}
-          <div className="pt-2">
+          <div className="pt-1 sm:pt-2">
             <Button
               variant="ghost"
-              className="w-full text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+              className="w-full text-sm sm:text-base text-gray-600 hover:text-gray-900 hover:bg-gray-50 py-2 sm:py-2.5"
               onClick={handleContinueWeb}
             >
               {isRTL ? 'المتابعة على المتصفح' : 'Continue on Web'}
@@ -161,13 +162,13 @@ const AppDownloadModal: React.FC<AppDownloadModalProps> = ({ open, onOpenChange 
           </div>
 
           {/* Don't show again */}
-          <div className="text-center pt-2">
+          <div className="text-center pt-1 sm:pt-2">
             <button
               onClick={() => {
                 localStorage.setItem('skipAppDownload', 'true');
                 onOpenChange(false);
               }}
-              className="text-xs text-gray-500 hover:text-gray-700 underline"
+              className="text-[10px] sm:text-xs text-gray-500 hover:text-gray-700 underline"
             >
               {isRTL ? 'لا تظهر هذه الرسالة مرة أخرى' : "Don't show this again"}
             </button>
@@ -180,11 +181,11 @@ const AppDownloadModal: React.FC<AppDownloadModalProps> = ({ open, onOpenChange 
 
 // Feature Item Component
 const FeatureItem: React.FC<{ isRTL: boolean; text: string }> = ({ isRTL, text }) => (
-  <div className={`flex items-center gap-2 `}>
+  <div className={`flex items-center gap-2`}>
     <div className="flex-shrink-0 w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center">
       <div className="w-2 h-2 rounded-full bg-emerald-600" />
     </div>
-    <Text variant="small" className="text-gray-700">
+    <Text variant="small" className="text-xs sm:text-sm text-gray-700">
       {text}
     </Text>
   </div>
