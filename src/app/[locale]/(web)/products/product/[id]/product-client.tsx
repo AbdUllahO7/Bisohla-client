@@ -63,7 +63,8 @@ const ProductClient = ({
         />
       </Box>
 
-      <div className="w-full mb-3 bg-white">
+      {/* Sticky Product Header */}
+      <div className="sticky top-[95px] z-50 w-full mb-3 bg-white shadow-md">
         <Box variant="container">
           <ProductHeader
             saveStatus={carData.saveStatus}

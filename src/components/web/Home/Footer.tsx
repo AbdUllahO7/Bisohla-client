@@ -231,7 +231,7 @@ const Footer = ({ isUserProfile }: { isUserProfile?: boolean }) => {
                     <Image
                       src={
                         socialLinks.tiktok_image ||
-                        '/assets/icons/tiktokpng.png'
+                        '/assets/icons/socialIcons/icons8-tiktok-24.png'
                       }
                       alt="TikTok"
                       width={30}
@@ -245,11 +245,12 @@ const Footer = ({ isUserProfile }: { isUserProfile?: boolean }) => {
                   <Image
                     src={
                       socialLinks.instagram_image ||
-                      '/assets/icons/instagram.png'
+                      '/assets/icons/socialIcons/icons8-instagram-24.png'
                     }
+                    className=''
                     alt="Instagram"
-                    width={20}
-                    height={20}
+                    width={24}
+                    height={24}
                   />
                 </Link>
               )}
@@ -257,8 +258,9 @@ const Footer = ({ isUserProfile }: { isUserProfile?: boolean }) => {
                 <Link href={socialLinks.facebook_url} target="_blank">
                   <Image
                     src={
-                      socialLinks.facebook_image || '/assets/icons/faceBook.png'
+                      socialLinks.facebook_image || '/assets/icons/socialIcons/icons8-facebook-48.png'
                     }
+                    className=''
                     alt="Facebook"
                     width={20}
                     height={20}
@@ -269,7 +271,7 @@ const Footer = ({ isUserProfile }: { isUserProfile?: boolean }) => {
                 <Link href={socialLinks.youtube_url} target="_blank">
                   <Image
                     src={
-                      socialLinks.youtube_image || '/assets/icons/youtube.png'
+                      socialLinks.youtube_image || '/assets/icons/socialIcons/icons8-youtube-24.png'
                     }
                     alt="YouTube"
                     width={24}
@@ -293,11 +295,11 @@ const Footer = ({ isUserProfile }: { isUserProfile?: boolean }) => {
                 <Link href={socialLinks.linkedin_url} target="_blank">
                   <Image
                     src={
-                      socialLinks.linkedin_image || '/assets/icons/linkedin.png'
+                      socialLinks.linkedin_image || '/assets/icons/socialIcons/icons8-linkedin-24.png'
                     }
                     alt="LinkedIn"
-                    width={20}
-                    height={20}
+                    width={24}
+                    height={24}
                   />
                 </Link>
               )}

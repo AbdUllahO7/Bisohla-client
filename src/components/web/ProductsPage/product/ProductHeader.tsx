@@ -236,7 +236,7 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
             {/* Glow effect behind price */}
             <div className="absolute inset-0 bg-[#ABDE3B]/20 blur-2xl rounded-full"></div>
             
-            <div className={`relative px-6 py-3 rounded-lg border-2 ${
+            <div className={`relative px-6 rounded-lg border-2 ${
               isSold 
                 ? 'bg-gray-200 border-gray-400' 
                 : 'bg-gradient-to-r from-[#198341]/10 via-[#ABDE3B]/10 to-[#198341]/10 border-[#198341]/30'
@@ -317,7 +317,7 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
                 
                 <Link
                   href={`tel:${ContactNumber}`}
-                  className="relative flex items-center justify-center font-bold gap-2 text-base px-4 py-3 border-2 border-[#198341] text-[#198341] rounded-lg hover:bg-[#198341] hover:text-white transition-all duration-300 min-h-[48px] overflow-hidden group"
+                  className="relative flex items-center justify-center font-bold gap-2 text-base px-4 py-1 border-2 border-[#198341] text-[#198341] rounded-lg hover:bg-[#198341] hover:text-white transition-all duration-300 min-h-[48px] overflow-hidden group"
                 >
                   {/* Animated shine effect */}
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
@@ -335,7 +335,7 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
                   href={generateWhatsAppLink()}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="relative flex items-center justify-center gap-2 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-300 min-h-[48px] font-bold text-base overflow-hidden group"
+                  className="relative flex items-center justify-center gap-2 px-4 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-300 min-h-[48px] font-bold text-base overflow-hidden group"
                 >
                   {/* Animated shine effect */}
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>

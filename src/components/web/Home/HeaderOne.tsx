@@ -5,7 +5,7 @@ import { Button } from '../../ui/button';
 import Box from '../../box/box';
 import LocaleSwitcher from '../../local/LocalSwitcher';
 import { Link } from '@/i18n/routing';
-import { UserCheck2Icon, LogOut, Plus, Menu, X, Bell } from 'lucide-react';
+import { UserCheck2Icon, LogOut, Plus, Menu, X } from 'lucide-react';
 import NotificationDropdown from './NotificationDropdown';
 import { useRouter } from 'next/navigation';
 import { useSession } from '@/hooks/auth/use-session';

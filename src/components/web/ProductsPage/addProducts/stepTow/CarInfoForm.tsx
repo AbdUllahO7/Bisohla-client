@@ -5,6 +5,15 @@ import FormField from "./FormField"
 import type { CarInfoState, ValidationErrors } from "./types"
 import { useTranslations } from "next-intl"
 import SelectFieldWithSearch from "@/components/web/design/SelectFieldWithSearch"
+import { Info } from "lucide-react"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import { cn } from "@/lib/utils"
+import { useLocale } from "next-intl"
 
 interface CarInfoFormProps {
   carInfo: CarInfoState
@@ -17,7 +26,7 @@ interface CarInfoFormProps {
 }
 
 /**
- * Car information form component
+ * Car information form component with helpful tooltips
  */
 const CarInfoForm: React.FC<CarInfoFormProps> = ({
   carInfo,
@@ -29,6 +38,8 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
 }) => {
   // Get translations for next-intl
   const t = useTranslations("homePage")
+  const locale = useLocale()
+  const isRTL = locale === "ar"
 
   // Input refs for text fields
   const mileageInputRef = useRef<HTMLInputElement>(null)
@@ -36,6 +47,96 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
   const doorsInputRef = useRef<HTMLInputElement>(null)
   const vinInputRef = useRef<HTMLInputElement>(null)
   const plateInputRef = useRef<HTMLInputElement>(null)
+
+  // Field information tooltips
+  const fieldInfo = {
+    en: {
+      mileage: {
+        tooltip: "Total distance the car has traveled. This is a key factor in determining the car's value and condition.",
+        placeholder: "e.g., 50000",
+      },
+      doors: {
+        tooltip: "Number of doors on your vehicle, including the trunk/hatch door if it counts as a door.",
+        placeholder: "e.g., 4",
+      },
+      enginePower: {
+        tooltip: "Engine power measured in horsepower (HP) or kilowatts (kW). You can find this in your car's manual or registration documents.",
+        placeholder: "e.g., 150 HP",
+      },
+      plateNumber: {
+        tooltip: "Your vehicle's license plate number as it appears on your registration documents.",
+        placeholder: "e.g., ABC 1234",
+      },
+      vin: {
+        tooltip: "Vehicle Identification Number - a unique 17-character code that identifies your specific vehicle. Found on the dashboard near the windshield or on the driver's door frame.",
+        placeholder: "e.g., 1HGBH41JXMN109186",
+      },
+      colorExterior: {
+        tooltip: "The primary exterior color of your vehicle. Choose the closest match if your exact color isn't listed.",
+        placeholder: "Select exterior color",
+      },
+      engineSize: {
+        tooltip: "Engine displacement in liters (L). This represents the total volume of all cylinders in the engine.",
+        placeholder: "e.g., 2.0 L",
+      },
+      fuelType: {
+        tooltip: "The type of fuel your vehicle uses. Check your fuel cap or owner's manual if unsure.",
+        placeholder: "Select fuel type",
+      },
+      transmission: {
+        tooltip: "Type of transmission system. Automatic shifts gears automatically, while manual requires the driver to shift gears.",
+        placeholder: "Select transmission",
+      },
+      bodyType: {
+        tooltip: "The general shape and design category of your vehicle (e.g., sedan, SUV, coupe).",
+        placeholder: "Select body type",
+      },
+    },
+    ar: {
+      mileage: {
+        tooltip: "المسافة الإجمالية التي قطعتها السيارة. هذا عامل رئيسي في تحديد قيمة السيارة وحالتها.",
+        placeholder: "مثال: 50000",
+      },
+      doors: {
+        tooltip: "عدد الأبواب في سيارتك، بما في ذلك باب الصندوق/الباب الخلفي إذا كان يُحسب كباب.",
+        placeholder: "مثال: 4",
+      },
+      enginePower: {
+        tooltip: "قوة المحرك مقاسة بالحصان (HP) أو الكيلوواط (kW). يمكنك العثور على هذا في دليل سيارتك أو مستندات التسجيل.",
+        placeholder: "مثال: 150 حصان",
+      },
+      plateNumber: {
+        tooltip: "رقم لوحة السيارة كما يظهر في مستندات التسجيل الخاصة بك.",
+        placeholder: "مثال: أ ب ج 1234",
+      },
+      vin: {
+        tooltip: "رقم تعريف المركبة - رمز فريد مكون من 17 حرفاً يحدد سيارتك. يوجد على لوحة القيادة بالقرب من الزجاج الأمامي أو على إطار باب السائق.",
+        placeholder: "مثال: 1HGBH41JXMN109186",
+      },
+      colorExterior: {
+        tooltip: "اللون الخارجي الأساسي لسيارتك. اختر أقرب تطابق إذا لم يكن لونك الدقيق مدرجاً.",
+        placeholder: "اختر اللون الخارجي",
+      },
+      engineSize: {
+        tooltip: "سعة المحرك باللتر (L). يمثل هذا الحجم الإجمالي لجميع الأسطوانات في المحرك.",
+        placeholder: "مثال: 2.0 لتر",
+      },
+      fuelType: {
+        tooltip: "نوع الوقود الذي تستخدمه سيارتك. تحقق من غطاء الوقود أو دليل المالك إذا لم تكن متأكداً.",
+        placeholder: "اختر نوع الوقود",
+      },
+      transmission: {
+        tooltip: "نوع نظام ناقل الحركة. الأوتوماتيكي ينقل التروس تلقائياً، بينما اليدوي يتطلب من السائق تبديل التروس.",
+        placeholder: "اختر ناقل الحركة",
+      },
+      bodyType: {
+        tooltip: "الشكل العام وفئة التصميم لسيارتك (مثل سيدان، SUV، كوبيه).",
+        placeholder: "اختر نوع الهيكل",
+      },
+    },
+  }
+
+  const info = fieldInfo[locale as keyof typeof fieldInfo] || fieldInfo.en
 
   // Initialize refs with current values
   useEffect(() => {
@@ -72,7 +173,34 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
     return { value, label: `${value} L` }
   })
 
-  // Modified SelectField to use SelectFieldWithSearch with proper z-index
+  // Info Icon Component with proper RTL support
+  const InfoIcon: React.FC<{ tooltip: string }> = ({ tooltip }) => (
+    <TooltipProvider>
+      <Tooltip delayDuration={200}>
+        <TooltipTrigger asChild>
+          <button
+            type="button"
+            className="inline-flex items-center justify-center rounded-full p-0.5 hover:bg-gray-100 transition-colors"
+            aria-label="More information"
+          >
+            <Info className="h-4 w-4 text-gray-400 hover:text-emerald-600 transition-colors" />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent 
+          className={cn(
+            "max-w-xs bg-gray-900 text-white p-3 text-sm shadow-lg z-50",
+            isRTL && "text-right"
+          )}
+          side="top"
+          align={isRTL ? "end" : "start"}
+        >
+          <p>{tooltip}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  )
+
+  // Modified SelectField with proper RTL support
   const SelectField = useCallback(
     ({
       label,
@@ -80,6 +208,7 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
       options,
       placeholder,
       required = false,
+      tooltip,
     }: {
       label: string
       field: string
@@ -87,6 +216,7 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
       placeholder: string
       optionsLabel?: string
       required?: boolean
+      tooltip: string
     }) => {
       const hasError =
         Object.prototype.hasOwnProperty.call(validationErrors, field) &&
@@ -97,99 +227,172 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
       const fieldValue = (carInfo[field as keyof CarInfoState] as string) || ""
 
       return (
-        <div className="relative z-10">
-          <FormField label={label} field={field} required={required}>
-            <div className="relative">
-              <SelectFieldWithSearch
-                options={options}
-                placeholder={placeholder}
-                name={field}
-                value={fieldValue}
-                onChange={onSelectChange}
-                onBlur={onTextFieldBlur}
-                SelectTriggerStyle={`${hasError ? "border-red-500" : ""} relative z-20`}
-                className="w-full text-primary relative z-20"
-                required={required}
-                error={errorMessage}
-                // Add z-index style for dropdown
-              
-              />
-            </div>
-          </FormField>
+        <div className="relative z-10" dir={isRTL ? "rtl" : "ltr"}>
+          <div className={cn(
+            "flex items-center gap-1 mb-2",
+            isRTL ? "flex-row-reverse justify-end" : "justify-start"
+          )}>
+            <span className="text-sm font-medium text-gray-700">{label}</span>
+            {required && <span className="text-red-500">*</span>}
+            <InfoIcon tooltip={tooltip} />
+          </div>
+          <div className="relative">
+            <SelectFieldWithSearch
+              options={options}
+              placeholder={placeholder}
+              name={field}
+              value={fieldValue}
+              onChange={onSelectChange}
+              onBlur={onTextFieldBlur}
+              SelectTriggerStyle={`${hasError ? "border-red-500" : ""} relative z-20`}
+              className="w-full text-primary relative z-20"
+              required={required}
+              error={errorMessage}
+            />
+          </div>
+          {errorMessage && (
+            <p className={cn(
+              "text-red-500 text-xs mt-1",
+              isRTL && "text-right"
+            )}>{errorMessage}</p>
+          )}
         </div>
       )
     },
-    [validationErrors, carInfo, onSelectChange, onTextFieldBlur]
+    [validationErrors, carInfo, onSelectChange, onTextFieldBlur, isRTL]
   )
 
   return (
-    <div className="p-3 sm:p-5 w-full relative">
+    <div className="p-3 sm:p-5 w-full relative" dir={isRTL ? "rtl" : "ltr"}>
       {/* Responsive grid: 1 column on mobile, 2 on tablet, 3-4 on desktop */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
         
         {/* Mileage */}
-        <FormField label={labels.mileage} field="mileage" required>
+        <div dir={isRTL ? "rtl" : "ltr"}>
+          <div className={cn(
+            "flex items-center gap-1 mb-2",
+            isRTL ? "flex-row-reverse justify-end" : "justify-start"
+          )}>
+            <span className="text-sm font-medium text-gray-700">{labels.mileage}</span>
+            <span className="text-red-500">*</span>
+            <InfoIcon tooltip={info.mileage.tooltip} />
+          </div>
           <Input
             type="text"
             ref={mileageInputRef}
             defaultValue={carInfo.mileage || ""}
             onBlur={handleMileageBlur}
-            placeholder={labels.enterMileage}
-            className="w-full text-primary"
+            placeholder={info.mileage.placeholder}
+            className={cn(
+              "w-full text-primary",
+              isRTL && "text-right"
+            )}
+            dir={isRTL ? "rtl" : "ltr"}
             required
           />
-        </FormField>
+        </div>
         
         {/* Doors */}
-        <FormField label={labels.doors} field="doors" required error={validationErrors.doors}>
+        <div dir={isRTL ? "rtl" : "ltr"}>
+          <div className={cn(
+            "flex items-center gap-1 mb-2",
+            isRTL ? "flex-row-reverse justify-end" : "justify-start"
+          )}>
+            <span className="text-sm font-medium text-gray-700">{labels.doors}</span>
+            <span className="text-red-500">*</span>
+            <InfoIcon tooltip={info.doors.tooltip} />
+          </div>
           <Input
             type="text"
             ref={doorsInputRef}
             defaultValue={carInfo.doors || ""}
             onBlur={handleDoorsBlur}
-            placeholder={labels.enterDoors}
-            className={`w-full ${validationErrors.doors ? "border-red-500" : ""} text-primary`}
+            placeholder={info.doors.placeholder}
+            className={cn(
+              "w-full text-primary",
+              validationErrors.doors && "border-red-500",
+              isRTL && "text-right"
+            )}
+            dir={isRTL ? "rtl" : "ltr"}
             required
           />
-        </FormField>
+          {validationErrors.doors && (
+            <p className={cn(
+              "text-red-500 text-xs mt-1",
+              isRTL && "text-right"
+            )}>{validationErrors.doors}</p>
+          )}
+        </div>
 
         {/* Engine Power */}
-        <FormField label={labels.enginePower} field="enginePower">
+        <div dir={isRTL ? "rtl" : "ltr"}>
+          <div className={cn(
+            "flex items-center gap-1 mb-2",
+            isRTL ? "flex-row-reverse justify-end" : "justify-start"
+          )}>
+            <span className="text-sm font-medium text-gray-700">{labels.enginePower}</span>
+            <InfoIcon tooltip={info.enginePower.tooltip} />
+          </div>
           <Input
             type="text"
             ref={enginePowerInputRef}
             defaultValue={carInfo.enginePower || ""}
             onBlur={handleEnginePowerBlur}
-            placeholder={labels.enterEnginePower}
-            className="w-full text-primary"
+            placeholder={info.enginePower.placeholder}
+            className={cn(
+              "w-full text-primary",
+              isRTL && "text-right"
+            )}
+            dir={isRTL ? "rtl" : "ltr"}
           />
-        </FormField>
+        </div>
 
         {/* Plate Number */}
-        <FormField label={labels.plateNumber} field="plateNumber" >
+        <div dir={isRTL ? "rtl" : "ltr"}>
+          <div className={cn(
+            "flex items-center gap-1 mb-2",
+            isRTL ? "flex-row-reverse justify-end" : "justify-start"
+          )}>
+            <span className="text-sm font-medium text-gray-700">{labels.plateNumber}</span>
+            <span className="text-red-500">*</span>
+            <InfoIcon tooltip={info.plateNumber.tooltip} />
+          </div>
           <Input
             type="text"
             ref={plateInputRef}
             defaultValue={carInfo.plateNumber || ""}
-            placeholder={labels.enterPlateNumber}
+            placeholder={info.plateNumber.placeholder}
             onBlur={handlePlateBlur}
-            className="w-full text-primary"
+            className={cn(
+              "w-full text-primary",
+              isRTL && "text-right"
+            )}
+            dir={isRTL ? "rtl" : "ltr"}
             required
           />
-        </FormField>
+        </div>
 
         {/* VIN - Full width on mobile for easier input */}
-        <div className="sm:col-span-2 lg:col-span-1">
-          <FormField label={labels.vin} field="vin">
-            <Input
-              type="text"
-              ref={vinInputRef}
-              defaultValue={carInfo.vin || ""}
-              placeholder={labels.enterVin}
-              onBlur={handleVinBlur}
-              className="w-full text-primary"
-            />
-          </FormField>
+        <div className="sm:col-span-2 lg:col-span-1" dir={isRTL ? "rtl" : "ltr"}>
+          <div className={cn(
+            "flex items-center gap-1 mb-2",
+            isRTL ? "flex-row-reverse justify-end" : "justify-start"
+          )}>
+            <span className="text-sm font-medium text-gray-700">{labels.vin}</span>
+            <InfoIcon tooltip={info.vin.tooltip} />
+          </div>
+          <Input
+            type="text"
+            ref={vinInputRef}
+            defaultValue={carInfo.vin || ""}
+            placeholder={info.vin.placeholder}
+            onBlur={handleVinBlur}
+            className={cn(
+              "w-full text-primary",
+              isRTL && "text-right"
+            )}
+            dir={isRTL ? "rtl" : "ltr"}
+          />
         </div>
 
         {/* Exterior Color */}
@@ -197,8 +400,8 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
           label={labels.colorExterior}
           field="colorExterior"
           options={options.colors}
-          placeholder={labels.selectColorExterior}
-          optionsLabel={labels.extColors}
+          placeholder={info.colorExterior.placeholder}
+          tooltip={info.colorExterior.tooltip}
           required
         />
         
@@ -207,7 +410,8 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
           label={labels.engineSize}
           field="engineSize"
           options={engineSizeOptions}
-          placeholder={labels.enterEngineSize}
+          placeholder={info.engineSize.placeholder}
+          tooltip={info.engineSize.tooltip}
           required
         />
         
@@ -216,8 +420,8 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
           label={labels.fuelType}
           field="fuelType"
           options={options.fuelType}
-          placeholder={labels.selectFuelType}
-          optionsLabel={labels.fuelTypes}
+          placeholder={info.fuelType.placeholder}
+          tooltip={info.fuelType.tooltip}
           required
         />
 
@@ -226,8 +430,8 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
           label={labels.transmission}
           field="transmission"
           options={options.transmission}
-          placeholder={labels.selectTransmission}
-          optionsLabel={labels.transmissions}
+          placeholder={info.transmission.placeholder}
+          tooltip={info.transmission.tooltip}
           required
         />
 
@@ -236,8 +440,8 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
           label={labels.bodyType}
           field="bodyType"
           options={options.bodyType}
-          placeholder={labels.selectBodyType}
-          optionsLabel={labels.bodyTypes}
+          placeholder={info.bodyType.placeholder}
+          tooltip={info.bodyType.tooltip}
           required
         />
       </div>
