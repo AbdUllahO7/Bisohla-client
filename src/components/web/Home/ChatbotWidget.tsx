@@ -12,6 +12,7 @@ const ChatbotWidget = () => {
       {/* Chat Toggle Button */}
       {!isOpen && (
         <button
+        title='Open Chatbot'
           onClick={() => setIsOpen(true)}
           className="fixed bottom-4 right-4 z-[999] text-white p-4 rounded-full shadow-lg transition-all duration-300 hover:scale-110"
         >
@@ -36,6 +37,7 @@ const ChatbotWidget = () => {
               <span className="font-medium">Bishola Support</span>
             </div>
             <button
+            title='Close Chatbot'
               onClick={() => setIsOpen(false)}
               className="hover:bg-green-700 p-1 rounded"
             >
