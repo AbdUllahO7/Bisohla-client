@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, use } from 'react';
 import Text from '@/components/text/text';
 import {
   Card,
@@ -22,10 +22,12 @@ import {
   Clock,
   XCircle,
   Star,
+  MoreVertical,
+  ChevronDown,
 } from 'lucide-react';
 import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions';
 import { toggleCarListingFavorite } from '@/core/infrastructure-adapters/actions/users/car.user.actions';
-import { useDeleteCarListing } from '@/core/infrastructure-adapters/use-actions/users/car.user.use-actions';
+import { useDeleteCarListing, useUpdateSaveStatus } from '@/core/infrastructure-adapters/use-actions/users/car.user.use-actions';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,6 +40,9 @@ import {
 } from '@/components/ui/alert-dialog';
 import { useLocale, useTranslations } from 'next-intl';
 import clsx from 'clsx';
+import { SaveStatus } from '@/core/entities/enums/cars.enums';
+import { useToast } from '@/hooks/use-toast';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu';
 
 // Extended props interface to include the callback, favorite status and authentication
 interface ExtendedCarCardItemPropsProfile extends CarCardItemPropsProfile {
@@ -48,8 +53,10 @@ interface ExtendedCarCardItemPropsProfile extends CarCardItemPropsProfile {
   profile?: boolean;
   onDelete?: (productId: number) => void;
   isMine?: boolean;
-  status?: string; // Add status prop
+  carStatus?: string; // Add status prop
   isFeatured?: boolean; // Add featured prop
+  saveStatus?: string; // Add save status prop
+  onStatusChange?: (productId: number, newStatus: string) => void; // Add status change callback
 }
 
 // Enhanced CardItem Component
@@ -70,8 +77,10 @@ export const EnhancedProductCardItem: React.FC<
   onDelete,
   profile,
   isMine = false,
-  status,
+  carStatus,
   isFeatured = false,
+  saveStatus,
+  onStatusChange,
 }) => {
   // Use the auth prop if provided, otherwise start with undefined and check later
   const [isAuthenticated, setIsAuthenticated] = useState(
@@ -82,6 +91,10 @@ export const EnhancedProductCardItem: React.FC<
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const authChecked = useRef(false);
+  const [currentSaveStatus, setCurrentSaveStatus] = useState(saveStatus);
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+  const updateSaveStatusMutation = useUpdateSaveStatus();
+  const { toast } = useToast();
 
   // Get locale and direction
   const locale = useLocale();
@@ -91,6 +104,11 @@ export const EnhancedProductCardItem: React.FC<
 
   // Use the delete mutation hook
   const deleteCarListingMutation = useDeleteCarListing();
+
+  // Update currentSaveStatus when saveStatus prop changes
+  useEffect(() => {
+    setCurrentSaveStatus(saveStatus);
+  }, [saveStatus]);
 
   // Only check authentication if it's not provided as a prop
   useEffect(() => {
@@ -136,9 +154,8 @@ export const EnhancedProductCardItem: React.FC<
 
   // Get status badge configuration
   const getStatusBadge = () => {
-    if (!isMine || !status) return null;
-
-    const statusLower = status.toLowerCase();
+    if (!isMine || !carStatus) return null;
+    const status = carStatus.toLowerCase();
     const statusConfig = {
       approved: {
         label: locale === 'ar' ? 'نشط' : 'Active',
@@ -157,7 +174,7 @@ export const EnhancedProductCardItem: React.FC<
       },
     };
 
-    const config = statusConfig[statusLower as keyof typeof statusConfig];
+    const config = statusConfig[status as keyof typeof statusConfig];
     if (!config) return null;
 
     const IconComponent = config.icon;
@@ -165,10 +182,10 @@ export const EnhancedProductCardItem: React.FC<
     return (
       <Badge
         variant="outline"
-        className={clsx(config.className, 'font-medium border text-xs')}
+        className={clsx(config.className, 'font-medium border z-[99] relative' )}
       >
         <IconComponent
-          size={10}
+          size={12}
           className={clsx(locale === 'ar' ? 'ml-1' : 'mr-1')}
         />
         {config.label}
@@ -310,7 +327,7 @@ export const EnhancedProductCardItem: React.FC<
 
   const featuredBadgeClass = clsx(
     'absolute top-2 z-20 bg-yellow-100 text-yellow-800 border-yellow-200',
-    isMine && status
+    isMine && carStatus
       ? locale === 'ar'
         ? 'left-14'
         : 'right-14' // Offset if status badge is present
@@ -321,16 +338,216 @@ export const EnhancedProductCardItem: React.FC<
 
   const iconMarginClass = clsx(locale === 'ar' ? 'ml-2' : 'mr-2');
 
+  const getSaveStatusBadge = () => {
+    if (!currentSaveStatus) return null;
+
+    const saveStatusLower = currentSaveStatus.toLowerCase();
+    const saveStatusConfig = {
+      published: {
+        label: locale === 'ar' ? 'منشور' : 'Published',
+        className: 'bg-gradient-to-r from-green-50 to-green-100 text-green-800 border-green-300 hover:from-green-100 hover:to-green-200',
+        icon: CheckCircle,
+      },
+      draft: {
+        label: locale === 'ar' ? 'مسودة' : 'Draft',
+        className: 'bg-gradient-to-r from-gray-50 to-gray-100 text-gray-800 border-gray-300 hover:from-gray-100 hover:to-gray-200',
+        icon: Clock,
+      },
+      sold: {
+        label: locale === 'ar' ? 'مباع' : 'Sold',
+        className: 'bg-gradient-to-r from-blue-50 to-blue-100 text-blue-800 border-blue-300 hover:from-blue-100 hover:to-blue-200',
+        icon: CheckCircle,
+      },
+    };
+
+    const config =
+      saveStatusConfig[saveStatusLower as keyof typeof saveStatusConfig];
+    if (!config) return null;
+
+    const IconComponent = config.icon;
+
+    // If it's the user's own listing, make it a dropdown
+    if (isMine) {
+      return (
+        <DropdownMenu modal={false}>
+          <DropdownMenuTrigger asChild>
+            <button
+              className={clsx(
+                'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border-2 transition-all duration-200 shadow-sm',
+                config.className,
+                'focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary',
+                isUpdatingStatus && 'opacity-60 cursor-not-allowed'
+              )}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+              disabled={isUpdatingStatus}
+            >
+              <IconComponent size={14} className="flex-shrink-0" />
+              <span>{config.label}</span>
+              <ChevronDown size={14} className="flex-shrink-0" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            align={locale === 'ar' ? 'end' : 'start'}
+            className="z-[102] bg-white rounded-lg shadow-xl border-2 border-gray-200 p-1 min-w-[180px]"
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+          >
+            <DropdownMenuItem
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleSaveStatusChange(SaveStatus.PUBLISHED);
+              }}
+              disabled={currentSaveStatus === SaveStatus.PUBLISHED || isUpdatingStatus}
+              className={clsx(
+                'flex items-center gap-2 px-3 py-2 rounded-md text-sm cursor-pointer transition-colors',
+                currentSaveStatus === SaveStatus.PUBLISHED
+                  ? 'bg-green-50 text-green-800 cursor-default'
+                  : 'hover:bg-green-50 text-gray-700 hover:text-green-800',
+                'focus:outline-none focus:bg-green-50'
+              )}
+            >
+              <CheckCircle size={16} className="flex-shrink-0" />
+              <span className="flex-1">{locale === 'ar' ? 'منشور' : 'Published'}</span>
+              {currentSaveStatus === SaveStatus.PUBLISHED && (
+                <CheckCircle size={14} className="text-green-600" />
+              )}
+            </DropdownMenuItem>
+
+            <DropdownMenuItem
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleSaveStatusChange(SaveStatus.DRAFT);
+              }}
+              disabled={currentSaveStatus === SaveStatus.DRAFT || isUpdatingStatus}
+              className={clsx(
+                'flex items-center gap-2 px-3 py-2 rounded-md text-sm cursor-pointer transition-colors',
+                currentSaveStatus === SaveStatus.DRAFT
+                  ? 'bg-gray-50 text-gray-800 cursor-default'
+                  : 'hover:bg-gray-50 text-gray-700 hover:text-gray-800',
+                'focus:outline-none focus:bg-gray-50'
+              )}
+            >
+              <Clock size={16} className="flex-shrink-0" />
+              <span className="flex-1">{locale === 'ar' ? 'مسودة' : 'Draft'}</span>
+              {currentSaveStatus === SaveStatus.DRAFT && (
+                <CheckCircle size={14} className="text-gray-600" />
+              )}
+            </DropdownMenuItem>
+
+            <DropdownMenuSeparator className="my-1 h-px bg-gray-200" />
+
+            <DropdownMenuItem
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleSaveStatusChange(SaveStatus.SOLD);
+              }}
+              disabled={currentSaveStatus === SaveStatus.SOLD || isUpdatingStatus}
+              className={clsx(
+                'flex items-center gap-2 px-3 py-2 rounded-md text-sm cursor-pointer transition-colors',
+                currentSaveStatus === SaveStatus.SOLD
+                  ? 'bg-blue-50 text-blue-800 cursor-default'
+                  : 'hover:bg-blue-50 text-gray-700 hover:text-blue-800',
+                'focus:outline-none focus:bg-blue-50'
+              )}
+            >
+              <CheckCircle size={16} className="flex-shrink-0" />
+              <span className="flex-1">{locale === 'ar' ? 'مباع' : 'Sold'}</span>
+              {currentSaveStatus === SaveStatus.SOLD && (
+                <CheckCircle size={14} className="text-blue-600" />
+              )}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
+    }
+
+    // For non-owner view, just show the badge
+    return (
+      <Badge
+        variant="outline"
+        className={clsx(
+          'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border-2 shadow-sm',
+          config.className
+        )}
+      >
+        <IconComponent size={14} />
+        <span>{config.label}</span>
+      </Badge>
+    );
+  };
+
+  const handleSaveStatusChange = async (newStatus: SaveStatus) => {
+    if (!ProductId || isUpdatingStatus) return;
+
+    // Store previous status for rollback
+    const previousStatus = currentSaveStatus;
+
+    try {
+      setIsUpdatingStatus(true);
+      
+      // Optimistically update the UI
+      setCurrentSaveStatus(newStatus);
+
+      const response = await updateSaveStatusMutation.mutateAsync({
+        id: Number(ProductId),
+        dto: { saveStatus: newStatus },
+      });
+
+      if (response.success) {
+        // Notify parent component of the status change
+        if (onStatusChange) {
+          onStatusChange(Number(ProductId), newStatus);
+        }
+
+        // Show success toast
+        const messages = {
+          [SaveStatus.PUBLISHED]: locale === 'ar' ? 'تم النشر بنجاح' : 'Published successfully',
+          [SaveStatus.DRAFT]: locale === 'ar' ? 'تم الحفظ كمسودة' : 'Saved as draft',
+          [SaveStatus.SOLD]: locale === 'ar' ? 'تم وضع علامة كمباع' : 'Marked as sold',
+        };
+
+        toast({
+          title: locale === 'ar' ? 'نجح التحديث' : 'Status Updated',
+          description: messages[newStatus as keyof typeof messages],
+          variant: 'default',
+        });
+      } else {
+        // Revert on failure
+        setCurrentSaveStatus(previousStatus);
+        
+        toast({
+          title: locale === 'ar' ? 'خطأ' : 'Error',
+          description: locale === 'ar' ? 'فشل تحديث الحالة' : 'Failed to update status',
+          variant: 'destructive',
+        });
+      }
+    } catch (error) {
+      // Revert on error
+      setCurrentSaveStatus(previousStatus);
+      console.error('Failed to update save status:', error);
+      
+      toast({
+        title: locale === 'ar' ? 'خطأ' : 'Error',
+        description: locale === 'ar' ? 'حدث خطأ أثناء تحديث الحالة' : 'An error occurred while updating status',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsUpdatingStatus(false);
+    }
+  };
+
   return (
     <div className="w-full" dir={direction}>
       <Card
         className={`group border border-gray-200 rounded-xl bg-white w-full shadow-md hover:shadow-xl transition-all duration-300 relative overflow-hidden`}
       >
-        {/* Status Badge - Only for user's own listings */}
-        {isMine && getStatusBadge() && (
-          <div className={statusBadgeClass}>{getStatusBadge()}</div>
-        )}
-
         {/* Featured Badge */}
         {isFeatured && (
           <Badge variant="outline" className={featuredBadgeClass}>
@@ -366,10 +583,43 @@ export const EnhancedProductCardItem: React.FC<
             />
           </Button>
         )}
+        
+        {isMine && getStatusBadge() && (
+          <div
+            className={clsx(
+              'absolute top-3',
+              isFavorites
+                ? locale === 'ar'
+                  ? 'left-3'
+                  : 'right-3'
+                : locale === 'ar'
+                ? 'right-3'
+                : 'left-3',
+            )}
+          >
+            {getStatusBadge()}
+          </div>
+        )}
 
         <Text className={typeTagClass}>
           {type === 'for_sale' ? t('sale') : t('rent')}
         </Text>
+
+        {/* Save Status Badge - Redesigned with better positioning */}
+        {currentSaveStatus && (
+          <div
+            className={clsx(
+              'absolute bottom-[170px] z-[100]',
+              locale === 'ar' ? 'left-3' : 'right-3',
+            )}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+          >
+            {getSaveStatusBadge()}
+          </div>
+        )}
 
         {/* Make the card content clickable */}
         <Link
@@ -466,7 +716,7 @@ export const EnhancedProductCardItem: React.FC<
             {isAuthenticated && (
               <Link
                 href={`/products/EditProduct/${ProductId}`}
-                className=" bg-primary hover:primary-light px-4 py-2 text-white rounded-lg flex-1 text-center flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300"
+                className="bg-primary hover:primary-light px-4 py-2 text-white rounded-lg flex-1 text-center flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300"
               >
                 <Edit className={iconMarginClass} size={16} />
                 {t('edit')}

@@ -15,9 +15,12 @@ const CardAds = ({ isRent }: { isRent: boolean }) => {
             <Text variant="h4" className="p-[8px] text-white">
               {t('productAds.title')}
             </Text>
-            <Text variant="mid" className="p-[8px] text-primary-foreground font-[800] font-cairo text-[14px]">
+            <a 
+              href="mailto:bishola4h@gmail.com" 
+              className="mt-2 px-6 py-3 bg-white text-primary-light font-[800] font-cairo text-[14px] rounded-lg hover:bg-primary-foreground hover:text-white transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105 cursor-pointer"
+            >
               {t('productAds.description')}
-            </Text>
+            </a>
           </CardDescription>
         </CardHeader>
       </Card>

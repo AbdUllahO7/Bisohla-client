@@ -18,10 +18,10 @@ export const handleRegister = async (
   data: FormData,
 ) => {
   const fields = {
-    email: data.get('email'),
-    password: data.get('password'),
-    passwordConfirmation: data.get('passwordConfirmation'),
-    name: data.get('name'),
+    email: data.get('email') as string,
+    password: data.get('password') as string,
+    passwordConfirmation: data.get('passwordConfirmation') as string,
+    name: data.get('name') as string,
   };
 
   const res = await postReq<typeof fields, RegisterFormValues>({
@@ -31,13 +31,36 @@ export const handleRegister = async (
     errorDefaultMessage: 'Failed to register.',
   });
 
+  // If there's an error (validation or API), preserve the form data
+  // BUT don't preserve passwords for security
+  if (!res.success) {
+    return {
+      ...res,
+      data: {
+        email: fields.email,
+        name: fields.name,
+        password: '', // Don't preserve password
+        passwordConfirmation: '', // Don't preserve password confirmation
+      } as RegisterFormValues,
+    };
+  }
+
+  // If successful, include the email and name for the success screen
   if (res.success) {
     //TODO: send verification email
+    return {
+      ...res,
+      data: {
+        email: fields.email,
+        name: fields.name,
+        password: '',
+        passwordConfirmation: '',
+      } as RegisterFormValues,
+    };
   }
 
   return res;
-};
-
+};  
 export const validateResetPasswordToken = async (token: string) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const fields = {};

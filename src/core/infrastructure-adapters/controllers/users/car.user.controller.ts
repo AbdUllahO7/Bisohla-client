@@ -10,6 +10,7 @@ import { SelectCarListingDto } from '@/core/entities/models/cars/cars.dto';
 import {
   CreateCarListingDto,
   UpdateCarListingDto,
+  UpdateSaveStatusDto,
 } from '@/core/entities/models/cars/cars.zod.dto';
 import {
   UserFavoriteCarListing,
@@ -100,6 +101,16 @@ export class CarUserController implements ICarUserController {
   ): Promise<ApiResponse<SelectCarListingDto>> {
     try {
       return await this.carUserUseCase.editCarListing(id, dto);
+    } catch (e) {
+      return catchClientRequest(e);
+    }
+  }
+   async updateCarListingSaveStatus(
+    id: number,
+    dto: UpdateSaveStatusDto,
+  ): Promise<ApiResponse<SelectCarListingDto>> {
+    try {
+      return await this.carUserUseCase.updateCarListingSaveStatus(id, dto);
     } catch (e) {
       return catchClientRequest(e);
     }

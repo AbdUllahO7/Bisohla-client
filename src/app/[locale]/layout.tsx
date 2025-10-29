@@ -1,3 +1,4 @@
+// app/[locale]/layout.tsx
 import GlobalProvider from '@/providers/global.provider';
 import '../../globals.css';
 import { initConfigs } from '@/config';
@@ -7,6 +8,8 @@ import { getMessages } from 'next-intl/server';
 import { NextIntlClientProvider } from 'next-intl';
 import NextTopLoader from 'nextjs-toploader';
 import { Cairo } from 'next/font/google';
+import AppDeepLink from '@/components/AppDeepLink';
+import SmartAppBanner from '@/components/SmartAppBanner';
 
 const cairo = Cairo({
   subsets: ['latin'],
@@ -35,18 +38,17 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        {/* Additional custom meta tags */}
-        {/* <meta name="theme-color" content="#2C3C39" />
-        <meta name="msapplication-TileColor" content="#2C3C39" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        <link rel="icon" href="/favicon.ico?v=2" /> */}
-
         <link rel="manifest" href="/manifest.json" />
       </head>
       <body className={`bg-white text-primary ${cairo.className}`}>
         <NextIntlClientProvider messages={messages}>
           <GlobalProvider>
             <NextTopLoader color="#2C3C39" height={4} showSpinner={false} />
+            
+            <SmartAppBanner />
+            
+            <AppDeepLink />
+            
             {children}
           </GlobalProvider>
         </NextIntlClientProvider>

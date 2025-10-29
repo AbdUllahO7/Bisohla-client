@@ -149,6 +149,13 @@ export const UpdateCarListingSchema = CreateCarListingSchema.partial().extend({
 });
 export type UpdateCarListingDto = z.infer<typeof UpdateCarListingSchema>;
 
+
+export const UpdateSaveStatusSchema = z.object({
+  saveStatus: z.nativeEnum(SaveStatus),
+});
+
+export type UpdateSaveStatusDto = z.infer<typeof UpdateSaveStatusSchema>;
+
 // Admin update status schema
 export const UpdateCarListingStatusSchema = z.object({
   status: z.nativeEnum(CarStatus),

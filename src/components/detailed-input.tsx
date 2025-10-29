@@ -13,11 +13,12 @@ interface DetailedInputProps {
   caption: string
   className?: string
   value?: string | number | undefined
+  defaultValue?: string | number | undefined  // Added defaultValue prop
   icon?: ReactNode
 }
 
 const DetailedInput = (props: DetailedInputProps) => {
-  const { type, placeholder, error, register, className, caption, name, value, icon } = props
+  const { type, placeholder, error, register, className, caption, name, value, defaultValue, icon } = props
   const locale = useLocale()
   const isRTL = locale === "ar"
 
@@ -58,6 +59,10 @@ const DetailedInput = (props: DetailedInputProps) => {
       'Password must be at least 8 characters': {
         en: 'Password must be at least 8 characters',
         ar: 'كلمة المرور يجب أن تكون 8 أحرف على الأقل',
+      },
+      'Passwords do not match': {
+        en: 'Passwords do not match',
+        ar: 'كلمات المرور غير متطابقة',
       },
       
       // Name validation messages
@@ -104,13 +109,14 @@ const DetailedInput = (props: DetailedInputProps) => {
     }
 
     // Case-insensitive matching
-    const errorKey = Object.keys(translations).find(
-      key => key.toLowerCase() === errorMessage.toLowerCase()
-    )
-    
-    return errorKey && translations[errorKey][locale] 
-      ? translations[errorKey][locale] 
-      : errorMessage
+   const normalizedError = errorMessage.toLowerCase().trim()
+  const errorKey = Object.keys(translations).find(
+    key => key.toLowerCase() === normalizedError
+  )
+  
+  return errorKey && translations[errorKey][locale] 
+    ? translations[errorKey][locale] 
+    : errorMessage
   }
 
   // Process error message (handle both string and array)
@@ -160,6 +166,7 @@ const DetailedInput = (props: DetailedInputProps) => {
             className,
           )}
           value={value}
+          defaultValue={defaultValue}  // Added defaultValue support
           dir={isRTL ? "rtl" : "ltr"}
         />
       </div>

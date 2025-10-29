@@ -74,9 +74,9 @@ const MobileProductClient = ({
       </div>
 
       {/* Mobile: Title and Actions Header */}
-      <div className="md:hidden w-full mb-3 bg-white my-4">
-        <Box variant="container" className="py-3">
-          <Box variant="column" className="w-full gap-3">
+      <div className="md:hidden w-full mb-3 bg-white my-4 ">
+        <Box variant="container" className="py-3 ">
+          <Box variant="column" className="w-full gap-3 ">
             {/* Action Buttons - Full Width */}
             <ProductHeader
               saveStatus={carData.saveStatus}

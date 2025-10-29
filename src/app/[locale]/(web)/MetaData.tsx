@@ -4,6 +4,90 @@ import type { Metadata } from "next";
 // Types for different page configurations
 type WebPageType = 'home' | 'cars' | 'car-detail' | 'profile' | 'contact' | 'about' | 'rent' | 'sale' | 'search';
 
+// API Settings Types
+interface ApiSettings {
+  success: boolean;
+  data: {
+    ar: LocaleSettings;
+    en: LocaleSettings;
+  };
+}
+
+interface LocaleSettings {
+  general: {
+    site_info: {
+      site_name: string;
+      site_description: string;
+      copyright_message: string;
+    };
+    contact_info: {
+      email: string;
+      phone: string;
+      address: string;
+    };
+    appearance: {
+      logo: string;
+      favicon: string;
+      primary_color: string;
+      secondary_color: string;
+    };
+    localization: {
+      default_lang: string;
+      timezone: string;
+      date_format: string;
+      date_time_format: string;
+      time_format: string;
+    };
+    social_links: {
+      facebook_url: string;
+      facebook_image: string;
+      instagram_url: string;
+      instagram_image: string;
+      tiktok_url: string;
+      tiktok_image: string;
+      youtube_url: string;
+      youtube_image: string;
+      snapchat_url: string;
+      snapchat_image: string;
+      twitter_url: string;
+      twitter_image: string;
+      linkedin_url: string;
+      linkedin_image: string;
+      pinterest_url: string;
+      pinterest_image: string;
+      telegram_url: string;
+      telegram_image: string;
+      whatsapp_url: string;
+      whatsapp_image: string;
+    };
+  };
+  app_settings: {
+    app_info: {
+      app_name: string;
+      app_description: string;
+      bundle_id: string;
+      play_store_url: string;
+      app_store_url: string;
+    };
+  };
+  seo_settings: {
+    home_page: {
+      meta_title: string;
+      meta_description: string;
+      meta_keywords: string;
+      og_title: string;
+      og_description: string;
+      og_image: string;
+      og_image_alt: string;
+      twitter_title: string;
+      twitter_description: string;
+      twitter_image: string;
+      canonical_url: string;
+      focus_keyword: string;
+    };
+  };
+}
+
 interface WebMetadataConfig {
   title?: string;
   description?: string;
@@ -82,77 +166,99 @@ const DEFAULT_BUSINESS_INFO: BusinessInfo = {
   }
 };
 
+// No need to fetch - settings will be passed from usePublicSettings() hook
+
+// Merge API settings with business info
+function mergeSettingsWithBusinessInfo(
+  apiSettings: ApiSettings | null | undefined,
+  locale: string,
+  customBusinessInfo?: Partial<BusinessInfo>
+): BusinessInfo {
+  const localeData = apiSettings?.data?.[locale as 'ar' | 'en'];
+  
+  // Extract social media links from API
+  const socialMedia = localeData ? {
+    facebook: localeData.general.social_links.facebook_url || DEFAULT_BUSINESS_INFO.socialMedia.facebook,
+    twitter: localeData.general.social_links.twitter_url || DEFAULT_BUSINESS_INFO.socialMedia.twitter,
+    instagram: localeData.general.social_links.instagram_url || DEFAULT_BUSINESS_INFO.socialMedia.instagram,
+    linkedin: localeData.general.social_links.linkedin_url || DEFAULT_BUSINESS_INFO.socialMedia.linkedin,
+    youtube: localeData.general.social_links.youtube_url || DEFAULT_BUSINESS_INFO.socialMedia.youtube,
+  } : DEFAULT_BUSINESS_INFO.socialMedia;
+
+  // Build merged business info
+  const mergedInfo: BusinessInfo = {
+    name: {
+      en: apiSettings?.data?.en?.general?.site_info?.site_name || DEFAULT_BUSINESS_INFO.name.en,
+      ar: apiSettings?.data?.ar?.general?.site_info?.site_name || DEFAULT_BUSINESS_INFO.name.ar,
+    },
+    url: customBusinessInfo?.url || DEFAULT_BUSINESS_INFO.url,
+    phone: localeData?.general?.contact_info?.phone || customBusinessInfo?.phone || DEFAULT_BUSINESS_INFO.phone,
+    email: localeData?.general?.contact_info?.email || customBusinessInfo?.email || DEFAULT_BUSINESS_INFO.email,
+    salesEmail: customBusinessInfo?.salesEmail || DEFAULT_BUSINESS_INFO.salesEmail,
+    address: {
+      street: localeData?.general?.contact_info?.address || customBusinessInfo?.address?.street || DEFAULT_BUSINESS_INFO.address.street,
+      city: customBusinessInfo?.address?.city || DEFAULT_BUSINESS_INFO.address.city,
+      region: customBusinessInfo?.address?.region || DEFAULT_BUSINESS_INFO.address.region,
+      postalCode: customBusinessInfo?.address?.postalCode || DEFAULT_BUSINESS_INFO.address.postalCode,
+      country: customBusinessInfo?.address?.country || DEFAULT_BUSINESS_INFO.address.country,
+    },
+    coordinates: customBusinessInfo?.coordinates || DEFAULT_BUSINESS_INFO.coordinates,
+    socialMedia: {
+      ...socialMedia,
+      ...customBusinessInfo?.socialMedia
+    },
+    businessHours: customBusinessInfo?.businessHours || DEFAULT_BUSINESS_INFO.businessHours,
+  };
+
+  return mergedInfo;
+}
+
 // Generate metadata for web pages
 export async function generateWebMetadata(
   pageType: WebPageType = 'home',
   customConfig?: WebMetadataConfig,
-  businessInfo?: {
-    name?: { en: string; ar: string };
-    url?: string;
-    phone?: string;
-    email?: string;
-    salesEmail?: string;
-    address?: {
-      street?: string;
-      city?: { en: string; ar: string };
-      region?: { en: string; ar: string };
-      postalCode?: string;
-      country?: string;
-    };
-    coordinates?: {
-      latitude?: string;
-      longitude?: string;
-    };
-    socialMedia?: {
-      facebook?: string;
-      twitter?: string;
-      instagram?: string;
-      linkedin?: string;
-      youtube?: string;
-    };
-    businessHours?: {
-      weekdays?: { opens: string; closes: string };
-      friday?: { opens: string; closes: string };
-    };
-  }
+  businessInfo?: Partial<BusinessInfo>,
+  apiSettings?: ApiSettings | null // Add settings parameter
 ): Promise<Metadata> {
   const locale = await getLocale();
   const t = await getTranslations("homePage");
   
-  // Merge default business info with custom config
-  const mergedBusinessInfo = {
-    name: businessInfo?.name || DEFAULT_BUSINESS_INFO.name,
-    url: businessInfo?.url || DEFAULT_BUSINESS_INFO.url,
-    phone: businessInfo?.phone || DEFAULT_BUSINESS_INFO.phone,
-    email: businessInfo?.email || DEFAULT_BUSINESS_INFO.email,
-    salesEmail: businessInfo?.salesEmail || DEFAULT_BUSINESS_INFO.salesEmail,
-    address: {
-      ...DEFAULT_BUSINESS_INFO.address,
-      ...businessInfo?.address
-    },
-    coordinates: {
-      ...DEFAULT_BUSINESS_INFO.coordinates,
-      ...businessInfo?.coordinates
-    },
-    socialMedia: {
-      ...DEFAULT_BUSINESS_INFO.socialMedia,
-      ...businessInfo?.socialMedia
-    },
-    businessHours: {
-      ...DEFAULT_BUSINESS_INFO.businessHours,
-      ...businessInfo?.businessHours
-    }
-  };
+  // Use passed settings instead of fetching
+  const localeData = apiSettings?.data?.[locale as 'ar' | 'en'];
   
-  // Enhanced metadata based on locale
+  // Merge API settings with business info
+  const mergedBusinessInfo = mergeSettingsWithBusinessInfo(apiSettings, locale, businessInfo);
+  
+  // Get SEO settings from API or use defaults
+  const seoSettings = localeData?.seo_settings?.home_page;
+  
+  // Enhanced metadata based on locale and API settings
   const siteTitle = mergedBusinessInfo.name[locale as 'en' | 'ar'] || mergedBusinessInfo.name.en;
-  const siteName = locale === 'ar' 
-    ? `${mergedBusinessInfo.name.ar} - تأجير وبيع السيارات` 
-    : `${mergedBusinessInfo.name.en} - Car Rental & Sales`;
+  const siteName = localeData?.general?.site_info?.site_description || 
+    (locale === 'ar' 
+      ? `${mergedBusinessInfo.name.ar} - تأجير وبيع السيارات` 
+      : `${mergedBusinessInfo.name.en} - Car Rental & Sales`);
+  
+  // Use SEO settings from API if available, otherwise use custom config or translations
+  const metaTitle = seoSettings?.meta_title || customConfig?.title || t("metadata.title");
+  const metaDescription = seoSettings?.meta_description || customConfig?.description || t("metadata.description");
+  const ogTitle = seoSettings?.og_title || metaTitle;
+  const ogDescription = seoSettings?.og_description || metaDescription;
+  const ogImage = seoSettings?.og_image || customConfig?.ogImage || `${mergedBusinessInfo.url}/og-${pageType}-image.jpg`;
+  const twitterImage = seoSettings?.twitter_image || customConfig?.twitterImage || ogImage;
+  
+  // Parse keywords from API (comma-separated string) or use custom keywords
+  let keywords: string[] = [];
+  if (seoSettings?.meta_keywords) {
+    keywords = seoSettings.meta_keywords.split(',').map(k => k.trim()).filter(k => k);
+  } else if (customConfig?.keywords) {
+    keywords = customConfig.keywords;
+  } else {
+    keywords = getDefaultKeywords(pageType, locale);
+  }
   
   // Default metadata configurations for different page types
-// Default metadata configurations for different page types
-  const getDefaultKeywords = (pageType: WebPageType): string[] => {
+  function getDefaultKeywords(pageType: WebPageType, locale: string): string[] {
     const keywordSets: Record<WebPageType, string[]> = {
       home: locale === 'ar' 
         ? ['تأجير السيارات', 'بيع السيارات', 'استئجار سيارة', 'شراء السيارات', 'تأجير المركبات', 'مبيعات السيارات', 'سيارات للبيع', 'سوق السيارات', 'بسهولة']
@@ -184,15 +290,24 @@ export async function generateWebMetadata(
     };
     
     return keywordSets[pageType] || keywordSets.home;
-  };
+  }
+
+  // Use canonical URL from SEO settings or generate default
+  const canonicalUrl = seoSettings?.canonical_url || 
+    customConfig?.canonical || 
+    `${mergedBusinessInfo.url}/${locale}${pageType !== 'home' ? `/${pageType}` : ''}`;
+
+  // Get logo and favicon from API appearance settings
+  const logoUrl = localeData?.general?.appearance?.logo || `${mergedBusinessInfo.url}/logo-bishola.png`;
+  const faviconUrl = localeData?.general?.appearance?.favicon || '/favicon.ico';
 
   return {
     title: {
       template: `%s | ${siteTitle}`,
-      default: customConfig?.title || t("metadata.title"),
+      default: metaTitle,
     },
-    description: customConfig?.description || t("metadata.description"),
-    keywords: customConfig?.keywords || getDefaultKeywords(pageType),
+    description: metaDescription,
+    keywords: keywords,
     
     authors: [{ name: `${mergedBusinessInfo.name.en} Team` }],
     creator: mergedBusinessInfo.name.en,
@@ -202,19 +317,19 @@ export async function generateWebMetadata(
     openGraph: {
       type: 'website',
       locale: locale === 'ar' ? 'ar_SA' : 'en_US',
-      url: customConfig?.canonical || `${mergedBusinessInfo.url}/${locale}${pageType !== 'home' ? `/${pageType}` : ''}`,
-      title: customConfig?.title || t("metadata.title"),
-      description: customConfig?.description || t("metadata.description"),
+      url: canonicalUrl,
+      title: ogTitle,
+      description: ogDescription,
       siteName: siteName,
       images: [
         {
-          url: customConfig?.ogImage || `${mergedBusinessInfo.url}/og-${pageType}-image.jpg`,
+          url: ogImage,
           width: 1200,
           height: 630,
-          alt: customConfig?.title || t("metadata.title"),
+          alt: seoSettings?.og_image_alt || metaTitle,
         },
         {
-          url: `${mergedBusinessInfo.url}/og-logo.jpg`,
+          url: logoUrl,
           width: 800,
           height: 600,
           alt: siteTitle,
@@ -225,9 +340,9 @@ export async function generateWebMetadata(
     // Twitter Card
     twitter: {
       card: 'summary_large_image',
-      title: customConfig?.title || t("metadata.title"),
-      description: customConfig?.description || t("metadata.description"),
-      images: [customConfig?.twitterImage || customConfig?.ogImage || `${mergedBusinessInfo.url}/twitter-${pageType}-image.jpg`],
+      title: seoSettings?.twitter_title || ogTitle,
+      description: seoSettings?.twitter_description || ogDescription,
+      images: [twitterImage],
       creator: '@bishola',
       site: '@bishola',
     },
@@ -247,7 +362,7 @@ export async function generateWebMetadata(
     
     // Language alternates for SEO
     alternates: {
-      canonical: customConfig?.canonical || `${mergedBusinessInfo.url}/${locale}${pageType !== 'home' ? `/${pageType}` : ''}`,
+      canonical: canonicalUrl,
       languages: {
         'en': `${mergedBusinessInfo.url}/en${pageType !== 'home' ? `/${pageType}` : ''}`,
         'ar': `${mergedBusinessInfo.url}/ar${pageType !== 'home' ? `/${pageType}` : ''}`,
@@ -260,10 +375,10 @@ export async function generateWebMetadata(
     category: 'automotive',
     classification: 'Car Rental and Sales Platform',
     
-    // Icons (favicon configuration)
+    // Icons (favicon configuration from API)
     icons: {
       icon: [
-        { url: '/favicon.ico' },
+        { url: faviconUrl },
         { url: '/icon-16.png', sizes: '16x16', type: 'image/png' },
         { url: '/icon-32.png', sizes: '32x32', type: 'image/png' },
         { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
@@ -272,7 +387,7 @@ export async function generateWebMetadata(
       apple: [
         { url: '/apple-icon.png', sizes: '180x180', type: 'image/png' },
       ],
-      shortcut: '/favicon.ico',
+      shortcut: faviconUrl,
     },
     
     // Verification tags (add your actual verification codes)
@@ -303,68 +418,28 @@ export async function generateWebMetadata(
 // Generate structured data for web pages
 export async function generateWebStructuredData(
   pageType: WebPageType = 'home',
-  businessInfo?: {
-    name?: { en: string; ar: string };
-    url?: string;
-    phone?: string;
-    email?: string;
-    salesEmail?: string;
-    address?: {
-      street?: string;
-      city?: { en: string; ar: string };
-      region?: { en: string; ar: string };
-      postalCode?: string;
-      country?: string;
-    };
-    coordinates?: {
-      latitude?: string;
-      longitude?: string;
-    };
-    socialMedia?: {
-      facebook?: string;
-      twitter?: string;
-      instagram?: string;
-      linkedin?: string;
-      youtube?: string;
-    };
-    businessHours?: {
-      weekdays?: { opens: string; closes: string };
-      friday?: { opens: string; closes: string };
-    };
-  },
-  customData?: Record<string, any>
+  businessInfo?: Partial<BusinessInfo>,
+  customData?: Record<string, any>,
+  apiSettings?: ApiSettings | null // Add settings parameter
 ) {
   const locale = await getLocale();
   const t = await getTranslations("homePage");
   
-  // Merge default business info with custom config
-  const mergedBusinessInfo = {
-    name: businessInfo?.name || DEFAULT_BUSINESS_INFO.name,
-    url: businessInfo?.url || DEFAULT_BUSINESS_INFO.url,
-    phone: businessInfo?.phone || DEFAULT_BUSINESS_INFO.phone,
-    email: businessInfo?.email || DEFAULT_BUSINESS_INFO.email,
-    salesEmail: businessInfo?.salesEmail || DEFAULT_BUSINESS_INFO.salesEmail,
-    address: {
-      ...DEFAULT_BUSINESS_INFO.address,
-      ...businessInfo?.address
-    },
-    coordinates: {
-      ...DEFAULT_BUSINESS_INFO.coordinates,
-      ...businessInfo?.coordinates
-    },
-    socialMedia: {
-      ...DEFAULT_BUSINESS_INFO.socialMedia,
-      ...businessInfo?.socialMedia
-    },
-    businessHours: {
-      ...DEFAULT_BUSINESS_INFO.businessHours,
-      ...businessInfo?.businessHours
-    }
-  };
+  // Use passed settings instead of fetching
+  const localeData = apiSettings?.data?.[locale as 'ar' | 'en'];
   
-   const structuredData: {
+  // Merge API settings with business info
+  const mergedBusinessInfo = mergeSettingsWithBusinessInfo(apiSettings, locale, businessInfo);
+  
+  // Get logo from API
+  const logoUrl = localeData?.general?.appearance?.logo || `${mergedBusinessInfo.url}/logo-bishola.png`;
+  
+  // Get site description from API
+  const siteDescription = localeData?.general?.site_info?.site_description || t("metadata.description");
+  
+  const structuredData: {
     "@context": string;
-    "@graph": any[]; // Use any[] to allow flexible structured data
+    "@graph": any[];
   } = {
     "@context": "https://schema.org",
     "@graph": [
@@ -375,11 +450,11 @@ export async function generateWebStructuredData(
         "url": mergedBusinessInfo.url,
         "logo": {
           "@type": "ImageObject",
-          "url": `${mergedBusinessInfo.url}/logo-bishola.png`,
+          "url": logoUrl,
           "width": 300,
           "height": 100
         },
-        "sameAs": Object.values(mergedBusinessInfo.socialMedia),
+        "sameAs": Object.values(mergedBusinessInfo.socialMedia).filter(url => url && url !== ''),
         "contactPoint": [
           {
             "@type": "ContactPoint",
@@ -411,7 +486,7 @@ export async function generateWebStructuredData(
         "@id": `${mergedBusinessInfo.url}/#website`,
         "url": mergedBusinessInfo.url,
         "name": mergedBusinessInfo.name[locale as 'en' | 'ar'] || mergedBusinessInfo.name.en,
-        "description": t("metadata.description"),
+        "description": siteDescription,
         "publisher": {
           "@id": `${mergedBusinessInfo.url}/#organization`
         },
@@ -431,8 +506,8 @@ export async function generateWebStructuredData(
         "@type": "AutoDealer",
         "@id": `${mergedBusinessInfo.url}/#autodealer`,
         "name": mergedBusinessInfo.name[locale as 'en' | 'ar'] || mergedBusinessInfo.name.en,
-        "image": `${mergedBusinessInfo.url}/logo-bishola.png`,
-        "description": t("metadata.description"),
+        "image": logoUrl,
+        "description": siteDescription,
         "url": mergedBusinessInfo.url,
         "telephone": mergedBusinessInfo.phone,
         "address": {
@@ -470,7 +545,6 @@ export async function generateWebStructuredData(
     ]
   };
 
-
   // Add custom structured data if provided
   if (customData) {
     structuredData["@graph"].push(customData);
@@ -478,46 +552,21 @@ export async function generateWebStructuredData(
 
   return structuredData;
 }
+
 interface CustomStructuredData {
   "@type": string;
   "@id"?: string;
   [key: string]: any;
 }
+
 // React component for adding structured data
 interface WebMetadataProviderProps {
   pageType?: WebPageType;
   customConfig?: WebMetadataConfig;
-  businessInfo?: {
-    name?: { en: string; ar: string };
-    url?: string;
-    phone?: string;
-    email?: string;
-    salesEmail?: string;
-    address?: {
-      street?: string;
-      city?: { en: string; ar: string };
-      region?: { en: string; ar: string };
-      postalCode?: string;
-      country?: string;
-    };
-    coordinates?: {
-      latitude?: string;
-      longitude?: string;
-    };
-    socialMedia?: {
-      facebook?: string;
-      twitter?: string;
-      instagram?: string;
-      linkedin?: string;
-      youtube?: string;
-    };
-    businessHours?: {
-      weekdays?: { opens: string; closes: string };
-      friday?: { opens: string; closes: string };
-    };
-  };
-    customData?: CustomStructuredData | CustomStructuredData[] // Updated type
+  businessInfo?: Partial<BusinessInfo>;
+  customData?: CustomStructuredData | CustomStructuredData[];
   customStructuredData?: Record<string, any>;
+  apiSettings?: ApiSettings | null; // Add settings parameter
   children?: React.ReactNode;
 }
 
@@ -525,9 +574,10 @@ export const WebMetadataProvider: React.FC<WebMetadataProviderProps> = async ({
   pageType = 'home',
   businessInfo,
   customStructuredData,
+  apiSettings, // Accept settings
   children 
 }) => {
-  const structuredData = await generateWebStructuredData(pageType, businessInfo, customStructuredData);
+  const structuredData = await generateWebStructuredData(pageType, businessInfo, customStructuredData, apiSettings);
 
   return (
     <>

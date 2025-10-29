@@ -22,6 +22,8 @@ import {
   Clock,
   CheckCircle,
   XCircle,
+  ChevronDown,
+  MoreVertical,
 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import clsx from 'clsx';
@@ -29,7 +31,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { ar, enUS } from 'date-fns/locale';
 import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions';
 import { toggleCarListingFavorite } from '@/core/infrastructure-adapters/actions/users/car.user.actions';
-import { useDeleteCarListing } from '@/core/infrastructure-adapters/use-actions/users/car.user.use-actions';
+import { useDeleteCarListing, useUpdateSaveStatus } from '@/core/infrastructure-adapters/use-actions/users/car.user.use-actions';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -40,6 +42,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@radix-ui/react-dropdown-menu';
+import { SaveStatus } from '@/core/entities/enums/cars.enums';
+import { useToast } from '@/hooks/use-toast';
 
 // Import your interfaces
 import { SelectCarListingDto } from '@/core/entities/models/cars/cars.dto';
@@ -53,6 +64,7 @@ interface ProductCardListViewProps {
   profile?: boolean;
   onDelete?: (productId: number) => void;
   isMine?: boolean;
+  onStatusChange?: (productId: number, newStatus: string) => void;
 }
 
 export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
@@ -64,10 +76,12 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
   profile = false,
   onDelete,
   isMine = false,
+  onStatusChange,
 }) => {
   const locale = useLocale();
   const direction = locale === 'ar' ? 'rtl' : 'ltr';
   const t = useTranslations('common');
+  const { toast } = useToast();
 
   // State management
   const [isAuthenticated, setIsAuthenticated] = useState(
@@ -77,9 +91,17 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [currentSaveStatus, setCurrentSaveStatus] = useState(carListing.saveStatus);
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const authChecked = useRef(false);
 
   const deleteCarListingMutation = useDeleteCarListing();
+  const updateSaveStatusMutation = useUpdateSaveStatus();
+
+  // Update currentSaveStatus when carListing.saveStatus changes
+  useEffect(() => {
+    setCurrentSaveStatus(carListing.saveStatus);
+  }, [carListing.saveStatus]);
 
   // Authentication check
   useEffect(() => {
@@ -206,6 +228,212 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
         {config.label}
       </Badge>
     );
+  };
+
+  // Redesigned Save Status Badge with Dropdown
+  const getSaveStatusBadge = () => {
+    if (!currentSaveStatus) return null;
+
+    const saveStatusLower = currentSaveStatus.toLowerCase();
+    const saveStatusConfig = {
+      published: {
+        label: locale === 'ar' ? 'منشور' : 'Published',
+        className: 'bg-gradient-to-r from-green-50 to-green-100 text-green-800 border-green-300 hover:from-green-100 hover:to-green-200',
+        icon: CheckCircle,
+      },
+      draft: {
+        label: locale === 'ar' ? 'مسودة' : 'Draft',
+        className: 'bg-gradient-to-r from-gray-50 to-gray-100 text-gray-800 border-gray-300 hover:from-gray-100 hover:to-gray-200',
+        icon: Clock,
+      },
+      sold: {
+        label: locale === 'ar' ? 'مباع' : 'Sold',
+        className: 'bg-gradient-to-r from-blue-50 to-blue-100 text-blue-800 border-blue-300 hover:from-blue-100 hover:to-blue-200',
+        icon: CheckCircle,
+      },
+    };
+
+    const config =
+      saveStatusConfig[saveStatusLower as keyof typeof saveStatusConfig];
+    if (!config) return null;
+
+    const IconComponent = config.icon;
+
+    // If it's the user's own listing, make it a dropdown
+    if (isMine) {
+      return (
+        <DropdownMenu modal={false}>
+          <DropdownMenuTrigger asChild>
+            <button
+              className={clsx(
+                'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border-2 transition-all duration-200 shadow-sm',
+                config.className,
+                'focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary',
+                isUpdatingStatus && 'opacity-60 cursor-not-allowed'
+              )}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+              disabled={isUpdatingStatus}
+            >
+              <IconComponent size={14} className="flex-shrink-0" />
+              <span>{config.label}</span>
+              <ChevronDown size={14} className="flex-shrink-0" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            align={locale === 'ar' ? 'end' : 'start'}
+            className="z-[102] bg-white rounded-lg shadow-xl border-2 border-gray-200 p-1 min-w-[180px]"
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+          >
+            <DropdownMenuItem
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleSaveStatusChange(SaveStatus.PUBLISHED);
+              }}
+              disabled={currentSaveStatus === SaveStatus.PUBLISHED || isUpdatingStatus}
+              className={clsx(
+                'flex items-center gap-2 px-3 py-2 rounded-md text-sm cursor-pointer transition-colors',
+                currentSaveStatus === SaveStatus.PUBLISHED
+                  ? 'bg-green-50 text-green-800 cursor-default'
+                  : 'hover:bg-green-50 text-gray-700 hover:text-green-800',
+                'focus:outline-none focus:bg-green-50'
+              )}
+            >
+              <CheckCircle size={16} className="flex-shrink-0" />
+              <span className="flex-1">{locale === 'ar' ? 'منشور' : 'Published'}</span>
+              {currentSaveStatus === SaveStatus.PUBLISHED && (
+                <CheckCircle size={14} className="text-green-600" />
+              )}
+            </DropdownMenuItem>
+
+            <DropdownMenuItem
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleSaveStatusChange(SaveStatus.DRAFT);
+              }}
+              disabled={currentSaveStatus === SaveStatus.DRAFT || isUpdatingStatus}
+              className={clsx(
+                'flex items-center gap-2 px-3 py-2 rounded-md text-sm cursor-pointer transition-colors',
+                currentSaveStatus === SaveStatus.DRAFT
+                  ? 'bg-gray-50 text-gray-800 cursor-default'
+                  : 'hover:bg-gray-50 text-gray-700 hover:text-gray-800',
+                'focus:outline-none focus:bg-gray-50'
+              )}
+            >
+              <Clock size={16} className="flex-shrink-0" />
+              <span className="flex-1">{locale === 'ar' ? 'مسودة' : 'Draft'}</span>
+              {currentSaveStatus === SaveStatus.DRAFT && (
+                <CheckCircle size={14} className="text-gray-600" />
+              )}
+            </DropdownMenuItem>
+
+            <DropdownMenuSeparator className="my-1 h-px bg-gray-200" />
+
+            <DropdownMenuItem
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleSaveStatusChange(SaveStatus.SOLD);
+              }}
+              disabled={currentSaveStatus === SaveStatus.SOLD || isUpdatingStatus}
+              className={clsx(
+                'flex items-center gap-2 px-3 py-2 rounded-md text-sm cursor-pointer transition-colors',
+                currentSaveStatus === SaveStatus.SOLD
+                  ? 'bg-blue-50 text-blue-800 cursor-default'
+                  : 'hover:bg-blue-50 text-gray-700 hover:text-blue-800',
+                'focus:outline-none focus:bg-blue-50'
+              )}
+            >
+              <CheckCircle size={16} className="flex-shrink-0" />
+              <span className="flex-1">{locale === 'ar' ? 'مباع' : 'Sold'}</span>
+              {currentSaveStatus === SaveStatus.SOLD && (
+                <CheckCircle size={14} className="text-blue-600" />
+              )}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
+    }
+
+    // For non-owner view, just show the badge
+    return (
+      <Badge
+        variant="outline"
+        className={clsx(
+          'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border-2 shadow-sm',
+          config.className
+        )}
+      >
+        <IconComponent size={14} />
+        <span>{config.label}</span>
+      </Badge>
+    );
+  };
+
+  const handleSaveStatusChange = async (newStatus: SaveStatus) => {
+    if (!carListing.id || isUpdatingStatus) return;
+
+    // Store previous status for rollback
+    const previousStatus = currentSaveStatus;
+
+    try {
+      setIsUpdatingStatus(true);
+      
+      // Optimistically update the UI
+      setCurrentSaveStatus(newStatus);
+
+      const response = await updateSaveStatusMutation.mutateAsync({
+        id: Number(carListing.id),
+        dto: { saveStatus: newStatus },
+      });
+
+      if (response.success) {
+        // Notify parent component of the status change
+        if (onStatusChange) {
+          onStatusChange(Number(carListing.id), newStatus);
+        }
+
+        // Show success toast
+        const messages = {
+          [SaveStatus.PUBLISHED]: locale === 'ar' ? 'تم النشر بنجاح' : 'Published successfully',
+          [SaveStatus.DRAFT]: locale === 'ar' ? 'تم الحفظ كمسودة' : 'Saved as draft',
+          [SaveStatus.SOLD]: locale === 'ar' ? 'تم وضع علامة كمباع' : 'Marked as sold',
+        };
+
+        toast({
+          title: locale === 'ar' ? 'نجح التحديث' : 'Status Updated',
+          description: messages[newStatus as keyof typeof messages],
+          variant: 'default',
+        });
+      } else {
+        // Revert on failure
+        setCurrentSaveStatus(previousStatus);
+        
+        toast({
+          title: locale === 'ar' ? 'خطأ' : 'Error',
+          description: locale === 'ar' ? 'فشل تحديث الحالة' : 'Failed to update status',
+          variant: 'destructive',
+        });
+      }
+    } catch (error) {
+      // Revert on error
+      setCurrentSaveStatus(previousStatus);
+      console.error('Failed to update save status:', error);
+      
+      toast({
+        title: locale === 'ar' ? 'خطأ' : 'Error',
+        description: locale === 'ar' ? 'حدث خطأ أثناء تحديث الحالة' : 'An error occurred while updating status',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsUpdatingStatus(false);
+    }
   };
 
   // Event handlers
@@ -387,7 +615,7 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
             {/* Listing Type Badge */}
             <Badge
               className={clsx(
-                'absolute bottom-3 font-medium',
+                'absolute bottom-3 font-medium hover:bg-primary hover:text-white transition-colors',
                 locale === 'ar' ? 'right-3' : 'left-3',
                 getListingTypeColor(),
               )}
@@ -395,12 +623,28 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
               {getListingTypeLabel()}
             </Badge>
 
+            {/* Save Status Badge - Redesigned */}
+            {currentSaveStatus && (
+              <div
+                className={clsx(
+                  'absolute bottom-3 z-[100]',
+                  locale === 'ar' ? 'left-3' : 'right-3',
+                )}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+              >
+                {getSaveStatusBadge()}
+              </div>
+            )}
+
             {/* Featured Badge */}
             {carListing.isFeatured && (
               <Badge
                 className={clsx(
-                  'absolute bottom-3 bg-yellow-100 text-yellow-800',
-                  locale === 'ar' ? 'left-3' : 'right-3',
+                  'absolute top-12 bg-yellow-100 text-yellow-800',
+                  locale === 'ar' ? 'right-3' : 'left-3',
                 )}
               >
                 <Star
@@ -436,6 +680,11 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
                 {/* Status Badge in content area for better visibility on mobile */}
                 {isMine && getStatusBadge() && (
                   <div className="mb-3 sm:hidden">{getStatusBadge()}</div>
+                )}
+
+                {/* Save Status Badge in content area for mobile */}
+                {currentSaveStatus && (
+                  <div className="mb-3 sm:hidden">{getSaveStatusBadge()}</div>
                 )}
 
                 {/* Vehicle Details */}
