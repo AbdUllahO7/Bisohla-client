@@ -43,7 +43,7 @@ export default function AppDeepLink() {
         const fullPath = params ? `${pathname}?${params}` : pathname;
         
         const customSchemeUrl = `bishola://${fullPath}`;
-        const universalUrl = `${APP_URL}/${fullPath}`;
+        const universalUrl = `https://bishola.com${fullPath}`;
 
         console.log('🔗 Attempting deep link:', customSchemeUrl);
 
