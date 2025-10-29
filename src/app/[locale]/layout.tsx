@@ -10,6 +10,7 @@ import NextTopLoader from 'nextjs-toploader';
 import { Cairo } from 'next/font/google';
 import AppDeepLink from '@/components/AppDeepLink';
 import SmartAppBanner from '@/components/SmartAppBanner';
+import AppDownloadModalProvider from '@/providers/AppDownloadModalProvider';
 
 const cairo = Cairo({
   subsets: ['latin'],
@@ -48,9 +49,12 @@ export default async function RootLayout({
             <SmartAppBanner />
             
             <AppDeepLink />
-            
+
             {children}
+                                          <AppDownloadModalProvider />
+
           </GlobalProvider>
+
         </NextIntlClientProvider>
       </body>
     </html>

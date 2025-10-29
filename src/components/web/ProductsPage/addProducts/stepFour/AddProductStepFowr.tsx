@@ -541,42 +541,42 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {/* Country Code + Contact Number */}
-    <div className="sm:col-span-2 lg:col-span-1">
-  <FormLabel className="text-primary font-medium mb-2 block">
-    {t("stepFour.contactNumber")}
-    <span className="text-red-500 ml-1">*</span>
-  </FormLabel>
-  <div className="flex gap-2">
-    {/* Searchable Country Code Selector */}
-    <div className="w-32">
-      <SearchableCountrySelect
-        value={countryCodeValue}
-        onChange={handleCountryCodeChange}
-        options={countryCodeOptions}
-        placeholder="+963"
-      />
-    </div>
+              <div className="sm:col-span-2 lg:col-span-1">
+            <FormLabel className="text-primary font-medium mb-2 block">
+              {t("stepFour.contactNumber")}
+              <span className="text-red-500 ml-1">*</span>
+            </FormLabel>
+            <div className="flex gap-2">
+              {/* Searchable Country Code Selector */}
+              <div className="w-32">
+                <SearchableCountrySelect
+                  value={countryCodeValue}
+                  onChange={handleCountryCodeChange}
+                  options={countryCodeOptions}
+                  placeholder="+963"
+                />
+              </div>
     
-    {/* Phone Number Input */}
-    <FormField
-      control={form.control}
-      name="contactNumber"
-      render={({ field }) => (
-        <FormItem className="flex-1">
-          <FormControl>
-            <Input 
-              placeholder="5551234567" 
-              className="h-11" 
-              {...field}
-              type="tel"
-            />
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
-  </div>
-</div>
+            {/* Phone Number Input */}
+                      <FormField
+                        control={form.control}
+                        name="contactNumber"
+                        render={({ field }) => (
+                          <FormItem className="flex-1">
+                            <FormControl>
+                              <Input 
+                                placeholder="5551234567" 
+                                className="h-11" 
+                                {...field}
+                                type="tel"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
 
                   {/* Price field */}
                   <FormField

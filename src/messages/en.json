@@ -1004,7 +1004,8 @@
         "saveStatus": "Save Status",
         "saveStatusOptions": {
           "draft": "Draft",
-          "published": "Publish"
+          "published": "Publish",
+          "sold":"Sold"
         },
 
         "rentType": "Rent Type",
