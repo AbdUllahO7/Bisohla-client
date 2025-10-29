@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
+import { APP_URL } from '@/core/lib/web/constants';
 
 export default function AppDeepLink() {
   const pathname = usePathname();
@@ -42,7 +43,7 @@ export default function AppDeepLink() {
         const fullPath = params ? `${pathname}?${params}` : pathname;
         
         const customSchemeUrl = `bishola://${fullPath}`;
-        const universalUrl = `https://bishola.com${fullPath}`;
+        const universalUrl = `${APP_URL}/${fullPath}`;
 
         console.log('🔗 Attempting deep link:', customSchemeUrl);
 
