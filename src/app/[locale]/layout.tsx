@@ -51,7 +51,7 @@ export default async function RootLayout({
             <AppDeepLink />
 
             {children}
-                                          <AppDownloadModalProvider />
+            <AppDownloadModalProvider />
 
           </GlobalProvider>
 
