@@ -12,6 +12,7 @@ import { SelectCarListingDto } from '@/core/entities/models/cars/cars.dto';
 import {
   CreateCarListingDto,
   UpdateCarListingDto,
+  UpdateSaveStatusDto,
 } from '@/core/entities/models/cars/cars.zod.dto';
 import {
   addCarListingToFavorites,
@@ -24,6 +25,7 @@ import {
   removeCarListingFromFavorites,
   toggleCarListingFavorite,
   updateCarListing,
+  updateCarListingSaveStatus,
 } from '../../actions/users/car.user.actions';
 import { useLocaleQuery } from '../common/use-locale-query';
 import {
@@ -98,6 +100,7 @@ export const useCheckCarIsFavorite = (carListingId: number) => {
   });
 };
 
+
 export const useCreateCarListing = () =>
   useMutation<ApiResponse<SelectCarListingDto>, Error, CreateCarListingDto>({
     mutationFn: async (creategroupDto) =>
@@ -127,6 +130,18 @@ export const useDeleteCarListing = () =>
       },
     },
   );
+  export const useUpdateSaveStatus = () =>
+  useMutation<ApiResponse<SelectCarListingDto>,Error,{ id: number; dto: UpdateSaveStatusDto }>({
+    mutationFn: async ({ id, dto }) => {
+      return await updateCarListingSaveStatus(id, dto);
+    },
+    onSuccess: () => {
+      console.log('Save status updated successfully');
+    },
+    onError: (error) => {
+      console.error('Failed to update save status:', error);
+    },
+  });
 
 export const useMyCarListings = (params: QueryParams) =>
   useLocaleQuery<PaginatedResponse<SelectCarListingDto>>({

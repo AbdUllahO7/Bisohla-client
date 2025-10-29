@@ -180,14 +180,14 @@
               : (isEditMode 
                   ? 'تم تحديث القائمة الخاصة بك بنجاح!' 
                   : 'تم إنشاء القائمة الخاصة بك بنجاح!'),
-            className: "bg-green-600 text-white border-green-700",
+            className: "bg-green-600 text-white w-[330px] border-green-700 fixed bottom-4 right-4 z-[999]",
           });
           
           // Clear all form data properly - both edit and normal data
           clearFormData(true);
           
           // Redirect to success page or next step
-          router.push('/');
+          router.push('/userProfile/Products');
           // Small delay to ensure navigation completes before refresh
           setTimeout(() => {
             router.refresh();

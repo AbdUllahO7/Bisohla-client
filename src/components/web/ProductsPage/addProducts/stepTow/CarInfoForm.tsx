@@ -53,7 +53,7 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
     en: {
       mileage: {
         tooltip: "Total distance the car has traveled. This is a key factor in determining the car's value and condition.",
-        placeholder: "e.g., 50000",
+        placeholder: "e.g., 50000 KM",
       },
       doors: {
         tooltip: "Number of doors on your vehicle, including the trunk/hatch door if it counts as a door.",
@@ -95,7 +95,7 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
     ar: {
       mileage: {
         tooltip: "المسافة الإجمالية التي قطعتها السيارة. هذا عامل رئيسي في تحديد قيمة السيارة وحالتها.",
-        placeholder: "مثال: 50000",
+        placeholder: "مثال: 50000 KM",
       },
       doors: {
         tooltip: "عدد الأبواب في سيارتك، بما في ذلك باب الصندوق/الباب الخلفي إذا كان يُحسب كباب.",
@@ -354,7 +354,6 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
             isRTL ? "flex-row-reverse justify-end" : "justify-start"
           )}>
             <span className="text-sm font-medium text-gray-700">{labels.plateNumber}</span>
-            <span className="text-red-500">*</span>
             <InfoIcon tooltip={info.plateNumber.tooltip} />
           </div>
           <Input
@@ -368,7 +367,6 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
               isRTL && "text-right"
             )}
             dir={isRTL ? "rtl" : "ltr"}
-            required
           />
         </div>
 

@@ -14,6 +14,7 @@ import { Car, Plus } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import MyProductsFilter from '@/components/dashboard/Products/MyProductsFilter';
 import { EnhancedProductCardItem } from '@/components/web/design/ProductCardItemEnhanced';
+import { SaveStatus } from '../../../../core/entities/enums/cars.enums';
 
 // View mode type
 type ViewMode = 'grid' | 'list';
@@ -137,6 +138,7 @@ const UserProductPage = () => {
 
     return listings;
   }, [data, favoriteStatuses]);
+  console.log("Render UserProductPage - carListings:", carListings);
 
   // Extract pagination metadata from response
   const paginationMeta = useMemo(() => {
@@ -268,6 +270,8 @@ const UserProductPage = () => {
                 marka={car.make?.name || ''}
                 price={car.price || 0}
                 type={car.listingType}
+                carStatus={car.status}
+                saveStatus={car.saveStatus as SaveStatus}
                 imageSrc={
                   car.images?.find((img: { isPrimary: any }) => img.isPrimary)
                     ?.url ||
@@ -282,6 +286,8 @@ const UserProductPage = () => {
                 isAuthenticated={true}
                 onDelete={handleDelete}
                 profile={true}
+                isMine={true}
+
               />
             );
           })}

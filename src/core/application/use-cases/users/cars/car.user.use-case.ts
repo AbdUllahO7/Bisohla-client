@@ -7,6 +7,7 @@ import { SelectCarListingDto } from '@/core/entities/models/cars/cars.dto';
 import {
   CreateCarListingDto,
   UpdateCarListingDto,
+  UpdateSaveStatusDto,
 } from '@/core/entities/models/cars/cars.zod.dto';
 import { ICarUserUseCase } from './car.user.use-case.interface';
 import { ICarUserService } from '@/core/application/services/users/car.user.service.interface';
@@ -20,6 +21,8 @@ import {
 
 export class CarUserUseCase implements ICarUserUseCase {
   constructor(protected readonly carUserStrategy: ICarUserService) {}
+
+
 
   async getMyCars(
     params: QueryParams,
@@ -67,6 +70,13 @@ export class CarUserUseCase implements ICarUserUseCase {
   ): Promise<ApiResponse<SelectCarListingDto>> {
     return await this.carUserStrategy.editCarListing(id, dto);
   }
+   async updateCarListingSaveStatus(
+    id: number,
+    dto: UpdateSaveStatusDto,
+  ): Promise<ApiResponse<SelectCarListingDto>> {
+    return await this.carUserStrategy.updateCarListingSaveStatus(id, dto);
+  }
+  
   async deleteCarListing(
     id: number,
   ): Promise<ApiResponse<SuccessResponseWithNoContent>> {

@@ -10,6 +10,7 @@ import { SelectCarListingDto } from '@/core/entities/models/cars/cars.dto';
 import {
   CreateCarListingDto,
   UpdateCarListingDto,
+  UpdateSaveStatusDto,
 } from '@/core/entities/models/cars/cars.zod.dto';
 import {
   CreateFavoriteCarListingDto,
@@ -85,6 +86,17 @@ export const updateCarListing = async (
   const carListingController = getInjection('ICarUserController');
 
   const res = await carListingController.editCarListing(id, dto);
+
+  return res;
+};
+
+export const updateCarListingSaveStatus = async (
+  id: number,
+  dto: UpdateSaveStatusDto,
+): Promise<ApiResponse<SelectCarListingDto>> => {
+  const carListingController = getInjection('ICarUserController');
+
+  const res = await carListingController.updateCarListingSaveStatus(id, dto);
 
   return res;
 };

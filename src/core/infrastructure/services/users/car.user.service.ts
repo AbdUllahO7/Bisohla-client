@@ -9,6 +9,7 @@ import { SelectCarListingDto } from '@/core/entities/models/cars/cars.dto';
 import {
   CreateCarListingDto,
   UpdateCarListingDto,
+  UpdateSaveStatusDto,
 } from '@/core/entities/models/cars/cars.zod.dto';
 import {
   UserFavoriteCarListing,
@@ -106,6 +107,20 @@ export class CarUserService implements ICarUserService {
 
     return res;
   }
+
+
+  async updateCarListingSaveStatus(
+  id: number,
+  dto: UpdateSaveStatusDto,
+): Promise<ApiResponse<SelectCarListingDto>> {
+  const res = await putAuthReq<UpdateSaveStatusDto, SelectCarListingDto>({
+    url: '/car-listings-user/' + id + '/update-save-status',
+    body: dto,
+  });
+
+  return res;
+}
+
   async deleteCarListing(
     id: number,
   ): Promise<ApiResponse<SuccessResponseWithNoContent>> {

@@ -8,6 +8,7 @@ import { SelectCarListingDto } from '@/core/entities/models/cars/cars.dto';
 import {
   CreateCarListingDto,
   UpdateCarListingDto,
+  UpdateSaveStatusDto,
 } from '@/core/entities/models/cars/cars.zod.dto';
 import {
   CreateFavoriteCarListingDto,
@@ -23,6 +24,10 @@ export interface ICarUserStrategy {
   editCarListing(
     id: number,
     dto: UpdateCarListingDto,
+  ): Promise<ApiResponse<SelectCarListingDto>>;
+  updateCarListingSaveStatus(
+    id: number,
+    dto: UpdateSaveStatusDto,
   ): Promise<ApiResponse<SelectCarListingDto>>;
   deleteCarListing(
     id: number,
