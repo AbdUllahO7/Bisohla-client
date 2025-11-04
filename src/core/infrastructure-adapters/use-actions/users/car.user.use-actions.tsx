@@ -8,7 +8,6 @@ import {
 
 import { useMutation } from '@tanstack/react-query';
 
-import { SelectCarListingDto } from '@/core/entities/models/cars/cars.dto';
 import {
   CreateCarListingDto,
   UpdateCarListingDto,
@@ -36,6 +35,7 @@ import {
 } from '@/core/entities/models/cars/users-favorites-cars.zod.dto';
 import { QueryParams } from '@/core/entities/api/api';
 import { useSession } from '../auth/use-session';
+import { SelectCarListingDto } from '@/core/entities/models/cars/cars.dto';
 
 export const useGetCarFavorites = (params: QueryParams) => {
   const session = useSession();
@@ -130,6 +130,7 @@ export const useDeleteCarListing = () =>
       },
     },
   );
+
   export const useUpdateSaveStatus = () =>
   useMutation<ApiResponse<SelectCarListingDto>,Error,{ id: number; dto: UpdateSaveStatusDto }>({
     mutationFn: async ({ id, dto }) => {

@@ -9,8 +9,10 @@ import {
 import { SelectCarListingDto } from '@/core/entities/models/cars/cars.dto';
 import {
   CreateCarListingDto,
+  IncrementCountDto,
   UpdateCarListingDto,
   UpdateSaveStatusDto,
+  UpdateViewDurationDto,
 } from '@/core/entities/models/cars/cars.zod.dto';
 import {
   UserFavoriteCarListing,
@@ -120,6 +122,57 @@ export class CarUserController implements ICarUserController {
   ): Promise<ApiResponse<SuccessResponseWithNoContent>> {
     try {
       return await this.carUserUseCase.deleteCarListing(id);
+    } catch (e) {
+      return catchClientRequest(e);
+    }
+  }
+
+  // Car Listing Statistics Methods
+  async incrementViewCount(
+    dto: IncrementCountDto,
+  ): Promise<ApiResponse<SuccessResponseWithNoContent>> {
+    try {
+      return await this.carUserUseCase.incrementViewCount(dto);
+    } catch (e) {
+      return catchClientRequest(e);
+    }
+  }
+
+  async incrementContactCount(
+    dto: IncrementCountDto,
+  ): Promise<ApiResponse<SuccessResponseWithNoContent>> {
+    try {
+      return await this.carUserUseCase.incrementContactCount(dto);
+    } catch (e) {
+      return catchClientRequest(e);
+    }
+  }
+
+  async incrementSharesCount(
+    dto: IncrementCountDto,
+  ): Promise<ApiResponse<SuccessResponseWithNoContent>> {
+    try {
+      return await this.carUserUseCase.incrementSharesCount(dto);
+    } catch (e) {
+      return catchClientRequest(e);
+    }
+  }
+
+  async incrementDetailsViewedCount(
+    dto: IncrementCountDto,
+  ): Promise<ApiResponse<SuccessResponseWithNoContent>> {
+    try {
+      return await this.carUserUseCase.incrementDetailsViewedCount(dto);
+    } catch (e) {
+      return catchClientRequest(e);
+    }
+  }
+
+  async updateViewDuration(
+    dto: UpdateViewDurationDto,
+  ): Promise<ApiResponse<SuccessResponseWithNoContent>> {
+    try {
+      return await this.carUserUseCase.updateViewDuration(dto);
     } catch (e) {
       return catchClientRequest(e);
     }

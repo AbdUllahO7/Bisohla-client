@@ -173,6 +173,21 @@ export const CreateFeatureSchema = z.object({
   icon: z.string().nullable().optional(),
 });
 
+// DTO Schemas
+export const IncrementCountDtoSchema = z.object({
+  carListingId: z.number().positive(),
+});
+
+export const UpdateViewDurationDtoSchema = z.object({
+  carListingId: z.number().positive(),
+  durationInSeconds: z.number().positive(),
+});
+
+export type IncrementCountDto = z.infer<typeof IncrementCountDtoSchema>;
+export type UpdateViewDurationDto = z.infer<typeof UpdateViewDurationDtoSchema>;
+
+
+
 export type CreateFeatureDto = z.infer<typeof CreateFeatureSchema>;
 
 export const UpdateFeatureSchema = CreateFeatureSchema.partial();

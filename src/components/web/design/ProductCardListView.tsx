@@ -24,6 +24,9 @@ import {
   XCircle,
   ChevronDown,
   MoreVertical,
+  BarChart3,
+  TrendingUp,
+  Share2,
 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import clsx from 'clsx';
@@ -31,7 +34,11 @@ import { formatDistanceToNow } from 'date-fns';
 import { ar, enUS } from 'date-fns/locale';
 import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions';
 import { toggleCarListingFavorite } from '@/core/infrastructure-adapters/actions/users/car.user.actions';
-import { useDeleteCarListing, useUpdateSaveStatus } from '@/core/infrastructure-adapters/use-actions/users/car.user.use-actions';
+import { 
+  useDeleteCarListing, 
+  useUpdateSaveStatus,
+  useMyCarById 
+} from '@/core/infrastructure-adapters/use-actions/users/car.user.use-actions';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -42,6 +49,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -93,10 +107,16 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
   const [isDeleting, setIsDeleting] = useState(false);
   const [currentSaveStatus, setCurrentSaveStatus] = useState(carListing.saveStatus);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+  const [showStatisticsDialog, setShowStatisticsDialog] = useState(false);
   const authChecked = useRef(false);
 
   const deleteCarListingMutation = useDeleteCarListing();
   const updateSaveStatusMutation = useUpdateSaveStatus();
+
+  // Fetch car statistics when modal is open
+  const { data: carStatistics, isLoading: isLoadingStatistics, refetch: refetchStatistics } = useMyCarById(
+    Number(carListing.id)
+  );
 
   // Update currentSaveStatus when carListing.saveStatus changes
   useEffect(() => {
@@ -139,6 +159,13 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
       prevFavoriteRef.current = isMarkedFavorite;
     }
   }, [isMarkedFavorite]);
+
+  // Refetch statistics when dialog opens
+  useEffect(() => {
+    if (showStatisticsDialog && profile && isMine) {
+      refetchStatistics();
+    }
+  }, [showStatisticsDialog, profile, isMine, refetchStatistics]);
 
   // Helper functions
   const getPrimaryImage = () => {
@@ -186,6 +213,102 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
     return carListing.listingType === 'for_sale'
       ? 'bg-green-100 text-green-800'
       : 'bg-blue-100 text-blue-800';
+  };
+
+  // Format statistics for display
+  const formatStatistics = () => {
+    if (!carStatistics?.data?.statics) return null;
+    
+    const stats = carStatistics.data.statics;
+    const formatDateValue = (dateString: string | null) => {
+      if (!dateString) return locale === 'ar' ? 'غير متوفر' : 'N/A';
+      try {
+        return new Date(dateString).toLocaleDateString(
+          locale === 'ar' ? 'ar-SA' : 'en-US',
+          {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+          }
+        );
+      } catch {
+        return locale === 'ar' ? 'غير متوفر' : 'N/A';
+      }
+    };
+
+    const formatDuration = (seconds: number | null) => {
+      if (!seconds) return '0';
+      const minutes = Math.floor(seconds / 60);
+      const remainingSeconds = seconds % 60;
+      if (minutes > 0) {
+        return locale === 'ar' 
+          ? `${minutes} دقيقة ${remainingSeconds} ثانية`
+          : `${minutes}m ${remainingSeconds}s`;
+      }
+      return locale === 'ar' ? `${seconds} ثانية` : `${seconds}s`;
+    };
+
+    return [
+      {
+        label: locale === 'ar' ? 'عدد المشاهدات' : 'Views Count',
+        value: stats.viewsCount?.toLocaleString() || '0',
+        icon: Eye,
+        color: 'text-blue-600',
+        bgColor: 'bg-blue-50',
+        borderColor: 'border-blue-200',
+      },
+      {
+        label: locale === 'ar' ? 'عدد جهات الاتصال' : 'Contact Count',
+        value: stats.contactCount?.toLocaleString() || '0',
+        icon: Phone,
+        color: 'text-green-600',
+        bgColor: 'bg-green-50',
+        borderColor: 'border-green-200',
+      },
+      {
+        label: locale === 'ar' ? 'عدد المفضلة' : 'Favorites Count',
+        value: stats.favoritesCount?.toLocaleString() || '0',
+        icon: HeartIcon,
+        color: 'text-red-600',
+        bgColor: 'bg-red-50',
+        borderColor: 'border-red-200',
+      },
+      {
+        label: locale === 'ar' ? 'عدد المشاركات' : 'Shares Count',
+        value: stats.sharesCount?.toLocaleString() || '0',
+        icon: Share2,
+        color: 'text-purple-600',
+        bgColor: 'bg-purple-50',
+        borderColor: 'border-purple-200',
+      },
+      {
+        label: locale === 'ar' ? 'مدة المشاهدة' : 'View Duration',
+        value: formatDuration(stats.viewDuration),
+        icon: Clock,
+        color: 'text-orange-600',
+        bgColor: 'bg-orange-50',
+        borderColor: 'border-orange-200',
+      },
+      {
+        label: locale === 'ar' ? 'عدد التفاصيل المعروضة' : 'Details Viewed',
+        value: stats.detailsViewedCount?.toLocaleString() || '0',
+        icon: TrendingUp,
+        color: 'text-indigo-600',
+        bgColor: 'bg-indigo-50',
+        borderColor: 'border-indigo-200',
+      },
+      {
+        label: locale === 'ar' ? 'آخر مشاهدة' : 'Last Viewed',
+        value: formatDateValue(stats.lastViewedAt),
+        icon: Calendar,
+        color: 'text-gray-600',
+        bgColor: 'bg-gray-50',
+        borderColor: 'border-gray-200',
+        fullWidth: true,
+      },
+    ];
   };
 
   // Get status badge configuration
@@ -523,6 +646,12 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
     setShowDeleteDialog(false);
   };
 
+  const handleStatisticsClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setShowStatisticsDialog(true);
+  };
+
   // CSS classes
   const cardClass = clsx(
     'group hover:shadow-lg transition-all duration-300 border border-gray-200 overflow-hidden',
@@ -775,7 +904,20 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
+                  {/* Statistics Button - Only for owner in profile view */}
+                  {profile && isMine && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className={`${actionButtonClass} text-blue-600 border-blue-200 hover:bg-blue-50`}
+                      onClick={handleStatisticsClick}
+                    >
+                      <BarChart3 size={14} />
+                      {locale === 'ar' ? 'الإحصائيات' : 'Statistics'}
+                    </Button>
+                  )}
+
                   {/* Contact Button */}
                   {carListing.contactNumber && !isMine && (
                     <Button
@@ -926,6 +1068,143 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Statistics Dialog */}
+      <Dialog open={showStatisticsDialog} onOpenChange={setShowStatisticsDialog}>
+        <DialogContent
+          className="bg-white rounded-lg max-w-2xl max-h-[85vh] overflow-y-auto"
+        >
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold flex items-center gap-3">
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <BarChart3 className="text-primary" size={28} />
+              </div>
+              <span>{locale === 'ar' ? 'إحصائيات الإعلان' : 'Listing Statistics'}</span>
+            </DialogTitle>
+           
+          </DialogHeader>
+
+          <div className="mt-6">
+            {isLoadingStatistics ? (
+              <div className="flex flex-col items-center justify-center py-16">
+                <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-primary mb-4" />
+                <p className="text-gray-500">
+                  {locale === 'ar' ? 'جاري تحميل الإحصائيات...' : 'Loading statistics...'}
+                </p>
+              </div>
+            ) : carStatistics?.data?.statics ? (
+              <div className="space-y-6">
+                {/* Car Info Header */}
+                <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 rounded-xl p-5 border-2 border-primary/20">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <h3 className="font-bold text-xl text-gray-900 mb-2">
+                        {carListing.title}
+                      </h3>
+                      <p className="text-sm text-gray-600">
+                        {carListing.make?.name} {carListing.model?.name} {carListing.trim?.name}
+                      </p>
+                      <div className="flex items-center gap-2 mt-3">
+                        <Badge className="bg-primary text-white">
+                          ID: {carListing.id}
+                        </Badge>
+                        {getStatusBadge()}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Statistics Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {formatStatistics()?.map((stat, index) => {
+                    const IconComponent = stat.icon;
+                    return (
+                      <div
+                        key={index}
+                        className={clsx(
+                          'rounded-xl p-5 border-2 transition-all duration-200 hover:shadow-md hover:scale-[1.02]',
+                          stat.bgColor,
+                          stat.borderColor,
+                          stat.fullWidth && 'md:col-span-2'
+                        )}
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-3">
+                              <div className={clsx('p-2 rounded-lg bg-white/80 shadow-sm', stat.color)}>
+                                <IconComponent size={20} strokeWidth={2.5} />
+                              </div>
+                              <p className="text-sm font-medium text-gray-700">
+                                {stat.label}
+                              </p>
+                            </div>
+                            <p className={clsx('text-3xl font-bold', stat.color)}>
+                              {stat.value}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Additional Info Section */}
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-5 border border-gray-200">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Clock className="text-gray-600" size={20} />
+                    <h4 className="font-semibold text-gray-900">
+                      {locale === 'ar' ? 'معلومات إضافية' : 'Additional Information'}
+                    </h4>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                    <div className="flex items-center justify-between bg-white rounded-lg p-3">
+                      <span className="text-gray-600">
+                        {locale === 'ar' ? 'تاريخ الإنشاء:' : 'Created:'}
+                      </span>
+                      <span className="font-medium text-gray-900">
+                        {new Date(carStatistics.data.statics.createdAt).toLocaleDateString(
+                          locale === 'ar' ? 'ar-SA' : 'en-US'
+                        )}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between bg-white rounded-lg p-3">
+                      <span className="text-gray-600">
+                        {locale === 'ar' ? 'آخر تحديث:' : 'Last Updated:'}
+                      </span>
+                      <span className="font-medium text-gray-900">
+                        {new Date(carStatistics.data.statics.updatedAt).toLocaleDateString(
+                          locale === 'ar' ? 'ar-SA' : 'en-US'
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Footer Note */}
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <p className="text-sm text-blue-800 flex items-start gap-2">
+                    <TrendingUp size={16} className="flex-shrink-0 mt-0.5" />
+                    <span>
+                      {locale === 'ar'
+                        ? 'يتم تحديث الإحصائيات بشكل دوري. قد يستغرق ظهور البيانات الجديدة بعض الوقت.'
+                        : 'Statistics are updated periodically. New data may take some time to appear.'}
+                    </span>
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-16">
+                <AlertTriangle className="text-gray-400 mb-4" size={48} />
+                <p className="text-gray-600 text-center">
+                  {locale === 'ar'
+                    ? 'لا توجد إحصائيات متاحة لهذا الإعلان'
+                    : 'No statistics available for this listing'}
+                </p>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

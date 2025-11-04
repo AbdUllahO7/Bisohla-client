@@ -25,7 +25,8 @@ interface ProductHeaderProps {
   isAuthenticated?: boolean;
   saveStatus?: SaveStatus;
   onFavoriteToggle?: (productId: number, isFavorite: boolean) => void;
-  onAuthRequired?: () => void; // Callback for when auth is required
+  onAuthRequired?: () => void;
+  onContactClick?: () => void; // 🆕 Add contact tracking callback
 }
 
 const ProductHeader: React.FC<ProductHeaderProps> = ({
@@ -39,6 +40,7 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
   isAuthenticated = false,
   onFavoriteToggle,
   onAuthRequired,
+  onContactClick, // 🆕 Destructure the new prop
   saveStatus
 }) => {
   const t = useTranslations('product');
@@ -47,7 +49,6 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
   const sold = useTranslations('SoldCard')
   const route = useRouter();
   const isSold = saveStatus === SaveStatus.SOLD;
-
 
   // Format phone number for WhatsApp link (remove spaces, dashes, etc.)
   const formatPhoneForWhatsApp = (phone: string) => {
@@ -68,6 +69,24 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
     }
 
     return `https://wa.me/${formattedPhone}?text=${message}`;
+  };
+
+  // 🆕 Handle contact button click (for phone call)
+  const handlePhoneClick = (e: React.MouseEvent) => {
+    // Track the contact action
+    if (onContactClick) {
+      onContactClick();
+    }
+    // The Link component will handle the actual tel: navigation
+  };
+
+  // 🆕 Handle WhatsApp button click
+  const handleWhatsAppClick = (e: React.MouseEvent) => {
+    // Track the contact action
+    if (onContactClick) {
+      onContactClick();
+    }
+    // The Link component will handle the actual WhatsApp navigation
   };
 
   // Handle favorite button click
@@ -315,8 +334,10 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
                 {/* Glow effect */}
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-[#198341] to-[#ABDE3B] rounded-lg opacity-0 group-hover:opacity-30 blur transition-opacity duration-300"></div>
                 
+                {/* 🆕 Added onClick handler to track contact */}
                 <Link
                   href={`tel:${ContactNumber}`}
+                  onClick={handlePhoneClick}
                   className="relative flex items-center justify-center font-bold gap-2 text-base px-4 py-1 border-2 border-[#198341] text-[#198341] rounded-lg hover:bg-[#198341] hover:text-white transition-all duration-300 min-h-[48px] overflow-hidden group"
                 >
                   {/* Animated shine effect */}
@@ -331,10 +352,12 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
                 {/* Glow effect */}
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-green-500 to-green-600 rounded-lg opacity-0 group-hover:opacity-50 blur transition-opacity duration-300"></div>
                 
+                {/* 🆕 Added onClick handler to track contact */}
                 <Link
                   href={generateWhatsAppLink()}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={handleWhatsAppClick}
                   className="relative flex items-center justify-center gap-2 px-4 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-300 min-h-[48px] font-bold text-base overflow-hidden group"
                 >
                   {/* Animated shine effect */}
@@ -427,8 +450,10 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
                 {/* Glow effect */}
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-[#198341] to-[#ABDE3B] rounded-md opacity-0 group-hover:opacity-30 blur transition-opacity duration-300"></div>
                 
+                {/* 🆕 Added onClick handler to track contact */}
                 <Link
                   href={`tel:${ContactNumber}`}
+                  onClick={handlePhoneClick}
                   className="relative flex items-center justify-center font-bold gap-1 text-sm px-3 py-2 sm:px-4 sm:py-1.5 border-2 border-[#198341] text-[#198341] rounded-md hover:bg-[#198341] hover:text-white transition-all duration-300 min-w-[80px] sm:min-w-0 overflow-hidden"
                 >
                   {/* Animated shine effect */}
@@ -445,10 +470,12 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
                 {/* Glow effect */}
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-[#198341] to-[#ABDE3B] rounded-md opacity-0 group-hover:opacity-50 blur transition-opacity duration-300"></div>
                 
+                {/* 🆕 Added onClick handler to track contact */}
                 <Link
                   href={generateWhatsAppLink()}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={handleWhatsAppClick}
                   className="relative flex items-center justify-center gap-1 px-3 py-2 sm:px-4 sm:py-1.5 bg-gradient-to-r from-[#198341] to-[#198341] text-white hover:from-[#2C3C39] hover:to-[#198341] rounded-md transition-all duration-300 min-w-[120px] sm:min-w-0 overflow-hidden"
                 >
                   {/* Animated shine effect */}

@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState, useRef, use } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Text from '@/components/text/text';
 import {
   Card,
@@ -24,10 +24,21 @@ import {
   Star,
   MoreVertical,
   ChevronDown,
+  BarChart3,
+  Eye,
+  Phone,
+  Share2,
+  TrendingUp,
+  Gauge,
+  Calendar,
 } from 'lucide-react';
 import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions';
 import { toggleCarListingFavorite } from '@/core/infrastructure-adapters/actions/users/car.user.actions';
-import { useDeleteCarListing, useUpdateSaveStatus } from '@/core/infrastructure-adapters/use-actions/users/car.user.use-actions';
+import { 
+  useDeleteCarListing, 
+  useUpdateSaveStatus,
+  useMyCarById 
+} from '@/core/infrastructure-adapters/use-actions/users/car.user.use-actions';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,11 +49,24 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
 import { useLocale, useTranslations } from 'next-intl';
 import clsx from 'clsx';
 import { SaveStatus } from '@/core/entities/enums/cars.enums';
 import { useToast } from '@/hooks/use-toast';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu';
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuSeparator, 
+  DropdownMenuTrigger 
+} from '@radix-ui/react-dropdown-menu';
 
 // Extended props interface to include the callback, favorite status and authentication
 interface ExtendedCarCardItemPropsProfile extends CarCardItemPropsProfile {
@@ -53,16 +77,14 @@ interface ExtendedCarCardItemPropsProfile extends CarCardItemPropsProfile {
   profile?: boolean;
   onDelete?: (productId: number) => void;
   isMine?: boolean;
-  carStatus?: string; // Add status prop
-  isFeatured?: boolean; // Add featured prop
-  saveStatus?: string; // Add save status prop
-  onStatusChange?: (productId: number, newStatus: string) => void; // Add status change callback
+  carStatus?: string;
+  isFeatured?: boolean;
+  saveStatus?: string;
+  onStatusChange?: (productId: number, newStatus: string) => void;
 }
 
 // Enhanced CardItem Component
-export const EnhancedProductCardItem: React.FC<
-  ExtendedCarCardItemPropsProfile
-> = ({
+export const EnhancedProductCardItem: React.FC<ExtendedCarCardItemPropsProfile> = ({
   title,
   marka,
   imageSrc,
@@ -82,7 +104,7 @@ export const EnhancedProductCardItem: React.FC<
   saveStatus,
   onStatusChange,
 }) => {
-  // Use the auth prop if provided, otherwise start with undefined and check later
+  // State management
   const [isAuthenticated, setIsAuthenticated] = useState(
     isAuthenticatedProp !== undefined ? isAuthenticatedProp : false,
   );
@@ -90,35 +112,44 @@ export const EnhancedProductCardItem: React.FC<
   const [isProcessing, setIsProcessing] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showStatisticsDialog, setShowStatisticsDialog] = useState(false);
   const authChecked = useRef(false);
   const [currentSaveStatus, setCurrentSaveStatus] = useState(saveStatus);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+  
   const updateSaveStatusMutation = useUpdateSaveStatus();
+  const deleteCarListingMutation = useDeleteCarListing();
   const { toast } = useToast();
 
   // Get locale and direction
   const locale = useLocale();
   const direction = locale === 'ar' ? 'rtl' : 'ltr';
-  // Get translations
   const t = useTranslations('common');
 
-  // Use the delete mutation hook
-  const deleteCarListingMutation = useDeleteCarListing();
+  // Fetch car statistics when modal is open
+  const { data: carStatistics, isLoading: isLoadingStatistics, refetch: refetchStatistics } = useMyCarById(
+    Number(ProductId)
+  );
 
   // Update currentSaveStatus when saveStatus prop changes
   useEffect(() => {
     setCurrentSaveStatus(saveStatus);
   }, [saveStatus]);
 
+  // Refetch statistics when dialog opens
+  useEffect(() => {
+    if (showStatisticsDialog && profile && isMine) {
+      refetchStatistics();
+    }
+  }, [showStatisticsDialog, profile, isMine, refetchStatistics]);
+
   // Only check authentication if it's not provided as a prop
   useEffect(() => {
     const verifyAuth = async () => {
-      // Skip auth check if prop is provided
       if (isAuthenticatedProp !== undefined) {
         return;
       }
 
-      // Only check auth once
       if (!authChecked.current) {
         try {
           const authResponse = await checkAuth();
@@ -143,7 +174,6 @@ export const EnhancedProductCardItem: React.FC<
   }, [isAuthenticatedProp]);
 
   // Update internal state when the favorite prop changes
-  // Use a ref to track previous value to avoid unnecessary updates
   const prevFavoriteRef = useRef(isMarkedFavorite);
   useEffect(() => {
     if (prevFavoriteRef.current !== isMarkedFavorite) {
@@ -151,6 +181,102 @@ export const EnhancedProductCardItem: React.FC<
       prevFavoriteRef.current = isMarkedFavorite;
     }
   }, [isMarkedFavorite]);
+
+  // Format statistics for display
+  const formatStatistics = () => {
+    if (!carStatistics?.data?.statics) return null;
+    
+    const stats = carStatistics.data.statics;
+    const formatDateValue = (dateString: string | null) => {
+      if (!dateString) return locale === 'ar' ? 'غير متوفر' : 'N/A';
+      try {
+        return new Date(dateString).toLocaleDateString(
+          locale === 'ar' ? 'ar-SA' : 'en-US',
+          {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+          }
+        );
+      } catch {
+        return locale === 'ar' ? 'غير متوفر' : 'N/A';
+      }
+    };
+
+    const formatDuration = (seconds: number | null) => {
+      if (!seconds) return '0';
+      const minutes = Math.floor(seconds / 60);
+      const remainingSeconds = seconds % 60;
+      if (minutes > 0) {
+        return locale === 'ar' 
+          ? `${minutes} دقيقة ${remainingSeconds} ثانية`
+          : `${minutes}m ${remainingSeconds}s`;
+      }
+      return locale === 'ar' ? `${seconds} ثانية` : `${seconds}s`;
+    };
+
+    return [
+      {
+        label: locale === 'ar' ? 'عدد المشاهدات' : 'Views Count',
+        value: stats.viewsCount?.toLocaleString() || '0',
+        icon: Eye,
+        color: 'text-blue-600',
+        bgColor: 'bg-blue-50',
+        borderColor: 'border-blue-200',
+      },
+      {
+        label: locale === 'ar' ? 'عدد جهات الاتصال' : 'Contact Count',
+        value: stats.contactCount?.toLocaleString() || '0',
+        icon: Phone,
+        color: 'text-green-600',
+        bgColor: 'bg-green-50',
+        borderColor: 'border-green-200',
+      },
+      {
+        label: locale === 'ar' ? 'عدد المفضلة' : 'Favorites Count',
+        value: stats.favoritesCount?.toLocaleString() || '0',
+        icon: HeartIcon,
+        color: 'text-red-600',
+        bgColor: 'bg-red-50',
+        borderColor: 'border-red-200',
+      },
+      {
+        label: locale === 'ar' ? 'عدد المشاركات' : 'Shares Count',
+        value: stats.sharesCount?.toLocaleString() || '0',
+        icon: Share2,
+        color: 'text-purple-600',
+        bgColor: 'bg-purple-50',
+        borderColor: 'border-purple-200',
+      },
+      {
+        label: locale === 'ar' ? 'مدة المشاهدة' : 'View Duration',
+        value: formatDuration(stats.viewDuration),
+        icon: Clock,
+        color: 'text-orange-600',
+        bgColor: 'bg-orange-50',
+        borderColor: 'border-orange-200',
+      },
+      {
+        label: locale === 'ar' ? 'عدد التفاصيل المعروضة' : 'Details Viewed',
+        value: stats.detailsViewedCount?.toLocaleString() || '0',
+        icon: TrendingUp,
+        color: 'text-indigo-600',
+        bgColor: 'bg-indigo-50',
+        borderColor: 'border-indigo-200',
+      },
+      {
+        label: locale === 'ar' ? 'آخر مشاهدة' : 'Last Viewed',
+        value: formatDateValue(stats.lastViewedAt),
+        icon: Calendar,
+        color: 'text-gray-600',
+        bgColor: 'bg-gray-50',
+        borderColor: 'border-gray-200',
+        fullWidth: true,
+      },
+    ];
+  };
 
   // Get status badge configuration
   const getStatusBadge = () => {
@@ -182,7 +308,7 @@ export const EnhancedProductCardItem: React.FC<
     return (
       <Badge
         variant="outline"
-        className={clsx(config.className, 'font-medium border z-[99] relative' )}
+        className={clsx(config.className, 'font-medium border z-[99] relative')}
       >
         <IconComponent
           size={12}
@@ -194,34 +320,26 @@ export const EnhancedProductCardItem: React.FC<
   };
 
   const handleFavoriteClick = async (e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent the link navigation
-    e.stopPropagation(); // Stop the event from bubbling up
+    e.preventDefault();
+    e.stopPropagation();
 
-    // Only allow favorite action if authenticated
     if (isAuthenticated && !isProcessing && ProductId) {
       setIsProcessing(true);
 
       try {
-        // Store current state for comparison/reversion
         const currentState = favoriteStatus;
-
-        // Optimistically update UI
         const newStatus = !currentState;
         setFavoriteStatus(newStatus);
 
-        // Notify parent component
         if (onFavoriteToggle) {
           onFavoriteToggle(Number(ProductId), newStatus);
         }
 
-        // Call API
         const response = await toggleCarListingFavorite({
           carListingId: Number(ProductId),
         });
 
-        // Handle API response
         if (response.success) {
-          // Determine the actual status from API
           let responseStatus: boolean;
 
           if (typeof response.data === 'boolean') {
@@ -233,11 +351,9 @@ export const EnhancedProductCardItem: React.FC<
           ) {
             responseStatus = response.data.isFavorite as boolean;
           } else {
-            // If response format is unexpected, keep optimistic update
             responseStatus = newStatus;
           }
 
-          // If API returned something different than our optimistic update
           if (responseStatus !== newStatus) {
             setFavoriteStatus(responseStatus);
 
@@ -246,7 +362,6 @@ export const EnhancedProductCardItem: React.FC<
             }
           }
         } else {
-          // API call failed, revert to original state
           setFavoriteStatus(currentState);
 
           if (onFavoriteToggle) {
@@ -254,7 +369,6 @@ export const EnhancedProductCardItem: React.FC<
           }
         }
       } catch (error) {
-        // Exception occurred, revert to initial state
         setFavoriteStatus(isMarkedFavorite);
 
         if (onFavoriteToggle) {
@@ -263,31 +377,23 @@ export const EnhancedProductCardItem: React.FC<
       } finally {
         setIsProcessing(false);
       }
-    } else if (!isAuthenticated) {
-      // Could redirect to login page here
-      // window.location.href = '/login';
     }
   };
 
-  // Handle delete button click - show confirmation dialog
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setShowDeleteDialog(true);
   };
 
-  // Handle confirm delete action
   const handleConfirmDelete = async () => {
     if (!ProductId) return;
 
     try {
       setIsDeleting(true);
       await deleteCarListingMutation.mutateAsync({ id: Number(ProductId) });
-
-      // Close the dialog
       setShowDeleteDialog(false);
 
-      // Notify parent of deletion if callback provided
       if (onDelete) {
         onDelete(Number(ProductId));
       }
@@ -298,9 +404,14 @@ export const EnhancedProductCardItem: React.FC<
     }
   };
 
-  // Handle cancel delete
   const handleCancelDelete = () => {
     setShowDeleteDialog(false);
+  };
+
+  const handleStatisticsClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setShowStatisticsDialog(true);
   };
 
   // RTL-aware positioning classes
@@ -314,23 +425,12 @@ export const EnhancedProductCardItem: React.FC<
     locale === 'ar' ? 'right-2' : 'left-2',
   );
 
-  const statusBadgeClass = clsx(
-    'absolute top-2 z-20',
-    isFavorites
-      ? locale === 'ar'
-        ? 'left-2'
-        : 'right-2'
-      : locale === 'ar'
-      ? 'right-2'
-      : 'left-2',
-  );
-
   const featuredBadgeClass = clsx(
     'absolute top-2 z-20 bg-yellow-100 text-yellow-800 border-yellow-200',
     isMine && carStatus
       ? locale === 'ar'
         ? 'left-14'
-        : 'right-14' // Offset if status badge is present
+        : 'right-14'
       : locale === 'ar'
       ? 'left-2'
       : 'right-2',
@@ -366,7 +466,6 @@ export const EnhancedProductCardItem: React.FC<
 
     const IconComponent = config.icon;
 
-    // If it's the user's own listing, make it a dropdown
     if (isMine) {
       return (
         <DropdownMenu modal={false}>
@@ -468,7 +567,6 @@ export const EnhancedProductCardItem: React.FC<
       );
     }
 
-    // For non-owner view, just show the badge
     return (
       <Badge
         variant="outline"
@@ -486,13 +584,10 @@ export const EnhancedProductCardItem: React.FC<
   const handleSaveStatusChange = async (newStatus: SaveStatus) => {
     if (!ProductId || isUpdatingStatus) return;
 
-    // Store previous status for rollback
     const previousStatus = currentSaveStatus;
 
     try {
       setIsUpdatingStatus(true);
-      
-      // Optimistically update the UI
       setCurrentSaveStatus(newStatus);
 
       const response = await updateSaveStatusMutation.mutateAsync({
@@ -501,12 +596,10 @@ export const EnhancedProductCardItem: React.FC<
       });
 
       if (response.success) {
-        // Notify parent component of the status change
         if (onStatusChange) {
           onStatusChange(Number(ProductId), newStatus);
         }
 
-        // Show success toast
         const messages = {
           [SaveStatus.PUBLISHED]: locale === 'ar' ? 'تم النشر بنجاح' : 'Published successfully',
           [SaveStatus.DRAFT]: locale === 'ar' ? 'تم الحفظ كمسودة' : 'Saved as draft',
@@ -519,7 +612,6 @@ export const EnhancedProductCardItem: React.FC<
           variant: 'default',
         });
       } else {
-        // Revert on failure
         setCurrentSaveStatus(previousStatus);
         
         toast({
@@ -529,7 +621,6 @@ export const EnhancedProductCardItem: React.FC<
         });
       }
     } catch (error) {
-      // Revert on error
       setCurrentSaveStatus(previousStatus);
       console.error('Failed to update save status:', error);
       
@@ -559,7 +650,7 @@ export const EnhancedProductCardItem: React.FC<
           </Badge>
         )}
 
-        {/* Heart Icon for Favorites with favorite status directly from props */}
+        {/* Heart Icon for Favorites */}
         {isFavorites && (
           <Button
             className={heartButtonClass}
@@ -605,7 +696,7 @@ export const EnhancedProductCardItem: React.FC<
           {type === 'for_sale' ? t('sale') : t('rent')}
         </Text>
 
-        {/* Save Status Badge - Redesigned with better positioning */}
+        {/* Save Status Badge */}
         {currentSaveStatus && (
           <div
             className={clsx(
@@ -673,6 +764,19 @@ export const EnhancedProductCardItem: React.FC<
           </Link>
         ) : (
           <CardFooter className="bg-gradient-to-r from-gray-50 to-gray-100 w-full flex flex-wrap gap-2 justify-between p-4 rounded-b-xl">
+            {/* Statistics Button - Only for owner in profile view */}
+            {profile && isMine && (
+              <Button
+                className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 px-4 py-2 text-white rounded-lg flex-1 text-center shadow-md hover:shadow-lg transition-all duration-300"
+                onClick={handleStatisticsClick}
+              >
+                <span className="flex items-center justify-center">
+                  <BarChart3 className={iconMarginClass} size={16} />
+                  {locale === 'ar' ? 'الإحصائيات' : 'Statistics'}
+                </span>
+              </Button>
+            )}
+
             <Button
               className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 px-4 py-2 text-white rounded-lg flex-1 text-center shadow-md hover:shadow-lg transition-all duration-300"
               onClick={handleDeleteClick}
@@ -726,7 +830,7 @@ export const EnhancedProductCardItem: React.FC<
         )}
       </Card>
 
-      {/* Delete Confirmation Dialog - Enhanced Design */}
+      {/* Delete Confirmation Dialog */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent
           dir={direction}
@@ -825,6 +929,142 @@ export const EnhancedProductCardItem: React.FC<
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Statistics Dialog */}
+      <Dialog open={showStatisticsDialog} onOpenChange={setShowStatisticsDialog} >
+        <DialogContent
+          dir={direction}
+          className="bg-white rounded-lg max-w-3xl  z-[999] max-h-[85vh] overflow-y-auto"
+        >
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold flex items-center gap-3">
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <BarChart3 className="text-primary" size={28} />
+              </div>
+              <span>{locale === 'ar' ? 'إحصائيات الإعلان' : 'Listing Statistics'}</span>
+            </DialogTitle>
+            
+          </DialogHeader>
+
+          <div className="mt-6">
+            {isLoadingStatistics ? (
+              <div className="flex flex-col items-center justify-center py-16">
+                <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-primary mb-4" />
+                <p className="text-gray-500">
+                  {locale === 'ar' ? 'جاري تحميل الإحصائيات...' : 'Loading statistics...'}
+                </p>
+              </div>
+            ) : carStatistics?.data?.statics ? (
+              <div className="space-y-6">
+                {/* Car Info Header */}
+                <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 rounded-xl p-5 border-2 border-primary/20">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <h3 className="font-bold text-xl text-gray-900 mb-2">
+                        {title}
+                      </h3>
+                      <p className="text-sm text-gray-600">{marka}</p>
+                      <div className="flex items-center gap-2 mt-3">
+                        <Badge className="bg-primary text-white">
+                          ID: {ProductId}
+                        </Badge>
+                        {getStatusBadge()}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Statistics Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {formatStatistics()?.map((stat, index) => {
+                    const IconComponent = stat.icon;
+                    return (
+                      <div
+                        key={index}
+                        className={clsx(
+                          'rounded-xl p-5 border-2 transition-all duration-200 hover:shadow-md hover:scale-[1.02]',
+                          stat.bgColor,
+                          stat.borderColor,
+                          stat.fullWidth && 'md:col-span-2'
+                        )}
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-3">
+                              <div className={clsx('p-2 rounded-lg bg-white/80 shadow-sm', stat.color)}>
+                                <IconComponent size={20} strokeWidth={2.5} />
+                              </div>
+                              <p className="text-sm font-medium text-gray-700">
+                                {stat.label}
+                              </p>
+                            </div>
+                            <p className={clsx('text-3xl font-bold', stat.color)}>
+                              {stat.value}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Additional Info Section */}
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-5 border border-gray-200">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Clock className="text-gray-600" size={20} />
+                    <h4 className="font-semibold text-gray-900">
+                      {locale === 'ar' ? 'معلومات إضافية' : 'Additional Information'}
+                    </h4>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                    <div className="flex items-center justify-between bg-white rounded-lg p-3">
+                      <span className="text-gray-600">
+                        {locale === 'ar' ? 'تاريخ الإنشاء:' : 'Created:'}
+                      </span>
+                      <span className="font-medium text-gray-900">
+                        {new Date(carStatistics.data.statics.createdAt).toLocaleDateString(
+                          locale === 'ar' ? 'ar-SA' : 'en-US'
+                        )}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between bg-white rounded-lg p-3">
+                      <span className="text-gray-600">
+                        {locale === 'ar' ? 'آخر تحديث:' : 'Last Updated:'}
+                      </span>
+                      <span className="font-medium text-gray-900">
+                        {new Date(carStatistics.data.statics.updatedAt).toLocaleDateString(
+                          locale === 'ar' ? 'ar-SA' : 'en-US'
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Footer Note */}
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <p className="text-sm text-blue-800 flex items-start gap-2">
+                    <TrendingUp size={16} className="flex-shrink-0 mt-0.5" />
+                    <span>
+                      {locale === 'ar'
+                        ? 'يتم تحديث الإحصائيات بشكل دوري. قد يستغرق ظهور البيانات الجديدة بعض الوقت.'
+                        : 'Statistics are updated periodically. New data may take some time to appear.'}
+                    </span>
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-16">
+                <AlertTriangle className="text-gray-400 mb-4" size={48} />
+                <p className="text-gray-600 text-center">
+                  {locale === 'ar'
+                    ? 'لا توجد إحصائيات متاحة لهذا الإعلان'
+                    : 'No statistics available for this listing'}
+                </p>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

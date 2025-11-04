@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Box from '@/components/box/box';
 import Text from '@/components/text/text';
 import ProductBasicInfo from '@/components/web/ProductsPage/product/ProductBasicInfo';
@@ -11,7 +11,13 @@ import TabsSection from '@/components/web/ProductsPage/product/TabsSection';
 import { ApiResponse } from '@/core/entities/api/success.response';
 import { SelectCarListingDto } from '@/core/entities/models/cars/cars.dto';
 import SmartBreadcrumb from '@/components/smart-breadcrumbs';
-import { useLocale } from 'next-intl';
+import {
+  useIncrementContactCount,
+  useIncrementViewCount,
+  useIncrementDetailsViewedCount,
+  useUpdateViewDuration,
+} from '@/hooks/use-carStatistics';
+import FloatingShareButton from './FloatingShareButton';
 
 interface ProductClientProps {
   carDataRes: ApiResponse<SelectCarListingDto>;
@@ -28,6 +34,120 @@ const MobileProductClient = ({
 }: ProductClientProps) => {
   const carData = carDataRes.data;
 
+  // Statistics tracking hooks
+  const incrementViewCount = useIncrementViewCount();
+  const incrementContactCount = useIncrementContactCount();
+  const incrementDetailsViewedCount = useIncrementDetailsViewedCount();
+  const updateViewDuration = useUpdateViewDuration();
+
+  // State management for tracking
+  const [hasTrackedView, setHasTrackedView] = useState(false);
+  const [hasTrackedContact, setHasTrackedContact] = useState(false);
+  const [hasTrackedDetailsViewed, setHasTrackedDetailsViewed] = useState(false);
+  const [viewStartTime, setViewStartTime] = useState<number | null>(null);
+
+  const [favoriteStatus, setFavoriteStatus] = useState(
+    carData?.isFavorite ?? false,
+  );
+
+  // 📊 TRACKING 1: Track basic page view count on mount (once per visit)
+  useEffect(() => {
+    if (carData?.id && !hasTrackedView) {
+      incrementViewCount.mutate(
+        { carListingId: carData.id },
+        {
+          onSuccess: () => {
+            console.log('✅ [MOBILE] View count tracked');
+            setHasTrackedView(true);
+          },
+          onError: (error) => {
+            console.error('❌ [MOBILE] Failed to track view count:', error);
+            setHasTrackedView(true);
+          },
+        }
+      );
+
+      // Start tracking view duration
+      setViewStartTime(Date.now());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [carData?.id, hasTrackedView]);
+
+  // 📊 TRACKING 2: Track details viewed count on mount (once per visit)
+  // This tracks when a user actually visits and views the product details page
+  useEffect(() => {
+    if (carData?.id && !hasTrackedDetailsViewed) {
+      incrementDetailsViewedCount.mutate(
+        { carListingId: carData.id },
+        {
+          onSuccess: () => {
+            console.log('✅ [MOBILE] Details viewed count tracked');
+            setHasTrackedDetailsViewed(true);
+          },
+          onError: (error) => {
+            console.error('❌ [MOBILE] Failed to track details viewed count:', error);
+            setHasTrackedDetailsViewed(true);
+          },
+        }
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [carData?.id, hasTrackedDetailsViewed]);
+
+  // 📊 TRACKING 3: Track view duration periodically and on unmount
+  useEffect(() => {
+    if (!viewStartTime || !carData?.id) return;
+
+    // Send duration every 30 seconds
+    const interval = setInterval(() => {
+      const durationInSeconds = Math.floor((Date.now() - viewStartTime) / 1000);
+      if (durationInSeconds > 0) {
+        updateViewDuration.mutate(
+          { carListingId: carData.id, durationInSeconds },
+          {
+            onSuccess: () => {
+              console.log(`✅ [MOBILE] View duration updated: ${durationInSeconds}s`);
+            },
+          }
+        );
+      }
+    }, 30000); // Every 30 seconds
+
+    // Send final duration on unmount
+    return () => {
+      clearInterval(interval);
+
+      const finalDuration = Math.floor((Date.now() - viewStartTime) / 1000);
+      if (finalDuration > 0) {
+        updateViewDuration.mutate({
+          carListingId: carData.id,
+          durationInSeconds: finalDuration,
+        });
+        console.log(`✅ [MOBILE] Final view duration: ${finalDuration}s`);
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [viewStartTime, carData?.id]);
+
+  // 📊 TRACKING 4: Track contact button clicks
+  const handleContactClick = () => {
+    if (carData?.id && !hasTrackedContact) {
+      incrementContactCount.mutate(
+        { carListingId: carData.id },
+        {
+          onSuccess: () => {
+            console.log('✅ [MOBILE] Contact count tracked');
+            setHasTrackedContact(true);
+          },
+          onError: (error) => {
+            console.error('❌ [MOBILE] Failed to track contact count:', error);
+            setHasTrackedContact(true);
+          },
+        }
+      );
+    }
+  };
+
   if (!carData) {
     return (
       <Box variant="center" className="min-h-screen">
@@ -35,10 +155,6 @@ const MobileProductClient = ({
       </Box>
     );
   }
-
-  const [favoriteStatus, setFavoriteStatus] = useState(
-    carData.isFavorite ?? false,
-  );
 
   // Handle favorite toggle from child component
   const handleFavoriteToggle = (productId: number, isFavorite: boolean) => {
@@ -60,7 +176,6 @@ const MobileProductClient = ({
   return (
     <div className="bg-background w-full min-h-screen md:hidden">
       <Box className="w-full mb-2 py-5 px-8">
-        {/* Super simple breadcrumb usage! */}
         <SmartBreadcrumb
           items={breadcrumbItems}
           variant="default"
@@ -74,9 +189,9 @@ const MobileProductClient = ({
       </div>
 
       {/* Mobile: Title and Actions Header */}
-      <div className="md:hidden w-full mb-3 bg-white my-4 ">
-        <Box variant="container" className="py-3 ">
-          <Box variant="column" className="w-full gap-3 ">
+      <div className="md:hidden w-full mb-3 bg-white my-4">
+        <Box variant="container" className="py-3">
+          <Box variant="column" className="w-full gap-3">
             {/* Action Buttons - Full Width */}
             <ProductHeader
               saveStatus={carData.saveStatus}
@@ -89,6 +204,7 @@ const MobileProductClient = ({
               isMarkedFavorite={favoriteStatus}
               isAuthenticated={isAuthenticated}
               onFavoriteToggle={handleFavoriteToggle}
+              onContactClick={handleContactClick}
             />
           </Box>
         </Box>
@@ -148,6 +264,7 @@ const MobileProductClient = ({
               isMarkedFavorite={favoriteStatus}
               isAuthenticated={isAuthenticated}
               onFavoriteToggle={handleFavoriteToggle}
+              onContactClick={handleContactClick}
             />
           </Box>
         </div>
@@ -203,6 +320,12 @@ const MobileProductClient = ({
           </Box>
         </Box>
       </div>
+
+      {/* Floating Share Button */}
+      <FloatingShareButton
+        carListingId={carData.id}
+        productTitle={carData.title}
+      />
     </div>
   );
 };

@@ -42,13 +42,16 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
   const bodyTypeT = useTranslations('addProduct.enteredData.stepTow');
 
   // Get the translated options from the car enums - similar to ProductBasicInfo
+  // Translation functions are stable, so we can safely omit them from dependencies
   const transmissionOptions = useMemo(
     () => getTransmissionOptions(bodyTypeT),
-    [bodyTypeT],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
   );
   const fuelTypeOptions = useMemo(
     () => getFuelTypeOptions(bodyTypeT),
-    [bodyTypeT],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
   );
 
   // Find the matching label for the given values - same helper as in ProductBasicInfo
@@ -60,21 +63,30 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
     return option ? option.label : value;
   };
 
-  // Translated values
-  const translatedControlType = controlType
-    ? getTranslatedLabel(controlType, transmissionOptions)
-    : '';
-  const translatedGaz = gaz ? getTranslatedLabel(gaz, fuelTypeOptions) : '';
+  // Translated values - memoized to prevent re-calculations
+  const translatedControlType = useMemo(
+    () => (controlType ? getTranslatedLabel(controlType, transmissionOptions) : ''),
+    [controlType, transmissionOptions]
+  );
+  
+  const translatedGaz = useMemo(
+    () => (gaz ? getTranslatedLabel(gaz, fuelTypeOptions) : ''),
+    [gaz, fuelTypeOptions]
+  );
 
-  // Dynamic info list with translated values
-  const productDetails = [
-    { label: productT('BasicInfo.price'), value: `${price} ${currency}` },
-    { label: productT('BasicInfo.controlType'), value: translatedControlType },
-    { label: productT('BasicInfo.modelYear'), value: modelYear },
-    { label: productT('BasicInfo.gaz'), value: translatedGaz },
-    { label: productT('BasicInfo.adsNumber'), value: adsNumber },
-    { label: productT('BasicInfo.dateOfAds'), value: adsDate },
-  ];
+  // Dynamic info list with translated values - memoized to prevent unnecessary re-renders
+  const productDetails = useMemo(
+    () => [
+      { label: productT('BasicInfo.price'), value: `${price} ${currency}` },
+      { label: productT('BasicInfo.controlType'), value: translatedControlType },
+      { label: productT('BasicInfo.modelYear'), value: modelYear },
+      { label: productT('BasicInfo.gaz'), value: translatedGaz },
+      { label: productT('BasicInfo.adsNumber'), value: adsNumber },
+      { label: productT('BasicInfo.dateOfAds'), value: adsDate },
+    ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [price, currency, translatedControlType, modelYear, translatedGaz, adsNumber, adsDate]
+  );
 
   // Enhanced skeleton loading state
   if (isLoading) {

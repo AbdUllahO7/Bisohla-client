@@ -7,8 +7,10 @@ import {
 import { SelectCarListingDto } from '@/core/entities/models/cars/cars.dto';
 import {
   CreateCarListingDto,
+  IncrementCountDto,
   UpdateCarListingDto,
   UpdateSaveStatusDto,
+  UpdateViewDurationDto,
 } from '@/core/entities/models/cars/cars.zod.dto';
 import {
   CreateFavoriteCarListingDto,
@@ -51,4 +53,19 @@ export interface ICarUserStrategy {
     params: QueryParams,
   ): Promise<PaginatedResponse<SelectCarListingDto>>;
   getMyCarById(id: number): Promise<ApiResponse<SelectCarListingDto>>;
+  incrementViewCount(
+    dto: IncrementCountDto,
+  ): Promise<ApiResponse<SuccessResponseWithNoContent>>;
+  incrementContactCount(
+    dto: IncrementCountDto,
+  ): Promise<ApiResponse<SuccessResponseWithNoContent>>;
+  incrementSharesCount(
+    dto: IncrementCountDto,
+  ): Promise<ApiResponse<SuccessResponseWithNoContent>>;
+  incrementDetailsViewedCount(
+    dto: IncrementCountDto,
+  ): Promise<ApiResponse<SuccessResponseWithNoContent>>;
+  updateViewDuration(
+    dto: UpdateViewDurationDto,
+  ): Promise<ApiResponse<SuccessResponseWithNoContent>>;
 }

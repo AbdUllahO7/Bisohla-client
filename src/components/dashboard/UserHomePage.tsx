@@ -18,6 +18,7 @@ const UserHomePageRefactored = () => {
   const [isClient, setIsClient] = useState(false);
   const { profile, isLoading, error } = useProfileContext();
 
+  console.log("UserHomePage - profile:", profile);
   // Handle client-side mounting to prevent hydration mismatch
   useEffect(() => {
     setIsClient(true);

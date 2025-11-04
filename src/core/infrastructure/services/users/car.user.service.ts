@@ -8,8 +8,10 @@ import {
 import { SelectCarListingDto } from '@/core/entities/models/cars/cars.dto';
 import {
   CreateCarListingDto,
+  IncrementCountDto,
   UpdateCarListingDto,
   UpdateSaveStatusDto,
+  UpdateViewDurationDto,
 } from '@/core/entities/models/cars/cars.zod.dto';
 import {
   UserFavoriteCarListing,
@@ -145,6 +147,62 @@ export class CarUserService implements ICarUserService {
   async getMyCarById(id: number): Promise<ApiResponse<SelectCarListingDto>> {
     const res = await getAuthReq<Record<string, unknown>, SelectCarListingDto>({
       url: '/car-listings-user/my-car/' + id,
+    });
+
+    return res;
+  }
+  async incrementViewCount(
+    dto: IncrementCountDto,
+  ): Promise<ApiResponse<SuccessResponseWithNoContent>> {
+    console.log('[Service] incrementViewCount called with:', dto);
+    
+    const res = await postAuthReq<IncrementCountDto, SuccessResponseWithNoContent>({
+      url: '/car-listing-statics-visitor/increment-view-count',
+      body: dto,
+    });
+
+    console.log('[Service] incrementViewCount response:', res);
+    return res;
+  }
+
+  async incrementContactCount(
+    dto: IncrementCountDto,
+  ): Promise<ApiResponse<SuccessResponseWithNoContent>> {
+    const res = await postAuthReq<IncrementCountDto, SuccessResponseWithNoContent>({
+      url: '/car-listing-statics-visitor/increment-contact-count',
+      body: dto,
+    });
+    return res;
+  }
+
+  async incrementSharesCount(
+    dto: IncrementCountDto,
+  ): Promise<ApiResponse<SuccessResponseWithNoContent>> {
+    const res = await postAuthReq<IncrementCountDto, SuccessResponseWithNoContent>({
+      url: '/car-listing-statics-visitor/increment-shares-count',
+      body: dto,
+    });
+
+    return res;
+  }
+
+  async incrementDetailsViewedCount(
+    dto: IncrementCountDto,
+  ): Promise<ApiResponse<SuccessResponseWithNoContent>> {
+    const res = await postAuthReq<IncrementCountDto, SuccessResponseWithNoContent>({
+      url: '/car-listing-statics-visitor/increment-details-viewed-count',
+      body: dto,
+    });
+
+    return res;
+  }
+
+  async updateViewDuration(
+    dto: UpdateViewDurationDto,
+  ): Promise<ApiResponse<SuccessResponseWithNoContent>> {
+    const res = await postAuthReq<UpdateViewDurationDto, SuccessResponseWithNoContent>({
+      url: '/car-listing-statics-visitor/update-view-duration',
+      body: dto,
     });
 
     return res;

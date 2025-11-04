@@ -10,6 +10,17 @@ export interface GetUserProfile {
   totalForSellCarListings: number;
   totalForRentCarListings: number;
   totalFavoriteCarListings: number;
+  totalViews: number;
+  totalContacts: number;
+  totalShares: number;
+  averageViews: number;
+  contactRate: number;
+  engagementScore: number;
+  totalViewDuration: number;
+  recentViews: {
+    last7Days: number;
+    last30Days: number;
+  }
 }
 
 export const updateProfileSchema = z.object({

@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
 import Text from '@/components/text/text';
 import {
   Card,
@@ -22,11 +22,13 @@ import {
   getTransmissionOptions,
   SaveStatus,
 } from '@/core/entities/enums/cars.enums';
+import { useIncrementViewCount } from '@/hooks/use-carStatistics';
 
 // Extended props interface to include the callback and favorite status
 interface ExtendedCarCardItemProps extends CarCardItemProps {
   onFavoriteToggle?: (productId: number, isFavorite: boolean) => void;
   isMarkedFavorite?: boolean;
+  enableViewTracking?: boolean; // Optional prop to enable/disable view tracking
 }
 
 // CardItem Component
@@ -41,18 +43,24 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
   type,
   onFavoriteToggle,
   isMarkedFavorite = false,
-  saveStatus, 
+  saveStatus,
+  enableViewTracking = true, 
 }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [favoriteStatus, setFavoriteStatus] = useState(isMarkedFavorite);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [hasTrackedView, setHasTrackedView] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
 
-  // Get translators for different namespaces - similar to ProductBasicInfo
+  // Get translators for different namespaces
   const t = useTranslations('SoldCard');
   const bodyTypeT = useTranslations('addProduct.enteredData.stepTow');
 
-  // Get the translated options from the car enums - similar to ProductBasicInfo
+  // Initialize view count tracking hook
+  const incrementViewCount = useIncrementViewCount();
+
+  // Get the translated options from the car enums
   const transmissionOptions = useMemo(
     () => getTransmissionOptions(bodyTypeT),
     [bodyTypeT],
@@ -62,7 +70,7 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
     [bodyTypeT],
   );
 
-  // Find the matching label for the given values - same helper as in ProductBasicInfo
+  // Find the matching label for the given values
   const getTranslatedLabel = (
     value: string,
     options: Array<{ value: string; label: string }>,
@@ -79,11 +87,98 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
     ? getTranslatedLabel(details.transmission, transmissionOptions)
     : '';
 
+  // Track view count using Intersection Observer for better performance
+  useEffect(() => {
+    // Skip if tracking is disabled, already tracked, or no ProductId
+    if (!enableViewTracking || !ProductId || hasTrackedView || !cardRef.current) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        // Trigger when at least 50% of the card is visible for at least 1 second
+        if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
+          // Use a timeout to ensure the card is viewed for at least 1 second
+          const timeoutId = setTimeout(() => {
+            console.log('[View Tracking] Card visible, tracking view for ProductId:', ProductId);
+            
+            // Check if mutation is not already pending
+            if (!incrementViewCount.isPending) {
+              incrementViewCount.mutate(
+                { carListingId: Number(ProductId) },
+                {
+                  onSuccess: (data) => {
+                    console.log('[View Tracking] Successfully tracked view for ProductId:', ProductId, data);
+                    setHasTrackedView(true);
+                  },
+                  onError: (error) => {
+                    console.error('[View Tracking] Failed to track view for ProductId:', ProductId, error);
+                    // Still mark as tracked to prevent retry loops
+                    setHasTrackedView(true);
+                  },
+                  onSettled: () => {
+                    console.log('[View Tracking] Mutation settled for ProductId:', ProductId);
+                  }
+                }
+              );
+            } else {
+              console.log('[View Tracking] Mutation is pending, skipping for ProductId:', ProductId);
+            }
+            
+            // Disconnect observer after tracking
+            observer.disconnect();
+          }, 1000); // Wait 1 second before tracking
+
+          // Clean up timeout if card becomes invisible before 1 second
+          return () => clearTimeout(timeoutId);
+        }
+      },
+      {
+        threshold: 0.5, // Trigger when 50% visible
+        rootMargin: '0px',
+      }
+    );
+
+    observer.observe(cardRef.current);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [ProductId, hasTrackedView, incrementViewCount, enableViewTracking]);
+
+  // Fallback: Track view count on mount if Intersection Observer is not supported
+  useEffect(() => {
+    // Check if Intersection Observer is supported
+    if (!window.IntersectionObserver && enableViewTracking && ProductId && !hasTrackedView) {
+      console.log('[View Tracking Fallback] Using fallback method for ProductId:', ProductId);
+      
+      // Small delay to ensure component is fully mounted
+      const timeoutId = setTimeout(() => {
+        if (!incrementViewCount.isPending) {
+          incrementViewCount.mutate(
+            { carListingId: Number(ProductId) },
+            {
+              onSuccess: () => {
+                console.log('[View Tracking Fallback] Successfully tracked view');
+                setHasTrackedView(true);
+              },
+              onError: (error) => {
+                console.error('[View Tracking Fallback] Failed to track view:', error);
+                setHasTrackedView(true);
+              },
+            }
+          );
+        }
+      }, 100);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [ProductId, hasTrackedView, incrementViewCount, enableViewTracking]);
+
   // Check authentication status when component mounts
   useEffect(() => {
     const verifyAuth = async () => {
       try {
-        // Check if user is authenticated
         const authResponse = await checkAuth();
         setIsAuthenticated(authResponse.success);
       } catch (error) {
@@ -101,34 +196,26 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
   }, [isMarkedFavorite, ProductId]);
 
   const handleFavoriteClick = async (e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent the link navigation
-    e.stopPropagation(); // Stop the event from bubbling up
+    e.preventDefault();
+    e.stopPropagation();
 
-    // Only allow favorite action if authenticated
     if (isAuthenticated && !isProcessing && ProductId) {
       setIsProcessing(true);
 
       try {
-        // Store current state for comparison/reversion
         const currentState = favoriteStatus;
-
-        // Optimistically update UI
         const newStatus = !currentState;
         setFavoriteStatus(newStatus);
 
-        // Notify parent component
         if (onFavoriteToggle) {
           onFavoriteToggle(Number(ProductId), newStatus);
         }
 
-        // Call API
         const response = await toggleCarListingFavorite({
           carListingId: Number(ProductId),
         });
 
-        // Handle API response
         if (response.success) {
-          // Determine the actual status from API
           let responseStatus: boolean;
 
           if (typeof response.data === 'boolean') {
@@ -140,11 +227,9 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
           ) {
             responseStatus = response.data.isFavorite as boolean;
           } else {
-            // If response format is unexpected, keep optimistic update
             responseStatus = newStatus;
           }
 
-          // If API returned something different than our optimistic update
           if (responseStatus !== newStatus) {
             setFavoriteStatus(responseStatus);
 
@@ -153,7 +238,6 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
             }
           }
         } else {
-          // API call failed, revert to original state
           setFavoriteStatus(currentState);
 
           if (onFavoriteToggle) {
@@ -161,7 +245,6 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
           }
         }
       } catch (error) {
-        // Exception occurred, revert to initial state
         console.error(`Exception in toggleFavorite:`, error);
         setFavoriteStatus(isMarkedFavorite);
 
@@ -171,16 +254,29 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
       } finally {
         setIsProcessing(false);
       }
-    } else if (!isAuthenticated) {
-      // You could redirect to login page here
-      // window.location.href = '/login';
+    }
+  };
+
+  // Manual test function for debugging (remove in production)
+  const handleManualViewTrack = () => {
+    if (ProductId) {
+      console.log('[Manual Test] Triggering view count for ProductId:', ProductId);
+      incrementViewCount.mutate(
+        { carListingId: Number(ProductId) },
+        {
+          onSuccess: (data) => console.log('[Manual Test] Success:', data),
+          onError: (error) => console.error('[Manual Test] Error:', error),
+        }
+      );
     }
   };
 
   const isSold = saveStatus === SaveStatus.SOLD;
 
   return (
-    <div className="w-full ">
+    <div ref={cardRef} className="w-full">
+      {/* Debug button - Remove in production */}
+      
       <Card
         className={`border-none h-[370px] bg-white relative group transition-all duration-500 ease-out overflow-hidden ${
           isSold
@@ -217,22 +313,17 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
           />
         </Button>
 
-        {/* SOLD Badge and Overlay - Enhanced Design */}
+        {/* SOLD Badge and Overlay */}
         {isSold && (
           <>
-            {/* Gradient overlay with blur effect */}
             <div className="absolute inset-0 bg-gradient-to-br from-gray-900/40 via-gray-800/30 to-black/40 backdrop-blur-[2px] z-20 pointer-events-none" />
-
-            {/* Diagonal ribbon in top right corner */}
+            
             <div className="absolute top-0 right-0 z-30 pointer-events-none overflow-hidden w-32 h-32">
               <div className="absolute top-6 -right-8 bg-gradient-to-r from-red-600 to-red-700 text-white text-xs font-bold py-1.5 px-10 transform rotate-45 shadow-2xl">
                 {t('soldOut')}
               </div>
             </div>
 
-            {/* Main SOLD Badge - Stamp Style */}
-           
-            {/* Bottom status bar */}
             <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-r from-red-600 to-red-700 text-white text-center py-2 z-30 pointer-events-none">
               <Text className="text-sm font-bold tracking-wider">
                 {t('desc')}
@@ -245,27 +336,28 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
           {type === 'for_rent' ? 'Rent' : 'Sale'}
         </Text>
 
-        <Box className={`flex z-40 justify-between p-[8px] rounded-t-[10px] duration-500 ${
-          isSold 
-            ? 'bg-gray-400' 
-            : 'bg-primary-light group-hover:bg-primary'
-        }`}>
-          <Text className={`mid font-cairo text-[500] text-[14px] ${
-            isSold ? 'text-gray-200' : 'text-[#EFEFEF]'
-          }`}>
+        <Box
+          className={`flex z-40 justify-between p-[8px] rounded-t-[10px] duration-500 ${
+            isSold ? 'bg-gray-400' : 'bg-primary-light group-hover:bg-primary'
+          }`}
+        >
+          <Text
+            className={`mid font-cairo text-[500] text-[14px] ${
+              isSold ? 'text-gray-200' : 'text-[#EFEFEF]'
+            }`}
+          >
             {priceWord}
           </Text>
-          <Text className={`mid font-cairo font-bold ${
-            isSold ? 'text-gray-200 line-through' : 'text-white'
-          }`}>
+          <Text
+            className={`mid font-cairo font-bold ${
+              isSold ? 'text-gray-200 line-through' : 'text-white'
+            }`}
+          >
             {price}
           </Text>
         </Box>
 
-        <Link 
-          href={`/products/product/${ProductId}`} 
-          className="block"
-        >
+        <Link href={`/products/product/${ProductId}`} className="block">
           <CardHeader className="p-0">
             <CardTitle className="w-full relative h-48 overflow-hidden">
               <Image
@@ -278,7 +370,6 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
                 }`}
                 priority={false}
               />
-              {/* Hover overlay with view icon */}
               {!isSold && (
                 <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
                   <div className="bg-white/90 backdrop-blur-sm rounded-full p-3 transform scale-75 group-hover:scale-100 transition-transform duration-300">
@@ -296,8 +387,8 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
               >
                 {title}
               </Text>
-              <Text 
-                variant="mid" 
+              <Text
+                variant="mid"
                 className={`pr-2 pl-2 ${
                   isSold ? 'text-gray-400' : 'text-primary'
                 }`}
@@ -310,40 +401,45 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
 
         <CardFooter className="flex justify-between items-center p-4 pt-0 gap-4">
           <div className="flex gap-4">
-            {/* Fuel type with enhanced styling */}
-            <div className={`flex items-center gap-2 text-sm transition-colors duration-300 ${
-              isSold 
-                ? 'text-gray-400' 
-                : 'text-gray-600 group-hover:text-emerald-600'
-            }`}>
-              <div className={`p-1.5 rounded-lg transition-colors duration-300 ${
-                isSold 
-                  ? 'bg-gray-200' 
-                  : 'bg-gray-100 group-hover:bg-emerald-100'
-              }`}>
+            <div
+              className={`flex items-center gap-2 text-sm transition-colors duration-300 ${
+                isSold
+                  ? 'text-gray-400'
+                  : 'text-gray-600 group-hover:text-emerald-600'
+              }`}
+            >
+              <div
+                className={`p-1.5 rounded-lg transition-colors duration-300 ${
+                  isSold
+                    ? 'bg-gray-200'
+                    : 'bg-gray-100 group-hover:bg-emerald-100'
+                }`}
+              >
                 <Fuel className="h-4 w-4" />
               </div>
               <span className="font-medium">{translatedFuelType}</span>
             </div>
 
-            {/* Transmission with enhanced styling */}
-            <div className={`flex items-center gap-2 text-sm transition-colors duration-300 ${
-              isSold 
-                ? 'text-gray-400' 
-                : 'text-gray-600 group-hover:text-emerald-600'
-            }`}>
-              <div className={`p-1.5 rounded-lg transition-colors duration-300 ${
-                isSold 
-                  ? 'bg-gray-200' 
-                  : 'bg-gray-100 group-hover:bg-emerald-100'
-              }`}>
+            <div
+              className={`flex items-center gap-2 text-sm transition-colors duration-300 ${
+                isSold
+                  ? 'text-gray-400'
+                  : 'text-gray-600 group-hover:text-emerald-600'
+              }`}
+            >
+              <div
+                className={`p-1.5 rounded-lg transition-colors duration-300 ${
+                  isSold
+                    ? 'bg-gray-200'
+                    : 'bg-gray-100 group-hover:bg-emerald-100'
+                }`}
+              >
                 <LifeBuoy className="h-4 w-4" />
               </div>
               <span className="font-medium">{translatedTransmission}</span>
             </div>
           </div>
 
-          {/* View details arrow - appears on hover */}
           {!isSold && (
             <div className="opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
               <ArrowRight className="h-5 w-5 text-emerald-600" />
@@ -354,8 +450,6 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
         {!isSold && (
           <>
             <div className="h-1 bg-gradient-to-r from-emerald-500 to-teal-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
-
-            {/* Side accent indicators */}
             <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-0 group-hover:h-20 bg-gradient-to-b from-[#198341] to-[#ABDE3B] transition-all duration-500 rounded-r-full"></div>
             <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-0 group-hover:h-20 bg-gradient-to-b from-[#ABDE3B] to-[#198341] transition-all duration-500 rounded-l-full"></div>
           </>
