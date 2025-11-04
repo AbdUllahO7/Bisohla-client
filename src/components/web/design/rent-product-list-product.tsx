@@ -30,6 +30,7 @@ import {
   SaveStatus,
 } from '@/core/entities/enums/cars.enums';
 import { SelectCarListingDto } from '@/core/entities/models/cars/cars.dto';
+import { useIncrementViewCount } from '@/hooks/use-carStatistics';
 
 // Props interface for the list card
 interface RentProductListCardProps {
@@ -49,10 +50,14 @@ export const RentProductListCard: React.FC<RentProductListCardProps> = ({
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [favoriteStatus, setFavoriteStatus] = useState(isMarkedFavorite);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [hasTrackedView, setHasTrackedView] = useState(false);
 
   // Get translators for different namespaces
   const productT = useTranslations('product');
   const bodyTypeT = useTranslations('addProduct.enteredData.stepTow');
+
+  // Initialize view count tracking hook
+  const incrementViewCount = useIncrementViewCount();
 
   // Get the translated options from the car enums
   const transmissionOptions = useMemo(
@@ -101,6 +106,27 @@ export const RentProductListCard: React.FC<RentProductListCardProps> = ({
   const translatedTransmission = details?.transmission
     ? getTranslatedLabel(details.transmission, transmissionOptions)
     : '';
+
+  // Track view count when card is visible
+  useEffect(() => {
+    // Only track view once per component instance and if productId exists
+    if (productId && !hasTrackedView) {
+      incrementViewCount.mutate(
+        { carListingId: Number(productId) },
+        {
+          onSuccess: () => {
+            // Mark as tracked to prevent duplicate calls
+            setHasTrackedView(true);
+          },
+          onError: (error) => {
+            console.error('Failed to track view count:', error);
+            // Still mark as tracked to prevent retry loops
+            setHasTrackedView(true);
+          },
+        }
+      );
+    }
+  }, [productId, hasTrackedView]);
 
   // Check authentication status when component mounts
   useEffect(() => {

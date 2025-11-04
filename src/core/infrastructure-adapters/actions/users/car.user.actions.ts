@@ -9,8 +9,10 @@ import {
 import { SelectCarListingDto } from '@/core/entities/models/cars/cars.dto';
 import {
   CreateCarListingDto,
+  IncrementCountDto,
   UpdateCarListingDto,
   UpdateSaveStatusDto,
+  UpdateViewDurationDto,
 } from '@/core/entities/models/cars/cars.zod.dto';
 import {
   CreateFavoriteCarListingDto,
@@ -130,3 +132,55 @@ export const getMyCarById = async (
 
   return res;
 };
+
+export const incrementViewCount = async (
+  dto: IncrementCountDto,
+): Promise<ApiResponse<SuccessResponseWithNoContent>> => {
+  console.log('[Action] incrementViewCount called with dto:', dto);
+  
+  try {
+    const carListingController = getInjection('ICarUserController');
+    console.log('[Action] Controller obtained:', !!carListingController);
+    
+    const res = await carListingController.incrementViewCount(dto);
+    console.log('[Action] incrementViewCount result:', res);
+    
+    return res;
+  } catch (error) {
+    console.error('[Action] incrementViewCount error:', error);
+    throw error;
+  }
+};
+
+export const incrementContactCount = async (
+  dto: IncrementCountDto,
+): Promise<ApiResponse<SuccessResponseWithNoContent>> => {
+  const carListingController = getInjection('ICarUserController');
+  const res = await carListingController.incrementContactCount(dto);
+  return res;
+};
+
+export const incrementSharesCount = async (
+  dto: IncrementCountDto,
+): Promise<ApiResponse<SuccessResponseWithNoContent>> => {
+  const carListingController = getInjection('ICarUserController');
+  const res = await carListingController.incrementSharesCount(dto);
+  return res;
+};
+
+export const incrementDetailsViewedCount = async (
+  dto: IncrementCountDto,
+): Promise<ApiResponse<SuccessResponseWithNoContent>> => {
+  const carListingController = getInjection('ICarUserController');
+  const res = await carListingController.incrementDetailsViewedCount(dto);
+  return res;
+};
+
+export const updateViewDuration = async (
+  dto: UpdateViewDurationDto,
+): Promise<ApiResponse<SuccessResponseWithNoContent>> => {
+  const carListingController = getInjection('ICarUserController');
+  const res = await carListingController.updateViewDuration(dto);
+  return res;
+};
+

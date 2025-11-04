@@ -52,7 +52,6 @@ const UserProductPage = () => {
     searchTerm: filterParams.searchTerm, // Add this
   });
   useEffect(() => {
-    console.log("useEffect");
     refetch();
   }, []); 
   // Handle filter changes from the simple filter component
@@ -138,7 +137,6 @@ const UserProductPage = () => {
 
     return listings;
   }, [data, favoriteStatuses]);
-  console.log("Render UserProductPage - carListings:", carListings);
 
   // Extract pagination metadata from response
   const paginationMeta = useMemo(() => {
