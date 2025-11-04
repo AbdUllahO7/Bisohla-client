@@ -46,9 +46,7 @@ export default async function RootLayout({
           <GlobalProvider>
             <NextTopLoader color="#2C3C39" height={4} showSpinner={false} />
             
-            <SmartAppBanner />
-            
-            <AppDeepLink />
+          
 
             {children}
             <AppDownloadModalProvider />
