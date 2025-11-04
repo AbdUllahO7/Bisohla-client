@@ -17,6 +17,7 @@ import { getInjection } from '@/di/container';
 import { redirect } from '@/i18n/routing';
 import { getLocale } from 'next-intl/server';
 import { revalidatePath, revalidateTag } from 'next/cache';
+import { createSession } from '@/core/lib/web/session';
 
 export const signInAction = async (
   state: ApiResponse<LoginResponse>,
@@ -185,4 +186,63 @@ export const validateResetPasswordTokenAction = async (
   }
 
   return res;
+};
+
+export const oauthCallbackAction = async ({
+  id,
+  name,
+  roles,
+  permissions,
+  accessToken,
+  refreshToken,
+}: {
+  id: string;
+  name: string;
+  roles: string;
+  permissions: string;
+  accessToken: string;
+  refreshToken: string;
+}): Promise<ApiResponse<any>> => {
+  try {
+    // Parse roles and permissions from JSON strings
+    const parsedRoles = JSON.parse(roles);
+    const parsedPermissions = JSON.parse(permissions);
+
+    // Create session with complete OAuth user data (same as normal login)
+    await createSession({
+      user: {
+        id: parseInt(id),
+        name,
+        roles: parsedRoles,
+        permissions: parsedPermissions,
+      },
+      accessToken,
+      refreshToken,
+    });
+
+    // Revalidate all paths and auth-related cache tags
+    revalidatePath('/', 'layout');
+    revalidateTag('auth');
+    revalidateTag('session');
+    revalidateTag('user');
+
+    // Add a small delay to ensure cache invalidation completes
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    return {
+      success: true,
+      message: 'OAuth login successful',
+      status: 200,
+    };
+  } catch (error) {
+    console.error('OAuth callback action error:', error);
+    return {
+      success: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : 'Failed to process OAuth login',
+      status: 500,
+    };
+  }
 };
