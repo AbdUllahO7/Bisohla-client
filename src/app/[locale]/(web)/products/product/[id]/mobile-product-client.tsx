@@ -57,11 +57,9 @@ const MobileProductClient = ({
         { carListingId: carData.id },
         {
           onSuccess: () => {
-            console.log('✅ [MOBILE] View count tracked');
             setHasTrackedView(true);
           },
           onError: (error) => {
-            console.error('❌ [MOBILE] Failed to track view count:', error);
             setHasTrackedView(true);
           },
         }
@@ -81,11 +79,9 @@ const MobileProductClient = ({
         { carListingId: carData.id },
         {
           onSuccess: () => {
-            console.log('✅ [MOBILE] Details viewed count tracked');
             setHasTrackedDetailsViewed(true);
           },
           onError: (error) => {
-            console.error('❌ [MOBILE] Failed to track details viewed count:', error);
             setHasTrackedDetailsViewed(true);
           },
         }
@@ -102,11 +98,16 @@ const MobileProductClient = ({
     const interval = setInterval(() => {
       const durationInSeconds = Math.floor((Date.now() - viewStartTime) / 1000);
       if (durationInSeconds > 0) {
+ 
         updateViewDuration.mutate(
           { carListingId: carData.id, durationInSeconds },
           {
             onSuccess: () => {
-              console.log(`✅ [MOBILE] View duration updated: ${durationInSeconds}s`);
+              // 🔄 Reset timer to 0 after sending request
+              setViewStartTime(Date.now());
+            },
+            onError: (error) => {
+              console.error('❌ [MOBILE] Failed to update view duration:', error);
             },
           }
         );
@@ -119,15 +120,25 @@ const MobileProductClient = ({
 
       const finalDuration = Math.floor((Date.now() - viewStartTime) / 1000);
       if (finalDuration > 0) {
+
         updateViewDuration.mutate({
           carListingId: carData.id,
           durationInSeconds: finalDuration,
         });
-        console.log(`✅ [MOBILE] Final view duration: ${finalDuration}s`);
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [viewStartTime, carData?.id]);
+
+  // 🔄 RESET: Reset all tracking states on unmount
+  useEffect(() => {
+    return () => {
+      setHasTrackedView(false);
+      setHasTrackedContact(false);
+      setHasTrackedDetailsViewed(false);
+      setViewStartTime(null);
+    };
+  }, []);
 
   // 📊 TRACKING 4: Track contact button clicks
   const handleContactClick = () => {
@@ -136,7 +147,6 @@ const MobileProductClient = ({
         { carListingId: carData.id },
         {
           onSuccess: () => {
-            console.log('✅ [MOBILE] Contact count tracked');
             setHasTrackedContact(true);
           },
           onError: (error) => {
