@@ -50,7 +50,8 @@ export default function AppDeepLink() {
                       `S.browser_fallback_url=${encodeURIComponent(universalUrl)};` +
                       `end`;
         
-        window.location.href = intent;
+        const customSchemeUrl = `bishola://${fullPath}`;
+        const universalUrl = `https://bishola.com${fullPath}`;
 
         setTimeout(() => {
           if (Date.now() - startTime < 1500 && !appOpened) {
