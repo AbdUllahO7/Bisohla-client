@@ -44,11 +44,7 @@ export default function AppDeepLink() {
         }, 500);
 
       } else if (isAndroid) {
-        const intent = `intent://${fullPath}#Intent;` +
-                      `scheme=https;` +
-                      `package=com.bishola.app;` +
-                      `S.browser_fallback_url=${encodeURIComponent(universalUrl)};` +
-                      `end`;
+      
         
         const customSchemeUrl = `bishola://${fullPath}`;
         const universalUrl = `https://bishola.com${fullPath}`;
