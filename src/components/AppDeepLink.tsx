@@ -45,7 +45,6 @@ export default function AppDeepLink() {
 
       } else if (isAndroid) {
       
-        
         const customSchemeUrl = `bishola://${fullPath}`;
         const universalUrl = `https://bishola.com${fullPath}`;
 
