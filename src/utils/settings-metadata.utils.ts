@@ -6,8 +6,6 @@ import {
   SEOSettings,
   AppSettings,
   PageSEOData,
-  GlobalSEOData,
-  SiteInfoData,
 } from '@/core/entities/models/settings/settings.dto';
 import { APP_URL } from '@/core/lib/web/constants';
 
@@ -19,6 +17,17 @@ type WebPageType =
   | 'auth'
   | 'profile'
   | 'privacy_policy';
+
+// Local types for extracted data
+type GlobalSEOData = NonNullable<SEOSettings['global_seo']>;
+type SiteInfoData = {
+  site_name?: string;
+  site_description?: string;
+  logo?: string;
+  favicon?: string;
+  primary_color?: string;
+  secondary_color?: string;
+};
 
 interface SettingsMetadataConfig {
   title?: string;

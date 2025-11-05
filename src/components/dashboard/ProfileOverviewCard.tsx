@@ -76,6 +76,7 @@ export function ProfileOverviewCard({ profile }: ProfileOverviewCardProps) {
             <AvatarImage
               src={profile?.profileUrl || '/placeholder.svg'}
               alt={profile?.name || 'User'}
+              referrerPolicy="no-referrer"
             />
             <AvatarFallback className="text-xl bg-primary-foreground text-primary">
               {getUserInitials(profile?.name || '')}

@@ -259,6 +259,7 @@ const UserInfoPage = () => {
                       <AvatarImage
                         src={profileForm.getValues('profileUrl') ?? undefined}
                         alt="Profile"
+                        referrerPolicy="no-referrer"
                       />
                     ) : (
                       <AvatarImage

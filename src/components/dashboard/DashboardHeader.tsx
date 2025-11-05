@@ -413,6 +413,7 @@ export function DashboardHeader({
                     <AvatarImage
                       src={profile?.profileUrl || '/placeholder.svg'}
                       alt={profile?.name || ''}
+                      referrerPolicy="no-referrer"
                     />
                     <AvatarFallback className="bg-primary/10 text-primary">
                       {getUserInitials(profile?.name || user?.name || '')}
