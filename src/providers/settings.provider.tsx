@@ -7,19 +7,43 @@ import {
   AppSettings,
   GeneralSettings,
   SEOSettings,
+  AuthenticationSettings,
+  ThirdPartyIntegrations,
+  SettingsData,
+  SettingsKey,
+  SettingsSubKey,
+  SettingsField,
+  SettingsFieldValue,
 } from '@/core/entities/models/settings/settings.dto';
 
 interface SettingsContextType {
-  settings: any;
+  settings: SettingsData;
   isLoading: boolean;
   error: Error | null;
-  getSetting: (path: string, defaultValue?: any) => any;
-  getGeneralSettings: () => GeneralSettings;
-  getAppSettings: () => AppSettings;
-  getSEOSettings: () => SEOSettings;
+
+  // Type-safe getter with autocomplete
+  getSetting: <
+    K extends SettingsKey,
+    SK extends SettingsSubKey<K>,
+    F extends SettingsField<K, SK>
+  >(
+    key: K,
+    subKey: SK,
+    field: F,
+    defaultValue?: SettingsFieldValue<K, SK, F>
+  ) => SettingsFieldValue<K, SK, F> | undefined;
+
+  // Convenient getters for entire sections
+  getGeneralSettings: () => GeneralSettings | undefined;
+  getAuthenticationSettings: () => AuthenticationSettings | undefined;
+  getAppSettings: () => AppSettings | undefined;
+  getSEOSettings: () => SEOSettings | undefined;
+  getThirdPartyIntegrations: () => ThirdPartyIntegrations | undefined;
+
+  // Specific commonly-used settings
   getLogo: () => string;
   getCopyrightMessage: () => string;
-  getSocialLinks: () => any;
+  getSocialLinks: () => GeneralSettings['social_links'];
 }
 
 const SettingsContext = createContext<SettingsContextType | undefined>(
@@ -37,42 +61,56 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
   const locale = useLocale();
 
   const settings = useMemo(
-    () => settingsResponse?.data?.[locale] || {},
+    () => (settingsResponse?.data?.[locale] || {}) as SettingsData,
     [settingsResponse, locale],
   );
 
-  const getSetting = (path: string, defaultValue: any = null): any => {
-    return (
-      path.split('.').reduce((obj: any, key: string) => obj?.[key], settings) ??
-      defaultValue
-    );
+  // Type-safe getSetting function
+  const getSetting = <
+    K extends SettingsKey,
+    SK extends SettingsSubKey<K>,
+    F extends SettingsField<K, SK>
+  >(
+    key: K,
+    subKey: SK,
+    field: F,
+    defaultValue?: SettingsFieldValue<K, SK, F>
+  ): SettingsFieldValue<K, SK, F> | undefined => {
+    try {
+      const keyData = settings[key];
+      if (!keyData) return defaultValue;
+
+      const subKeyData = (keyData as Record<string, any>)[subKey as string];
+      if (!subKeyData || typeof subKeyData !== 'object') return defaultValue;
+
+      const fieldValue = subKeyData[field as string];
+      return fieldValue !== undefined ? fieldValue : defaultValue;
+    } catch {
+      return defaultValue;
+    }
   };
 
-  const getGeneralSettings = () => {
-    return getSetting('general', {});
-  };
-  const getAppSettings = () => {
-    return getSetting('app_settings', {});
-  };
-  const getSEOSettings = () => {
-    return getSetting('set_settings', {});
-  };
+  // Section getters
+  const getGeneralSettings = () => settings.general;
+  const getAuthenticationSettings = () => settings.authentication;
+  const getAppSettings = () => settings.app_settings;
+  const getSEOSettings = () => settings.seo_settings;
+  const getThirdPartyIntegrations = () => settings.third_party_integrations;
 
-  const getSocialLinks = () => {
-    return getSetting('general.social_links', []);
-  };
+  // Specific getters
+  const getSocialLinks = () => settings.general?.social_links;
 
   const getLogo = () => {
-    return getSetting(
-      'general.appearance.logo',
-      '/assets/images/logo/bishola.png',
+    return (
+      getSetting('general', 'appearance', 'logo') ||
+      '/assets/images/logo/bishola.png'
     );
   };
 
   const getCopyrightMessage = () => {
-    return getSetting(
-      'general.site_info.copyright_message',
-      '© 2025 Bishola. All rights reserved.',
+    return (
+      getSetting('general', 'site_info', 'copyright_message') ||
+      '© 2025 Bishola. All rights reserved.'
     );
   };
 
@@ -82,8 +120,10 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
     error,
     getSetting,
     getGeneralSettings,
+    getAuthenticationSettings,
     getAppSettings,
     getSEOSettings,
+    getThirdPartyIntegrations,
     getLogo,
     getCopyrightMessage,
     getSocialLinks,

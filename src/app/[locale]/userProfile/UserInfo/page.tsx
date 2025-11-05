@@ -1,22 +1,36 @@
-"use client"
+'use client';
 
-import { useState, useEffect, useRef, useCallback } from "react"
-import { z } from "zod"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Button } from "@/components/ui/button"
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Separator } from "@/components/ui/separator"
-import { User, Loader2, AtSign, Phone, Lock, Key, Save } from "lucide-react"
-import { useGetMyProfile, useUpdateUserProfile } from "@/core/infrastructure-adapters/use-actions/users/user-profile.use-actions"
-import ImageUploader, { ImageUploaderRef } from "@/components/image-uploader/image-uploader"
-import { useLocale, useTranslations } from "next-intl"
-import { motion } from "framer-motion"
-import { profileFormSchema, ProfileFormValues } from "@/core/entities/models/users/users.dto"
-
-
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Button } from '@/components/ui/button';
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Separator } from '@/components/ui/separator';
+import { User, Loader2, AtSign, Phone, Lock, Key, Save } from 'lucide-react';
+import {
+  useGetMyProfile,
+  useUpdateUserProfile,
+} from '@/core/infrastructure-adapters/use-actions/users/user-profile.use-actions';
+import ImageUploader, {
+  ImageUploaderRef,
+} from '@/components/image-uploader/image-uploader';
+import { useLocale, useTranslations } from 'next-intl';
+import { motion } from 'framer-motion';
+import {
+  profileFormSchema,
+  ProfileFormValues,
+} from '@/core/entities/models/users/users.dto';
 
 // KeyValue component for consistent display of field labels and values
 interface KeyValueFieldProps {
@@ -27,7 +41,13 @@ interface KeyValueFieldProps {
   className?: string;
 }
 
-const KeyValueField: React.FC<KeyValueFieldProps> = ({ icon, label, value, children, className = "" }) => {
+const KeyValueField: React.FC<KeyValueFieldProps> = ({
+  icon,
+  label,
+  value,
+  children,
+  className = '',
+}) => {
   return (
     <div className={`flex flex-col space-y-2 ${className}`}>
       <div className="flex items-center gap-2">
@@ -46,13 +66,18 @@ const UserInfoPage = () => {
   const [isClient, setIsClient] = useState(false);
   const profileImageRef = useRef<ImageUploaderRef>(null);
   const locale = useLocale();
-  
+
   // Get translations
   const t = useTranslations('UserProfile.profile');
-  
+
   // Get user profile data
-  const { data, isLoading: isProfileLoading, error, refetch } = useGetMyProfile();
-  
+  const {
+    data,
+    isLoading: isProfileLoading,
+    error,
+    refetch,
+  } = useGetMyProfile();
+
   // Update user profile mutation
   const updateProfileMutation = useUpdateUserProfile();
 
@@ -60,21 +85,21 @@ const UserInfoPage = () => {
   const profileForm = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
     defaultValues: {
-      name: "",
-      email: "",
+      name: '',
+      email: '',
       phone: null,
-      bio: "",
+      bio: '',
       password: null,
       passwordConfirmation: null,
-      profileUrl: null
+      profileUrl: null,
     },
   });
-  
+
   // Initialize client-side state
   useEffect(() => {
     setIsClient(true);
   }, []);
-  
+
   // Update form when profile data is loaded
   useEffect(() => {
     if (data?.data) {
@@ -92,10 +117,13 @@ const UserInfoPage = () => {
   }, [data, profileForm]);
 
   // Handle profile image changes from ImageUploader
-  const handleProfileImageChange = useCallback((urls: string[]) => {
-    const url = urls.length > 0 ? urls[0] : null;
-    profileForm.setValue("profileUrl", url);
-  }, [profileForm]);
+  const handleProfileImageChange = useCallback(
+    (urls: string[]) => {
+      const url = urls.length > 0 ? urls[0] : null;
+      profileForm.setValue('profileUrl', url);
+    },
+    [profileForm],
+  );
 
   // Submit profile form
   async function onProfileSubmit(data: ProfileFormValues) {
@@ -109,24 +137,23 @@ const UserInfoPage = () => {
         passwordConfirmation: data.passwordConfirmation,
         profileUrl: data.profileUrl,
       };
-      
+
       // Send update request
       await updateProfileMutation.mutateAsync(updateData);
       // Refresh profile data
       refetch();
-      
     } catch (error) {
-      console.error("Failed to update profile:", error);
+      console.error('Failed to update profile:', error);
     }
   }
 
   // Get initials for avatar fallback
   const getInitials = (name: string) => {
-    if (!name) return "U";
+    if (!name) return 'U';
     return name
-      .split(" ")
+      .split(' ')
       .map((n) => n[0])
-      .join("")
+      .join('')
       .toUpperCase()
       .substring(0, 2);
   };
@@ -137,51 +164,51 @@ const UserInfoPage = () => {
   // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
-    visible: { 
+    visible: {
       opacity: 1,
-      transition: { 
+      transition: {
         duration: 0.4,
-        when: "beforeChildren",
-        staggerChildren: 0.1
-      }
-    }
+        when: 'beforeChildren',
+        staggerChildren: 0.1,
+      },
+    },
   };
 
   const itemVariants = {
     hidden: { y: 20, opacity: 0 },
-    visible: { 
-      y: 0, 
+    visible: {
+      y: 0,
       opacity: 1,
-      transition: { 
-        type: "spring", 
-        stiffness: 300, 
-        damping: 24 
-      }
-    }
+      transition: {
+        type: 'spring',
+        stiffness: 300,
+        damping: 24,
+      },
+    },
   };
 
   const formItemVariants = {
     hidden: { x: -10, opacity: 0 },
-    visible: { 
-      x: 0, 
+    visible: {
+      x: 0,
       opacity: 1,
-      transition: { 
-        type: "spring", 
-        stiffness: 300, 
-        damping: 24 
-      }
-    }
+      transition: {
+        type: 'spring',
+        stiffness: 300,
+        damping: 24,
+      },
+    },
   };
 
   return (
-    <motion.div 
-      className="w-full container mx-auto py-8" 
+    <motion.div
+      className="w-full container mx-auto py-8"
       dir={locale === 'en' ? 'ltr' : 'rtl'}
       initial="hidden"
       animate="visible"
       variants={containerVariants}
     >
-      <motion.div 
+      <motion.div
         className="flex items-center mb-6 gap-2"
         variants={itemVariants}
       >
@@ -190,7 +217,7 @@ const UserInfoPage = () => {
       </motion.div>
 
       {isLoading ? (
-        <motion.div 
+        <motion.div
           className="bg-white rounded-lg shadow-md p-8 flex justify-center items-center"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -199,23 +226,20 @@ const UserInfoPage = () => {
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </motion.div>
       ) : (
-        <motion.div 
+        <motion.div
           className="bg-white rounded-lg shadow-md"
           variants={itemVariants}
         >
-          <motion.div 
+          <motion.div
             className="p-6 border-b border-gray-100"
             variants={itemVariants}
           >
             <h2 className="text-xl font-semibold">{t('editProfile')}</h2>
             <p className="text-gray-500 text-sm mt-1">{t('editProfile')}</p>
           </motion.div>
-          
-          <motion.div 
-            className="p-6 space-y-8"
-            variants={containerVariants}
-          >
-            <motion.div 
+
+          <motion.div className="p-6 space-y-8" variants={containerVariants}>
+            <motion.div
               className="flex flex-col gap-6 items-start"
               variants={itemVariants}
             >
@@ -223,45 +247,56 @@ const UserInfoPage = () => {
                 <motion.div
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
-                  transition={{ 
-                    type: "spring",
+                  transition={{
+                    type: 'spring',
                     stiffness: 300,
                     damping: 20,
-                    delay: 0.2
+                    delay: 0.2,
                   }}
                 >
                   <Avatar className="h-24 w-24 border-2 border-gray-100 shadow-sm transition-all duration-300 hover:shadow-md hover:border-primary/30">
-                    {profileForm.getValues("profileUrl") ? (
-                      <AvatarImage src={profileForm.getValues("profileUrl") ?? undefined} alt="Profile" />
+                    {profileForm.getValues('profileUrl') ? (
+                      <AvatarImage
+                        src={profileForm.getValues('profileUrl') ?? undefined}
+                        alt="Profile"
+                        referrerPolicy="no-referrer"
+                      />
                     ) : (
-                      <AvatarImage src="/placeholder.svg?height=96&width=96" alt="Profile" />
+                      <AvatarImage
+                        src="/placeholder.svg?height=96&width=96"
+                        alt="Profile"
+                      />
                     )}
                     <AvatarFallback className="bg-primary/10 text-primary text-xl">
-                      {getInitials(profileForm.getValues("name"))}
+                      {getInitials(profileForm.getValues('name'))}
                     </AvatarFallback>
                   </Avatar>
                 </motion.div>
                 <div className="space-y-2 flex-1">
-                  <motion.h4 
+                  <motion.h4
                     className="text-sm font-medium"
                     variants={itemVariants}
                   >
                     {t('YourProfile')}
                   </motion.h4>
-                  <motion.p 
+                  <motion.p
                     className="text-xs text-gray-500"
                     variants={itemVariants}
                   >
                     {t('editProfile')}
                   </motion.p>
-                  
+
                   {isClient && (
                     <motion.div
                       variants={itemVariants}
                       whileHover={{ scale: 1.01 }}
-                      transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                      transition={{
+                        type: 'spring',
+                        stiffness: 400,
+                        damping: 10,
+                      }}
                     >
-                      <ImageUploader 
+                      <ImageUploader
                         maxImages={1}
                         onChange={handleProfileImageChange}
                         setDisableForm={setIsFormDisabled}
@@ -283,8 +318,11 @@ const UserInfoPage = () => {
             </motion.div>
 
             <Form {...profileForm}>
-              <form onSubmit={profileForm.handleSubmit(onProfileSubmit)} className="space-y-6">
-                <motion.div 
+              <form
+                onSubmit={profileForm.handleSubmit(onProfileSubmit)}
+                className="space-y-6"
+              >
+                <motion.div
                   className="grid gap-6 sm:grid-cols-2"
                   variants={containerVariants}
                 >
@@ -294,15 +332,15 @@ const UserInfoPage = () => {
                       name="name"
                       render={({ field }) => (
                         <FormItem>
-                          <KeyValueField 
+                          <KeyValueField
                             icon={<User className="h-4 w-4 text-primary" />}
                             label={t('name')}
                           >
                             <FormControl>
-                              <Input 
-                                placeholder={t('name')} 
-                                {...field} 
-                                disabled={isFormDisabled} 
+                              <Input
+                                placeholder={t('name')}
+                                {...field}
+                                disabled={isFormDisabled}
                                 className="border-gray-200 focus:border-primary focus:ring-primary rounded-md transition-all duration-300"
                               />
                             </FormControl>
@@ -312,22 +350,22 @@ const UserInfoPage = () => {
                       )}
                     />
                   </motion.div>
-                  
+
                   <motion.div variants={formItemVariants}>
                     <FormField
                       control={profileForm.control}
                       name="email"
                       render={({ field }) => (
                         <FormItem>
-                          <KeyValueField 
+                          <KeyValueField
                             icon={<AtSign className="h-4 w-4 text-primary" />}
                             label={t('email')}
                           >
                             <FormControl>
-                              <Input 
-                                placeholder={t('email')} 
-                                {...field} 
-                                disabled={true} 
+                              <Input
+                                placeholder={t('email')}
+                                {...field}
+                                disabled={true}
                                 className="border-gray-200 bg-gray-50 text-gray-500 rounded-md transition-all duration-300"
                               />
                             </FormControl>
@@ -348,15 +386,15 @@ const UserInfoPage = () => {
                     name="phone"
                     render={({ field }) => (
                       <FormItem>
-                        <KeyValueField 
+                        <KeyValueField
                           icon={<Phone className="h-4 w-4 text-primary" />}
                           label={t('phoneNumber')}
                         >
                           <FormControl>
-                            <Input 
-                              placeholder={t('phoneNumber')} 
-                              {...field} 
-                              value={field.value || ""}
+                            <Input
+                              placeholder={t('phoneNumber')}
+                              {...field}
+                              value={field.value || ''}
                               disabled={isFormDisabled}
                               className="border-gray-200 focus:border-primary focus:ring-primary rounded-md transition-all duration-300"
                             />
@@ -368,7 +406,7 @@ const UserInfoPage = () => {
                   />
                 </motion.div>
 
-                <motion.div 
+                <motion.div
                   className="grid gap-6 sm:grid-cols-2"
                   variants={containerVariants}
                 >
@@ -378,16 +416,16 @@ const UserInfoPage = () => {
                       name="password"
                       render={({ field }) => (
                         <FormItem>
-                          <KeyValueField 
+                          <KeyValueField
                             icon={<Lock className="h-4 w-4 text-primary" />}
                             label={t('newPassword')}
                           >
                             <FormControl>
-                              <Input 
-                                type="password" 
-                                placeholder={t('newPassword')} 
-                                {...field} 
-                                value={field.value || ""}
+                              <Input
+                                type="password"
+                                placeholder={t('newPassword')}
+                                {...field}
+                                value={field.value || ''}
                                 disabled={isFormDisabled}
                                 className="border-gray-200 focus:border-primary focus:ring-primary rounded-md transition-all duration-300"
                               />
@@ -398,23 +436,23 @@ const UserInfoPage = () => {
                       )}
                     />
                   </motion.div>
-                  
+
                   <motion.div variants={formItemVariants}>
                     <FormField
                       control={profileForm.control}
                       name="passwordConfirmation"
                       render={({ field }) => (
                         <FormItem>
-                          <KeyValueField 
+                          <KeyValueField
                             icon={<Key className="h-4 w-4 text-primary" />}
                             label={t('repeatPassword')}
                           >
                             <FormControl>
-                              <Input 
-                                type="password" 
-                                placeholder={t('repeatPassword')} 
-                                {...field} 
-                                value={field.value || ""}
+                              <Input
+                                type="password"
+                                placeholder={t('repeatPassword')}
+                                {...field}
+                                value={field.value || ''}
                                 disabled={isFormDisabled}
                                 className="border-gray-200 focus:border-primary focus:ring-primary rounded-md transition-all duration-300"
                               />
@@ -427,15 +465,15 @@ const UserInfoPage = () => {
                   </motion.div>
                 </motion.div>
 
-                <motion.div 
+                <motion.div
                   className="pt-4"
                   variants={itemVariants}
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  <Button 
-                    type="submit" 
-                    disabled={isSubmitting || isFormDisabled} 
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting || isFormDisabled}
                     className="bg-primary hover:bg-primary/90 text-white rounded-md transition-all duration-300 px-6 shadow-sm hover:shadow"
                   >
                     {isSubmitting ? (
@@ -457,7 +495,7 @@ const UserInfoPage = () => {
         </motion.div>
       )}
     </motion.div>
-  )
-}
+  );
+};
 
-export default UserInfoPage
+export default UserInfoPage;
