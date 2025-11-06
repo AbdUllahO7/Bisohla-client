@@ -230,7 +230,7 @@ const Sidebar = React.forwardRef<
                 <SheetDescription>Sidebar</SheetDescription>
               </VisuallyHidden>
             </SheetHeader>
-            <div className="flex h-full w-full flex-col bg-primary">{children}</div>
+            <div className="flex h-full w-full flex-col ">{children}</div>
           </SheetContent>
         </Sheet>
       );

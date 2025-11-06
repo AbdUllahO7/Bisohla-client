@@ -68,7 +68,7 @@ export default function SmartAppBanner() {
 
   return (
     <div 
-      className="fixed top-[100px] left-0 right-0 bg-gradient-to-r from-primary to-primary/90 text-white shadow-lg z-50 animate-slideDown"
+      className="fixed bottom-[0px] z-[999] left-0 right-0 bg-gradient-to-r from-primary to-primary/90 text-white shadow-lg  animate-slideDown"
       dir={direction}
     >
       <div className="flex items-center justify-between p-3 max-w-screen-xl mx-auto">
