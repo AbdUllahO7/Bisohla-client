@@ -1449,6 +1449,8 @@
   "smartAppBanner" : {
     "openButton": "Open",
     "closeAriaLabel":"Close",
-    "dontShowAgain":"dontShowAgain"
+    "dontShowAgain":"dontShowAgain",
+    "title":"Bishola",
+    "description":"Open the application"
   }
 }

@@ -68,7 +68,7 @@ export default function SmartAppBanner() {
 
   return (
     <div 
-      className="fixed top-0 left-0 right-0 bg-gradient-to-r from-primary to-primary/90 text-white shadow-lg z-50 animate-slideDown"
+      className="fixed top-[100px] left-0 right-0 bg-gradient-to-r from-primary to-primary/90 text-white shadow-lg z-50 animate-slideDown"
       dir={direction}
     >
       <div className="flex items-center justify-between p-3 max-w-screen-xl mx-auto">
@@ -92,7 +92,7 @@ export default function SmartAppBanner() {
             onClick={handleOpenApp}
             className="bg-white text-primary px-5 py-2 rounded-lg font-bold text-sm hover:bg-gray-100 transition-colors shadow-md"
           >
-            {t('openButton')}
+            <p className="text-xs opacity-90 mt-0.5">{t('description')}</p>
           </button>
           
           <button 

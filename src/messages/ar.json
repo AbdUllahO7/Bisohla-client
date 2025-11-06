@@ -1406,9 +1406,11 @@
     "instagramCopyMessage": "تم نسخ الرابط! افتح إنستغرام والصق الرابط في قصتك أو منشورك.",
     "instagramShareMessage": "انسخ هذا الرابط وشاركه على إنستغرام"
   },
-  "smartApp Banner": { 
+  "smartAppBanner": { 
     "open Button": "إفتح", 
     "closeAriaLabel":"إغلاق", 
-    "dontShowAgain":"لا تظهر مرة أخرى" 
+    "dontShowAgain":"لا تظهر مرة أخرى" ,
+    "title":"تطبيق بسهولة",
+    "description":"قم بفتح التطبيق"
   }
 }
