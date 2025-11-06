@@ -1405,5 +1405,10 @@
     "whatsapp": "واتساب",
     "instagramCopyMessage": "تم نسخ الرابط! افتح إنستغرام والصق الرابط في قصتك أو منشورك.",
     "instagramShareMessage": "انسخ هذا الرابط وشاركه على إنستغرام"
+  },
+  "smartApp Banner": { 
+    "open Button": "إفتح", 
+    "closeAriaLabel":"إغلاق", 
+    "dontShowAgain":"لا تظهر مرة أخرى" 
   }
 }

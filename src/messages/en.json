@@ -1445,5 +1445,10 @@
     "whatsapp": "WhatsApp",
     "instagramCopyMessage": "Link copied! Open Instagram and paste the link in your story or post.",
     "instagramShareMessage": "Copy this link and share it on Instagram"
+  },
+  "smartAppBanner" : {
+    "openButton": "Open",
+    "closeAriaLabel":"Close",
+    "dontShowAgain":"dontShowAgain"
   }
 }
