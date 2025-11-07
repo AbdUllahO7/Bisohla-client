@@ -108,9 +108,7 @@ const FloatingShareButton: React.FC<FloatingShareButtonProps> = ({
     incrementSharesCount.mutate(
       { carListingId },
       {
-        onSuccess: () => {
-          console.log(`✅ Share tracked for platform: ${platform}`);
-        },
+      
         onError: (error) => {
           console.error('❌ Failed to track share:', error);
         },

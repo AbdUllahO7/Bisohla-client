@@ -17,19 +17,15 @@ export const useIncrementViewCount = () =>
     IncrementCountDto
   >({
     mutationFn: async (dto) => {
-      console.log('[Hook] Starting mutation with dto:', dto);
       const result = await incrementViewCount(dto);
-      console.log('[Hook] Mutation result:', result);
       return result;
     },
     onSuccess: (data) => {
-      console.log('[Hook] Mutation succeeded:', data);
     },
     onError: (error) => {
       console.error('[Hook] Failed to increment view count:', error);
     },
     onSettled: () => {
-      console.log('[Hook] Mutation settled');
     },
   });
 

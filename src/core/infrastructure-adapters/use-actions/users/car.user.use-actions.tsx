@@ -136,9 +136,7 @@ export const useDeleteCarListing = () =>
     mutationFn: async ({ id, dto }) => {
       return await updateCarListingSaveStatus(id, dto);
     },
-    onSuccess: () => {
-      console.log('Save status updated successfully');
-    },
+
     onError: (error) => {
       console.error('Failed to update save status:', error);
     },

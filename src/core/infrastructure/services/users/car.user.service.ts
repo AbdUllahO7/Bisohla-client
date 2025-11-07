@@ -23,6 +23,7 @@ import {
   deleteAuthReq,
   getAuthReq,
   postAuthReq,
+  postReq,
   putAuthReq,
 } from '@/core/lib/api';
 
@@ -154,21 +155,19 @@ export class CarUserService implements ICarUserService {
   async incrementViewCount(
     dto: IncrementCountDto,
   ): Promise<ApiResponse<SuccessResponseWithNoContent>> {
-    console.log('[Service] incrementViewCount called with:', dto);
     
-    const res = await postAuthReq<IncrementCountDto, SuccessResponseWithNoContent>({
+    const res = await postReq<IncrementCountDto, SuccessResponseWithNoContent>({
       url: '/car-listing-statics-visitor/increment-view-count',
       body: dto,
     });
 
-    console.log('[Service] incrementViewCount response:', res);
     return res;
   }
 
   async incrementContactCount(
     dto: IncrementCountDto,
   ): Promise<ApiResponse<SuccessResponseWithNoContent>> {
-    const res = await postAuthReq<IncrementCountDto, SuccessResponseWithNoContent>({
+    const res = await postReq<IncrementCountDto, SuccessResponseWithNoContent>({
       url: '/car-listing-statics-visitor/increment-contact-count',
       body: dto,
     });
@@ -178,7 +177,7 @@ export class CarUserService implements ICarUserService {
   async incrementSharesCount(
     dto: IncrementCountDto,
   ): Promise<ApiResponse<SuccessResponseWithNoContent>> {
-    const res = await postAuthReq<IncrementCountDto, SuccessResponseWithNoContent>({
+    const res = await postReq<IncrementCountDto, SuccessResponseWithNoContent>({
       url: '/car-listing-statics-visitor/increment-shares-count',
       body: dto,
     });
@@ -189,7 +188,7 @@ export class CarUserService implements ICarUserService {
   async incrementDetailsViewedCount(
     dto: IncrementCountDto,
   ): Promise<ApiResponse<SuccessResponseWithNoContent>> {
-    const res = await postAuthReq<IncrementCountDto, SuccessResponseWithNoContent>({
+    const res = await postReq<IncrementCountDto, SuccessResponseWithNoContent>({
       url: '/car-listing-statics-visitor/increment-details-viewed-count',
       body: dto,
     });
@@ -200,7 +199,7 @@ export class CarUserService implements ICarUserService {
   async updateViewDuration(
     dto: UpdateViewDurationDto,
   ): Promise<ApiResponse<SuccessResponseWithNoContent>> {
-    const res = await postAuthReq<UpdateViewDurationDto, SuccessResponseWithNoContent>({
+    const res = await postReq<UpdateViewDurationDto, SuccessResponseWithNoContent>({
       url: '/car-listing-statics-visitor/update-view-duration',
       body: dto,
     });

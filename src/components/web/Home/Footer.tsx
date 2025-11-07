@@ -20,7 +20,6 @@ const Footer = ({ isUserProfile }: { isUserProfile?: boolean }) => {
   const playStoreUrl = getAppSettings()?.app_info?.play_store_url;
   const socialLinks = getSocialLinks();
 
-  console.log('SOCIAL LINKS: ', socialLinks);
 
   return (
     <Box

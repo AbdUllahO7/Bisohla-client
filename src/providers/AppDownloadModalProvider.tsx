@@ -11,23 +11,18 @@ export default function AppDownloadModalProvider() {
   const [showAppModal, setShowAppModal] = useState(false);
 
   useEffect(() => {
-    console.log('🎯 Checking if modal should show...');
     
     // Only check if user opted out
     const skipAppDownload = localStorage.getItem('skipAppDownload');
     
     if (!skipAppDownload) {
-      console.log('✅ No skip flag, showing modal in 3 seconds...');
       
       // Show modal after delay
       const timer = setTimeout(() => {
-        console.log('🚀 Showing modal!');
         setShowAppModal(true);
       }, 3000); // 3 second delay
       
       return () => clearTimeout(timer);
-    } else {
-      console.log('⏭️ User opted out, not showing modal');
     }
   }, []);
 

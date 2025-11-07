@@ -34,12 +34,6 @@ const MobileProductClient = ({
 }: ProductClientProps) => {
   const carData = carDataRes.data;
 
-  console.log('🎬 [MOBILE] MobileProductClient rendered', { 
-    carId: carData?.id, 
-    carTitle: carData?.title,
-    isAuthenticated,
-    locale 
-  });
 
   // Statistics tracking hooks
   const incrementViewCount = useIncrementViewCount();
@@ -59,24 +53,15 @@ const MobileProductClient = ({
 
   // 📊 TRACKING 1: Track basic page view count on mount (once per visit)
   useEffect(() => {
-    console.log('🔍 client [MOBILE] TRACKING 1 Effect running', { 
-      hasCarId: !!carData?.id, 
-      carId: carData?.id,
-      hasTrackedView,
-      incrementViewCountReady: !!incrementViewCount
-    });
 
     if (carData?.id && !hasTrackedView) {
-      console.log('🚀 [MOBILE] Sending view count request...', { carListingId: carData.id });
       incrementViewCount.mutate(
         { carListingId: carData.id },
         {
           onSuccess: () => {
-            console.log('✅ [MOBILE] View count tracked');
             setHasTrackedView(true);
           },
           onError: (error) => {
-            console.error('❌ [MOBILE] Failed to track view count:', error);
             setHasTrackedView(true);
           },
         }
@@ -84,7 +69,6 @@ const MobileProductClient = ({
 
       // Start tracking view duration
       setViewStartTime(Date.now());
-      console.log('⏱️ [MOBILE] View duration timer started');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [carData?.id, hasTrackedView]);
@@ -92,24 +76,16 @@ const MobileProductClient = ({
   // 📊 TRACKING 2: Track details viewed count on mount (once per visit)
   // This tracks when a user actually visits and views the product details page
   useEffect(() => {
-    console.log('🔍 [MOBILE] TRACKING 2 Effect running', { 
-      hasCarId: !!carData?.id, 
-      carId: carData?.id,
-      hasTrackedDetailsViewed,
-      incrementDetailsViewedCountReady: !!incrementDetailsViewedCount
-    });
+   
 
     if (carData?.id && !hasTrackedDetailsViewed) {
-      console.log('🚀 [MOBILE] Sending details viewed count request...', { carListingId: carData.id });
       incrementDetailsViewedCount.mutate(
         { carListingId: carData.id },
         {
           onSuccess: () => {
-            console.log('✅ [MOBILE] Details viewed count tracked');
             setHasTrackedDetailsViewed(true);
           },
           onError: (error) => {
-            console.error('❌ [MOBILE] Failed to track details viewed count:', error);
             setHasTrackedDetailsViewed(true);
           },
         }
@@ -120,37 +96,24 @@ const MobileProductClient = ({
 
   // 📊 TRACKING 3: Track view duration periodically and on unmount
   useEffect(() => {
-    console.log('🔍 [MOBILE] TRACKING 3 Effect running', { 
-      hasViewStartTime: !!viewStartTime, 
-      viewStartTime,
-      hasCarId: !!carData?.id,
-      carId: carData?.id,
-      updateViewDurationReady: !!updateViewDuration
-    });
+  
 
     if (!viewStartTime || !carData?.id) {
-      console.log('⚠️ [MOBILE] View duration tracking skipped - missing data');
       return;
     }
 
-    console.log('✅ [MOBILE] View duration tracking started');
 
     // Send duration every 30 seconds
     const interval = setInterval(() => {
       const durationInSeconds = Math.floor((Date.now() - viewStartTime) / 1000);
       if (durationInSeconds > 0) {
-        console.log('🚀 [MOBILE] Sending view duration update request...', { 
-          carListingId: carData.id, 
-          durationInSeconds 
-        });
+      
         updateViewDuration.mutate(
           { carListingId: carData.id, durationInSeconds },
           {
             onSuccess: () => {
-              console.log(`✅ [MOBILE] View duration updated: ${durationInSeconds}s`);
               // 🔄 Reset timer to 0 after sending request
               setViewStartTime(Date.now());
-              console.log('🔄 [MOBILE] Timer reset to 0, starting again...');
             },
             onError: (error) => {
               console.error('❌ [MOBILE] Failed to update view duration:', error);
@@ -162,20 +125,15 @@ const MobileProductClient = ({
 
     // Send final duration on unmount
     return () => {
-      console.log('🧹 [MOBILE] View duration cleanup running');
       clearInterval(interval);
 
       const finalDuration = Math.floor((Date.now() - viewStartTime) / 1000);
       if (finalDuration > 0) {
-        console.log('🚀 [MOBILE] Sending final view duration request...', { 
-          carListingId: carData.id, 
-          durationInSeconds: finalDuration 
-        });
+
         updateViewDuration.mutate({
           carListingId: carData.id,
           durationInSeconds: finalDuration,
         });
-        console.log(`✅ [MOBILE] Final view duration: ${finalDuration}s`);
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -184,7 +142,6 @@ const MobileProductClient = ({
   // 🔄 RESET: Reset all tracking states on unmount
   useEffect(() => {
     return () => {
-      console.log('🔄 [MOBILE] Resetting all tracking states on unmount');
       setHasTrackedView(false);
       setHasTrackedContact(false);
       setHasTrackedDetailsViewed(false);
@@ -194,20 +151,13 @@ const MobileProductClient = ({
 
   // 📊 TRACKING 4: Track contact button clicks
   const handleContactClick = () => {
-    console.log('🔍 [MOBILE] Contact button clicked', { 
-      hasCarId: !!carData?.id,
-      carId: carData?.id,
-      hasTrackedContact,
-      incrementContactCountReady: !!incrementContactCount
-    });
+
 
     if (carData?.id && !hasTrackedContact) {
-      console.log('🚀 [MOBILE] Sending contact count request...', { carListingId: carData.id });
       incrementContactCount.mutate(
         { carListingId: carData.id },
         {
           onSuccess: () => {
-            console.log('✅ [MOBILE] Contact count tracked');
             setHasTrackedContact(true);
           },
           onError: (error) => {
@@ -216,11 +166,7 @@ const MobileProductClient = ({
           },
         }
       );
-    } else {
-      console.log('⚠️ [MOBILE] Contact click not tracked', {
-        reason: !carData?.id ? 'No car ID' : 'Already tracked'
-      });
-    }
+    } 
   };
 
   if (!carData) {

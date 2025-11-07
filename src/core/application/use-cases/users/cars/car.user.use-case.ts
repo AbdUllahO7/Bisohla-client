@@ -89,7 +89,6 @@ export class CarUserUseCase implements ICarUserUseCase {
   async incrementViewCount(
     dto: IncrementCountDto,
   ): Promise<ApiResponse<SuccessResponseWithNoContent>> {
-    console.log('[UseCase] incrementViewCount called with:', dto);
     return await this.carUserStrategy.incrementViewCount(dto);
   }
 

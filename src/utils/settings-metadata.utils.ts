@@ -167,12 +167,7 @@ function extractSEOData(
     secondary_color: general.appearance?.secondary_color || '#10b981',
   };
 
-  console.log('🎨 Favicon info:', {
-    faviconFromSettings: general.appearance?.favicon,
-    finalFavicon: siteInfo.favicon,
-    hasGeneralAppearance: !!general.appearance,
-    locale,
-  });
+
 
   return {
     general,

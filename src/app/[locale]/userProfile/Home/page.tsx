@@ -28,7 +28,6 @@ const UserHomePage = () => {
   // Use the hook to fetch user profile data
   const { data, isLoading, error } = useGetMyProfile()
   const userProfile = data?.data
-  console.log("UserHomePage - userProfile:", userProfile)
 
   // Handle client-side mounting to prevent hydration mismatch
   useEffect(() => {

@@ -50,16 +50,13 @@ const ProductClient = ({
   // 📊 TRACKING 1: Track basic page view count on mount (once per visit)
   useEffect(() => {
     if (carData?.id && !hasTrackedView) {
-      console.log('🚀 [DESKTOP] Sending view count request...', { carListingId: carData.id });
       incrementViewCount.mutate(
         { carListingId: carData.id },
         {
           onSuccess: () => {
-            console.log('✅ [DESKTOP] View count tracked');
             setHasTrackedView(true);
           },
           onError: (error) => {
-            console.error('❌ [DESKTOP] Failed to track view count:', error);
             setHasTrackedView(true);
           },
         }
@@ -75,16 +72,13 @@ const ProductClient = ({
   // This tracks when a user actually visits and views the product details page
   useEffect(() => {
     if (carData?.id && !hasTrackedDetailsViewed) {
-      console.log('🚀 [DESKTOP] Sending details viewed count request...', { carListingId: carData.id });
       incrementDetailsViewedCount.mutate(
         { carListingId: carData.id },
         {
           onSuccess: () => {
-            console.log('✅ [DESKTOP] Details viewed count tracked');
             setHasTrackedDetailsViewed(true);
           },
           onError: (error) => {
-            console.error('❌ [DESKTOP] Failed to track details viewed count:', error);
             setHasTrackedDetailsViewed(true);
           },
         }
@@ -101,18 +95,13 @@ const ProductClient = ({
     const interval = setInterval(() => {
       const durationInSeconds = Math.floor((Date.now() - viewStartTime) / 1000);
       if (durationInSeconds > 0) {
-        console.log('🚀 [DESKTOP] Sending view duration update request...', { 
-          carListingId: carData.id, 
-          durationInSeconds 
-        });
+   
         updateViewDuration.mutate(
           { carListingId: carData.id, durationInSeconds },
           {
             onSuccess: () => {
-              console.log(`✅ [DESKTOP] View duration updated: ${durationInSeconds}s`);
               // 🔄 Reset timer to 0 after sending request
               setViewStartTime(Date.now());
-              console.log('🔄 [DESKTOP] Timer reset to 0, starting again...');
             },
             onError: (error) => {
               console.error('❌ [DESKTOP] Failed to update view duration:', error);
@@ -128,15 +117,11 @@ const ProductClient = ({
 
       const finalDuration = Math.floor((Date.now() - viewStartTime) / 1000);
       if (finalDuration > 0) {
-        console.log('🚀 [DESKTOP] Sending final view duration request...', { 
-          carListingId: carData.id, 
-          durationInSeconds: finalDuration 
-        });
+    
         updateViewDuration.mutate({
           carListingId: carData.id,
           durationInSeconds: finalDuration,
         });
-        console.log(`✅ [DESKTOP] Final view duration: ${finalDuration}s`);
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -145,7 +130,6 @@ const ProductClient = ({
   // 🔄 RESET: Reset all tracking states on unmount
   useEffect(() => {
     return () => {
-      console.log('🔄 [DESKTOP] Resetting all tracking states on unmount');
       setHasTrackedView(false);
       setHasTrackedContact(false);
       setHasTrackedDetailsViewed(false);
@@ -156,16 +140,13 @@ const ProductClient = ({
   // 📊 TRACKING 4: Track contact button clicks
   const handleContactClick = () => {
     if (carData?.id && !hasTrackedContact) {
-      console.log('🚀 [DESKTOP] Sending contact count request...', { carListingId: carData.id });
       incrementContactCount.mutate(
         { carListingId: carData.id },
         {
           onSuccess: () => {
-            console.log('✅ [DESKTOP] Contact count tracked');
             setHasTrackedContact(true);
           },
           onError: (error) => {
-            console.error('❌ [DESKTOP] Failed to track contact count:', error);
             setHasTrackedContact(true);
           },
         }
