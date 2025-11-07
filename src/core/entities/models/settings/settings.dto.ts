@@ -1,5 +1,9 @@
 // Settings types for website consumption
 
+// ============================================================================
+// SETTINGS STRUCTURE TYPES
+// ============================================================================
+
 export interface GeneralSettings {
   site_info?: {
     site_name?: string;
@@ -47,6 +51,14 @@ export interface GeneralSettings {
     whatsapp_image?: string;
   };
 }
+
+export interface AuthenticationSettings {
+  auth_providers?: {
+    enable_google_oauth?: boolean;
+    enable_facebook_oauth?: boolean;
+  };
+}
+
 export interface PageSEOData {
   meta_title?: string;
   meta_description?: string;
@@ -61,6 +73,7 @@ export interface PageSEOData {
   canonical_url?: string;
   focus_keyword?: string;
 }
+
 export interface SEOSettings {
   home_page?: PageSEOData;
   products_page?: PageSEOData;
@@ -112,14 +125,37 @@ export interface AppSettings {
     maintenance_start_time?: string;
     maintenance_end_time?: string;
   };
+  security?: {
+    session_timeout?: number;
+    max_login_attempts?: number;
+    password_reset_expiry?: number;
+  };
+  performance?: {
+    api_rate_limit?: number;
+    cache_duration?: number;
+    max_file_size?: number;
+  };
+}
+
+export interface ThirdPartyIntegrations {
+  google_auth?: {
+    google_client_id?: string;
+    google_client_secret?: string;
+    google_callback_url?: string;
+  };
+}
+
+// Main settings structure combining all sections
+export interface SettingsData {
+  general?: GeneralSettings;
+  authentication?: AuthenticationSettings;
+  seo_settings?: SEOSettings;
+  app_settings?: AppSettings;
+  third_party_integrations?: ThirdPartyIntegrations;
 }
 
 export interface Settings {
-  [locale: string]: {
-    general?: GeneralSettings;
-    seo_settings?: SEOSettings;
-    app_settings?: AppSettings;
-  };
+  [locale: string]: SettingsData;
 }
 
 export interface SettingsVersion {
@@ -127,61 +163,27 @@ export interface SettingsVersion {
   timestamp: number;
 }
 
-// Utility types for accessing specific parts of settings
-export type SettingsPath =
-  | 'general.site_info.site_name'
-  | 'general.site_info.site_description'
-  | 'general.site_info.copyright_message'
-  | 'general.contact_info.email'
-  | 'general.contact_info.phone'
-  | 'general.contact_info.address'
-  | 'general.appearance.logo'
-  | 'general.appearance.favicon'
-  | 'general.appearance.primary_color'
-  | 'general.appearance.secondary_color'
-  | 'seo_settings.home_page.meta_title'
-  | 'seo_settings.home_page.meta_description'
-  | 'seo_settings.home_page.og_title'
-  | 'seo_settings.home_page.og_description'
-  | 'seo_settings.home_page.og_image'
-  | 'seo_settings.products_page.meta_title'
-  | 'seo_settings.products_page.meta_description'
-  | 'seo_settings.global_seo.site_name'
-  | 'seo_settings.global_seo.google_analytics_id'
-  | 'seo_settings.global_seo.facebook_pixel_id'
-  | 'app_settings.maintenance.maintenance_mode'
-  | 'app_settings.maintenance.maintenance_message';
+// ============================================================================
+// TYPE-SAFE SETTINGS ACCESS - AUTO-INFERRED FROM STRUCTURE
+// ============================================================================
 
-// Page-specific SEO settings
-export type SEOPageType = 'home_page' | 'products_page' | 'product_detail_page';
+// Extract keys automatically from SettingsData
+export type SettingsKey = keyof SettingsData;
 
-export interface GlobalSEOData {
-  default_og_image?: string;
-  default_twitter_image?: string;
-  twitter_handle?: string;
-  facebook_app_id?: string;
-  google_site_verification?: string;
-  bing_site_verification?: string;
-  canonical_base_url?: string;
-  robots_txt_content?: string;
-  google_analytics_id?: string;
-  google_tag_manager_id?: string;
-  facebook_pixel_id?: string;
-  schema_org_type?: string;
-  organization_name?: string;
-  organization_logo?: string;
-  default_author?: string;
-  sitemap_enabled?: boolean;
-  breadcrumbs_enabled?: boolean;
-  og_locale?: string;
-  twitter_card_type?: string;
-}
+// Extract subkeys for a given settings key
+export type SettingsSubKey<K extends SettingsKey> = keyof NonNullable<
+  SettingsData[K]
+>;
 
-export interface SiteInfoData {
-  site_name?: string;
-  site_description?: string;
-  logo?: string;
-  favicon?: string;
-  primary_color?: string;
-  secondary_color?: string;
-}
+// Extract fields for a given key and subkey
+export type SettingsField<
+  K extends SettingsKey,
+  SK extends SettingsSubKey<K>,
+> = keyof NonNullable<NonNullable<SettingsData[K]>[SK]>;
+
+// Get the value type for a specific field
+export type SettingsFieldValue<
+  K extends SettingsKey,
+  SK extends SettingsSubKey<K>,
+  F extends SettingsField<K, SK>,
+> = NonNullable<NonNullable<SettingsData[K]>[SK]>[F];

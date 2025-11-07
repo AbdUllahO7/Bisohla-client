@@ -21,11 +21,6 @@ export const useUpdateLocale = () => {
 
       return res;
     },
-    onSuccess: () => {
-      console.log('user locale updated successfully');
-    },
-    onError: (error) => {
-      console.log('failed to update user locale: ', error);
-    },
+   
   });
 };

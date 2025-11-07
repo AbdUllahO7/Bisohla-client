@@ -100,7 +100,6 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
         if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
           // Use a timeout to ensure the card is viewed for at least 1 second
           const timeoutId = setTimeout(() => {
-            console.log('[View Tracking] Card visible, tracking view for ProductId:', ProductId);
             
             // Check if mutation is not already pending
             if (!incrementViewCount.isPending) {
@@ -108,7 +107,6 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
                 { carListingId: Number(ProductId) },
                 {
                   onSuccess: (data) => {
-                    console.log('[View Tracking] Successfully tracked view for ProductId:', ProductId, data);
                     setHasTrackedView(true);
                   },
                   onError: (error) => {
@@ -116,13 +114,9 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
                     // Still mark as tracked to prevent retry loops
                     setHasTrackedView(true);
                   },
-                  onSettled: () => {
-                    console.log('[View Tracking] Mutation settled for ProductId:', ProductId);
-                  }
+                
                 }
               );
-            } else {
-              console.log('[View Tracking] Mutation is pending, skipping for ProductId:', ProductId);
             }
             
             // Disconnect observer after tracking
@@ -150,7 +144,6 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
   useEffect(() => {
     // Check if Intersection Observer is supported
     if (!window.IntersectionObserver && enableViewTracking && ProductId && !hasTrackedView) {
-      console.log('[View Tracking Fallback] Using fallback method for ProductId:', ProductId);
       
       // Small delay to ensure component is fully mounted
       const timeoutId = setTimeout(() => {
@@ -159,7 +152,6 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
             { carListingId: Number(ProductId) },
             {
               onSuccess: () => {
-                console.log('[View Tracking Fallback] Successfully tracked view');
                 setHasTrackedView(true);
               },
               onError: (error) => {
@@ -260,13 +252,9 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
   // Manual test function for debugging (remove in production)
   const handleManualViewTrack = () => {
     if (ProductId) {
-      console.log('[Manual Test] Triggering view count for ProductId:', ProductId);
       incrementViewCount.mutate(
         { carListingId: Number(ProductId) },
-        {
-          onSuccess: (data) => console.log('[Manual Test] Success:', data),
-          onError: (error) => console.error('[Manual Test] Error:', error),
-        }
+       
       );
     }
   };

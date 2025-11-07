@@ -8,9 +8,6 @@ import {
   Settings,
   SettingsVersion,
   PageSEOData,
-  GlobalSEOData,
-  SiteInfoData,
-  SEOPageType,
 } from '@/core/entities/models/settings/settings.dto';
 import { useLocaleQuery } from '../common/use-locale-query';
 

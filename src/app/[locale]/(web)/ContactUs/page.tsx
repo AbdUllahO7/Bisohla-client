@@ -1,16 +1,34 @@
 'use client';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Mail, Phone, MapPin, Clock, Send } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
+import { useSettings } from '@/providers/settings.provider';
 
 const ContactUs: React.FC = () => {
   const t = useTranslations('contactPage');
+  const { getSetting, getLogo } = useSettings();
   
-  const contactInfo = {
-    email: 'bishola4h@gmail.com',
-    phones: ['+905389370863', '+905318673917']
-  };
+  const contactInfo = useMemo(() => {
+    const email = getSetting('general', 'contact_info', 'email') || 'bishola4h@gmail.com';
+    const phoneFromSettings = getSetting('general', 'contact_info', 'phone');
+    const address = getSetting('general', 'contact_info', 'address');
+    
+    // Handle phone - could be single string or comma-separated
+    const phones = phoneFromSettings 
+      ? phoneFromSettings.includes(',')
+        ? phoneFromSettings.split(',').map(p => p.trim())
+        : [phoneFromSettings]
+      : ['+905389370863', '+905318673917'];
+    
+    return {
+      email,
+      phones,
+      address
+    };
+  }, [getSetting]);
+
+  const logo = getLogo();
 
   return (
     <div className="min-h-screen relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #2C3C39 0%, #198341 100%)' }}>
@@ -41,14 +59,14 @@ const ContactUs: React.FC = () => {
                 <div className="relative z-10">
                   {/* Logo */}
                   <div className="mb-8 animate-fadeIn">
-                    <div className="inline-block p-3 rounded-2xl backdrop-blur-sm" 
+                    <div className="inline-block p-3 rounded-2xl " 
                          style={{ backgroundColor: 'rgba(171, 222, 59, 0.2)' }}>
                       <Image
-                        src="/assets/images/logo/bisholaLogo2.jpg"
+                        src={logo}
                         alt="Logo"
                         width={80}
                         height={80}
-                        className="h-16 w-auto sm:h-20 rounded-xl shadow-lg"
+                        className="h-16 w-auto sm:h-20 rounded-xl "
                         priority
                         onError={(e) => {
                           console.error('Failed to load logo image');
@@ -81,18 +99,24 @@ const ContactUs: React.FC = () => {
 
                   {/* Additional Info */}
                   <div className="space-y-4 animate-fadeIn" style={{ animationDelay: '0.4s' }}>
-                    <div className="flex items-center gap-3 text-white/80">
-                      <MapPin className="w-5 h-5" style={{ color: '#ABDE3B' }} />
-                      <span>Available Worldwide</span>
-                    </div>
+                    {contactInfo.address && (
+                      <div className="flex items-center gap-3 text-white/80">
+                        <MapPin className="w-5 h-5" style={{ color: '#ABDE3B' }} />
+                        <span>{contactInfo.address}</span>
+                      </div>
+                    )}
+                    {!contactInfo.address && (
+                      <div className="flex items-center gap-3 text-white/80">
+                        <MapPin className="w-5 h-5" style={{ color: '#ABDE3B' }} />
+                        <span>Available Worldwide</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
 
               {/* Right Side - Contact Details */}
               <div className="p-8 sm:p-12 bg-gradient-to-br from-gray-50 to-white">
-               
-
                 <div className="space-y-6">
                   {/* Email Card */}
                   <div className="group relative">
@@ -139,7 +163,7 @@ const ContactUs: React.FC = () => {
                             {t('phone.label')}
                           </h3>
                           <div className="space-y-2">
-                            {contactInfo.phones.map((phone, index) => (
+                            {contactInfo.phones.map((phone: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined, index: React.Key | null | undefined) => (
                               <a
                                 key={index}
                                 href={`tel:${phone}`}

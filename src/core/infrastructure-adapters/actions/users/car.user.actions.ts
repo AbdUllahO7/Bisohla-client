@@ -136,14 +136,11 @@ export const getMyCarById = async (
 export const incrementViewCount = async (
   dto: IncrementCountDto,
 ): Promise<ApiResponse<SuccessResponseWithNoContent>> => {
-  console.log('[Action] incrementViewCount called with dto:', dto);
   
   try {
     const carListingController = getInjection('ICarUserController');
-    console.log('[Action] Controller obtained:', !!carListingController);
     
     const res = await carListingController.incrementViewCount(dto);
-    console.log('[Action] incrementViewCount result:', res);
     
     return res;
   } catch (error) {

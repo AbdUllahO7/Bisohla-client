@@ -16,11 +16,10 @@ const Footer = ({ isUserProfile }: { isUserProfile?: boolean }) => {
   const { getCopyrightMessage, isLoading, getAppSettings, getSocialLinks } =
     useSettings();
 
-  const appStoreUrl = getAppSettings().app_info?.app_store_url;
-  const playStoreUrl = getAppSettings().app_info?.play_store_url;
+  const appStoreUrl = getAppSettings()?.app_info?.app_store_url;
+  const playStoreUrl = getAppSettings()?.app_info?.play_store_url;
   const socialLinks = getSocialLinks();
 
-  console.log('SOCIAL LINKS: ', socialLinks);
 
   return (
     <Box
@@ -225,7 +224,7 @@ const Footer = ({ isUserProfile }: { isUserProfile?: boolean }) => {
             </>
           ) : (
             <>
-              {socialLinks.tiktok_url && (
+              {socialLinks?.tiktok_url && (
                 <div>
                   <Link href={socialLinks.tiktok_url} target="_blank">
                     <Image
@@ -240,38 +239,40 @@ const Footer = ({ isUserProfile }: { isUserProfile?: boolean }) => {
                   </Link>
                 </div>
               )}
-              {socialLinks.instagram_url && (
+              {socialLinks?.instagram_url && (
                 <Link href={socialLinks.instagram_url} target="_blank">
                   <Image
                     src={
                       socialLinks.instagram_image ||
                       '/assets/icons/socialIcons/icons8-instagram-24.png'
                     }
-                    className=''
+                    className=""
                     alt="Instagram"
                     width={24}
                     height={24}
                   />
                 </Link>
               )}
-              {socialLinks.facebook_url && (
+              {socialLinks?.facebook_url && (
                 <Link href={socialLinks.facebook_url} target="_blank">
                   <Image
                     src={
-                      socialLinks.facebook_image || '/assets/icons/socialIcons/icons8-facebook-48.png'
+                      socialLinks.facebook_image ||
+                      '/assets/icons/socialIcons/icons8-facebook-48.png'
                     }
-                    className=''
+                    className=""
                     alt="Facebook"
                     width={20}
                     height={20}
                   />
                 </Link>
               )}
-              {socialLinks.youtube_url && (
+              {socialLinks?.youtube_url && (
                 <Link href={socialLinks.youtube_url} target="_blank">
                   <Image
                     src={
-                      socialLinks.youtube_image || '/assets/icons/socialIcons/icons8-youtube-24.png'
+                      socialLinks.youtube_image ||
+                      '/assets/icons/socialIcons/icons8-youtube-24.png'
                     }
                     alt="YouTube"
                     width={24}
@@ -279,7 +280,7 @@ const Footer = ({ isUserProfile }: { isUserProfile?: boolean }) => {
                   />
                 </Link>
               )}
-              {socialLinks.twitter_url && (
+              {socialLinks?.twitter_url && (
                 <Link href={socialLinks.twitter_url} target="_blank">
                   <Image
                     src={
@@ -291,11 +292,12 @@ const Footer = ({ isUserProfile }: { isUserProfile?: boolean }) => {
                   />
                 </Link>
               )}
-              {socialLinks.linkedin_url && (
+              {socialLinks?.linkedin_url && (
                 <Link href={socialLinks.linkedin_url} target="_blank">
                   <Image
                     src={
-                      socialLinks.linkedin_image || '/assets/icons/socialIcons/icons8-linkedin-24.png'
+                      socialLinks.linkedin_image ||
+                      '/assets/icons/socialIcons/icons8-linkedin-24.png'
                     }
                     alt="LinkedIn"
                     width={24}

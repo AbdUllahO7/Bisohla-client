@@ -34,6 +34,7 @@ const MobileProductClient = ({
 }: ProductClientProps) => {
   const carData = carDataRes.data;
 
+
   // Statistics tracking hooks
   const incrementViewCount = useIncrementViewCount();
   const incrementContactCount = useIncrementContactCount();
@@ -52,17 +53,15 @@ const MobileProductClient = ({
 
   // 📊 TRACKING 1: Track basic page view count on mount (once per visit)
   useEffect(() => {
+
     if (carData?.id && !hasTrackedView) {
-      console.log('🚀 [MOBILE] Sending view count request...', { carListingId: carData.id });
       incrementViewCount.mutate(
         { carListingId: carData.id },
         {
           onSuccess: () => {
-            console.log('✅ [MOBILE] View count tracked');
             setHasTrackedView(true);
           },
           onError: (error) => {
-            console.error('❌ [MOBILE] Failed to track view count:', error);
             setHasTrackedView(true);
           },
         }
@@ -77,17 +76,16 @@ const MobileProductClient = ({
   // 📊 TRACKING 2: Track details viewed count on mount (once per visit)
   // This tracks when a user actually visits and views the product details page
   useEffect(() => {
+   
+
     if (carData?.id && !hasTrackedDetailsViewed) {
-      console.log('🚀 [MOBILE] Sending details viewed count request...', { carListingId: carData.id });
       incrementDetailsViewedCount.mutate(
         { carListingId: carData.id },
         {
           onSuccess: () => {
-            console.log('✅ [MOBILE] Details viewed count tracked');
             setHasTrackedDetailsViewed(true);
           },
           onError: (error) => {
-            console.error('❌ [MOBILE] Failed to track details viewed count:', error);
             setHasTrackedDetailsViewed(true);
           },
         }
@@ -98,24 +96,24 @@ const MobileProductClient = ({
 
   // 📊 TRACKING 3: Track view duration periodically and on unmount
   useEffect(() => {
-    if (!viewStartTime || !carData?.id) return;
+  
+
+    if (!viewStartTime || !carData?.id) {
+      return;
+    }
+
 
     // Send duration every 30 seconds
     const interval = setInterval(() => {
       const durationInSeconds = Math.floor((Date.now() - viewStartTime) / 1000);
       if (durationInSeconds > 0) {
-        console.log('🚀 [MOBILE] Sending view duration update request...', { 
-          carListingId: carData.id, 
-          durationInSeconds 
-        });
+      
         updateViewDuration.mutate(
           { carListingId: carData.id, durationInSeconds },
           {
             onSuccess: () => {
-              console.log(`✅ [MOBILE] View duration updated: ${durationInSeconds}s`);
               // 🔄 Reset timer to 0 after sending request
               setViewStartTime(Date.now());
-              console.log('🔄 [MOBILE] Timer reset to 0, starting again...');
             },
             onError: (error) => {
               console.error('❌ [MOBILE] Failed to update view duration:', error);
@@ -131,15 +129,11 @@ const MobileProductClient = ({
 
       const finalDuration = Math.floor((Date.now() - viewStartTime) / 1000);
       if (finalDuration > 0) {
-        console.log('🚀 [MOBILE] Sending final view duration request...', { 
-          carListingId: carData.id, 
-          durationInSeconds: finalDuration 
-        });
+
         updateViewDuration.mutate({
           carListingId: carData.id,
           durationInSeconds: finalDuration,
         });
-        console.log(`✅ [MOBILE] Final view duration: ${finalDuration}s`);
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -148,7 +142,6 @@ const MobileProductClient = ({
   // 🔄 RESET: Reset all tracking states on unmount
   useEffect(() => {
     return () => {
-      console.log('🔄 [MOBILE] Resetting all tracking states on unmount');
       setHasTrackedView(false);
       setHasTrackedContact(false);
       setHasTrackedDetailsViewed(false);
@@ -158,13 +151,13 @@ const MobileProductClient = ({
 
   // 📊 TRACKING 4: Track contact button clicks
   const handleContactClick = () => {
+
+
     if (carData?.id && !hasTrackedContact) {
-      console.log('🚀 [MOBILE] Sending contact count request...', { carListingId: carData.id });
       incrementContactCount.mutate(
         { carListingId: carData.id },
         {
           onSuccess: () => {
-            console.log('✅ [MOBILE] Contact count tracked');
             setHasTrackedContact(true);
           },
           onError: (error) => {
@@ -173,7 +166,7 @@ const MobileProductClient = ({
           },
         }
       );
-    }
+    } 
   };
 
   if (!carData) {
