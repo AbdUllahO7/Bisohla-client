@@ -42,6 +42,9 @@ const ProductClient = ({
   const [hasTrackedContact, setHasTrackedContact] = useState(false);
   const [hasTrackedDetailsViewed, setHasTrackedDetailsViewed] = useState(false);
   const [viewStartTime, setViewStartTime] = useState<number | null>(null);
+  const [totalViewDuration, setTotalViewDuration] = useState(0); // Track total accumulated duration in seconds
+  
+  const MAX_TRACKING_DURATION = 600; 
 
   const [favoriteStatus, setFavoriteStatus] = useState(
     carData?.isFavorite ?? false,
@@ -68,7 +71,6 @@ const ProductClient = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [carData?.id, hasTrackedView]);
 
-  // 📊 TRACKING 2: Track details viewed count on mount (once per visit)
   // This tracks when a user actually visits and views the product details page
   useEffect(() => {
     if (carData?.id && !hasTrackedDetailsViewed) {
@@ -93,21 +95,41 @@ const ProductClient = ({
 
     // Send duration every 30 seconds
     const interval = setInterval(() => {
+      // Check if we've already reached max tracking duration
+      if (totalViewDuration >= MAX_TRACKING_DURATION) {
+        console.log('✅ [DESKTOP] Max tracking duration reached (10 minutes), stopping requests');
+        return;
+      }
+
       const durationInSeconds = Math.floor((Date.now() - viewStartTime) / 1000);
       if (durationInSeconds > 0) {
-   
-        updateViewDuration.mutate(
-          { carListingId: carData.id, durationInSeconds },
-          {
-            onSuccess: () => {
-              // 🔄 Reset timer to 0 after sending request
-              setViewStartTime(Date.now());
-            },
-            onError: (error) => {
-              console.error('❌ [DESKTOP] Failed to update view duration:', error);
-            },
-          }
-        );
+        // Calculate new total duration
+        const newTotalDuration = totalViewDuration + durationInSeconds;
+        
+        // Only send if we haven't exceeded the max duration
+        if (newTotalDuration <= MAX_TRACKING_DURATION) {
+          updateViewDuration.mutate(
+            { carListingId: carData.id, durationInSeconds },
+            {
+              onSuccess: () => {
+                // Update total accumulated duration
+                setTotalViewDuration(newTotalDuration);
+                // Reset timer to 0 after sending request
+                setViewStartTime(Date.now());
+                console.log(`📊 [DESKTOP] Updated view duration. Total: ${newTotalDuration}s / ${MAX_TRACKING_DURATION}s`);
+              },
+              onError: (error) => {
+                console.error('❌ [DESKTOP] Failed to update view duration:', error);
+                // Still update total duration even on error to prevent infinite retries
+                setTotalViewDuration(newTotalDuration);
+                setViewStartTime(Date.now());
+              },
+            }
+          );
+        } else {
+          console.log(`🛑 [DESKTOP] Reached max duration (${newTotalDuration}s). No more requests will be sent.`);
+          setTotalViewDuration(MAX_TRACKING_DURATION);
+        }
       }
     }, 30000);
 
@@ -115,17 +137,29 @@ const ProductClient = ({
     return () => {
       clearInterval(interval);
 
-      const finalDuration = Math.floor((Date.now() - viewStartTime) / 1000);
-      if (finalDuration > 0) {
-    
-        updateViewDuration.mutate({
-          carListingId: carData.id,
-          durationInSeconds: finalDuration,
-        });
+      // Only send final duration if we haven't reached max duration
+      if (totalViewDuration < MAX_TRACKING_DURATION) {
+        const finalDuration = Math.floor((Date.now() - viewStartTime) / 1000);
+        if (finalDuration > 0) {
+          const newTotalDuration = totalViewDuration + finalDuration;
+          
+          // Cap at max duration
+          const cappedDuration = Math.min(finalDuration, MAX_TRACKING_DURATION - totalViewDuration);
+          
+          if (cappedDuration > 0) {
+            updateViewDuration.mutate({
+              carListingId: carData.id,
+              durationInSeconds: cappedDuration,
+            });
+            console.log(`📊 [DESKTOP] Final duration sent: ${cappedDuration}s. Total: ${newTotalDuration}s`);
+          }
+        }
+      } else {
+        console.log('✅ [DESKTOP] Max duration already reached, skipping final duration update');
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [viewStartTime, carData?.id]);
+  }, [viewStartTime, carData?.id, totalViewDuration]);
 
   // 🔄 RESET: Reset all tracking states on unmount
   useEffect(() => {
@@ -134,6 +168,7 @@ const ProductClient = ({
       setHasTrackedContact(false);
       setHasTrackedDetailsViewed(false);
       setViewStartTime(null);
+      setTotalViewDuration(0);
     };
   }, []);
 
