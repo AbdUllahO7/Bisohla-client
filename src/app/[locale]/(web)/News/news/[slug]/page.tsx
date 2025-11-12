@@ -447,7 +447,7 @@ const NewsDetailPage: React.FC = () => {
 
           {/* Back Button */}
           <div className="flex justify-center pt-12 animate-fadeIn" style={{ animationDelay: '0.3s' }}>
-            <Link href={`/${locale}/news`}>
+            <Link href={`/${locale}/News`}>
               <button className="group/btn relative inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-primary to-primary-light text-white rounded-2xl font-bold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
                 <div className="absolute inset-0 bg-white/20 rounded-2xl blur-xl opacity-0 group-hover/btn:opacity-100 transition-opacity"></div>
                 <ArrowLeft className="w-5 h-5 relative transform group-hover/btn:-translate-x-1 transition-transform" />

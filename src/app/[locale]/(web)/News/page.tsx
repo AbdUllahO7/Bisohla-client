@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Box from '@/components/box/box';
 import Text from '@/components/text/text';
 import { useLocale, useTranslations } from 'next-intl';
+// <<< FIX: No change here, just noting Search is already imported >>>
 import { Search, Filter, Newspaper, X, TrendingUp, Sparkles, ArrowRight } from 'lucide-react';
 import { useGetNewsArticles, useGetNewsCategories } from '@/hooks/use-news';
 import Pagination from '@/components/Pagination';
@@ -21,6 +22,7 @@ const AllNewsPage: React.FC = () => {
   const [showFilters, setShowFilters] = useState(false);
   const pageSize = 9;
 
+  // ... (rest of your component logic is correct) ...
   // Fetch news articles
   const { data: newsData, isLoading: newsLoading } = useGetNewsArticles({
     page: currentPage,
@@ -76,7 +78,7 @@ const AllNewsPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Hero Section - Matching Privacy Policy Style */}
+      {/* ... (rest of your Hero section) ... */}
       <div className="relative overflow-hidden bg-gradient-to-br from-primary via-primary to-primary-light">
         {/* Decorative Elements */}
         <div className="absolute top-0 right-0 w-96 h-96 bg-primary-foreground rounded-full opacity-10"
@@ -127,6 +129,7 @@ const AllNewsPage: React.FC = () => {
         </div>
       </div>
 
+
       <div className="relative bg-gradient-to-b from-gray-50 to-white py-20">
         <div className="container mx-auto px-4 max-w-7xl">
           {/* Search and Filters */}
@@ -152,29 +155,41 @@ const AllNewsPage: React.FC = () => {
                   
                   <button
                     type="submit"
-                    className="group/btn relative px-10 py-5 bg-gradient-to-r from-primary to-primary-light text-white rounded-2xl font-bold transition-all duration-300 transform hover:scale-105 flex items-center gap-2 whitespace-nowrap shadow-lg hover:shadow-2xl"
+                    // <<< FIX: 1. Changed px-10 to px-5 md:px-10 for responsive padding
+                    //          2. Added justify-center md:justify-start to center the icon on mobile
+                    className="group/btn relative px-5 md:px-10 py-5 bg-gradient-to-r from-primary to-primary-light text-white rounded-2xl font-bold transition-all duration-300 transform hover:scale-105 flex items-center justify-center md:justify-start gap-2 whitespace-nowrap shadow-lg hover:shadow-2xl"
                   >
                     <div className="absolute inset-0 bg-white/20 rounded-2xl blur-xl opacity-0 group-hover/btn:opacity-100 transition-opacity"></div>
-                    <span className="relative">{t('search')}</span>
-                    <ArrowRight className="w-5 h-5 relative" />
+                    
+                    {/* <<< FIX: Show Search icon ONLY on mobile (md:hidden) >>> */}
+                    <Search className="w-5 h-5 relative md:hidden" />
+                    
+                    {/* <<< FIX: Show "Search" text ONLY on desktop (hidden md:inline) >>> */}
+                    <span className="relative hidden md:inline">{t('search')}</span>
+                    
+                    {/* <<< FIX: Show ArrowRight icon ONLY on desktop (hidden md:inline) >>> */}
+                    <ArrowRight className="w-5 h-5 relative hidden md:inline" />
                   </button>
                   
                   <button
                     type="button"
                     onClick={() => setShowFilters(!showFilters)}
-                    className={`px-8 py-5 rounded-2xl font-bold transition-all duration-300 flex items-center gap-2 transform hover:scale-105 ${
+                    // <<< FIX: 1. Changed px-8 to px-5 md:px-8 for responsive padding
+                    //          2. Added justify-center md:justify-start to center the icon on mobile
+                    className={`px-5 md:px-8 py-5 rounded-2xl font-bold transition-all duration-300 flex items-center justify-center md:justify-start gap-2 transform hover:scale-105 ${
                       showFilters 
                         ? 'bg-gradient-to-r from-primary to-primary-light text-white shadow-xl' 
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                   >
                     <Filter className="w-5 h-5" />
+                    {/* This was already correct! */}
                     <span className="hidden md:inline">{t('filters')}</span>
                   </button>
                 </Box>
               </form>
 
-              {/* Filters Panel */}
+              {/* ... (rest of your component is correct) ... */}
               {showFilters && (
                 <Box variant="column" className="pt-6 border-t border-gray-200 animate-fadeIn">
                   <Box variant="row" className="items-center justify-between mb-6">
@@ -231,8 +246,8 @@ const AllNewsPage: React.FC = () => {
               )}
             </Box>
           </div>
-
-          {/* Active Filters Tags */}
+          
+          {/* ... (rest of your component is correct) ... */}
           {hasActiveFilters && (
             <Box variant="row" className="gap-3 mb-8 flex-wrap animate-fadeIn">
               {searchTerm && (
