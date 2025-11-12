@@ -13,6 +13,7 @@ import { createVisitorsModule } from './modules/visitors/visitor.module';
 import { createUsersModule } from './modules/users/users.module';
 import { createNotificationsModule } from './modules/notifications.module';
 
+
 const AppContainer = createContainer();
 
 AppContainer.load(Symbol('AuthModule'), createAuthModule());
@@ -29,6 +30,8 @@ AppContainer.load(Symbol('RolesRepoModule'), createRolesRepoModule());
 AppContainer.load(Symbol('CarsRepoModule'), createCarRepoModule());
 
 AppContainer.load(Symbol('VisitorsModule'), createVisitorsModule());
+
+AppContainer.load(Symbol('NewsVisitorModule'), createVisitorsModule());
 
 AppContainer.load(Symbol('UsersModule'), createUsersModule());
 

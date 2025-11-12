@@ -65,6 +65,7 @@ export interface HeaderTowProps {
     BrowseAll: string;
     Privacypolicy: string;
     ContactUs: string;
+    News:string
   };
 }
 

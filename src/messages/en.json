@@ -26,7 +26,8 @@
       "join": "Join",
       "BrowseAll": "Browse All",
       "Privacypolicy": "Privacy Policy",
-      "ContactUs": "Contact Us"
+      "ContactUs": "Contact Us",
+      "News":"News"
     },
     "hero": {
       "title": "Bishola",
@@ -1452,5 +1453,56 @@
     "dontShowAgain":"dontShowAgain",
     "title":"Bishola",
     "description":"Open the application"
+  },
+  "news": {
+    "latestNews": "Latest News",
+    "latestNewsDescription": "Stay updated with our latest articles and announcements",
+    "viewAllNews": "View All News",
+    "allNews": "All News",
+    "allNewsDescription": "Explore all our articles and stay informed about the latest updates",
+    "noNews": "No News Available",
+    "noNewsDescription": "Check back later for new articles and updates",
+    "errorLoading": "Error loading news. Please try again later.",
+    "searchPlaceholder": "Search news articles...",
+    "search": "Search",
+    "filters": "Filters",
+    "filterByCategory": "Filter by Category",
+    "allCategories": "All Categories",
+    "clearFilters": "Clear Filters",
+    "searchingFor": "Searching for",
+    "showingResults": "Showing {count} results",
+    "noResultsFound": "No Results Found",
+    "noResultsDescription": "We couldn't find any articles matching your search criteria. Try adjusting your filters or search terms.",
+    "readMore": "Read More",
+    "publishedOn": "Published on",
+    "views": "Views",
+    "relatedArticles": "Related Articles",
+    "shareArticle": "Share Article",
+    "categories": "Categories",
+    "tags": "Tags",
+    "author": "Author",
+    "readingTime": "min read",
+    "previous": "Previous",
+    "next": "Next",
+    "backToNews": "Back to News"
+    
+  },
+  "newsDetails": {
+     "home": "Home",
+    "news": "News",
+    "by": "By",
+    "minRead": "min read",
+    "views": "views",
+    "share": "Share",
+    "shareArticle": "Share this article",
+    "tags": "Tags",
+    "aboutAuthor": "About the Author",
+    "relatedArticles": "Related Articles",
+    "backToAllNews": "Back to All News",
+    "backToNews": "Back to News",
+    "articleNotFound": "Article Not Found",
+    "justNow": "Just now",
+    "hoursAgo": "h ago",
+    "yesterday": "Yesterday"
   }
 }

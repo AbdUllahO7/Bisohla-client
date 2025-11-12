@@ -26,7 +26,8 @@
       "join": "أنضم بسهولة",
       "BrowseAll": "تصفح الكل",
       "Privacypolicy": "سياسة الخصوصية",
-      "ContactUs": "اتصل بنا"
+      "ContactUs": "اتصل بنا",
+      "News":"الأخبار"
     },
 
     "hero": {
@@ -1412,5 +1413,55 @@
     "dontShowAgain":"لا تظهر مرة أخرى" ,
     "title":"تطبيق بسهولة",
     "description":"قم بفتح التطبيق"
+  },
+   "news": {
+    "latestNews": "أحدث الأخبار",
+    "latestNewsDescription": "ابقَ على اطلاع بآخر المقالات والإعلانات",
+    "viewAllNews": "عرض جميع الأخبار",
+    "allNews": "جميع الأخبار",
+    "allNewsDescription": "استكشف جميع مقالاتنا وابقَ على اطلاع بأحدث التحديثات",
+    "noNews": "لا توجد أخبار متاحة",
+    "noNewsDescription": "تحقق مرة أخرى لاحقاً للحصول على مقالات وتحديثات جديدة",
+    "errorLoading": "خطأ في تحميل الأخبار. يرجى المحاولة مرة أخرى لاحقاً.",
+    "searchPlaceholder": "البحث في الأخبار...",
+    "search": "بحث",
+    "filters": "الفلاتر",
+    "filterByCategory": "تصفية حسب الفئة",
+    "allCategories": "جميع الفئات",
+    "clearFilters": "مسح الفلاتر",
+    "searchingFor": "البحث عن",
+    "showingResults": "عرض {count} نتيجة",
+    "noResultsFound": "لم يتم العثور على نتائج",
+    "noResultsDescription": "لم نتمكن من العثور على أي مقالات تطابق معايير البحث الخاصة بك. حاول تعديل الفلاتر أو مصطلحات البحث.",
+    "readMore": "اقرأ المزيد",
+    "publishedOn": "نُشر في",
+    "views": "المشاهدات",
+    "relatedArticles": "مقالات ذات صلة",
+    "shareArticle": "مشاركة المقال",
+    "categories": "الفئات",
+    "tags": "الوسوم",
+    "author": "الكاتب",
+    "readingTime": "دقيقة قراءة",
+    "previous": "السابق",
+    "next": "التالي",
+    "backToNews": "العودة للأخبار"
+  },
+  "newsDetails": {
+    "home": "الرئيسية",
+    "news": "الأخبار",
+    "by": "بواسطة",
+    "minRead": "دقيقة قراءة",
+    "views": "مشاهدة",
+    "share": "مشاركة",
+    "shareArticle": "شارك هذا المقال",
+    "tags": "الوسوم",
+    "aboutAuthor": "عن الكاتب",
+    "relatedArticles": "مقالات ذات صلة",
+    "backToAllNews": "العودة إلى جميع الأخبار",
+    "backToNews": "العودة إلى الأخبار",
+    "articleNotFound": "المقالة غير موجودة",
+    "justNow": "الآن",
+    "hoursAgo": "س",
+    "yesterday": "أمس"
   }
 }

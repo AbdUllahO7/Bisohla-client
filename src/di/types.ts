@@ -54,6 +54,9 @@ import { INotificationService } from '@/core/application/services/notification.s
 import { INotificationUseCase } from '@/core/application/use-cases/notifications/notifications.use-case.interface';
 import { INotificationController } from '@/core/application/controllers/notifications/notifications.controller.interface';
 import { INotificationUserUseCase } from '@/core/application/use-cases/users/notifications/notification.user.use-case.interface';
+import { INewsVisitorController } from '@/core/application/controllers/visitors/news/news-controller.interface';
+import { INewsVisitorUseCase } from '@/core/application/use-cases/visitors/news/news.visitor.use-case.interface';
+import { INewsVisitorStrategy } from '@/core/application/strategies/visitors/news.visitor.strategy.interface';
 
 export const DI_SYMBOLS = {
   // ? services
@@ -152,6 +155,11 @@ export const DI_SYMBOLS = {
   carTrimRepoPath: Symbol.for('carTrimRepoPath'),
   carFeatureRepoPath: Symbol.for('carFeatureRepoPath'),
   carListingRepoPath: Symbol.for('carListingRepoPath'),
+
+  INewsVisitorController: Symbol.for('INewsVisitorController'),
+  INewsVisitorUseCase: Symbol.for('INewsVisitorUseCase'),
+  INewsVisitorStrategy: Symbol.for('INewsVisitorStrategy'),
+  
 };
 
 export interface DI_RETURN_TYPES {
@@ -241,6 +249,10 @@ export interface DI_RETURN_TYPES {
   ICarFeatureRepoController: ICarFeatureRepoController;
   ICarListingRepoController: ICarListingRepoController;
 
+  INewsVisitorController: INewsVisitorController;
+  INewsVisitorUseCase: INewsVisitorUseCase;
+  INewsVisitorStrategy: INewsVisitorStrategy;
+
   //repo patths
   usersRepoPath: string;
   rolesRepoPath: string;
@@ -252,4 +264,8 @@ export interface DI_RETURN_TYPES {
   carTrimRepoPath: string;
   carFeatureRepoPath: string;
   carListingRepoPath: string;
+
+
+
+
 }
