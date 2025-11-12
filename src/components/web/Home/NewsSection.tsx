@@ -6,18 +6,19 @@ import Box from '@/components/box/box';
 import Text from '@/components/text/text';
 import NewsCard from './NewsCard';
 import { useLocale, useTranslations } from 'next-intl';
-import { ArrowRight, ArrowLeft, Newspaper } from 'lucide-react';
+import { Newspaper } from 'lucide-react'; // Removed ArrowRight, ArrowLeft
 import { useGetNewsArticles } from '@/hooks/use-news';
 import { SelectNewsArticleDto } from '@/core/entities/models/news/news.dto';
+import SectionHeader from '@/components/SectionHeader'; // Added import
 
 interface NewsSectionProps {
   className?: string;
   limit?: number;
 }
 
-const NewsSection: React.FC<NewsSectionProps> = ({ 
+const NewsSection: React.FC<NewsSectionProps> = ({
   className = '',
-  limit = 6 
+  limit = 6,
 }) => {
   const locale = useLocale();
   const t = useTranslations('news');
@@ -30,97 +31,216 @@ const NewsSection: React.FC<NewsSectionProps> = ({
     sortDirection: 'desc',
   });
 
-  console.log("NewsSection data", data);
-
-  if (error) {
-    return (
-      <Box variant="center" className="py-20">
-        <Text className="text-red-500">{t('errorLoading')}</Text>
-      </Box>
-    );
-  }
+  console.log('NewsSection data', data);
 
   // Extract the actual articles array from the nested data structure
   const articles = data?.data?.data;
   const hasArticles = articles && Array.isArray(articles) && articles.length > 0;
 
   return (
-    <section className={`py-16  ${className}`}>
-      <div className="container mx-auto px-4 ">
-        {/* Section Header */}
-        <Box variant="column" className="mb-12 text-center">
-          <Box variant="row" className="items-center justify-center gap-3 mb-4">
-            <div className="w-12 h-12 rounded-full bg-primary-foreground flex items-center justify-center">
-              <Newspaper className="w-6 h-6 text-primary" />
-            </div>
-             <Text className="text-4xl md:text-5xl font-bold text-primary ">
-            {t('latestNews')}
-          </Text>
-          
-          
-          </Box>
-          
-         
-        <Text className="text-lg text-gray-600 max-w-2xl mx-auto">
-            {t('latestNewsDescription')}
-          </Text>
-          {/* Decorative line */}
-          <div className="w-24 h-1 bg-primary-foreground mx-auto mt-6 rounded-full"></div>
-        </Box>
+    <div className={`relative overflow-hidden py-16 ${className}`}>
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
+        {/* Large Gradient Orbs */}
+        <div
+          className="absolute top-1/4 -right-40 w-[600px] h-[600px] rounded-full opacity-20 animate-float"
+          style={{
+            background:
+              'radial-gradient(circle, rgba(171, 222, 59, 0.3) 0%, transparent 70%)',
+            animationDelay: '2s',
+          }}
+        ></div>
+        <div
+          className="absolute bottom-0 left-1/3 w-[400px] h-[400px] rounded-full opacity-20 animate-float"
+          style={{
+            background:
+              'radial-gradient(circle, rgba(44, 60, 57, 0.2) 0%, transparent 70%)',
+            animationDelay: '4s',
+          }}
+        ></div>
 
-        {/* Loading State */}
-        {isLoading && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="animate-pulse">
-                <div className="bg-gray-200 rounded-xl h-96"></div>
-              </div>
-            ))}
+        {/* Decorative Grid Pattern */}
+        <div
+          className="absolute inset-0 opacity-[0.02]"
+          style={{
+            backgroundImage: `linear-gradient(#198341 1px, transparent 1px), linear-gradient(90deg, #198341 1px, transparent 1px)`,
+            backgroundSize: '50px 50px',
+          }}
+        ></div>
+
+        {/* Animated Dots */}
+        <div className="absolute top-20 left-1/4 w-2 h-2 rounded-full bg-primary-light opacity-40 animate-pulse"></div>
+        <div
+          className="absolute top-40 right-1/3 w-3 h-3 rounded-full bg-primary-light opacity-30 animate-pulse"
+          style={{ animationDelay: '1s' }}
+        ></div>
+        <div
+          className="absolute bottom-32 left-1/2 w-2 h-2 rounded-full bg-primary-light opacity-40 animate-pulse"
+          style={{ animationDelay: '2s' }}
+        ></div>
+        <div
+          className="absolute top-1/2 right-1/4 w-3 h-3 rounded-full bg-primary-light opacity-30 animate-pulse"
+          style={{ animationDelay: '3s' }}
+        ></div>
+      </div>
+
+      {/* Content with Glass Effect */}
+      <Box variant="container" className="relative z-10">
+        <Box variant="column">
+          {/* Section Header */}
+          <div className="relative mb-12">
+            {/* Glow Effect Behind Header */}
+            <div
+              className="absolute -top-10 left-0 right-0 h-40 opacity-30 blur-3xl -z-10"
+              style={{
+                background:
+                  'radial-gradient(ellipse at center, rgba(171, 222, 59, 0.4) 0%, transparent 70%)',
+              }}
+            ></div>
+
+            <SectionHeader
+              title={t('latestNews')}
+              icon={Newspaper}
+              showMoreLink={`/News`}
+              showMoreText={t('viewAllNews')}
+            />
+
+            <Text className="text-lg text-gray-600 max-w-2xl mx-auto text-center mt-4">
+              {t('latestNewsDescription')}
+            </Text>
           </div>
-        )}
 
-        {/* News Grid */}
-        {!isLoading && hasArticles && (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-              {articles.map((article: SelectNewsArticleDto) => (
-                <NewsCard key={article.id} article={article} />
+          {/* Loading State */}
+          {isLoading && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(limit)].map((_, i) => (
+                <div key={i} className="animate-pulse">
+                  <div className="bg-gray-200 dark:bg-gray-700 rounded-xl h-96"></div>
+                </div>
               ))}
             </div>
+          )}
 
-            {/* View All Button */}
-            <Box variant="center" className="mt-8">
-              <Link
-                href={`/${locale}/news`}
-                className="group inline-flex items-center gap-3 px-8 py-4 bg-primary hover:bg-primary-light text-white rounded-full font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-              >
-                <span>{t('viewAllNews')}</span>
-                {locale === 'ar' ? (
-                  <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-                ) : (
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                )}
-              </Link>
+          {/* Error State */}
+          {error && (
+            <Box
+              className="w-full py-8 px-6 rounded-2xl backdrop-blur-sm"
+              variant="center"
+              style={{
+                background:
+                  'linear-gradient(135deg, rgba(255, 0, 0, 0.05) 0%, rgba(255, 0, 0, 0.1) 100%)',
+                border: '1px solid rgba(255, 0, 0, 0.2)',
+              }}
+            >
+              <Text className="text-red-500 font-semibold">
+                {t('errorLoading')}
+              </Text>
             </Box>
-          </>
-        )}
+          )}
 
-        {/* Empty State */}
-        {!isLoading && !hasArticles && (
-          <Box variant="column" className="items-center justify-center py-20">
-            <div className="w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center mb-6">
-              <Newspaper className="w-12 h-12 text-gray-400" />
-            </div>
-            <Text className="text-2xl font-bold text-gray-700 mb-2">
-              {t('noNews')}
-            </Text>
-            <Text className="text-gray-500">
-              {t('noNewsDescription')}
-            </Text>
-          </Box>
-        )}
-      </div>
-    </section>
+          {/* Empty State */}
+          {!isLoading && !error && !hasArticles && (
+            <Box
+              className="w-full py-12 px-6 rounded-2xl backdrop-blur-sm"
+              variant="center"
+              style={{
+                background:
+                  'linear-gradient(135deg, rgba(171, 222, 59, 0.05) 0%, rgba(25, 131, 65, 0.05) 100%)',
+                border: '2px dashed rgba(25, 131, 65, 0.3)',
+              }}
+            >
+              <div className="text-center">
+                <Newspaper
+                  className="w-16 h-16 mx-auto mb-4 opacity-30"
+                  style={{ color: '#198341' }}
+                />
+                <Text className="text-gray-500 text-lg">{t('noNews')}</Text>
+                <Text className="text-gray-500 text-sm mt-1">
+                  {t('noNewsDescription')}
+                </Text>
+              </div>
+            </Box>
+          )}
+
+          {/* News Grid */}
+          {!isLoading && !error && hasArticles && (
+            <Box
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+              variant="center"
+            >
+              {articles.map((article: SelectNewsArticleDto, index: number) => (
+                <div
+                  key={article.id}
+                  className="animate-fadeInUp h-full"
+                  style={{
+                    animationDelay: `${index * 0.1}s`,
+                    animationFillMode: 'both',
+                  }}
+                >
+                  <NewsCard article={article} />
+                </div>
+              ))}
+            </Box>
+          )}
+        </Box>
+      </Box>
+
+      {/* CSS Animations */}
+      <style jsx>{`
+        @keyframes float {
+          0%,
+          100% {
+            transform: translate(0, 0) scale(1);
+          }
+          25% {
+            transform: translate(20px, -20px) scale(1.05);
+          }
+          50% {
+            transform: translate(-15px, -40px) scale(0.95);
+          }
+          75% {
+            transform: translate(-25px, -15px) scale(1.02);
+          }
+        }
+
+        .animate-float {
+          animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .animate-fadeInUp {
+          animation: fadeInUp 0.8s ease-out;
+          opacity: 0;
+        }
+
+        /* Pulse animation for dots */
+        @keyframes pulse {
+          0%,
+          100% {
+            opacity: 0.4;
+            transform: scale(1);
+          }
+          50% {
+            opacity: 0.8;
+            transform: scale(1.5);
+          }
+        }
+
+        .animate-pulse {
+          animation: pulse 3s ease-in-out infinite;
+        }
+      `}</style>
+    </div>
   );
 };
 

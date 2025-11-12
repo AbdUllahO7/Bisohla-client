@@ -1444,7 +1444,9 @@
     "readingTime": "دقيقة قراءة",
     "previous": "السابق",
     "next": "التالي",
-    "backToNews": "العودة للأخبار"
+    "backToNews": "العودة للأخبار",
+        "showResults":"أظهر النتائج"
+
   },
   "newsDetails": {
     "home": "الرئيسية",

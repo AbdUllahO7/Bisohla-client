@@ -1484,7 +1484,8 @@
     "readingTime": "min read",
     "previous": "Previous",
     "next": "Next",
-    "backToNews": "Back to News"
+    "backToNews": "Back to News",
+    "showResults":"Show Results"
     
   },
   "newsDetails": {
