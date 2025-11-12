@@ -153,7 +153,7 @@ const NewsDetailPage: React.FC = () => {
           <Text className="text-3xl font-bold text-gray-700 mb-4">
             {t('articleNotFound')}
           </Text>
-          <Link href={`/${locale}/news`}>
+          <Link href={`/${locale}/News`}>
             <button className="px-6 py-3 bg-gradient-to-r from-primary to-primary-light text-white rounded-xl font-semibold hover:shadow-lg transition-all duration-300">
               {t('backToNews')}
             </button>
