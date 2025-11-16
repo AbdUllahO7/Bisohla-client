@@ -1449,10 +1449,14 @@
   },
   "smartAppBanner" : {
     "openButton": "Open",
-    "closeAriaLabel":"Close",
-    "dontShowAgain":"dontShowAgain",
-    "title":"Bishola",
-    "description":"Open the application"
+     "title": "Get our Mobile App",
+    "description": "Better experience on our app",
+    "openAppTitle": "Continue in App",
+    "appInstalledDescription": "Open for better experience",
+    "openApp": "Open",
+    "download": "Download",
+    "closeAriaLabel": "Close banner",
+    "dontShowAgain": "Don't show again for 7 days"
   },
   "news": {
     "latestNews": "Latest News",

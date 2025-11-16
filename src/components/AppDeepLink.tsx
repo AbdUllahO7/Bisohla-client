@@ -41,7 +41,7 @@ export default function SafeAppDeepLink() {
 
       if (isIOS) {
         // Try Universal Link first
-        window.location.href = `bishola://(screens)/BuyScreen`;
+        window.location.href = `bishola:/${pathWithoutLocale}`;
         
         // Fallback to App Store after delay
         setTimeout(() => {

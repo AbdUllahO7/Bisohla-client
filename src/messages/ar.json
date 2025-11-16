@@ -1409,10 +1409,16 @@
   },
   "smartAppBanner": { 
     "open Button": "إفتح", 
-    "closeAriaLabel":"إغلاق", 
-    "dontShowAgain":"لا تظهر مرة أخرى" ,
-    "title":"تطبيق بسهولة",
-    "description":"قم بفتح التطبيق"
+   
+
+     "title": "حمّل تطبيقنا",
+    "description": "تجربة أفضل على التطبيق",
+    "openAppTitle": "استمر في التطبيق",
+    "appInstalledDescription": "افتح للحصول على تجربة أفضل",
+    "openApp": "فتح",
+    "download": "تحميل",
+    "closeAriaLabel": "إغلاق",
+    "dontShowAgain": "لا تظهر مرة أخرى لمدة 7 أيام"
   },
    "news": {
     "latestNews": "أحدث الأخبار",
