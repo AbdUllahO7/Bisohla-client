@@ -45,16 +45,14 @@ export default async function RootLayout({
         <NextIntlClientProvider messages={messages}>
           <GlobalProvider>
             <NextTopLoader color="#2C3C39" height={4} showSpinner={false} />
-            
-              <AppDeepLink/>
 
-              <SmartAppBanner/>
+            <AppDeepLink />
+
+            <SmartAppBanner />
 
             {children}
-            <AppDownloadModalProvider />
-
+            {/* <AppDownloadModalProvider /> */}
           </GlobalProvider>
-
         </NextIntlClientProvider>
       </body>
     </html>
