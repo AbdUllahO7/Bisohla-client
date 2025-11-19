@@ -27,7 +27,7 @@
       "BrowseAll": "تصفح الكل",
       "Privacypolicy": "سياسة الخصوصية",
       "ContactUs": "اتصل بنا",
-      "News":"الأخبار"
+      "News": "الأخبار"
     },
 
     "hero": {
@@ -1096,56 +1096,56 @@
       "repeatPassword": "تكرار كلمة المرور",
       "saveChanges": "حفظ التغييرات"
     },
-  "home": {
-    "welcome": "مرحباً",
-    "overview": "إليك نظرة عامة على قوائم سياراتك ونشاطك",
-    "memberSince": "عضو منذ",
-    "lastUpdated": "آخر تحديث",
-    "carsForSale": "سيارات للبيع",
-    "activeListings": "القوائم النشطة",
-    "carsForRent": "سيارات للإيجار",
-    "favorites": "المفضلة",
-    "savedListings": "القوائم المحفوظة",
-    "activitySummary": "ملخص النشاط",
-    "recentActivity": "النشاط الأخير",
-    "totalListings": "إجمالي القوائم",
-    "combinedSaleRental": "البيع والإيجار مجتمعين",
-    "accountAge": "عمر الحساب",
-    "months": "أشهر",
-    "engagement": "المشاركة",
-    "favoritesRatio": "نسبة المفضلة",
-    "listCarSale": "أضف سيارة للبيع",
-    "createSaleListing": "أنشئ قائمة جديدة لبيع سيارتك والوصول إلى المشترين المحتملين.",
-    "createSaleButton": "إنشاء قائمة بيع",
-    "listCarRent": "أضف سيارة للإيجار",
-    "createRentListing": "أنشئ قائمة إيجار جديدة وابدأ في كسب دخل سلبي.",
-    "createRentButton": "إنشاء قائمة إيجار",
-    "errorLoading": "خطأ في تحميل الملف الشخصي",
-    "errorMessage": "حدثت مشكلة أثناء تحميل بيانات ملفك الشخصي. يرجى المحاولة مرة أخرى لاحقاً.",
-    "switchToArabic": "العربية",
-    "switchToEnglish": "English",
-    "listingStats": "إحصائيات القوائم",
-    "engagementStats": "إحصائيات المشاركة",
-    "performanceMetrics": "مقاييس الأداء",
-    "totalViews": "إجمالي المشاهدات",
-    "allTimeViews": "المشاهدات الكلية",
-    "averageViews": "متوسط المشاهدات",
-    "perListing": "لكل قائمة",
-    "totalContacts": "إجمالي الاتصالات",
-    "contactRequests": "طلبات الاتصال",
-    "totalShares": "إجمالي المشاركات",
-    "socialShares": "المشاركات الاجتماعية",
-    "contactRate": "معدل الاتصال",
-    "viewToContact": "نسبة المشاهدة للاتصال",
-    "engagementScore": "درجة المشاركة",
-    "overallScore": "الدرجة الإجمالية",
-    "viewDuration": "مدة المشاهدة",
-    "totalTime": "إجمالي الوقت",
-    "last7Days": "آخر 7 أيام",
-    "recentViews": "المشاهدات الأخيرة",
-    "last30Days": "آخر 30 يوماً",
-    "monthlyViews": "المشاهدات الشهرية"
-  }
+    "home": {
+      "welcome": "مرحباً",
+      "overview": "إليك نظرة عامة على قوائم سياراتك ونشاطك",
+      "memberSince": "عضو منذ",
+      "lastUpdated": "آخر تحديث",
+      "carsForSale": "سيارات للبيع",
+      "activeListings": "القوائم النشطة",
+      "carsForRent": "سيارات للإيجار",
+      "favorites": "المفضلة",
+      "savedListings": "القوائم المحفوظة",
+      "activitySummary": "ملخص النشاط",
+      "recentActivity": "النشاط الأخير",
+      "totalListings": "إجمالي القوائم",
+      "combinedSaleRental": "البيع والإيجار مجتمعين",
+      "accountAge": "عمر الحساب",
+      "months": "أشهر",
+      "engagement": "المشاركة",
+      "favoritesRatio": "نسبة المفضلة",
+      "listCarSale": "أضف سيارة للبيع",
+      "createSaleListing": "أنشئ قائمة جديدة لبيع سيارتك والوصول إلى المشترين المحتملين.",
+      "createSaleButton": "إنشاء قائمة بيع",
+      "listCarRent": "أضف سيارة للإيجار",
+      "createRentListing": "أنشئ قائمة إيجار جديدة وابدأ في كسب دخل سلبي.",
+      "createRentButton": "إنشاء قائمة إيجار",
+      "errorLoading": "خطأ في تحميل الملف الشخصي",
+      "errorMessage": "حدثت مشكلة أثناء تحميل بيانات ملفك الشخصي. يرجى المحاولة مرة أخرى لاحقاً.",
+      "switchToArabic": "العربية",
+      "switchToEnglish": "English",
+      "listingStats": "إحصائيات القوائم",
+      "engagementStats": "إحصائيات المشاركة",
+      "performanceMetrics": "مقاييس الأداء",
+      "totalViews": "إجمالي المشاهدات",
+      "allTimeViews": "المشاهدات الكلية",
+      "averageViews": "متوسط المشاهدات",
+      "perListing": "لكل قائمة",
+      "totalContacts": "إجمالي الاتصالات",
+      "contactRequests": "طلبات الاتصال",
+      "totalShares": "إجمالي المشاركات",
+      "socialShares": "المشاركات الاجتماعية",
+      "contactRate": "معدل الاتصال",
+      "viewToContact": "نسبة المشاهدة للاتصال",
+      "engagementScore": "درجة المشاركة",
+      "overallScore": "الدرجة الإجمالية",
+      "viewDuration": "مدة المشاهدة",
+      "totalTime": "إجمالي الوقت",
+      "last7Days": "آخر 7 أيام",
+      "recentViews": "المشاهدات الأخيرة",
+      "last30Days": "آخر 30 يوماً",
+      "monthlyViews": "المشاهدات الشهرية"
+    }
   },
   "saleProduct": {
     "hero": {
@@ -1407,20 +1407,19 @@
     "instagramCopyMessage": "تم نسخ الرابط! افتح إنستغرام والصق الرابط في قصتك أو منشورك.",
     "instagramShareMessage": "انسخ هذا الرابط وشاركه على إنستغرام"
   },
-  "smartAppBanner": { 
-    "open Button": "إفتح", 
-   
-
-     "title": "حمّل تطبيقنا",
+  "smartAppBanner": {
+    "openButton": "إفتح",
+    "title": "زر تطبيقنا",
     "description": "تجربة أفضل على التطبيق",
     "openAppTitle": "استمر في التطبيق",
     "appInstalledDescription": "افتح للحصول على تجربة أفضل",
-    "openApp": "فتح",
+    "openApp": "افتح التطبيق",
+    "opening": "جارٍ الفتح...",
     "download": "تحميل",
     "closeAriaLabel": "إغلاق",
-    "dontShowAgain": "لا تظهر مرة أخرى لمدة 7 أيام"
+    "dontShowAgain": "لا تظهر مرة أخرى"
   },
-   "news": {
+  "news": {
     "latestNews": "أحدث الأخبار",
     "latestNewsDescription": "ابقَ على اطلاع بآخر المقالات والإعلانات",
     "viewAllNews": "عرض جميع الأخبار",
@@ -1451,8 +1450,7 @@
     "previous": "السابق",
     "next": "التالي",
     "backToNews": "العودة للأخبار",
-        "showResults":"أظهر النتائج"
-
+    "showResults": "أظهر النتائج"
   },
   "newsDetails": {
     "home": "الرئيسية",
