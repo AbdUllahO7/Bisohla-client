@@ -451,13 +451,13 @@ export const NewsDetailClient: React.FC<NewsDetailClientProps> = ({
               </div>
             </div>
 
-            <aside className="lg:col-span-4 lg:top-24 h-fit">
+            <aside className="mt-8 lg:mt-0 lg:col-span-4 lg:top-24 h-fit">
               {relatedArticles && relatedArticles.length > 0 && (
                 <div
                   className="animate-fadeIn"
                   style={{ animationDelay: '0.2s' }}
                 >
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 justify-center lg:justify-start">
                     <div className="w-1 h-10 bg-gradient-to-b from-primary to-primary-light rounded-full"></div>
 
                     <Text className="font-bold text-3xl text-gray-900 mb-8 flex items-center gap-3">
