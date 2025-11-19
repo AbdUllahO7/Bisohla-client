@@ -17,12 +17,12 @@
           "/en/ContactUs",
           "/en/Privacypolicy",
           "/en/Links",
-          "/am/auth/*",
-          "/am/products/*",
-          "/am/userProfile/*",
-          "/am/ContactUs",
-          "/am/Privacypolicy",
-          "/am/Links"
+          "/ar/auth/*",
+          "/ar/products/*",
+          "/ar/userProfile/*",
+          "/ar/ContactUs",
+          "/ar/Privacypolicy",
+          "/ar/Links"
         ]
       }
     ]
