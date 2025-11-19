@@ -42,7 +42,7 @@ jobs:
 
             # Deploy using new deployment script
             echo "🔄 Deploying Next.js Website to staging..."
-            ./scripts/deploy.sh --env staging --project next-website
+            ./scripts/deploy.sh --env staging --project next-website --force
 
             # Verify deployment
             echo "✅ Verifying Next.js Website staging deployment..."
