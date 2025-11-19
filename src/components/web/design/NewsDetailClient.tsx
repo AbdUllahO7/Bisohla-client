@@ -1,6 +1,4 @@
-
 'use client';
-
 
 import { useLocale, useTranslations } from 'next-intl';
 import React from 'react';
@@ -9,24 +7,25 @@ import Link from 'next/link';
 import 'quill/dist/quill.snow.css';
 import Box from '@/components/box/box';
 import Text from '@/components/text/text';
-import { 
-  Calendar, 
-  Eye, 
-  User, 
-  Tag, 
-  Clock, 
-  Share2, 
-  Facebook, 
-  Twitter, 
+import {
+  Calendar,
+  Eye,
+  User,
+  Tag,
+  Clock,
+  Share2,
+  Facebook,
+  Twitter,
   Linkedin,
   Newspaper,
   ChevronRight,
   Sparkles,
-  ArrowLeft
+  ArrowLeft,
 } from 'lucide-react';
 import NewsCard from '@/components/web/Home/NewsCard';
 import { SelectNewsArticleDto } from '@/core/entities/models/news/news.dto';
-
+import { cn } from '@/lib/utils';
+import { useDirection } from '@/hooks/use-direction';
 
 // Extended type for article with relations
 type ArticleWithRelations = SelectNewsArticleDto & {
@@ -43,19 +42,22 @@ type ArticleWithRelations = SelectNewsArticleDto & {
   } | null;
 };
 
-
 // Props for the client component
 interface NewsDetailClientProps {
   article: ArticleWithRelations;
   relatedArticles: ArticleWithRelations[];
 }
 
-export const NewsDetailClient: React.FC<NewsDetailClientProps> = ({ article, relatedArticles }) => {
+export const NewsDetailClient: React.FC<NewsDetailClientProps> = ({
+  article,
+  relatedArticles,
+}) => {
   const locale = useLocale();
   const t = useTranslations('newsDetails');
+  const direction = useDirection();
 
   // Data is now passed as props, no need for isLoading or data-fetching hooks
-  
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString(locale === 'ar' ? 'ar-SA' : 'en-US', {
@@ -75,11 +77,17 @@ export const NewsDetailClient: React.FC<NewsDetailClientProps> = ({ article, rel
   const shareOnSocial = (platform: string) => {
     const url = window.location.href;
     const title = article?.title || '';
-    
+
     const shareUrls: { [key: string]: string } = {
-      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
-      twitter: `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`,
-      linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+        url,
+      )}`,
+      twitter: `https://twitter.com/intent/tweet?url=${encodeURIComponent(
+        url,
+      )}&text=${encodeURIComponent(title)}`,
+      linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
+        url,
+      )}`,
     };
 
     window.open(shareUrls[platform], '_blank', 'width=600,height=400');
@@ -89,7 +97,6 @@ export const NewsDetailClient: React.FC<NewsDetailClientProps> = ({ article, rel
   // These are now directly available on the 'article' prop
   const authorInfo = article.author;
   const categoryInfo = article.category;
-
 
   // Not found state is handled by the server component, but as a fallback:
   if (!article) {
@@ -102,7 +109,7 @@ export const NewsDetailClient: React.FC<NewsDetailClientProps> = ({ article, rel
           <Text className="text-3xl font-bold text-gray-700 mb-4">
             {t('articleNotFound')}
           </Text>
-          <Link href={`/${locale}/News`}>
+          <Link href={`/${locale}/news`}>
             <button className="px-6 py-3 bg-gradient-to-r from-primary to-primary-light text-white rounded-xl font-semibold hover:shadow-lg transition-all duration-300">
               {t('backToNews')}
             </button>
@@ -145,24 +152,35 @@ export const NewsDetailClient: React.FC<NewsDetailClientProps> = ({ article, rel
           <div className="container mx-auto px-4 pb-12 max-w-5xl">
             {/* Breadcrumbs */}
             <div className="flex items-center gap-2 text-white/80 mb-6 animate-fadeIn">
-              <Link href={`/${locale}`} className="hover:text-white transition-colors">
+              <Link
+                href={`/${locale}`}
+                className="hover:text-white transition-colors"
+              >
                 {t('home')}
               </Link>
               <ChevronRight className="w-4 h-4" />
-              <Link href={`/${locale}/News`} className="hover:text-white transition-colors">
+              <Link
+                href={`/${locale}/news`}
+                className="hover:text-white transition-colors"
+              >
                 {t('news')}
               </Link>
               {categoryInfo && (
                 <>
                   <ChevronRight className="w-4 h-4" />
-                  <span className="text-primary-foreground">{categoryInfo.name}</span>
+                  <span className="text-primary-foreground">
+                    {categoryInfo.name}
+                  </span>
                 </>
               )}
             </div>
 
             {/* Category Badge */}
             {categoryInfo && (
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary-foreground/20 backdrop-blur-md rounded-full mb-6 animate-fadeIn" style={{ animationDelay: '0.1s' }}>
+              <div
+                className="inline-flex items-center gap-2 px-4 py-2 bg-primary-foreground/20 backdrop-blur-md rounded-full mb-6 animate-fadeIn"
+                style={{ animationDelay: '0.1s' }}
+              >
                 <Sparkles className="w-4 h-4 text-primary-foreground" />
                 <span className="text-sm font-semibold text-white">
                   {categoryInfo.name}
@@ -171,19 +189,28 @@ export const NewsDetailClient: React.FC<NewsDetailClientProps> = ({ article, rel
             )}
 
             {/* Title */}
-            <h1 className="text-4xl md:text-6xl font-black text-white mb-6 leading-tight animate-fadeIn" style={{ animationDelay: '0.2s' }}>
+            <h1
+              className="text-4xl md:text-6xl font-black text-white mb-6 leading-tight animate-fadeIn"
+              style={{ animationDelay: '0.2s' }}
+            >
               {article.title}
             </h1>
 
             {/* Subtitle */}
             {article.subTitle && (
-              <p className="text-xl md:text-2xl text-white/90 mb-8 animate-fadeIn" style={{ animationDelay: '0.3s' }}>
+              <p
+                className="text-xl md:text-2xl text-white/90 mb-8 animate-fadeIn"
+                style={{ animationDelay: '0.3s' }}
+              >
                 {article.subTitle}
               </p>
             )}
 
             {/* Meta Info */}
-            <div className="flex flex-wrap items-center gap-6 text-white/80 animate-fadeIn" style={{ animationDelay: '0.4s' }}>
+            <div
+              className="flex flex-wrap items-center gap-6 text-white/80 animate-fadeIn"
+              style={{ animationDelay: '0.4s' }}
+            >
               {/* Author */}
               {authorInfo && (
                 <>
@@ -203,7 +230,9 @@ export const NewsDetailClient: React.FC<NewsDetailClientProps> = ({ article, rel
                     )}
                     <div>
                       <Text className="text-sm text-white/60">{t('by')}</Text>
-                      <Text className="font-semibold text-white">{authorInfo.name}</Text>
+                      <Text className="font-semibold text-white">
+                        {authorInfo.name}
+                      </Text>
                     </div>
                   </div>
                   <div className="h-8 w-px bg-white/20"></div>
@@ -213,7 +242,9 @@ export const NewsDetailClient: React.FC<NewsDetailClientProps> = ({ article, rel
               {/* Date */}
               <div className="flex items-center gap-2">
                 <Calendar className="w-5 h-5" />
-                <Text className="font-medium">{formatDate(article.publishedAt || article.createdAt)}</Text>
+                <Text className="font-medium">
+                  {formatDate(article.publishedAt || article.createdAt)}
+                </Text>
               </div>
 
               <div className="h-8 w-px bg-white/20"></div>
@@ -221,7 +252,9 @@ export const NewsDetailClient: React.FC<NewsDetailClientProps> = ({ article, rel
               {/* Reading Time */}
               <div className="flex items-center gap-2">
                 <Clock className="w-5 h-5" />
-                <Text className="font-medium">{getReadingTime(article.content)}</Text>
+                <Text className="font-medium">
+                  {getReadingTime(article.content)}
+                </Text>
               </div>
 
               <div className="h-8 w-px bg-white/20"></div>
@@ -229,7 +262,9 @@ export const NewsDetailClient: React.FC<NewsDetailClientProps> = ({ article, rel
               {/* View Count */}
               <div className="flex items-center gap-2">
                 <Eye className="w-5 h-5" />
-                <Text className="font-medium">{article.viewCount?.toLocaleString() || 0} {t('views')}</Text>
+                <Text className="font-medium">
+                  {article.viewCount?.toLocaleString() || 0} {t('views')}
+                </Text>
               </div>
             </div>
           </div>
@@ -238,21 +273,20 @@ export const NewsDetailClient: React.FC<NewsDetailClientProps> = ({ article, rel
 
       {/* Main Content */}
       <div className="relative bg-gradient-to-b from-white via-gray-50 to-white py-16">
-        
         {/* // -------------------------------------------------------------------
         // LAYOUT CHANGE: Widen container and apply grid
         // -------------------------------------------------------------------
         */}
         <div className="container mx-auto px-4 max-w-7xl">
           <div className="grid grid-cols-1 lg:grid-cols-12 lg:gap-12">
-            
             {/* --- Main Content Column --- */}
             <div className="lg:col-span-8">
-
               {/* Share Buttons - Sticky */}
               <div className="hidden lg:block fixed left-8 top-1/2 transform -translate-y-1/2 z-20">
                 <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl p-4 space-y-4 border border-gray-100">
-                  <Text className="text-xs font-semibold text-gray-600 text-center mb-2">{t('share')}</Text>
+                  <Text className="text-xs font-semibold text-gray-600 text-center mb-2">
+                    {t('share')}
+                  </Text>
                   <button
                     onClick={() => shareOnSocial('facebook')}
                     className="w-12 h-12 rounded-xl bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg"
@@ -278,30 +312,40 @@ export const NewsDetailClient: React.FC<NewsDetailClientProps> = ({ article, rel
               </div>
 
               {/* Article Content Card */}
-                            <div className="group relative mb-12 animate-fadeIn ql-snow"> {/* <-- أضف ql-snow هنا */}
-                <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-primary-light/20 rounded-3xl blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="group relative mb-12 animate-fadeIn ql-snow">
+                {' '}
+                {/* <-- أضف ql-snow هنا */}
                 <div className="relative bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100">
                   {/* Excerpt */}
                   {article.excerpt && (
-                    <div className="mb-8 p-6 rounded-2xl bg-gradient-to-r from-primary/5 to-primary-light/5 border-l-4 border-primary">
+                    <div
+                      className={cn(
+                        'mb-8 p-6  border-primary',
+                        direction === 'rtl' ? 'border-r-4' : 'border-l-4',
+                      )}
+                    >
                       <Text className="text-lg text-gray-700  leading-relaxed">
                         {article.excerpt}
                       </Text>
                     </div>
                   )}
 
-       
-                 <div 
-                    className="rich-text-content ql-editor" 
+                  <div
+                    className="rich-text-content ql-editor overflwo-y-visible"
+                    style={{
+                      overflowY: 'visible',
+                    }}
                     dangerouslySetInnerHTML={{ __html: article.content }}
-                    />
+                  />
 
                   {/* Tags */}
                   {article.tags && article.tags.length > 0 && (
                     <div className="mt-12 pt-8 border-t-2 border-gray-100">
                       <div className="flex items-center gap-3 mb-4">
                         <Tag className="w-5 h-5 text-primary" />
-                        <Text className="font-bold text-gray-900">{t('tags')}</Text>
+                        <Text className="font-bold text-gray-900">
+                          {t('tags')}
+                        </Text>
                       </div>
                       <div className="flex flex-wrap gap-3">
                         {article.tags.map((tag, index) => (
@@ -353,7 +397,10 @@ export const NewsDetailClient: React.FC<NewsDetailClientProps> = ({ article, rel
 
               {/* Author Card */}
               {authorInfo && (
-                <div className="group relative mb-12 animate-fadeIn" style={{ animationDelay: '0.1s' }}>
+                <div
+                  className="group relative mb-12 animate-fadeIn"
+                  style={{ animationDelay: '0.1s' }}
+                >
                   <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-primary-light/20 rounded-3xl blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                   <div className="relative bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 border border-gray-100">
                     <Text className="font-bold text-2xl text-gray-900 mb-6 flex items-center gap-3">
@@ -390,8 +437,11 @@ export const NewsDetailClient: React.FC<NewsDetailClientProps> = ({ article, rel
               )}
 
               {/* Back Button */}
-              <div className="flex justify-center pt-12 animate-fadeIn" style={{ animationDelay: '0.3s' }}>
-                <Link href={`/${locale}/News`}>
+              <div
+                className="flex justify-center pt-12 animate-fadeIn"
+                style={{ animationDelay: '0.3s' }}
+              >
+                <Link href={`/${locale}/news`}>
                   <button className="group/btn relative inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-primary to-primary-light text-white rounded-2xl font-bold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
                     <div className="absolute inset-0 bg-white/20 rounded-2xl blur-xl opacity-0 group-hover/btn:opacity-100 transition-opacity"></div>
                     <ArrowLeft className="w-5 h-5 relative transform group-hover/btn:-translate-x-1 transition-transform" />
@@ -399,35 +449,45 @@ export const NewsDetailClient: React.FC<NewsDetailClientProps> = ({ article, rel
                   </button>
                 </Link>
               </div>
+            </div>
 
-            </div> 
-
-          
-       <aside className="lg:col-span-4 lg:sticky lg:top-24 h-fit">
+            <aside className="lg:col-span-4 lg:top-24 h-fit">
               {relatedArticles && relatedArticles.length > 0 && (
-                <div className="animate-fadeIn" style={{ animationDelay: '0.2s' }}>
-                  <Text className="font-bold text-3xl text-gray-900 mb-8 flex items-center gap-3">
+                <div
+                  className="animate-fadeIn"
+                  style={{ animationDelay: '0.2s' }}
+                >
+                  <div className="flex gap-2">
                     <div className="w-1 h-10 bg-gradient-to-b from-primary to-primary-light rounded-full"></div>
-                    {t('relatedArticles')}
-                  </Text>
-                  
+
+                    <Text className="font-bold text-3xl text-gray-900 mb-8 flex items-center gap-3">
+                      {t('relatedArticles')}
+                    </Text>
+                  </div>
+
                   {/* --- BEGIN MODIFICATION --- */}
-                  <div className="flex flex-col gap-6"> {/* Keep flex-col for the sidebar stack of cards */}
+                  <div className="flex flex-col gap-6">
+                    {' '}
+                    {/* Keep flex-col for the sidebar stack of cards */}
                     {relatedArticles.map((relatedArticle) => (
                       // We'll pass a prop to NewsCard to tell it to render horizontally
-                      <NewsCard key={relatedArticle.id} article={relatedArticle as SelectNewsArticleDto} variant="horizontal" /> 
+                      <NewsCard
+                        key={relatedArticle.id}
+                        article={relatedArticle as SelectNewsArticleDto}
+                        variant="horizontal"
+                      />
                     ))}
                   </div>
                   {/* --- END MODIFICATION --- */}
-
                 </div>
               )}
             </aside>
-
-          </div> {/* --- End Grid --- */}
-        </div> {/* --- End Container --- */}
+          </div>{' '}
+          {/* --- End Grid --- */}
+        </div>{' '}
+        {/* --- End Container --- */}
       </div>
-{/* Animations */}
+      {/* Animations */}
       <style jsx>{`
         @keyframes fadeIn {
           from {
@@ -455,7 +515,7 @@ export const NewsDetailClient: React.FC<NewsDetailClientProps> = ({ article, rel
         }
 
         /* * هذه الكلاسات موجودة بالفعل في quill.snow.css
-         * لكننا نؤكد عليها لضمان دعم RTL 
+         * لكننا نؤكد عليها لضمان دعم RTL
         */
         .rich-text-content .ql-align-right {
           text-align: right;
@@ -466,10 +526,9 @@ export const NewsDetailClient: React.FC<NewsDetailClientProps> = ({ article, rel
 
         .rich-text-content .ql-direction-rtl ol,
         .rich-text-content .ql-direction-rtl ul {
-           padding-left: 0;
-           padding-right: 2em; /* RTL list padding */
+          padding-left: 0;
+          padding-right: 2em; /* RTL list padding */
         }
-
       `}</style>
     </div>
   );

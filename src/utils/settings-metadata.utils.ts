@@ -14,6 +14,13 @@ type WebPageType =
   | 'home'
   | 'products'
   | 'product_detail'
+  | 'add_product'
+  | 'edit_product'
+  | 'product_success'
+  | 'news'
+  | 'news_detail'
+  | 'contact_us'
+  | 'links'
   | 'auth'
   | 'profile'
   | 'privacy_policy';
@@ -144,6 +151,13 @@ function extractSEOData(
     home: 'home_page',
     products: 'products_page',
     product_detail: 'product_detail_page',
+    add_product: 'add_product_page',
+    edit_product: 'edit_product_page',
+    product_success: 'product_success_page',
+    news: 'news_page',
+    news_detail: 'news_detail_page',
+    contact_us: 'contact_us_page',
+    links: 'links_page',
     auth: 'auth_pages',
     profile: 'user_profile_pages',
     privacy_policy: 'privacy_policy',
@@ -166,8 +180,6 @@ function extractSEOData(
     primary_color: general.appearance?.primary_color || '#2C3C39',
     secondary_color: general.appearance?.secondary_color || '#10b981',
   };
-
-
 
   return {
     general,
@@ -643,13 +655,199 @@ export async function generateProductMetadata(
 }
 
 /**
+ * Generate metadata for dynamic news article pages
+ * Uses actual article data as primary content, settings as fallback for global config
+ */
+export async function generateNewsMetadata(
+  newsData: {
+    title: string;
+    description: string;
+    images?: string[];
+    keywords?: string[];
+    canonical?: string;
+    publishedAt?: string;
+    author?: string;
+  },
+  customConfig?: SettingsMetadataConfig,
+): Promise<Metadata> {
+  const locale = await getLocale();
+  const settings = await fetchSettingsData(locale);
+
+  const { general, seo, app, pageSEO, globalSEO, siteInfo } = extractSEOData(
+    settings,
+    'news_detail',
+    locale,
+  );
+
+  // Use news data as primary, settings as fallback for global config
+  const baseUrl = globalSEO.canonical_base_url || DEFAULT_FALLBACKS.baseUrl;
+  const siteName =
+    siteInfo.site_name || getFallback(DEFAULT_FALLBACKS.siteName, locale);
+
+  // Use article-specific data for main metadata
+  const pageTitle = newsData.title;
+  const pageDescription = newsData.description;
+  const pageKeywords =
+    newsData.keywords || DEFAULT_FALLBACKS.keywords[locale as 'en' | 'ar'];
+
+  // Use settings for global SEO configuration and fallback images
+  const ogImage =
+    newsData.images?.[0] ||
+    globalSEO.default_og_image ||
+    `${baseUrl}${DEFAULT_FALLBACKS.defaultOgImage}`;
+
+  const twitterImage =
+    newsData.images?.[0] || globalSEO.default_twitter_image || ogImage;
+
+  const canonical = newsData.canonical || `${baseUrl}/${locale}/news/`;
+
+  return {
+    title: {
+      template: `%s | ${siteName}`,
+      default: pageTitle,
+    },
+    description: pageDescription,
+    keywords: pageKeywords,
+
+    authors: newsData.author
+      ? [{ name: newsData.author }]
+      : [{ name: `${siteName} Team` }],
+    creator: newsData.author || siteName,
+    publisher: siteName,
+
+    // Open Graph for social media sharing - use article data
+    openGraph: {
+      type: 'article',
+      locale: locale === 'ar' ? 'ar_SA' : 'en_US',
+      url: canonical,
+      title: pageTitle,
+      description: pageDescription,
+      siteName: siteName,
+      publishedTime: newsData.publishedAt,
+      authors: newsData.author ? [newsData.author] : undefined,
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: pageTitle,
+        },
+      ],
+    },
+
+    // Twitter Card - use article data
+    twitter: {
+      card: (globalSEO.twitter_card_type as any) || 'summary_large_image',
+      title: pageTitle,
+      description: pageDescription,
+      images: [twitterImage],
+      creator: globalSEO.twitter_handle || DEFAULT_FALLBACKS.twitterHandle,
+      site: globalSEO.twitter_handle || DEFAULT_FALLBACKS.twitterHandle,
+    },
+
+    // Additional metadata from settings
+    robots: {
+      index: !customConfig?.noIndex,
+      follow: !customConfig?.noIndex,
+      googleBot: {
+        index: !customConfig?.noIndex,
+        follow: !customConfig?.noIndex,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
+    },
+
+    // Language alternates for SEO
+    alternates: {
+      canonical,
+      languages: {
+        en: `${baseUrl}/en/news/`,
+        ar: `${baseUrl}/ar/news/`,
+        'x-default': `${baseUrl}/en/news/`,
+      },
+    },
+
+    // App-specific metadata
+    applicationName: siteName,
+    category: 'news',
+    classification: 'News and Articles Platform',
+
+    // Icons from settings
+    icons: {
+      icon: [
+        { url: siteInfo.favicon || '/favicon.ico' },
+        {
+          url: '/icon-16.png',
+          sizes: '16x16',
+          type: 'image/png',
+        },
+        {
+          url: '/icon-32.png',
+          sizes: '32x32',
+          type: 'image/png',
+        },
+        {
+          url: '/icon-192.png',
+          sizes: '192x192',
+          type: 'image/png',
+        },
+        {
+          url: '/icon-512.png',
+          sizes: '512x512',
+          type: 'image/png',
+        },
+      ],
+      apple: [
+        {
+          url: '/apple-icon.png',
+          sizes: '180x180',
+          type: 'image/png',
+        },
+      ],
+      shortcut: siteInfo.favicon || '/favicon.ico',
+    },
+
+    // Verification tags from settings
+    verification: {
+      google: globalSEO.google_site_verification || undefined,
+    },
+
+    // Additional SEO and PWA
+    other: {
+      'mobile-web-app-capable': 'yes',
+      'apple-mobile-web-app-capable': 'yes',
+      'apple-mobile-web-app-status-bar-style': 'default',
+      'apple-mobile-web-app-title': siteName,
+      'format-detection': 'telephone=no',
+      'theme-color': siteInfo.primary_color || '#2C3C39',
+      'msapplication-TileColor': siteInfo.primary_color || '#2C3C39',
+      ...(customConfig?.customMeta?.reduce((acc, meta) => {
+        if (meta.name) acc[meta.name] = meta.content;
+        return acc;
+      }, {} as Record<string, string>) || {}),
+    },
+
+    // Manifest for PWA
+    manifest: '/manifest.json',
+  };
+}
+
+/**
  * Page type mapping helper
  */
 export function getPageType(pathname: string): WebPageType {
   if (pathname === '/' || pathname.endsWith('/')) return 'home';
-  if (pathname.includes('/products/') && !pathname.includes('/products?'))
-    return 'product_detail';
+  if (pathname.includes('/products/AddProducts/ProductSuccessPage'))
+    return 'product_success';
+  if (pathname.includes('/products/AddProducts')) return 'add_product';
+  if (pathname.includes('/products/EditProduct/')) return 'edit_product';
+  if (pathname.includes('/products/product/')) return 'product_detail';
   if (pathname.includes('/products')) return 'products';
+  if (pathname.includes('/news/')) return 'news_detail';
+  if (pathname.includes('/news')) return 'news';
+  if (pathname.includes('/ContactUs')) return 'contact_us';
+  if (pathname.includes('/Links')) return 'links';
   if (pathname.includes('/auth/')) return 'auth';
   if (pathname.includes('/userProfile/')) return 'profile';
   if (pathname.includes('/privacy')) return 'privacy_policy';

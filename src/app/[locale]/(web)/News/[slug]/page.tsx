@@ -8,10 +8,17 @@ import {
 } from '@/core/infrastructure-adapters/actions/visitors/news.visitor.actions';
 import { NewsDetailClient } from '@/components/web/design/NewsDetailClient';
 import type { SelectNewsArticleDto } from '@/core/entities/models/news/news.dto';
+import { APP_URL } from '@/core/lib/web/constants';
+import { generateNewsMetadata } from '@/utils/settings-metadata.utils';
 
 type ArticleWithRelations = SelectNewsArticleDto & {
   category?: { id: number; name: string; slug: string } | null;
-  author?: { id: number; name: string; email: string; profileUrl: string | null } | null;
+  author?: {
+    id: number;
+    name: string;
+    email: string;
+    profileUrl: string | null;
+  } | null;
 };
 
 export async function generateMetadata({
@@ -19,40 +26,46 @@ export async function generateMetadata({
 }: {
   params: Promise<{ slug: string; locale: string }>;
 }): Promise<Metadata> {
-  const { slug, locale } = await params; // ✅ await params here
+  const { slug, locale } = await params;
 
-  const articleResponse = await getNewsArticleBySlugForVisitor({ slug, locale });
+  try {
+    const articleResponse = await getNewsArticleBySlugForVisitor({
+      slug,
+      locale,
+    });
 
-  if (!articleResponse.success || !articleResponse.data) {
+    if (!articleResponse.success || !articleResponse.data) {
+      return {
+        title: 'Article Not Found',
+        description: 'The article you are looking for does not exist.',
+      };
+    }
+
+    const article = articleResponse.data as ArticleWithRelations;
+    const title = article.metaTitle || article.title;
+    const description = article.metaDescription || article.excerpt || '';
+    const imageUrl = article.coverImage || undefined;
+
+    const baseUrl = APP_URL;
+    const canonicalPath = `${baseUrl}/${locale}/news/${slug}`;
+
+    // Use news-specific metadata with settings as fallback for global config
+    return await generateNewsMetadata({
+      title: title || 'News Article',
+      description: description || '',
+      images: imageUrl ? [imageUrl] : undefined,
+      keywords: article.tags || undefined,
+      canonical: canonicalPath,
+      publishedAt: article.publishedAt || article.createdAt,
+      author: article.author?.name || undefined,
+    });
+  } catch (error) {
+    console.error('Error generating news metadata:', error);
     return {
       title: 'Article Not Found',
       description: 'The article you are looking for does not exist.',
     };
   }
-
-  const article = articleResponse.data as ArticleWithRelations;
-  const title = article.metaTitle || article.title;
-  const description = article.metaDescription || article.excerpt || '';
-  const imageUrl = article.coverImage || undefined;
-
-  return {
-    title,
-    description,
-    openGraph: {
-      title,
-      description,
-      type: 'article',
-      publishedTime: article.publishedAt || article.createdAt,
-      authors: [article.author?.name || ''],
-      images: imageUrl ? [{ url: imageUrl }] : [],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description,
-      images: imageUrl ? [imageUrl] : [],
-    },
-  };
 }
 
 export default async function NewsDetailPage({
@@ -65,7 +78,10 @@ export default async function NewsDetailPage({
   const { slug, locale } = await params; // ✅ await params
   const resolvedSearchParams = await searchParams;
 
-  const articleResponse = await getNewsArticleBySlugForVisitor({ slug, locale });
+  const articleResponse = await getNewsArticleBySlugForVisitor({
+    slug,
+    locale,
+  });
   if (!articleResponse.success || !articleResponse.data) {
     notFound();
   }
@@ -80,7 +96,9 @@ export default async function NewsDetailPage({
       locale,
       sortBy: 'publishedAt',
       sortDirection: 'desc',
-      where: [{ field: 'categoryId', operator: 'eq', value: article.categoryId }],
+      where: [
+        { field: 'categoryId', operator: 'eq', value: article.categoryId },
+      ],
     });
     if (related.success && related.data) {
       relatedArticles = (related.data.data as ArticleWithRelations[])
@@ -89,5 +107,7 @@ export default async function NewsDetailPage({
     }
   }
 
-  return <NewsDetailClient article={article} relatedArticles={relatedArticles} />;
+  return (
+    <NewsDetailClient article={article} relatedArticles={relatedArticles} />
+  );
 }
