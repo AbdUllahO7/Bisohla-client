@@ -35,7 +35,8 @@ const NewsSection: React.FC<NewsSectionProps> = ({
 
   // Extract the actual articles array from the nested data structure
   const articles = data?.data?.data;
-  const hasArticles = articles && Array.isArray(articles) && articles.length > 0;
+  const hasArticles =
+    articles && Array.isArray(articles) && articles.length > 0;
 
   return (
     <div className={`relative overflow-hidden py-16 ${className}`}>
@@ -101,7 +102,7 @@ const NewsSection: React.FC<NewsSectionProps> = ({
             <SectionHeader
               title={t('latestNews')}
               icon={Newspaper}
-              showMoreLink={`/News`}
+              showMoreLink={`/news`}
               showMoreText={t('viewAllNews')}
             />
 

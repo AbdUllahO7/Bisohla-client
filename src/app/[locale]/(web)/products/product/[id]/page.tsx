@@ -43,6 +43,7 @@ export async function generateMetadata({
   params,
   searchParams,
 }: ProductPageProps): Promise<Metadata> {
+  console.log('WHYYY');
   const { id } = await params;
   const isProfileView = (await searchParams).profile === 'true';
 
