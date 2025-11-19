@@ -1,0 +1,30 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "Q3UK9FAQ24.com.bishola.app",
+        "paths": [
+          "/auth/*",
+          "/products/*",
+          "/userProfile/*",
+          "/ContactUs",
+          "/Privacypolicy",
+          "/Links",
+          "/en/auth/*",
+          "/en/products/*",
+          "/en/userProfile/*",
+          "/en/ContactUs",
+          "/en/Privacypolicy",
+          "/en/Links",
+          "/am/auth/*",
+          "/am/products/*",
+          "/am/userProfile/*",
+          "/am/ContactUs",
+          "/am/Privacypolicy",
+          "/am/Links"
+        ]
+      }
+    ]
+  }
+}
