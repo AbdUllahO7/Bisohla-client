@@ -30,6 +30,11 @@ async function validateSession(): Promise<boolean> {
 }
 
 async function middleware(req: NextRequest) {
+  // Early return for .well-known paths (universal links)
+  if (req.nextUrl.pathname.startsWith('/.well-known')) {
+    return NextResponse.next();
+  }
+
   // Apply intl middleware first to handle localization
   const response = await intlMiddleware(req);
 
