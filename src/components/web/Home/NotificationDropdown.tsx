@@ -131,6 +131,24 @@ const NotificationDropdown = () => {
     }
   }, [isOpen, refetch]);
 
+  // Strip HTML tags and get plain text
+  const getPlainText = (html: string, maxLength?: number): string => {
+    // Remove HTML tags
+    const plainText = html.replace(/<[^>]*>/g, '');
+
+    // Decode HTML entities
+    const textArea = document.createElement('textarea');
+    textArea.innerHTML = plainText;
+    const decoded = textArea.value;
+
+    // Truncate if needed
+    if (maxLength && decoded.length > maxLength) {
+      return decoded.substring(0, maxLength) + '...';
+    }
+
+    return decoded;
+  };
+
   // Get notification icon based on type
   const getNotificationIcon = (type: notificationTypeEnum) => {
     switch (type) {
@@ -281,7 +299,7 @@ const NotificationDropdown = () => {
                           {notification.title}
                         </p>
                         <p className="text-[10px] sm:text-xs text-gray-600 line-clamp-2 mt-0.5 leading-relaxed">
-                          {notification.content}
+                          {getPlainText(notification.content, 100)}
                         </p>
 
                         <div className="flex items-center justify-between mt-2 gap-2">
