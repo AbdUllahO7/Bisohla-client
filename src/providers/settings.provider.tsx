@@ -25,12 +25,12 @@ interface SettingsContextType {
   getSetting: <
     K extends SettingsKey,
     SK extends SettingsSubKey<K>,
-    F extends SettingsField<K, SK>
+    F extends SettingsField<K, SK>,
   >(
     key: K,
     subKey: SK,
     field: F,
-    defaultValue?: SettingsFieldValue<K, SK, F>
+    defaultValue?: SettingsFieldValue<K, SK, F>,
   ) => SettingsFieldValue<K, SK, F> | undefined;
 
   // Convenient getters for entire sections
@@ -42,6 +42,7 @@ interface SettingsContextType {
 
   // Specific commonly-used settings
   getLogo: () => string;
+  getFavicon: () => string;
   getCopyrightMessage: () => string;
   getSocialLinks: () => GeneralSettings['social_links'];
 }
@@ -68,12 +69,12 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
   const getSetting = <
     K extends SettingsKey,
     SK extends SettingsSubKey<K>,
-    F extends SettingsField<K, SK>
+    F extends SettingsField<K, SK>,
   >(
     key: K,
     subKey: SK,
     field: F,
-    defaultValue?: SettingsFieldValue<K, SK, F>
+    defaultValue?: SettingsFieldValue<K, SK, F>,
   ): SettingsFieldValue<K, SK, F> | undefined => {
     try {
       const keyData = settings[key];
@@ -106,6 +107,13 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
     );
   };
 
+  const getFavicon = () => {
+    return (
+      getSetting('general', 'appearance', 'favicon') ||
+      '/assets/images/logo/bisholaLogo2.jpg'
+    );
+  };
+
   const getCopyrightMessage = () => {
     return (
       getSetting('general', 'site_info', 'copyright_message') ||
@@ -126,6 +134,7 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
     getLogo,
     getCopyrightMessage,
     getSocialLinks,
+    getFavicon,
   };
 
   return (

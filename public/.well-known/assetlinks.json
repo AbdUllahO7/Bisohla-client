@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.bishola.app",
+      "sha256_cert_fingerprints": [
+        "5A:90:73:16:CB:ED:05:05:58:06:F7:F8:C6:09:55:C4:A6:81:85:FC:EE:3E:6C:32:71:E0:36:F0:BC:B3:73:AA"
+      ]
+    }
+  }
+]

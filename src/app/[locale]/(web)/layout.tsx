@@ -78,6 +78,7 @@ const WebLayout = async ({
               BrowseAll: t('headerTow.BrowseAll'),
               Privacypolicy: t('headerTow.Privacypolicy'),
               ContactUs: t('headerTow.ContactUs'),
+              News:t('headerTow.News')
             }}
           />
         </div>

@@ -1,5 +1,5 @@
 // src/enums/location.ts
-
+// TODO: update the missing cities in each governorate
 /**
  * Represents Syrian SyriaGovernorates
  */
@@ -31,8 +31,8 @@ export enum SyriaCity {
   DARAYYA = 'Darayya',
   KAFR_SOUSA = 'Kafr Sousa',
   JARAMANA = 'Jaramana',
-  MEZZEH = 'Mezzeh', 
-  AL_QADAM = 'Al-Qadam', 
+  MEZZEH = 'Mezzeh',
+  AL_QADAM = 'Al-Qadam',
 
   // Aleppo cities
   ALEPPO = 'Aleppo',
@@ -156,136 +156,137 @@ export enum SyriaCity {
 /**
  * Map of SyriaGovernorates to their corresponding cities
  */
-export const SyriaGovernorate_TO_CITIES: Record<SyriaGovernorate, SyriaCity[]> = {
-  [SyriaGovernorate.DAMASCUS]: [
-    SyriaCity.DAMASCUS,
-    SyriaCity.DOUMA,
-    SyriaCity.HARASTA,
-    SyriaCity.DARAYYA,
-    SyriaCity.KAFR_SOUSA,
-    SyriaCity.JARAMANA,
-    SyriaCity.MEZZEH,
-    SyriaCity.AL_QADAM,
-  ],
-  [SyriaGovernorate.ALEPPO]: [
-    SyriaCity.ALEPPO,
-    SyriaCity.MANBIJ,
-    SyriaCity.AL_BAB,
-    SyriaCity.AZAZ,
-    SyriaCity.AFRIN,
-    SyriaCity.JARABLUS,
-    SyriaCity.KOBANI,
-    SyriaCity.AL_SAFIRA,
-    SyriaCity.DAYR_HAFIR,
-  ],
-  [SyriaGovernorate.HOMS]: [
-    SyriaCity.HOMS,
-    SyriaCity.PALMYRA,
-    SyriaCity.AL_RASTAN,
-    SyriaCity.TALKALAKH,
-    SyriaCity.AL_QUSAYR,
-    SyriaCity.TADMOR,
-    SyriaCity.AL_MUKHRAM,
-    SyriaCity.AL_QARYATAYN,
-  ],
-  [SyriaGovernorate.HAMA]: [
-    SyriaCity.HAMA,
-    SyriaCity.SALAMIYAH,
-    SyriaCity.MASYAF,
-    SyriaCity.SUQAYLABIYAH,
-    SyriaCity.MUHARDA,
-    SyriaCity.KAFR_NABUDA,
-    SyriaCity.KAFR_ZITA,
-    SyriaCity.TAYBAT_AL_IMAM,
-  ],
-  [SyriaGovernorate.LATAKIA]: [
-    SyriaCity.LATAKIA,
-    SyriaCity.JABLEH,
-    SyriaCity.AL_HAFFA,
-    SyriaCity.QARDAHA,
-    SyriaCity.KASAB,
-    SyriaCity.SALMA,
-    SyriaCity.BEIT_YASHOUT,
-  ],
-  [SyriaGovernorate.IDLIB]: [
-    SyriaCity.IDLIB,
-    SyriaCity.MAARRAT_AL_NUMAN,
-    SyriaCity.ARIHA,
-    SyriaCity.JISR_AL_SHUGHUR,
-    SyriaCity.SARAQEB,
-    SyriaCity.KHAN_SHAYKHUN,
-    SyriaCity.BANSH,
-    SyriaCity.JABAL_AL_ZAWIYA,
-  ],
-  [SyriaGovernorate.AL_HASAKAH]: [
-    SyriaCity.AL_HASAKAH,
-    SyriaCity.QAMISHLI,
-    SyriaCity.RAS_AL_AYN,
-    SyriaCity.AL_MALIKIYAH,
-    SyriaCity.AMUDA,
-    SyriaCity.AL_SHADDADI,
-    SyriaCity.TAL_TAMR,
-  ],
-  [SyriaGovernorate.DEIR_EZ_ZOR]: [
-    SyriaCity.DEIR_EZ_ZOR,
-    SyriaCity.AL_MAYADIN,
-    SyriaCity.ABU_KAMAL,
-    SyriaCity.HAJJIN,
-    SyriaCity.AL_BUKAMAL,
-    SyriaCity.AL_JALAA,
-  ],
-  [SyriaGovernorate.TARTUS]: [
-    SyriaCity.TARTUS,
-    SyriaCity.BANIYAS,
-    SyriaCity.SAFITA,
-    SyriaCity.SHEIKH_BADR,
-    SyriaCity.DURAYKISH,
-    SyriaCity.AL_HAMIDIYAH,
-    SyriaCity.AL_QADMOUS,
-  ],
-  [SyriaGovernorate.RAQQA]: [
-    SyriaCity.RAQQA,
-    SyriaCity.AL_THAWRAH,
-    SyriaCity.TELL_ABYAD,
-    SyriaCity.AIN_ISSA,
-    SyriaCity.AL_KARAMA,
-    SyriaCity.MANSURA,
-  ],
-  [SyriaGovernorate.DARAA]: [
-    SyriaCity.DARAA,
-    SyriaCity.NAWA,
-    SyriaCity.IZRA,
-    SyriaCity.BUSRA_AL_HARIR,
-    SyriaCity.TAFAS,
-    SyriaCity.JASSIM,
-    SyriaCity.AL_HARA,
-  ],
-  [SyriaGovernorate.AS_SUWAYDA]: [
-    SyriaCity.AS_SUWAYDA,
-    SyriaCity.SALKHAD,
-    SyriaCity.SHAHBA,
-    SyriaCity.AL_QURAYYA,
-    SyriaCity.ARIQA,
-    SyriaCity.DHIBIN,
-  ],
-  [SyriaGovernorate.QUNEITRA]: [
-    SyriaCity.QUNEITRA,
-    SyriaCity.MADINAT_AL_BAATH,
-    SyriaCity.KHAN_ARNABA,
-    SyriaCity.BAQATHA,
-  ],
-  [SyriaGovernorate.DAMASCUS_COUNTRYSIDE]: [
-    SyriaCity.AL_TALL,
-    SyriaCity.YABROUD,
-    SyriaCity.AN_NABK,
-    SyriaCity.QATANA,
-    SyriaCity.AL_KISWAH,
-    SyriaCity.ZABADANI,
-    SyriaCity.QUTAYFA,
-    SyriaCity.DUMAIRE,
-    SyriaCity.HARJALA,
-  ],
-};
+export const SyriaGovernorate_TO_CITIES: Record<SyriaGovernorate, SyriaCity[]> =
+  {
+    [SyriaGovernorate.DAMASCUS]: [
+      SyriaCity.DAMASCUS,
+      SyriaCity.DOUMA,
+      SyriaCity.HARASTA,
+      SyriaCity.DARAYYA,
+      SyriaCity.KAFR_SOUSA,
+      SyriaCity.JARAMANA,
+      SyriaCity.MEZZEH,
+      SyriaCity.AL_QADAM,
+    ],
+    [SyriaGovernorate.ALEPPO]: [
+      SyriaCity.ALEPPO,
+      SyriaCity.MANBIJ,
+      SyriaCity.AL_BAB,
+      SyriaCity.AZAZ,
+      SyriaCity.AFRIN,
+      SyriaCity.JARABLUS,
+      SyriaCity.KOBANI,
+      SyriaCity.AL_SAFIRA,
+      SyriaCity.DAYR_HAFIR,
+    ],
+    [SyriaGovernorate.HOMS]: [
+      SyriaCity.HOMS,
+      SyriaCity.PALMYRA,
+      SyriaCity.AL_RASTAN,
+      SyriaCity.TALKALAKH,
+      SyriaCity.AL_QUSAYR,
+      SyriaCity.TADMOR,
+      SyriaCity.AL_MUKHRAM,
+      SyriaCity.AL_QARYATAYN,
+    ],
+    [SyriaGovernorate.HAMA]: [
+      SyriaCity.HAMA,
+      SyriaCity.SALAMIYAH,
+      SyriaCity.MASYAF,
+      SyriaCity.SUQAYLABIYAH,
+      SyriaCity.MUHARDA,
+      SyriaCity.KAFR_NABUDA,
+      SyriaCity.KAFR_ZITA,
+      SyriaCity.TAYBAT_AL_IMAM,
+    ],
+    [SyriaGovernorate.LATAKIA]: [
+      SyriaCity.LATAKIA,
+      SyriaCity.JABLEH,
+      SyriaCity.AL_HAFFA,
+      SyriaCity.QARDAHA,
+      SyriaCity.KASAB,
+      SyriaCity.SALMA,
+      SyriaCity.BEIT_YASHOUT,
+    ],
+    [SyriaGovernorate.IDLIB]: [
+      SyriaCity.IDLIB,
+      SyriaCity.MAARRAT_AL_NUMAN,
+      SyriaCity.ARIHA,
+      SyriaCity.JISR_AL_SHUGHUR,
+      SyriaCity.SARAQEB,
+      SyriaCity.KHAN_SHAYKHUN,
+      SyriaCity.BANSH,
+      SyriaCity.JABAL_AL_ZAWIYA,
+    ],
+    [SyriaGovernorate.AL_HASAKAH]: [
+      SyriaCity.AL_HASAKAH,
+      SyriaCity.QAMISHLI,
+      SyriaCity.RAS_AL_AYN,
+      SyriaCity.AL_MALIKIYAH,
+      SyriaCity.AMUDA,
+      SyriaCity.AL_SHADDADI,
+      SyriaCity.TAL_TAMR,
+    ],
+    [SyriaGovernorate.DEIR_EZ_ZOR]: [
+      SyriaCity.DEIR_EZ_ZOR,
+      SyriaCity.AL_MAYADIN,
+      SyriaCity.ABU_KAMAL,
+      SyriaCity.HAJJIN,
+      SyriaCity.AL_BUKAMAL,
+      SyriaCity.AL_JALAA,
+    ],
+    [SyriaGovernorate.TARTUS]: [
+      SyriaCity.TARTUS,
+      SyriaCity.BANIYAS,
+      SyriaCity.SAFITA,
+      SyriaCity.SHEIKH_BADR,
+      SyriaCity.DURAYKISH,
+      SyriaCity.AL_HAMIDIYAH,
+      SyriaCity.AL_QADMOUS,
+    ],
+    [SyriaGovernorate.RAQQA]: [
+      SyriaCity.RAQQA,
+      SyriaCity.AL_THAWRAH,
+      SyriaCity.TELL_ABYAD,
+      SyriaCity.AIN_ISSA,
+      SyriaCity.AL_KARAMA,
+      SyriaCity.MANSURA,
+    ],
+    [SyriaGovernorate.DARAA]: [
+      SyriaCity.DARAA,
+      SyriaCity.NAWA,
+      SyriaCity.IZRA,
+      SyriaCity.BUSRA_AL_HARIR,
+      SyriaCity.TAFAS,
+      SyriaCity.JASSIM,
+      SyriaCity.AL_HARA,
+    ],
+    [SyriaGovernorate.AS_SUWAYDA]: [
+      SyriaCity.AS_SUWAYDA,
+      SyriaCity.SALKHAD,
+      SyriaCity.SHAHBA,
+      SyriaCity.AL_QURAYYA,
+      SyriaCity.ARIQA,
+      SyriaCity.DHIBIN,
+    ],
+    [SyriaGovernorate.QUNEITRA]: [
+      SyriaCity.QUNEITRA,
+      SyriaCity.MADINAT_AL_BAATH,
+      SyriaCity.KHAN_ARNABA,
+      SyriaCity.BAQATHA,
+    ],
+    [SyriaGovernorate.DAMASCUS_COUNTRYSIDE]: [
+      SyriaCity.AL_TALL,
+      SyriaCity.YABROUD,
+      SyriaCity.AN_NABK,
+      SyriaCity.QATANA,
+      SyriaCity.AL_KISWAH,
+      SyriaCity.ZABADANI,
+      SyriaCity.QUTAYFA,
+      SyriaCity.DUMAIRE,
+      SyriaCity.HARJALA,
+    ],
+  };
 
 /**
  * Arabic names for SyriaGovernorates (for bilingual support)
@@ -502,10 +503,10 @@ export const getCitiesBySyriaGovernorate = (
  */
 export const getBilingualCitiesBySyriaGovernorate = (
   SyriaGovernorate: SyriaGovernorate,
-  useArabic: boolean = false
+  useArabic: boolean = false,
 ) => {
   return SyriaGovernorate_TO_CITIES[SyriaGovernorate].map((city) => ({
     value: city,
-    label: useArabic ? SyriaCity_ARABIC_NAMES[city] : city.replace(/-/g, ' ')
+    label: useArabic ? SyriaCity_ARABIC_NAMES[city] : city.replace(/-/g, ' '),
   }));
 };
