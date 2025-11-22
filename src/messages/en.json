@@ -491,6 +491,14 @@
     "error": "Error",
     "favoriteError": "Failed to update favorite. Please try again.",
 
+    "sellerInfo": {
+      "title": "Seller",
+      "verified": "Verified",
+      "email": "Email",
+      "memberSince": "Member since",
+      "viewProfile": "View Seller Profile"
+    },
+
     "header": {
       "whatsApp": "Text us on WhatsApp"
     },
@@ -1509,5 +1517,30 @@
     "justNow": "Just now",
     "hoursAgo": "h ago",
     "yesterday": "Yesterday"
+  },
+  "publicProfile": {
+    "verified": "Verified",
+    "memberSince": "Member since",
+    "email": "Email",
+    "phone": "Phone",
+    "noData": "No profile data available",
+    "stats": {
+      "totalListings": "Total Listings",
+      "forSale": "Cars for Sale",
+      "forRent": "Cars for Rent",
+      "totalViews": "Total Views"
+    },
+    "listings": {
+      "title": "Car Listings",
+      "noListings": "No car listings available yet",
+      "noImage": "No Image",
+      "km": "km",
+      "showing": "Showing",
+      "of": "of",
+      "listings": "listings"
+    }
+  },
+  "breadcrumb": {
+    "home": "Home"
   }
 }

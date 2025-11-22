@@ -2,7 +2,7 @@ import { getTranslations, getLocale } from "next-intl/server";
 import type { Metadata } from "next";
 
 // Types for different page configurations
-type WebPageType = 'home' | 'cars' | 'car-detail' | 'profile' | 'contact' | 'about' | 'rent' | 'sale' | 'search';
+type WebPageType = 'home' | 'cars' | 'car-detail' | 'profile' | 'contact' | 'about' | 'rent' | 'sale' | 'search' | 'user-profile';
 
 // API Settings Types
 interface ApiSettings {
@@ -278,6 +278,9 @@ export async function generateWebMetadata(
       profile: locale === 'ar'
         ? ['الملف الشخصي', 'حساب المستخدم', 'إعدادات الحساب', 'معلومات المستخدم']
         : ['user profile', 'account settings', 'user account', 'profile settings'],
+      'user-profile': locale === 'ar'
+        ? ['ملف شخصي عام', 'بائع سيارات', 'إعلانات السيارات', 'مستخدم', 'الملف العام']
+        : ['public profile', 'car seller', 'car listings', 'user profile', 'seller profile'],
       contact: locale === 'ar'
         ? ['اتصل بنا', 'دعم العملاء', 'خدمة العملاء', 'معلومات الاتصال']
         : ['contact us', 'customer support', 'customer service', 'contact information'],
