@@ -21,6 +21,9 @@ const textVariants = cva('', {
       mid: 'text-base font-psemibold',
       small: 'text-sm font-pmedium leading-none',
       muted: 'text-sm text-muted-foreground',
+      subtle: 'text-xs text-gray-500 font-pmedium',
+      caption: 'text-xs text-gray-600 font-pregular',
+      label: 'text-sm font-pmedium text-gray-700',
       link: 'text-primary underline-offset-4 hover:underline cursor-pointer',
       'link-muted':
         'text-muted-foreground underline-offset-4 hover:underline cursor-pointer',

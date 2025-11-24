@@ -30,6 +30,7 @@ import { BACKEND_URL } from '@/core/lib/web/constants';
 import { useSettings } from '@/providers/settings.provider';
 import GoogleButton from '@/components/auth/google-button';
 import FacebookButton from '@/components/auth/facebook-button';
+import AppleButton from '@/components/auth/apple-button';
 
 const RegisterPage = () => {
   const { getAuthenticationSettings } = useSettings();
@@ -331,7 +332,8 @@ const RegisterPage = () => {
 
               {/* Divider */}
               {(authSettings?.auth_providers?.enable_facebook_oauth ||
-                authSettings?.auth_providers?.enable_google_oauth) && (
+                authSettings?.auth_providers?.enable_google_oauth ||
+                authSettings?.auth_providers?.enable_apple_oauth) && (
                 <div className="relative py-2">
                   <div className="absolute inset-0 flex items-center">
                     <div className="w-full border-t border-gray-200"></div>
@@ -350,6 +352,9 @@ const RegisterPage = () => {
               )}
               {authSettings?.auth_providers?.enable_facebook_oauth && (
                 <FacebookButton mode="signup" />
+              )}
+              {authSettings?.auth_providers?.enable_apple_oauth && (
+                <AppleButton mode="signup" />
               )}
             </form>
           </CardContent>

@@ -64,20 +64,20 @@ const ProductsContent = () => {
       </Box>
 
       {/* Header Section with sort functionality */}
-        <Box className="w-full shadow-xl pb-3 pt-3 relative overflow-hidden bg-gradient-to-r from-white via-[#ABDE3B]/5 to-white before:absolute before:inset-0 before:bg-[linear-gradient(90deg,transparent_0%,transparent_48%,#198341/10_49%,#198341/10_51%,transparent_52%,transparent_100%)] before:pointer-events-none">
-          {/* Decorative Corner Accents */}
-          <div className="absolute top-0 left-0 w-20 h-20 bg-gradient-to-br from-[#198341]/20 to-transparent rounded-br-full pointer-events-none"></div>
-          <div className="absolute bottom-0 right-0 w-20 h-20 bg-gradient-to-tl from-[#ABDE3B]/20 to-transparent rounded-tl-full pointer-events-none"></div>
-          
-          {/* Top Border Accent */}
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#198341] via-[#ABDE3B] to-[#198341]"></div>
-          
-          <Header
-            onSortChange={handleSortChange}
-            totalItems={totalItems}
-            currentSort={currentSort}
-          />
-        </Box>
+      <Box className="w-full shadow-xl pb-3 pt-3 relative overflow-hidden bg-gradient-to-r from-white via-[#ABDE3B]/5 to-white before:absolute before:inset-0 before:bg-[linear-gradient(90deg,transparent_0%,transparent_48%,#198341/10_49%,#198341/10_51%,transparent_52%,transparent_100%)] before:pointer-events-none">
+        {/* Decorative Corner Accents */}
+        <div className="absolute top-0 left-0 w-20 h-20 bg-gradient-to-br from-[#198341]/20 to-transparent rounded-br-full pointer-events-none"></div>
+        <div className="absolute bottom-0 right-0 w-20 h-20 bg-gradient-to-tl from-[#ABDE3B]/20 to-transparent rounded-tl-full pointer-events-none"></div>
+
+        {/* Top Border Accent */}
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#198341] via-[#ABDE3B] to-[#198341]"></div>
+
+        <Header
+          onSortChange={handleSortChange}
+          totalItems={totalItems}
+          currentSort={currentSort}
+        />
+      </Box>
 
       {/* Main Content Section */}
       <Box
@@ -97,7 +97,7 @@ const ProductsContent = () => {
           {/* Use the AllCarListings component with queryParams from provider */}
           <AllCarListings
             showTitle={false}
-            pageSize={8}
+            pageSize={16}
             queryParams={finalQueryParams}
             onTotalItemsChange={handleTotalItemsChange}
             container={false}

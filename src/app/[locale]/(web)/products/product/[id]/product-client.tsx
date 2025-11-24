@@ -25,10 +25,7 @@ interface ProductClientProps {
   isProfileView: boolean;
 }
 
-const ProductClient = ({
-  carDataRes,
-  isAuthenticated,
-}: ProductClientProps) => {
+const ProductClient = ({ carDataRes, isAuthenticated }: ProductClientProps) => {
   const carData = carDataRes.data;
 
   // Statistics tracking hooks
@@ -43,8 +40,8 @@ const ProductClient = ({
   const [hasTrackedDetailsViewed, setHasTrackedDetailsViewed] = useState(false);
   const [viewStartTime, setViewStartTime] = useState<number | null>(null);
   const [totalViewDuration, setTotalViewDuration] = useState(0); // Track total accumulated duration in seconds
-  
-  const MAX_TRACKING_DURATION = 600; 
+
+  const MAX_TRACKING_DURATION = 600;
 
   const [favoriteStatus, setFavoriteStatus] = useState(
     carData?.isFavorite ?? false,
@@ -62,7 +59,7 @@ const ProductClient = ({
           onError: (error) => {
             setHasTrackedView(true);
           },
-        }
+        },
       );
 
       // Start tracking view duration
@@ -83,7 +80,7 @@ const ProductClient = ({
           onError: (error) => {
             setHasTrackedDetailsViewed(true);
           },
-        }
+        },
       );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -97,7 +94,9 @@ const ProductClient = ({
     const interval = setInterval(() => {
       // Check if we've already reached max tracking duration
       if (totalViewDuration >= MAX_TRACKING_DURATION) {
-        console.log('✅ [DESKTOP] Max tracking duration reached (10 minutes), stopping requests');
+        console.log(
+          '✅ [DESKTOP] Max tracking duration reached (10 minutes), stopping requests',
+        );
         return;
       }
 
@@ -105,7 +104,7 @@ const ProductClient = ({
       if (durationInSeconds > 0) {
         // Calculate new total duration
         const newTotalDuration = totalViewDuration + durationInSeconds;
-        
+
         // Only send if we haven't exceeded the max duration
         if (newTotalDuration <= MAX_TRACKING_DURATION) {
           updateViewDuration.mutate(
@@ -116,18 +115,25 @@ const ProductClient = ({
                 setTotalViewDuration(newTotalDuration);
                 // Reset timer to 0 after sending request
                 setViewStartTime(Date.now());
-                console.log(`📊 [DESKTOP] Updated view duration. Total: ${newTotalDuration}s / ${MAX_TRACKING_DURATION}s`);
+                console.log(
+                  `📊 [DESKTOP] Updated view duration. Total: ${newTotalDuration}s / ${MAX_TRACKING_DURATION}s`,
+                );
               },
               onError: (error) => {
-                console.error('❌ [DESKTOP] Failed to update view duration:', error);
+                console.error(
+                  '❌ [DESKTOP] Failed to update view duration:',
+                  error,
+                );
                 // Still update total duration even on error to prevent infinite retries
                 setTotalViewDuration(newTotalDuration);
                 setViewStartTime(Date.now());
               },
-            }
+            },
           );
         } else {
-          console.log(`🛑 [DESKTOP] Reached max duration (${newTotalDuration}s). No more requests will be sent.`);
+          console.log(
+            `🛑 [DESKTOP] Reached max duration (${newTotalDuration}s). No more requests will be sent.`,
+          );
           setTotalViewDuration(MAX_TRACKING_DURATION);
         }
       }
@@ -142,20 +148,27 @@ const ProductClient = ({
         const finalDuration = Math.floor((Date.now() - viewStartTime) / 1000);
         if (finalDuration > 0) {
           const newTotalDuration = totalViewDuration + finalDuration;
-          
+
           // Cap at max duration
-          const cappedDuration = Math.min(finalDuration, MAX_TRACKING_DURATION - totalViewDuration);
-          
+          const cappedDuration = Math.min(
+            finalDuration,
+            MAX_TRACKING_DURATION - totalViewDuration,
+          );
+
           if (cappedDuration > 0) {
             updateViewDuration.mutate({
               carListingId: carData.id,
               durationInSeconds: cappedDuration,
             });
-            console.log(`📊 [DESKTOP] Final duration sent: ${cappedDuration}s. Total: ${newTotalDuration}s`);
+            console.log(
+              `📊 [DESKTOP] Final duration sent: ${cappedDuration}s. Total: ${newTotalDuration}s`,
+            );
           }
         }
       } else {
-        console.log('✅ [DESKTOP] Max duration already reached, skipping final duration update');
+        console.log(
+          '✅ [DESKTOP] Max duration already reached, skipping final duration update',
+        );
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -184,7 +197,7 @@ const ProductClient = ({
           onError: (error) => {
             setHasTrackedContact(true);
           },
-        }
+        },
       );
     }
   };
@@ -235,6 +248,7 @@ const ProductClient = ({
             isAuthenticated={isAuthenticated}
             onFavoriteToggle={handleFavoriteToggle}
             onContactClick={handleContactClick}
+            user={carData.user}
           />
         </Box>
       </div>
@@ -292,7 +306,11 @@ const ProductClient = ({
       <FloatingShareButton
         carListingId={carData.id}
         productTitle={carData.title}
-        productPrice={carData.price ? `${carData.price} ${carData.currency || ''}` : undefined}
+        productPrice={
+          carData.price
+            ? `${carData.price} ${carData.currency || ''}`
+            : undefined
+        }
         productMake={carData.make?.name}
         productModel={carData.model?.name}
         productYear={carData.details?.year?.toString()}

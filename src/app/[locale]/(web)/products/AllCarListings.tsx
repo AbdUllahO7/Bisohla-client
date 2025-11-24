@@ -22,7 +22,7 @@ interface AllCarListingsProps {
 }
 
 const AllCarListings: React.FC<AllCarListingsProps> = ({
-  pageSize = 8,
+  pageSize = 16,
   showTitle = false,
   queryParams: externalQueryParams,
   onTotalItemsChange,
@@ -101,6 +101,7 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
 
   // Fetch all car listings with pagination and filters
   const { data, isLoading, error } = useCarListings(queryParams);
+  console.log('Car Listings Data:', data);
   // Extract car listings array safely
   const carListings = useMemo(() => {
     const apiData = data as any;

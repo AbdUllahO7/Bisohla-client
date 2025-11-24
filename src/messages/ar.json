@@ -501,6 +501,15 @@
     "signIn": "تسجيل الدخول",
     "error": "خطأ",
     "favoriteError": "فشل في تحديث المفضلة. يرجى المحاولة مرة أخرى.",
+
+    "sellerInfo": {
+      "title": "البائع",
+      "verified": "موثق",
+      "email": "البريد الإلكتروني",
+      "memberSince": "عضو منذ",
+      "viewProfile": "عرض ملف البائع"
+    },
+
     "header": {
       "whatsApp": "مراسة عبر الواتس"
     },
@@ -1469,5 +1478,30 @@
     "justNow": "الآن",
     "hoursAgo": "س",
     "yesterday": "أمس"
+  },
+  "publicProfile": {
+    "verified": "موثق",
+    "memberSince": "عضو منذ",
+    "email": "البريد الإلكتروني",
+    "phone": "رقم الهاتف",
+    "noData": "لا توجد بيانات ملف شخصي متاحة",
+    "stats": {
+      "totalListings": "إجمالي الإعلانات",
+      "forSale": "سيارات للبيع",
+      "forRent": "سيارات للإيجار",
+      "totalViews": "إجمالي المشاهدات"
+    },
+    "listings": {
+      "title": "إعلانات السيارات",
+      "noListings": "لا توجد إعلانات سيارات متاحة حتى الآن",
+      "noImage": "لا توجد صورة",
+      "km": "كم",
+      "showing": "عرض",
+      "of": "من",
+      "listings": "إعلانات"
+    }
+  },
+  "breadcrumb": {
+    "home": "الرئيسية"
   }
 }
