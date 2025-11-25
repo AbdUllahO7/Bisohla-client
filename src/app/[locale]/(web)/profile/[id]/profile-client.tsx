@@ -183,7 +183,7 @@ const ProfileClient = ({
             carListingsData.data.data.length > 0 ? (
             <div
               className={
-                'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4'
+                'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 w-full'
               }
             >
               {carListingsData.data.data.map((car, index) => {
@@ -197,7 +197,9 @@ const ProfileClient = ({
                   //   )}
                   //   <ProfileCarCard car={car} />
                   // </>
-                  <ProfileCarCard car={car} />
+                  <div key={index} className="col-span-1">
+                    <ProfileCarCard car={car} />
+                  </div>
                 );
               })}
             </div>

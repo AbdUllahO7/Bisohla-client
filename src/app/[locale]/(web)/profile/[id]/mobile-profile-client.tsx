@@ -17,6 +17,7 @@ import { Link } from '@/i18n/routing';
 import { useState, useCallback, useMemo } from 'react';
 import type { QueryParams } from '@/core/entities/api/api';
 import Pagination from '@/components/Pagination';
+import { ProfileCarCard } from './profile-car-card';
 
 interface MobileProfileClientProps {
   profileDataRes: ApiResponse<PublicProfileData>;
@@ -176,74 +177,23 @@ const MobileProfileClient = ({
             </div>
           ) : carListingsData?.data?.data &&
             carListingsData.data.data.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {carListingsData.data.data.map((car) => (
-                <Link
-                  key={car.id}
-                  href={`/products/product/${car.id}`}
-                  className="group"
-                >
-                  <div className="relative">
-                    {/* Hover glow effect */}
-                    <div className="absolute -inset-0.5 bg-gradient-to-r from-[#198341] to-[#ABDE3B] rounded-xl opacity-0 group-active:opacity-20 blur transition-opacity duration-300"></div>
-
-                    <Card className="relative bg-white border-2 border-gray-100 rounded-xl overflow-hidden shadow-md active:shadow-xl active:border-[#198341] transition-all duration-300">
-                      {/* Car Image */}
-                      <div className="relative h-40 w-full overflow-hidden bg-gray-100">
-                        {car.images && car.images.length > 0 ? (
-                          <Image
-                            src={
-                              car.images.find((img) => img.isPrimary)?.url ||
-                              car.images[0]?.url ||
-                              '/placeholder.svg'
-                            }
-                            alt={car.title}
-                            fill
-                            className="object-cover group-active:scale-110 transition-transform duration-300"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <Text variant="small" className="text-gray-400">
-                              {t('listings.noImage')}
-                            </Text>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Car Info */}
-                      <CardContent className="p-3 space-y-2">
-                        <Text
-                          variant="h5"
-                          className="font-bold text-[#2C3C39] line-clamp-1 group-active:text-[#198341] transition-colors duration-300"
-                        >
-                          {car.title}
-                        </Text>
-
-                        <div className="flex items-center gap-2 text-xs text-gray-600">
-                          {car.details?.year && <span>{car.details.year}</span>}
-                          {car.details?.mileage && (
-                            <>
-                              <span>"</span>
-                              <span>
-                                {car.details.mileage} {t('listings.km')}
-                              </span>
-                            </>
-                          )}
-                        </div>
-
-                        <div className="flex items-center justify-between">
-                          <Text
-                            variant="h5"
-                            className="font-bold text-[#198341]"
-                          >
-                            {car.price} {car.currency}
-                          </Text>
-                        </div>
-                      </CardContent>
-                    </Card>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
+              {carListingsData.data.data.map((car, index) => {
+                return (
+                  // <>
+                  //   {/* Insert Ad after every 8 listings */}
+                  //   {(index + 1) % 8 === 0 && (
+                  //     <div className="col-span-4">
+                  //       <AdsSectionProduct />
+                  //     </div>
+                  //   )}
+                  //   <ProfileCarCard car={car} />
+                  // </>
+                  <div key={index} className="col-span-1">
+                    <ProfileCarCard car={car} />
                   </div>
-                </Link>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <div className="bg-white rounded-xl p-8 text-center shadow-md">

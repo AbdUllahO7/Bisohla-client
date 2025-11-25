@@ -12,7 +12,11 @@ export const ProfileCarCard = ({ car }: { car: SelectCarListingDto }) => {
   const t = useTranslations('publicProfile');
 
   return (
-    <Link key={car.id} href={`/products/product/${car.id}`} className="group">
+    <Link
+      key={car.id}
+      href={`/products/product/${car.id}`}
+      className="group w-full"
+    >
       <div className="relative">
         {/* Hover glow effect */}
         <div className="absolute -inset-0.5 bg-gradient-to-r from-[#198341] to-[#ABDE3B] rounded-xl opacity-0 group-hover:opacity-20 blur transition-opacity duration-300"></div>
