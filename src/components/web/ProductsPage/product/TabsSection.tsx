@@ -5,25 +5,16 @@ import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { useLocale, useTranslations } from 'next-intl';
 import Box from '@/components/box/box';
 import { Skeleton } from '@/components/ui/skeleton';
-import AccordionProductDetails from './Tabs/AccordionProductDetails';
 import AccordionProductSafety from './Tabs/AccordionProductSafety';
 import LatestOffers from '../../Home/LatestOffers';
 import CarDetailsContent from './Tabs/CarDetailsContent';
-
-interface Damage {
-  id: number;
-  carListingId: number;
-  damageType: string;
-  damageZone: string;
-  description: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
-
+import { SelectCarDamageDto } from '@/core/entities/models/cars/cars.dto';
+import CarDamagesTabContent from './Tabs/car-damages-tab-content';
+import AccordionProductDetails from './Tabs/AccordionProductDetails';
 interface TabsSectionProps {
   data?: {
     data?: any;
-    damages?: Damage[];
+    damages?: SelectCarDamageDto[];
   };
   isLoading?: boolean;
 }
@@ -145,6 +136,7 @@ const TabsSection: React.FC<TabsSectionProps> = ({
             </span>
           )}
         </div>
+        {/* <CarDamagesTabContent isLoading={isLoading} carListing={data?.data} /> */}
         <div className="font-cairo text-[400] text-secondary-text  mt-8">
           {isLoading ? (
             <div className="space-y-4">

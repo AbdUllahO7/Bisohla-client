@@ -5,6 +5,7 @@ import Text from '@/components/text/text';
 import SmartBreadcrumb from '@/components/smart-breadcrumbs';
 import ProfileHeader from '@/components/web/ProfilePage/ProfileHeader';
 import ProfileStats from '@/components/web/ProfilePage/ProfileStats';
+import PublicProfileFilter from '@/components/web/ProfilePage/PublicProfileFilter';
 import { ApiResponse } from '@/core/entities/api/success.response';
 import { PublicProfileData } from '@/core/entities/models/public-profile/public-profile.dto';
 import { useGetPublicUserCarListings } from '@/core/infrastructure-adapters/use-actions/visitors/public-profile.use-actions';
@@ -13,6 +14,12 @@ import { Card, CardContent } from '@/components/ui/card';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
+import { useState, useCallback, useMemo } from 'react';
+import type { QueryParams } from '@/core/entities/api/api';
+import type { ViewMode } from '@/core/entities/models/cars/filter-types';
+import Pagination from '@/components/Pagination';
+import { ProfileCarCard } from './profile-car-card';
+import AdsSectionProduct from '@/components/web/ProductsPage/product/AdsSectionProduct';
 
 interface ProfileClientProps {
   profileDataRes: ApiResponse<PublicProfileData>;
@@ -31,17 +38,70 @@ const ProfileClient = ({
   const t = useTranslations('publicProfile');
   const breadcrumbT = useTranslations('breadcrumb');
 
-  // Fetch user's car listings
+  // State management
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 12;
+
+  const [filterParams, setFilterParams] = useState<QueryParams>({
+    page: 1,
+    pageSize: pageSize,
+    sortBy: 'createdAt',
+    sortDirection: 'desc',
+  });
+
+  // Fetch user's car listings with filters
   const { data: carListingsData, isLoading: isLoadingListings } =
     useGetPublicUserCarListings(userId, true, {
-      page: 1,
+      page: filterParams.page || 1,
+      pageSize: filterParams.pageSize || pageSize,
+      sortBy: filterParams.sortBy || 'createdAt',
+      sortDirection: filterParams.sortDirection || 'desc',
+      filterGroups: filterParams.filterGroups,
+      searchKey: filterParams.searchKey,
+      searchTerm: filterParams.searchTerm,
     });
 
-  console.log('Car Listings Data:', carListingsData);
+  // Handle filter changes
+  const handleFilterChange = useCallback((params: QueryParams) => {
+    setFilterParams({
+      ...params,
+      page: 1, // Reset to first page when filters change
+      pageSize: pageSize,
+    });
+    setCurrentPage(1);
+  }, []);
+
+  // Handle page change from pagination
+  const handlePageChange = useCallback((page: number) => {
+    setCurrentPage(page);
+    setFilterParams((prev) => ({
+      ...prev,
+      page: page,
+    }));
+  }, []);
+
+  // Extract pagination metadata from response
+  const paginationMeta = useMemo(() => {
+    interface PaginationMeta {
+      currentPage?: number;
+      totalPages?: number;
+      hasNextPage?: boolean;
+      hasPreviousPage?: boolean;
+      totalItems?: number;
+    }
+    const meta = (carListingsData?.data || {}) as PaginationMeta;
+    return {
+      currentPage: meta.currentPage || currentPage,
+      totalPages: meta.totalPages || 1,
+      hasNextPage: meta.hasNextPage || false,
+      hasPreviousPage: meta.hasPreviousPage || false,
+      totalItems: meta.totalItems || 0,
+    };
+  }, [carListingsData, currentPage]);
 
   if (!profileData) {
     return (
-      <Box variant="center" className="min-h-screen">
+      <Box variant="center" className="min-h-screen w-full">
         <Text variant="p">{t('noData')}</Text>
       </Box>
     );
@@ -50,18 +110,13 @@ const ProfileClient = ({
   // Define breadcrumb items
   const breadcrumbItems = [
     {
-      label: breadcrumbT('home'),
-      arLabel: breadcrumbT('home'),
-      href: '/',
-    },
-    {
       label: profileData.name,
     },
   ];
 
   return (
     <div className="bg-background w-full min-h-screen mb-5 mt-5">
-      <Box variant="container" className="w-full mb-16 mt-8">
+      <Box variant="container" className="w-full mb-8 mt-8">
         <SmartBreadcrumb
           items={breadcrumbItems}
           variant="default"
@@ -96,9 +151,20 @@ const ProfileClient = ({
             </div>
           </div>
 
+          {/* Filter Component */}
+          <PublicProfileFilter
+            onChange={handleFilterChange}
+            totalItems={paginationMeta.totalItems}
+            isLoading={isLoadingListings}
+          />
+
           {/* Listings Grid */}
           {isLoadingListings ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 w-full">
+            <div
+              className={
+                'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 w-full'
+              }
+            >
               {Array.from({ length: 8 }).map((_, index) => (
                 <Card
                   key={`skeleton-${index}`}
@@ -115,93 +181,51 @@ const ProfileClient = ({
             </div>
           ) : carListingsData?.data?.data &&
             carListingsData.data.data.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {carListingsData.data.data.map((car) => (
-                <Link
-                  key={car.id}
-                  href={`/products/product/${car.id}`}
-                  className="group"
-                >
-                  <div className="relative">
-                    {/* Hover glow effect */}
-                    <div className="absolute -inset-0.5 bg-gradient-to-r from-[#198341] to-[#ABDE3B] rounded-xl opacity-0 group-hover:opacity-20 blur transition-opacity duration-300"></div>
-
-                    <Card className="relative bg-white border-2 border-gray-100 rounded-xl overflow-hidden shadow-md hover:shadow-2xl hover:border-[#198341] transition-all duration-300">
-                      {/* Car Image */}
-                      <div className="relative h-48 w-full overflow-hidden bg-gray-100">
-                        {car.images && car.images.length > 0 ? (
-                          <Image
-                            src={
-                              car.images.find((img) => img.isPrimary)?.url ||
-                              car.images[0]?.url ||
-                              '/placeholder.svg'
-                            }
-                            alt={car.title}
-                            fill
-                            className="object-cover group-active:scale-110 transition-transform duration-300"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <Text variant="small" className="text-gray-400">
-                              {t('listings.noImage')}
-                            </Text>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Car Info */}
-                      <CardContent className="p-4 space-y-3">
-                        <Text
-                          variant="h5"
-                          className="font-bold text-[#2C3C39] line-clamp-1 group-hover:text-[#198341] transition-colors duration-300"
-                        >
-                          {car.title}
-                        </Text>
-
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          {car.details?.year && <span>{car.details.year}</span>}
-                          {car.details?.mileage && (
-                            <>
-                              <span>•</span>
-                              <span>
-                                {car.details.mileage} {t('listings.km')}
-                              </span>
-                            </>
-                          )}
-                        </div>
-
-                        <div className="flex items-center justify-between">
-                          <Text
-                            variant="h5"
-                            className="font-bold text-[#198341]"
-                          >
-                            {car.price} {car.currency}
-                          </Text>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-                </Link>
-              ))}
+            <div
+              className={
+                'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4'
+              }
+            >
+              {carListingsData.data.data.map((car, index) => {
+                return (
+                  // <>
+                  //   {/* Insert Ad after every 8 listings */}
+                  //   {(index + 1) % 8 === 0 && (
+                  //     <div className="col-span-4">
+                  //       <AdsSectionProduct />
+                  //     </div>
+                  //   )}
+                  //   <ProfileCarCard car={car} />
+                  // </>
+                  <ProfileCarCard car={car} />
+                );
+              })}
             </div>
           ) : (
-            <div className="bg-white rounded-xl p-12 text-center shadow-md">
+            <div className="bg-white rounded-xl p-12 text-center shadow-md w-full">
               <Text variant="p" className="text-gray-500">
                 {t('listings.noListings')}
               </Text>
             </div>
           )}
 
-          {/* Pagination Info */}
-          {carListingsData?.data && (
-            <div className="mt-6 text-center">
-              <Text variant="small" className="text-gray-600">
-                {t('listings.showing')} {carListingsData.data.data?.length || 0}{' '}
-                {t('listings.of')} {carListingsData.data.totalItems}{' '}
-                {t('listings.listings')}
-              </Text>
-            </div>
-          )}
+          {/* Pagination */}
+          {!isLoadingListings &&
+            carListingsData?.data?.data &&
+            carListingsData.data.data.length > 0 &&
+            paginationMeta.totalPages > 1 && (
+              <Pagination
+                currentPage={paginationMeta.currentPage}
+                totalPages={paginationMeta.totalPages}
+                hasNextPage={paginationMeta.hasNextPage}
+                hasPreviousPage={paginationMeta.hasPreviousPage}
+                totalItems={paginationMeta.totalItems}
+                pageSize={pageSize}
+                onPageChange={handlePageChange}
+                showItemsInfo={true}
+                className="mt-8"
+              />
+            )}
         </Box>
       </Box>
     </div>

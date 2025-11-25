@@ -5,6 +5,7 @@ import Text from '@/components/text/text';
 import SmartBreadcrumb from '@/components/smart-breadcrumbs';
 import ProfileHeader from '@/components/web/ProfilePage/ProfileHeader';
 import ProfileStats from '@/components/web/ProfilePage/ProfileStats';
+import PublicProfileFilter from '@/components/web/ProfilePage/PublicProfileFilter';
 import { ApiResponse } from '@/core/entities/api/success.response';
 import { PublicProfileData } from '@/core/entities/models/public-profile/public-profile.dto';
 import { useGetPublicUserCarListings } from '@/core/infrastructure-adapters/use-actions/visitors/public-profile.use-actions';
@@ -13,6 +14,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
+import { useState, useCallback, useMemo } from 'react';
+import type { QueryParams } from '@/core/entities/api/api';
+import Pagination from '@/components/Pagination';
 
 interface MobileProfileClientProps {
   profileDataRes: ApiResponse<PublicProfileData>;
@@ -31,11 +35,66 @@ const MobileProfileClient = ({
   const t = useTranslations('publicProfile');
   const breadcrumbT = useTranslations('breadcrumb');
 
-  // Fetch user's car listings
+  // State management
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 12;
+
+  const [filterParams, setFilterParams] = useState<QueryParams>({
+    page: 1,
+    pageSize: pageSize,
+    sortBy: 'createdAt',
+    sortDirection: 'desc',
+  });
+
+  // Fetch user's car listings with filters
   const { data: carListingsData, isLoading: isLoadingListings } =
     useGetPublicUserCarListings(userId, true, {
-      page: 1,
+      page: filterParams.page || 1,
+      pageSize: filterParams.pageSize || pageSize,
+      sortBy: filterParams.sortBy || 'createdAt',
+      sortDirection: filterParams.sortDirection || 'desc',
+      filterGroups: filterParams.filterGroups,
+      searchKey: filterParams.searchKey,
+      searchTerm: filterParams.searchTerm,
     });
+
+  // Handle filter changes
+  const handleFilterChange = useCallback((params: QueryParams) => {
+    setFilterParams({
+      ...params,
+      page: 1, // Reset to first page when filters change
+      pageSize: pageSize,
+    });
+    setCurrentPage(1);
+  }, []);
+
+  // Handle page change from pagination
+  const handlePageChange = useCallback((page: number) => {
+    setCurrentPage(page);
+    setFilterParams((prev) => ({
+      ...prev,
+      page: page,
+    }));
+  }, []);
+
+  // Extract pagination metadata from response
+  const paginationMeta = useMemo(() => {
+    interface PaginationMeta {
+      currentPage?: number;
+      totalPages?: number;
+      hasNextPage?: boolean;
+      hasPreviousPage?: boolean;
+      totalItems?: number;
+    }
+    const meta = (carListingsData?.data || {}) as PaginationMeta;
+    return {
+      currentPage: meta.currentPage || currentPage,
+      totalPages: meta.totalPages || 1,
+      hasNextPage: meta.hasNextPage || false,
+      hasPreviousPage: meta.hasPreviousPage || false,
+      totalItems: meta.totalItems || 0,
+    };
+  }, [carListingsData, currentPage]);
 
   if (!profileData) {
     return (
@@ -47,11 +106,6 @@ const MobileProfileClient = ({
 
   // Define breadcrumb items
   const breadcrumbItems = [
-    {
-      label: breadcrumbT('home'),
-      arLabel: breadcrumbT('home'),
-      href: '/',
-    },
     {
       label: profileData.name,
     },
@@ -92,6 +146,15 @@ const MobileProfileClient = ({
                 {t('listings.title')}
               </Text>
             </div>
+          </div>
+
+          {/* Filter Component */}
+          <div className="mb-4">
+            <PublicProfileFilter
+              onChange={handleFilterChange}
+              totalItems={paginationMeta.totalItems}
+              isLoading={isLoadingListings}
+            />
           </div>
 
           {/* Listings Grid */}
@@ -190,16 +253,25 @@ const MobileProfileClient = ({
             </div>
           )}
 
-          {/* Pagination Info */}
-          {carListingsData?.data && (
-            <div className="mt-4 text-center">
-              <Text variant="small" className="text-gray-600 text-xs">
-                {t('listings.showing')} {carListingsData.data.data?.length || 0}{' '}
-                {t('listings.of')} {carListingsData.data.totalItems}{' '}
-                {t('listings.listings')}
-              </Text>
-            </div>
-          )}
+          {/* Pagination */}
+          {!isLoadingListings &&
+            carListingsData?.data?.data &&
+            carListingsData.data.data.length > 0 &&
+            paginationMeta.totalPages > 1 && (
+              <div className="mt-6">
+                <Pagination
+                  currentPage={paginationMeta.currentPage}
+                  totalPages={paginationMeta.totalPages}
+                  hasNextPage={paginationMeta.hasNextPage}
+                  hasPreviousPage={paginationMeta.hasPreviousPage}
+                  totalItems={paginationMeta.totalItems}
+                  pageSize={pageSize}
+                  onPageChange={handlePageChange}
+                  showItemsInfo={true}
+                  className="mt-4"
+                />
+              </div>
+            )}
         </div>
       </Box>
     </div>

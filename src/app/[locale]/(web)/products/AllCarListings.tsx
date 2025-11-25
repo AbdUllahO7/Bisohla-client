@@ -207,6 +207,7 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
         title: card.title,
         marka: card.make?.name || card.marka || '',
         price: card.price.toString(),
+        currency: card.currency,
         type: card.listingType,
         imageSrc:
           card.images?.find((img: any) => img.isPrimary)?.url ||
@@ -279,22 +280,34 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
           <>
             {isMobile ? (
               <Box className="w-full flex-col">
-                {carListings.map((card, index) =>
-                  renderCarListing(card, index),
-                )}
+                {carListings.map((card, index) => (
+                  <React.Fragment key={index}>
+                    {renderCarListing(card, index)}
+
+                    {/* Insert Ad after every 8 listings */}
+                    {(index + 1) % 8 === 0 && <AdsSectionProduct />}
+                  </React.Fragment>
+                ))}
               </Box>
             ) : (
               <Box
                 className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 w-full"
                 variant="center"
               >
-                {carListings.map((card, index) =>
-                  renderCarListing(card, index),
-                )}
+                {carListings.map((card, index) => (
+                  <React.Fragment key={index}>
+                    {renderCarListing(card, index)}
+
+                    {/* Insert Ad after every 8 listings */}
+                    {(index + 1) % 8 === 0 && (
+                      <div className="col-span-full">
+                        <AdsSectionProduct />
+                      </div>
+                    )}
+                  </React.Fragment>
+                ))}
               </Box>
             )}
-
-            <AdsSectionProduct />
 
             {paginationInfo.totalPages > 1 && (
               <Pagination

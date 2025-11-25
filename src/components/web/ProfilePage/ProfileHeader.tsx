@@ -122,7 +122,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
 
                 {/* Contact Info */}
                 <Box variant="column" className="gap-2 items-center">
-                  {profile.email && (
+                  {/* {profile.email && (
                     <Box variant="row" className="gap-2 items-center">
                       <Mail className="h-4 w-4 text-[#198341]" />
                       <Text variant="small" className="text-gray-600">
@@ -137,7 +137,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                         {profile.phone}
                       </Text>
                     </Box>
-                  )}
+                  )} */}
                   <Box variant="row" className="gap-2 items-center">
                     <Calendar className="h-4 w-4 text-[#198341]" />
                     <Text variant="small" className="text-gray-600">
@@ -195,7 +195,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
 
                 {/* Contact Info Grid */}
                 <Box variant="row" className="gap-6 flex-wrap">
-                  {profile.email && (
+                  {/* {profile.email && (
                     <Box variant="row" className="gap-2 items-center group">
                       <div className="p-2 bg-[#198341]/10 rounded-lg group-hover:bg-[#198341]/20 transition-colors duration-300">
                         <Mail className="h-5 w-5 text-[#198341]" />
@@ -212,8 +212,8 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                         </Text>
                       </Box>
                     </Box>
-                  )}
-                  {profile.phone && (
+                  )} */}
+                  {/* {profile.phone && (
                     <Box variant="row" className="gap-2 items-center group">
                       <div className="p-2 bg-[#198341]/10 rounded-lg group-hover:bg-[#198341]/20 transition-colors duration-300">
                         <Phone className="h-5 w-5 text-[#198341]" />
@@ -230,7 +230,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                         </Text>
                       </Box>
                     </Box>
-                  )}
+                  )} */}
                   <Box variant="row" className="gap-2 items-center group">
                     <div className="p-2 bg-[#198341]/10 rounded-lg group-hover:bg-[#198341]/20 transition-colors duration-300">
                       <Calendar className="h-5 w-5 text-[#198341]" />

@@ -342,7 +342,7 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
 
       return {
         page: 1,
-        pageSize: 8,
+        pageSize: 12,
         sortBy: 'createdAt',
         sortDirection: 'desc',
         filterGroups: filterGroups.length > 0 ? filterGroups : undefined,
@@ -495,7 +495,6 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
     if (lastSyncedUrlParams.current === currentUrlParams) {
       return;
     }
-
 
     isUpdatingFromUrl.current = true;
     lastSyncedUrlParams.current = currentUrlParams;

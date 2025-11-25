@@ -7,8 +7,8 @@ export interface PublicProfileData {
   name: string;
   profileUrl: string | null;
   createdAt: string;
-  email: string;
-  phone: string | null;
+  // email: string;
+  // phone: string | null;
   totalForSellCarListings: number;
   totalForRentCarListings: number;
   // totalViews: number;
