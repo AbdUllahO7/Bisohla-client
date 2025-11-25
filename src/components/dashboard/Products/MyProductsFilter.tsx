@@ -37,28 +37,17 @@ import {
   SelectCarTrimDto,
 } from '@/core/entities/models/cars/cars.dto';
 import {
+  ViewMode,
+  FilterType,
+  StatusFilter,
+  SortOption,
+} from '@/core/entities/models/cars/filter-types';
+import {
   getCarMakes,
   getCarModels,
   getCarTrims,
 } from '@/core/infrastructure-adapters/actions/visitors/car.visitor.actions';
-
-// View mode type
-type ViewMode = 'grid' | 'list';
-
-// Filter type for listing types
-type FilterType = 'all' | 'for_sale' | 'for_rent';
-
-// Status filter type
-type StatusFilter = 'all' | 'approved' | 'pending' | 'rejected';
-
-// Sort options
-type SortOption =
-  | 'newest'
-  | 'oldest'
-  | 'price_high'
-  | 'price_low'
-  | 'title_asc'
-  | 'title_desc';
+import { useDebounce } from '@/hooks/use-debounce';
 
 interface SimpleProductsFilterProps {
   onChange?: (params: QueryParams) => void;
@@ -68,23 +57,6 @@ interface SimpleProductsFilterProps {
   isLoading?: boolean;
   onRefresh?: () => void;
 }
-
-// Custom hook for debounced value
-const useDebounce = (value: string, delay: number) => {
-  const [debouncedValue, setDebouncedValue] = useState(value);
-
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [value, delay]);
-
-  return debouncedValue;
-};
 
 const MyProductsFilter: React.FC<SimpleProductsFilterProps> = ({
   onChange,
@@ -226,7 +198,6 @@ const MyProductsFilter: React.FC<SimpleProductsFilterProps> = ({
       queryParams.searchKey = 'title';
       queryParams.searchTerm = debouncedSearchQuery.trim();
     }
-
 
     if (onChange) {
       onChange(queryParams);

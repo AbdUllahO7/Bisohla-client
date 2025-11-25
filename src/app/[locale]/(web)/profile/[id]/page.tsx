@@ -9,7 +9,7 @@ import MobileProfileClient from './mobile-profile-client';
 import { APP_URL } from '@/core/lib/web/constants';
 import {
   generateProfileMetadata,
-  generateSettingsBasedMetadata
+  generateSettingsBasedMetadata,
 } from '@/utils/settings-metadata.utils';
 
 interface ProfilePageProps {
@@ -42,7 +42,6 @@ export async function generateMetadata({
     // Use the new generateProfileMetadata function with actual profile data
     return await generateProfileMetadata({
       name: profile.name,
-      email: profile.email,
       profileUrl: profile.profileUrl,
       totalListings: profile.totalListings,
       createdAt: profile.createdAt,

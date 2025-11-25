@@ -249,6 +249,7 @@ const LatestOffers: React.FC<LatestOffersProps> = ({
                       title={card.title}
                       marka={card.make?.name || card.marka}
                       price={card.price}
+                      currency={card.currency}
                       type={card.listingType}
                       imageSrc={
                         card.images?.find(

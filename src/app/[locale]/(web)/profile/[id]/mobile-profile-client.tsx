@@ -5,6 +5,7 @@ import Text from '@/components/text/text';
 import SmartBreadcrumb from '@/components/smart-breadcrumbs';
 import ProfileHeader from '@/components/web/ProfilePage/ProfileHeader';
 import ProfileStats from '@/components/web/ProfilePage/ProfileStats';
+import PublicProfileFilter from '@/components/web/ProfilePage/PublicProfileFilter';
 import { ApiResponse } from '@/core/entities/api/success.response';
 import { PublicProfileData } from '@/core/entities/models/public-profile/public-profile.dto';
 import { useGetPublicUserCarListings } from '@/core/infrastructure-adapters/use-actions/visitors/public-profile.use-actions';
@@ -13,6 +14,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
+import { useState, useCallback, useMemo } from 'react';
+import type { QueryParams } from '@/core/entities/api/api';
+import Pagination from '@/components/Pagination';
+import { ProfileCarCard } from './profile-car-card';
 
 interface MobileProfileClientProps {
   profileDataRes: ApiResponse<PublicProfileData>;
@@ -31,11 +36,66 @@ const MobileProfileClient = ({
   const t = useTranslations('publicProfile');
   const breadcrumbT = useTranslations('breadcrumb');
 
-  // Fetch user's car listings
+  // State management
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 12;
+
+  const [filterParams, setFilterParams] = useState<QueryParams>({
+    page: 1,
+    pageSize: pageSize,
+    sortBy: 'createdAt',
+    sortDirection: 'desc',
+  });
+
+  // Fetch user's car listings with filters
   const { data: carListingsData, isLoading: isLoadingListings } =
     useGetPublicUserCarListings(userId, true, {
-      page: 1,
+      page: filterParams.page || 1,
+      pageSize: filterParams.pageSize || pageSize,
+      sortBy: filterParams.sortBy || 'createdAt',
+      sortDirection: filterParams.sortDirection || 'desc',
+      filterGroups: filterParams.filterGroups,
+      searchKey: filterParams.searchKey,
+      searchTerm: filterParams.searchTerm,
     });
+
+  // Handle filter changes
+  const handleFilterChange = useCallback((params: QueryParams) => {
+    setFilterParams({
+      ...params,
+      page: 1, // Reset to first page when filters change
+      pageSize: pageSize,
+    });
+    setCurrentPage(1);
+  }, []);
+
+  // Handle page change from pagination
+  const handlePageChange = useCallback((page: number) => {
+    setCurrentPage(page);
+    setFilterParams((prev) => ({
+      ...prev,
+      page: page,
+    }));
+  }, []);
+
+  // Extract pagination metadata from response
+  const paginationMeta = useMemo(() => {
+    interface PaginationMeta {
+      currentPage?: number;
+      totalPages?: number;
+      hasNextPage?: boolean;
+      hasPreviousPage?: boolean;
+      totalItems?: number;
+    }
+    const meta = (carListingsData?.data || {}) as PaginationMeta;
+    return {
+      currentPage: meta.currentPage || currentPage,
+      totalPages: meta.totalPages || 1,
+      hasNextPage: meta.hasNextPage || false,
+      hasPreviousPage: meta.hasPreviousPage || false,
+      totalItems: meta.totalItems || 0,
+    };
+  }, [carListingsData, currentPage]);
 
   if (!profileData) {
     return (
@@ -47,11 +107,6 @@ const MobileProfileClient = ({
 
   // Define breadcrumb items
   const breadcrumbItems = [
-    {
-      label: breadcrumbT('home'),
-      arLabel: breadcrumbT('home'),
-      href: '/',
-    },
     {
       label: profileData.name,
     },
@@ -94,6 +149,15 @@ const MobileProfileClient = ({
             </div>
           </div>
 
+          {/* Filter Component */}
+          <div className="mb-4">
+            <PublicProfileFilter
+              onChange={handleFilterChange}
+              totalItems={paginationMeta.totalItems}
+              isLoading={isLoadingListings}
+            />
+          </div>
+
           {/* Listings Grid */}
           {isLoadingListings ? (
             <div className="grid grid-cols-1 gap-3">
@@ -113,74 +177,23 @@ const MobileProfileClient = ({
             </div>
           ) : carListingsData?.data?.data &&
             carListingsData.data.data.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {carListingsData.data.data.map((car) => (
-                <Link
-                  key={car.id}
-                  href={`/products/product/${car.id}`}
-                  className="group"
-                >
-                  <div className="relative">
-                    {/* Hover glow effect */}
-                    <div className="absolute -inset-0.5 bg-gradient-to-r from-[#198341] to-[#ABDE3B] rounded-xl opacity-0 group-active:opacity-20 blur transition-opacity duration-300"></div>
-
-                    <Card className="relative bg-white border-2 border-gray-100 rounded-xl overflow-hidden shadow-md active:shadow-xl active:border-[#198341] transition-all duration-300">
-                      {/* Car Image */}
-                      <div className="relative h-40 w-full overflow-hidden bg-gray-100">
-                        {car.images && car.images.length > 0 ? (
-                          <Image
-                            src={
-                              car.images.find((img) => img.isPrimary)?.url ||
-                              car.images[0]?.url ||
-                              '/placeholder.svg'
-                            }
-                            alt={car.title}
-                            fill
-                            className="object-cover group-active:scale-110 transition-transform duration-300"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <Text variant="small" className="text-gray-400">
-                              {t('listings.noImage')}
-                            </Text>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Car Info */}
-                      <CardContent className="p-3 space-y-2">
-                        <Text
-                          variant="h5"
-                          className="font-bold text-[#2C3C39] line-clamp-1 group-active:text-[#198341] transition-colors duration-300"
-                        >
-                          {car.title}
-                        </Text>
-
-                        <div className="flex items-center gap-2 text-xs text-gray-600">
-                          {car.details?.year && <span>{car.details.year}</span>}
-                          {car.details?.mileage && (
-                            <>
-                              <span>"</span>
-                              <span>
-                                {car.details.mileage} {t('listings.km')}
-                              </span>
-                            </>
-                          )}
-                        </div>
-
-                        <div className="flex items-center justify-between">
-                          <Text
-                            variant="h5"
-                            className="font-bold text-[#198341]"
-                          >
-                            {car.price} {car.currency}
-                          </Text>
-                        </div>
-                      </CardContent>
-                    </Card>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
+              {carListingsData.data.data.map((car, index) => {
+                return (
+                  // <>
+                  //   {/* Insert Ad after every 8 listings */}
+                  //   {(index + 1) % 8 === 0 && (
+                  //     <div className="col-span-4">
+                  //       <AdsSectionProduct />
+                  //     </div>
+                  //   )}
+                  //   <ProfileCarCard car={car} />
+                  // </>
+                  <div key={index} className="col-span-1">
+                    <ProfileCarCard car={car} />
                   </div>
-                </Link>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <div className="bg-white rounded-xl p-8 text-center shadow-md">
@@ -190,16 +203,25 @@ const MobileProfileClient = ({
             </div>
           )}
 
-          {/* Pagination Info */}
-          {carListingsData?.data && (
-            <div className="mt-4 text-center">
-              <Text variant="small" className="text-gray-600 text-xs">
-                {t('listings.showing')} {carListingsData.data.data?.length || 0}{' '}
-                {t('listings.of')} {carListingsData.data.totalItems}{' '}
-                {t('listings.listings')}
-              </Text>
-            </div>
-          )}
+          {/* Pagination */}
+          {!isLoadingListings &&
+            carListingsData?.data?.data &&
+            carListingsData.data.data.length > 0 &&
+            paginationMeta.totalPages > 1 && (
+              <div className="mt-6">
+                <Pagination
+                  currentPage={paginationMeta.currentPage}
+                  totalPages={paginationMeta.totalPages}
+                  hasNextPage={paginationMeta.hasNextPage}
+                  hasPreviousPage={paginationMeta.hasPreviousPage}
+                  totalItems={paginationMeta.totalItems}
+                  pageSize={pageSize}
+                  onPageChange={handlePageChange}
+                  showItemsInfo={true}
+                  className="mt-4"
+                />
+              </div>
+            )}
         </div>
       </Box>
     </div>

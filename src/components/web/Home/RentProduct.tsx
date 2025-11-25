@@ -152,6 +152,7 @@ const RentProduct = () => {
                       marka={product.make?.name || product.marka}
                       type={product.listingType}
                       price={product.price}
+                      currency={product.currency}
                       imageSrc={
                         product.images?.find(
                           (img: { isPrimary: boolean; url: string }) =>
