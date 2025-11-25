@@ -56,6 +56,7 @@ export interface AuthenticationSettings {
   auth_providers?: {
     enable_google_oauth?: boolean;
     enable_facebook_oauth?: boolean;
+    enable_apple_oauth?: boolean;
   };
 }
 

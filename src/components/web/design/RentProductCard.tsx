@@ -36,6 +36,7 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
   title,
   marka,
   price,
+  currency,
   imageSrc,
   priceWord,
   details,
@@ -44,7 +45,7 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
   onFavoriteToggle,
   isMarkedFavorite = false,
   saveStatus,
-  enableViewTracking = true, 
+  enableViewTracking = true,
 }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [favoriteStatus, setFavoriteStatus] = useState(isMarkedFavorite);
@@ -90,7 +91,12 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
   // Track view count using Intersection Observer for better performance
   useEffect(() => {
     // Skip if tracking is disabled, already tracked, or no ProductId
-    if (!enableViewTracking || !ProductId || hasTrackedView || !cardRef.current) {
+    if (
+      !enableViewTracking ||
+      !ProductId ||
+      hasTrackedView ||
+      !cardRef.current
+    ) {
       return;
     }
 
@@ -100,7 +106,6 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
         if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
           // Use a timeout to ensure the card is viewed for at least 1 second
           const timeoutId = setTimeout(() => {
-            
             // Check if mutation is not already pending
             if (!incrementViewCount.isPending) {
               incrementViewCount.mutate(
@@ -110,15 +115,18 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
                     setHasTrackedView(true);
                   },
                   onError: (error) => {
-                    console.error('[View Tracking] Failed to track view for ProductId:', ProductId, error);
+                    console.error(
+                      '[View Tracking] Failed to track view for ProductId:',
+                      ProductId,
+                      error,
+                    );
                     // Still mark as tracked to prevent retry loops
                     setHasTrackedView(true);
                   },
-                
-                }
+                },
               );
             }
-            
+
             // Disconnect observer after tracking
             observer.disconnect();
           }, 1000); // Wait 1 second before tracking
@@ -130,7 +138,7 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
       {
         threshold: 0.5, // Trigger when 50% visible
         rootMargin: '0px',
-      }
+      },
     );
 
     observer.observe(cardRef.current);
@@ -143,8 +151,12 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
   // Fallback: Track view count on mount if Intersection Observer is not supported
   useEffect(() => {
     // Check if Intersection Observer is supported
-    if (!window.IntersectionObserver && enableViewTracking && ProductId && !hasTrackedView) {
-      
+    if (
+      !window.IntersectionObserver &&
+      enableViewTracking &&
+      ProductId &&
+      !hasTrackedView
+    ) {
       // Small delay to ensure component is fully mounted
       const timeoutId = setTimeout(() => {
         if (!incrementViewCount.isPending) {
@@ -155,10 +167,13 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
                 setHasTrackedView(true);
               },
               onError: (error) => {
-                console.error('[View Tracking Fallback] Failed to track view:', error);
+                console.error(
+                  '[View Tracking Fallback] Failed to track view:',
+                  error,
+                );
                 setHasTrackedView(true);
               },
-            }
+            },
           );
         }
       }, 100);
@@ -252,10 +267,7 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
   // Manual test function for debugging (remove in production)
   const handleManualViewTrack = () => {
     if (ProductId) {
-      incrementViewCount.mutate(
-        { carListingId: Number(ProductId) },
-       
-      );
+      incrementViewCount.mutate({ carListingId: Number(ProductId) });
     }
   };
 
@@ -264,7 +276,7 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
   return (
     <div ref={cardRef} className="w-full">
       {/* Debug button - Remove in production */}
-      
+
       <Card
         className={`border-none h-[370px] bg-white relative group transition-all duration-500 ease-out overflow-hidden ${
           isSold
@@ -305,7 +317,7 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
         {isSold && (
           <>
             <div className="absolute inset-0 bg-gradient-to-br from-gray-900/40 via-gray-800/30 to-black/40 backdrop-blur-[2px] z-20 pointer-events-none" />
-            
+
             <div className="absolute top-0 right-0 z-30 pointer-events-none overflow-hidden w-32 h-32">
               <div className="absolute top-6 -right-8 bg-gradient-to-r from-red-600 to-red-700 text-white text-xs font-bold py-1.5 px-10 transform rotate-45 shadow-2xl">
                 {t('soldOut')}
@@ -341,7 +353,7 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
               isSold ? 'text-gray-200 line-through' : 'text-white'
             }`}
           >
-            {price}
+            {price} {currency}
           </Text>
         </Box>
 

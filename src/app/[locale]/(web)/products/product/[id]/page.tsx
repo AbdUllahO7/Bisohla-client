@@ -29,8 +29,10 @@ async function fetchCarData(
   userId?: number,
 ): Promise<ApiResponse<SelectCarListingDto>> {
   if (isProfileView) {
+    console.log('Fetching my car by ID:', id);
     return await getMyCarById(id);
   } else {
+    console.log('Fetching public car listing by ID:', id);
     const params: QueryParams = {
       id,
       userId,
@@ -114,6 +116,8 @@ const ProductPage = async ({ params, searchParams }: ProductPageProps) => {
 
     // Fetch car data (this will be cached/deduplicated with metadata generation)
     const carResponse = await fetchCarData(Number(id), isProfileView, userId);
+
+    console.log('Car Response:', carResponse);
 
     if (!carResponse.success || !carResponse.data) {
       notFound();

@@ -501,6 +501,15 @@
     "signIn": "تسجيل الدخول",
     "error": "خطأ",
     "favoriteError": "فشل في تحديث المفضلة. يرجى المحاولة مرة أخرى.",
+
+    "sellerInfo": {
+      "title": "البائع",
+      "verified": "موثق",
+      "email": "البريد الإلكتروني",
+      "memberSince": "عضو منذ",
+      "viewProfile": "عرض ملف البائع"
+    },
+
     "header": {
       "whatsApp": "مراسة عبر الواتس"
     },
@@ -1469,5 +1478,62 @@
     "justNow": "الآن",
     "hoursAgo": "س",
     "yesterday": "أمس"
+  },
+  "publicProfile": {
+    "verified": "موثق",
+    "memberSince": "عضو منذ",
+    "email": "البريد الإلكتروني",
+    "phone": "رقم الهاتف",
+    "noData": "لا توجد بيانات ملف شخصي متاحة",
+    "stats": {
+      "totalListings": "إجمالي الإعلانات",
+      "forSale": "سيارات للبيع",
+      "forRent": "سيارات للإيجار",
+      "totalViews": "إجمالي المشاهدات"
+    },
+    "listings": {
+      "title": "إعلانات السيارات",
+      "noListings": "لا توجد إعلانات سيارات لعرضها",
+      "noImage": "لا توجد صورة",
+      "km": "كم",
+      "showing": "عرض",
+      "of": "من",
+      "listings": "إعلانات"
+    },
+    "filters": {
+      "totalCars": "سيارة",
+      "searchPlaceholder": "البحث في السيارات...",
+      "allTypes": "جميع الأنواع",
+      "forSale": "للبيع",
+      "forRent": "للإيجار",
+      "newest": "الأحدث",
+      "oldest": "الأقدم",
+      "priceHigh": "السعر (الأعلى)",
+      "priceLow": "السعر (الأقل)",
+      "titleAsc": "العنوان (أ-ي)",
+      "titleDesc": "العنوان (ي-أ)",
+      "carFilters": "مرشحات السيارة",
+      "advancedFilters": "مرشحات متقدمة",
+      "reset": "إعادة تعيين",
+      "carMake": "ماركة السيارة",
+      "selectMake": "اختر الماركة...",
+      "searchMakes": "ابحث عن الماركات...",
+      "carModel": "موديل السيارة",
+      "selectModel": "اختر الموديل...",
+      "searchModels": "ابحث عن الموديلات...",
+      "carTrim": "فئة السيارة",
+      "selectTrim": "اختر الفئة...",
+      "searchTrims": "ابحث عن الفئات...",
+      "activeFilters": "المرشحات النشطة:",
+      "makeSelected": "ماركة محددة",
+      "modelSelected": "موديل محدد",
+      "trimSelected": "فئة محددة",
+      "noMakesFound": "لم يتم العثور على ماركات",
+      "noModelsFound": "لم يتم العثور على موديلات",
+      "noTrimsFound": "لم يتم العثور على فئات"
+    }
+  },
+  "breadcrumb": {
+    "home": "الرئيسية"
   }
 }

@@ -43,7 +43,7 @@ jobs:
 
             # Deploy using new deployment script
             echo "🔄 Deploying Next.js Website..."
-            ./scripts/deploy.sh --env production --project next-website --force
+            ./scripts/deploy.sh --env production --project next-website
 
             # Verify deployment
             echo "✅ Verifying Next.js Website deployment..."

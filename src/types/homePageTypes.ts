@@ -4,6 +4,7 @@ export interface CarCardItemProps {
   title: string;
   marka: string;
   price: string;
+  currency: string;
   imageSrc: string;
   priceWord: string;
   details?: {
@@ -65,7 +66,7 @@ export interface HeaderTowProps {
     BrowseAll: string;
     Privacypolicy: string;
     ContactUs: string;
-    News:string
+    News: string;
   };
 }
 

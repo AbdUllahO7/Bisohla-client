@@ -23,6 +23,7 @@ type WebPageType =
   | 'links'
   | 'auth'
   | 'profile'
+  | 'user_profile'
   | 'privacy_policy';
 
 // Local types for extracted data
@@ -160,6 +161,7 @@ function extractSEOData(
     links: 'links_page',
     auth: 'auth_pages',
     profile: 'user_profile_pages',
+    user_profile: 'public_user_profile_page',
     privacy_policy: 'privacy_policy',
   };
 
@@ -834,6 +836,203 @@ export async function generateNewsMetadata(
 }
 
 /**
+ * Generate metadata for dynamic public profile pages
+ * Uses actual user profile data as primary content, settings as fallback for global config
+ */
+export async function generateProfileMetadata(
+  profileData: {
+    name: string;
+    email?: string;
+    profileUrl?: string | null;
+    totalListings: number;
+    createdAt: string;
+    canonical?: string;
+  },
+  customConfig?: SettingsMetadataConfig,
+): Promise<Metadata> {
+  const locale = await getLocale();
+  const settings = await fetchSettingsData(locale);
+
+  const { general, seo, app, pageSEO, globalSEO, siteInfo } = extractSEOData(
+    settings,
+    'user_profile',
+    locale,
+  );
+
+  // Use profile data as primary, settings as fallback for global config
+  const baseUrl = globalSEO.canonical_base_url || DEFAULT_FALLBACKS.baseUrl;
+  const siteName =
+    siteInfo.site_name || getFallback(DEFAULT_FALLBACKS.siteName, locale);
+
+  // Build user-specific metadata
+  const memberYear = new Date(profileData.createdAt).getFullYear();
+  const pageTitle = `${profileData.name} - ${
+    locale === 'ar' ? 'الملف الشخصي' : 'Public Profile'
+  }`;
+  const pageDescription = `${profileData.name} ${
+    locale === 'ar' ? 'على' : 'on'
+  } ${siteName} - ${profileData.totalListings} ${
+    locale === 'ar' ? 'إعلانات' : 'listings'
+  } - ${locale === 'ar' ? 'عضو منذ' : 'Member since'} ${memberYear}`;
+
+  const pageKeywords = [
+    profileData.name,
+    ...(locale === 'ar'
+      ? [
+          'ملف شخصي',
+          'بائع سيارات',
+          'إعلانات السيارات',
+          'مستخدم',
+          siteName,
+        ]
+      : [
+          'public profile',
+          'car seller',
+          'car listings',
+          'user profile',
+          siteName,
+        ]),
+  ];
+
+  // Use settings for global SEO configuration and fallback images
+  const ogImage =
+    profileData.profileUrl ||
+    globalSEO.default_og_image ||
+    `${baseUrl}${DEFAULT_FALLBACKS.defaultOgImage}`;
+
+  const twitterImage = profileData.profileUrl || globalSEO.default_twitter_image || ogImage;
+
+  const canonical = profileData.canonical || `${baseUrl}/${locale}/profile/`;
+
+  return {
+    title: {
+      template: `%s | ${siteName}`,
+      default: pageTitle,
+    },
+    description: pageDescription,
+    keywords: pageKeywords,
+
+    authors: [{ name: profileData.name }],
+    creator: siteName,
+    publisher: siteName,
+
+    // Open Graph for social media sharing - use profile data
+    openGraph: {
+      type: 'profile',
+      locale: locale === 'ar' ? 'ar_SA' : 'en_US',
+      url: canonical,
+      title: pageTitle,
+      description: pageDescription,
+      siteName: siteName,
+      images: [
+        {
+          url: ogImage,
+          width: 400,
+          height: 400,
+          alt: profileData.name,
+        },
+      ],
+    },
+
+    // Twitter Card - use profile data
+    twitter: {
+      card: 'summary',
+      title: pageTitle,
+      description: pageDescription,
+      images: [twitterImage],
+      creator: globalSEO.twitter_handle || DEFAULT_FALLBACKS.twitterHandle,
+      site: globalSEO.twitter_handle || DEFAULT_FALLBACKS.twitterHandle,
+    },
+
+    // Additional metadata from settings
+    robots: {
+      index: !customConfig?.noIndex,
+      follow: !customConfig?.noIndex,
+      googleBot: {
+        index: !customConfig?.noIndex,
+        follow: !customConfig?.noIndex,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
+    },
+
+    // Language alternates for SEO
+    alternates: {
+      canonical,
+      languages: {
+        en: `${baseUrl}/en/profile/`,
+        ar: `${baseUrl}/ar/profile/`,
+        'x-default': `${baseUrl}/en/profile/`,
+      },
+    },
+
+    // App-specific metadata
+    applicationName: siteName,
+    category: 'automotive',
+    classification: 'Car Rental and Sales Platform',
+
+    // Icons from settings
+    icons: {
+      icon: [
+        { url: siteInfo.favicon || '/favicon.ico' },
+        {
+          url: '/icon-16.png',
+          sizes: '16x16',
+          type: 'image/png',
+        },
+        {
+          url: '/icon-32.png',
+          sizes: '32x32',
+          type: 'image/png',
+        },
+        {
+          url: '/icon-192.png',
+          sizes: '192x192',
+          type: 'image/png',
+        },
+        {
+          url: '/icon-512.png',
+          sizes: '512x512',
+          type: 'image/png',
+        },
+      ],
+      apple: [
+        {
+          url: '/apple-icon.png',
+          sizes: '180x180',
+          type: 'image/png',
+        },
+      ],
+      shortcut: siteInfo.favicon || '/favicon.ico',
+    },
+
+    // Verification tags from settings
+    verification: {
+      google: globalSEO.google_site_verification || undefined,
+    },
+
+    // Additional SEO and PWA
+    other: {
+      'mobile-web-app-capable': 'yes',
+      'apple-mobile-web-app-capable': 'yes',
+      'apple-mobile-web-app-status-bar-style': 'default',
+      'apple-mobile-web-app-title': siteName,
+      'format-detection': 'telephone=no',
+      'theme-color': siteInfo.primary_color || '#2C3C39',
+      'msapplication-TileColor': siteInfo.primary_color || '#2C3C39',
+      ...(customConfig?.customMeta?.reduce((acc, meta) => {
+        if (meta.name) acc[meta.name] = meta.content;
+        return acc;
+      }, {} as Record<string, string>) || {}),
+    },
+
+    // Manifest for PWA
+    manifest: '/manifest.json',
+  };
+}
+
+/**
  * Page type mapping helper
  */
 export function getPageType(pathname: string): WebPageType {
@@ -850,6 +1049,7 @@ export function getPageType(pathname: string): WebPageType {
   if (pathname.includes('/Links')) return 'links';
   if (pathname.includes('/auth/')) return 'auth';
   if (pathname.includes('/userProfile/')) return 'profile';
+  if (pathname.includes('/profile/')) return 'user_profile';
   if (pathname.includes('/privacy')) return 'privacy_policy';
   return 'home';
 }

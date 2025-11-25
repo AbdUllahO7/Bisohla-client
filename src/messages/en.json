@@ -491,6 +491,14 @@
     "error": "Error",
     "favoriteError": "Failed to update favorite. Please try again.",
 
+    "sellerInfo": {
+      "title": "Seller",
+      "verified": "Verified",
+      "email": "Email",
+      "memberSince": "Member since",
+      "viewProfile": "View Seller Profile"
+    },
+
     "header": {
       "whatsApp": "Text us on WhatsApp"
     },
@@ -1509,5 +1517,62 @@
     "justNow": "Just now",
     "hoursAgo": "h ago",
     "yesterday": "Yesterday"
+  },
+  "publicProfile": {
+    "verified": "Verified",
+    "memberSince": "Member since",
+    "email": "Email",
+    "phone": "Phone",
+    "noData": "No profile data available",
+    "stats": {
+      "totalListings": "Total Listings",
+      "forSale": "Cars for Sale",
+      "forRent": "Cars for Rent",
+      "totalViews": "Total Views"
+    },
+    "listings": {
+      "title": "Car Listings",
+      "noListings": "No car listings available",
+      "noImage": "No Image",
+      "km": "km",
+      "showing": "Showing",
+      "of": "of",
+      "listings": "listings"
+    },
+    "filters": {
+      "totalCars": "cars",
+      "searchPlaceholder": "Search cars...",
+      "allTypes": "All Types",
+      "forSale": "For Sale",
+      "forRent": "For Rent",
+      "newest": "Newest",
+      "oldest": "Oldest",
+      "priceHigh": "Price (High)",
+      "priceLow": "Price (Low)",
+      "titleAsc": "Title (A-Z)",
+      "titleDesc": "Title (Z-A)",
+      "carFilters": "Car Filters",
+      "advancedFilters": "Advanced Filters",
+      "reset": "Reset",
+      "carMake": "Car Make",
+      "selectMake": "Select make...",
+      "searchMakes": "Search makes...",
+      "carModel": "Car Model",
+      "selectModel": "Select model...",
+      "searchModels": "Search models...",
+      "carTrim": "Car Trim",
+      "selectTrim": "Select trim...",
+      "searchTrims": "Search trims...",
+      "activeFilters": "Active Car Filters:",
+      "makeSelected": "Make Selected",
+      "modelSelected": "Model Selected",
+      "trimSelected": "Trim Selected",
+      "noMakesFound": "No makes found",
+      "noModelsFound": "No models found",
+      "noTrimsFound": "No trims found"
+    }
+  },
+  "breadcrumb": {
+    "home": "Home"
   }
 }

@@ -110,6 +110,16 @@ export function mapWebUrlToDeepLink(
       };
     }
 
+    if (pathWithoutLocale === '/news') {
+      return {
+        deepLink: `${config.appScheme}://(screens)/(tabs)/News`,
+        webUrl,
+        success: true,
+      };
+    }
+
+    // TODO: add news details
+
     // Privacy Policy
     if (pathWithoutLocale === '/Privacypolicy') {
       // Screen doesn't exist in mobile yet, fallback to home

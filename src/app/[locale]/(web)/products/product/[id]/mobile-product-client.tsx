@@ -34,7 +34,6 @@ const MobileProductClient = ({
 }: ProductClientProps) => {
   const carData = carDataRes.data;
 
-
   // Statistics tracking hooks
   const incrementViewCount = useIncrementViewCount();
   const incrementContactCount = useIncrementContactCount();
@@ -47,7 +46,7 @@ const MobileProductClient = ({
   const [hasTrackedDetailsViewed, setHasTrackedDetailsViewed] = useState(false);
   const [viewStartTime, setViewStartTime] = useState<number | null>(null);
   const [totalViewDuration, setTotalViewDuration] = useState(0); // Track total accumulated duration in seconds
-  
+
   const MAX_TRACKING_DURATION = 600; // 10 minutes in seconds
 
   const [favoriteStatus, setFavoriteStatus] = useState(
@@ -56,7 +55,6 @@ const MobileProductClient = ({
 
   // 📊 TRACKING 1: Track basic page view count on mount (once per visit)
   useEffect(() => {
-
     if (carData?.id && !hasTrackedView) {
       incrementViewCount.mutate(
         { carListingId: carData.id },
@@ -67,7 +65,7 @@ const MobileProductClient = ({
           onError: (error) => {
             setHasTrackedView(true);
           },
-        }
+        },
       );
 
       // Start tracking view duration
@@ -79,8 +77,6 @@ const MobileProductClient = ({
   // 📊 TRACKING 2: Track details viewed count on mount (once per visit)
   // This tracks when a user actually visits and views the product details page
   useEffect(() => {
-   
-
     if (carData?.id && !hasTrackedDetailsViewed) {
       incrementDetailsViewedCount.mutate(
         { carListingId: carData.id },
@@ -91,7 +87,7 @@ const MobileProductClient = ({
           onError: (error) => {
             setHasTrackedDetailsViewed(true);
           },
-        }
+        },
       );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -99,18 +95,17 @@ const MobileProductClient = ({
 
   // 📊 TRACKING 3: Track view duration periodically and on unmount
   useEffect(() => {
-  
-
     if (!viewStartTime || !carData?.id) {
       return;
     }
-
 
     // Send duration every 30 seconds
     const interval = setInterval(() => {
       // Check if we've already reached max tracking duration
       if (totalViewDuration >= MAX_TRACKING_DURATION) {
-        console.log('✅ [MOBILE] Max tracking duration reached (10 minutes), stopping requests');
+        console.log(
+          '✅ [MOBILE] Max tracking duration reached (10 minutes), stopping requests',
+        );
         return;
       }
 
@@ -118,7 +113,7 @@ const MobileProductClient = ({
       if (durationInSeconds > 0) {
         // Calculate new total duration
         const newTotalDuration = totalViewDuration + durationInSeconds;
-        
+
         // Only send if we haven't exceeded the max duration
         if (newTotalDuration <= MAX_TRACKING_DURATION) {
           updateViewDuration.mutate(
@@ -129,18 +124,25 @@ const MobileProductClient = ({
                 setTotalViewDuration(newTotalDuration);
                 // Reset timer to 0 after sending request
                 setViewStartTime(Date.now());
-                console.log(`📊 [MOBILE] Updated view duration. Total: ${newTotalDuration}s / ${MAX_TRACKING_DURATION}s`);
+                console.log(
+                  `📊 [MOBILE] Updated view duration. Total: ${newTotalDuration}s / ${MAX_TRACKING_DURATION}s`,
+                );
               },
               onError: (error) => {
-                console.error('❌ [MOBILE] Failed to update view duration:', error);
+                console.error(
+                  '❌ [MOBILE] Failed to update view duration:',
+                  error,
+                );
                 // Still update total duration even on error to prevent infinite retries
                 setTotalViewDuration(newTotalDuration);
                 setViewStartTime(Date.now());
               },
-            }
+            },
           );
         } else {
-          console.log(`🛑 [MOBILE] Reached max duration (${newTotalDuration}s). No more requests will be sent.`);
+          console.log(
+            `🛑 [MOBILE] Reached max duration (${newTotalDuration}s). No more requests will be sent.`,
+          );
           setTotalViewDuration(MAX_TRACKING_DURATION);
         }
       }
@@ -155,20 +157,27 @@ const MobileProductClient = ({
         const finalDuration = Math.floor((Date.now() - viewStartTime) / 1000);
         if (finalDuration > 0) {
           const newTotalDuration = totalViewDuration + finalDuration;
-          
+
           // Cap at max duration
-          const cappedDuration = Math.min(finalDuration, MAX_TRACKING_DURATION - totalViewDuration);
-          
+          const cappedDuration = Math.min(
+            finalDuration,
+            MAX_TRACKING_DURATION - totalViewDuration,
+          );
+
           if (cappedDuration > 0) {
             updateViewDuration.mutate({
               carListingId: carData.id,
               durationInSeconds: cappedDuration,
             });
-            console.log(`📊 [MOBILE] Final duration sent: ${cappedDuration}s. Total: ${newTotalDuration}s`);
+            console.log(
+              `📊 [MOBILE] Final duration sent: ${cappedDuration}s. Total: ${newTotalDuration}s`,
+            );
           }
         }
       } else {
-        console.log('✅ [MOBILE] Max duration already reached, skipping final duration update');
+        console.log(
+          '✅ [MOBILE] Max duration already reached, skipping final duration update',
+        );
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -187,8 +196,6 @@ const MobileProductClient = ({
 
   // 📊 TRACKING 4: Track contact button clicks
   const handleContactClick = () => {
-
-
     if (carData?.id && !hasTrackedContact) {
       incrementContactCount.mutate(
         { carListingId: carData.id },
@@ -200,9 +207,9 @@ const MobileProductClient = ({
             console.error('❌ [MOBILE] Failed to track contact count:', error);
             setHasTrackedContact(true);
           },
-        }
+        },
       );
-    } 
+    }
   };
 
   if (!carData) {
