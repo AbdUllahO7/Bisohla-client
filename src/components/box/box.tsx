@@ -7,7 +7,7 @@ const boxVariants = cva('', {
     variant: {
       row: 'flex flex-row items-center gap-[8px]',
       rowBetween: 'flex flex-row justify-between items-center',
-      column: 'flex flex-col gap-[8px]',
+      column: 'flex items-center flex-col gap-[8px]',
       columnBetween: 'flex flex-col justify-between items-center',
       center: 'flex justify-center items-center',
       container: `
