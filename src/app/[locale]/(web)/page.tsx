@@ -4,7 +4,6 @@ import FAQ from '@/components/web/Home/FAQ';
 
 import Hero from '@/components/web/Home/Hero';
 import LatestOffers from '@/components/web/Home/LatestOffers';
-import RentCar from '@/components/web/Home/RentProduct';
 import SpaceAds from '@/components/web/Home/SpaceAds';
 import WorldOfCar from '@/components/web/Home/WorldOfProduct';
 import { Locale } from '@/i18n/routing';
@@ -13,6 +12,7 @@ import { Metadata } from 'next';
 import { getLocale } from 'next-intl/server';
 import AnimatedPageWrapper from '@/components/AnimatedPageWrapper';
 import NewsSection from '@/components/web/Home/NewsSection';
+import RentProduct from '@/components/web/Home/RentProduct';
 
 // Generate metadata based on locale and settings
 export async function generateMetadata(): Promise<Metadata> {
@@ -135,7 +135,7 @@ const WebPage = async () => {
         <LatestOffers />
         <AdsSection />
         <WorldOfCar />
-        <RentCar />
+        <RentProduct />
         <SpaceAds />
         <NewsSection />
         <FAQ />

@@ -11,16 +11,25 @@ import {
   FormDescription,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
-import { User, Loader2, AtSign, Phone, Lock, Key, Save } from 'lucide-react';
+import {
+  User,
+  Loader2,
+  AtSign,
+  Phone,
+  Lock,
+  Key,
+  Save,
+  Trash2,
+} from 'lucide-react';
 import {
   useGetMyProfile,
   useUpdateUserProfile,
+  useDeleteMyAccount,
 } from '@/core/infrastructure-adapters/use-actions/users/user-profile.use-actions';
 import ImageUploader, {
   ImageUploaderRef,
@@ -31,6 +40,9 @@ import {
   profileFormSchema,
   ProfileFormValues,
 } from '@/core/entities/models/users/users.dto';
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
+import { useRouter } from '@/i18n/routing';
+import { deleteSession } from '@/core/lib/web/session';
 
 // KeyValue component for consistent display of field labels and values
 interface KeyValueFieldProps {
@@ -64,8 +76,10 @@ const KeyValueField: React.FC<KeyValueFieldProps> = ({
 const UserInfoPage = () => {
   const [isFormDisabled, setIsFormDisabled] = useState(false);
   const [isClient, setIsClient] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const profileImageRef = useRef<ImageUploaderRef>(null);
   const locale = useLocale();
+  const router = useRouter();
 
   // Get translations
   const t = useTranslations('UserProfile.profile');
@@ -80,6 +94,9 @@ const UserInfoPage = () => {
 
   // Update user profile mutation
   const updateProfileMutation = useUpdateUserProfile();
+
+  // Delete account mutation
+  const deleteAccountMutation = useDeleteMyAccount();
 
   // Profile form
   const profileForm = useForm<ProfileFormValues>({
@@ -146,6 +163,27 @@ const UserInfoPage = () => {
       console.error('Failed to update profile:', error);
     }
   }
+
+  // Handle delete account
+  const handleDeleteAccount = async () => {
+    try {
+      const result = await deleteAccountMutation.mutateAsync(null);
+
+      if (result.success) {
+        // Close the dialog
+        setIsDeleteDialogOpen(false);
+
+        // Redirect to home page (session is already deleted by the backend)
+        router.push('/');
+      } else {
+        // Close the dialog on error
+        setIsDeleteDialogOpen(false);
+      }
+    } catch (error) {
+      console.error('Failed to delete account:', error);
+      setIsDeleteDialogOpen(false);
+    }
+  };
 
   // Get initials for avatar fallback
   const getInitials = (name: string) => {
@@ -466,34 +504,77 @@ const UserInfoPage = () => {
                 </motion.div>
 
                 <motion.div
-                  className="pt-4"
+                  className="pt-4 flex flex-col sm:flex-row gap-4 items-start"
                   variants={itemVariants}
-                  whileHover={{ scale: 1.01 }}
-                  whileTap={{ scale: 0.98 }}
                 >
-                  <Button
-                    type="submit"
-                    disabled={isSubmitting || isFormDisabled}
-                    className="bg-primary hover:bg-primary/90 text-white rounded-md transition-all duration-300 px-6 shadow-sm hover:shadow"
+                  <motion.div
+                    whileHover={{ scale: 1.01 }}
+                    whileTap={{ scale: 0.98 }}
                   >
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        {t('saveChanges')}...
-                      </>
-                    ) : (
-                      <>
-                        <Save className="mr-2 h-4 w-4" />
-                        {t('saveChanges')}
-                      </>
-                    )}
-                  </Button>
+                    <Button
+                      type="submit"
+                      disabled={isSubmitting || isFormDisabled}
+                      className="bg-primary hover:bg-primary/90 text-white rounded-md transition-all duration-300 px-6 shadow-sm hover:shadow"
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          {t('saveChanges')}...
+                        </>
+                      ) : (
+                        <>
+                          <Save className="mr-2 h-4 w-4" />
+                          {t('saveChanges')}
+                        </>
+                      )}
+                    </Button>
+                  </motion.div>
                 </motion.div>
               </form>
             </Form>
+
+            <motion.div variants={itemVariants}>
+              <Separator className="bg-gray-100 my-6" />
+            </motion.div>
+
+            <motion.div className="space-y-4" variants={itemVariants}>
+              <div>
+                <h3 className="text-lg font-semibold text-red-600">
+                  {t('deleteAccount.title')}
+                </h3>
+                <p className="text-sm text-gray-500 mt-1">
+                  {t('deleteAccount.description')}
+                </p>
+              </div>
+              <motion.div
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Button
+                  variant="destructive"
+                  onClick={() => setIsDeleteDialogOpen(true)}
+                  className="rounded-md transition-all duration-300 px-6 shadow-sm hover:shadow"
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  {t('deleteAccount.button')}
+                </Button>
+              </motion.div>
+            </motion.div>
           </motion.div>
         </motion.div>
       )}
+
+      <ConfirmationDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        title={t('deleteAccount.confirmTitle')}
+        description={t('deleteAccount.confirmDescription')}
+        confirmText={t('deleteAccount.confirmButton')}
+        cancelText={t('deleteAccount.cancelButton')}
+        onConfirm={handleDeleteAccount}
+        isLoading={deleteAccountMutation.isPending}
+        variant="destructive"
+      />
     </motion.div>
   );
 };
