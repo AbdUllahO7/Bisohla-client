@@ -60,7 +60,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
       <Box className="w-full bg-white rounded-2xl shadow-xl p-6 md:p-8">
         <Box variant="row" className="gap-6 items-start">
           <Skeleton className="h-24 w-24 md:h-32 md:w-32 rounded-full" />
-          <Box variant="column" className="flex-1 gap-4">
+          <Box variant="column" className="flex-1 gap-4 items-start">
             <Skeleton className="h-8 w-48" />
             <Skeleton className="h-4 w-32" />
             <div className="flex gap-4">
@@ -183,7 +183,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
               </div>
 
               {/* User Info */}
-              <Box variant="column" className="gap-4 flex-1">
+              <Box variant="column" className="gap-4 flex-1 items-start">
                 <Box variant="row" className="gap-3 items-center">
                   <Text variant="h2" className="font-bold text-[#2C3C39]">
                     {profile.name}
@@ -235,7 +235,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                     <div className="p-2 bg-[#198341]/10 rounded-lg group-hover:bg-[#198341]/20 transition-colors duration-300">
                       <Calendar className="h-5 w-5 text-[#198341]" />
                     </div>
-                    <Box variant="column" className="gap-0.5">
+                    <Box variant="column" className="gap-0.5 items-start">
                       <Text variant="small" className="text-gray-500 text-xs">
                         {t('memberSince')}
                       </Text>

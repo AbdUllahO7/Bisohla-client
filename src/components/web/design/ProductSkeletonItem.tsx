@@ -1,7 +1,12 @@
 'use client';
 import React from 'react';
 import Box from '@/components/box/box';
-import { Card, CardDescription, CardFooter, CardHeader } from '@/components/ui/card';
+import {
+  Card,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+} from '@/components/ui/card';
 
 // Individual skeleton card item
 export const ProductSkeletonItem = () => {
@@ -19,11 +24,11 @@ export const ProductSkeletonItem = () => {
       <CardHeader className="p-0">
         {/* Skeleton for image */}
         <div className="w-full aspect-[4/3] bg-slate-200 rounded-t-lg animate-pulse" />
-        
+
         <CardDescription className="p-4">
           {/* Skeleton for title */}
           <div className="h-5 bg-slate-200 rounded-md w-4/5 mb-3 animate-pulse" />
-          
+
           {/* Skeleton for brand/marka */}
           <div className="h-4 bg-slate-200 rounded-md w-3/5 animate-pulse" />
         </CardDescription>
@@ -49,7 +54,7 @@ const ProductSkeleton = ({ count = 8, showTitle = true }) => {
           <div className="h-5 bg-slate-200 rounded-md w-1/6 animate-pulse" />
         </Box>
       )}
-      
+
       {/* Grid of skeleton cards */}
       <Box
         className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full"

@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Box from '@/components/box/box';
 import Text from '@/components/text/text';
 import { useTranslations } from 'next-intl';
@@ -7,7 +7,6 @@ import CardAds from '../design/CardAds';
 import { LatestOffersProps } from '@/types/homePageTypes';
 import { useCarListings } from '@/core/infrastructure-adapters/use-actions/visitors/car.visitor.use-actions';
 import ProductSkeleton from '../design/ProductSkeletonItem';
-import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions';
 import { useSession } from '@/hooks/auth/use-session';
 import { RentProductCard } from '../design/RentProductCard';
 import SectionHeader from '@/components/SectionHeader';
@@ -20,26 +19,7 @@ const LatestOffers: React.FC<LatestOffersProps> = ({
   container = true,
 }) => {
   const t = useTranslations('homePage');
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [favoriteStatuses, setFavoriteStatuses] = useState<
-    Record<number, boolean>
-  >({});
   const session = useSession();
-
-  // Verify authentication status on component mount
-  useEffect(() => {
-    const verifyAuth = async () => {
-      try {
-        const authResponse = await checkAuth();
-        setIsAuthenticated(authResponse.success);
-      } catch (error) {
-        console.error('Auth check failed:', error);
-        setIsAuthenticated(false);
-      }
-    };
-
-    verifyAuth();
-  }, []);
 
   // Fetch car listings data with filter for listingType = 'for_sale'
   const { data, isLoading, error } = useCarListings({
@@ -66,49 +46,20 @@ const LatestOffers: React.FC<LatestOffersProps> = ({
     ],
   });
 
-  // Extract car listings array safely and limit to count items
+  // Extract and limit car listings (no side effects in useMemo)
   const carListings = React.useMemo(() => {
-    let listings: Array<any> = [];
-    // If data.data is an array, use it
-    if (Array.isArray(data?.data)) {
-      listings = data.data;
-    }
-    // If data.data.data is an array (nested structure), use it
-    else if (Array.isArray(data?.data?.data)) {
-      listings = data.data.data;
-    }
+    const listings = Array.isArray(data?.data)
+      ? data.data
+      : Array.isArray(data?.data?.data)
+      ? data.data.data
+      : [];
 
-    // Initialize favorite statuses from backend data
-    const newFavoriteStatuses: Record<number, boolean> = {};
-    listings.forEach((item) => {
-      if (item.id) {
-        // Only set if not already in our state
-        if (favoriteStatuses[item.id] === undefined) {
-          newFavoriteStatuses[item.id] = item.isFavorite || false;
-        }
-      }
-    });
-
-    // Update favorite statuses state if we have new items
-    if (Object.keys(newFavoriteStatuses).length > 0) {
-      setFavoriteStatuses((prev) => ({ ...prev, ...newFavoriteStatuses }));
-    }
-
-    // Limit to count items if provided, otherwise 9
     const limit = count || 9;
     return listings.slice(0, limit);
   }, [data, count]);
 
-  // Handle favorite status update from child component
-  const handleFavoriteToggle = (productId: number, isFavorite: boolean) => {
-    setFavoriteStatuses((prev) => ({
-      ...prev,
-      [productId]: isFavorite,
-    }));
-  };
-
   return (
-    <div className="relative overflow-hidden py-16">
+    <div className="relative overflow-hidden py-16 w-full">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
         {/* Large Gradient Orbs */}
@@ -160,7 +111,7 @@ const LatestOffers: React.FC<LatestOffersProps> = ({
         variant={`${container ? 'container' : 'center'}`}
         className="relative z-10"
       >
-        <Box variant="column">
+        <Box variant="column" className="w-full">
           {showTitle && (
             <div className="relative">
               {/* Glow Effect Behind Header */}
@@ -262,12 +213,7 @@ const LatestOffers: React.FC<LatestOffersProps> = ({
                       ProductId={card.id}
                       details={card.details || []}
                       priceWord={t('latestOffers.price')}
-                      isMarkedFavorite={
-                        favoriteStatuses[card.id] !== undefined
-                          ? favoriteStatuses[card.id]
-                          : card.isFavorite || false
-                      }
-                      onFavoriteToggle={handleFavoriteToggle}
+                      isMarkedFavorite={card.isFavorite || false}
                     />
                   </div>
                   {/* Render CardAds only after the first two cards */}
