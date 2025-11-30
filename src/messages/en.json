@@ -1544,11 +1544,15 @@
     "listings": {
       "title": "Car Listings",
       "noListings": "No car listings available",
-      "noImage": "No Image",
-      "km": "km",
       "showing": "Showing",
       "of": "of",
-      "listings": "listings"
+      "listings": "listings",
+      "rent": "Rent",
+      "sale": "Sale",
+      "sold": "SOLD",
+      "soldDesc": "This car has been sold",
+      "noImage": "No image available",
+      "km": "km"
     },
     "filters": {
       "totalCars": "cars",

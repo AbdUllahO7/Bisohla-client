@@ -269,6 +269,7 @@ const MobileProductClient = ({
               isAuthenticated={isAuthenticated}
               onFavoriteToggle={handleFavoriteToggle}
               onContactClick={handleContactClick}
+              user={carData.user}
             />
           </Box>
         </Box>

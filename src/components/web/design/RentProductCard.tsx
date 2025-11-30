@@ -14,7 +14,6 @@ import Box from '@/components/box/box';
 import { ArrowRight, Eye, Fuel, HeartIcon, LifeBuoy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from '@/i18n/routing';
-import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions';
 import { toggleCarListingFavorite } from '@/core/infrastructure-adapters/actions/users/car.user.actions';
 import { useTranslations } from 'next-intl';
 import {
