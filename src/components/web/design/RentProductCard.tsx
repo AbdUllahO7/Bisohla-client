@@ -14,7 +14,6 @@ import Box from '@/components/box/box';
 import { ArrowRight, Eye, Fuel, HeartIcon, LifeBuoy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from '@/i18n/routing';
-import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions';
 import { toggleCarListingFavorite } from '@/core/infrastructure-adapters/actions/users/car.user.actions';
 import { useTranslations } from 'next-intl';
 import {
@@ -23,6 +22,7 @@ import {
   SaveStatus,
 } from '@/core/entities/enums/cars.enums';
 import { useIncrementViewCount } from '@/hooks/use-carStatistics';
+import { useSession } from '@/core/infrastructure-adapters/use-actions/auth/use-session';
 
 // Extended props interface to include the callback and favorite status
 interface ExtendedCarCardItemProps extends CarCardItemProps {
@@ -47,12 +47,13 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
   saveStatus,
   enableViewTracking = true,
 }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [favoriteStatus, setFavoriteStatus] = useState(isMarkedFavorite);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [hasTrackedView, setHasTrackedView] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
+  const session = useSession();
+  const isAuthenticated = session && session.accessToken;
 
   // Get translators for different namespaces
   const t = useTranslations('SoldCard');
@@ -182,21 +183,6 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
     }
   }, [ProductId, hasTrackedView, incrementViewCount, enableViewTracking]);
 
-  // Check authentication status when component mounts
-  useEffect(() => {
-    const verifyAuth = async () => {
-      try {
-        const authResponse = await checkAuth();
-        setIsAuthenticated(authResponse.success);
-      } catch (error) {
-        console.error('Auth check failed for rent product:', error);
-        setIsAuthenticated(false);
-      }
-    };
-
-    verifyAuth();
-  }, []);
-
   // Update internal state when the prop changes
   useEffect(() => {
     setFavoriteStatus(isMarkedFavorite);
@@ -206,61 +192,48 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
     e.preventDefault();
     e.stopPropagation();
 
-    if (isAuthenticated && !isProcessing && ProductId) {
-      setIsProcessing(true);
+    if (!isAuthenticated || isProcessing || !ProductId) return;
 
-      try {
-        const currentState = favoriteStatus;
-        const newStatus = !currentState;
-        setFavoriteStatus(newStatus);
+    const previousState = favoriteStatus;
+    const optimisticState = !previousState;
 
-        if (onFavoriteToggle) {
-          onFavoriteToggle(Number(ProductId), newStatus);
+    // Optimistic update: Change UI immediately
+    setFavoriteStatus(optimisticState);
+    setIsProcessing(true);
+
+    // Notify parent if callback exists (backward compatibility)
+    onFavoriteToggle?.(Number(ProductId), optimisticState);
+
+    try {
+      const response = await toggleCarListingFavorite({
+        carListingId: Number(ProductId),
+      });
+
+      // Handle successful response
+      if (response.success) {
+        // Extract the actual favorite status from response
+        const actualStatus =
+          typeof response.data === 'boolean'
+            ? response.data
+            : response.data?.isFavorited ?? optimisticState;
+
+        // Update state with server response if different from optimistic update
+        if (actualStatus !== optimisticState) {
+          setFavoriteStatus(actualStatus);
+          onFavoriteToggle?.(Number(ProductId), actualStatus);
         }
-
-        const response = await toggleCarListingFavorite({
-          carListingId: Number(ProductId),
-        });
-
-        if (response.success) {
-          let responseStatus: boolean;
-
-          if (typeof response.data === 'boolean') {
-            responseStatus = response.data;
-          } else if (
-            response.data &&
-            typeof response.data === 'object' &&
-            'isFavorite' in response.data
-          ) {
-            responseStatus = response.data.isFavorite as boolean;
-          } else {
-            responseStatus = newStatus;
-          }
-
-          if (responseStatus !== newStatus) {
-            setFavoriteStatus(responseStatus);
-
-            if (onFavoriteToggle) {
-              onFavoriteToggle(Number(ProductId), responseStatus);
-            }
-          }
-        } else {
-          setFavoriteStatus(currentState);
-
-          if (onFavoriteToggle) {
-            onFavoriteToggle(Number(ProductId), currentState);
-          }
-        }
-      } catch (error) {
-        console.error(`Exception in toggleFavorite:`, error);
-        setFavoriteStatus(isMarkedFavorite);
-
-        if (onFavoriteToggle) {
-          onFavoriteToggle(Number(ProductId), isMarkedFavorite);
-        }
-      } finally {
-        setIsProcessing(false);
+      } else {
+        // Rollback on failure
+        setFavoriteStatus(previousState);
+        onFavoriteToggle?.(Number(ProductId), previousState);
       }
+    } catch (error) {
+      // Rollback on error
+      console.error('Failed to toggle favorite:', error);
+      setFavoriteStatus(previousState);
+      onFavoriteToggle?.(Number(ProductId), previousState);
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -294,21 +267,19 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
       >
         {/* Heart Icon with favorite status */}
         <Button
-          className="absolute top-12 left-2 bg-white p-2 rounded-full shadow-md z-10"
+          className="absolute top-12 left-2 bg-white p-2 rounded-full shadow-md z-10 transition-transform duration-200 active:scale-90"
           onClick={handleFavoriteClick}
-          disabled={!isAuthenticated || isProcessing || isSold}
+          disabled={!isAuthenticated || isSold}
         >
           <HeartIcon
             size={24}
-            className={
-              isProcessing
-                ? 'text-gray-400 animate-pulse'
-                : !isAuthenticated || isSold
+            className={`transition-colors duration-200 ${
+              !isAuthenticated || isSold
                 ? 'text-gray-400'
                 : favoriteStatus
                 ? 'text-red-500'
                 : 'text-gray-600'
-            }
+            }`}
             fill={favoriteStatus ? 'currentColor' : 'none'}
           />
         </Button>

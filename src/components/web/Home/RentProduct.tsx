@@ -2,50 +2,18 @@
 import Box from '@/components/box/box';
 import Text from '@/components/text/text';
 import { useTranslations } from 'next-intl';
-import { Link } from '@/i18n/routing';
-import React, { useState, useEffect, useCallback } from 'react';
+import React from 'react';
 import { RentProductCard } from '../design/RentProductCard';
 import CardAds from '../design/CardAds';
 import { useCarListings } from '@/core/infrastructure-adapters/use-actions/visitors/car.visitor.use-actions';
 import ProductSkeleton from '../design/ProductSkeletonItem';
-import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions';
 import { useSession } from '@/hooks/auth/use-session';
 import SectionHeader from '@/components/SectionHeader';
-import { Car, HelpCircle } from 'lucide-react';
+import { Car } from 'lucide-react';
 
 const RentProduct = () => {
   const t = useTranslations('homePage');
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [favoriteStatuses, setFavoriteStatuses] = useState<
-    Record<number, boolean>
-  >({});
   const session = useSession();
-
-  // Verify authentication status on component mount
-  useEffect(() => {
-    const verifyAuth = async () => {
-      try {
-        const authResponse = await checkAuth();
-        setIsAuthenticated(authResponse.success);
-      } catch (error) {
-        console.error('Auth check failed:', error);
-        setIsAuthenticated(false);
-      }
-    };
-
-    verifyAuth();
-  }, []);
-
-  // Handle favorite status update from child component
-  const handleFavoriteToggle = useCallback(
-    (productId: number, isFavorite: boolean) => {
-      setFavoriteStatuses((prev) => ({
-        ...prev,
-        [productId]: isFavorite,
-      }));
-    },
-    [],
-  );
 
   // Fetch rental car listings data with filter for listingType = 'for_rent'
   const { data, isLoading, error } = useCarListings({
@@ -72,36 +40,16 @@ const RentProduct = () => {
     ],
   });
 
-  // Extract rental car listings array safely and limit to 9 items
+  // Extract and limit rental car listings (no side effects in useMemo)
   const rentListings = React.useMemo(() => {
-    // Define the type for the listings array
-    let listings: Array<any> = [];
+    const listings = Array.isArray(data?.data)
+      ? data.data
+      : Array.isArray(data?.data?.data)
+      ? data.data.data
+      : [];
 
-    // If data.data is an array, use it
-    if (Array.isArray(data?.data)) {
-      listings = data.data;
-    }
-    // If data.data.data is an array (nested structure), use it
-    else if (Array.isArray(data?.data?.data)) {
-      listings = data.data.data;
-    }
-
-    // Initialize favorite statuses from backend data if not already set
-    const newFavoriteStatuses: Record<number, boolean> = {};
-    listings.forEach((item) => {
-      if (item.id && favoriteStatuses[item.id] === undefined) {
-        newFavoriteStatuses[item.id] = !!item.isFavorite;
-      }
-    });
-
-    // Update favorite statuses state if we have new items
-    if (Object.keys(newFavoriteStatuses).length > 0) {
-      setFavoriteStatuses((prev) => ({ ...prev, ...newFavoriteStatuses }));
-    }
-
-    // Limit to 9 items
     return listings.slice(0, 9);
-  }, [data, favoriteStatuses]);
+  }, [data]);
 
   return (
     <Box variant="container" className="mb-10">
@@ -135,50 +83,41 @@ const RentProduct = () => {
             className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:w-[90%] xs:w-[90%] lg:w-full"
             variant="center"
           >
-            {rentListings.map((product, index) => {
-              // Get favorite status from local state or fallback to API data
-              const isFavorite =
-                favoriteStatuses[product.id] !== undefined
-                  ? favoriteStatuses[product.id]
-                  : !!product.isFavorite;
-
-              return (
-                <React.Fragment key={product.id || index}>
-                  {/* Card wrapper with fixed dimensions */}
-                  <div className="w-full">
-                    <RentProductCard
-                      saveStatus={product.saveStatus}
-                      title={product.title}
-                      marka={product.make?.name || product.marka}
-                      type={product.listingType}
-                      price={product.price}
-                      currency={product.currency}
-                      imageSrc={
-                        product.images?.find(
-                          (img: { isPrimary: boolean; url: string }) =>
-                            img.isPrimary,
-                        )?.url ||
-                        product.images?.[0]?.url ||
-                        product.imageSrc
-                      }
-                      priceWord={t('rentProduct.price')}
-                      details={product.details || []}
-                      ProductId={product.id}
-                      isMarkedFavorite={isFavorite}
-                      onFavoriteToggle={handleFavoriteToggle}
-                    />
-                  </div>
-                  {index === 3 && (
-                    <Box
-                      variant="center"
-                      className="justify-center items-center  w-full"
-                    >
-                      <CardAds isRent={false} />
-                    </Box>
-                  )}
-                </React.Fragment>
-              );
-            })}
+            {rentListings.map((product, index) => (
+              <React.Fragment key={product.id || index}>
+                {/* Card wrapper with fixed dimensions */}
+                <div className="w-full">
+                  <RentProductCard
+                    saveStatus={product.saveStatus}
+                    title={product.title}
+                    marka={product.make?.name || product.marka}
+                    type={product.listingType}
+                    price={product.price}
+                    currency={product.currency}
+                    imageSrc={
+                      product.images?.find(
+                        (img: { isPrimary: boolean; url: string }) =>
+                          img.isPrimary,
+                      )?.url ||
+                      product.images?.[0]?.url ||
+                      product.imageSrc
+                    }
+                    priceWord={t('rentProduct.price')}
+                    details={product.details || []}
+                    ProductId={product.id}
+                    isMarkedFavorite={product.isFavorite || false}
+                  />
+                </div>
+                {index === 3 && (
+                  <Box
+                    variant="center"
+                    className="justify-center items-center  w-full"
+                  >
+                    <CardAds isRent={false} />
+                  </Box>
+                )}
+              </React.Fragment>
+            ))}
           </Box>
         )}
       </Box>

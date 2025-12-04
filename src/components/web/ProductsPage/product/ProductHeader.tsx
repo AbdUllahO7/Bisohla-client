@@ -258,6 +258,13 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
             </Text>
           )}
 
+          {/* Seller Info Card */}
+          {user && (
+            <div className="w-full mt-2 mb-4">
+              <SellerInfoCard user={user} />
+            </div>
+          )}
+
           {/* Price - Enhanced with gradient background */}
           <Box variant="center" className="w-full relative">
             {/* Glow effect behind price */}
