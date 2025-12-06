@@ -1,5 +1,8 @@
 /**
- * PM2 Ecosystem Configuration for Next.js Website (Production)
+ * PM2 Ecosystem Configuration for Next.js Website
+ *
+ * Works for both production and staging environments.
+ * The app name is set via PM2_APP_NAME environment variable.
  *
  * PM2 provides:
  * - Auto-restart on crash (prevents 504 errors)
@@ -12,7 +15,8 @@
 
 module.exports = {
   apps: [{
-    name: 'next-website-prod',
+    // Dynamic name based on environment (next-website-prod or next-website-staging)
+    name: process.env.PM2_APP_NAME || 'next-website',
     script: './server.js',
 
     // Process management
