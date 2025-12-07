@@ -35,7 +35,6 @@ export default function NewsPageClient() {
     locale,
     sortBy: 'publishedAt',
     sortDirection: 'desc',
-    searchKey: 'title',
     searchTerm: debouncedSearch || undefined, // <-- important change
     ...(selectedCategory && {
       where: [{ field: 'categoryId', operator: 'eq', value: selectedCategory }],

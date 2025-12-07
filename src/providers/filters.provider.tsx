@@ -141,26 +141,11 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
   const buildQueryParams = useCallback(
     (currentFilters: FilterState, currentSearchText: string): QueryParams => {
       const filterGroups: FilterGroup[] = [];
+      let searchTerm: string | undefined = undefined;
 
       // Search filter group
       if (currentSearchText.trim()) {
-        const searchFilters: Filter[] = [
-          {
-            field: 'title',
-            operator: 'like',
-            value: `%${currentSearchText.trim()}%`,
-          },
-          {
-            field: 'description',
-            operator: 'like',
-            value: `%${currentSearchText.trim()}%`,
-          },
-        ];
-
-        filterGroups.push({
-          operator: 'or',
-          filters: searchFilters,
-        });
+        searchTerm = currentSearchText.trim();
       }
 
       // UPDATED: Listing type filter - moved to top for priority
@@ -346,6 +331,7 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
         sortBy: 'createdAt',
         sortDirection: 'desc',
         filterGroups: filterGroups.length > 0 ? filterGroups : undefined,
+        searchTerm,
       };
     },
     [],
