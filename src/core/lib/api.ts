@@ -52,14 +52,23 @@ const buildUrl = (baseUrl: string, params?: QueryParams): string => {
   const searchParams = new URLSearchParams();
   // Handle basic params
   Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined && value !== null) {
+    if (value !== undefined) {
       // Handle search object format
-      if (key === 'searchKey' && params.searchTerm !== undefined) {
-        searchParams.append('search[key]', value.toString());
-        searchParams.append(
-          'search[term]',
-          params.searchTerm?.toString() || '',
-        );
+      if (key === 'searchKey') {
+        // Only add search[key] if value is not null
+        if (value !== null) {
+          searchParams.append('search[key]', value.toString());
+        }
+        return;
+      }
+
+      if (key === 'searchTerm') {
+        if (value !== null && value !== undefined) {
+          searchParams.append(
+            'search[term]',
+            params.searchTerm?.toString() || '',
+          );
+        }
         return;
       }
 
@@ -130,11 +139,8 @@ const buildUrl = (baseUrl: string, params?: QueryParams): string => {
         return;
       }
 
-      // Handle standard key-value
-      if (key !== 'searchTerm') {
-        // Skip searchTerm as it's handled with searchKey
-        searchParams.append(key, value.toString());
-      }
+      // Skip searchTerm as it's handled with searchKey
+      searchParams.append(key, value.toString());
     }
   });
 
@@ -405,7 +411,6 @@ const makeAuthRequest = async <T, R>(
       response.status === 403 ||
       (response.status === 500 && response.message === 'Unauthorized'))
   ) {
-
     try {
       // Get current session to access refresh token
       const session = await getSession();
@@ -415,10 +420,8 @@ const makeAuthRequest = async <T, R>(
         return response; // Return the original unauthorized response
       }
 
-
       // Attempt to refresh the token
       const newAccessToken = await handleRefreshToken(session.refreshToken);
-
 
       // Retry the original request with the new token
       const retryConfig = {

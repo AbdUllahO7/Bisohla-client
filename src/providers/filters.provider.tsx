@@ -69,7 +69,8 @@ interface FilterContextValue {
   // State
   filters: FilterState;
   searchState: SearchState;
-  queryParams: QueryParams;
+  queryParams: QueryParams; // Debounced query params for API calls
+  immediateQueryParams: QueryParams; // Immediate query params for UI
   isLoading: boolean;
 
   // Filter actions
@@ -134,33 +135,18 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
   // Separate debounce instances with different delays
   const debouncedSearchText = useDebounce(searchState.searchText, 1000);
   const debouncedFiltersForApi = useDebounce(filters, 800);
-  const debouncedFiltersForUrl = useDebounce(filters, 200);
-  const debouncedSearchForUrl = useDebounce(searchState.searchText, 200);
+  const debouncedFiltersForUrl = useDebounce(filters, 500);
+  const debouncedSearchForUrl = useDebounce(searchState.searchText, 800);
 
   // Memoized function to build query params
   const buildQueryParams = useCallback(
     (currentFilters: FilterState, currentSearchText: string): QueryParams => {
       const filterGroups: FilterGroup[] = [];
+      let searchTerm: string | undefined = undefined;
 
       // Search filter group
       if (currentSearchText.trim()) {
-        const searchFilters: Filter[] = [
-          {
-            field: 'title',
-            operator: 'like',
-            value: `%${currentSearchText.trim()}%`,
-          },
-          {
-            field: 'description',
-            operator: 'like',
-            value: `%${currentSearchText.trim()}%`,
-          },
-        ];
-
-        filterGroups.push({
-          operator: 'or',
-          filters: searchFilters,
-        });
+        searchTerm = currentSearchText.trim();
       }
 
       // UPDATED: Listing type filter - moved to top for priority
@@ -346,6 +332,7 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
         sortBy: 'createdAt',
         sortDirection: 'desc',
         filterGroups: filterGroups.length > 0 ? filterGroups : undefined,
+        searchTerm,
       };
     },
     [],
@@ -726,7 +713,8 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
     () => ({
       filters,
       searchState,
-      queryParams: immediateQueryParams,
+      queryParams: apiQueryParams, // Debounced for API calls
+      immediateQueryParams, // Immediate for UI
       isLoading,
       updateFilter,
       updateFilters,
@@ -740,6 +728,7 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
     [
       filters,
       searchState,
+      apiQueryParams,
       immediateQueryParams,
       isLoading,
       updateFilter,
