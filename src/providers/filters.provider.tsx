@@ -69,7 +69,8 @@ interface FilterContextValue {
   // State
   filters: FilterState;
   searchState: SearchState;
-  queryParams: QueryParams;
+  queryParams: QueryParams; // Debounced query params for API calls
+  immediateQueryParams: QueryParams; // Immediate query params for UI
   isLoading: boolean;
 
   // Filter actions
@@ -712,7 +713,8 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
     () => ({
       filters,
       searchState,
-      queryParams: immediateQueryParams,
+      queryParams: apiQueryParams, // Debounced for API calls
+      immediateQueryParams, // Immediate for UI
       isLoading,
       updateFilter,
       updateFilters,
@@ -726,6 +728,7 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
     [
       filters,
       searchState,
+      apiQueryParams,
       immediateQueryParams,
       isLoading,
       updateFilter,
