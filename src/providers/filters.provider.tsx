@@ -134,8 +134,8 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
   // Separate debounce instances with different delays
   const debouncedSearchText = useDebounce(searchState.searchText, 1000);
   const debouncedFiltersForApi = useDebounce(filters, 800);
-  const debouncedFiltersForUrl = useDebounce(filters, 200);
-  const debouncedSearchForUrl = useDebounce(searchState.searchText, 200);
+  const debouncedFiltersForUrl = useDebounce(filters, 500);
+  const debouncedSearchForUrl = useDebounce(searchState.searchText, 800);
 
   // Memoized function to build query params
   const buildQueryParams = useCallback(
