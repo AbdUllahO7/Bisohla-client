@@ -1,9 +1,10 @@
 import { SaveStatus } from '@/core/entities/enums/cars.enums';
+import { SelectCarListingDto } from '@/core/entities/models/cars/cars.dto';
 
 export interface CarCardItemProps {
   title: string;
   marka: string;
-  price: string;
+  price?: string;
   currency: string;
   imageSrc: string;
   priceWord: string;
