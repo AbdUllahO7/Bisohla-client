@@ -123,7 +123,7 @@ export const RentProductListCard: React.FC<RentProductListCardProps> = ({
             // Still mark as tracked to prevent retry loops
             setHasTrackedView(true);
           },
-        }
+        },
       );
     }
   }, [productId, hasTrackedView]);
@@ -322,7 +322,7 @@ export const RentProductListCard: React.FC<RentProductListCardProps> = ({
               <div className="flex items-center gap-2">
                 <Text className="text-xs text-gray-500">{priceWord}</Text>
                 <Text className="text-sm font-bold text-primary">
-                  {price ? `${price} ${currency || ''}` : 'N/A'}
+                  {price ? `${price} ${currency || ''}` : 'Contact For Price'}
                 </Text>
               </div>
 

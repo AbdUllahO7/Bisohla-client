@@ -324,7 +324,7 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
               isSold ? 'text-gray-200 line-through' : 'text-white'
             }`}
           >
-            {price} {currency}
+            {price} {price !== 'Contact for price' && currency}
           </Text>
         </Box>
 

@@ -206,7 +206,7 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
       const commonProps = {
         title: card.title,
         marka: card.make?.name || card.marka || '',
-        price: card.price.toString(),
+        price: card.price?.toString() || 'Contact for price',
         currency: card.currency,
         type: card.listingType,
         imageSrc:
