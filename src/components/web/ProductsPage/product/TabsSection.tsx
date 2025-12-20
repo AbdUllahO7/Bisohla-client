@@ -179,13 +179,6 @@ const TabsSection: React.FC<TabsSectionProps> = ({
           )}
         </div>
       </div>
-
-      {/* Similar Ads */}
-      <LatestOffers
-        count={4}
-        container={false}
-        title={locale === 'ar' ? 'إعلانات مشابهة' : 'Similar ads'}
-      />
     </Box>
   );
 };

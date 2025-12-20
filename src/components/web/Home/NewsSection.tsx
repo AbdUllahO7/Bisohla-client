@@ -10,6 +10,7 @@ import { Newspaper } from 'lucide-react'; // Removed ArrowRight, ArrowLeft
 import { useGetNewsArticles } from '@/hooks/use-news';
 import { SelectNewsArticleDto } from '@/core/entities/models/news/news.dto';
 import SectionHeader from '@/components/SectionHeader'; // Added import
+import { logger } from '@/lib/logger';
 
 interface NewsSectionProps {
   className?: string;
@@ -31,7 +32,7 @@ const NewsSection: React.FC<NewsSectionProps> = ({
     sortDirection: 'desc',
   });
 
-  console.log('NewsSection data', data);
+  logger.log('NewsSection data', data);
 
   // Extract the actual articles array from the nested data structure
   const articles = data?.data?.data;

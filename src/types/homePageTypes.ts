@@ -1,4 +1,5 @@
 import { SaveStatus } from '@/core/entities/enums/cars.enums';
+import { SelectCarListingDto } from '@/core/entities/models/cars/cars.dto';
 
 export interface CarCardItemProps {
   title: string;

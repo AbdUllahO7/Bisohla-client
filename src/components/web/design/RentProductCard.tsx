@@ -9,7 +9,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import Image from 'next/image';
-import { CarCardItemProps } from '@/types/homePageTypes';
+import { SelectCarListingDto } from '@/core/entities/models/cars/cars.dto';
 import Box from '@/components/box/box';
 import { ArrowRight, Eye, Fuel, HeartIcon, LifeBuoy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -21,46 +21,47 @@ import {
   getTransmissionOptions,
   SaveStatus,
 } from '@/core/entities/enums/cars.enums';
-import { useIncrementViewCount } from '@/hooks/use-carStatistics';
+import { useCardViewTracking } from '@/hooks/use-card-view-tracking';
 import { useSession } from '@/core/infrastructure-adapters/use-actions/auth/use-session';
 
-// Extended props interface to include the callback and favorite status
-interface ExtendedCarCardItemProps extends CarCardItemProps {
+interface RentProductCardProps {
+  car: SelectCarListingDto;
   onFavoriteToggle?: (productId: number, isFavorite: boolean) => void;
-  isMarkedFavorite?: boolean;
-  enableViewTracking?: boolean; // Optional prop to enable/disable view tracking
+  enableViewTracking?: boolean;
+  priceWord?: string;
 }
 
-// CardItem Component
-export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
-  title,
-  marka,
-  price,
-  currency,
-  imageSrc,
-  priceWord,
-  details,
-  ProductId,
-  type,
+export const RentProductCard: React.FC<RentProductCardProps> = ({
+  car,
   onFavoriteToggle,
-  isMarkedFavorite = false,
-  saveStatus,
   enableViewTracking = true,
+  priceWord,
 }) => {
-  const [favoriteStatus, setFavoriteStatus] = useState(isMarkedFavorite);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
-  const [hasTrackedView, setHasTrackedView] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
   const session = useSession();
   const isAuthenticated = session && session.accessToken;
+  const isOwner =
+    (!session.isLoading &&
+      isAuthenticated &&
+      session.user?.id === car.userId) ||
+    false;
 
   // Get translators for different namespaces
   const t = useTranslations('SoldCard');
   const bodyTypeT = useTranslations('addProduct.enteredData.stepTow');
 
-  // Initialize view count tracking hook
-  const incrementViewCount = useIncrementViewCount();
+  // Use the custom card view tracking hook with owner protection
+  const { hasTrackedView } = useCardViewTracking({
+    carId: car.id,
+    carUserId: car.userId,
+    enabled: enableViewTracking,
+    cardRef,
+  });
+
+  // Favorite state
+  const [favoriteStatus, setFavoriteStatus] = useState(car.isFavorite ?? false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   // Get the translated options from the car enums
   const transmissionOptions = useMemo(
@@ -82,117 +83,29 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
   };
 
   // Translated values for details
-  const translatedFuelType = details?.fuelType
-    ? getTranslatedLabel(details.fuelType, fuelTypeOptions)
+  const translatedFuelType = car.details?.fuelType
+    ? getTranslatedLabel(car.details.fuelType, fuelTypeOptions)
     : '';
-  const translatedTransmission = details?.transmission
-    ? getTranslatedLabel(details.transmission, transmissionOptions)
+  const translatedTransmission = car.details?.transmission
+    ? getTranslatedLabel(car.details.transmission, transmissionOptions)
     : '';
 
-  // Track view count using Intersection Observer for better performance
-  useEffect(() => {
-    // Skip if tracking is disabled, already tracked, or no ProductId
-    if (
-      !enableViewTracking ||
-      !ProductId ||
-      hasTrackedView ||
-      !cardRef.current
-    ) {
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        // Trigger when at least 50% of the card is visible for at least 1 second
-        if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
-          // Use a timeout to ensure the card is viewed for at least 1 second
-          const timeoutId = setTimeout(() => {
-            // Check if mutation is not already pending
-            if (!incrementViewCount.isPending) {
-              incrementViewCount.mutate(
-                { carListingId: Number(ProductId) },
-                {
-                  onSuccess: (data) => {
-                    setHasTrackedView(true);
-                  },
-                  onError: (error) => {
-                    console.error(
-                      '[View Tracking] Failed to track view for ProductId:',
-                      ProductId,
-                      error,
-                    );
-                    // Still mark as tracked to prevent retry loops
-                    setHasTrackedView(true);
-                  },
-                },
-              );
-            }
-
-            // Disconnect observer after tracking
-            observer.disconnect();
-          }, 1000); // Wait 1 second before tracking
-
-          // Clean up timeout if card becomes invisible before 1 second
-          return () => clearTimeout(timeoutId);
-        }
-      },
-      {
-        threshold: 0.5, // Trigger when 50% visible
-        rootMargin: '0px',
-      },
-    );
-
-    observer.observe(cardRef.current);
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [ProductId, hasTrackedView, incrementViewCount, enableViewTracking]);
-
-  // Fallback: Track view count on mount if Intersection Observer is not supported
-  useEffect(() => {
-    // Check if Intersection Observer is supported
-    if (
-      !window.IntersectionObserver &&
-      enableViewTracking &&
-      ProductId &&
-      !hasTrackedView
-    ) {
-      // Small delay to ensure component is fully mounted
-      const timeoutId = setTimeout(() => {
-        if (!incrementViewCount.isPending) {
-          incrementViewCount.mutate(
-            { carListingId: Number(ProductId) },
-            {
-              onSuccess: () => {
-                setHasTrackedView(true);
-              },
-              onError: (error) => {
-                console.error(
-                  '[View Tracking Fallback] Failed to track view:',
-                  error,
-                );
-                setHasTrackedView(true);
-              },
-            },
-          );
-        }
-      }, 100);
-
-      return () => clearTimeout(timeoutId);
-    }
-  }, [ProductId, hasTrackedView, incrementViewCount, enableViewTracking]);
+  // Get primary image or first available image
+  const imageSrc =
+    car.images?.find((img) => img.isPrimary)?.url ||
+    car.images?.[0]?.url ||
+    '/placeholder-car.jpg';
 
   // Update internal state when the prop changes
   useEffect(() => {
-    setFavoriteStatus(isMarkedFavorite);
-  }, [isMarkedFavorite, ProductId]);
+    setFavoriteStatus(car.isFavorite ?? false);
+  }, [car.isFavorite, car.id]);
 
   const handleFavoriteClick = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
 
-    if (!isAuthenticated || isProcessing || !ProductId) return;
+    if (!isAuthenticated || isProcessing || !car.id) return;
 
     const previousState = favoriteStatus;
     const optimisticState = !previousState;
@@ -201,12 +114,12 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
     setFavoriteStatus(optimisticState);
     setIsProcessing(true);
 
-    // Notify parent if callback exists (backward compatibility)
-    onFavoriteToggle?.(Number(ProductId), optimisticState);
+    // Notify parent if callback exists
+    onFavoriteToggle?.(car.id, optimisticState);
 
     try {
       const response = await toggleCarListingFavorite({
-        carListingId: Number(ProductId),
+        carListingId: car.id,
       });
 
       // Handle successful response
@@ -220,36 +133,27 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
         // Update state with server response if different from optimistic update
         if (actualStatus !== optimisticState) {
           setFavoriteStatus(actualStatus);
-          onFavoriteToggle?.(Number(ProductId), actualStatus);
+          onFavoriteToggle?.(car.id, actualStatus);
         }
       } else {
         // Rollback on failure
         setFavoriteStatus(previousState);
-        onFavoriteToggle?.(Number(ProductId), previousState);
+        onFavoriteToggle?.(car.id, previousState);
       }
     } catch (error) {
       // Rollback on error
       console.error('Failed to toggle favorite:', error);
       setFavoriteStatus(previousState);
-      onFavoriteToggle?.(Number(ProductId), previousState);
+      onFavoriteToggle?.(car.id, previousState);
     } finally {
       setIsProcessing(false);
     }
   };
 
-  // Manual test function for debugging (remove in production)
-  const handleManualViewTrack = () => {
-    if (ProductId) {
-      incrementViewCount.mutate({ carListingId: Number(ProductId) });
-    }
-  };
-
-  const isSold = saveStatus === SaveStatus.SOLD;
+  const isSold = car.saveStatus === SaveStatus.SOLD;
 
   return (
     <div ref={cardRef} className="w-full">
-      {/* Debug button - Remove in production */}
-
       <Card
         className={`border-none h-[370px] bg-white relative group transition-all duration-500 ease-out overflow-hidden ${
           isSold
@@ -266,23 +170,25 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
         }}
       >
         {/* Heart Icon with favorite status */}
-        <Button
-          className="absolute top-12 left-2 bg-white p-2 rounded-full shadow-md z-10 transition-transform duration-200 active:scale-90"
-          onClick={handleFavoriteClick}
-          disabled={!isAuthenticated || isSold}
-        >
-          <HeartIcon
-            size={24}
-            className={`transition-colors duration-200 ${
-              !isAuthenticated || isSold
-                ? 'text-gray-400'
-                : favoriteStatus
-                ? 'text-red-500'
-                : 'text-gray-600'
-            }`}
-            fill={favoriteStatus ? 'currentColor' : 'none'}
-          />
-        </Button>
+        {!isOwner && (
+          <Button
+            className="absolute top-12 left-2 bg-white p-2 rounded-full shadow-md z-10 transition-transform duration-200 active:scale-90"
+            onClick={handleFavoriteClick}
+            disabled={!isAuthenticated || isSold || isOwner}
+          >
+            <HeartIcon
+              size={24}
+              className={`transition-colors duration-200 ${
+                !isAuthenticated || isSold || isOwner
+                  ? 'text-gray-400'
+                  : favoriteStatus
+                  ? 'text-red-500'
+                  : 'text-gray-600'
+              }`}
+              fill={favoriteStatus ? 'currentColor' : 'none'}
+            />
+          </Button>
+        )}
 
         {/* SOLD Badge and Overlay */}
         {isSold && (
@@ -304,7 +210,7 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
         )}
 
         <Text className="absolute bottom-32 z-20 left-2 bg-primary-light px-2 py-1 rounded-lg shadow-md text-secondary text-sm">
-          {type === 'for_rent' ? 'Rent' : 'Sale'}
+          {car.listingType === 'for_rent' ? 'Rent' : 'Sale'}
         </Text>
 
         <Box
@@ -317,23 +223,23 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
               isSold ? 'text-gray-200' : 'text-[#EFEFEF]'
             }`}
           >
-            {priceWord}
+            {priceWord || 'Price'}
           </Text>
           <Text
             className={`mid font-cairo font-bold ${
               isSold ? 'text-gray-200 line-through' : 'text-white'
             }`}
           >
-            {price} {currency}
+            {car.price} {car.currency}
           </Text>
         </Box>
 
-        <Link href={`/products/product/${ProductId}`} className="block">
+        <Link href={`/products/product/${car.id}`} className="block">
           <CardHeader className="p-0">
             <CardTitle className="w-full relative h-48 overflow-hidden">
               <Image
                 src={imageSrc}
-                alt={title}
+                alt={car.title}
                 fill
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 className={`object-cover transition-all duration-500 ${
@@ -356,7 +262,7 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
                   isSold ? 'text-gray-500' : 'text-primary'
                 }`}
               >
-                {title}
+                {car.title}
               </Text>
               <Text
                 variant="mid"
@@ -364,7 +270,7 @@ export const RentProductCard: React.FC<ExtendedCarCardItemProps> = ({
                   isSold ? 'text-gray-400' : 'text-primary'
                 }`}
               >
-                {marka}
+                {car.make?.name}
               </Text>
             </CardDescription>
           </CardHeader>
