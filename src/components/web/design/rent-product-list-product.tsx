@@ -34,6 +34,7 @@ import { useCardViewTracking } from '@/hooks/use-card-view-tracking';
 import { useSession } from '@/core/infrastructure-adapters/use-actions/auth/use-session';
 import { cn } from '@/lib/utils';
 import { useDirection } from '@/hooks/use-direction';
+import { CAR_DEFAULTS } from '@/constants/cars';
 
 // Props interface for the list card
 interface RentProductListCardProps {
@@ -283,7 +284,9 @@ export const RentProductListCard: React.FC<RentProductListCardProps> = ({
               <div className="flex items-center gap-2">
                 <Text className="text-xs text-gray-500">{priceWord}</Text>
                 <Text className="text-sm font-bold text-primary">
-                  {price ? `${price} ${currency || ''}` : 'Contact For Price'}
+                  {price
+                    ? `${price} ${currency || ''}`
+                    : CAR_DEFAULTS.PRICE_FALLBACK}
                 </Text>
               </div>
 

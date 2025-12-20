@@ -23,6 +23,7 @@ import {
 } from '@/core/entities/enums/cars.enums';
 import { useCardViewTracking } from '@/hooks/use-card-view-tracking';
 import { useSession } from '@/core/infrastructure-adapters/use-actions/auth/use-session';
+import { CAR_DEFAULTS } from '@/constants/cars';
 
 interface RentProductCardProps {
   car: SelectCarListingDto;
@@ -230,7 +231,9 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
               isSold ? 'text-gray-200 line-through' : 'text-white'
             }`}
           >
-            {car.price ? `${car.price} ${car.currency}` : 'Contact for price'}
+            {car.price
+              ? `${car.price} ${car.currency}`
+              : CAR_DEFAULTS.PRICE_FALLBACK}
           </Text>
         </Box>
 
