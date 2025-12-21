@@ -12,31 +12,31 @@ import {
   X,
   Check,
 } from 'lucide-react';
-import { useIncrementSharesCount } from '@/hooks/use-carStatistics';
 import { useTranslations } from 'next-intl';
 
 interface FloatingShareButtonProps {
-  carListingId: number;
   productTitle: string;
   productUrl?: string;
   productPrice?: string;
   productMake?: string;
   productModel?: string;
   productYear?: string;
+  onShare: () => void; // Callback from useProductStatistics hook
+  isSharePending: boolean; // Loading state from useProductStatistics hook
 }
 
 const FloatingShareButton: React.FC<FloatingShareButtonProps> = ({
-  carListingId,
   productTitle,
   productUrl,
   productPrice,
   productMake,
   productModel,
   productYear,
+  onShare,
+  isSharePending,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [showCopiedMessage, setShowCopiedMessage] = useState(false);
-  const incrementSharesCount = useIncrementSharesCount();
   const t = useTranslations('productHeader');
   
   // Get the current URL or use provided URL
@@ -104,16 +104,8 @@ const FloatingShareButton: React.FC<FloatingShareButtonProps> = ({
 
   // Track share and perform action
   const handleShare = (platform: string, action: () => void) => {
-    // Track share count
-    incrementSharesCount.mutate(
-      { carListingId },
-      {
-      
-        onError: (error) => {
-          console.error('❌ Failed to track share:', error);
-        },
-      }
-    );
+    // Track share count using the hook callback
+    onShare();
 
     // Perform the share action
     action();
@@ -150,9 +142,9 @@ const FloatingShareButton: React.FC<FloatingShareButtonProps> = ({
           text: `Check out this car: ${productTitle}`,
           url: shareUrl,
         });
-        
-        // Track the share
-        incrementSharesCount.mutate({ carListingId });
+
+        // Track the share using the hook callback
+        onShare();
       } catch (error) {
         console.error('Native share failed:', error);
       }
@@ -249,7 +241,7 @@ const FloatingShareButton: React.FC<FloatingShareButtonProps> = ({
                     onClick={option.action}
                     className={`flex flex-col items-center justify-center h-20 bg-gray-50 hover:text-white transition-all duration-300 ${option.color}`}
                     variant="outline"
-                    disabled={incrementSharesCount.isPending}
+                    disabled={isSharePending}
                   >
                     <Icon className="h-6 w-6 mb-1" />
                     <span className="text-xs">{option.name}</span>
@@ -263,7 +255,7 @@ const FloatingShareButton: React.FC<FloatingShareButtonProps> = ({
               <Button
                 onClick={handleCopyLink}
                 className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white"
-                disabled={incrementSharesCount.isPending}
+                disabled={isSharePending}
               >
                 {showCopiedMessage ? (
                   <>
@@ -286,7 +278,7 @@ const FloatingShareButton: React.FC<FloatingShareButtonProps> = ({
                   onClick={handleNativeShare}
                   variant="outline"
                   className="w-full"
-                  disabled={incrementSharesCount.isPending}
+                  disabled={isSharePending}
                 >
                   <Share2 className="h-4 w-4 mr-2" />
                   {t('moreOptions')}
@@ -302,13 +294,13 @@ const FloatingShareButton: React.FC<FloatingShareButtonProps> = ({
           className={`h-14 w-14 rounded-full shadow-2xl bg-gradient-to-br from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white transition-all duration-300 ${
             isOpen ? 'rotate-45 scale-110' : 'hover:scale-110'
           }`}
-          disabled={incrementSharesCount.isPending}
+          disabled={isSharePending}
         >
           <Share2 className="h-6 w-6" />
         </Button>
 
         {/* Loading Indicator */}
-        {incrementSharesCount.isPending && (
+        {isSharePending && (
           <div className="absolute -top-1 -right-1">
             <div className="h-4 w-4 bg-blue-500 rounded-full animate-ping" />
           </div>

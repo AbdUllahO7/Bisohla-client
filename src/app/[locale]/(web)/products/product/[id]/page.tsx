@@ -13,6 +13,9 @@ import { getSession } from '@/core/lib/web/session';
 import ProductClient from './product-client';
 import MobileProductClient from './mobile-product-client';
 import { APP_URL } from '@/core/lib/web/constants';
+import LatestOffers from '@/components/web/Home/LatestOffers';
+import SimilarAds from '@/components/web/ProductsPage/product/SimilarAds';
+import { logger } from '@/lib/logger';
 
 interface ProductPageProps {
   params: Promise<{
@@ -29,10 +32,10 @@ async function fetchCarData(
   userId?: number,
 ): Promise<ApiResponse<SelectCarListingDto>> {
   if (isProfileView) {
-    console.log('Fetching my car by ID:', id);
+    logger.log('Fetching my car by ID:', id);
     return await getMyCarById(id);
   } else {
-    console.log('Fetching public car listing by ID:', id);
+    logger.log('Fetching public car listing by ID:', id);
     const params: QueryParams = {
       id,
       userId,
@@ -45,7 +48,7 @@ export async function generateMetadata({
   params,
   searchParams,
 }: ProductPageProps): Promise<Metadata> {
-  console.log('WHYYY');
+  logger.log('WHYYY');
   const { id } = await params;
   const isProfileView = (await searchParams).profile === 'true';
 
@@ -111,13 +114,14 @@ const ProductPage = async ({ params, searchParams }: ProductPageProps) => {
     const userId = session?.user?.id;
 
     // Check authentication status
-    const authResponse = await checkAuth();
-    const isAuthenticated = authResponse.success;
+    const authResponse = await getSession();
+    const isAuthenticated =
+      authResponse?.accessToken || authResponse?.user ? true : false;
 
     // Fetch car data (this will be cached/deduplicated with metadata generation)
     const carResponse = await fetchCarData(Number(id), isProfileView, userId);
 
-    console.log('Car Response:', carResponse);
+    logger.log('Car Response:', carResponse);
 
     if (!carResponse.success || !carResponse.data) {
       notFound();
@@ -145,6 +149,16 @@ const ProductPage = async ({ params, searchParams }: ProductPageProps) => {
             isAuthenticated={isAuthenticated}
             locale={locale}
             isProfileView={isProfileView}
+          />
+        </div>
+
+        {/* Similar Ads */}
+        <div className="container">
+          <SimilarAds
+            count={4}
+            container={false}
+            title={locale === 'ar' ? 'إعلانات مشابهة' : 'Similar ads'}
+            car={carResponse.data}
           />
         </div>
       </>

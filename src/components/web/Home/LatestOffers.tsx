@@ -196,24 +196,8 @@ const LatestOffers: React.FC<LatestOffersProps> = ({
                     }}
                   >
                     <RentProductCard
-                      saveStatus={card.saveStatus}
-                      title={card.title}
-                      marka={card.make?.name || card.marka}
-                      price={card.price}
-                      currency={card.currency}
-                      type={card.listingType}
-                      imageSrc={
-                        card.images?.find(
-                          (img: { isPrimary: boolean; url: string }) =>
-                            img.isPrimary,
-                        )?.url ||
-                        card.images?.[0]?.url ||
-                        card.imageSrc
-                      }
-                      ProductId={card.id}
-                      details={card.details || []}
+                      car={card}
                       priceWord={t('latestOffers.price')}
-                      isMarkedFavorite={card.isFavorite || false}
                     />
                   </div>
                   {/* Render CardAds only after the first two cards */}

@@ -11,6 +11,7 @@ import {
   generateProfileMetadata,
   generateSettingsBasedMetadata,
 } from '@/utils/settings-metadata.utils';
+import { logger } from '@/lib/logger';
 
 interface ProfilePageProps {
   params: Promise<{
@@ -68,7 +69,7 @@ const ProfilePage = async ({ params }: ProfilePageProps) => {
     // Fetch user profile data
     const profileResponse = await getUserProfileInfo(Number(id));
 
-    console.log('Profile Response:', profileResponse);
+    logger.log('Profile Response:', profileResponse);
 
     if (!profileResponse.success || !profileResponse.data) {
       notFound();

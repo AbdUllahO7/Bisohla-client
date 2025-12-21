@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
 import Text from '@/components/text/text';
 import {
   Card,
@@ -30,7 +30,11 @@ import {
   SaveStatus,
 } from '@/core/entities/enums/cars.enums';
 import { SelectCarListingDto } from '@/core/entities/models/cars/cars.dto';
-import { useIncrementViewCount } from '@/hooks/use-carStatistics';
+import { useCardViewTracking } from '@/hooks/use-card-view-tracking';
+import { useSession } from '@/core/infrastructure-adapters/use-actions/auth/use-session';
+import { cn } from '@/lib/utils';
+import { useDirection } from '@/hooks/use-direction';
+import { CAR_DEFAULTS } from '@/constants/cars';
 
 // Props interface for the list card
 interface RentProductListCardProps {
@@ -38,6 +42,7 @@ interface RentProductListCardProps {
   onFavoriteToggle?: (productId: number, isFavorite: boolean) => void;
   isMarkedFavorite?: boolean;
   priceWord?: string;
+  enableViewTracking?: boolean;
 }
 
 // List-style CardItem Component for mobile
@@ -46,18 +51,31 @@ export const RentProductListCard: React.FC<RentProductListCardProps> = ({
   onFavoriteToggle,
   isMarkedFavorite = false,
   priceWord = 'Price',
+  enableViewTracking = true,
 }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const session = useSession();
+  const isAuthenticated = session && session.accessToken;
+  const isOwner =
+    (!session.isLoading &&
+      isAuthenticated &&
+      session.user?.id === car.userId) ||
+    false;
   const [favoriteStatus, setFavoriteStatus] = useState(isMarkedFavorite);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [hasTrackedView, setHasTrackedView] = useState(false);
+  const direction = useDirection();
 
   // Get translators for different namespaces
   const productT = useTranslations('product');
   const bodyTypeT = useTranslations('addProduct.enteredData.stepTow');
 
-  // Initialize view count tracking hook
-  const incrementViewCount = useIncrementViewCount();
+  // Use the custom card view tracking hook with owner protection
+  const { hasTrackedView } = useCardViewTracking({
+    carId: car.id,
+    carUserId: car.userId,
+    enabled: enableViewTracking,
+    cardRef,
+  });
 
   // Get the translated options from the car enums
   const transmissionOptions = useMemo(
@@ -107,50 +125,14 @@ export const RentProductListCard: React.FC<RentProductListCardProps> = ({
     ? getTranslatedLabel(details.transmission, transmissionOptions)
     : '';
 
-  // Track view count when card is visible
-  useEffect(() => {
-    // Only track view once per component instance and if productId exists
-    if (productId && !hasTrackedView) {
-      incrementViewCount.mutate(
-        { carListingId: Number(productId) },
-        {
-          onSuccess: () => {
-            // Mark as tracked to prevent duplicate calls
-            setHasTrackedView(true);
-          },
-          onError: (error) => {
-            console.error('Failed to track view count:', error);
-            // Still mark as tracked to prevent retry loops
-            setHasTrackedView(true);
-          },
-        },
-      );
-    }
-  }, [productId, hasTrackedView]);
-
-  // Check authentication status when component mounts
-  useEffect(() => {
-    const verifyAuth = async () => {
-      try {
-        const authResponse = await checkAuth();
-        setIsAuthenticated(authResponse.success);
-      } catch (error) {
-        console.error('Auth check failed for rent product:', error);
-        setIsAuthenticated(false);
-      }
-    };
-
-    verifyAuth();
-  }, []);
-
   // Update internal state when the prop changes
   useEffect(() => {
     setFavoriteStatus(isMarkedFavorite);
   }, [isMarkedFavorite, productId]);
 
   const handleFavoriteClick = async (e: React.MouseEvent) => {
-    e.preventDefault();
     e.stopPropagation();
+    e.preventDefault();
 
     if (isAuthenticated && !isProcessing && productId) {
       setIsProcessing(true);
@@ -208,12 +190,13 @@ export const RentProductListCard: React.FC<RentProductListCardProps> = ({
   };
 
   return (
-    <Link href={`/products/product/${productId}`} className="block w-full">
-      <Card
-        className={`border border-gray-200 bg-white transition-all duration-300 ease-out overflow-hidden mb-4 ${
-          isSold ? 'opacity-75 cursor-default' : 'hover:shadow-lg'
-        }`}
-      >
+    <Card
+      className={`w-full relative border border-gray-200 bg-white transition-all duration-300 ease-out overflow-hidden mb-4 ${
+        isSold ? 'opacity-75 cursor-default' : 'hover:shadow-lg'
+      }`}
+      ref={cardRef}
+    >
+      <Link href={`/products/product/${productId}`} className="block w-full">
         <div className="flex flex-row h-32 relative">
           {/* SOLD Badge and Overlay */}
           {isSold && (
@@ -266,27 +249,6 @@ export const RentProductListCard: React.FC<RentProductListCardProps> = ({
                   {make?.name || ''}
                 </Text>
               </div>
-
-              {/* Heart Icon */}
-              <Button
-                className="p-1 h-8 w-8 bg-transparent hover:bg-gray-100 rounded-full"
-                onClick={handleFavoriteClick}
-                disabled={!isAuthenticated || isProcessing || isSold}
-              >
-                <HeartIcon
-                  size={16}
-                  className={
-                    isProcessing
-                      ? 'text-gray-400 animate-pulse'
-                      : !isAuthenticated || isSold
-                      ? 'text-gray-400'
-                      : favoriteStatus
-                      ? 'text-red-500'
-                      : 'text-gray-600'
-                  }
-                  fill={favoriteStatus ? 'currentColor' : 'none'}
-                />
-              </Button>
             </div>
 
             {/* Details Section */}
@@ -322,7 +284,9 @@ export const RentProductListCard: React.FC<RentProductListCardProps> = ({
               <div className="flex items-center gap-2">
                 <Text className="text-xs text-gray-500">{priceWord}</Text>
                 <Text className="text-sm font-bold text-primary">
-                  {price ? `${price} ${currency || ''}` : 'Contact For Price'}
+                  {price
+                    ? `${price} ${currency || ''}`
+                    : CAR_DEFAULTS.PRICE_FALLBACK}
                 </Text>
               </div>
 
@@ -330,7 +294,32 @@ export const RentProductListCard: React.FC<RentProductListCardProps> = ({
             </div>
           </div>
         </div>
-      </Card>
-    </Link>
+      </Link>
+      {/* Heart Icon */}
+      {!isOwner && (
+        <Button
+          className={cn(
+            'absolute top-2 p-1 h-8 w-8 bg-transparent hover:bg-gray-100 rounded-full',
+            direction === 'ltr' ? 'right-2' : 'left-2',
+          )}
+          onClick={handleFavoriteClick}
+          disabled={!isAuthenticated || isProcessing || isSold || isOwner}
+        >
+          <HeartIcon
+            size={16}
+            className={
+              isProcessing
+                ? 'text-gray-400 animate-pulse'
+                : !isAuthenticated || isSold || isOwner
+                ? 'text-gray-400'
+                : favoriteStatus
+                ? 'text-red-500'
+                : 'text-gray-600'
+            }
+            fill={favoriteStatus ? 'currentColor' : 'none'}
+          />
+        </Button>
+      )}
+    </Card>
   );
 };

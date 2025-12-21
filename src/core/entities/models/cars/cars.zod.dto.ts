@@ -149,7 +149,6 @@ export const UpdateCarListingSchema = CreateCarListingSchema.partial().extend({
 });
 export type UpdateCarListingDto = z.infer<typeof UpdateCarListingSchema>;
 
-
 export const UpdateSaveStatusSchema = z.object({
   saveStatus: z.nativeEnum(SaveStatus),
 });
@@ -176,17 +175,17 @@ export const CreateFeatureSchema = z.object({
 // DTO Schemas
 export const IncrementCountDtoSchema = z.object({
   carListingId: z.number().positive(),
+  userId: z.number().positive().optional(),
 });
 
 export const UpdateViewDurationDtoSchema = z.object({
   carListingId: z.number().positive(),
   durationInSeconds: z.number().positive(),
+  userId: z.number().positive().optional(),
 });
 
 export type IncrementCountDto = z.infer<typeof IncrementCountDtoSchema>;
 export type UpdateViewDurationDto = z.infer<typeof UpdateViewDurationDtoSchema>;
-
-
 
 export type CreateFeatureDto = z.infer<typeof CreateFeatureSchema>;
 

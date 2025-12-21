@@ -15,6 +15,7 @@ import { useRouter } from 'next/navigation';
 import { SaveStatus } from '@/core/entities/enums/cars.enums';
 import { SelectUserDto } from '@/core/entities/models/users/users.dto';
 import SellerInfoCard from './SellerInfoCard';
+import { useSession } from '@/core/infrastructure-adapters/use-actions/auth/use-session';
 
 interface ProductHeaderProps {
   productName?: string;
@@ -53,6 +54,10 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
   const sold = useTranslations('SoldCard');
   const route = useRouter();
   const isSold = saveStatus === SaveStatus.SOLD;
+  const session = useSession();
+  const isOwner =
+    (!session.isLoading && isAuthenticated && session.user?.id === user?.id) ||
+    false;
 
   // Format phone number for WhatsApp link (remove spaces, dashes, etc.)
   const formatPhoneForWhatsApp = (phone: string) => {
@@ -251,10 +256,11 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
           {productName && (
             <Text
               variant="h4"
-              className="font-bold text-center w-full text-[#2C3C39]"
+              className="font-bold text-center w-full text-[#2C3C39] line-clamp-3"
               as="h1"
             >
-              {productName}
+              {productName} a aaaa aaaaaa aaaaa
+              aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
             </Text>
           )}
 
@@ -307,7 +313,7 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
                     : 'bg-white/90 border-gray-200 hover:bg-white hover:shadow-xl hover:border-[#198341]'
                 }`}
                 onClick={handleFavoriteClick}
-                disabled={isProcessing || isSold}
+                disabled={isProcessing || isSold || isOwner}
                 aria-label={
                   !isAuthenticated
                     ? 'Sign in to add favorites'
@@ -320,7 +326,7 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
                   className={`h-6 w-6 transition-all duration-300 ${
                     isProcessing
                       ? 'animate-pulse text-gray-400'
-                      : isSold
+                      : isSold || isOwner
                       ? 'text-gray-400'
                       : isMarkedFavorite
                       ? 'text-red-500 fill-red-500 scale-110'
@@ -433,7 +439,7 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
                     : 'bg-background hover:bg-white hover:shadow-md border-transparent hover:border-[#198341]'
                 }`}
                 onClick={handleFavoriteClick}
-                disabled={isProcessing || isSold}
+                disabled={isProcessing || isSold || isOwner}
                 aria-label={
                   !isAuthenticated
                     ? 'Sign in to add favorites'
@@ -446,7 +452,7 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
                   className={`h-5 w-5 sm:h-6 sm:w-6 transition-all duration-300 ${
                     isProcessing
                       ? 'animate-pulse text-gray-400'
-                      : isSold
+                      : isSold || isOwner
                       ? 'text-gray-400'
                       : isMarkedFavorite
                       ? 'text-red-500 fill-red-500 scale-110'

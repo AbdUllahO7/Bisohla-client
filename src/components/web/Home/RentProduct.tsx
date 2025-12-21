@@ -88,24 +88,8 @@ const RentProduct = () => {
                 {/* Card wrapper with fixed dimensions */}
                 <div className="w-full">
                   <RentProductCard
-                    saveStatus={product.saveStatus}
-                    title={product.title}
-                    marka={product.make?.name || product.marka}
-                    type={product.listingType}
-                    price={product.price}
-                    currency={product.currency}
-                    imageSrc={
-                      product.images?.find(
-                        (img: { isPrimary: boolean; url: string }) =>
-                          img.isPrimary,
-                      )?.url ||
-                      product.images?.[0]?.url ||
-                      product.imageSrc
-                    }
-                    priceWord={t('rentProduct.price')}
-                    details={product.details || []}
-                    ProductId={product.id}
-                    isMarkedFavorite={product.isFavorite || false}
+                    car={product}
+                    priceWord={t('latestOffers.price')}
                   />
                 </div>
                 {index === 3 && (

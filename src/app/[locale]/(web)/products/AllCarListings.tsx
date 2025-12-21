@@ -12,6 +12,7 @@ import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.acti
 import { useSession } from '@/hooks/auth/use-session';
 import { RentProductCard } from '@/components/web/design/RentProductCard';
 import { RentProductListCard } from '@/components/web/design/rent-product-list-product';
+import { logger } from '@/lib/logger';
 
 interface AllCarListingsProps {
   pageSize?: number;
@@ -101,7 +102,7 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
 
   // Fetch all car listings with pagination and filters
   const { data, isLoading, error } = useCarListings(queryParams);
-  console.log('Car Listings Data:', data);
+  logger.log('Car Listings Data:', data);
   // Extract car listings array safely
   const carListings = useMemo(() => {
     const apiData = data as any;
@@ -203,25 +204,6 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
           ? favoriteStatuses[card.id]
           : !!card.isFavorite;
 
-      const commonProps = {
-        title: card.title,
-        marka: card.make?.name || card.marka || '',
-        price: card.price?.toString() || 'Contact for price',
-        currency: card.currency,
-        type: card.listingType,
-        imageSrc:
-          card.images?.find((img: any) => img.isPrimary)?.url ||
-          card.images?.[0]?.url ||
-          card.imageSrc ||
-          '',
-        ProductId: card.id,
-        priceWord: t('latestOffers.price'),
-        isMarkedFavorite: isFavorite,
-        onFavoriteToggle: handleFavoriteToggle,
-        details: card.details || [],
-        saveStatus: card.saveStatus,
-      };
-
       if (isMobile) {
         return (
           <RentProductListCard
@@ -233,7 +215,13 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
           />
         );
       } else {
-        return <RentProductCard key={card.id || index} {...commonProps} />;
+        return (
+          <RentProductCard
+            key={card.id || index}
+            car={card}
+            onFavoriteToggle={handleFavoriteToggle}
+          />
+        );
       }
     },
     [isMobile, favoriteStatuses, handleFavoriteToggle, t],
