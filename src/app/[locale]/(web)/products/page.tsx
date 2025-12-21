@@ -19,7 +19,7 @@ const ProductsContent = () => {
   const { queryParams } = useFilters();
   const [totalItems, setTotalItems] = useState<number>(0);
   const [currentSort, setCurrentSort] = useState({
-    sortBy: 'createdAt',
+    sortBy: 'publishedAt',
     sortDirection: 'desc' as 'asc' | 'desc',
   });
 
