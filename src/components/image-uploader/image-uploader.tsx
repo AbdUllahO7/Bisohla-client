@@ -35,9 +35,7 @@ import Image from 'next/image';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useGetUserUploads, useUploadSingleImage } from './use-actions';
-import {
-  UploadSingleImageDto,
-} from '@/core/entities/models/file-manager/upload.dto';
+import { UploadSingleImageDto } from '@/core/entities/models/file-manager/upload.dto';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -112,7 +110,7 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
     const [imageUrls, setImageUrls] = useState<string[]>([]);
     const didInitialize = useRef(false);
     const uploadInProgressRef = useRef(false);
-    
+
     // Track file preview cleanup
     const filePreviewUrls = useRef<Map<string, string>>(new Map());
 
@@ -131,7 +129,7 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
         didInitialize.current = true;
       }
     }, [value]);
-    
+
     // Cleanup preview URLs when component unmounts
     useEffect(() => {
       return () => {
@@ -141,7 +139,7 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
             URL.revokeObjectURL(url);
           }
         });
-        
+
         // Clear any progress intervals
         if (progressIntervalRef.current) {
           clearInterval(progressIntervalRef.current);
@@ -166,13 +164,13 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
           }
         });
         filePreviewUrls.current.clear();
-        
+
         // Clear any progress intervals
         if (progressIntervalRef.current) {
           clearInterval(progressIntervalRef.current);
           progressIntervalRef.current = null;
         }
-        
+
         setUploadingFiles([]);
         setImageUrls([]);
         setSelectedPreviousImages([]);
@@ -187,21 +185,26 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
       if (progressIntervalRef.current) {
         clearInterval(progressIntervalRef.current);
       }
-      
+
       // Start a new interval to simulate progress
       progressIntervalRef.current = setInterval(() => {
-        setUploadingFiles(prev => {
-          return prev.map(file => {
+        setUploadingFiles((prev) => {
+          return prev.map((file) => {
             if (file.id === uploadingFileId && file.status === 'uploading') {
               // Calculate new progress
               const currentProgress = file.progress || 0;
               // Slow down as we approach 90%
-              const increment = currentProgress < 30 ? 5 : 
-                               currentProgress < 60 ? 3 : 
-                               currentProgress < 80 ? 1 : 0.5;
-              
+              const increment =
+                currentProgress < 30
+                  ? 5
+                  : currentProgress < 60
+                  ? 3
+                  : currentProgress < 80
+                  ? 1
+                  : 0.5;
+
               const newProgress = Math.min(90, currentProgress + increment);
-              
+
               return { ...file, progress: newProgress };
             }
             return file;
@@ -230,7 +233,7 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
           if (allDone) {
             setIsUploading(false);
             if (setDisableForm) setDisableForm(false);
-            
+
             // Clear any progress interval
             if (progressIntervalRef.current) {
               clearInterval(progressIntervalRef.current);
@@ -247,10 +250,12 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
         // Update file status to uploading and initialize progress
         setUploadingFiles((prev) =>
           prev.map((f) =>
-            f.id === pendingFile.id ? { ...f, status: 'uploading', progress: 0 } : f,
+            f.id === pendingFile.id
+              ? { ...f, status: 'uploading', progress: 0 }
+              : f,
           ),
         );
-        
+
         // Start progress animation
         startProgressAnimation(pendingFile.id);
 
@@ -265,7 +270,7 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
           if (response.success && response.data && response.data.url) {
             queryClient.invalidateQueries({ queryKey: ['user-uploads'] });
             const url = response.data.url;
-            
+
             // Clear progress interval
             if (progressIntervalRef.current) {
               clearInterval(progressIntervalRef.current);
@@ -275,7 +280,9 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
             // Update with success status, URL and 100% progress
             setUploadingFiles((prev) =>
               prev.map((f) =>
-                f.id === pendingFile.id ? { ...f, status: 'success', url, progress: 100 } : f,
+                f.id === pendingFile.id
+                  ? { ...f, status: 'success', url, progress: 100 }
+                  : f,
               ),
             );
 
@@ -292,7 +299,7 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
           }
         } catch (err) {
           console.error('Upload error:', err);
-          
+
           // Clear progress interval
           if (progressIntervalRef.current) {
             clearInterval(progressIntervalRef.current);
@@ -338,9 +345,11 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
         const validFiles = newFiles.filter((file) => {
           if (!acceptedFileTypes.includes(file.type)) {
             setError(
-              `Invalid file type. Accepted types: ${acceptedFileTypes.map(type => 
-                type.replace('image/', '.').replace('application/', '.')
-              ).join(', ')}`,
+              `Invalid file type. Accepted types: ${acceptedFileTypes
+                .map((type) =>
+                  type.replace('image/', '.').replace('application/', '.'),
+                )
+                .join(', ')}`,
             );
             return false;
           }
@@ -376,7 +385,7 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
 
             // Store the preview URL for cleanup
             filePreviewUrls.current.set(newFile.id, reader.result as string);
-            
+
             newUploadingFiles.push(newFile);
 
             // Add to uploading files state
@@ -438,7 +447,9 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
       // Reset file to pending status
       setUploadingFiles((prev) =>
         prev.map((f) =>
-          f.id === id ? { ...f, status: 'pending', error: undefined, progress: 0 } : f,
+          f.id === id
+            ? { ...f, status: 'pending', error: undefined, progress: 0 }
+            : f,
         ),
       );
 
@@ -511,15 +522,15 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
       onChange?.(newUrls);
       setActiveTab('upload'); // Switch back to the upload tab
     };
-    
+
     // Function to safely render an image or document preview
     const renderPreview = (src: string, alt: string) => {
       // Check if it's an image type URL (based on extension or URL pattern)
-      const isImageUrl = 
-        /\.(jpeg|jpg|png|gif|webp|svg)$/i.test(src) || 
+      const isImageUrl =
+        /\.(jpeg|jpg|png|gif|webp|svg)$/i.test(src) ||
         /image\/upload/i.test(src) ||
         src.startsWith('data:image/');
-        
+
       if (isImageUrl) {
         return (
           <div className="relative h-full w-full">
@@ -536,8 +547,10 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
                 const parent = e.currentTarget.parentElement;
                 if (parent) {
                   const iconEl = document.createElement('div');
-                  iconEl.className = "flex h-full w-full items-center justify-center bg-muted/20";
-                  iconEl.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-muted-foreground"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>';
+                  iconEl.className =
+                    'flex h-full w-full items-center justify-center bg-muted/20';
+                  iconEl.innerHTML =
+                    '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-muted-foreground"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>';
                   parent.appendChild(iconEl);
                 }
               }}
@@ -581,11 +594,17 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid grid-cols-2 w-full bg-primary-light ">
-            <TabsTrigger value="upload" className="flex items-center gap-1 border-0 text-white font-bold data-[state=active]:text-primary">
+            <TabsTrigger
+              value="upload"
+              className="flex items-center gap-1 border-0 text-white font-bold data-[state=active]:text-primary"
+            >
               <Upload className="h-4 w-4" />
               <span>Upload New</span>
             </TabsTrigger>
-            <TabsTrigger value="previous" className="flex items-center gap-1 text-white font-bold data-[state=active]:text-primary">
+            <TabsTrigger
+              value="previous"
+              className="flex items-center gap-1 text-white font-bold data-[state=active]:text-primary"
+            >
               <History className="h-4 w-4" />
               <span>Previous Uploads</span>
             </TabsTrigger>
@@ -600,13 +619,17 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
             >
               <motion.div
                 whileHover={{ boxShadow: '0 4px 14px rgba(0, 0, 0, 0.1)' }}
-                animate={{ 
-                  borderColor: isDragging ? 'rgba(59, 130, 246, 0.5)' : 'rgba(209, 213, 219, 0.5)',
-                  backgroundColor: isDragging ? 'rgba(59, 130, 246, 0.05)' : 'transparent' 
+                animate={{
+                  borderColor: isDragging
+                    ? 'rgba(59, 130, 246, 0.5)'
+                    : 'rgba(209, 213, 219, 0.5)',
+                  backgroundColor: isDragging
+                    ? 'rgba(59, 130, 246, 0.05)'
+                    : 'transparent',
                 }}
                 transition={{ duration: 0.2 }}
                 onDrop={handleDrop}
-                onDragOver={(e: { preventDefault: () => void; }) => {
+                onDragOver={(e: { preventDefault: () => void }) => {
                   e.preventDefault();
                   setIsDragging(true);
                 }}
@@ -621,7 +644,7 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
                 <div className="flex flex-col items-center space-y-4">
                   <AnimatePresence mode="wait">
                     {isUploading ? (
-                      <motion.div 
+                      <motion.div
                         key="uploading"
                         initial={{ scale: 0.8, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
@@ -630,11 +653,12 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
                       >
                         <Loader2 className="h-12 w-12 text-primary animate-spin" />
                         <p className="text-sm text-center mt-2">
-                          Uploading {uploadCounts.uploading + uploadCounts.pending}{' '}
-                          files
+                          Uploading{' '}
+                          {uploadCounts.uploading + uploadCounts.pending} files
                           {uploadCounts.success > 0 &&
                             `, ${uploadCounts.success} completed`}
-                          {uploadCounts.error > 0 && `, ${uploadCounts.error} failed`}
+                          {uploadCounts.error > 0 &&
+                            `, ${uploadCounts.error} failed`}
                         </p>
                       </motion.div>
                     ) : (
@@ -655,15 +679,24 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
                       Drag & drop files here, or
                     </p>
                     <label htmlFor={`${name}-input`} className="cursor-pointer">
-                      <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+                      <motion.div
+                        whileHover={{ scale: 1.03 }}
+                        whileTap={{ scale: 0.97 }}
+                      >
                         <Button
                           variant="secondary"
-                          className={cn('mt-2 bg-primary text-white hover:bg-primary/90', buttonClassName)}
+                          className={cn(
+                            'mt-2 bg-primary text-white hover:bg-primary/90',
+                            buttonClassName,
+                          )}
                           type="button"
                           disabled={isUploading}
                           asChild
                         >
-                          <Label htmlFor={`${name}-input`} className="cursor-pointer">
+                          <Label
+                            htmlFor={`${name}-input`}
+                            className="cursor-pointer"
+                          >
                             <ImagePlus className="w-4 h-4 mr-2" />
                             Select Files
                           </Label>
@@ -681,7 +714,8 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
                     </label>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Maximum {maxImages} {maxImages === 1 ? 'file' : 'files'}, up to {maxSizeInMB}MB each
+                    Maximum {maxImages} {maxImages === 1 ? 'file' : 'files'}, up
+                    to {maxSizeInMB}MB each
                   </p>
                 </div>
               </motion.div>
@@ -689,7 +723,7 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
               {/* Uploading Files Preview */}
               <AnimatePresence>
                 {uploadingFiles.length > 0 && (
-                  <motion.div 
+                  <motion.div
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
                     exit={{ opacity: 0, height: 0 }}
@@ -697,8 +731,6 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
                     className="w-full mt-4"
                   >
                     <h3 className="text-sm font-medium mb-2">Upload Queue</h3>
-                  
-                    
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -764,18 +796,23 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
                                 <Card
                                   className={cn(
                                     'cursor-pointer group relative transition-all overflow-hidden',
-                                    isSelected 
-                                      ? 'ring-2 ring-primary border-primary' 
+                                    isSelected
+                                      ? 'ring-2 ring-primary border-primary'
                                       : 'hover:border-primary/50',
                                   )}
-                                  onClick={() => togglePreviousImageSelection(file)}
+                                  onClick={() =>
+                                    togglePreviousImageSelection(file)
+                                  }
                                 >
                                   <CardContent className="p-2">
                                     <div className="relative aspect-square mb-1">
-                                      {renderPreview(file.uploadPath, file.uploadName)}
+                                      {renderPreview(
+                                        file.uploadPath,
+                                        file.uploadName,
+                                      )}
                                       <AnimatePresence>
                                         {isSelected && (
-                                          <motion.div 
+                                          <motion.div
                                             initial={{ scale: 0, opacity: 0 }}
                                             animate={{ scale: 1, opacity: 1 }}
                                             exit={{ scale: 0, opacity: 0 }}
@@ -790,7 +827,9 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
                                       {file.uploadName}
                                     </div>
                                     <div className="text-xs text-muted-foreground flex justify-between mt-1">
-                                      <span>{formatBytes(file.uploadSize)}</span>
+                                      <span>
+                                        {formatBytes(file.uploadSize)}
+                                      </span>
                                       <span>
                                         {new Date(
                                           file.createdAt,
@@ -807,7 +846,7 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
                   </ScrollArea>
                 </>
               ) : (
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.3 }}
@@ -848,13 +887,17 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.8, height: 0 }}
                         transition={{ duration: 0.2 }}
-                        whileHover={{ scale: 1.03, boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)' }}
+                        whileHover={{
+                          scale: 1.03,
+                          boxShadow:
+                            '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
+                        }}
                       >
                         <Card className="group relative overflow-hidden border-2 hover:border-primary transition-colors duration-200">
                           <CardContent className="p-0">
                             <div className="relative aspect-square">
                               {renderPreview(preview, `Preview ${index + 1}`)}
-                              <div 
+                              <div
                                 className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-200"
                                 onClick={() => setSelectedImageIndex(index)}
                               />
@@ -896,7 +939,7 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
               <DialogTitle className="sr-only">Image Preview</DialogTitle>
             </DialogHeader>
             {selectedImageIndex !== null && imageUrls.length > 0 && (
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.3 }}
@@ -914,7 +957,7 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
 
                 {imageUrls.length > 1 && (
                   <>
-                    <motion.div 
+                    <motion.div
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
                       className="absolute left-4"
@@ -929,7 +972,7 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
                       </Button>
                     </motion.div>
 
-                    <motion.div 
+                    <motion.div
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
                       className="absolute right-4"
@@ -946,7 +989,7 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
                   </>
                 )}
 
-                <motion.div 
+                <motion.div
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                   className="absolute top-4 right-4"
