@@ -6,6 +6,7 @@ const withNextIntl = createNextIntlPlugin();
 const nextConfig: NextConfig = {
   output: 'standalone',
   images: {
+    unoptimized: true,
     domains: [
       'example.com',
       'res.cloudinary.com',
