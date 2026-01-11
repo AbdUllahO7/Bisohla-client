@@ -25,7 +25,7 @@ export class FileManagerService implements IFileManagerService {
       formData.append('file', dto.file);
 
       const res = await postAuthReq<FormData, UploadResponse>({
-        url: '/storage/upload-image',
+        url: '/cloudinary/upload',
         body: formData,
         errorDefaultMessage: 'Failed to upload image.',
       });
@@ -52,7 +52,7 @@ export class FileManagerService implements IFileManagerService {
       });
 
       const res = await postAuthReq<FormData, UploadResponse>({
-        url: '/storage/upload-images',
+        url: '/cloudinary/upload-images',
         body: formData, // Send FormData instead of the DTO directly
         errorDefaultMessage: 'Failed to upload images.',
       });
