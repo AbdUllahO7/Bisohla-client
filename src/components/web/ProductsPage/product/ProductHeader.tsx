@@ -259,8 +259,7 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
               className="font-bold text-center w-full text-[#2C3C39] line-clamp-3"
               as="h1"
             >
-              {productName} a aaaa aaaaaa aaaaa
-              aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+              {productName}
             </Text>
           )}
 

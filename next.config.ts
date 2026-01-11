@@ -6,7 +6,12 @@ const withNextIntl = createNextIntlPlugin();
 const nextConfig: NextConfig = {
   output: 'standalone',
   images: {
-    domains: ['example.com', 'res.cloudinary.com'],
+    domains: [
+      'example.com',
+      'res.cloudinary.com',
+      'lh3.googleusercontent.com',
+      'storage.bishola.com',
+    ],
 
     remotePatterns: [
       {
@@ -43,7 +48,23 @@ const nextConfig: NextConfig = {
         hostname: 'lh3.googleusercontent.com',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'pub-95b97c0514c8484495b7a3d11d85ebcc.r2.dev',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'storage.bishola.com',
+        pathname: '/**',
+      },
     ],
+  },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '50mb',
+    },
+    optimizeCss: false,
   },
 };
 
