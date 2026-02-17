@@ -187,6 +187,14 @@ export const UpdateViewDurationDtoSchema = z.object({
 export type IncrementCountDto = z.infer<typeof IncrementCountDtoSchema>;
 export type UpdateViewDurationDto = z.infer<typeof UpdateViewDurationDtoSchema>;
 
+// ============= Batch Increment View Count DTO =============
+export const BatchIncrementViewCountDtoSchema = z.object({
+  carListingIds: z.array(z.number().positive()).min(1, 'At least one car listing ID is required'),
+  userId: z.number().positive().optional(),
+});
+
+export type BatchIncrementViewCountDto = z.infer<typeof BatchIncrementViewCountDtoSchema>;
+
 export type CreateFeatureDto = z.infer<typeof CreateFeatureSchema>;
 
 export const UpdateFeatureSchema = CreateFeatureSchema.partial();
