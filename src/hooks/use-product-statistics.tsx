@@ -3,8 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import {
   useIncrementContactCount,
-  useIncrementViewCount,
-  useIncrementDetailsViewedCount,
+  useBatchIncrementViewCount,
   useUpdateViewDuration,
   useIncrementSharesCount,
 } from './use-carStatistics';
@@ -54,7 +53,7 @@ export const useProductStatistics = ({
 
   // Statistics tracking hooks
   const incrementContactCount = useIncrementContactCount();
-  const incrementDetailsViewedCount = useIncrementDetailsViewedCount();
+  const batchIncrementViewCount = useBatchIncrementViewCount();
   const updateViewDuration = useUpdateViewDuration();
   const incrementSharesCount = useIncrementSharesCount();
 
@@ -70,7 +69,7 @@ export const useProductStatistics = ({
 
   const logPrefix = componentType === 'mobile' ? '[MOBILE]' : '[DESKTOP]';
 
-  // 📊 TRACKING: Track details viewed count on mount (once per visit across all components)
+  // 📊 TRACKING: Track view count on mount using batch endpoint (once per visit across all components)
   useEffect(() => {
     if (!carId) return;
 
@@ -108,24 +107,24 @@ export const useProductStatistics = ({
     }
 
     // Only the first component to reach here will track
-    if (!incrementDetailsViewedCount.isPending) {
+    if (!batchIncrementViewCount.isPending) {
       globalState.detailsViewed = true; // Mark immediately to prevent race conditions
       isTrackingInitiator.current = true;
 
       logger.log(
-        `📊 ${logPrefix} Tracking details viewed for car ID: ${carId}`,
+        `📊 ${logPrefix} Tracking view count (batch) for car ID: ${carId}`,
       );
 
-      incrementDetailsViewedCount.mutate(
-        { carListingId: carId, userId: userId },
+      batchIncrementViewCount.mutate(
+        { carListingIds: [carId], userId: userId },
         {
           onSuccess: () => {
             setHasTrackedDetailsViewed(true);
-            logger.log(`✅ ${logPrefix} Details viewed tracked successfully`);
+            logger.log(`✅ ${logPrefix} View count tracked successfully (batch)`);
           },
-          onError: (error) => {
+          onError: (error: any) => {
             console.error(
-              `❌ ${logPrefix} Failed to track details viewed:`,
+              `❌ ${logPrefix} Failed to track view count (batch):`,
               error,
             );
             setHasTrackedDetailsViewed(true);

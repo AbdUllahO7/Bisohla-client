@@ -12,6 +12,7 @@ import {
   UpdateCarListingDto,
   UpdateSaveStatusDto,
   UpdateViewDurationDto,
+  BatchIncrementViewCountDto,
 } from '@/core/entities/models/cars/cars.zod.dto';
 import {
   UserFavoriteCarListing,
@@ -113,16 +114,16 @@ export class CarUserService implements ICarUserService {
 
 
   async updateCarListingSaveStatus(
-  id: number,
-  dto: UpdateSaveStatusDto,
-): Promise<ApiResponse<SelectCarListingDto>> {
-  const res = await putAuthReq<UpdateSaveStatusDto, SelectCarListingDto>({
-    url: '/car-listings-user/' + id + '/update-save-status',
-    body: dto,
-  });
+    id: number,
+    dto: UpdateSaveStatusDto,
+  ): Promise<ApiResponse<SelectCarListingDto>> {
+    const res = await putAuthReq<UpdateSaveStatusDto, SelectCarListingDto>({
+      url: '/car-listings-user/' + id + '/update-save-status',
+      body: dto,
+    });
 
-  return res;
-}
+    return res;
+  }
 
   async deleteCarListing(
     id: number,
@@ -155,7 +156,7 @@ export class CarUserService implements ICarUserService {
   async incrementViewCount(
     dto: IncrementCountDto,
   ): Promise<ApiResponse<SuccessResponseWithNoContent>> {
-    
+
     const res = await postReq<IncrementCountDto, SuccessResponseWithNoContent>({
       url: '/car-listing-statics-visitor/increment-view-count',
       body: dto,
@@ -201,6 +202,17 @@ export class CarUserService implements ICarUserService {
   ): Promise<ApiResponse<SuccessResponseWithNoContent>> {
     const res = await postReq<UpdateViewDurationDto, SuccessResponseWithNoContent>({
       url: '/car-listing-statics-visitor/update-view-duration',
+      body: dto,
+    });
+
+    return res;
+  }
+
+  async batchIncrementViewCount(
+    dto: BatchIncrementViewCountDto,
+  ): Promise<ApiResponse<SuccessResponseWithNoContent>> {
+    const res = await postReq<BatchIncrementViewCountDto, SuccessResponseWithNoContent>({
+      url: '/car-listing-statics-visitor/batch-increment-view-count',
       body: dto,
     });
 

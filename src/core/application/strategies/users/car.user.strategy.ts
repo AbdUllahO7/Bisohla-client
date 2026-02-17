@@ -11,6 +11,7 @@ import {
   UpdateCarListingDto,
   UpdateSaveStatusDto,
   UpdateViewDurationDto,
+  BatchIncrementViewCountDto,
 } from '@/core/entities/models/cars/cars.zod.dto';
 import {
   CreateFavoriteCarListingDto,
@@ -67,5 +68,8 @@ export interface ICarUserStrategy {
   ): Promise<ApiResponse<SuccessResponseWithNoContent>>;
   updateViewDuration(
     dto: UpdateViewDurationDto,
+  ): Promise<ApiResponse<SuccessResponseWithNoContent>>;
+  batchIncrementViewCount(
+    dto: BatchIncrementViewCountDto,
   ): Promise<ApiResponse<SuccessResponseWithNoContent>>;
 }
