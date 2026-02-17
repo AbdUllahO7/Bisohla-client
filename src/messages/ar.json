@@ -29,7 +29,6 @@
       "ContactUs": "اتصل بنا",
       "News": "الأخبار"
     },
-
     "hero": {
       "title": "بسهولة",
       "description": "بيع . شراء . تأجير . استئجار"
@@ -190,20 +189,62 @@
       "title": "اكتشف عالم السيارات",
       "showMore": "عرض المزيد",
       "cities": {
-        "idlib": { "title": "إدلب", "productCount": "150" },
-        "aleppo": { "title": "حلب", "productCount": "223" },
-        "damascus": { "title": "دمشق", "productCount": "240" },
-        "hama": { "title": "حماة", "productCount": "110" },
-        "homs": { "title": "حمص", "productCount": "310" },
-        "latakia": { "title": "اللاذقية", "productCount": "55" },
-        "tartus": { "title": "طرطوس", "productCount": "105" },
-        "daraa": { "title": "درعا", "productCount": "102" },
-        "quneitra": { "title": "القنيطرة", "productCount": "202" },
-        "as_suwayda": { "title": "السويداء", "productCount": "50" },
-        "deir_ez_zor": { "title": "دير الزور", "productCount": "90" },
-        "raqqa": { "title": "الرقة", "productCount": "305" },
-        "al_hasakah": { "title": "الحسكة", "productCount": "302" },
-        "rif_dimashq": { "title": "ريف دمشق", "productCount": "400" }
+        "idlib": {
+          "title": "إدلب",
+          "productCount": "150"
+        },
+        "aleppo": {
+          "title": "حلب",
+          "productCount": "223"
+        },
+        "damascus": {
+          "title": "دمشق",
+          "productCount": "240"
+        },
+        "hama": {
+          "title": "حماة",
+          "productCount": "110"
+        },
+        "homs": {
+          "title": "حمص",
+          "productCount": "310"
+        },
+        "latakia": {
+          "title": "اللاذقية",
+          "productCount": "55"
+        },
+        "tartus": {
+          "title": "طرطوس",
+          "productCount": "105"
+        },
+        "daraa": {
+          "title": "درعا",
+          "productCount": "102"
+        },
+        "quneitra": {
+          "title": "القنيطرة",
+          "productCount": "202"
+        },
+        "as_suwayda": {
+          "title": "السويداء",
+          "productCount": "50"
+        },
+        "deir_ez_zor": {
+          "title": "دير الزور",
+          "productCount": "90"
+        },
+        "raqqa": {
+          "title": "الرقة",
+          "productCount": "305"
+        },
+        "al_hasakah": {
+          "title": "الحسكة",
+          "productCount": "302"
+        },
+        "rif_dimashq": {
+          "title": "ريف دمشق",
+          "productCount": "400"
+        }
       }
     },
     "rentProduct": {
@@ -365,7 +406,6 @@
     },
     "filter": {
       "listingTypeSelect": "اختر نوع القوائم",
-
       "activeFilters": "{count} مرشح نشط",
       "activeFilters_other": "{count} مرشحات نشطة",
       "mobileDescription": "تصفية السيارات حسب تفضيلاتك",
@@ -407,12 +447,10 @@
         "address": {
           "filterOptionsTitle": "العنوان",
           "listingTypeTitle": "نوع القوائم",
-
           "placeHolder": "المدينة",
           "governorate": "المحافظة",
           "city": "المدينة",
           "selectGovernorateFirst": "اختر المحافظة أولاً",
-
           "options": {
             "Damascus": "دمشق",
             "Idlib": "إدلب",
@@ -476,10 +514,19 @@
       "loading": "جاري تحميل السيارات...",
       "error": "فشل في تحميل قوائم السيارات",
       "noResults": "لم يتم العثور على سيارات",
-
       "noResultsMessage": "حاول تعديل معايير البحث أو المرشحات",
       "totalFound": "سيارة موجودة",
-      "loadingMore": "جاري تحميل المزيد من السيارات..."
+      "loadingMore": "جاري تحميل المزيد من السيارات...",
+      "createAlert": "خبرني ",
+      "creatingAlert": "جاري الحفظ...",
+      "alertCreated": "تم بنجاح",
+      "alertCreatedDesc": "تم إنشاء التنبيه بنجاح!",
+      "alertCreateError": "خطأ",
+      "alertCreateErrorDesc": "فشل في إنشاء التنبيه",
+      "loginToCreateAlert": "تسجيل الدخول مطلوب",
+      "loginToCreateAlertDesc": "يرجى تسجيل الدخول لإنشاء تنبيه",
+      "selectBrandForAlert": "الماركة مطلوبة",
+      "selectBrandForAlertDesc": "يرجى اختيار ماركة لإنشاء تنبيه"
     },
     "categories": {
       "cat_name_one": "اقتصادي",
@@ -501,7 +548,6 @@
     "signIn": "تسجيل الدخول",
     "error": "خطأ",
     "favoriteError": "فشل في تحديث المفضلة. يرجى المحاولة مرة أخرى.",
-
     "sellerInfo": {
       "title": "البائع",
       "verified": "موثق",
@@ -509,7 +555,6 @@
       "memberSince": "عضو منذ",
       "viewProfile": "عرض ملف البائع"
     },
-
     "header": {
       "whatsApp": "مراسة عبر الواتس"
     },
@@ -721,7 +766,6 @@
             "gbp": "جنيه إسترليني"
           }
         },
-
         "color": {
           "options": {
             "red": "أحمر",
@@ -735,7 +779,6 @@
             "black": "أسود",
             "white": "أبيض",
             "gray": "رمادي",
-
             "light_red": "أحمر فاتح",
             "light_green": "أخضر فاتح",
             "light_blue": "أزرق فاتح",
@@ -745,7 +788,6 @@
             "light_pink": "وردي فاتح",
             "light_brown": "بني فاتح",
             "light_gray": "رمادي فاتح",
-
             "dark_red": "أحمر داكن",
             "dark_green": "أخضر داكن",
             "dark_blue": "أزرق داكن",
@@ -755,7 +797,6 @@
             "dark_pink": "وردي داكن",
             "dark_brown": "بني داكن",
             "dark_gray": "رمادي داكن",
-
             "turquoise": "فيروزي",
             "teal": "أزرق مخضر",
             "navy": "أزرق غامق",
@@ -880,7 +921,6 @@
             "winterTires": "إطارات شتوية",
             "alarmSystem": "نظام إنذار"
           },
-
           "carStatus": {
             "pending": "قيد الانتظار",
             "approved": "موافق عليه",
@@ -894,7 +934,6 @@
         "carInfo": "حالة السيارة",
         "carPhotos": "صور السيارة",
         "carSectionName": "اسم قسم السيارة",
-
         "damageType": {
           "paint": "طلاء",
           "replacement": "استبدال",
@@ -947,7 +986,6 @@
           "published": "نشر",
           "sold": "تم البيع"
         },
-
         "dateValue": {
           "forSale": "للبيع",
           "forRent": "للإيجار",
@@ -978,7 +1016,6 @@
       "actions": "عمليات",
       "showing": "إظهار",
       "to": "إلى",
-
       "of": "من",
       "results": "النتائج"
     },
@@ -990,7 +1027,6 @@
           "items": [
             {
               "title": "الأدوار والصلاحيات",
-
               "children": [
                 {
                   "title": "قائمة الأدوار"
@@ -1091,7 +1127,6 @@
       "userInfo": "معلومات المستخدم",
       "logout": "تسجيل الخروج"
     },
-
     "profile": {
       "YourProfile": "الملف الشخصي",
       "editProfile": "تعديل الملف الشخصي",
@@ -1277,7 +1312,6 @@
     "myProducts": "منتجاتي",
     "sale": "بيع",
     "forSale": "للبيع",
-
     "rent": "إيجار",
     "edit": "تعديل",
     "delete": "حذف",
