@@ -1628,6 +1628,39 @@
       "noTrimsFound": "No trims found"
     }
   },
+  "carAlerts": {
+    "title": "My Alerts",
+    "breadcrumb": "My Alerts",
+    "createNew": "Create New Alert",
+    "getStarted": "Explore Cars & Create Alert",
+    "noAlerts": "No Alerts Yet",
+    "noAlertsDesc": "Create a car alert to get notified when new listings matching your criteria appear.",
+    "anyVehicle": "Any Vehicle",
+    "allTrims": "All trims",
+    "anyPrice": "Any price",
+    "anyLocation": "Any location",
+    "any": "Any",
+    "activeStatus": "Active",
+    "pausedStatus": "Paused",
+    "enabled": "Alert Enabled",
+    "disabled": "Alert Disabled",
+    "toggleSuccess": "Your alert status has been updated.",
+    "toggleError": "Failed to update alert status.",
+    "deleted": "Alert Deleted",
+    "deleteSuccess": "The alert has been removed.",
+    "deleteError": "Failed to delete alert.",
+    "deleteAlert": "Delete alert",
+    "confirmDeleteTitle": "Delete this alert?",
+    "confirmDeleteDescription": "You'll stop receiving notifications for",
+    "cannotUndo": "This action cannot be undone.",
+    "thisVehicle": "this vehicle",
+    "clickToDisable": "Click to pause notifications",
+    "clickToEnable": "Click to enable notifications",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "error": "Error",
+    "unexpectedError": "An unexpected error occurred."
+  },
   "breadcrumb": {
     "home": "Home"
   }

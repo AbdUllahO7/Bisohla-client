@@ -3,7 +3,6 @@ import { notFound } from 'next/navigation';
 import { getLocale } from 'next-intl/server';
 import { generateWebMetadata } from '../../../MetaData';
 import { generateProductMetadata } from '@/utils/settings-metadata.utils';
-import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions';
 import { ApiResponse } from '@/core/entities/api/success.response';
 import { SelectCarListingDto } from '@/core/entities/models/cars/cars.dto';
 import { getMyCarById } from '@/core/infrastructure-adapters/actions/users/car.user.actions';
@@ -13,8 +12,8 @@ import { getSession } from '@/core/lib/web/session';
 import ProductClient from './product-client';
 import MobileProductClient from './mobile-product-client';
 import { APP_URL } from '@/core/lib/web/constants';
-import LatestOffers from '@/components/web/Home/LatestOffers';
 import SimilarAds from '@/components/web/ProductsPage/product/SimilarAds';
+import SimilarCarAlertBanner from '@/components/web/ProductsPage/product/SimilarCarAlertBanner';
 import { logger } from '@/lib/logger';
 
 interface ProductPageProps {
@@ -67,18 +66,15 @@ export async function generateMetadata({
 
     const locale = await getLocale();
     const car = carResponse.data;
-    const carTitle = `${car.make?.name || ''} ${car.model?.name || ''} ${
-      car.details?.year || ''
-    }`.trim();
-    const carDescription = `${carTitle} - ${car.details?.fuelType || ''} - ${
-      car.details?.transmission || ''
-    } - Price: ${car.price || 'N/A'}`;
+    const carTitle = `${car.make?.name || ''} ${car.model?.name || ''} ${car.details?.year || ''
+      }`.trim();
+    const carDescription = `${carTitle} - ${car.details?.fuelType || ''} - ${car.details?.transmission || ''
+      } - Price: ${car.price || 'N/A'}`;
 
     // Build absolute canonical URL for social media
     const baseUrl = APP_URL;
-    const canonicalPath = `${baseUrl}/${locale}/products/product/${id}${
-      isProfileView ? '?profile=true' : ''
-    }`;
+    const canonicalPath = `${baseUrl}/${locale}/products/product/${id}${isProfileView ? '?profile=true' : ''
+      }`;
 
     // Use product-specific metadata with settings as fallback for global config
     return await generateProductMetadata({
@@ -161,6 +157,13 @@ const ProductPage = async ({ params, searchParams }: ProductPageProps) => {
             car={carResponse.data}
           />
         </div>
+
+        {/* Similar Car Alert Banner — one-time floating prompt */}
+        <SimilarCarAlertBanner
+          car={carResponse.data}
+          isAuthenticated={isAuthenticated}
+          locale={locale}
+        />
       </>
     );
   } catch (error) {

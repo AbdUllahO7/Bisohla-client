@@ -9,7 +9,7 @@ import {
   Settings,
   HomeIcon,
   Bell,
-
+  BellRing,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -87,6 +87,11 @@ export function DashboardSidebar() {
       href: '/userProfile/Notification',
       icon: Bell,
       label: direction === 'ltr' ? 'Notifications' : 'الإشعارات',
+    },
+    {
+      href: '/userProfile/Alerts',
+      icon: BellRing,
+      label: direction === 'ltr' ? 'My Alerts' : 'تنبيهاتي',
     },
     {
       href: '/userProfile/UserInfo',
@@ -175,11 +180,10 @@ export function DashboardSidebar() {
               <SidebarMenuItem key={href}>
                 <SidebarMenuButton
                   asChild
-                  className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 ${
-                    isActiveRoute(href)
-                      ? 'bg-primary-light text-white shadow-sm'
-                      : 'hover:bg-primary-light/50 text-primary hover:text-white'
-                  }`}
+                  className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 ${isActiveRoute(href)
+                    ? 'bg-primary-light text-white shadow-sm'
+                    : 'hover:bg-primary-light/50 text-primary hover:text-white'
+                    }`}
                   tooltip={isCollapsed ? label : undefined}
                 >
                   <Link href={href}>

@@ -8,7 +8,20 @@ import { IncrementCountDto, UpdateViewDurationDto, BatchIncrementViewCountDto } 
 import { incrementContactCount, incrementDetailsViewedCount, incrementSharesCount, incrementViewCount, updateViewDuration, batchIncrementViewCount } from '@/core/infrastructure-adapters/actions/users/car.user.actions';
 import { useMutation } from '@tanstack/react-query';
 
-
+export const useBatchIncrementViewCount = () =>
+  useMutation<
+    ApiResponse<SuccessResponseWithNoContent>,
+    Error,
+    BatchIncrementViewCountDto
+  >({
+    mutationFn: async (dto) => {
+      const result = await batchIncrementViewCount(dto);
+      return result;
+    },
+    onError: (error) => {
+      console.error('[Hook] Failed to batch increment view count:', error);
+    },
+  });
 
 export const useIncrementViewCount = () =>
   useMutation
@@ -74,20 +87,5 @@ export const useUpdateViewDuration = () =>
     mutationFn: async (dto) => await updateViewDuration(dto),
     onError: (error) => {
       console.error('Failed to update view duration:', error);
-    },
-  });
-
-export const useBatchIncrementViewCount = () =>
-  useMutation<
-    ApiResponse<SuccessResponseWithNoContent>,
-    Error,
-    BatchIncrementViewCountDto
-  >({
-    mutationFn: async (dto) => await batchIncrementViewCount(dto),
-    onSuccess: (data) => {
-      console.log('[Hook] Batch increment view count successful');
-    },
-    onError: (error) => {
-      console.error('[Hook] Failed to batch increment view count:', error);
     },
   });

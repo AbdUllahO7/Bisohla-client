@@ -271,15 +271,45 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
         )}
 
         {!isLoading && !error && carListings.length === 0 && (
-          <Box className="w-full py-8 text-center" variant="center">
-            <div className="flex flex-col items-center space-y-4">
-              <div className="text-6xl opacity-50">🚗</div>
-              <Text className="text-xl font-semibold text-gray-600">
-                {t('allCars.noResults')}
-              </Text>
-              <Text className="text-gray-500">
-                {t('allCars.noResultsMessage')}
-              </Text>
+          <Box className="w-full py-12 text-center" variant="center">
+            <div className="flex flex-col items-center space-y-6 max-w-md mx-auto">
+              {/* Empty state illustration */}
+              <div className="relative">
+                <div className="text-7xl opacity-30">🚗</div>
+                <div className="absolute -top-1 -right-1 w-8 h-8 bg-primary-light rounded-full flex items-center justify-center shadow-lg animate-bounce">
+                  <Bell className="h-4 w-4 text-white" />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Text className="text-xl font-bold text-gray-700">
+                  {t('allCars.noResults')}
+                </Text>
+                <Text className="text-gray-500 text-sm leading-relaxed">
+                  {t('allCars.noResultsMessage')}
+                </Text>
+              </div>
+
+              {/* خبرني CTA */}
+              <div className="bg-gradient-to-br from-[#198341]/5 to-[#ABDE3B]/10 border border-[#198341]/20 rounded-2xl p-6 w-full space-y-3">
+                <p className="text-sm font-semibold text-[#198341]">
+                  {isArabic
+                    ? '🔔 هل تريد أن تُعلَم عندما تتوفر سيارة مطابقة؟'
+                    : '🔔 Want to be notified when a matching car is listed?'}
+                </p>
+                <p className="text-xs text-gray-500">
+                  {isArabic
+                    ? 'سنُرسل لك تنبيهاً فور توفّر سيارة تناسب بحثك'
+                    : "We'll notify you as soon as a car matching your search is available"}
+                </p>
+                <Button
+                  onClick={() => setIsAlertModalOpen(true)}
+                  className="w-full h-12 text-base font-bold rounded-xl bg-gradient-to-r from-[#198341] to-[#ABDE3B] hover:opacity-90 text-white shadow-md hover:shadow-lg transition-all"
+                >
+                  <Bell className="h-5 w-5 mr-2" />
+                  {isArabic ? 'خبرني عند توفّر السيارة' : 'Notify Me'}
+                </Button>
+              </div>
             </div>
           </Box>
         )}
@@ -334,18 +364,18 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
         )}
       </Box>
 
-      {/* Car Alert Modal */}
+      {/* Car Alert Modal — pre-fill with active search filters */}
       <CarAlertModal
         open={isAlertModalOpen}
         onOpenChange={setIsAlertModalOpen}
         initialData={{
-          makeId: 0,
-          modelId: 0,
-          trimId: 0,
-          minPrice: 0,
-          maxPrice: 0,
-          governorate: '',
-          city: '',
+          makeId: filters.selectedBrands[0] ? Number(filters.selectedBrands[0]) : 0,
+          modelId: filters.model ? Number(filters.model) : 0,
+          trimId: filters.trim ? Number(filters.trim) : 0,
+          minPrice: filters.minPrice ? Number(filters.minPrice) : 0,
+          maxPrice: filters.maxPrice ? Number(filters.maxPrice) : 0,
+          governorate: filters.governorate || '',
+          city: filters.city || '',
         }}
         governorateOptions={getGovernorateOptions(isArabic)}
         getCityOptions={(gov) => getCityOptions(gov, isArabic)}

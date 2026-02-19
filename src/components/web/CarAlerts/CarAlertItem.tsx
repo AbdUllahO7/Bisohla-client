@@ -38,7 +38,7 @@ import {
     toggleCarAlertStatus,
 } from '@/core/infrastructure-adapters/actions/users/car-alert.user.actions';
 import { useToast } from '@/hooks/use-toast';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { cn } from '@/lib/utils';
 
 interface CarAlertItemProps {
@@ -51,6 +51,8 @@ export const CarAlertItem: React.FC<CarAlertItemProps> = ({
     onUpdate,
 }) => {
     const t = useTranslations('carAlerts');
+    const locale = useLocale();
+    const isRtl = locale === 'ar';
     const { toast } = useToast();
     const [isToggling, setIsToggling] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
@@ -150,6 +152,7 @@ export const CarAlertItem: React.FC<CarAlertItemProps> = ({
     return (
         <TooltipProvider>
             <div
+                dir={isRtl ? 'rtl' : 'ltr'}
                 className={cn(
                     'group relative overflow-hidden rounded-2xl bg-white transition-all duration-300',
                     'border border-gray-100 hover:border-[#198341]/20',
@@ -239,25 +242,28 @@ export const CarAlertItem: React.FC<CarAlertItemProps> = ({
                                         {isToggling && (
                                             <Loader2 className="w-4 h-4 animate-spin text-[#198341]" />
                                         )}
-                                        <Switch
-                                            checked={alert.isActive}
-                                            onCheckedChange={handleToggle}
-                                            disabled={isToggling}
-                                            className="data-[state=checked]:bg-[#198341]"
-                                        />
+                                        {/* Force ltr so switch thumb renders correctly in RTL pages */}
+                                        <span dir="ltr">
+                                            <Switch
+                                                checked={alert.isActive}
+                                                onCheckedChange={handleToggle}
+                                                disabled={isToggling}
+                                                className="data-[state=checked]:bg-[#198341]"
+                                            />
+                                        </span>
                                     </div>
                                 </TooltipTrigger>
                                 <TooltipContent>
                                     <p>
                                         {alert.isActive
                                             ? t('clickToDisable', {
-                                                  defaultValue:
-                                                      'Click to pause notifications',
-                                              })
+                                                defaultValue:
+                                                    'Click to pause notifications',
+                                            })
                                             : t('clickToEnable', {
-                                                  defaultValue:
-                                                      'Click to enable notifications',
-                                              })}
+                                                defaultValue:
+                                                    'Click to enable notifications',
+                                            })}
                                     </p>
                                 </TooltipContent>
                             </Tooltip>
@@ -339,11 +345,11 @@ export const CarAlertItem: React.FC<CarAlertItemProps> = ({
                             >
                                 {alert.isActive
                                     ? t('activeStatus', {
-                                          defaultValue: 'Active',
-                                      })
+                                        defaultValue: 'Active',
+                                    })
                                     : t('pausedStatus', {
-                                          defaultValue: 'Paused',
-                                      })}
+                                        defaultValue: 'Paused',
+                                    })}
                             </span>
                         </div>
 
