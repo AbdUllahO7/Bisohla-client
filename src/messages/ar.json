@@ -1582,6 +1582,39 @@
       "noTrimsFound": "لم يتم العثور على فئات"
     }
   },
+  "carAlerts": {
+    "title": "تنبيهاتي",
+    "breadcrumb": "تنبيهاتي",
+    "createNew": "إنشاء تنبيه جديد",
+    "getStarted": "استعرض السيارات وأنشئ تنبيهاً",
+    "noAlerts": "لا توجد تنبيهات بعد",
+    "noAlertsDesc": "أنشئ تنبيهاً لتصلك إشعارات عند توفّر سيارات تطابق معاييرك.",
+    "anyVehicle": "أي سيارة",
+    "allTrims": "جميع الفئات",
+    "anyPrice": "أي سعر",
+    "anyLocation": "أي موقع",
+    "any": "أي",
+    "activeStatus": "نشط",
+    "pausedStatus": "متوقف",
+    "enabled": "تم تفعيل التنبيه",
+    "disabled": "تم إيقاف التنبيه",
+    "toggleSuccess": "تم تحديث حالة التنبيه.",
+    "toggleError": "فشل تحديث حالة التنبيه.",
+    "deleted": "تم حذف التنبيه",
+    "deleteSuccess": "تم إزالة التنبيه بنجاح.",
+    "deleteError": "فشل حذف التنبيه.",
+    "deleteAlert": "حذف التنبيه",
+    "confirmDeleteTitle": "حذف هذا التنبيه؟",
+    "confirmDeleteDescription": "ستتوقف عن تلقّي الإشعارات لـ",
+    "cannotUndo": "لا يمكن التراجع عن هذا الإجراء.",
+    "thisVehicle": "هذه السيارة",
+    "clickToDisable": "انقر لإيقاف الإشعارات",
+    "clickToEnable": "انقر لتفعيل الإشعارات",
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "error": "خطأ",
+    "unexpectedError": "حدث خطأ غير متوقع."
+  },
   "breadcrumb": {
     "home": "الرئيسية"
   }
