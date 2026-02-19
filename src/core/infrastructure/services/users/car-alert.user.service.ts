@@ -51,7 +51,7 @@ export class CarAlertUserService implements ICarAlertUserService {
         id: number,
         dto: UpdateCarAlertDto,
     ): Promise<ApiResponse<SelectCarAlertDto>> {
-        const res = await putAuthReq<UpdateCarAlertDto, SelectCarAlertDto>({
+        const res = await patchAuthReq<UpdateCarAlertDto, SelectCarAlertDto>({
             url: '/car-alerts/' + id,
             body: dto,
         });

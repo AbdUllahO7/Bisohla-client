@@ -53,6 +53,7 @@ export const CarAlertItem: React.FC<CarAlertItemProps> = ({
     onUpdate,
 }) => {
     const t = useTranslations('carAlerts');
+    const tModal = useTranslations('carAlertModal');
     const locale = useLocale();
     const isRtl = locale === 'ar';
     const { toast } = useToast();
@@ -376,9 +377,7 @@ export const CarAlertItem: React.FC<CarAlertItemProps> = ({
                                 </TooltipTrigger>
                                 <TooltipContent>
                                     <p>
-                                        {t('editAlert', {
-                                            defaultValue: 'Edit alert',
-                                        })}
+                                        {tModal('editAlertHint')}
                                     </p>
                                 </TooltipContent>
                             </Tooltip>

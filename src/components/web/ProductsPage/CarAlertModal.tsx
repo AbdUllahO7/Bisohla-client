@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import SelectDropdown from '@/components/SelectDropdown';
+import ServerSelect from '@/components/server-select';
 import { useToast } from '@/hooks/use-toast';
 import { createCarAlert, updateCarAlert } from '@/core/infrastructure-adapters/actions/users/car-alert.user.actions';
 import { Bell, Loader2 } from 'lucide-react';
@@ -58,25 +59,10 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
         city: initialData.city || '',
     });
 
-    const [options, setOptions] = useState<{
-        makes: { value: string; label: string }[];
-        models: { value: string; label: string }[];
-        trims: { value: string; label: string }[];
-    }>({
-        makes: [],
-        models: [],
-        trims: [],
-    });
-
-    const [isLoadingOptions, setIsLoadingOptions] = useState({
-        makes: false,
-        models: false,
-        trims: false,
-    });
-
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
     const { toast } = useToast();
+    const tModal = useTranslations('carAlertModal');
 
     useEffect(() => {
         if (open) {
@@ -93,85 +79,7 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
         }
     }, [open, initialData]);
 
-    useEffect(() => {
-        if (open) {
-            const fetchMakes = async () => {
-                setIsLoadingOptions(prev => ({ ...prev, makes: true }));
-                try {
-                    const res = await getCarMakes({ pageSize: 200, sortBy: 'name', sortDirection: 'asc' });
-                    if (res.success && res.data?.data) {
-                        setOptions(prev => ({
-                            ...prev,
-                            makes: res.data!.data.map((m: SelectCarMakeDto) => ({ value: String(m.id), label: m.name }))
-                        }));
-                    }
-                } catch (error) {
-                    console.error('Error fetching makes:', error);
-                } finally {
-                    setIsLoadingOptions(prev => ({ ...prev, makes: false }));
-                }
-            };
-            fetchMakes();
-        }
-    }, [open]);
 
-    useEffect(() => {
-        if (open && formData.makeId > 0) {
-            const fetchModels = async () => {
-                setIsLoadingOptions(prev => ({ ...prev, models: true }));
-                try {
-                    const res = await getCarModels({
-                        pageSize: 200,
-                        sortBy: 'name',
-                        sortDirection: 'asc',
-                        where: [{ field: 'makeId', operator: 'eq', value: formData.makeId }]
-                    });
-                    if (res.success && res.data?.data) {
-                        setOptions(prev => ({
-                            ...prev,
-                            models: res.data!.data.map((m: SelectCarModelDto) => ({ value: String(m.id), label: m.name }))
-                        }));
-                    }
-                } catch (error) {
-                    console.error('Error fetching models:', error);
-                } finally {
-                    setIsLoadingOptions(prev => ({ ...prev, models: false }));
-                }
-            };
-            fetchModels();
-        } else {
-            setOptions(prev => ({ ...prev, models: [], trims: [] }));
-        }
-    }, [open, formData.makeId]);
-
-    useEffect(() => {
-        if (open && formData.modelId > 0) {
-            const fetchTrims = async () => {
-                setIsLoadingOptions(prev => ({ ...prev, trims: true }));
-                try {
-                    const res = await getCarTrims({
-                        pageSize: 200,
-                        sortBy: 'name',
-                        sortDirection: 'asc',
-                        where: [{ field: 'modelId', operator: 'eq', value: formData.modelId }]
-                    });
-                    if (res.success && res.data?.data) {
-                        setOptions(prev => ({
-                            ...prev,
-                            trims: res.data!.data.map((t: SelectCarTrimDto) => ({ value: String(t.id), label: t.name }))
-                        }));
-                    }
-                } catch (error) {
-                    console.error('Error fetching trims:', error);
-                } finally {
-                    setIsLoadingOptions(prev => ({ ...prev, trims: false }));
-                }
-            };
-            fetchTrims();
-        } else {
-            setOptions(prev => ({ ...prev, trims: [] }));
-        }
-    }, [open, formData.modelId]);
 
     const handleChange = (name: string, value: any) => {
         const numericFields = ['makeId', 'modelId', 'trimId', 'minPrice', 'maxPrice'];
@@ -242,21 +150,21 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
 
             if (res.success) {
                 toast({
-                    title: initialData.id ? (isArabic ? 'تم تحديث التنبيه' : 'Alert Updated') : (isArabic ? 'تم إنشاء التنبيه' : 'Alert Created'),
-                    description: initialData.id ? (isArabic ? 'تم حفظ التعديلات بنجاح' : 'Changes saved successfully') : (isArabic ? 'سنقوم بإعلامك عند توفر سيارات مطابقة' : 'We will notify you when matching cars are available'),
+                    title: initialData.id ? tModal('alertUpdated') : tModal('alertCreated'),
+                    description: initialData.id ? tModal('changesSaved') : tModal('willNotify'),
                 });
                 onOpenChange(false);
             } else {
                 toast({
-                    title: initialData.id ? (isArabic ? 'خطأ في التحديث' : 'Update Error') : (isArabic ? 'خطأ في الإنشاء' : 'Creation Error'),
-                    description: res.message || (initialData.id ? (isArabic ? 'فشل تحديث التنبيه' : 'Failed to update alert') : (isArabic ? 'فشل إنشاء التنبيه' : 'Failed to create alert')),
+                    title: initialData.id ? tModal('updateError') : tModal('creationError'),
+                    description: res.message || (initialData.id ? tModal('failedUpdate') : tModal('failedCreate')),
                     variant: 'destructive',
                 });
             }
         } catch (error) {
             toast({
-                title: initialData.id ? (isArabic ? 'خطأ في التحديث' : 'Update Error') : (isArabic ? 'خطأ في الإنشاء' : 'Creation Error'),
-                description: isArabic ? 'حدث خطأ غير متوقع' : 'Unexpected error',
+                title: initialData.id ? tModal('updateError') : tModal('creationError'),
+                description: tModal('unexpectedError'),
                 variant: 'destructive',
             });
         } finally {
@@ -280,10 +188,10 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
                         </div>
                         <div >
                             <DialogTitle className="text-3xl font-bold text-white m-0 mb-1">
-                                {initialData.id ? (isArabic ? 'تعديل التنبيه' : 'Edit Alert') : (isArabic ? 'خبرني' : 'Notify Me')}
+                                {initialData.id ? tModal('editAlert') : tModal('notifyMe')}
                             </DialogTitle>
                             <p className="text-sm text-white/95">
-                                {initialData.id ? (isArabic ? 'قم بتحديث معايير التنبيه الخاص بك' : 'Update your alert criteria') : (isArabic ? 'كن أول من يعرف بالسيارات الجديدة' : 'Be first to know about new cars')}
+                                {initialData.id ? tModal('updateCriteria') : tModal('beFirst')}
                             </p>
                         </div>
                     </div>
@@ -295,42 +203,73 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
                     <div className="grid grid-cols-3 gap-4">
                         <div className="space-y-2">
                             <Label className="text-sm font-semibold text-slate-700">
-                                {isArabic ? 'الماركة' : 'Make'}
+                                {tModal('make')}
                             </Label>
-                            <SelectDropdown
-                                options={options.makes}
-                                value={formData.makeId ? String(formData.makeId) : ''}
-                                onChange={(name: string, val: string) => {
-                                    handleChange('makeId', val);
+                            <ServerSelect<SelectCarMakeDto, 'id'>
+                                queryKey={['car-makes-alert']}
+                                fetchFn={getCarMakes}
+                                labelField="name"
+                                valueField="id"
+                                placeholder={tModal('select')}
+                                searchPlaceholder={isArabic ? 'ابحث عن الماركات...' : 'Search makes...'}
+                                noOptionsMessage={isArabic ? 'لم يتم العثور على ماركات' : 'No makes found'}
+                                value={formData.makeId > 0 ? formData.makeId : undefined}
+                                onChange={(val: number | number[] | undefined) => {
+                                    const selectedVal = Array.isArray(val) ? val[0] : (val || 0);
+                                    handleChange('makeId', selectedVal);
                                     handleChange('modelId', 0);
                                     handleChange('trimId', 0);
                                 }}
-                                placeholder={isLoadingOptions.makes ? (isArabic ? 'جاري التحميل...' : 'Loading...') : (isArabic ? 'اختر' : 'Select')}
+                                pageSize={20}
                             />
                         </div>
                         <div className="space-y-2">
                             <Label className="text-sm font-semibold text-slate-700">
-                                {isArabic ? 'الموديل' : 'Model'}
+                                {tModal('model')}
                             </Label>
-                            <SelectDropdown
-                                options={options.models}
-                                value={formData.modelId ? String(formData.modelId) : ''}
-                                onChange={(name: string, val: string) => {
-                                    handleChange('modelId', val);
+                            <ServerSelect<SelectCarModelDto, 'id'>
+                                queryKey={['car-models-alert', String(formData.makeId)]}
+                                fetchFn={(params) => getCarModels({
+                                    ...params,
+                                    where: [{ field: 'makeId', operator: 'eq', value: formData.makeId }]
+                                })}
+                                labelField="name"
+                                valueField="id"
+                                placeholder={tModal('select')}
+                                searchPlaceholder={isArabic ? 'ابحث عن الموديلات...' : 'Search models...'}
+                                noOptionsMessage={isArabic ? 'لم يتم العثور على موديلات' : 'No models found'}
+                                value={formData.modelId > 0 ? formData.modelId : undefined}
+                                onChange={(val: number | number[] | undefined) => {
+                                    const selectedVal = Array.isArray(val) ? val[0] : (val || 0);
+                                    handleChange('modelId', selectedVal);
                                     handleChange('trimId', 0);
                                 }}
-                                placeholder={isLoadingOptions.models ? (isArabic ? 'جاري...' : 'Loading...') : (isArabic ? 'اختر' : 'Select')}
+                                pageSize={20}
+                                disabled={!formData.makeId || formData.makeId === 0}
                             />
                         </div>
                         <div className="space-y-2">
                             <Label className="text-sm font-semibold text-slate-700">
-                                {isArabic ? 'الفئة' : 'Trim'}
+                                {tModal('trim')}
                             </Label>
-                            <SelectDropdown
-                                options={options.trims}
-                                value={formData.trimId ? String(formData.trimId) : ''}
-                                onChange={(name: string, val: string) => handleChange('trimId', val)}
-                                placeholder={isLoadingOptions.trims ? (isArabic ? 'جاري...' : 'Loading...') : (isArabic ? 'اختر' : 'Select')}
+                            <ServerSelect<SelectCarTrimDto, 'id'>
+                                queryKey={['car-trims-alert', String(formData.modelId)]}
+                                fetchFn={(params) => getCarTrims({
+                                    ...params,
+                                    where: [{ field: 'modelId', operator: 'eq', value: formData.modelId }]
+                                })}
+                                labelField="name"
+                                valueField="id"
+                                placeholder={tModal('select')}
+                                searchPlaceholder={isArabic ? 'ابحث عن الفئات...' : 'Search trims...'}
+                                noOptionsMessage={isArabic ? 'لم يتم العثور على فئات' : 'No trims found'}
+                                value={formData.trimId > 0 ? formData.trimId : undefined}
+                                onChange={(val: number | number[] | undefined) => {
+                                    const selectedVal = Array.isArray(val) ? val[0] : (val || 0);
+                                    handleChange('trimId', selectedVal);
+                                }}
+                                pageSize={20}
+                                disabled={!formData.modelId || formData.modelId === 0}
                             />
                         </div>
                     </div>
@@ -339,7 +278,7 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <Label className="text-sm font-semibold text-slate-700">
-                                {isArabic ? 'السعر الأدنى (ل.س)' : 'Min Price (SYP)'}
+                                {tModal('minPriceSyp')}
                             </Label>
                             <Input
                                 type="number"
@@ -350,7 +289,7 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
                         </div>
                         <div className="space-y-2">
                             <Label className="text-sm font-semibold text-slate-700">
-                                {isArabic ? 'السعر الأعلى (ل.س)' : 'Max Price (SYP)'}
+                                {tModal('maxPriceSyp')}
                             </Label>
                             <Input
                                 type="number"
@@ -365,7 +304,7 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <Label className="text-sm font-semibold text-slate-700">
-                                {isArabic ? 'المحافظة' : 'Governorate'}
+                                {tModal('governorate')}
                             </Label>
                             <SelectDropdown
                                 options={governorateOptions}
@@ -374,18 +313,18 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
                                     handleChange('governorate', val);
                                     handleChange('city', '');
                                 }}
-                                placeholder={isArabic ? 'اختر' : 'Select'}
+                                placeholder={tModal('select')}
                             />
                         </div>
                         <div className="space-y-2">
                             <Label className="text-sm font-semibold text-slate-700">
-                                {isArabic ? 'المدينة' : 'City'}
+                                {tModal('city')}
                             </Label>
                             <SelectDropdown
                                 options={cityOptions}
                                 value={formData.city}
                                 onChange={(name: string, val: string) => handleChange('city', val)}
-                                placeholder={isArabic ? 'اختر' : 'Select'}
+                                placeholder={tModal('select')}
                             />
                         </div>
                     </div>
@@ -393,14 +332,14 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
                     {errors.general && (
                         <div className="bg-red-50 border-2 border-red-200 rounded-xl p-4 mt-4">
                             <p className="text-sm text-red-600 text-center font-medium">
-                                {isArabic ? 'الرجاء ملء حقل واحد على الأقل' : 'Please fill at least one field'}
+                                {tModal('fillOneField')}
                             </p>
                         </div>
                     )}
                     {errors.priceRange && (
                         <div className="bg-red-50 border-2 border-red-200 rounded-xl p-4 mt-4">
                             <p className="text-sm text-red-600 text-center font-medium">
-                                {isArabic ? 'الحد الأدنى للسعر يجب أن يكون أقل من أو يساوي الحد الأعلى' : 'Minimum price must be less than or equal to maximum price'}
+                                {tModal('priceRangeError')}
                             </p>
                         </div>
                     )}
@@ -414,7 +353,7 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
                             onClick={() => onOpenChange(false)}
                             className="flex-1 h-14 text-base font-semibold rounded-xl border-2 hover:bg-white transition-all"
                         >
-                            {isArabic ? 'إلغاء' : 'Cancel'}
+                            {tModal('cancel')}
                         </Button>
                         <Button
                             onClick={handleSubmit}
@@ -424,10 +363,10 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
                             {isSubmitting ? (
                                 <>
                                     <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                                    {isArabic ? 'جاري الحفظ...' : 'Saving...'}
+                                    {tModal('saving')}
                                 </>
                             ) : (
-                                initialData.id ? (isArabic ? 'حفظ التعديلات' : 'Save Changes') : (isArabic ? 'تفعيل التنبيه' : 'Activate Alert')
+                                initialData.id ? tModal('saveChanges') : tModal('activateAlert')
                             )}
                         </Button>
                     </div>
