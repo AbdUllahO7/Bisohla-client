@@ -1663,5 +1663,37 @@
   },
   "breadcrumb": {
     "home": "Home"
+  },
+  "carAlertModal": {
+    "editAlert": "Edit Alert",
+    "notifyMe": "Notify Me",
+    "updateCriteria": "Update your alert criteria",
+    "beFirst": "Be first to know about new cars",
+    "minPriceSyp": "Min Price (SYP)",
+    "maxPriceSyp": "Max Price (SYP)",
+    "fillOneField": "Please fill at least one field",
+    "priceRangeError": "Minimum price must be less than or equal to maximum price",
+    "saveChanges": "Save Changes",
+    "activateAlert": "Activate Alert",
+    "alertUpdated": "Alert Updated",
+    "changesSaved": "Changes saved successfully",
+    "alertCreated": "Alert Created",
+    "willNotify": "We will notify you when matching cars are available",
+    "updateError": "Update Error",
+    "creationError": "Creation Error",
+    "failedUpdate": "Failed to update alert",
+    "failedCreate": "Failed to create alert",
+    "unexpectedError": "Unexpected error",
+    "make": "Make",
+    "model": "Model",
+    "trim": "Trim",
+    "governorate": "Governorate",
+    "city": "City",
+    "cancel": "Cancel",
+    "saving": "Saving...",
+    "loading": "Loading...",
+    "loadingShort": "Loading...",
+    "select": "Select",
+    "editAlertHint": "Edit alert"
   }
 }

@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input"
 import SelectDropdown from "@/components/SelectDropdown"
 import CarAlertModal from "../ProductsPage/CarAlertModal"
 import { getGovernorateOptions, getCityOptions } from "../ProductsPage/addProducts/StepOne/utils"
+import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions'
 
 // Types for filtering
 interface FilterState {
@@ -40,6 +41,20 @@ const Filter = () => {
   const [maxPrice, setMaxPrice] = useState<string>("")
   const [currency, setCurrency] = useState<string>("")
   const [isAlertModalOpen, setIsAlertModalOpen] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+
+  // Check authentication
+  useEffect(() => {
+    const checkUserAuth = async () => {
+      try {
+        const auth = await checkAuth();
+        setIsAuthenticated(!!auth?.success);
+      } catch (error) {
+        setIsAuthenticated(false);
+      }
+    };
+    checkUserAuth();
+  }, []);
 
   const priceRanges = getPriceRanges
   const handleValidationChangeStepOne = (isValid: boolean) => { }
@@ -305,13 +320,15 @@ const Filter = () => {
               <span className="text-primary">{t("filter.reset") || "Reset"}</span>
             </Button>
 
-            <Button
-              onClick={() => setIsAlertModalOpen(true)}
-              className="bg-primary-light hover:opacity-90 text-white font-semibold h-[55px] rounded-xl shadow-md hover:shadow-lg transition-all w-full md:w-auto"
-            >
-              <Bell className="h-4 w-4 mr-2" />
-              {isArabic ? 'خبرني' : 'Notify Me'}
-            </Button>
+            {isAuthenticated && (
+              <Button
+                onClick={() => setIsAlertModalOpen(true)}
+                className="bg-primary-light hover:opacity-90 text-white font-semibold h-[55px] rounded-xl shadow-md hover:shadow-lg transition-all w-full md:w-auto"
+              >
+                <Bell className="h-4 w-4 mr-2" />
+                {isArabic ? 'خبرني' : 'Notify Me'}
+              </Button>
+            )}
           </Box>
         </Box>
       </Box>

@@ -1617,5 +1617,37 @@
   },
   "breadcrumb": {
     "home": "الرئيسية"
+  },
+  "carAlertModal": {
+    "editAlert": "تعديل التنبيه",
+    "notifyMe": "خبرني",
+    "updateCriteria": "قم بتحديث معايير التنبيه الخاص بك",
+    "beFirst": "كن أول من يعرف بالسيارات الجديدة",
+    "minPriceSyp": "السعر الأدنى (ل.س)",
+    "maxPriceSyp": "السعر الأعلى (ل.س)",
+    "fillOneField": "الرجاء ملء حقل واحد على الأقل",
+    "priceRangeError": "الحد الأدنى للسعر يجب أن يكون أقل من أو يساوي الحد الأعلى",
+    "saveChanges": "حفظ التعديلات",
+    "activateAlert": "تفعيل التنبيه",
+    "alertUpdated": "تم تحديث التنبيه",
+    "changesSaved": "تم حفظ التعديلات بنجاح",
+    "alertCreated": "تم إنشاء التنبيه",
+    "willNotify": "سنقوم بإعلامك عند توفر سيارات مطابقة",
+    "updateError": "خطأ في التحديث",
+    "creationError": "خطأ في الإنشاء",
+    "failedUpdate": "فشل تحديث التنبيه",
+    "failedCreate": "فشل إنشاء التنبيه",
+    "unexpectedError": "حدث خطأ غير متوقع",
+    "make": "الماركة",
+    "model": "الموديل",
+    "trim": "الفئة",
+    "governorate": "المحافظة",
+    "city": "المدينة",
+    "cancel": "إلغاء",
+    "saving": "جاري الحفظ...",
+    "loading": "جاري التحميل...",
+    "loadingShort": "جاري...",
+    "select": "اختر",
+    "editAlertHint": "تعديل التنبيه"
   }
 }
