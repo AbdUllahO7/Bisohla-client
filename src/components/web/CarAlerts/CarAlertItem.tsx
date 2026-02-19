@@ -40,6 +40,8 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { useTranslations, useLocale } from 'next-intl';
 import { cn } from '@/lib/utils';
+import CarAlertModal from '@/components/web/ProductsPage/CarAlertModal';
+import { getCityOptions, getGovernorateOptions } from '@/components/web/ProductsPage/addProducts/StepOne/utils';
 
 interface CarAlertItemProps {
     alert: SelectCarAlertDto;
@@ -57,6 +59,7 @@ export const CarAlertItem: React.FC<CarAlertItemProps> = ({
     const [isToggling, setIsToggling] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
     const handleToggle = async (checked: boolean) => {
         setIsToggling(true);
@@ -355,6 +358,31 @@ export const CarAlertItem: React.FC<CarAlertItemProps> = ({
 
                         {/* Action buttons */}
                         <div className="flex items-center gap-1">
+                            {/* Edit button */}
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => setIsEditModalOpen(true)}
+                                        className={cn(
+                                            'h-9 w-9 p-0 rounded-lg transition-all duration-200',
+                                            'text-gray-400 hover:text-blue-500 hover:bg-blue-50',
+                                            'opacity-0 group-hover:opacity-100'
+                                        )}
+                                    >
+                                        <Settings2 className="w-4 h-4" />
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p>
+                                        {t('editAlert', {
+                                            defaultValue: 'Edit alert',
+                                        })}
+                                    </p>
+                                </TooltipContent>
+                            </Tooltip>
+
                             {/* Delete button with confirmation dialog */}
                             <AlertDialog>
                                 <Tooltip>
@@ -438,6 +466,30 @@ export const CarAlertItem: React.FC<CarAlertItemProps> = ({
                     </div>
                 </div>
             </div>
+            {/* Edit Alert Modal */}
+            <CarAlertModal
+                open={isEditModalOpen}
+                onOpenChange={(open) => {
+                    setIsEditModalOpen(open);
+                    if (!open) {
+                        onUpdate?.();
+                    }
+                }}
+                initialData={{
+                    id: alert.id,
+                    makeId: alert.makeId || 0,
+                    modelId: alert.modelId || 0,
+                    trimId: alert.trimId || 0,
+                    minPrice: alert.minPrice || 0,
+                    maxPrice: alert.maxPrice || 0,
+                    governorate: alert.governorate || '',
+                    city: alert.city || '',
+                }}
+                governorateOptions={getGovernorateOptions(isRtl)}
+                getCityOptions={(gov) => getCityOptions(gov, isRtl)}
+                isArabic={isRtl}
+                t={t}
+            />
         </TooltipProvider>
     );
 };

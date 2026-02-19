@@ -16,7 +16,7 @@ let pendingQueue: Map<number, PendingView> = new Map();
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 let registeredFlush: FlushCallback | null = null;
 
-const DEBOUNCE_MS = 2000; // Wait 2 s after the last card becomes visible
+const DEBOUNCE_MS = 1000; // Wait 1s after the last card becomes visible
 
 /**
  * Register a car ID into the shared queue and (re-)arm the debounce timer.
@@ -140,7 +140,7 @@ export const useCardViewTracking = ({
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
-          // The card must stay visible for at least 1 second before being queued
+          // The card must stay visible for at least 0.5 seconds before being queued
           timeoutRef.current = setTimeout(() => {
             logger.log(`📊 [BATCH] Card visible – queuing car ID: ${carId}`);
             enqueueView({ carId, userId }, (views) => flushRef.current(views));
@@ -148,7 +148,7 @@ export const useCardViewTracking = ({
             // Mark as queued immediately so re-renders don't re-observe
             setHasTrackedView(true);
             observer.disconnect();
-          }, 1000);
+          }, 500);
         } else {
           // User scrolled away before 1 second – cancel
           if (timeoutRef.current) {

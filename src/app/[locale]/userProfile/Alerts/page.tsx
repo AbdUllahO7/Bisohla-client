@@ -13,6 +13,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Bell, Plus } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import { useDirection } from '@/hooks/use-direction';
+import CarAlertModal from '@/components/web/ProductsPage/CarAlertModal';
+import { getCityOptions, getGovernorateOptions } from '@/components/web/ProductsPage/addProducts/StepOne/utils';
+import { Button } from '@/components/ui/button';
 
 const AlertsPage = () => {
     const t = useTranslations('carAlerts');
@@ -20,6 +23,7 @@ const AlertsPage = () => {
     const direction = useDirection();
     const isArabic = direction === 'rtl';
     const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+    const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
 
     useEffect(() => {
         const verifyAuth = async () => {
@@ -77,13 +81,13 @@ const AlertsPage = () => {
                     )}
                 </div>
 
-                <Link
-                    href="/products"
+                <Button
+                    onClick={() => setIsAlertModalOpen(true)}
                     className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#198341] to-[#ABDE3B] text-white font-bold text-sm shadow-sm hover:shadow-md hover:opacity-90 transition-all"
                 >
                     <Plus size={16} />
                     {isArabic ? 'إنشاء تنبيه جديد' : 'New Alert'}
-                </Link>
+                </Button>
             </div>
 
             {/* Empty state */}
@@ -101,12 +105,12 @@ const AlertsPage = () => {
                                 'Create a car alert to get notified when new listings matching your criteria appear.',
                         })}
                     </Text>
-                    <Link
-                        href="/products"
+                    <Button
+                        onClick={() => setIsAlertModalOpen(true)}
                         className="px-8 py-3 rounded-xl bg-gradient-to-r from-[#198341] to-[#ABDE3B] text-white font-bold shadow-md hover:shadow-lg transition-all"
                     >
                         {t('getStarted', { defaultValue: 'Explore Cars & Create Alert' })}
-                    </Link>
+                    </Button>
                 </div>
             ) : (
                 /* Alerts grid */
@@ -116,6 +120,21 @@ const AlertsPage = () => {
                     ))}
                 </div>
             )}
+
+            <CarAlertModal
+                open={isAlertModalOpen}
+                onOpenChange={(open) => {
+                    setIsAlertModalOpen(open);
+                    if (!open) {
+                        refetch();
+                    }
+                }}
+                initialData={{}}
+                governorateOptions={getGovernorateOptions(isArabic)}
+                getCityOptions={(gov) => getCityOptions(gov, isArabic)}
+                isArabic={isArabic}
+                t={t}
+            />
         </div>
     );
 };

@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import {
   useIncrementContactCount,
-  useBatchIncrementViewCount,
+  useIncrementDetailsViewedCount,
   useUpdateViewDuration,
   useIncrementSharesCount,
 } from './use-carStatistics';
@@ -53,7 +53,7 @@ export const useProductStatistics = ({
 
   // Statistics tracking hooks
   const incrementContactCount = useIncrementContactCount();
-  const batchIncrementViewCount = useBatchIncrementViewCount();
+  const incrementDetailsViewedCount = useIncrementDetailsViewedCount();
   const updateViewDuration = useUpdateViewDuration();
   const incrementSharesCount = useIncrementSharesCount();
 
@@ -107,24 +107,24 @@ export const useProductStatistics = ({
     }
 
     // Only the first component to reach here will track
-    if (!batchIncrementViewCount.isPending) {
+    if (!incrementDetailsViewedCount.isPending) {
       globalState.detailsViewed = true; // Mark immediately to prevent race conditions
       isTrackingInitiator.current = true;
 
       logger.log(
-        `📊 ${logPrefix} Tracking view count (batch) for car ID: ${carId}`,
+        `📊 ${logPrefix} Tracking view count for car ID: ${carId}`,
       );
 
-      batchIncrementViewCount.mutate(
-        { carListingIds: [carId], userId: userId },
+      incrementDetailsViewedCount.mutate(
+        { carListingId: carId, userId: userId },
         {
           onSuccess: () => {
             setHasTrackedDetailsViewed(true);
-            logger.log(`✅ ${logPrefix} View count tracked successfully (batch)`);
+            logger.log(`✅ ${logPrefix} View count tracked successfully`);
           },
           onError: (error: any) => {
             console.error(
-              `❌ ${logPrefix} Failed to track view count (batch):`,
+              `❌ ${logPrefix} Failed to track view count:`,
               error,
             );
             setHasTrackedDetailsViewed(true);

@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import SelectDropdown from '@/components/SelectDropdown';
 import { useToast } from '@/hooks/use-toast';
-import { createCarAlert } from '@/core/infrastructure-adapters/actions/users/car-alert.user.actions';
+import { createCarAlert, updateCarAlert } from '@/core/infrastructure-adapters/actions/users/car-alert.user.actions';
 import { Bell, Loader2 } from 'lucide-react';
 import { getCarMakes, getCarModels, getCarTrims } from '@/core/infrastructure-adapters/actions/visitors/car.visitor.actions';
 import { SelectCarMakeDto, SelectCarModelDto, SelectCarTrimDto } from '@/core/entities/models/cars/cars.dto';
@@ -24,6 +24,7 @@ interface CarAlertModalProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     initialData: {
+        id?: number;
         makeId?: number;
         modelId?: number;
         trimId?: number;
@@ -191,13 +192,27 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
 
     const validate = () => {
         const newErrors: Record<string, string> = {};
-        if (!formData.makeId || formData.makeId <= 0) newErrors.makeId = 'Required';
-        if (!formData.modelId || formData.modelId <= 0) newErrors.modelId = 'Required';
-        if (!formData.trimId || formData.trimId <= 0) newErrors.trimId = 'Required';
-        if (!formData.minPrice || formData.minPrice <= 0) newErrors.minPrice = 'Required';
-        if (!formData.maxPrice || formData.maxPrice <= 0) newErrors.maxPrice = 'Required';
-        if (!formData.governorate) newErrors.governorate = 'Required';
-        if (!formData.city) newErrors.city = 'Required';
+
+        // Require at least one field to be filled
+        if (
+            (!formData.makeId || formData.makeId <= 0) &&
+            (!formData.modelId || formData.modelId <= 0) &&
+            (!formData.trimId || formData.trimId <= 0) &&
+            (!formData.minPrice || formData.minPrice <= 0) &&
+            (!formData.maxPrice || formData.maxPrice <= 0) &&
+            !formData.governorate &&
+            !formData.city
+        ) {
+            newErrors.general = 'Required';
+        }
+
+        if (
+            formData.minPrice && formData.minPrice > 0 &&
+            formData.maxPrice && formData.maxPrice > 0 &&
+            formData.minPrice > formData.maxPrice
+        ) {
+            newErrors.priceRange = 'Invalid';
+        }
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -208,33 +223,40 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
 
         setIsSubmitting(true);
         try {
-            const res = await createCarAlert({
-                makeId: Number(formData.makeId),
-                modelId: Number(formData.modelId),
-                trimId: Number(formData.trimId),
-                minPrice: Number(formData.minPrice),
-                maxPrice: Number(formData.maxPrice),
-                governorate: formData.governorate,
-                city: formData.city,
-            });
+            const payload: any = {
+                makeId: formData.makeId > 0 ? Number(formData.makeId) : null,
+                modelId: formData.modelId > 0 ? Number(formData.modelId) : null,
+                trimId: formData.trimId > 0 ? Number(formData.trimId) : null,
+                minPrice: formData.minPrice > 0 ? Number(formData.minPrice) : null,
+                maxPrice: formData.maxPrice > 0 ? Number(formData.maxPrice) : null,
+                governorate: formData.governorate || null,
+                city: formData.city || null,
+            };
+
+            let res;
+            if (initialData.id) {
+                res = await updateCarAlert(initialData.id, payload);
+            } else {
+                res = await createCarAlert(payload);
+            }
 
             if (res.success) {
                 toast({
-                    title: t('allCars.alertCreated'),
-                    description: t('allCars.alertCreatedDesc'),
+                    title: initialData.id ? (isArabic ? 'تم تحديث التنبيه' : 'Alert Updated') : (isArabic ? 'تم إنشاء التنبيه' : 'Alert Created'),
+                    description: initialData.id ? (isArabic ? 'تم حفظ التعديلات بنجاح' : 'Changes saved successfully') : (isArabic ? 'سنقوم بإعلامك عند توفر سيارات مطابقة' : 'We will notify you when matching cars are available'),
                 });
                 onOpenChange(false);
             } else {
                 toast({
-                    title: t('allCars.alertCreateError'),
-                    description: res.message || t('allCars.alertCreateErrorDesc'),
+                    title: initialData.id ? (isArabic ? 'خطأ في التحديث' : 'Update Error') : (isArabic ? 'خطأ في الإنشاء' : 'Creation Error'),
+                    description: res.message || (initialData.id ? (isArabic ? 'فشل تحديث التنبيه' : 'Failed to update alert') : (isArabic ? 'فشل إنشاء التنبيه' : 'Failed to create alert')),
                     variant: 'destructive',
                 });
             }
         } catch (error) {
             toast({
-                title: t('allCars.alertCreateError'),
-                description: t('allCars.alertCreateErrorDesc'),
+                title: initialData.id ? (isArabic ? 'خطأ في التحديث' : 'Update Error') : (isArabic ? 'خطأ في الإنشاء' : 'Creation Error'),
+                description: isArabic ? 'حدث خطأ غير متوقع' : 'Unexpected error',
                 variant: 'destructive',
             });
         } finally {
@@ -258,10 +280,10 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
                         </div>
                         <div >
                             <DialogTitle className="text-3xl font-bold text-white m-0 mb-1">
-                                {isArabic ? 'خبرني' : 'Notify Me'}
+                                {initialData.id ? (isArabic ? 'تعديل التنبيه' : 'Edit Alert') : (isArabic ? 'خبرني' : 'Notify Me')}
                             </DialogTitle>
                             <p className="text-sm text-white/95">
-                                {isArabic ? 'كن أول من يعرف بالسيارات الجديدة' : 'Be first to know about new cars'}
+                                {initialData.id ? (isArabic ? 'قم بتحديث معايير التنبيه الخاص بك' : 'Update your alert criteria') : (isArabic ? 'كن أول من يعرف بالسيارات الجديدة' : 'Be first to know about new cars')}
                             </p>
                         </div>
                     </div>
@@ -284,14 +306,7 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
                                     handleChange('trimId', 0);
                                 }}
                                 placeholder={isLoadingOptions.makes ? (isArabic ? 'جاري التحميل...' : 'Loading...') : (isArabic ? 'اختر' : 'Select')}
-                                SelectTriggerStyle={cn("h-12 rounded-xl border-2 transition-all", errors.makeId ? "border-red-400 bg-red-50/50 focus:ring-red-400" : "border-slate-200 hover:border-primary/50 focus:border-primary focus:ring-primary/20")}
-                                disabled={isLoadingOptions.makes}
                             />
-                            {errors.makeId && (
-                                <p className="text-xs text-red-500 mt-1 font-medium">
-                                    {isArabic ? 'مطلوب' : 'Required'}
-                                </p>
-                            )}
                         </div>
                         <div className="space-y-2">
                             <Label className="text-sm font-semibold text-slate-700">
@@ -305,14 +320,7 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
                                     handleChange('trimId', 0);
                                 }}
                                 placeholder={isLoadingOptions.models ? (isArabic ? 'جاري...' : 'Loading...') : (isArabic ? 'اختر' : 'Select')}
-                                SelectTriggerStyle={cn("h-12 rounded-xl border-2 transition-all", errors.modelId ? "border-red-400 bg-red-50/50 focus:ring-red-400" : "border-slate-200 hover:border-primary/50 focus:border-primary focus:ring-primary/20")}
-                                disabled={!formData.makeId || isLoadingOptions.models}
                             />
-                            {errors.modelId && (
-                                <p className="text-xs text-red-500 mt-1 font-medium">
-                                    {isArabic ? 'مطلوب' : 'Required'}
-                                </p>
-                            )}
                         </div>
                         <div className="space-y-2">
                             <Label className="text-sm font-semibold text-slate-700">
@@ -323,14 +331,7 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
                                 value={formData.trimId ? String(formData.trimId) : ''}
                                 onChange={(name: string, val: string) => handleChange('trimId', val)}
                                 placeholder={isLoadingOptions.trims ? (isArabic ? 'جاري...' : 'Loading...') : (isArabic ? 'اختر' : 'Select')}
-                                SelectTriggerStyle={cn("h-12 rounded-xl border-2 transition-all", errors.trimId ? "border-red-400 bg-red-50/50 focus:ring-red-400" : "border-slate-200 hover:border-primary/50 focus:border-primary focus:ring-primary/20")}
-                                disabled={!formData.modelId || isLoadingOptions.trims}
                             />
-                            {errors.trimId && (
-                                <p className="text-xs text-red-500 mt-1 font-medium">
-                                    {isArabic ? 'مطلوب' : 'Required'}
-                                </p>
-                            )}
                         </div>
                     </div>
 
@@ -345,13 +346,7 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
                                 placeholder="0"
                                 value={formData.minPrice || ''}
                                 onChange={(e) => handleChange('minPrice', Number(e.target.value))}
-                                className={cn("h-12 rounded-xl border-2 transition-all text-base", errors.minPrice ? "border-red-400 bg-red-50/50" : "border-slate-200 hover:border-primary/50 focus:border-primary")}
                             />
-                            {errors.minPrice && (
-                                <p className="text-xs text-red-500 mt-1 font-medium">
-                                    {isArabic ? 'مطلوب' : 'Required'}
-                                </p>
-                            )}
                         </div>
                         <div className="space-y-2">
                             <Label className="text-sm font-semibold text-slate-700">
@@ -362,13 +357,7 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
                                 placeholder="∞"
                                 value={formData.maxPrice || ''}
                                 onChange={(e) => handleChange('maxPrice', Number(e.target.value))}
-                                className={cn("h-12 rounded-xl border-2 transition-all text-base", errors.maxPrice ? "border-red-400 bg-red-50/50" : "border-slate-200 hover:border-primary/50 focus:border-primary")}
                             />
-                            {errors.maxPrice && (
-                                <p className="text-xs text-red-500 mt-1 font-medium">
-                                    {isArabic ? 'مطلوب' : 'Required'}
-                                </p>
-                            )}
                         </div>
                     </div>
 
@@ -386,13 +375,7 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
                                     handleChange('city', '');
                                 }}
                                 placeholder={isArabic ? 'اختر' : 'Select'}
-                                SelectTriggerStyle={cn("h-12 rounded-xl border-2 transition-all", errors.governorate ? "border-red-400 bg-red-50/50 focus:ring-red-400" : "border-slate-200 hover:border-primary/50 focus:border-primary focus:ring-primary/20")}
                             />
-                            {errors.governorate && (
-                                <p className="text-xs text-red-500 mt-1 font-medium">
-                                    {isArabic ? 'مطلوب' : 'Required'}
-                                </p>
-                            )}
                         </div>
                         <div className="space-y-2">
                             <Label className="text-sm font-semibold text-slate-700">
@@ -403,22 +386,21 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
                                 value={formData.city}
                                 onChange={(name: string, val: string) => handleChange('city', val)}
                                 placeholder={isArabic ? 'اختر' : 'Select'}
-                                SelectTriggerStyle={cn("h-12 rounded-xl border-2 transition-all", errors.city ? "border-red-400 bg-red-50/50 focus:ring-red-400" : "border-slate-200 hover:border-primary/50 focus:border-primary focus:ring-primary/20")}
-                                disabled={!formData.governorate}
                             />
-                            {errors.city && (
-                                <p className="text-xs text-red-500 mt-1 font-medium">
-                                    {isArabic ? 'مطلوب' : 'Required'}
-                                </p>
-                            )}
                         </div>
                     </div>
 
-                    {/* Error Summary */}
-                    {Object.keys(errors).length > 0 && (
-                        <div className="bg-red-50 border-2 border-red-200 rounded-xl p-4">
+                    {errors.general && (
+                        <div className="bg-red-50 border-2 border-red-200 rounded-xl p-4 mt-4">
                             <p className="text-sm text-red-600 text-center font-medium">
-                                {isArabic ? 'الرجاء ملء جميع الحقول المطلوبة' : 'Please fill all required fields'}
+                                {isArabic ? 'الرجاء ملء حقل واحد على الأقل' : 'Please fill at least one field'}
+                            </p>
+                        </div>
+                    )}
+                    {errors.priceRange && (
+                        <div className="bg-red-50 border-2 border-red-200 rounded-xl p-4 mt-4">
+                            <p className="text-sm text-red-600 text-center font-medium">
+                                {isArabic ? 'الحد الأدنى للسعر يجب أن يكون أقل من أو يساوي الحد الأعلى' : 'Minimum price must be less than or equal to maximum price'}
                             </p>
                         </div>
                     )}
@@ -445,7 +427,7 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
                                     {isArabic ? 'جاري الحفظ...' : 'Saving...'}
                                 </>
                             ) : (
-                                isArabic ? 'تفعيل التنبيه' : 'Activate Alert'
+                                initialData.id ? (isArabic ? 'حفظ التعديلات' : 'Save Changes') : (isArabic ? 'تفعيل التنبيه' : 'Activate Alert')
                             )}
                         </Button>
                     </div>

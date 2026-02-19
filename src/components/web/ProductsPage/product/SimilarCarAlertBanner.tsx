@@ -63,18 +63,14 @@ const SimilarCarAlertBanner: React.FC<SimilarCarAlertBannerProps> = ({
         setIsSubmitting(true);
 
         try {
-            const carPrice = car.price || 0;
-            const minPrice = carPrice > 0 ? Math.floor(carPrice * 0.8) : 0;
-            const maxPrice = carPrice > 0 ? Math.ceil(carPrice * 1.2) : 0;
-
             const res = await createCarAlert({
-                makeId: car.makeId || 0,
-                modelId: car.modelId || 0,
-                trimId: car.trimId ?? 0,
-                minPrice,
-                maxPrice,
-                governorate: (car.governorate as string) || '',
-                city: (car.city as string) || '',
+                makeId: car.makeId || null,
+                modelId: car.modelId || null,
+                trimId: car.trimId ?? null,
+                minPrice: null,
+                maxPrice: null,
+                governorate: null,
+                city: null,
             });
 
             if (res.success) {
