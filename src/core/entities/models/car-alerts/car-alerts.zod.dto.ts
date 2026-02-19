@@ -1,13 +1,13 @@
 import { z } from 'zod';
 
 export const CreateCarAlertSchema = z.object({
-    makeId: z.number(),
-    modelId: z.number(),
-    trimId: z.number(),
-    minPrice: z.number(),
-    maxPrice: z.number(),
-    governorate: z.string(),
-    city: z.string(),
+    makeId: z.number().nullable().optional(),
+    modelId: z.number().nullable().optional(),
+    trimId: z.number().nullable().optional(),
+    minPrice: z.number().nullable().optional(),
+    maxPrice: z.number().nullable().optional(),
+    governorate: z.string().nullable().optional(),
+    city: z.string().nullable().optional(),
 });
 
 export type CreateCarAlertDto = z.infer<typeof CreateCarAlertSchema>;

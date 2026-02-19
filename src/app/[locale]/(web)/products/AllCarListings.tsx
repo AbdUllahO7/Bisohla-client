@@ -249,13 +249,15 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
             </Text>
           ) : <div />}
 
-          <Button
-            onClick={() => setIsAlertModalOpen(true)}
-            className="bg-gradient-to-r from-[#198341] to-[#ABDE3B] hover:opacity-90 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all"
-          >
-            <Bell className="h-4 w-4 mr-2" />
-            {t('allCars.createAlert')}
-          </Button>
+          {isAuthenticated && (
+            <Button
+              onClick={() => setIsAlertModalOpen(true)}
+              className="bg-gradient-to-r from-[#198341] to-[#ABDE3B] hover:opacity-90 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all"
+            >
+              <Bell className="h-4 w-4 mr-2" />
+              {t('allCars.createAlert')}
+            </Button>
+          )}
         </Box>
 
         {isLoading && (
@@ -290,26 +292,28 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
                 </Text>
               </div>
 
-              {/* خبرني CTA */}
-              <div className="bg-gradient-to-br from-[#198341]/5 to-[#ABDE3B]/10 border border-[#198341]/20 rounded-2xl p-6 w-full space-y-3">
-                <p className="text-sm font-semibold text-[#198341]">
-                  {isArabic
-                    ? '🔔 هل تريد أن تُعلَم عندما تتوفر سيارة مطابقة؟'
-                    : '🔔 Want to be notified when a matching car is listed?'}
-                </p>
-                <p className="text-xs text-gray-500">
-                  {isArabic
-                    ? 'سنُرسل لك تنبيهاً فور توفّر سيارة تناسب بحثك'
-                    : "We'll notify you as soon as a car matching your search is available"}
-                </p>
-                <Button
-                  onClick={() => setIsAlertModalOpen(true)}
-                  className="w-full h-12 text-base font-bold rounded-xl bg-gradient-to-r from-[#198341] to-[#ABDE3B] hover:opacity-90 text-white shadow-md hover:shadow-lg transition-all"
-                >
-                  <Bell className="h-5 w-5 mr-2" />
-                  {isArabic ? 'خبرني عند توفّر السيارة' : 'Notify Me'}
-                </Button>
-              </div>
+              {/* خبرني CTA - Only if authenticated */}
+              {isAuthenticated && (
+                <div className="bg-gradient-to-br from-[#198341]/5 to-[#ABDE3B]/10 border border-[#198341]/20 rounded-2xl p-6 w-full space-y-3">
+                  <p className="text-sm font-semibold text-[#198341]">
+                    {isArabic
+                      ? '🔔 هل تريد أن تُعلَم عندما تتوفر سيارة مطابقة؟'
+                      : '🔔 Want to be notified when a matching car is listed?'}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {isArabic
+                      ? 'سنُرسل لك تنبيهاً فور توفّر سيارة تناسب بحثك'
+                      : "We'll notify you as soon as a car matching your search is available"}
+                  </p>
+                  <Button
+                    onClick={() => setIsAlertModalOpen(true)}
+                    className="w-full h-12 text-base font-bold rounded-xl bg-gradient-to-r from-[#198341] to-[#ABDE3B] hover:opacity-90 text-white shadow-md hover:shadow-lg transition-all"
+                  >
+                    <Bell className="h-5 w-5 mr-2" />
+                    {isArabic ? 'خبرني عند توفّر السيارة' : 'Notify Me'}
+                  </Button>
+                </div>
+              )}
             </div>
           </Box>
         )}
