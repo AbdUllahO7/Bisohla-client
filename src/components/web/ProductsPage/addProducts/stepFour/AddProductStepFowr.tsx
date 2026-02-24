@@ -39,6 +39,7 @@ import Text from "@/components/text/text"
 import { Currency, getCurrencyOptions } from "@/core/entities/enums/currency.enum"
 import { CountryCode, getCountryCodeOptions } from "@/core/entities/enums/country-codes.enum"
 import { SearchableCountrySelect } from "@/components/searchable-country-select"
+import { useProfile } from "@/providers/profile.provider"
 
 // Simplified EnumSelect component without internal state tracking
 interface EnumSelectProps {
@@ -54,12 +55,12 @@ interface EnumSelectProps {
   className?: string;
 }
 
-const EnumSelect = ({ 
-  name, 
-  control, 
-  label, 
-  options, 
-  placeholder, 
+const EnumSelect = ({
+  name,
+  control,
+  label,
+  options,
+  placeholder,
   required = false,
   onChange,
   value,
@@ -88,15 +89,15 @@ const EnumSelect = ({
           >
             <FormControl>
               <SelectTrigger className="h-11">
-                <SelectValue placeholder={placeholder} dir={`${isRtl ? "rtl" : "ltr"}`}/>
+                <SelectValue placeholder={placeholder} dir={`${isRtl ? "rtl" : "ltr"}`} />
               </SelectTrigger>
             </FormControl>
-            <SelectContent 
-              className="bg-white shadow-2xl text-primary border-none !z-[99999]" 
+            <SelectContent
+              className="bg-white shadow-2xl text-primary border-none !z-[99999]"
               dir={`${isRtl ? "rtl" : "ltr"}`}
               position="popper"
               sideOffset={4}
-              style={{ 
+              style={{
                 zIndex: 99999,
                 position: 'fixed'
               }}
@@ -119,10 +120,10 @@ const EnumSelect = ({
   );
 };
 
-const AddProductStepFour: React.FC<AddProductStepFourProps> = ({ 
+const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
   onValidationChange,
   isEditMode = false,
-  initialData = null 
+  initialData = null
 }) => {
   const [showRentType, setShowRentType] = useState(false);
   const [direction, setDirection] = useState<string>("ltr");
@@ -130,7 +131,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
   const prevValidState = useRef<boolean | null>(null);
   const editModeDataApplied = useRef<boolean>(false);
   const validationCheckRunning = useRef<boolean>(false);
-  
+
   // Create state for enum values as form backups
   const [listingTypeValue, setListingTypeValue] = useState<ListingType | "">("");
   const [rentTypeValue, setRentTypeValue] = useState<RentType | null>(null);
@@ -139,6 +140,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
   const [countryCodeValue, setCountryCodeValue] = useState<CountryCode>(CountryCode.SY);
 
   const t = useTranslations("addProduct.enteredData");
+  const { profile } = useProfile();
   const countryCodeOptions = getCountryCodeOptions();
 
   const listingTypeOptions = getListingTypeOptions(t);
@@ -160,19 +162,19 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
   // Helper function to map API enums to form enums
   const mapApiEnumToFormEnum = (apiValue: string, enumType: any): any => {
     if (!apiValue) return Object.values(enumType)[0];
-    
+
     if (Object.values(enumType).includes(apiValue)) {
       return apiValue;
     }
-    
+
     const normApiValue = apiValue.toUpperCase().replace(/\s+/g, '_');
-    
+
     for (const key in enumType) {
       const enumValue = enumType[key];
       const normEnumValue = key.toUpperCase().replace(/\s+/g, '_');
-      
+
       if (
-        apiValue === enumValue || 
+        apiValue === enumValue ||
         normApiValue === normEnumValue ||
         normApiValue.includes(normEnumValue) ||
         normEnumValue.includes(normApiValue)
@@ -180,7 +182,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
         return enumValue;
       }
     }
-    
+
     console.warn(`Could not map API value "${apiValue}" to matching enum value`);
     return Object.values(enumType)[0];
   };
@@ -189,29 +191,29 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
   const checkFormValidity = (data: Partial<AdInformationFormData>) => {
     if (validationCheckRunning.current) return false;
     validationCheckRunning.current = true;
-    
+
     try {
       const listingType = data.listingType || listingTypeValue;
       const saveStatus = data.saveStatus || saveStatusValue;
       const currency = data.currency || currencyValue;
-      const rentType = listingType === ListingType.FOR_RENT 
+      const rentType = listingType === ListingType.FOR_RENT
         ? (data.rentType || rentTypeValue)
         : null;
-      
+
       let isValid = Boolean(
-        data.title && 
-        data.description && 
-        data.contactNumber && 
+        data.title &&
+        data.description &&
+        data.contactNumber &&
         listingType &&
-        saveStatus && 
+        saveStatus &&
         data.price &&
         currency
       );
-      
+
       if (listingType === ListingType.FOR_RENT && !rentType) {
         isValid = false;
       }
-      
+
       return isValid;
     } finally {
       validationCheckRunning.current = false;
@@ -221,27 +223,27 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
   // Apply edit data once
   const applyEditData = (editData: AdInformationFormData) => {
     if (editModeDataApplied.current) return;
-     let phoneOnly = editData.contactNumber || "";
+    let phoneOnly = editData.contactNumber || "";
     let extractedCountryCode = countryCodeValue;
 
-     if (editData.contactNumber) {
-        const { countryCode, phoneNumber } = parsePhoneNumber(editData.contactNumber);
-        extractedCountryCode = countryCode as CountryCode;
-        phoneOnly = phoneNumber;
-      }
+    if (editData.contactNumber) {
+      const { countryCode, phoneNumber } = parsePhoneNumber(editData.contactNumber);
+      extractedCountryCode = countryCode as CountryCode;
+      phoneOnly = phoneNumber;
+    }
 
-    const mappedListingType = typeof editData.listingType === 'string' 
+    const mappedListingType = typeof editData.listingType === 'string'
       ? mapApiEnumToFormEnum(editData.listingType, ListingType)
       : editData.listingType;
-    
+
     const mappedSaveStatus = typeof editData.saveStatus === 'string'
       ? mapApiEnumToFormEnum(editData.saveStatus, SaveStatus)
       : editData.saveStatus;
-    
+
     const mappedRentType = editData.rentType && typeof editData.rentType === 'string'
       ? mapApiEnumToFormEnum(editData.rentType, RentType)
       : editData.rentType;
-    
+
     const mappedCurrency = typeof editData.currency === 'string'
       ? mapApiEnumToFormEnum(editData.currency, Currency)
       : editData.currency || Currency.USD;
@@ -252,31 +254,31 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
     if (mappedRentType) {
       setRentTypeValue(mappedRentType);
     }
-      setCountryCodeValue(extractedCountryCode);
+    setCountryCodeValue(extractedCountryCode);
 
     const processedData = {
       ...editData,
-         contactNumber: phoneOnly,
+      contactNumber: phoneOnly,
       listingType: mappedListingType,
       saveStatus: mappedSaveStatus,
       rentType: mappedRentType,
       currency: mappedCurrency
     };
-    
+
     if (mappedListingType === ListingType.FOR_RENT) {
       setShowRentType(true);
     }
-    
+
     form.reset(processedData);
     previousFormData.current = { ...processedData };
-    
+
     const isValid = checkFormValidity(processedData);
     prevValidState.current = isValid;
-    
+
     if (onValidationChange && isValid !== undefined) {
       onValidationChange(isValid);
     }
-    
+
     editModeDataApplied.current = true;
   };
 
@@ -293,7 +295,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
         publicationDate: initialData.data[0].publishedAt ? new Date(initialData.data[0].publishedAt) : new Date(),
         currency: initialData.data[0].currency || Currency.USD
       };
-      
+
       applyEditData(formData);
     }
   }, [isEditMode, initialData]);
@@ -301,7 +303,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
   useEffect(() => {
     const htmlDir = document.documentElement.dir || "ltr";
     setDirection(htmlDir);
-          window.scrollTo(0, 0);
+    window.scrollTo(0, 0);
 
     if (!isEditMode && !editModeDataApplied.current) {
       const savedData = loadAdInfoData();
@@ -314,41 +316,64 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
           setShowRentType(true);
         }
       }
-        if (savedData.contactNumber) {
+      if (savedData.contactNumber) {
         const { countryCode, phoneNumber } = parsePhoneNumber(savedData.contactNumber);
         extractedCountryCode = countryCode as CountryCode;
         phoneOnly = phoneNumber;
       }
-        setCountryCodeValue(extractedCountryCode);
+      setCountryCodeValue(extractedCountryCode);
+
+      if (savedData.listingType) {
+        setListingTypeValue(savedData.listingType);
+        if (savedData.listingType === ListingType.FOR_RENT) {
+          setShowRentType(true);
+        }
+      }
 
       if (savedData.saveStatus) {
         setSaveStatusValue(savedData.saveStatus);
       }
-      
+
       if (savedData.rentType) {
         setRentTypeValue(savedData.rentType);
       }
-      
-      if (savedData.currency) {
-        setCurrencyValue(savedData.currency);
-      }
-      
-      form.reset(savedData);
+
+      setCurrencyValue(savedData.currency || Currency.USD);
+
+      form.reset({
+        ...savedData,
+        contactNumber: phoneOnly
+      });
       previousFormData.current = savedData;
-      
+
       const isValid = checkFormValidity(savedData);
       prevValidState.current = isValid;
-      
+
       if (onValidationChange) {
         onValidationChange(isValid);
       }
     }
   }, []);
 
+  // Auto-fill phone number from profile if empty
+  useEffect(() => {
+    if (!isEditMode && profile?.phoneNumber && !form.getValues("contactNumber")) {
+      const { countryCode, phoneNumber } = parsePhoneNumber(profile.phoneNumber);
+
+      if (phoneNumber) {
+        form.setValue("contactNumber", phoneNumber, { shouldValidate: true });
+        setCountryCodeValue(countryCode as CountryCode);
+
+        // No need to manually call autoSaveAdInfoData here as the watch effect 
+        // will handle it when form values change
+      }
+    }
+  }, [profile, isEditMode, form]);
+
   const handleListingTypeChange = (value: string) => {
     const listingTypeValue = value as ListingType;
     setListingTypeValue(listingTypeValue);
-    
+
     if (listingTypeValue === ListingType.FOR_RENT) {
       setShowRentType(true);
     } else {
@@ -357,12 +382,12 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
       form.setValue('rentType', null);
     }
   };
-  
+
   const handleRentTypeChange = (value: string) => {
     const rentType = value as RentType;
     setRentTypeValue(rentType);
   };
-  
+
   const handleSaveStatusChange = (value: string) => {
     const saveStatus = value as SaveStatus;
     setSaveStatusValue(saveStatus);
@@ -375,28 +400,28 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
 
   useEffect(() => {
     let timeout: NodeJS.Timeout;
-    
+
     const subscription = form.watch((formValues) => {
       if (timeout) clearTimeout(timeout);
-      
+
       timeout = setTimeout(() => {
         if (!formValues) return;
         const phoneOnly = formValues.contactNumber || "";
-      const fullContactNumber = countryCodeValue && phoneOnly
-        ? combinePhoneNumber(countryCodeValue, phoneOnly)
-        : phoneOnly;
-       const currentData = {
-        ...(formValues as Partial<AdInformationFormData>),
-        contactNumber: fullContactNumber, 
-        listingType: formValues.listingType || listingTypeValue || ListingType.FOR_SALE,
-        saveStatus: formValues.saveStatus || saveStatusValue || SaveStatus.PUBLISHED,
-        currency: formValues.currency || currencyValue || Currency.USD,
-        countryCode: countryCodeValue, // Keep for UI
-        rentType: formValues.listingType === ListingType.FOR_RENT || listingTypeValue === ListingType.FOR_RENT
-          ? (formValues.rentType || rentTypeValue)
-          : null
-      };
-        
+        const fullContactNumber = countryCodeValue && phoneOnly
+          ? combinePhoneNumber(countryCodeValue, phoneOnly)
+          : phoneOnly;
+        const currentData = {
+          ...(formValues as Partial<AdInformationFormData>),
+          contactNumber: fullContactNumber,
+          listingType: formValues.listingType || listingTypeValue || ListingType.FOR_SALE,
+          saveStatus: formValues.saveStatus || saveStatusValue || SaveStatus.PUBLISHED,
+          currency: formValues.currency || currencyValue || Currency.USD,
+          countryCode: countryCodeValue, // Keep for UI
+          rentType: formValues.listingType === ListingType.FOR_RENT || listingTypeValue === ListingType.FOR_RENT
+            ? (formValues.rentType || rentTypeValue)
+            : null
+        };
+
         if (currentData.title && currentData.description) {
           const prevData = previousFormData.current || undefined;
           if (JSON.stringify(currentData) !== JSON.stringify(prevData)) {
@@ -406,7 +431,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
         }
 
         const isValid = checkFormValidity(currentData);
-        
+
         if (isValid !== prevValidState.current) {
           prevValidState.current = isValid;
           if (onValidationChange) {
@@ -428,11 +453,11 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
       listingType: data.listingType || listingTypeValue || ListingType.FOR_SALE,
       saveStatus: data.saveStatus || saveStatusValue || SaveStatus.PUBLISHED,
       currency: data.currency || currencyValue || Currency.USD,
-      rentType: data.listingType === ListingType.FOR_RENT 
-        ? (data.rentType || rentTypeValue) 
+      rentType: data.listingType === ListingType.FOR_RENT
+        ? (data.rentType || rentTypeValue)
         : null
     };
-    
+
     const adInfoState: AdInfoState = {
       title: submittedData.title,
       adStatus: "published",
@@ -470,11 +495,11 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
 
     const dateError = getPublicationDateErrorMessage(adInfoState.publicationDate, direction);
     if (dateError) form.setError("publicationDate", { message: dateError });
-    
+
     const saveStatusError = getSaveStatusErrorMessage(adInfoState.saveStatus || "", direction);
     if (saveStatusError) form.setError("saveStatus", { message: saveStatusError });
   };
-  
+
   return (
     <div className="w-full max-w-7xl mx-auto space-y-6 p-4 sm:p-6" dir={direction}>
       <Card className="w-full bg-white border-0 shadow-lg">
@@ -486,10 +511,10 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
         <CardContent className="p-4 sm:p-6 lg:p-8 w-full">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 sm:space-y-8">
-              
+
               {/* Basic Information Section */}
               <div className="space-y-4 sm:space-y-6 w-full">
-              
+
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                   <FormField
                     control={form.control}
@@ -501,10 +526,10 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                           <span className="text-red-500 ml-1">*</span>
                         </FormLabel>
                         <FormControl>
-                          <Input 
-                            placeholder={t("stepFour.adTitle")} 
-                            className="h-11" 
-                            {...field} 
+                          <Input
+                            placeholder={t("stepFour.adTitle")}
+                            className="h-11"
+                            {...field}
                           />
                         </FormControl>
                         <FormMessage />
@@ -522,10 +547,10 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                           <span className="text-red-500 ml-1">*</span>
                         </FormLabel>
                         <FormControl>
-                          <Textarea 
-                            placeholder={t("stepFour.adDescription")} 
-                            className="min-h-[120px] resize-y" 
-                            {...field} 
+                          <Textarea
+                            placeholder={t("stepFour.adDescription")}
+                            className="min-h-[120px] resize-y"
+                            {...field}
                           />
                         </FormControl>
                         <FormMessage />
@@ -537,36 +562,36 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
 
               {/* Contact & Pricing Section */}
               <div className="space-y-4 sm:space-y-6 w-full">
-                
-                
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {/* Country Code + Contact Number */}
-              <div className="sm:col-span-2 lg:col-span-1">
-            <FormLabel className="text-primary font-medium mb-2 block">
-              {t("stepFour.contactNumber")}
-              <span className="text-red-500 ml-1">*</span>
-            </FormLabel>
-            <div className="flex gap-2">
-              {/* Searchable Country Code Selector */}
-              <div className="w-32">
-                <SearchableCountrySelect
-                  value={countryCodeValue}
-                  onChange={handleCountryCodeChange}
-                  options={countryCodeOptions}
-                  placeholder="+963"
-                />
-              </div>
-    
-            {/* Phone Number Input */}
+
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                  {/* Country Code + Contact Number */}
+                  <div className="sm:col-span-2 lg:col-span-1">
+                    <FormLabel className="text-primary font-medium mb-2 block">
+                      {t("stepFour.contactNumber")}
+                      <span className="text-red-500 ml-1">*</span>
+                    </FormLabel>
+                    <div className="flex gap-2">
+                      {/* Searchable Country Code Selector */}
+                      <div className="w-32">
+                        <SearchableCountrySelect
+                          value={countryCodeValue}
+                          onChange={handleCountryCodeChange}
+                          options={countryCodeOptions}
+                          placeholder="+963"
+                        />
+                      </div>
+
+                      {/* Phone Number Input */}
                       <FormField
                         control={form.control}
                         name="contactNumber"
                         render={({ field }) => (
                           <FormItem className="flex-1">
                             <FormControl>
-                              <Input 
-                                placeholder="5551234567" 
-                                className="h-11" 
+                              <Input
+                                placeholder="5551234567"
+                                className="h-11"
                                 {...field}
                                 type="tel"
                               />
@@ -589,11 +614,11 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                           <span className="text-red-500 ml-1">*</span>
                         </FormLabel>
                         <FormControl>
-                          <Input 
-                            type="text" 
-                            placeholder={t("stepFour.price", { defaultValue: "Enter price" })} 
+                          <Input
+                            type="text"
+                            placeholder={t("stepFour.price", { defaultValue: "Enter price" })}
                             className="h-11"
-                            {...field} 
+                            {...field}
                           />
                         </FormControl>
                         <FormMessage />
@@ -621,7 +646,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                 <div className="border-b border-gray-200 pb-2">
                   <h3 className="text-base sm:text-lg font-semibold text-primary">Listing Configuration</h3>
                 </div>
-                
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                   <EnumSelect
                     name="listingType"
@@ -665,8 +690,8 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
 
               {/* Publication Settings Section */}
               <div className="space-y-4 sm:space-y-6">
-                
-                
+
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                   <FormField
                     control={form.control}
@@ -696,11 +721,11 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                             </FormControl>
                           </PopoverTrigger>
                           <PopoverContent className="w-auto p-0 " align="start">
-                            <Calendar 
-                              mode="single" 
-                              selected={field.value} 
-                              onSelect={field.onChange} 
-                              initialFocus 
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              initialFocus
                             />
                           </PopoverContent>
                         </Popover>
