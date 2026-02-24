@@ -34,10 +34,10 @@ import { formatDistanceToNow } from 'date-fns';
 import { ar, enUS } from 'date-fns/locale';
 import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions';
 import { toggleCarListingFavorite } from '@/core/infrastructure-adapters/actions/users/car.user.actions';
-import { 
-  useDeleteCarListing, 
+import {
+  useDeleteCarListing,
   useUpdateSaveStatus,
-  useMyCarById 
+  useMyCarById
 } from '@/core/infrastructure-adapters/use-actions/users/car.user.use-actions';
 import {
   AlertDialog,
@@ -218,7 +218,7 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
   // Format statistics for display
   const formatStatistics = () => {
     if (!carStatistics?.data?.statics) return null;
-    
+
     const stats = carStatistics.data.statics;
     const formatDateValue = (dateString: string | null) => {
       if (!dateString) return locale === 'ar' ? 'غير متوفر' : 'N/A';
@@ -243,7 +243,7 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
       const minutes = Math.floor(seconds / 60);
       const remainingSeconds = seconds % 60;
       if (minutes > 0) {
-        return locale === 'ar' 
+        return locale === 'ar'
           ? `${minutes} دقيقة ${remainingSeconds} ثانية`
           : `${minutes}m ${remainingSeconds}s`;
       }
@@ -507,7 +507,7 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
 
     try {
       setIsUpdatingStatus(true);
-      
+
       // Optimistically update the UI
       setCurrentSaveStatus(newStatus);
 
@@ -537,7 +537,7 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
       } else {
         // Revert on failure
         setCurrentSaveStatus(previousStatus);
-        
+
         toast({
           title: locale === 'ar' ? 'خطأ' : 'Error',
           description: locale === 'ar' ? 'فشل تحديث الحالة' : 'Failed to update status',
@@ -548,7 +548,7 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
       // Revert on error
       setCurrentSaveStatus(previousStatus);
       console.error('Failed to update save status:', error);
-      
+
       toast({
         title: locale === 'ar' ? 'خطأ' : 'Error',
         description: locale === 'ar' ? 'حدث خطأ أثناء تحديث الحالة' : 'An error occurred while updating status',
@@ -678,9 +678,8 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
           <div className={imageContainerClass}>
             <div className="relative w-full h-[260px]">
               <Link
-                href={`/products/product/${carListing.id}${
-                  profile && isMine ? '?profile=true' : ''
-                }`}
+                href={`/products/product/${carListing.id}${profile && isMine ? '?profile=true' : ''
+                  }`}
               >
                 <Image
                   src={getPrimaryImage()}
@@ -713,10 +712,10 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
                     isProcessing
                       ? 'text-gray-400 animate-pulse'
                       : !isAuthenticated
-                      ? 'text-gray-400'
-                      : favoriteStatus
-                      ? 'text-red-500'
-                      : 'text-gray-600',
+                        ? 'text-gray-400'
+                        : favoriteStatus
+                          ? 'text-red-500'
+                          : 'text-gray-600',
                   )}
                   fill={favoriteStatus ? 'currentColor' : 'none'}
                 />
@@ -733,8 +732,8 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
                       ? 'left-3'
                       : 'right-3'
                     : locale === 'ar'
-                    ? 'right-3'
-                    : 'left-3',
+                      ? 'right-3'
+                      : 'left-3',
                 )}
               >
                 {getStatusBadge()}
@@ -791,17 +790,15 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
               {/* Header */}
               <div className="flex-1">
                 <Link
-                  href={`/products/product/${carListing.id}${
-                    profile ? '?profile=true' : ''
-                  }`}
+                  href={`/products/product/${carListing.id}${profile ? '?profile=true' : ''
+                    }`}
                 >
                   <div className="mb-3">
                     <h3 className="text-lg sm:text-xl font-bold text-gray-900 line-clamp-2 group-hover:text-primary transition-colors">
                       {carListing.title}
                     </h3>
                     <p className="text-sm text-gray-600 mt-1">
-                      {carListing.make?.name} {carListing.model?.name}{' '}
-                      {carListing.trim?.name}
+                      {carListing.make?.name} {carListing.model?.name}
                     </p>
                   </div>
                 </Link>
@@ -969,9 +966,8 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
                   {/* View Details Button */}
                   <Button size="sm" className={actionButtonClass} asChild>
                     <Link
-                      href={`/products/product/${carListing.id}${
-                        profile && isMine ? '?profile=true' : ''
-                      }`}
+                      href={`/products/product/${carListing.id}${profile && isMine ? '?profile=true' : ''
+                        }`}
                     >
                       <Eye size={14} />
                       {t('viewDetails')}
@@ -1017,9 +1013,8 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
               <div className="rounded-md bg-gray-50 p-4">
                 <div className="flex">
                   <div
-                    className={`${
-                      locale === 'ar' ? 'mr-3' : 'ml-3'
-                    } mt-2 text-sm`}
+                    className={`${locale === 'ar' ? 'mr-3' : 'ml-3'
+                      } mt-2 text-sm`}
                   >
                     <h3 className="font-medium text-gray-800">
                       {carListing.title}
@@ -1036,9 +1031,8 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
           <AlertDialogFooter className="bg-gray-50 px-6 py-4 rounded-b-lg flex flex-row-reverse sm:flex-row gap-2">
             <AlertDialogCancel
               onClick={handleCancelDelete}
-              className={`inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
-                locale === 'ar' ? 'sm:ml-3' : 'sm:mr-3'
-              } w-full sm:w-auto`}
+              className={`inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${locale === 'ar' ? 'sm:ml-3' : 'sm:mr-3'
+                } w-full sm:w-auto`}
             >
               {t('cancel')}
             </AlertDialogCancel>
@@ -1050,9 +1044,8 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
               {isDeleting ? (
                 <span className="flex items-center">
                   <div
-                    className={`animate-spin rounded-full h-4 w-4 border-b-2 border-white ${
-                      locale === 'ar' ? 'ml-2' : 'mr-2'
-                    }`}
+                    className={`animate-spin rounded-full h-4 w-4 border-b-2 border-white ${locale === 'ar' ? 'ml-2' : 'mr-2'
+                      }`}
                   />
                   {t('deleting')}
                 </span>
@@ -1081,7 +1074,7 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
               </div>
               <span>{locale === 'ar' ? 'إحصائيات الإعلان' : 'Listing Statistics'}</span>
             </DialogTitle>
-           
+
           </DialogHeader>
 
           <div className="mt-6">
@@ -1102,7 +1095,7 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
                         {carListing.title}
                       </h3>
                       <p className="text-sm text-gray-600">
-                        {carListing.make?.name} {carListing.model?.name} {carListing.trim?.name}
+                        {carListing.make?.name} {carListing.model?.name}
                       </p>
                       <div className="flex items-center gap-2 mt-3">
                         <Badge className="bg-primary text-white">

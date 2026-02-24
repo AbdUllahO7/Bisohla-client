@@ -46,15 +46,6 @@ export const groupFeaturesByCategory = (allFeatures: SelectFeatureDto[]): Groupe
 };
 
 
-/**
- * Validate doors value
- * @param value - Doors value to validate
- * @returns Boolean indicating if doors count is valid
- */
-export const isValidDoors = (value: string): boolean => {
-    const doorsNum = parseInt(value);
-    return Number.isInteger(doorsNum) && doorsNum > 0 && doorsNum <= 10;
-};
 
 /**
  * Validate engine size value
@@ -130,7 +121,6 @@ export const loadFromStorage = (): CarInfoState => {
         mileage: "",
         enginePower: "",
         engineSize: "",
-        doors: "",
         plateNumber: "",
         vin: "",
         condition: "",
@@ -159,23 +149,20 @@ export const saveToStorage = (data: CarInfoState): void => {
  */
 export const validateForm = (carInfo: CarInfoState, validationErrors: any): boolean => {
     const requiredFields = [
-        "colorExterior", "fuelType", "bodyType", "transmission", "mileage", "engineSize", "doors", "condition"
+        "colorExterior", "fuelType", "bodyType", "transmission", "mileage", "engineSize", "condition"
     ];
-
-    // Doors validation
-    const isDoorsValid = isValidDoors(carInfo.doors);
 
     // Engine Size validation
     const isEngineSizeValid = isValidEngineSize(carInfo.engineSize);
 
     // Other fields validation
     const areOtherFieldsValid = requiredFields
-        .filter(field => field !== 'doors' && field !== 'engineSize') // Handling these separately
+        .filter(field => field !== 'engineSize') // Handling these separately
         .every((field) => Boolean(carInfo[field]));
 
     // Form is valid if all conditions are met AND there are no validation errors
-    return isDoorsValid && isEngineSizeValid && areOtherFieldsValid &&
-        !validationErrors.doors && !validationErrors.engineSize;
+    return isEngineSizeValid && areOtherFieldsValid &&
+        !validationErrors.engineSize;
 };
 
 /**

@@ -222,19 +222,6 @@ export const CarAlertItem: React.FC<CarAlertItemProps> = ({
                                     </h3>
                                 </div>
 
-                                {alert.trim?.name && (
-                                    <p className="text-sm text-gray-500 truncate">
-                                        {alert.trim.name}
-                                    </p>
-                                )}
-
-                                {!alert.trim?.name && (
-                                    <p className="text-sm text-gray-400 italic">
-                                        {t('allTrims', {
-                                            defaultValue: 'All trims',
-                                        })}
-                                    </p>
-                                )}
                             </div>
                         </div>
 

@@ -29,7 +29,6 @@ export const useAddProductStepTwo = (onValidationChange: (isValid: boolean) => v
 
   // Validation errors state
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({
-    doors: "",
     engineSize: "",
     bodyType: '',
   });
@@ -104,22 +103,6 @@ export const useAddProductStepTwo = (onValidationChange: (isValid: boolean) => v
   const validateLoadedData = useCallback((data: CarInfoState) => {
     const newValidationErrors = { ...validationErrors };
 
-    // Check doors
-    const doorsValue = parseInt(data.doors);
-    if (data.doors) {
-      if (!Number.isInteger(doorsValue) || doorsValue <= 0) {
-        newValidationErrors.doors = locale === 'ar'
-          ? "يجب أن يكون عدد الأبواب رقمًا صحيحًا موجبًا"
-          : "Doors must be a positive integer";
-      } else if (doorsValue > 10) {
-        newValidationErrors.doors = locale === 'ar'
-          ? "يجب ألا يتجاوز عدد الأبواب 10"
-          : "Doors cannot exceed 10";
-      } else {
-        newValidationErrors.doors = "";
-      }
-    }
-
     // Check engine size with new range validation (1.0 to 4.0)
     const engineSizeValue = parseFloat(data.engineSize);
     if (data.engineSize) {
@@ -145,29 +128,7 @@ export const useAddProductStepTwo = (onValidationChange: (isValid: boolean) => v
   const handleTextFieldBlur = useCallback((field: string, value: string) => {
     setCarInfo(prev => ({ ...prev, [field]: value }));
 
-    if (field === 'doors') {
-      const doorsValue = parseInt(value);
-      if (value) {
-        if (!Number.isInteger(doorsValue) || doorsValue <= 0) {
-          setValidationErrors(prev => ({
-            ...prev,
-            doors: locale === 'ar'
-              ? "يجب أن يكون عدد الأبواب رقمًا صحيحًا موجبًا"
-              : "Doors must be a positive integer"
-          }));
-        } else if (doorsValue > 10) {
-          setValidationErrors(prev => ({
-            ...prev,
-            doors: locale === 'ar'
-              ? "يجب ألا يتجاوز عدد الأبواب 10"
-              : "Doors cannot exceed 10"
-          }));
-        } else {
-          setValidationErrors(prev => ({ ...prev, doors: "" }));
-        }
-      }
-    }
-    else if (field === 'engineSize') {
+    if (field === 'engineSize') {
       const engineSizeValue = parseFloat(value);
       if (value) {
         if (isNaN(engineSizeValue) || engineSizeValue <= 0) {
@@ -270,7 +231,6 @@ export const useAddProductStepTwo = (onValidationChange: (isValid: boolean) => v
       mileage: locale === 'ar' ? "المسافة المقطوعة" : "Mileage",
       enginePower: locale === 'ar' ? "قوة المحرك" : "Engine Power",
       engineSize: locale === 'ar' ? "حجم المحرك" : "Engine Size",
-      doors: locale === 'ar' ? "عدد الأبواب" : "Doors",
       plateNumber: locale === 'ar' ? "رقم اللوحة" : "Plate Number",
       vin: locale === 'ar' ? "رقم الهيكل (VIN)" : "VIN",
       selectColorExterior: locale === 'ar' ? "اختر اللون الخارجي" : "Select Exterior Color",
@@ -281,7 +241,6 @@ export const useAddProductStepTwo = (onValidationChange: (isValid: boolean) => v
       enterMileage: locale === 'ar' ? "أدخل المسافة المقطوعة" : "Enter mileage",
       enterEnginePower: locale === 'ar' ? "أدخل قوة المحرك" : "Enter engine power",
       enterEngineSize: locale === 'ar' ? "أدخل حجم المحرك (1.0 - 4.0)" : "Enter engine size (1.0 - 4.0)",
-      enterDoors: locale === 'ar' ? "أدخل عدد الأبواب" : "Enter doors count",
       enterPlateNumber: locale === 'ar' ? "أدخل رقم اللوحة" : "Enter plate number",
       enterVin: locale === 'ar' ? "أدخل رقم الهيكل" : "Enter VIN number",
       colors: locale === 'ar' ? "الألوان" : "Colors",
@@ -294,8 +253,6 @@ export const useAddProductStepTwo = (onValidationChange: (isValid: boolean) => v
       required: locale === 'ar' ? "مطلوب" : "Required",
       loading: locale === 'ar' ? "جاري التحميل..." : "Loading...",
       noFeatures: locale === 'ar' ? "لا توجد ميزات متاحة" : "No features available",
-      invalidDoors: locale === 'ar' ? "يجب ألا يتجاوز عدد الأبواب 10" : "Doors cannot exceed 10",
-      invalidDoorsNumber: locale === 'ar' ? "يجب أن يكون عدد الأبواب رقمًا صحيحًا موجبًا" : "Doors must be a positive integer",
       invalidEngineSize: locale === 'ar' ? "يجب أن يكون حجم المحرك قيمة موجبة" : "Engine size must be a positive value",
       invalidEngineSizeRange: locale === 'ar' ? "يجب أن يكون حجم المحرك بين 1.0 و 4.0" : "Engine size must be between 1.0 and 4.0"
     }),

@@ -44,7 +44,6 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
   // Input refs for text fields
   const mileageInputRef = useRef<HTMLInputElement>(null)
   const enginePowerInputRef = useRef<HTMLInputElement>(null)
-  const doorsInputRef = useRef<HTMLInputElement>(null)
   const vinInputRef = useRef<HTMLInputElement>(null)
   const plateInputRef = useRef<HTMLInputElement>(null)
 
@@ -54,10 +53,6 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
       mileage: {
         tooltip: "Total distance the car has traveled. This is a key factor in determining the car's value and condition.",
         placeholder: "e.g., 50000 KM",
-      },
-      doors: {
-        tooltip: "Number of doors on your vehicle, including the trunk/hatch door if it counts as a door.",
-        placeholder: "e.g., 4",
       },
       enginePower: {
         tooltip: "Engine power measured in horsepower (HP) or kilowatts (kW). You can find this in your car's manual or registration documents.",
@@ -100,10 +95,6 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
       mileage: {
         tooltip: "المسافة الإجمالية التي قطعتها السيارة. هذا عامل رئيسي في تحديد قيمة السيارة وحالتها.",
         placeholder: "مثال: 50000 KM",
-      },
-      doors: {
-        tooltip: "عدد الأبواب في سيارتك، بما في ذلك باب الصندوق/الباب الخلفي إذا كان يُحسب كباب.",
-        placeholder: "مثال: 4",
       },
       enginePower: {
         tooltip: "قوة المحرك مقاسة بالحصان (HP) أو الكيلوواط (kW). يمكنك العثور على هذا في دليل سيارتك أو مستندات التسجيل.",
@@ -150,7 +141,6 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
   useEffect(() => {
     if (mileageInputRef.current) mileageInputRef.current.value = carInfo.mileage || ""
     if (enginePowerInputRef.current) enginePowerInputRef.current.value = carInfo.enginePower || ""
-    if (doorsInputRef.current) doorsInputRef.current.value = carInfo.doors || ""
     if (vinInputRef.current) vinInputRef.current.value = carInfo.vin || ""
     if (plateInputRef.current) plateInputRef.current.value = carInfo.plateNumber || ""
   }, [carInfo])
@@ -161,10 +151,6 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
 
   const handleEnginePowerBlur = useCallback(() => {
     onTextFieldBlur("enginePower", enginePowerInputRef.current?.value || "")
-  }, [onTextFieldBlur])
-
-  const handleDoorsBlur = useCallback(() => {
-    onTextFieldBlur("doors", doorsInputRef.current?.value || "")
   }, [onTextFieldBlur])
 
   const handleVinBlur = useCallback(() => {
@@ -300,39 +286,7 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
           />
         </div>
 
-        {/* Doors */}
-        <div dir={isRTL ? "rtl" : "ltr"}>
-          <div className={cn(
-            "flex items-center gap-1 mb-2",
-            isRTL ? "flex-row-reverse justify-end" : "justify-start"
-          )}>
-            <span className="text-sm font-medium text-gray-700">{labels.doors}</span>
-            <span className="text-red-500">*</span>
-            <InfoIcon tooltip={info.doors.tooltip} />
-          </div>
-          <Input
-            type="text"
-            ref={doorsInputRef}
-            defaultValue={carInfo.doors || ""}
-            onBlur={handleDoorsBlur}
-            placeholder={info.doors.placeholder}
-            className={cn(
-              "w-full text-primary",
-              validationErrors.doors && "border-red-500",
-              isRTL && "text-right"
-            )}
-            dir={isRTL ? "rtl" : "ltr"}
-            required
-          />
-          {validationErrors.doors && (
-            <p className={cn(
-              "text-red-500 text-xs mt-1",
-              isRTL && "text-right"
-            )}>{validationErrors.doors}</p>
-          )}
-        </div>
-
-        {/* Engine Power */}
+        {/* Mileage */}
         <div dir={isRTL ? "rtl" : "ltr"}>
           <div className={cn(
             "flex items-center gap-1 mb-2",

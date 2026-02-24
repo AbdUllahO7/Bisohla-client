@@ -43,7 +43,7 @@ export interface CarInfoState {
   mileage: string;
   enginePower: string;
   engineSize: string;
-  doors: string;
+  doors?: string;
   plateNumber: string;
   vin: string | null;
   condition: string;
@@ -54,7 +54,7 @@ export interface CarInfoState {
 
 // Define validation errors interface
 export interface ValidationErrors {
-  doors: string;
+  doors?: string;
   engineSize: string;
   bodyType: string
 }
