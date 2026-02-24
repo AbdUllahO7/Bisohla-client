@@ -829,16 +829,23 @@
           "gasoline_gas": "بنزين / غاز"
         },
         "bodyType": {
-          "suv": "شاحنة",
+          "suv": "SUV",
           "sedan": "سيدان",
           "hatchback": "هاتشباك",
           "coupe": "كوبيه",
+          "grand_coupe": "كراند كوبي",
           "convertible": "كشف ",
           "wagon": "عربة",
+          "station_wagon": "ستيشن واجن",
           "van": "شاحنة صغيرة",
           "minivan": "ميني فان",
           "pickup": "بيك أب",
           "other": "أخرى"
+        },
+        "vehicleCondition": {
+          "new": "جديد (زيرو)",
+          "used": "مستعمل",
+          "used_like_new": "مستعمل شبه الجديد"
         },
         "transmission": {
           "automatic": "أوتوماتيك",

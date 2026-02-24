@@ -123,8 +123,10 @@ export enum BodyType {
   SEDAN = 'sedan',
   HATCHBACK = 'hatchback',
   COUPE = 'coupe',
+  GRAND_COUPE = 'grand_coupe',
   CONVERTIBLE = 'convertible',
   WAGON = 'wagon',
+  STATION_WAGON = 'station_wagon',
   VAN = 'van',
   MINIVAN = 'minivan',
   PICKUP = 'pickup',
@@ -163,6 +165,15 @@ export enum SaveStatus {
   DRAFT = 'draft',
   SOLD = 'sold',
   PUBLISHED = 'published',
+}
+
+/**
+ * Represents vehicle condition
+ */
+export enum VehicleCondition {
+  NEW = 'new_zero',
+  USED = 'used',
+  USED_LIKE_NEW = 'used_like_new',
 }
 
 /**
@@ -278,7 +289,7 @@ export function getSaveStatusOptions(t: any): SelectOption[] {
       value: SaveStatus.DRAFT,
       label: t('stepFour.saveStatusOptions.draft', { defaultValue: 'Draft' }),
     },
-   
+
   ];
   return sortOptionsAlphabetically(options);
 }
@@ -355,6 +366,29 @@ export const getFeatureCategoryOptions = (t: any): SelectOption[] => {
     { value: FeatureCategory.OTHER, label: t('featureCategory.other') },
   ];
   return sortOptionsAlphabetically(options);
+};
+
+/**
+ * Get vehicle condition options for select components with translation support
+ */
+export const getVehicleConditionOptions = (t: any): SelectOption[] => {
+  const options = [
+    {
+      value: VehicleCondition.NEW,
+      label: t('vehicleCondition.new', { defaultValue: 'New (Zero)' }),
+    },
+    {
+      value: VehicleCondition.USED,
+      label: t('vehicleCondition.used', { defaultValue: 'Used' }),
+    },
+    {
+      value: VehicleCondition.USED_LIKE_NEW,
+      label: t('vehicleCondition.used_like_new', {
+        defaultValue: 'Used (Like New)',
+      }),
+    },
+  ];
+  return options; // Keep specific order: New, Used, Used like new
 };
 
 /**

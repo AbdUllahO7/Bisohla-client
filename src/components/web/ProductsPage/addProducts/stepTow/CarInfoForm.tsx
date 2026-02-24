@@ -91,6 +91,10 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
         tooltip: "The general shape and design category of your vehicle (e.g., sedan, SUV, coupe).",
         placeholder: "Select body type",
       },
+      condition: {
+        tooltip: "The current status of your vehicle. Choose the option that best describes its maintenance and usage history.",
+        placeholder: "Select vehicle condition",
+      },
     },
     ar: {
       mileage: {
@@ -132,6 +136,10 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
       bodyType: {
         tooltip: "الشكل العام وفئة التصميم لسيارتك (مثل سيدان، SUV، كوبيه).",
         placeholder: "اختر نوع الهيكل",
+      },
+      condition: {
+        tooltip: "الحالة الحالية لسيارتك. اختر الخيار الذي يصف تاريخ الصيانة والاستخدام بشكل أفضل.",
+        placeholder: "اختر حالة السيارة",
       },
     },
   }
@@ -186,7 +194,7 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
             <Info className="h-4 w-4 text-gray-400 hover:text-emerald-600 transition-colors" />
           </button>
         </TooltipTrigger>
-        <TooltipContent 
+        <TooltipContent
           className={cn(
             "max-w-xs bg-gray-900 text-white p-3 text-sm shadow-lg z-50",
             isRTL && "text-right"
@@ -266,7 +274,7 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
     <div className="p-3 sm:p-5 w-full relative" dir={isRTL ? "rtl" : "ltr"}>
       {/* Responsive grid: 1 column on mobile, 2 on tablet, 3-4 on desktop */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-        
+
         {/* Mileage */}
         <div dir={isRTL ? "rtl" : "ltr"}>
           <div className={cn(
@@ -291,7 +299,7 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
             required
           />
         </div>
-        
+
         {/* Doors */}
         <div dir={isRTL ? "rtl" : "ltr"}>
           <div className={cn(
@@ -402,7 +410,7 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
           tooltip={info.colorExterior.tooltip}
           required
         />
-        
+
         {/* Engine Size */}
         <SelectField
           label={labels.engineSize}
@@ -412,7 +420,17 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
           tooltip={info.engineSize.tooltip}
           required
         />
-        
+
+        {/* Vehicle Condition */}
+        <SelectField
+          label={labels.vehicleCondition}
+          field="condition"
+          options={options.vehicleCondition}
+          placeholder={info.condition.placeholder}
+          tooltip={info.condition.tooltip}
+          required
+        />
+
         {/* Fuel Type */}
         <SelectField
           label={labels.fuelType}
