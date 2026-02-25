@@ -12,13 +12,13 @@ export interface AddProductStepOneProps {
 export interface SelectedOptions {
     marka: string;
     model: string;
-    trim: string;
+    trim?: string;
     year: string;
     story: string;
     governorate: string;
     city: string;
     address: string;
-    [key: string]: string;
+    [key: string]: string | undefined;
 
 }
 
@@ -35,7 +35,7 @@ export interface SelectableListProps {
     type: string;
     options: Option[];
     selectedValue: string;
-    direction:string ;
+    direction: string;
     onSelect: (type: string, value: string) => void;
     required?: boolean;
 }

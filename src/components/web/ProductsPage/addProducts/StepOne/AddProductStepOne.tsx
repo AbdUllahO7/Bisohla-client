@@ -18,7 +18,6 @@ const AddProductStepOne: React.FC<AddProductStepOneProps> = ({
     direction,
     carMarka,
     carModel,
-    carTrim,
     governorateOptions,
     cityOptions,
     madeYear,
@@ -36,7 +35,6 @@ const AddProductStepOne: React.FC<AddProductStepOneProps> = ({
       setInitialEditData({
         marka: initialData.data[0].makeId?.toString() || "",
         model: initialData.data[0].modelId?.toString() || "",
-        trim: initialData.data[0].trimId?.toString() || "",
         year: initialData.data[0].details?.year?.toString() || "",
         story: initialData.data[0].story || "",
         governorate: initialData.data[0].governorate || "",
@@ -79,15 +77,6 @@ const AddProductStepOne: React.FC<AddProductStepOneProps> = ({
           required={true}
         />
 
-        <SelectableList
-          title={titles.trim}
-          type="trim"
-          options={selectedOptions.model ? carTrim : []}
-          selectedValue={selectedOptions.trim}
-          direction={direction}
-          onSelect={handleSelectChange}
-          required={true}
-        />
 
         <SelectableList
           title={titles.year}

@@ -64,11 +64,10 @@ export const getYearOptions = (t: (key: string) => string): Option[] => {
  */ export const validateForm = (selectedOptions: SelectedOptions): boolean => {
   return Boolean(
     selectedOptions.marka &&
-      selectedOptions.model &&
-      selectedOptions.trim &&
-      selectedOptions.year &&
-      selectedOptions.governorate &&
-      selectedOptions.city &&
-      selectedOptions.address,
+    selectedOptions.model &&
+    selectedOptions.year &&
+    selectedOptions.governorate &&
+    selectedOptions.city &&
+    selectedOptions.address,
   );
 };

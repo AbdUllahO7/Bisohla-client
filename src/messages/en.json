@@ -894,16 +894,23 @@
         },
         "bodyType": {
           "placeholder": "Body Type",
-          "suv": "suv",
+          "suv": "SUV",
           "sedan": "Sedan",
           "hatchback": "Hatchback",
           "coupe": "Coupe",
+          "grand_coupe": "Grand Coupe",
           "convertible": "Convertible",
-          "wagon": "Station",
+          "wagon": "Wagon",
+          "station_wagon": "Station Wagon",
           "van": "Van",
           "minivan": "Minivan",
           "pickup": "Pickup",
           "other": "Other"
+        },
+        "vehicleCondition": {
+          "new": "New (Zero)",
+          "used": "Used",
+          "used_like_new": "Used (Like New)"
         },
         "transmission": {
           "automatic": "Automatic",

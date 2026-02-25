@@ -4,8 +4,8 @@ import { CarListingFeature } from "@/core/entities/models/cars/cars.dto";
 // Component props type
 export interface AddProductStepTwoProps {
   onValidationChange: (isValid: boolean) => void;
-      isEditMode?: boolean;
-          initialData?: any; // You can provide a more specific type
+  isEditMode?: boolean;
+  initialData?: any; // You can provide a more specific type
 
 }
 
@@ -43,19 +43,20 @@ export interface CarInfoState {
   mileage: string;
   enginePower: string;
   engineSize: string;
-  doors: string;
+  doors?: string;
   plateNumber: string;
   vin: string | null;
-  
+  condition: string;
+
   selectedFeatures: CarListingFeature[]; // Array of selected features
   [key: string]: any;
 }
 
 // Define validation errors interface
 export interface ValidationErrors {
-  doors: string;
+  doors?: string;
   engineSize: string;
-  bodyType : string
+  bodyType: string
 }
 
 // Define category data structure
@@ -84,5 +85,6 @@ export const defaultState: CarInfoState = {
   doors: "",
   plateNumber: "",
   vin: "",
+  condition: "",
   selectedFeatures: [], // Empty array
 };
