@@ -60,6 +60,7 @@ import { INotificationUserUseCase } from '@/core/application/use-cases/users/not
 import { INewsVisitorController } from '@/core/application/controllers/visitors/news/news-controller.interface';
 import { INewsVisitorUseCase } from '@/core/application/use-cases/visitors/news/news.visitor.use-case.interface';
 import { INewsVisitorStrategy } from '@/core/application/strategies/visitors/news.visitor.strategy.interface';
+import { IAdVisitorRepository } from '@/core/application/repositories/ads/ads.visitor.repo.interface';
 
 export const DI_SYMBOLS = {
   // ? services
@@ -166,6 +167,7 @@ export const DI_SYMBOLS = {
   INewsVisitorUseCase: Symbol.for('INewsVisitorUseCase'),
   INewsVisitorStrategy: Symbol.for('INewsVisitorStrategy'),
 
+  IAdVisitorRepository: Symbol.for('IAdVisitorRepository'),
 };
 
 export interface DI_RETURN_TYPES {
@@ -261,6 +263,7 @@ export interface DI_RETURN_TYPES {
   INewsVisitorController: INewsVisitorController;
   INewsVisitorUseCase: INewsVisitorUseCase;
   INewsVisitorStrategy: INewsVisitorStrategy;
+  IAdVisitorRepository: IAdVisitorRepository;
 
   //repo patths
   usersRepoPath: string;

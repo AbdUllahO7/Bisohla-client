@@ -10,6 +10,7 @@ import ProductSkeleton from '../design/ProductSkeletonItem';
 import { useSession } from '@/hooks/auth/use-session';
 import SectionHeader from '@/components/SectionHeader';
 import { Car } from 'lucide-react';
+import AdSpace from '@/components/ads/AdSpace';
 
 const RentProduct = () => {
   const t = useTranslations('homePage');
@@ -45,8 +46,8 @@ const RentProduct = () => {
     const listings = Array.isArray(data?.data)
       ? data.data
       : Array.isArray(data?.data?.data)
-      ? data.data.data
-      : [];
+        ? data.data.data
+        : [];
 
     return listings.slice(0, 9);
   }, [data]);
@@ -97,7 +98,7 @@ const RentProduct = () => {
                     variant="center"
                     className="justify-center items-center  w-full"
                   >
-                    <CardAds isRent={false} />
+                    <AdSpace name="rent-page-ad-section" />
                   </Box>
                 )}
               </React.Fragment>

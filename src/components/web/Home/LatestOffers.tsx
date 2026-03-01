@@ -3,7 +3,6 @@ import React from 'react';
 import Box from '@/components/box/box';
 import Text from '@/components/text/text';
 import { useTranslations } from 'next-intl';
-import CardAds from '../design/CardAds';
 import { LatestOffersProps } from '@/types/homePageTypes';
 import { useCarListings } from '@/core/infrastructure-adapters/use-actions/visitors/car.visitor.use-actions';
 import ProductSkeleton from '../design/ProductSkeletonItem';
@@ -11,6 +10,7 @@ import { useSession } from '@/hooks/auth/use-session';
 import { RentProductCard } from '../design/RentProductCard';
 import SectionHeader from '@/components/SectionHeader';
 import { CarFrontIcon } from 'lucide-react';
+import AdSpace from '@/components/ads/AdSpace';
 
 const LatestOffers: React.FC<LatestOffersProps> = ({
   count,
@@ -51,8 +51,8 @@ const LatestOffers: React.FC<LatestOffersProps> = ({
     const listings = Array.isArray(data?.data)
       ? data.data
       : Array.isArray(data?.data?.data)
-      ? data.data.data
-      : [];
+        ? data.data.data
+        : [];
 
     const limit = count || 9;
     return listings.slice(0, limit);
@@ -180,9 +180,8 @@ const LatestOffers: React.FC<LatestOffersProps> = ({
           {/* Display actual cards when data is loaded */}
           {!isLoading && !error && carListings.length > 0 && (
             <Box
-              className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 ${
-                showTitle ? 'lg:grid-cols-5' : 'lg:grid-cols-4'
-              } gap-6 sm:w-[90%] xs:w-[90%] lg:w-full`}
+              className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 ${showTitle ? 'lg:grid-cols-5' : 'lg:grid-cols-4'
+                } gap-6 sm:w-[90%] xs:w-[90%] lg:w-full`}
               variant="center"
             >
               {carListings.map((card, index) => (
@@ -200,18 +199,16 @@ const LatestOffers: React.FC<LatestOffersProps> = ({
                       priceWord={t('latestOffers.price')}
                     />
                   </div>
-                  {/* Render CardAds only after the first two cards */}
                   {index === 1 && (
-                    <Box
-                      variant="center"
-                      className="justify-center items-center animate-fadeInUp"
+                    <div
+                      className="w-full h-[370px] bg-white rounded-lg shadow-sm animate-fadeInUp overflow-hidden relative"
                       style={{
-                        animationDelay: `${index * 0.1}s`,
+                        animationDelay: `${(index + 1) * 0.1}s`,
                         animationFillMode: 'both',
                       }}
                     >
-                      <CardAds isRent={false} />
-                    </Box>
+                      <AdSpace name="lateset-offers-card" className="w-full h-full" />
+                    </div>
                   )}
                 </React.Fragment>
               ))}

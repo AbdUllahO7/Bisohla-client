@@ -13,6 +13,7 @@ import ProductSkeleton from '../../design/ProductSkeletonItem';
 import { RentProductCard } from '../../design/RentProductCard';
 import CardAds from '../../design/CardAds';
 import { logger } from '@/lib/logger';
+import AdSpace from '@/components/ads/AdSpace';
 
 export interface SimilarAdsProps {
   count?: number; // Optional count of cards to display
@@ -72,8 +73,8 @@ const SimilarAds: React.FC<SimilarAdsProps> = ({
     const listings = Array.isArray(data?.data)
       ? data.data
       : Array.isArray(data?.data?.data)
-      ? data.data.data
-      : [];
+        ? data.data.data
+        : [];
 
     const limit = count || 9;
     return listings.slice(0, limit);
@@ -201,9 +202,8 @@ const SimilarAds: React.FC<SimilarAdsProps> = ({
           {/* Display actual cards when data is loaded */}
           {!isLoading && !error && carListings.length > 0 && (
             <Box
-              className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 ${
-                showTitle ? 'lg:grid-cols-5' : 'lg:grid-cols-4'
-              } gap-6 sm:w-[90%] xs:w-[90%] lg:w-full`}
+              className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 ${showTitle ? 'lg:grid-cols-5' : 'lg:grid-cols-4'
+                } gap-6 sm:w-[90%] xs:w-[90%] lg:w-full`}
               variant="center"
             >
               {carListings.map((card, index) => (
@@ -231,7 +231,7 @@ const SimilarAds: React.FC<SimilarAdsProps> = ({
                         animationFillMode: 'both',
                       }}
                     >
-                      <CardAds isRent={false} />
+                      <AdSpace name="sale-page-ads-section" />
                     </Box>
                   )}
                 </React.Fragment>
