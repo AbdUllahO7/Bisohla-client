@@ -4,6 +4,7 @@ import { useLocale, useTranslations } from "next-intl";
 import {
     useCarMakes,
     useCarModels,
+    useCarTrims,
 } from "@/core/infrastructure-adapters/use-actions/visitors/car.visitor.use-actions";
 import { Filter } from "@/core/entities/api/api";
 import { SelectedOptions } from "./types";
@@ -78,6 +79,7 @@ export const useProductStepOne = (onValidationChange: (isValid: boolean) => void
     // Data fetching with appropriate filters
     const { data: carMakesResponse, error: makesError } = useCarMakes({ pageSize: 200 });
     const { data: carModelsResponse, error: modelsError } = useCarModels({ where: makeFilter, pageSize: 200 });
+    const { data: carTrimsResponse, error: trimsError } = useCarTrims({ where: modelFilter, pageSize: 200 });
 
 
     // Transform data for SelectableList components
@@ -86,6 +88,7 @@ export const useProductStepOne = (onValidationChange: (isValid: boolean) => void
             value: make.id.toString(),
             label: make.name,
             logoUrl: make.logoUrl,
+            isCarTrimRequired: make.isCarTrimRequired,
         })).sort((a, b) => a.label.localeCompare(b.label)) || [],
         [carMakesResponse]
     );
@@ -97,6 +100,19 @@ export const useProductStepOne = (onValidationChange: (isValid: boolean) => void
         })).sort((a, b) => a.label.localeCompare(b.label)) || [],
         [carModelsResponse]
     );
+
+    const carTrim = useMemo(() =>
+        carTrimsResponse?.data?.data?.map(trim => ({
+            value: trim.id.toString(),
+            label: trim.name,
+        })).sort((a, b) => a.label.localeCompare(b.label)) || [],
+        [carTrimsResponse]
+    );
+
+    const isTrimRequired = useMemo(() => {
+        const selectedMake = carMarka.find(m => m.value === selectedOptions.marka);
+        return !!selectedMake?.isCarTrimRequired;
+    }, [carMarka, selectedOptions.marka]);
 
 
     // Location options
@@ -115,6 +131,7 @@ export const useProductStepOne = (onValidationChange: (isValid: boolean) => void
                     ...prev,
                     [type]: value,
                     model: "",
+                    trim: "",
                 }));
             } else {
                 setSelectedOptions(prev => ({
@@ -130,6 +147,7 @@ export const useProductStepOne = (onValidationChange: (isValid: boolean) => void
                 setSelectedOptions(prev => ({
                     ...prev,
                     [type]: value,
+                    trim: "",
                 }));
             } else {
                 setSelectedOptions(prev => ({
@@ -174,21 +192,22 @@ export const useProductStepOne = (onValidationChange: (isValid: boolean) => void
 
     // Validate and notify parent component
     useEffect(() => {
-        const isValid = validateForm(selectedOptions);
+        const isValid = validateForm(selectedOptions, isTrimRequired);
 
         if (isValid !== prevValidationState && onValidationChange) {
             onValidationChange(isValid);
             setPrevValidationState(isValid);
         }
-    }, [selectedOptions, onValidationChange, prevValidationState]);
+    }, [selectedOptions, onValidationChange, prevValidationState, isTrimRequired]);
 
     // Check for errors
-    const hasErrors = makesError || modelsError;
+    const hasErrors = makesError || modelsError || trimsError;
 
     // Translated titles
     const titles = useMemo(() => ({
         model: t("enteredData.stepOne.model.title"),
         brand: t("enteredData.stepOne.branda.title"),
+        trim: isArabic ? "الفئة" : "Trim",
         year: t("enteredData.stepOne.madeYear.title"),
         governorate: isArabic ? "المحافظة" : "Governorate",
         city: isArabic ? "المدينة" : "City",
@@ -206,6 +225,8 @@ export const useProductStepOne = (onValidationChange: (isValid: boolean) => void
         direction,
         carMarka,
         carModel,
+        carTrim,
+        isTrimRequired,
         governorateOptions,
         cityOptions,
         madeYear,
