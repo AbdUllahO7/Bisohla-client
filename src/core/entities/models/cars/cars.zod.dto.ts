@@ -11,6 +11,7 @@ import {
   RentType,
   DamageZone,
   DamageType,
+  VehicleCondition,
 } from '@/core/entities/enums/cars.enums';
 import { Currency } from '@/core/entities/enums/currency.enum';
 import { SyriaCity, SyriaGovernorate } from '../../enums/syria.enums';
@@ -118,6 +119,7 @@ export const CreateCarListingSchema = z.object({
   colorExterior: z.string().nullable().optional(),
   vin: z.string().nullable().optional(),
   plateNumber: z.string().nullable().optional(),
+  condition: z.nativeEnum(VehicleCondition).nullable().optional(),
 
   // Features
   featureIds: z.array(z.number().int().positive()).optional(),

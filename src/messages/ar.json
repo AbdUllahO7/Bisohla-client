@@ -694,6 +694,12 @@
       "engineSize": "حجم المحرك",
       "year": "السنة",
       "enginePower": "قوة المحرك",
+      "vehicleCondition": {
+        "label": "حالة السيارة",
+        "new": "جديد",
+        "used": "مستعمل",
+        "certified_pre_owned": "مستعملة معتمدة"
+      },
       "plateNumber": "رقم اللوحة",
       "mileage": "العمر",
       "doors": "الأبواب",
@@ -843,9 +849,9 @@
           "other": "أخرى"
         },
         "vehicleCondition": {
-          "new": "جديد (زيرو)",
+          "new": "جديد",
           "used": "مستعمل",
-          "used_like_new": "مستعمل شبه الجديد"
+          "certified_pre_owned": "مستعملة معتمدة"
         },
         "transmission": {
           "automatic": "أوتوماتيك",

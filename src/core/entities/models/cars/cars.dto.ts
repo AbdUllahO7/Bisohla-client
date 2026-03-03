@@ -8,6 +8,7 @@ import {
   RentType,
   SaveStatus,
   Transmission,
+  VehicleCondition,
 } from '../../enums/cars.enums';
 import { Currency } from '../../enums/currency.enum';
 import { SyriaCity, SyriaGovernorate } from '../../enums/syria.enums';
@@ -100,6 +101,7 @@ export interface CarDetails {
   colorExterior: string | null;
   vin: string | null;
   plateNumber: string | null;
+  condition: VehicleCondition;
   createdAt: string | Date;
   updatedAt: string | Date;
   deletedAt: string | Date | null;
@@ -118,6 +120,7 @@ export interface CreateCarDetailsDto {
   colorExterior?: string | null;
   vin?: string | null;
   plateNumber?: string | null;
+  condition?: string | null;
 }
 
 // Update DTO for CarDetails
