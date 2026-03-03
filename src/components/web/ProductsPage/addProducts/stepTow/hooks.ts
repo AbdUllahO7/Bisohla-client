@@ -7,7 +7,6 @@ import {
   getColorOptions,
   getFuelTypeOptions,
   getTransmissionOptions,
-  getFeatureCategoryOptions,
   getVehicleConditionOptions,
   FeatureCategory
 } from "@/core/entities/enums/cars.enums";

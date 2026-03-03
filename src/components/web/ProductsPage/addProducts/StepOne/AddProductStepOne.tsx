@@ -18,6 +18,8 @@ const AddProductStepOne: React.FC<AddProductStepOneProps> = ({
     direction,
     carMarka,
     carModel,
+    carTrim,
+    isTrimRequired,
     governorateOptions,
     cityOptions,
     madeYear,
@@ -76,6 +78,18 @@ const AddProductStepOne: React.FC<AddProductStepOneProps> = ({
           onSelect={handleSelectChange}
           required={true}
         />
+
+        {isTrimRequired && (
+          <SelectableList
+            title={titles.trim}
+            type="trim"
+            options={selectedOptions.model ? carTrim : []}
+            selectedValue={selectedOptions.trim || ""}
+            direction={direction}
+            onSelect={handleSelectChange}
+            required={true}
+          />
+        )}
 
 
         <SelectableList

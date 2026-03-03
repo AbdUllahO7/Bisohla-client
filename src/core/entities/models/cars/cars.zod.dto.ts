@@ -20,6 +20,7 @@ export const CreateCarMakeSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   logoUrl: z.string().url('Invalid URL').nullable().optional(),
   description: z.string().nullable().optional(),
+  isCarTrimRequired: z.boolean().default(false).optional(),
 });
 
 export type CreateCarMakeDto = z.infer<typeof CreateCarMakeSchema>;
