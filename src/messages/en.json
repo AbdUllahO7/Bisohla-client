@@ -668,6 +668,12 @@
       "engineSize": "engine Size",
       "year": "year",
       "enginePower": "Engine Power",
+      "vehicleCondition": {
+        "label": "Vehicle Condition",
+        "new": "New",
+        "used": "Used",
+        "certified_pre_owned": "Certified Pre-Owned"
+      },
       "plateNumber": "plate Number",
       "mileage": "mile Age",
       "doors": "Doors",
@@ -908,9 +914,9 @@
           "other": "Other"
         },
         "vehicleCondition": {
-          "new": "New (Zero)",
+          "new": "New",
           "used": "Used",
-          "used_like_new": "Used (Like New)"
+          "certified_pre_owned": "Certified Pre-Owned"
         },
         "transmission": {
           "automatic": "Automatic",

@@ -171,9 +171,9 @@ export enum SaveStatus {
  * Represents vehicle condition
  */
 export enum VehicleCondition {
-  NEW = 'new_zero',
+  NEW = 'new',
   USED = 'used',
-  USED_LIKE_NEW = 'used_like_new',
+  CERTIFIED_PRE_OWNED = 'certified_pre_owned',
 }
 
 /**
@@ -375,20 +375,20 @@ export const getVehicleConditionOptions = (t: any): SelectOption[] => {
   const options = [
     {
       value: VehicleCondition.NEW,
-      label: t('vehicleCondition.new', { defaultValue: 'New (Zero)' }),
+      label: t('vehicleCondition.new', { defaultValue: 'New' }),
     },
     {
       value: VehicleCondition.USED,
       label: t('vehicleCondition.used', { defaultValue: 'Used' }),
     },
     {
-      value: VehicleCondition.USED_LIKE_NEW,
-      label: t('vehicleCondition.used_like_new', {
-        defaultValue: 'Used (Like New)',
+      value: VehicleCondition.CERTIFIED_PRE_OWNED,
+      label: t('vehicleCondition.certified_pre_owned', {
+        defaultValue: 'Certified Pre-Owned',
       }),
     },
   ];
-  return options; // Keep specific order: New, Used, Used like new
+  return options; // Keep specific order: New, Used, Certified Pre-Owned
 };
 
 /**
