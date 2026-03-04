@@ -19,8 +19,6 @@ const AdSpace: React.FC<AdSpaceProps> = ({ name, platform = 'web', className = '
     const [error, setError] = useState<string | null>(null);
     const trackedRef = useRef<boolean>(false);
 
-
-
     useEffect(() => {
         let isMounted = true;
 
@@ -33,17 +31,12 @@ const AdSpace: React.FC<AdSpaceProps> = ({ name, platform = 'web', className = '
                     if (response.success && response.data) {
                         let extractedAds: AdContentDto[] = [];
 
-                        // Handle the case where the API returns a map of slot keys to ads: [{ "slot-key": [ads] }]
-                        // or just { "slot-key": [ads] }
                         const data = response.data;
                         if (Array.isArray(data) && data.length > 0 && typeof data[0] === 'object' && !('id' in data[0])) {
-                            // It's the [{ "slot-key": [ads] }] format
                             extractedAds = data[0][name] || [];
                         } else if (typeof data === 'object' && !Array.isArray(data) && name in data) {
-                            // It's the { "slot-key": [ads] } format
                             extractedAds = (data as any)[name] || [];
                         } else {
-                            // Fallback to the original logic
                             extractedAds = Array.isArray(data) ? data : [data];
                         }
 
@@ -78,21 +71,28 @@ const AdSpace: React.FC<AdSpaceProps> = ({ name, platform = 'web', className = '
                     console.error('Failed to track impressions:', err);
                 }
             };
-
             trackImpressions();
         }
     }, [ads]);
 
+    // ── Loading state ──────────────────────────────────────────────────────
     if (isLoading) {
-        return <Skeleton className={`w-full min-h-[200px] rounded-lg ${className}`} />;
-    }
-
-    if (error || ads.length === 0) {
-        // Always show fallback content if provided (in both dev and production)
+        // KEY FIX: If a fallback is provided, show it IMMEDIATELY while ads load silently.
+        // This prevents blank/skeleton gaps for sections that always need to show something.
         if (fallbackContent) {
             return <>{fallbackContent}</>;
         }
-        // In development with no fallback, show a debug label to help identify unmapped slots
+        // No fallback — show skeleton placeholder while loading
+        return <Skeleton className={`w-full min-h-[200px] rounded-lg ${className}`} />;
+    }
+
+    // ── No ads returned (error or empty) ─────────────────────────────────
+    if (error || ads.length === 0) {
+        // Always show fallback if provided
+        if (fallbackContent) {
+            return <>{fallbackContent}</>;
+        }
+        // Dev-only debug label for slots with no fallback configured
         if (process.env.NODE_ENV === 'development') {
             return (
                 <div className={`text-[10px] text-gray-300 border border-dashed border-gray-200 p-2 text-center rounded ${className}`}>
@@ -103,6 +103,7 @@ const AdSpace: React.FC<AdSpaceProps> = ({ name, platform = 'web', className = '
         return null;
     }
 
+    // ── Ads loaded — render them ──────────────────────────────────────────
     return (
         <div className={`w-full h-full flex flex-col gap-4 ad-space-${name.replace(/\s+/g, '-')} ${className}`}>
             {ads.map((ad, index) => (

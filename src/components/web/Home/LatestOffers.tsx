@@ -11,6 +11,7 @@ import { RentProductCard } from '../design/RentProductCard';
 import SectionHeader from '@/components/SectionHeader';
 import { CarFrontIcon } from 'lucide-react';
 import AdSpace from '@/components/ads/AdSpace';
+import CardAds from '../design/CardAds';
 
 const LatestOffers: React.FC<LatestOffersProps> = ({
   count,
@@ -210,26 +211,7 @@ const LatestOffers: React.FC<LatestOffersProps> = ({
                       <AdSpace
                         name="lateset-offers-card"
                         className="w-full h-full"
-                        fallbackContent={
-                          <div
-                            className="w-full h-full flex flex-col items-center justify-center rounded-lg text-white text-center p-6 gap-3"
-                            style={{
-                              background:
-                                'linear-gradient(135deg, #198341 0%, #0f5c2e 50%, #1a6b39 100%)',
-                            }}
-                          >
-                            <div className="text-5xl mb-2">🚗</div>
-                            <h3 className="text-xl font-bold leading-tight">
-                              {t('ads.advertiseTitle')}
-                            </h3>
-                            <p className="text-sm opacity-80 max-w-[200px]">
-                              {t('ads.advertiseSubtitle')}
-                            </p>
-                            <span className="mt-2 px-5 py-2 bg-white text-primary font-semibold rounded-full text-sm">
-                              {t('ads.advertiseButton')}
-                            </span>
-                          </div>
-                        }
+                        fallbackContent={<CardAds isRent={false} />}
                       />
                     </div>
                   )}

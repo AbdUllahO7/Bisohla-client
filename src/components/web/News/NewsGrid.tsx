@@ -5,6 +5,8 @@ import NewsCard from '@/components/web/Home/NewsCard';
 import Pagination from '@/components/Pagination';
 import { SelectNewsArticleDto } from '@/core/entities/models/news/news.dto';
 import AdSpace from '@/components/ads/AdSpace';
+import AdsSectionProduct from '@/components/web/ProductsPage/product/AdsSectionProduct';
+import CardAds from '@/components/web/design/CardAds';
 
 interface NewsGridProps {
   articles: SelectNewsArticleDto[];
@@ -72,33 +74,22 @@ export default function NewsGrid({
         {articles.map((article, index) => (
           <React.Fragment key={article.id}>
             <NewsCard article={article} />
-            {/* Insert a full-width ad after every 6 articles */}
-            {(index + 1) % 6 === 0 && index + 1 < articles.length && (
-              <div className="col-span-full h-[160px] rounded-xl overflow-hidden">
+            {/* Insert a card-sized ad after every 5 articles */}
+            {(index + 1) % 5 === 0 && (
+              <div className="col-span-full">
                 <AdSpace
                   name="news-page-ads-section"
-                  className="w-full h-full"
-                  fallbackContent={
-                    <div
-                      className="w-full h-full flex items-center justify-center rounded-xl text-white gap-6 px-8"
-                      style={{
-                        background:
-                          'linear-gradient(135deg, #198341 0%, #0f5c2e 60%, #ABDE3B 100%)',
-                      }}
-                    >
-                      <div className="text-4xl">📢</div>
-                      <div className="text-start">
-                        <h3 className="text-lg font-bold">أعلن معنا / Advertise With Us</h3>
-                        <p className="text-sm opacity-80">تواصل مع آلاف يومياً · Reach thousands daily</p>
-                      </div>
-                    </div>
-                  }
+                  className="w-full"
+                  fallbackContent={<CardAds isRent={false} />}
                 />
               </div>
             )}
           </React.Fragment>
         ))}
       </div>
+
+      {/* Always show an ad after the articles grid */}
+      <AdsSectionProduct />
 
       {paginationMeta && paginationMeta.totalPages > 1 && (
         <Pagination
