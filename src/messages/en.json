@@ -361,6 +361,11 @@
         "bishola": "Bishola"
       }
     },
+    "ads": {
+      "advertiseTitle": "Advertise With Us!",
+      "advertiseSubtitle": "Reach thousands of car buyers and renters daily.",
+      "advertiseButton": "Contact Us"
+    },
     "faq": {
       "title": "FAQ",
       "showMore": "Show all",

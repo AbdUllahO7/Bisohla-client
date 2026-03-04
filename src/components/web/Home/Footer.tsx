@@ -24,7 +24,7 @@ const Footer = ({ isUserProfile }: { isUserProfile?: boolean }) => {
   return (
     <Box
       variant="column"
-      className={`relative z-50   pt-10 pb-10 justify-around w-full `}
+      className={`relative z-10   pt-10 pb-10 justify-around w-full `}
     >
       <Box
         variant="row"

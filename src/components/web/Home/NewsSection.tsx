@@ -11,6 +11,7 @@ import { useGetNewsArticles } from '@/hooks/use-news';
 import { SelectNewsArticleDto } from '@/core/entities/models/news/news.dto';
 import SectionHeader from '@/components/SectionHeader'; // Added import
 import { logger } from '@/lib/logger';
+import AdSpace from '@/components/ads/AdSpace';
 
 interface NewsSectionProps {
   className?: string;
@@ -166,23 +167,48 @@ const NewsSection: React.FC<NewsSectionProps> = ({
 
           {/* News Grid */}
           {!isLoading && !error && hasArticles && (
-            <Box
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-              variant="center"
-            >
-              {articles.map((article: SelectNewsArticleDto, index: number) => (
-                <div
-                  key={article.id}
-                  className="animate-fadeInUp h-full"
-                  style={{
-                    animationDelay: `${index * 0.1}s`,
-                    animationFillMode: 'both',
-                  }}
-                >
-                  <NewsCard article={article} />
-                </div>
-              ))}
-            </Box>
+            <>
+              <Box
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                variant="center"
+              >
+                {articles.map((article: SelectNewsArticleDto, index: number) => (
+                  <div
+                    key={article.id}
+                    className="animate-fadeInUp h-full"
+                    style={{
+                      animationDelay: `${index * 0.1}s`,
+                      animationFillMode: 'both',
+                    }}
+                  >
+                    <NewsCard article={article} />
+                  </div>
+                ))}
+              </Box>
+
+              {/* News Section Ad */}
+              <div className="w-full mt-8 h-[160px] rounded-xl overflow-hidden">
+                <AdSpace
+                  name="news-section-ad"
+                  className="w-full h-full"
+                  fallbackContent={
+                    <div
+                      className="w-full h-full flex items-center justify-center rounded-xl text-white gap-6 px-8"
+                      style={{
+                        background:
+                          'linear-gradient(135deg, #198341 0%, #0f5c2e 60%, #ABDE3B 100%)',
+                      }}
+                    >
+                      <div className="text-5xl">📰</div>
+                      <div className="text-start">
+                        <h3 className="text-xl font-bold">{t('ads.advertiseTitle')}</h3>
+                        <p className="text-sm opacity-80">{t('ads.advertiseSubtitle')}</p>
+                      </div>
+                    </div>
+                  }
+                />
+              </div>
+            </>
           )}
         </Box>
       </Box>
