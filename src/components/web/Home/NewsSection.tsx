@@ -12,6 +12,7 @@ import { SelectNewsArticleDto } from '@/core/entities/models/news/news.dto';
 import SectionHeader from '@/components/SectionHeader'; // Added import
 import { logger } from '@/lib/logger';
 import AdSpace from '@/components/ads/AdSpace';
+import AdsSectionProduct from '@/components/web/ProductsPage/product/AdsSectionProduct';
 
 interface NewsSectionProps {
   className?: string;
@@ -187,27 +188,7 @@ const NewsSection: React.FC<NewsSectionProps> = ({
               </Box>
 
               {/* News Section Ad */}
-              <div className="w-full mt-8 h-[160px] rounded-xl overflow-hidden">
-                <AdSpace
-                  name="news-section-ad"
-                  className="w-full h-full"
-                  fallbackContent={
-                    <div
-                      className="w-full h-full flex items-center justify-center rounded-xl text-white gap-6 px-8"
-                      style={{
-                        background:
-                          'linear-gradient(135deg, #198341 0%, #0f5c2e 60%, #ABDE3B 100%)',
-                      }}
-                    >
-                      <div className="text-5xl">📰</div>
-                      <div className="text-start">
-                        <h3 className="text-xl font-bold">{t('ads.advertiseTitle')}</h3>
-                        <p className="text-sm opacity-80">{t('ads.advertiseSubtitle')}</p>
-                      </div>
-                    </div>
-                  }
-                />
-              </div>
+              <AdsSectionProduct />
             </>
           )}
         </Box>

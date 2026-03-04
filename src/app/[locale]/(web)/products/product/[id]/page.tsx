@@ -14,6 +14,7 @@ import MobileProductClient from './mobile-product-client';
 import { APP_URL } from '@/core/lib/web/constants';
 import SimilarAds from '@/components/web/ProductsPage/product/SimilarAds';
 import SimilarCarAlertBanner from '@/components/web/ProductsPage/product/SimilarCarAlertBanner';
+import AdsSectionProduct from '@/components/web/ProductsPage/product/AdsSectionProduct';
 import { logger } from '@/lib/logger';
 
 interface ProductPageProps {
@@ -146,6 +147,11 @@ const ProductPage = async ({ params, searchParams }: ProductPageProps) => {
             locale={locale}
             isProfileView={isProfileView}
           />
+        </div>
+
+        {/* Ad Section — between product content and Similar Ads */}
+        <div className="container">
+          <AdsSectionProduct />
         </div>
 
         {/* Similar Ads */}
