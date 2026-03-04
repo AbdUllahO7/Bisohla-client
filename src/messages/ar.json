@@ -363,6 +363,11 @@
         "bishola": "بسـهولـــة"
       }
     },
+    "ads": {
+      "advertiseTitle": "أعلن معنا!",
+      "advertiseSubtitle": "تواصل مع آلاف المشترين والمستأجرين يومياً.",
+      "advertiseButton": "تواصل معنا"
+    },
     "faq": {
       "title": "الأسئلة الشائعة",
       "showMore": "عرض المزيد",

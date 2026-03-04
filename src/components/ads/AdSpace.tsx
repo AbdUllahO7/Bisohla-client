@@ -10,25 +10,24 @@ interface AdSpaceProps {
     name: string;
     platform?: string;
     className?: string;
+    fallbackContent?: React.ReactNode;
 }
 
-const AdSpace: React.FC<AdSpaceProps> = ({ name, platform = 'web', className = '' }) => {
+const AdSpace: React.FC<AdSpaceProps> = ({ name, platform = 'web', className = '', fallbackContent }) => {
     const [ads, setAds] = useState<AdContentDto[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const trackedRef = useRef<boolean>(false);
 
-    console.log('ads', ads)
+
 
     useEffect(() => {
         let isMounted = true;
 
         const fetchAds = async () => {
             setIsLoading(true);
-            console.log(`[AdSpace DEBUG] Fetching ads for slot key: "${name}" (Platform: ${platform})`);
             try {
                 const response = await resolveBySlotKeyAction(name, platform);
-                console.log(`[AdSpace DEBUG] Response for slot key "${name}":`, response);
 
                 if (isMounted) {
                     if (response.success && response.data) {
@@ -48,15 +47,12 @@ const AdSpace: React.FC<AdSpaceProps> = ({ name, platform = 'web', className = '
                             extractedAds = Array.isArray(data) ? data : [data];
                         }
 
-                        console.log(`[AdSpace DEBUG] Successfully extracted ${extractedAds.length} ads for slot key "${name}"`);
                         setAds(extractedAds);
                     } else {
-                        console.warn(`[AdSpace DEBUG] Slot key "${name}" returned no ads or failed. Message: ${response.message}`);
                         setError(response.message || 'No ads returned');
                     }
                 }
             } catch (err) {
-                console.error(`[AdSpace DEBUG] Fatal error fetching slot key "${name}":`, err);
                 if (isMounted) setError('An error occurred during fetch');
             } finally {
                 if (isMounted) setIsLoading(false);
@@ -92,7 +88,11 @@ const AdSpace: React.FC<AdSpaceProps> = ({ name, platform = 'web', className = '
     }
 
     if (error || ads.length === 0) {
-        // In development, show a small label if ads are missing to help debug
+        // Always show fallback content if provided (in both dev and production)
+        if (fallbackContent) {
+            return <>{fallbackContent}</>;
+        }
+        // In development with no fallback, show a debug label to help identify unmapped slots
         if (process.env.NODE_ENV === 'development') {
             return (
                 <div className={`text-[10px] text-gray-300 border border-dashed border-gray-200 p-2 text-center rounded ${className}`}>
@@ -104,7 +104,7 @@ const AdSpace: React.FC<AdSpaceProps> = ({ name, platform = 'web', className = '
     }
 
     return (
-        <div className={`w-full h-full ad-space-${name.replace(/\s+/g, '-')} ${className}`}>
+        <div className={`w-full h-full flex flex-col gap-4 ad-space-${name.replace(/\s+/g, '-')} ${className}`}>
             {ads.map((ad, index) => (
                 <AdRenderer key={ad.id || `ad-${index}`} ad={ad} />
             ))}
