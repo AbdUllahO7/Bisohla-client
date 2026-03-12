@@ -13,6 +13,7 @@ import SectionHeader from '@/components/SectionHeader'; // Added import
 import { logger } from '@/lib/logger';
 import AdSpace from '@/components/ads/AdSpace';
 import AdsSectionProduct from '@/components/web/ProductsPage/product/AdsSectionProduct';
+import CardAds from '@/components/web/design/CardAds';
 
 interface NewsSectionProps {
   className?: string;
@@ -173,18 +174,40 @@ const NewsSection: React.FC<NewsSectionProps> = ({
                 className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
                 variant="center"
               >
-                {articles.map((article: SelectNewsArticleDto, index: number) => (
-                  <div
-                    key={article.id}
-                    className="animate-fadeInUp h-full"
-                    style={{
-                      animationDelay: `${index * 0.1}s`,
-                      animationFillMode: 'both',
-                    }}
-                  >
-                    <NewsCard article={article} />
-                  </div>
-                ))}
+                {articles.map((article: SelectNewsArticleDto, index: number) => {
+                  const showAdSlot = (index + 1) % 2 === 0;
+                  return (
+                    <React.Fragment key={article.id}>
+                      <div
+                        className="animate-fadeInUp h-full"
+                        style={{
+                          animationDelay: `${index * 0.1}s`,
+                          animationFillMode: 'both',
+                        }}
+                      >
+                        <NewsCard article={article} />
+                      </div>
+                      {/* Insert a card-sized ad after every 2 articles */}
+                      {showAdSlot && (
+                        <div
+                          className="animate-fadeInUp h-full"
+                          style={{
+                            animationDelay: `${(index + 0.5) * 0.1}s`,
+                            animationFillMode: 'both',
+                          }}
+                        >
+                          <AdSpace
+                            name="news-page-ads-section"
+                            className="w-full h-full"
+                            wrapperClassName="w-full h-full min-h-[380px]"
+                            fallbackContent={<CardAds isRent={false} />}
+                            isClosable={false}
+                          />
+                        </div>
+                      )}
+                    </React.Fragment>
+                  );
+                })}
               </Box>
 
               {/* News Section Ad */}

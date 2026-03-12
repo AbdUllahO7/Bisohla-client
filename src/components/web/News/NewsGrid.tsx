@@ -71,21 +71,24 @@ export default function NewsGrid({
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-fadeIn">
-        {articles.map((article, index) => (
-          <React.Fragment key={article.id}>
-            <NewsCard article={article} />
-            {/* Insert a card-sized ad after every 5 articles */}
-            {(index + 1) % 5 === 0 && (
-              <div className="col-span-full">
+        {articles.map((article, index) => {
+          const showAdSlot = (index + 1) % 2 === 0;
+          return (
+            <React.Fragment key={article.id}>
+              <NewsCard article={article} />
+              {/* Insert a card-sized ad after every 2 articles */}
+              {showAdSlot && (
                 <AdSpace
                   name="news-page-ads-section"
-                  className="w-full"
+                  className="w-full h-full"
+                  wrapperClassName="w-full h-full min-h-[380px]"
                   fallbackContent={<CardAds isRent={false} />}
+                  isClosable={false}
                 />
-              </div>
-            )}
-          </React.Fragment>
-        ))}
+              )}
+            </React.Fragment>
+          );
+        })}
       </div>
 
       {/* Always show an ad after the articles grid */}

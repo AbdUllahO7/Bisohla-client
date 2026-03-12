@@ -10,55 +10,90 @@ import { X, Play, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
 
 interface AdRendererProps {
     ad: AdContentDto;
+    isClosable?: boolean;
 }
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
-/** Shared media renderer — picks video or image depending on adType / available URLs */
+/** Extracts YouTube video ID from various URL formats */
+const getYoutubeId = (url?: string) => {
+    if (!url) return null;
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+};
+
+/** Shared media renderer — picks video, youtube, or image depending on adType / available URLs */
 const AdMedia = ({
     imageUrl,
     videoUrl,
     title,
     adType,
+    ad, // Added root ad object
     className = 'w-full h-full object-cover',
 }: {
     imageUrl?: string;
     videoUrl?: string;
     title?: string;
     adType: string;
+    ad?: AdContentDto; // Added root ad object
     className?: string;
 }) => {
+    const rawType = (adType || '').toLowerCase().replace(/_/g, ' ');
+    // Do not render media if it is text-only
+    if (rawType === 'text only' || rawType === 'text_only' || rawType === 'text') {
+        return null;
+    }
+
+    // --- FALLBACK LOGIC ---
+    // If translation media is missing, try root ad properties
+    const effectiveImageUrl = imageUrl || ad?.imageUrl;
+    const effectiveVideoUrl = videoUrl || ad?.videoUrl;
+    const effectiveTitle = title || ad?.name;
+
     // Decide which media to render
+    const youtubeId = getYoutubeId(effectiveVideoUrl);
     const isVideo =
         adType === 'video' ||
         adType === 'animated_gif' ||
-        (videoUrl && !imageUrl);
+        (effectiveVideoUrl && !effectiveImageUrl);
 
-    if (isVideo && videoUrl) {
+    if (isVideo && effectiveVideoUrl) {
+        if (youtubeId) {
+            return (
+                <iframe
+                    src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=1&loop=1&playlist=${youtubeId}&controls=0&modestbranding=1&rel=0&showinfo=0`}
+                    className={className}
+                    allow="autoplay; encrypted-media"
+                    allowFullScreen
+                    title={effectiveTitle || 'Advertisement YouTube video'}
+                />
+            );
+        }
         return (
             <video
-                src={videoUrl}
+                src={effectiveVideoUrl}
                 className={className}
                 autoPlay
                 muted
                 loop
                 playsInline
                 preload="metadata"
-                aria-label={title || 'Advertisement video'}
+                aria-label={effectiveTitle || 'Advertisement video'}
             />
         );
     }
 
-    if (adType === 'animated_gif' && imageUrl) {
+    if (adType === 'animated_gif' && effectiveImageUrl) {
         // eslint-disable-next-line @next/next/no-img-element
-        return <img src={imageUrl} alt={title || 'Advertisement'} className={className} />;
+        return <img src={effectiveImageUrl} alt={effectiveTitle || 'Advertisement'} className={className} />;
     }
 
-    if (imageUrl) {
+    if (effectiveImageUrl) {
         return (
             <Image
-                src={imageUrl}
-                alt={title || 'Advertisement'}
+                src={effectiveImageUrl}
+                alt={effectiveTitle || 'Advertisement'}
                 fill
                 className={className}
                 sizes="(max-width: 768px) 100vw, 50vw"
@@ -73,24 +108,26 @@ const AdMedia = ({
 
 /** image_only — full image/video fill, no text overlay */
 const ImageOnlyAd = ({ ad, translation }: any) => (
-    <div className="relative w-full h-full overflow-hidden rounded-lg bg-gray-100">
+    <div className="relative w-full h-full min-h-[250px] overflow-hidden rounded-lg bg-gray-100">
         <AdMedia
             imageUrl={translation?.imageUrl}
             videoUrl={translation?.videoUrl}
             title={translation?.title}
             adType={ad.adType}
+            ad={ad}
         />
     </div>
 );
 
 /** standard_card — image with text overlay at bottom */
 const StandardCardAd = ({ ad, translation }: any) => (
-    <div className="relative w-full h-full overflow-hidden rounded-lg shadow-sm hover:shadow-md transition-shadow bg-gray-50 border border-gray-100">
+    <div className="relative w-full h-full min-h-[250px] overflow-hidden rounded-lg shadow-sm hover:shadow-md transition-shadow bg-gray-50 border border-gray-100">
         <AdMedia
             imageUrl={translation?.imageUrl}
             videoUrl={translation?.videoUrl}
             title={translation?.title}
             adType={ad.adType}
+            ad={ad}
         />
         {(translation?.title || translation?.description) && (
             <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent text-white">
@@ -116,6 +153,7 @@ const HeroBannerAd = ({ ad, translation }: any) => (
             videoUrl={translation?.videoUrl}
             title={translation?.title}
             adType={ad.adType}
+            ad={ad}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent flex flex-col justify-end p-6 md:p-10 text-white">
@@ -145,6 +183,7 @@ const NativeListAd = ({ ad, translation }: any) => (
                 videoUrl={translation?.videoUrl}
                 title={translation?.title}
                 adType={ad.adType}
+                ad={ad}
             />
         </div>
         <div className="flex-1 min-w-0">
@@ -179,7 +218,7 @@ const CarouselAd = ({ ad, translation }: any) => {
     const next = (e: React.MouseEvent) => { e.preventDefault(); setCurrent((c) => (c + 1) % slides.length); };
 
     return (
-        <div className="relative w-full h-full overflow-hidden rounded-xl bg-gray-100 select-none">
+        <div className="relative w-full h-full min-h-[250px] overflow-hidden rounded-xl bg-gray-100 select-none">
             {slides.map((slide, i) => (
                 <div
                     key={i}
@@ -190,6 +229,7 @@ const CarouselAd = ({ ad, translation }: any) => {
                         videoUrl={slide.videoUrl}
                         title={slide.title}
                         adType={ad.adType}
+                        ad={ad}
                     />
                     {(slide.title || slide.actionText) && (
                         <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 to-transparent text-white">
@@ -225,36 +265,39 @@ const CarouselAd = ({ ad, translation }: any) => {
     );
 };
 
-/** popup_modal — renders a modal overlay; auto-closes after 10s */
-const PopupModalAd = ({ ad, translation, onClose }: any) => {
-    useEffect(() => {
-        const timer = setTimeout(onClose, 10000);
-        return () => clearTimeout(timer);
-    }, [onClose]);
-
+/** popup_modal — renders a modal overlay */
+const PopupModalAd = ({ ad, translation, onClose, isClosable }: any) => {
     return (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={onClose}>
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={isClosable ? onClose : undefined}>
             <div
                 className="relative bg-white rounded-2xl shadow-2xl overflow-hidden max-w-md w-full max-h-[80vh]"
                 onClick={(e) => e.stopPropagation()}
             >
-                <button
-                    onClick={onClose}
-                    className="absolute top-3 right-3 z-10 bg-black/30 hover:bg-black/50 text-white rounded-full p-1 transition-colors"
-                >
-                    <X size={16} />
-                </button>
+                {isClosable && (
+                    <button
+                        onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            onClose();
+                        }}
+                        className="absolute top-4 right-4 z-50 bg-black/50 hover:bg-black/70 text-white rounded-full p-2.5 shadow-xl transition-all transform hover:scale-110 active:scale-95"
+                        aria-label="Close advertisement"
+                    >
+                        <X size={20} strokeWidth={2.5} />
+                    </button>
+                )}
                 <div className="relative h-52 w-full">
                     <AdMedia
                         imageUrl={translation?.imageUrl}
                         videoUrl={translation?.videoUrl}
                         title={translation?.title}
                         adType={ad.adType}
+                        ad={ad}
                     />
                 </div>
                 <div className="p-6 text-center">
-                    {translation?.title && <h3 className="text-xl font-bold text-gray-900 mb-2">{translation.title}</h3>}
-                    {translation?.description && <p className="text-sm text-gray-600 mb-4">{translation.description}</p>}
+                    {translation?.title || ad.name ? <h3 className="text-xl font-bold text-gray-900 mb-2">{translation?.title || ad.name}</h3> : null}
+                    {translation?.description || ad.description ? <p className="text-sm text-gray-600 mb-4">{translation?.description || ad.description}</p> : null}
                     {translation?.actionText && (
                         <span className="inline-block px-6 py-2 bg-primary text-white font-semibold rounded-lg text-sm">
                             {translation.actionText}
@@ -266,13 +309,19 @@ const PopupModalAd = ({ ad, translation, onClose }: any) => {
     );
 };
 
-/** sticky_banner — fixed bottom bar */
-const StickyBannerAd = ({ ad, translation, onClose }: any) => (
-    <div className="fixed bottom-0 left-0 right-0 z-[100] bg-white border-t border-gray-200 shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center gap-4">
-            {translation?.imageUrl && (
+/** sticky_banner — secondary banner style */
+const StickyBannerAd = ({ ad, translation }: any) => (
+    <div className="w-full bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+        <div className="px-4 py-3 flex items-center gap-4">
+            {(translation?.imageUrl || translation?.videoUrl) && (
                 <div className="relative w-16 h-10 flex-shrink-0 rounded overflow-hidden">
-                    <Image src={translation.imageUrl} alt={translation?.title || 'Ad'} fill className="object-cover" />
+                    <AdMedia
+                        imageUrl={translation?.imageUrl}
+                        videoUrl={translation?.videoUrl}
+                        title={translation?.title}
+                        adType={ad.adType}
+                        ad={ad}
+                    />
                 </div>
             )}
             <div className="flex-1 min-w-0">
@@ -284,36 +333,35 @@ const StickyBannerAd = ({ ad, translation, onClose }: any) => (
                     {translation.actionText}
                 </span>
             )}
-            <button onClick={onClose} className="flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors">
-                <X size={18} />
-            </button>
         </div>
     </div>
 );
 
 /** interstitial — full screen takeover with skip after 5s */
-const InterstitialAd = ({ ad, translation, onClose }: any) => {
+const InterstitialAd = ({ ad, translation, onClose, isClosable }: any) => {
     const [countdown, setCountdown] = useState(5);
 
     useEffect(() => {
+        if (!isClosable) return;
         if (countdown <= 0) { onClose(); return; }
         const t = setTimeout(() => setCountdown((c) => c - 1), 1000);
         return () => clearTimeout(t);
-    }, [countdown, onClose]);
+    }, [countdown, onClose, isClosable]);
 
     return (
-        <div className="fixed inset-0 z-[300] bg-black flex flex-col">
+        <div className="fixed inset-0 z-[9999] bg-black flex flex-col">
             <div className="flex-1 relative">
                 <AdMedia
                     imageUrl={translation?.imageUrl}
                     videoUrl={translation?.videoUrl}
                     title={translation?.title}
                     adType={ad.adType}
+                    ad={ad}
                     className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-black/30 flex flex-col justify-end p-8 text-white">
-                    {translation?.title && <h2 className="text-3xl font-bold mb-2">{translation.title}</h2>}
-                    {translation?.description && <p className="text-lg opacity-90 mb-4">{translation.description}</p>}
+                    {translation?.title || ad.name ? <h2 className="text-3xl font-bold mb-2">{translation?.title || ad.name}</h2> : null}
+                    {translation?.description || ad.description ? <p className="text-lg opacity-90 mb-4">{translation?.description || ad.description}</p> : null}
                     {translation?.actionText && (
                         <span className="self-start px-8 py-3 bg-primary text-white font-bold rounded-lg text-base">
                             {translation.actionText}
@@ -321,20 +369,22 @@ const InterstitialAd = ({ ad, translation, onClose }: any) => {
                     )}
                 </div>
             </div>
-            <div className="absolute top-4 right-4">
-                {countdown > 0 ? (
-                    <div className="bg-black/60 text-white text-sm px-4 py-2 rounded-full">
-                        Skip in {countdown}s
-                    </div>
-                ) : (
-                    <button
-                        onClick={onClose}
-                        className="bg-white text-gray-900 text-sm font-semibold px-4 py-2 rounded-full hover:bg-gray-100 transition-colors"
-                    >
-                        Skip Ad <X size={14} className="inline ml-1" />
-                    </button>
-                )}
-            </div>
+            {isClosable && (
+                <div className="absolute top-4 right-4">
+                    {countdown > 0 ? (
+                        <div className="bg-black/60 text-white text-sm px-4 py-2 rounded-full">
+                            Skip in {countdown}s
+                        </div>
+                    ) : (
+                        <button
+                            onClick={onClose}
+                            className="bg-white text-gray-900 text-sm font-semibold px-4 py-2 rounded-full hover:bg-gray-100 transition-colors"
+                        >
+                            Skip Ad <X size={14} className="inline ml-1" />
+                        </button>
+                    )}
+                </div>
+            )}
         </div>
     );
 };
@@ -348,6 +398,7 @@ const SidebarWidgetAd = ({ ad, translation }: any) => (
                 videoUrl={translation?.videoUrl}
                 title={translation?.title}
                 adType={ad.adType}
+                ad={ad}
             />
         </div>
         <div className="p-3">
@@ -397,19 +448,21 @@ const InlineContentAd = ({ ad, translation }: any) => (
 );
 
 /** floating_button — pill button anchored bottom-right */
-const FloatingButtonAd = ({ ad, translation, onClose }: any) => (
+const FloatingButtonAd = ({ ad, translation, onClose, isClosable }: any) => (
     <div className="fixed bottom-20 right-4 z-[90] flex flex-col items-end gap-2">
-        <button
-            onClick={onClose}
-            className="self-end bg-gray-200 hover:bg-gray-300 text-gray-600 rounded-full p-0.5 transition-colors"
-            aria-label="Close ad"
-        >
-            <X size={12} />
-        </button>
+        {isClosable && (
+            <button
+                onClick={onClose}
+                className="self-end bg-gray-200 hover:bg-gray-300 text-gray-600 rounded-full p-0.5 transition-colors"
+                aria-label="Close ad"
+            >
+                <X size={12} />
+            </button>
+        )}
         <div className="flex items-center gap-2 bg-primary text-white px-5 py-3 rounded-full shadow-xl hover:shadow-2xl hover:bg-green-700 transition-all cursor-pointer max-w-[220px]">
-            {translation?.imageUrl && (
+            { (translation?.imageUrl || ad.imageUrl) && (
                 <div className="relative w-8 h-8 flex-shrink-0 rounded-full overflow-hidden bg-white/20">
-                    <Image src={translation.imageUrl} alt="" fill className="object-cover" />
+                    <Image src={translation?.imageUrl || ad.imageUrl!} alt="" fill className="object-cover" />
                 </div>
             )}
             <span className="text-sm font-semibold truncate">
@@ -423,6 +476,12 @@ const FloatingButtonAd = ({ ad, translation, onClose }: any) => (
 const VideoPlayerAd = ({ ad, translation }: any) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [isPlaying, setIsPlaying] = useState(false);
+    
+    // --- FALLBACK LOGIC ---
+    const effectiveImageUrl = translation?.imageUrl || ad.imageUrl;
+    const effectiveVideoUrl = translation?.videoUrl || ad.videoUrl;
+    const effectiveTitle = translation?.title || ad.name;
+    const youtubeId = getYoutubeId(effectiveVideoUrl);
 
     const toggle = (e: React.MouseEvent) => {
         e.preventDefault();
@@ -432,7 +491,7 @@ const VideoPlayerAd = ({ ad, translation }: any) => {
         else { v.play(); setIsPlaying(true); }
     };
 
-    if (!translation?.videoUrl && !translation?.imageUrl) {
+    if (!effectiveVideoUrl && !effectiveImageUrl) {
         return (
             <div className="w-full h-full rounded-xl bg-gray-900 flex items-center justify-center text-gray-500 text-sm">
                 No media available
@@ -441,45 +500,57 @@ const VideoPlayerAd = ({ ad, translation }: any) => {
     }
 
     return (
-        <div className="relative w-full h-full rounded-xl overflow-hidden bg-black group">
-            {translation?.videoUrl ? (
+        <div className="relative w-full h-full min-h-[250px] rounded-xl overflow-hidden bg-black group">
+            {effectiveVideoUrl ? (
                 <>
-                    <video
-                        ref={videoRef}
-                        src={translation.videoUrl}
-                        className="w-full h-full object-cover"
-                        playsInline
-                        preload="metadata"
-                        onPlay={() => setIsPlaying(true)}
-                        onPause={() => setIsPlaying(false)}
-                        onEnded={() => setIsPlaying(false)}
-                        aria-label={translation?.title || 'Advertisement video'}
-                    />
-                    {/* Play/pause overlay */}
-                    <button
-                        onClick={toggle}
-                        className={`absolute inset-0 flex items-center justify-center transition-opacity ${isPlaying ? 'opacity-0 group-hover:opacity-100' : 'opacity-100'}`}
-                    >
-                        <div className="bg-black/50 rounded-full p-4 hover:bg-black/70 transition-colors">
-                            <Play size={32} className="text-white fill-white" />
-                        </div>
-                    </button>
+                    {youtubeId ? (
+                        <iframe
+                            src={`https://www.youtube.com/embed/${youtubeId}?autoplay=0&controls=1&modestbranding=1&rel=0`}
+                            className="w-full h-full"
+                            allow="autoplay; encrypted-media"
+                            allowFullScreen
+                            title={effectiveTitle || 'Advertisement YouTube video'}
+                        />
+                    ) : (
+                        <>
+                            <video
+                                ref={videoRef}
+                                src={effectiveVideoUrl}
+                                className="w-full h-full object-cover"
+                                playsInline
+                                preload="metadata"
+                                onPlay={() => setIsPlaying(true)}
+                                onPause={() => setIsPlaying(false)}
+                                onEnded={() => setIsPlaying(false)}
+                                aria-label={effectiveTitle || 'Advertisement video'}
+                            />
+                            {/* Play/pause overlay */}
+                            <button
+                                onClick={toggle}
+                                className={`absolute inset-0 flex items-center justify-center transition-opacity ${isPlaying ? 'opacity-0 group-hover:opacity-100' : 'opacity-100'}`}
+                            >
+                                <div className="bg-black/50 rounded-full p-4 hover:bg-black/70 transition-colors">
+                                    <Play size={32} className="text-white fill-white" />
+                                </div>
+                            </button>
+                        </>
+                    )}
                 </>
             ) : (
                 <div className="relative w-full h-full">
-                    <Image src={translation.imageUrl!} alt={translation?.title || 'Ad'} fill className="object-cover" />
+                    {effectiveImageUrl && <Image src={effectiveImageUrl} alt={effectiveTitle || 'Ad'} fill className="object-cover" />}
                 </div>
             )}
 
             {/* Bottom overlay with ad info */}
             <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent text-white">
-                {translation?.title && <h3 className="text-base font-bold leading-tight">{translation.title}</h3>}
-                {translation?.description && (
-                    <p className="text-xs opacity-80 mt-0.5 line-clamp-1">{translation.description}</p>
+                {effectiveTitle && <h3 className="text-base font-bold leading-tight">{effectiveTitle}</h3>}
+                {(translation?.description || ad.description) && (
+                    <p className="text-xs opacity-80 mt-0.5 line-clamp-1">{translation?.description || ad.description}</p>
                 )}
-                {translation?.actionText && (
+                {(translation?.actionText || ad.actionText) && (
                     <span className="mt-2 inline-block px-4 py-1 bg-primary text-white text-xs font-semibold rounded-full">
-                        {translation.actionText}
+                        {translation?.actionText || ad.actionText}
                     </span>
                 )}
             </div>
@@ -489,17 +560,42 @@ const VideoPlayerAd = ({ ad, translation }: any) => {
 
 // ─── Overlay ads (need dismissal state) ──────────────────────────────────────
 
-const OverlayAdRenderer = ({ ad, translation }: { ad: AdContentDto; translation: any }) => {
+const OverlayAdRenderer = ({ ad, translation, onClickWrap, isClosable }: { ad: AdContentDto; translation: any, onClickWrap: () => void, isClosable: boolean }) => {
     const [dismissed, setDismissed] = useState(false);
     if (dismissed) return null;
 
-    const close = () => setDismissed(true);
+    const close = (e?: React.MouseEvent) => {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        setDismissed(true);
+    };
 
-    if (ad.displayTemplate === 'popup_modal') return <PopupModalAd ad={ad} translation={translation} onClose={close} />;
-    if (ad.displayTemplate === 'sticky_banner') return <StickyBannerAd ad={ad} translation={translation} onClose={close} />;
-    if (ad.displayTemplate === 'interstitial') return <InterstitialAd ad={ad} translation={translation} onClose={close} />;
-    if (ad.displayTemplate === 'floating_button') return <FloatingButtonAd ad={ad} translation={translation} onClose={close} />;
-    return null;
+    // Wrap the overlays with a click handler if targetUrl is present, while still allowing close to work independently
+    const handleContainerClick = () => {
+        onClickWrap();
+        if (ad.targetUrl) {
+            window.open(ad.targetUrl, ad.targetUrl.startsWith('http') ? '_blank' : '_self');
+        }
+    };
+
+    const renderOverlay = () => {
+        const template = ad.displayTemplate;
+        if (template === 'popup_modal' || template === 'popup') return <PopupModalAd ad={ad} translation={translation} onClose={close} isClosable={isClosable} />;
+        if (template === 'interstitial') return <InterstitialAd ad={ad} translation={translation} onClose={close} isClosable={isClosable} />;
+        if (template === 'floating_button') return <FloatingButtonAd ad={ad} translation={translation} onClose={close} isClosable={isClosable} />;
+        return null;
+    };
+
+    const content = renderOverlay();
+    if (!content) return null;
+
+    return (
+        <div onClick={ad.targetUrl ? handleContainerClick : undefined} className={ad.targetUrl ? 'cursor-pointer' : ''}>
+            {content}
+        </div>
+    );
 };
 
 // ─── HTML Ad ─────────────────────────────────────────────────────────────────
@@ -513,7 +609,7 @@ const HtmlAd = ({ html }: { html: string }) => (
 
 // ─── Main AdRenderer ─────────────────────────────────────────────────────────
 
-const AdRenderer: React.FC<AdRendererProps> = ({ ad }) => {
+const AdRenderer: React.FC<AdRendererProps> = ({ ad, isClosable }) => {
     const locale = useLocale();
     const translation =
         ad.translations?.find((t) => t.locale === locale || t.locale.startsWith(locale)) ||
@@ -528,23 +624,45 @@ const AdRenderer: React.FC<AdRendererProps> = ({ ad }) => {
     };
 
     // ── HTML / rich_media type: render raw HTML inside iframe-like div
-    if (ad.adType === 'html' || ad.adType === 'rich_media') {
-        const htmlContent = ad.metadata?.html || '';
+    const isHtmlOrRich = ad.adType?.toLowerCase() === 'html' || ad.adType?.toLowerCase() === 'rich_media' || ad.adType?.toLowerCase() === 'rich media';
+    if (isHtmlOrRich) {
+        const htmlContent = translation?.htmlContent || ad.htmlContent || ad.metadata?.html || '';
         const content = htmlContent ? <HtmlAd html={htmlContent} /> : null;
         if (!content) return null;
-        return ad.targetUrl ? (
-            <Link href={ad.targetUrl} onClick={handleClick} target="_blank" className="block w-full h-full">
-                {content}
-            </Link>
-        ) : content;
+        if (ad.targetUrl) {
+            const isExternal = ad.targetUrl.startsWith('http');
+            if (isExternal) {
+                 return <a href={ad.targetUrl} onClick={handleClick} target="_blank" rel="noopener noreferrer" className="block w-full h-full">{content}</a>;
+            }
+            return (
+                <Link href={ad.targetUrl as any} onClick={handleClick} className="block w-full h-full">
+                    {content}
+                </Link>
+            );
+        }
+        return content;
     }
 
     // ── Overlay templates (portal-like, rendered as siblings outside grid) ────
-    const isOverlay = ['popup_modal', 'sticky_banner', 'interstitial', 'floating_button'].includes(
+    const isOverlayTemplate = ['popup_modal', 'popup', 'interstitial', 'floating_button'].includes(
         ad.displayTemplate,
     );
+    
+    // An ad is treated as an overlay ONLY if it has an overlay template AND is intended to be closable/transient.
+    // If isClosable is explicitly false, it is a persistent section ad and MUST be rendered inline.
+    const isOverlay = isOverlayTemplate && isClosable !== false;
+
     if (isOverlay) {
-        return <OverlayAdRenderer ad={ad} translation={translation} />;
+        // Overlay ads (Popups, Interstitials, Floating Buttons) should be closable 
+        // regardless of section-level isClosable={false} setting, as per user requirement.
+        // However, if we reached here, isClosable is either true or undefined.
+        const effectiveIsClosable = isClosable === undefined ? true : isClosable;
+        
+        // Force closable for popups/interstitials if they are overlays
+        const forceClosableAlways = ['popup_modal', 'popup', 'interstitial'].includes(ad.displayTemplate);
+        const finalIsClosable = forceClosableAlways ? true : effectiveIsClosable;
+
+        return <OverlayAdRenderer ad={ad} translation={translation} onClickWrap={handleClick} isClosable={finalIsClosable} />;
     }
 
     // ── Inline templates ─────────────────────────────────────────────────────
@@ -574,18 +692,29 @@ const AdRenderer: React.FC<AdRendererProps> = ({ ad }) => {
             case 'video_player':
                 return <VideoPlayerAd ad={ad} translation={translation} />;
 
+            case 'sticky_banner':
+                return <StickyBannerAd ad={ad} translation={translation} />;
+
+            case 'popup_modal':
+            case 'popup':
+            case 'interstitial':
+            case 'floating_button':
+                // When forced to be inline, these resemble a standard card/banner
+                return <StandardCardAd ad={ad} translation={translation} />;
+
             default:
-                // Unknown template: show image if available, otherwise nothing
-                return translation?.imageUrl ? (
-                    <div className="relative w-full h-full rounded-md overflow-hidden bg-gray-100">
-                        <Image
-                            src={translation.imageUrl}
-                            alt={translation?.title || 'Advertisement'}
-                            fill
-                            className="object-contain"
+                // Unknown template: show media if available, otherwise nothing
+                return (
+                    <div className="relative w-full h-full min-h-[250px] rounded-md overflow-hidden bg-gray-100">
+                        <AdMedia
+                            imageUrl={translation?.imageUrl}
+                            videoUrl={translation?.videoUrl}
+                            title={translation?.title}
+                            adType={ad.adType}
+                            ad={ad}
                         />
                     </div>
-                ) : null;
+                );
         }
     };
 
@@ -595,12 +724,25 @@ const AdRenderer: React.FC<AdRendererProps> = ({ ad }) => {
     // Wrap with click-tracking link if targetUrl exists
     if (!ad.targetUrl) return content;
 
+    const isExternal = ad.targetUrl.startsWith('http');
+    if (isExternal) {
+        return (
+            <a
+                href={ad.targetUrl}
+                onClick={handleClick}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block w-full h-full"
+            >
+                {content}
+            </a>
+        );
+    }
+
     return (
         <Link
-            href={ad.targetUrl}
+            href={ad.targetUrl as any}
             onClick={handleClick}
-            target={ad.targetUrl.startsWith('http') ? '_blank' : '_self'}
-            rel="noopener noreferrer"
             className="block w-full h-full"
         >
             {content}

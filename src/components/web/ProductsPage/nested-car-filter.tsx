@@ -182,6 +182,8 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
     refetchOnWindowFocus: false,
   });
 
+  console.log("makesData",makesData)
+
   // =============================================================================
   // DATA TRANSFORMATION
   // =============================================================================
@@ -190,31 +192,38 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
   const makes = useMemo(() => {
     const allMakes = new Map<string, CarMake>();
 
-    // 2. Then, add makes from search results
+    // 1. First, ensure selected brands are in the list even if not in current page
+    // Note: We might miss isCarTrimRequired for these if they are not in makesData
+    selectedBrands.forEach((brandId) => {
+      if (!allMakes.has(brandId)) {
+        allMakes.set(brandId, {
+          value: brandId,
+          label: `Brand ${brandId}`, // Fallback label
+          isSelected: true,
+          isCarTrimRequired: true, // Default to true to be safe, will be updated if found in data
+        });
+      }
+    });
+
+    // 2. Then, add/update makes from search results
     if (makesData?.pages) {
       makesData.pages.forEach((page) => {
         page.data?.data.forEach((item) => {
           const makeValue = String(item[carMakesConfig.valueField]);
+          const label = String(item[carMakesConfig.labelField]);
+          const logoUrl = carMakesConfig.logoField
+            ? String(item[carMakesConfig.logoField])
+            : undefined;
+          const isSelected = selectedBrands.includes(makeValue);
+          const isCarTrimRequired = !!item.isCarTrimRequired;
 
-          // Only add if not already exists (selected items take priority)
-          if (!allMakes.has(makeValue)) {
-            const make: CarMake = {
-              value: makeValue,
-              label: String(item[carMakesConfig.labelField]),
-              logoUrl: carMakesConfig.logoField
-                ? String(item[carMakesConfig.logoField])
-                : undefined,
-              isSelected: selectedBrands.includes(makeValue), // FIXED: Proper multi-brand check
-              isCarTrimRequired: !!item.isCarTrimRequired,
-            };
-            allMakes.set(make.value, make);
-          } else {
-            // Update selection status if make already exists
-            const existingMake = allMakes.get(makeValue);
-            if (existingMake) {
-              existingMake.isSelected = selectedBrands.includes(makeValue);
-            }
-          }
+          allMakes.set(makeValue, {
+            value: makeValue,
+            label,
+            logoUrl,
+            isSelected,
+            isCarTrimRequired,
+          });
         });
       });
     }
