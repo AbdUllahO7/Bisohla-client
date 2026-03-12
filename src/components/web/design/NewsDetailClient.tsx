@@ -485,7 +485,7 @@ export const NewsDetailClient: React.FC<NewsDetailClientProps> = ({
                   {/* Sidebar Ad Slot */}
                   <div className="mt-8">
                     <AdSpace
-                      name="news-page-ads-section"
+                      name="details-news-page-ad-space-card"
                       className="w-full h-full"
                       wrapperClassName="w-full h-full min-h-[380px]"
                       fallbackContent={<CardAds isRent={false} />}
@@ -503,7 +503,7 @@ export const NewsDetailClient: React.FC<NewsDetailClientProps> = ({
 
         {/* Full-width bottom ad */}
         <div className="mt-16 border-t container border-gray-100 pt-16">
-          <AdsSectionProduct />
+          <AdsSectionProduct name='news-details-page-bottom-full-width-ad' />
         </div>
       </div>
       {/* Animations */}

@@ -27,7 +27,7 @@ const AdSpace: React.FC<AdSpaceProps> = ({
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const trackedRef = useRef<boolean>(false);
-
+    console.log(name,ads)
     useEffect(() => {
         let isMounted = true;
 
