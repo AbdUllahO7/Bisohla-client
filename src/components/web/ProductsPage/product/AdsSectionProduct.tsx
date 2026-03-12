@@ -98,6 +98,7 @@ const AdsSectionProduct = () => {
       name="sale-page-ads-section"
       className="w-full"
       fallbackContent={<StaticAdsSectionProduct />}
+      isClosable={false}
     />
   );
 };

@@ -184,7 +184,7 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
           });
         }
       }
-
+      console.log("currentFilters",currentFilters)
       if (currentFilters.model) {
         carDetailsFilters.push({
           field: 'modelId',

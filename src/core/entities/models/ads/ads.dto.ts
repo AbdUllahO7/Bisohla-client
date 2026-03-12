@@ -7,6 +7,7 @@ export type AdTemplate =
     | 'native_list'
     | 'carousel'
     | 'popup_modal'
+    | 'popup'
     | 'sticky_banner'
     | 'interstitial'
     | 'sidebar_widget'
@@ -25,6 +26,8 @@ export interface AdTranslationDto {
     title?: string;
     description?: string;
     actionText?: string;
+    htmlContent?: string;
+    thumbnailUrl?: string;
 }
 
 export interface AdSpaceDto {
@@ -95,4 +98,13 @@ export interface AdContentDto {
     updatedAt: string;
     translations: AdTranslationDto[];
     spacePlacements?: AdSpacePlacementDto[];
+    htmlContent?: string;
+    thumbnailUrl?: string;
+    // API root fallbacks
+    name?: string;
+    title?: string;
+    description?: string;
+    imageUrl?: string;
+    videoUrl?: string;
+    actionText?: string;
 }

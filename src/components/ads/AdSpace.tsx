@@ -10,10 +10,19 @@ interface AdSpaceProps {
     name: string;
     platform?: string;
     className?: string;
+    wrapperClassName?: string;
     fallbackContent?: React.ReactNode;
+    isClosable?: boolean;
 }
 
-const AdSpace: React.FC<AdSpaceProps> = ({ name, platform = 'web', className = '', fallbackContent }) => {
+const AdSpace: React.FC<AdSpaceProps> = ({
+    name,
+    platform = 'web',
+    className = '',
+    wrapperClassName,
+    fallbackContent,
+    isClosable = true // Closable by default (for overlays)
+}) => {
     const [ads, setAds] = useState<AdContentDto[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -59,58 +68,66 @@ const AdSpace: React.FC<AdSpaceProps> = ({ name, platform = 'web', className = '
         };
     }, [name, platform]);
 
-    // Track impressions when ads are loaded and displayed
-    useEffect(() => {
-        if (ads.length > 0 && !trackedRef.current) {
-            const trackImpressions = async () => {
-                try {
-                    const ids = ads.map(ad => ad.id);
-                    await trackImpressionsBatchAction(ids);
-                    trackedRef.current = true;
-                } catch (err) {
-                    console.error('Failed to track impressions:', err);
-                }
-            };
-            trackImpressions();
-        }
-    }, [ads]);
 
     // ── Loading state ──────────────────────────────────────────────────────
     if (isLoading) {
-        // KEY FIX: If a fallback is provided, show it IMMEDIATELY while ads load silently.
-        // This prevents blank/skeleton gaps for sections that always need to show something.
-        if (fallbackContent) {
-            return <>{fallbackContent}</>;
-        }
-        // No fallback — show skeleton placeholder while loading
-        return <Skeleton className={`w-full min-h-[200px] rounded-lg ${className}`} />;
+        return (
+            <>
+                {wrapperClassName ? (
+                    <div className={wrapperClassName}>
+                        <Skeleton className={`w-full h-full min-h-[200px] rounded-lg ${className}`} />
+                    </div>
+                ) : (
+                    <Skeleton className={`w-full h-full min-h-[200px] rounded-lg ${className}`} />
+                )}
+            </>
+        );
     }
 
     // ── No ads returned (error or empty) ─────────────────────────────────
     if (error || ads.length === 0) {
         // Always show fallback if provided
         if (fallbackContent) {
-            return <>{fallbackContent}</>;
+            return wrapperClassName ? <div className={wrapperClassName}>{fallbackContent}</div> : <>{fallbackContent}</>;
         }
         // Dev-only debug label for slots with no fallback configured
         if (process.env.NODE_ENV === 'development') {
-            return (
+            const content = (
                 <div className={`text-[10px] text-gray-300 border border-dashed border-gray-200 p-2 text-center rounded ${className}`}>
                     {error ? `⚠️ Ad Error (${name}): ${error}` : `ℹ️ No Active Ads (${name})`}
                 </div>
             );
+            return wrapperClassName ? <div className={wrapperClassName}>{content}</div> : content;
         }
         return null;
     }
 
     // ── Ads loaded — render them ──────────────────────────────────────────
-    return (
+    // Determine if all ads are overlays (which are removed from document flow)
+    const overlayTemplates = ['popup_modal', 'interstitial', 'floating_button', 'popup'];
+    // Overlays are only active if the template matches AND they are allowed to be closable (not section ads)
+    const allOverlays = isClosable !== false && ads.every((ad) => overlayTemplates.includes(ad.displayTemplate));
+
+    if (allOverlays) {
+        // Do NOT apply wrapperClassName here so these take up absolutely NO space in grids/layouts!
+        return (
+            <>
+                {ads.map((ad, index) => (
+                    <AdRenderer key={ad.id || `ad-${index}`} ad={ad} isClosable={isClosable} />
+                ))}
+            </>
+        );
+    }
+
+    const AdsContent = (
         <div className={`w-full h-full flex flex-col gap-4 ad-space-${name.replace(/\s+/g, '-')} ${className}`}>
             {ads.map((ad, index) => (
-                <AdRenderer key={ad.id || `ad-${index}`} ad={ad} />
+                <AdRenderer key={ad.id || `ad-${index}`} ad={ad} isClosable={isClosable} />
             ))}
         </div>
     );
+
+    return wrapperClassName ? <div className={wrapperClassName}>{AdsContent}</div> : AdsContent;
 };
 
 export default AdSpace;

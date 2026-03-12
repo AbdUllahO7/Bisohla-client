@@ -231,7 +231,7 @@ const SimilarAds: React.FC<SimilarAdsProps> = ({
                         animationFillMode: 'both',
                       }}
                     >
-                      <AdSpace name="sale-page-ads-section" />
+                      <AdSpace name="sale-page-ads-section" isClosable={false} />
                     </Box>
                   )}
                 </React.Fragment>

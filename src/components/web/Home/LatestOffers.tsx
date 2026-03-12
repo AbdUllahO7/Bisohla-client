@@ -212,6 +212,7 @@ const LatestOffers: React.FC<LatestOffersProps> = ({
                         name="lateset-offers-card"
                         className="w-full h-full"
                         fallbackContent={<CardAds isRent={false} />}
+                        isClosable={false}
                       />
                     </div>
                   )}

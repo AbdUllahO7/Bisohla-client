@@ -61,8 +61,31 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
+    const [isCarTrimRequired, setIsCarTrimRequired] = useState(true); // Default to true to be safe
     const { toast } = useToast();
     const tModal = useTranslations('carAlertModal');
+
+    // Effect to check if trim is required for selected make
+    useEffect(() => {
+        if (formData.makeId > 0) {
+            const fetchMakeDetails = async () => {
+                try {
+                    const response = await getCarMakes({
+                        pageSize: 1,
+                        where: [{ field: 'id', operator: 'eq', value: formData.makeId }]
+                    });
+                    if (response.success && response.data?.data?.[0]) {
+                        setIsCarTrimRequired(!!response.data.data[0].isCarTrimRequired);
+                    }
+                } catch (error) {
+                    console.error('Failed to fetch make details:', error);
+                }
+            };
+            fetchMakeDetails();
+        } else {
+            setIsCarTrimRequired(true); // Default when no make selected
+        }
+    }, [formData.makeId]);
 
     useEffect(() => {
         if (open) {
@@ -248,30 +271,32 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
                                 disabled={!formData.makeId || formData.makeId === 0}
                             />
                         </div>
-                        <div className="space-y-2">
-                            <Label className="text-sm font-semibold text-slate-700">
-                                {tModal('trim')}
-                            </Label>
-                            <ServerSelect<SelectCarTrimDto, 'id'>
-                                queryKey={['car-trims-alert', String(formData.modelId)]}
-                                fetchFn={(params) => getCarTrims({
-                                    ...params,
-                                    where: [{ field: 'modelId', operator: 'eq', value: formData.modelId }]
-                                })}
-                                labelField="name"
-                                valueField="id"
-                                placeholder={tModal('select')}
-                                searchPlaceholder={isArabic ? 'ابحث عن الفئات...' : 'Search trims...'}
-                                noOptionsMessage={isArabic ? 'لم يتم العثور على فئات' : 'No trims found'}
-                                value={formData.trimId > 0 ? formData.trimId : undefined}
-                                onChange={(val: number | number[] | undefined) => {
-                                    const selectedVal = Array.isArray(val) ? val[0] : (val || 0);
-                                    handleChange('trimId', selectedVal);
-                                }}
-                                pageSize={20}
-                                disabled={!formData.modelId || formData.modelId === 0}
-                            />
-                        </div>
+                        {isCarTrimRequired && (
+                            <div className="space-y-2">
+                                <Label className="text-sm font-semibold text-slate-700">
+                                    {tModal('trim')}
+                                </Label>
+                                <ServerSelect<SelectCarTrimDto, 'id'>
+                                    queryKey={['car-trims-alert', String(formData.modelId)]}
+                                    fetchFn={(params) => getCarTrims({
+                                        ...params,
+                                        where: [{ field: 'modelId', operator: 'eq', value: formData.modelId }]
+                                    })}
+                                    labelField="name"
+                                    valueField="id"
+                                    placeholder={tModal('select')}
+                                    searchPlaceholder={isArabic ? 'ابحث عن الفئات...' : 'Search trims...'}
+                                    noOptionsMessage={isArabic ? 'لم يتم العثور على فئات' : 'No trims found'}
+                                    value={formData.trimId > 0 ? formData.trimId : undefined}
+                                    onChange={(val: number | number[] | undefined) => {
+                                        const selectedVal = Array.isArray(val) ? val[0] : (val || 0);
+                                        handleChange('trimId', selectedVal);
+                                    }}
+                                    pageSize={20}
+                                    disabled={!formData.modelId || formData.modelId === 0}
+                                />
+                            </div>
+                        )}
                     </div>
 
                     {/* Price Range */}

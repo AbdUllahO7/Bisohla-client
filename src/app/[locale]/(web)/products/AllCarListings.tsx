@@ -292,7 +292,6 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
                 </Text>
               </div>
 
-              {/* خبرني CTA - Only if authenticated */}
               {isAuthenticated && (
                 <div className="bg-gradient-to-br from-[#198341]/5 to-[#ABDE3B]/10 border border-[#198341]/20 rounded-2xl p-6 w-full space-y-3">
                   <p className="text-sm font-semibold text-[#198341]">

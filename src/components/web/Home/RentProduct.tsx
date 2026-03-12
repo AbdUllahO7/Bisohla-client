@@ -99,6 +99,7 @@ const RentProduct = () => {
                       name="rent-page-ad-section"
                       className="w-full h-full"
                       fallbackContent={<CardAds isRent={true} />}
+                      isClosable={false}
                     />
                   </div>
                 )}

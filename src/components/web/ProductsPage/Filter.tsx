@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import React from 'react';
 
 import {
@@ -17,7 +17,6 @@ import { useLocale, useTranslations } from 'next-intl';
 // UI Components
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import SelectDropdown from '@/components/SelectDropdown';
 import {
   Accordion,
@@ -31,7 +30,6 @@ import {
   SheetDescription,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
   SheetClose,
 } from '@/components/ui/sheet';
 
@@ -196,9 +194,7 @@ MobileFilterButton.displayName = 'MobileFilterButton';
 const FilterContent = React.memo(
   ({
     filters,
-    updateFilter,
     resetFilters,
-    toggleBrand,
     governorateOptions,
     cityOptions,
     carMakesConfig,
@@ -229,6 +225,9 @@ const FilterContent = React.memo(
     isMobile = false,
   }: any) => {
     const trans = useTranslations('addProduct.enteredData');
+
+
+    console.log("stepOneTitles",stepOneTitles)
 
     return (
       <>
@@ -613,12 +612,12 @@ const ProductsFilter: React.FC = React.memo(() => {
   // Use filter context
   const { filters, updateFilter, resetFilters, toggleBrand } = useFilters();
 
+
   // Get data from hooks
   const handleValidationChangeStepOne = (isValid: boolean) => { };
   const handleValidationChangeStepTwo = (isValid: boolean) => { };
 
   const {
-    selectedOptions,
     governorateOptions,
     cityOptions,
     carMakesConfig,
@@ -629,12 +628,13 @@ const ProductsFilter: React.FC = React.memo(() => {
     titles: stepOneTitles,
   } = useProductStepOne(handleValidationChangeStepOne);
 
+
   const {
-    carInfo,
     options: stepTwoOptions,
     labels: stepTwoLabels,
     handleSelectChange: handleStepTwoSelectChange,
   } = useAddProductStepTwo(handleValidationChangeStepTwo);
+
 
   const currencyOptions = getCurrencyOptions(t);
   const priceRanges = getPriceRanges;
