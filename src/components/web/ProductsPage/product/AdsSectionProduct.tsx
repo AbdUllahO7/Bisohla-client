@@ -92,10 +92,10 @@ const StaticAdsSectionProduct = () => {
   );
 };
 
-const AdsSectionProduct = () => {
+const AdsSectionProduct = ({ name = 'sale-page-ads-section' }: { name?: string }) => {
   return (
     <AdSpace
-      name="sale-page-ads-section"
+      name={name}
       className="w-full"
       fallbackContent={<StaticAdsSectionProduct />}
       isClosable={false}

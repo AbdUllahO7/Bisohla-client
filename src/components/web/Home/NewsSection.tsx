@@ -197,7 +197,7 @@ const NewsSection: React.FC<NewsSectionProps> = ({
                           }}
                         >
                           <AdSpace
-                            name="news-page-ads-section"
+                            name="web-home-page-news-section-ad"
                             className="w-full h-full"
                             wrapperClassName="w-full h-full min-h-[380px]"
                             fallbackContent={<CardAds isRent={false} />}

@@ -138,6 +138,11 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
   const [saveStatusValue, setSaveStatusValue] = useState<SaveStatus | "">("");
   const [currencyValue, setCurrencyValue] = useState<Currency | "">("");
   const [countryCodeValue, setCountryCodeValue] = useState<CountryCode>(CountryCode.SY);
+  const countryCodeRef = useRef<CountryCode>(CountryCode.SY);
+
+  useEffect(() => {
+    countryCodeRef.current = countryCodeValue;
+  }, [countryCodeValue]);
 
   const t = useTranslations("addProduct.enteredData");
   const { profile } = useProfile();
@@ -398,54 +403,56 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
     setCurrencyValue(currency);
   };
 
+  const autoSaveTimeout = useRef<NodeJS.Timeout | null>(null);
+
   useEffect(() => {
-    let timeout: NodeJS.Timeout;
-
     const subscription = form.watch((formValues) => {
-      if (timeout) clearTimeout(timeout);
+      if (autoSaveTimeout.current) clearTimeout(autoSaveTimeout.current);
 
-      timeout = setTimeout(() => {
+      autoSaveTimeout.current = setTimeout(() => {
         if (!formValues) return;
+        
         const phoneOnly = formValues.contactNumber || "";
-        const fullContactNumber = countryCodeValue && phoneOnly
-          ? combinePhoneNumber(countryCodeValue, phoneOnly)
+        const currentCountryCode = countryCodeRef.current;
+        const fullContactNumber = currentCountryCode && phoneOnly
+          ? combinePhoneNumber(currentCountryCode, phoneOnly)
           : phoneOnly;
+          
         const currentData = {
-          ...(formValues as Partial<AdInformationFormData>),
+          ...formValues,
           contactNumber: fullContactNumber,
           listingType: formValues.listingType || listingTypeValue || ListingType.FOR_SALE,
           saveStatus: formValues.saveStatus || saveStatusValue || SaveStatus.PUBLISHED,
           currency: formValues.currency || currencyValue || Currency.USD,
-          countryCode: countryCodeValue, // Keep for UI
-          rentType: formValues.listingType === ListingType.FOR_RENT || listingTypeValue === ListingType.FOR_RENT
+          countryCode: currentCountryCode,
+          rentType: formValues.listingType === ListingType.FOR_RENT 
             ? (formValues.rentType || rentTypeValue)
             : null
-        };
+        } as AdInformationFormData;
 
-        if (currentData.title && currentData.description) {
-          const prevData = previousFormData.current || undefined;
-          if (JSON.stringify(currentData) !== JSON.stringify(prevData)) {
-            autoSaveAdInfoData(currentData as AdInformationFormData, prevData);
-            previousFormData.current = currentData as AdInformationFormData;
-          }
+        // Auto-save any valid changes
+        const prevData = previousFormData.current;
+        if (JSON.stringify(currentData) !== JSON.stringify(prevData)) {
+          console.log("Auto-saving step four data:", currentData.saveStatus);
+          autoSaveAdInfoData(currentData, prevData || undefined);
+          previousFormData.current = currentData;
         }
 
         const isValid = checkFormValidity(currentData);
-
         if (isValid !== prevValidState.current) {
           prevValidState.current = isValid;
           if (onValidationChange) {
             onValidationChange(isValid);
           }
         }
-      }, 100);
+      }, 500); // 500ms debounce for stability
     });
 
     return () => {
       subscription.unsubscribe();
-      if (timeout) clearTimeout(timeout);
+      if (autoSaveTimeout.current) clearTimeout(autoSaveTimeout.current);
     };
-  }, [form, onValidationChange, listingTypeValue, saveStatusValue, rentTypeValue, currencyValue]);
+  }, [form, onValidationChange]); // Depend only on form and validation callback
 
   const onSubmit = (data: AdInformationFormData) => {
     const submittedData = {
@@ -460,7 +467,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
 
     const adInfoState: AdInfoState = {
       title: submittedData.title,
-      adStatus: "published",
+      adStatus: submittedData.saveStatus === SaveStatus.PUBLISHED ? "published" : "draft",
       description: submittedData.description,
       contactNumber: submittedData.contactNumber || "",
       price: submittedData.price || "",
