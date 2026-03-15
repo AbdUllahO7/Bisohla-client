@@ -11,10 +11,12 @@ import SectionHeader from '@/components/SectionHeader';
 import { Car } from 'lucide-react';
 import AdSpace from '@/components/ads/AdSpace';
 import CardAds from '../design/CardAds';
+import { useAdSlot } from '@/hooks/use-ad-slot';
 
 const RentProduct = () => {
   const t = useTranslations('homePage');
   const session = useSession();
+  const { adsData, isLoadingAds } = useAdSlot('rent-page-ad-section');
 
   // Fetch rental car listings data with filter for listingType = 'for_rent'
   const { data, isLoading, error } = useCarListings({
@@ -84,27 +86,71 @@ const RentProduct = () => {
             className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:w-[90%] xs:w-[90%] lg:w-full"
             variant="center"
           >
-            {rentListings.map((product, index) => (
-              <React.Fragment key={product.id || index}>
-                {/* Card wrapper with fixed dimensions */}
-                <div className="w-full">
-                  <RentProductCard
-                    car={product}
-                    priceWord={t('latestOffers.price')}
-                  />
-                </div>
-                {index === 3 && (
-                  <div className="w-full h-[370px] rounded-lg overflow-hidden">
-                    <AdSpace
-                      name="rent-page-ad-section"
-                      className="w-full h-full"
-                      fallbackContent={<CardAds isRent={true} />}
-                      isClosable={false}
-                    />
-                  </div>
-                )}
-              </React.Fragment>
-            ))}
+            {(() => {
+                const items: any[] = [];
+                let adIndexCounter = 0;
+                
+                rentListings.forEach((product: any, index: number) => {
+                  items.push({ type: 'product', data: product, originalIndex: index });
+                  
+                  let showAd = false;
+                  let baseAdIndex = -1;
+
+                  if (adsData.length === 0) {
+                      if (index === 3) { showAd = true; baseAdIndex = 0; }
+                  } else if (adsData.length === 1) {
+                      if (index === 3) { showAd = true; baseAdIndex = 0; }
+                  } else {
+                      if (index === 1) { showAd = true; baseAdIndex = 0; }
+                      else if (index === 3) { showAd = true; baseAdIndex = 1; }
+                      else if (index === 5) { showAd = true; baseAdIndex = 2; }
+                      else if (index === 7) { showAd = true; baseAdIndex = 3; }
+                  }
+
+                  if (showAd) {
+                     items.push({ type: 'ad', baseAdIndex });
+                     adIndexCounter = Math.max(adIndexCounter, baseAdIndex + 1);
+                  }
+                });
+
+                while (adIndexCounter < adsData.length) {
+                  items.push({ type: 'ad', baseAdIndex: adIndexCounter });
+                  adIndexCounter++;
+                }
+
+                return items.map((item, i) => {
+                  if (item.type === 'product') {
+                    return (
+                      <React.Fragment key={`product-${item.data.id || item.originalIndex}`}>
+                        {/* Card wrapper with fixed dimensions */}
+                        <div className="w-full">
+                          <RentProductCard
+                            car={item.data}
+                            priceWord={t('latestOffers.price')}
+                          />
+                        </div>
+                      </React.Fragment>
+                    );
+                  } else {
+                    const currentAdIndex = (item.baseAdIndex >= 0 && adsData.length > 0) ? item.baseAdIndex % adsData.length : item.baseAdIndex;
+                    return (
+                      <React.Fragment key={`ad-slot-${item.baseAdIndex}-${i}`}>
+                        <div className="w-full h-[370px] rounded-lg overflow-hidden">
+                          <AdSpace
+                            name="rent-page-ad-section"
+                            className="w-full h-full"
+                            fallbackContent={<CardAds isRent={true} />}
+                            isClosable={false}
+                            adsData={adsData}
+                            isLoadingAds={isLoadingAds}
+                            adIndex={currentAdIndex}
+                          />
+                        </div>
+                      </React.Fragment>
+                    );
+                  }
+                });
+            })()}
           </Box>
         )}
       </Box>

@@ -12,6 +12,7 @@ import SectionHeader from '@/components/SectionHeader';
 import { CarFrontIcon } from 'lucide-react';
 import AdSpace from '@/components/ads/AdSpace';
 import CardAds from '../design/CardAds';
+import { useAdSlot } from '@/hooks/use-ad-slot';
 
 const LatestOffers: React.FC<LatestOffersProps> = ({
   count,
@@ -21,6 +22,7 @@ const LatestOffers: React.FC<LatestOffersProps> = ({
 }) => {
   const t = useTranslations('homePage');
   const session = useSession();
+  const { adsData, isLoadingAds } = useAdSlot('lateset-offers-card');
 
   // Fetch car listings data with filter for listingType = 'for_sale'
   const { data, isLoading, error } = useCarListings({
@@ -55,7 +57,7 @@ const LatestOffers: React.FC<LatestOffersProps> = ({
         ? data.data.data
         : [];
 
-    const limit = count || 9;
+    const limit = count || 10;
     return listings.slice(0, limit);
   }, [data, count]);
 
@@ -135,7 +137,7 @@ const LatestOffers: React.FC<LatestOffersProps> = ({
 
           {/* Show loading skeleton */}
           {isLoading && (
-            <ProductSkeleton count={count || 8} showTitle={false} />
+            <ProductSkeleton count={count || 10} showTitle={false} />
           )}
 
           {/* Show error state */}
@@ -181,43 +183,84 @@ const LatestOffers: React.FC<LatestOffersProps> = ({
           {/* Display actual cards when data is loaded */}
           {!isLoading && !error && carListings.length > 0 && (
             <Box
-              className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 ${showTitle ? 'lg:grid-cols-5' : 'lg:grid-cols-4'
-                } gap-6 sm:w-[90%] xs:w-[90%] lg:w-full`}
+              className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 ${showTitle ? 'lg:grid-cols-5' : 'lg:grid-cols-4'} gap-6 sm:w-[90%] xs:w-[90%] lg:w-full`}
               variant="center"
             >
-              {carListings.map((card, index) => (
-                <React.Fragment key={card.id || index}>
-                  {/* Card with Fade-in Animation */}
-                  <div
-                    className="animate-fadeInUp"
-                    style={{
-                      animationDelay: `${index * 0.1}s`,
-                      animationFillMode: 'both',
-                    }}
-                  >
-                    <RentProductCard
-                      car={card}
-                      priceWord={t('latestOffers.price')}
-                    />
-                  </div>
-                  {index === 1 && (
-                    <div
-                      className="w-full h-[370px] rounded-lg shadow-sm animate-fadeInUp overflow-hidden relative"
-                      style={{
-                        animationDelay: `${(index + 1) * 0.1}s`,
-                        animationFillMode: 'both',
-                      }}
-                    >
-                      <AdSpace
-                        name="lateset-offers-card"
-                        className="w-full h-full"
-                        fallbackContent={<CardAds isRent={false} />}
-                        isClosable={false}
-                      />
-                    </div>
-                  )}
-                </React.Fragment>
-              ))}
+              {(() => {
+                const items: any[] = [];
+                let adIndexCounter = 0;
+                
+                carListings.forEach((card: any, index: number) => {
+                  items.push({ type: 'product', data: card, originalIndex: index });
+                  
+                  let showAd = false;
+                  let baseAdIndex = -1;
+
+                  if (adsData.length === 0) {
+                      if (index === 1) { showAd = true; baseAdIndex = 0; }
+                  } else if (adsData.length === 1) {
+                      if (index === 3) { showAd = true; baseAdIndex = 0; }
+                  } else {
+                      if (index === 1) { showAd = true; baseAdIndex = 0; }
+                      else if (index === 3) { showAd = true; baseAdIndex = 1; }
+                      else if (index === 5) { showAd = true; baseAdIndex = 2; }
+                      else if (index === 7) { showAd = true; baseAdIndex = 3; }
+                  }
+
+                  if (showAd) {
+                     items.push({ type: 'ad', baseAdIndex });
+                     adIndexCounter = Math.max(adIndexCounter, baseAdIndex + 1);
+                  }
+                });
+
+                while (adIndexCounter < adsData.length) {
+                  items.push({ type: 'ad', baseAdIndex: adIndexCounter });
+                  adIndexCounter++;
+                }
+
+                const displayLimit = count || 10;
+                return items.slice(0, displayLimit).map((item, i) => {
+                  if (item.type === 'product') {
+                    return (
+                      <div
+                        key={`product-${item.data.id || item.originalIndex}`}
+                        className="animate-fadeInUp"
+                        style={{
+                          animationDelay: `${item.originalIndex * 0.1}s`,
+                          animationFillMode: 'both',
+                        }}
+                      >
+                        <RentProductCard
+                          car={item.data}
+                          priceWord={t('latestOffers.price')}
+                        />
+                      </div>
+                    );
+                  } else {
+                    const currentAdIndex = (item.baseAdIndex >= 0 && adsData.length > 0) ? item.baseAdIndex % adsData.length : item.baseAdIndex;
+                    return (
+                      <div
+                        key={`ad-slot-${item.baseAdIndex}-${i}`}
+                        className="w-full h-[370px] rounded-lg shadow-sm animate-fadeInUp overflow-hidden relative"
+                        style={{
+                          animationDelay: `${i * 0.1}s`,
+                          animationFillMode: 'both',
+                        }}
+                      >
+                        <AdSpace
+                          name="lateset-offers-card"
+                          className="w-full h-full"
+                          fallbackContent={<CardAds isRent={false} />}
+                          isClosable={false}
+                          adsData={adsData}
+                          isLoadingAds={isLoadingAds}
+                          adIndex={currentAdIndex}
+                        />
+                      </div>
+                    );
+                  }
+                });
+              })()}
             </Box>
           )}
         </Box>

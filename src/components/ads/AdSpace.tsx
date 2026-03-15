@@ -13,6 +13,9 @@ interface AdSpaceProps {
     wrapperClassName?: string;
     fallbackContent?: React.ReactNode;
     isClosable?: boolean;
+    adIndex?: number;
+    adsData?: AdContentDto[];
+    isLoadingAds?: boolean;
 }
 
 const AdSpace: React.FC<AdSpaceProps> = ({
@@ -21,18 +24,31 @@ const AdSpace: React.FC<AdSpaceProps> = ({
     className = '',
     wrapperClassName,
     fallbackContent,
-    isClosable = true // Closable by default (for overlays)
+    isClosable = true, // Closable by default (for overlays)
+    adIndex,
+    adsData,
+    isLoadingAds,
 }) => {
-    const [ads, setAds] = useState<AdContentDto[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const [fetchedAds, setFetchedAds] = useState<AdContentDto[]>([]);
+    const [isFetching, setIsFetching] = useState(true);
+    const [fetchError, setFetchError] = useState<string | null>(null);
     const trackedRef = useRef<boolean>(false);
+
+    const ads = adsData !== undefined ? adsData : fetchedAds;
+    const isLoading = isLoadingAds !== undefined ? isLoadingAds : isFetching;
+    const error = fetchError;
     console.log(name,ads)
     useEffect(() => {
+        // If external ads data is provided, don't fetch internally
+        if (adsData !== undefined) {
+             setIsFetching(false);
+             return;
+        }
+
         let isMounted = true;
 
         const fetchAds = async () => {
-            setIsLoading(true);
+            setIsFetching(true);
             try {
                 const response = await resolveBySlotKeyAction(name, platform);
 
@@ -49,15 +65,15 @@ const AdSpace: React.FC<AdSpaceProps> = ({
                             extractedAds = Array.isArray(data) ? data : [data];
                         }
 
-                        setAds(extractedAds);
+                        setFetchedAds(extractedAds);
                     } else {
-                        setError(response.message || 'No ads returned');
+                        setFetchError(response.message || 'No ads returned');
                     }
                 }
             } catch (err) {
-                if (isMounted) setError('An error occurred during fetch');
+                if (isMounted) setFetchError('An error occurred during fetch');
             } finally {
-                if (isMounted) setIsLoading(false);
+                if (isMounted) setIsFetching(false);
             }
         };
 
@@ -66,7 +82,7 @@ const AdSpace: React.FC<AdSpaceProps> = ({
         return () => {
             isMounted = false;
         };
-    }, [name, platform]);
+    }, [name, platform, adsData]);
 
 
     // ── Loading state ──────────────────────────────────────────────────────
@@ -103,6 +119,30 @@ const AdSpace: React.FC<AdSpaceProps> = ({
     }
 
     // ── Ads loaded — render them ──────────────────────────────────────────
+    
+    // If adIndex is provided, only render that specific ad, or fallback if it doesn't exist
+    if (adIndex !== undefined) {
+        const adToRender = ads[adIndex];
+        
+        if (!adToRender) {
+             return fallbackContent ? (
+                  wrapperClassName ? <div className={wrapperClassName}>{fallbackContent}</div> : <>{fallbackContent}</>
+             ) : null;
+        }
+        
+        const isOverlayTemplate = ['popup_modal', 'interstitial', 'floating_button', 'popup'].includes(adToRender.displayTemplate);
+        if (isClosable !== false && isOverlayTemplate) {
+            return <AdRenderer key={adToRender.id} ad={adToRender} isClosable={isClosable} />;
+        }
+        
+        const AdsContent = (
+            <div className={`w-full h-full flex flex-col gap-4 ad-space-${name.replace(/\s+/g, '-')} ${className}`}>
+                <AdRenderer key={adToRender.id} ad={adToRender} isClosable={isClosable} />
+            </div>
+        );
+        return wrapperClassName ? <div className={wrapperClassName}>{AdsContent}</div> : AdsContent;
+    }
+
     // Determine if all ads are overlays (which are removed from document flow)
     const overlayTemplates = ['popup_modal', 'interstitial', 'floating_button', 'popup'];
     // Overlays are only active if the template matches AND they are allowed to be closable (not section ads)
