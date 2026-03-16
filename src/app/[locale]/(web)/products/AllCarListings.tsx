@@ -19,6 +19,7 @@ import CarAlertModal from '@/components/web/ProductsPage/CarAlertModal';
 import { Button } from '@/components/ui/button';
 import { Bell } from 'lucide-react';
 import { getGovernorateOptions, getCityOptions } from '@/components/web/ProductsPage/addProducts/StepOne/utils';
+import { useAdSlot } from '@/hooks/use-ad-slot';
 
 interface AllCarListingsProps {
   pageSize?: number;
@@ -47,6 +48,7 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
   const session = useSession();
   const { filters } = useFilters();
   const { toast } = useToast();
+  const { adsData, isLoadingAds } = useAdSlot('all-car-listining-space');
 
   // Check for mobile screen size
   useEffect(() => {
@@ -326,7 +328,17 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
                     {renderCarListing(card, index)}
 
                     {/* Insert Ad after every 8 listings */}
-                    {(index + 1) % 8 === 0 && <AdsSectionProduct />}
+                    {(index + 1) % 8 === 0 && (() => {
+                      const currentAdIndex = (adsData && adsData.length > 0) ? (currentPage - 1) % adsData.length : 0;
+
+                      return (
+                        <AdsSectionProduct
+                          adIndex={currentAdIndex}
+                          adsData={adsData}
+                          isLoadingAds={isLoadingAds}
+                        />
+                      );
+                    })()}
                   </React.Fragment>
                 ))}
               </Box>
@@ -340,11 +352,19 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
                     {renderCarListing(card, index)}
 
                     {/* Insert Ad after every 8 listings */}
-                    {(index + 1) % 8 === 0 && (
-                      <div className="col-span-full">
-                        <AdsSectionProduct />
-                      </div>
-                    )}
+                    {(index + 1) % 8 === 0 && (() => {
+                      const currentAdIndex = (adsData && adsData.length > 0) ? (currentPage - 1) % adsData.length : 0;
+
+                      return (
+                        <div className="col-span-full">
+                          <AdsSectionProduct 
+                            adIndex={currentAdIndex}
+                            adsData={adsData}
+                            isLoadingAds={isLoadingAds}
+                          />
+                        </div>
+                      );
+                    })()}
                   </React.Fragment>
                 ))}
               </Box>
