@@ -5,6 +5,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import Image from 'next/image';
 import { Link } from '@/i18n/routing';
 import AdSpace from '@/components/ads/AdSpace';
+import { AdContentDto } from '@/core/entities/models/ads/ads.dto';
 
 const StaticAdsSectionProduct = () => {
   const t = useTranslations('homePage');
@@ -92,13 +93,26 @@ const StaticAdsSectionProduct = () => {
   );
 };
 
-const AdsSectionProduct = ({ name = 'sale-page-ads-section' }: { name?: string }) => {
+const AdsSectionProduct = ({ 
+  name = 'sale-page-ads-section',
+  adIndex,
+  adsData,
+  isLoadingAds
+}: { 
+  name?: string;
+  adIndex?: number;
+  adsData?: AdContentDto[];
+  isLoadingAds?: boolean;
+}) => {
   return (
     <AdSpace
       name={name}
-      className="w-full"
+      className="w-full mt-10"
       fallbackContent={<StaticAdsSectionProduct />}
       isClosable={false}
+      adIndex={adIndex}
+      adsData={adsData}
+      isLoadingAds={isLoadingAds}
     />
   );
 };
