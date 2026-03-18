@@ -10,6 +10,7 @@ import {
   UpdateCarListingDto,
   UpdateSaveStatusDto,
   UpdateViewDurationDto,
+  BatchIncrementViewCountDto,
 } from '@/core/entities/models/cars/cars.zod.dto';
 import { ICarUserUseCase } from './car.user.use-case.interface';
 import { ICarUserService } from '@/core/application/services/users/car.user.service.interface';
@@ -22,7 +23,7 @@ import {
 } from '@/core/entities/models/cars/users-favorites-cars.zod.dto';
 
 export class CarUserUseCase implements ICarUserUseCase {
-  constructor(protected readonly carUserStrategy: ICarUserService) {}
+  constructor(protected readonly carUserStrategy: ICarUserService) { }
 
 
 
@@ -72,20 +73,20 @@ export class CarUserUseCase implements ICarUserUseCase {
   ): Promise<ApiResponse<SelectCarListingDto>> {
     return await this.carUserStrategy.editCarListing(id, dto);
   }
-   async updateCarListingSaveStatus(
+  async updateCarListingSaveStatus(
     id: number,
     dto: UpdateSaveStatusDto,
   ): Promise<ApiResponse<SelectCarListingDto>> {
     return await this.carUserStrategy.updateCarListingSaveStatus(id, dto);
   }
-  
+
   async deleteCarListing(
     id: number,
   ): Promise<ApiResponse<SuccessResponseWithNoContent>> {
     return await this.carUserStrategy.deleteCarListing(id);
   }
   // ============= ADD THESE MISSING STATISTICS METHODS =============
-  
+
   async incrementViewCount(
     dto: IncrementCountDto,
   ): Promise<ApiResponse<SuccessResponseWithNoContent>> {
@@ -114,5 +115,11 @@ export class CarUserUseCase implements ICarUserUseCase {
     dto: UpdateViewDurationDto,
   ): Promise<ApiResponse<SuccessResponseWithNoContent>> {
     return await this.carUserStrategy.updateViewDuration(dto);
+  }
+
+  async batchIncrementViewCount(
+    dto: BatchIncrementViewCountDto,
+  ): Promise<ApiResponse<SuccessResponseWithNoContent>> {
+    return await this.carUserStrategy.batchIncrementViewCount(dto);
   }
 }

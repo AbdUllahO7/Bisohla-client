@@ -4,6 +4,10 @@ import Text from '@/components/text/text';
 import NewsCard from '@/components/web/Home/NewsCard';
 import Pagination from '@/components/Pagination';
 import { SelectNewsArticleDto } from '@/core/entities/models/news/news.dto';
+import AdSpace from '@/components/ads/AdSpace';
+import AdsSectionProduct from '@/components/web/ProductsPage/product/AdsSectionProduct';
+import CardAds from '@/components/web/design/CardAds';
+import { useAdSlot } from '@/hooks/use-ad-slot';
 
 interface NewsGridProps {
   articles: SelectNewsArticleDto[];
@@ -30,6 +34,8 @@ export default function NewsGrid({
   onPageChange,
   translations,
 }: NewsGridProps) {
+  const { adsData, isLoadingAds } = useAdSlot('news-page-ads-section');
+
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -66,12 +72,62 @@ export default function NewsGrid({
           </div>
         </Box>
       )}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {(() => {
+              const items: any[] = [];
+              let adIndexCounter = 0;
+              
+              articles.forEach((article: SelectNewsArticleDto, index: number) => {
+                items.push({ type: 'article', data: article, originalIndex: index });
+                
+                if ((index + 1) % 2 === 0) {
+                  items.push({ type: 'ad', adIndex: adIndexCounter });
+                  adIndexCounter++;
+                }
+              });
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-fadeIn">
-        {articles.map((article) => (
-          <NewsCard key={article.id} article={article} />
-        ))}
-      </div>
+              while (adIndexCounter < adsData.length) {
+                items.push({ type: 'ad', adIndex: adIndexCounter });
+                adIndexCounter++;
+              }
+
+              return items.map((item, i) => {
+                if (item.type === 'article') {
+                  return (
+                    <div
+                      key={`article-${item.data.id}`}
+                      className="block h-full animate-fadeIn"
+                      style={{ animationDelay: `${item.originalIndex * 0.1}s` }}
+                    >
+                      <NewsCard article={item.data} />
+                    </div>
+                  );
+                } else {
+                  return (
+                    <div
+                      key={`ad-slot-${item.adIndex}-${i}`}
+                      className="animate-fadeIn w-full h-full min-h-[380px]"
+                      style={{ animationDelay: `${i * 0.1}s` }}
+                    >
+                      <AdSpace
+                        name="news-page-ads-section"
+                        className="w-full h-full"
+                        wrapperClassName="w-full h-full min-h-[380px]"
+                        fallbackContent={<CardAds isRent={false} />}
+                        isClosable={false}
+                        adsData={adsData}
+                        isLoadingAds={isLoadingAds}
+                        adIndex={item.adIndex}
+                      />
+                    </div>
+                  );
+                }
+              });
+            })()}
+          </div>
+
+      {/* Always show an ad after the articles grid */}
+      <AdsSectionProduct />
 
       {paginationMeta && paginationMeta.totalPages > 1 && (
         <Pagination

@@ -3,8 +3,8 @@
 import { useState, useEffect } from "react"
 import Box from "@/components/box/box"
 import { Button } from "@/components/ui/button"
-import { SearchIcon, ListRestart } from "lucide-react"
-import { useTranslations } from "next-intl"
+import { SearchIcon, ListRestart, Bell } from "lucide-react"
+import { useLocale, useTranslations } from "next-intl"
 import { useRouter, useSearchParams } from "next/navigation"
 import { getPriceRanges } from "@/constants/filterData"
 import { useAddProductStepTwo } from "../ProductsPage/addProducts/stepTow/hooks"
@@ -12,6 +12,9 @@ import { useProductStepOne } from "../ProductsPage/addProducts/StepOne/hooks"
 import Text from "@/components/text/text"
 import { Input } from "@/components/ui/input"
 import SelectDropdown from "@/components/SelectDropdown"
+import CarAlertModal from "../ProductsPage/CarAlertModal"
+import { getGovernorateOptions, getCityOptions } from "../ProductsPage/addProducts/StepOne/utils"
+import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions'
 
 // Types for filtering
 interface FilterState {
@@ -26,6 +29,9 @@ interface FilterState {
 
 const Filter = () => {
   const t = useTranslations("homePage")
+  const tProducts = useTranslations("productsPage")
+  const locale = useLocale()
+  const isArabic = locale === 'ar'
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -34,10 +40,25 @@ const Filter = () => {
   const [minPrice, setMinPrice] = useState<string>("")
   const [maxPrice, setMaxPrice] = useState<string>("")
   const [currency, setCurrency] = useState<string>("")
+  const [isAlertModalOpen, setIsAlertModalOpen] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+
+  // Check authentication
+  useEffect(() => {
+    const checkUserAuth = async () => {
+      try {
+        const auth = await checkAuth();
+        setIsAuthenticated(!!auth?.success);
+      } catch (error) {
+        setIsAuthenticated(false);
+      }
+    };
+    checkUserAuth();
+  }, []);
 
   const priceRanges = getPriceRanges
-  const handleValidationChangeStepOne = (isValid: boolean) => {}
-  const handleValidationChangeStepTwo = (isValid: boolean) => {}
+  const handleValidationChangeStepOne = (isValid: boolean) => { }
+  const handleValidationChangeStepTwo = (isValid: boolean) => { }
 
   // Hooks data for filter options
   const {
@@ -198,17 +219,15 @@ const Filter = () => {
       {/* TOP */}
       <Box variant="row" className="gap-0 w-full mx-auto">
         <Button
-          className={`h-[50px] ${
-            activeButton === "hire" ? "bg-primary-foreground" : "bg-background"
-          } rounded-none w-full sm:w-[155px]`}
+          className={`h-[50px] ${activeButton === "hire" ? "bg-primary-foreground" : "bg-background"
+            } rounded-none w-full sm:w-[155px]`}
           onClick={() => handleButtonClick("hire")}
         >
           <span className="text-[20px] text-primary font-cairo font-[800]">{t("filter.Hire")}</span>
         </Button>
         <Button
-          className={`h-[50px] ${
-            activeButton === "buy" ? "bg-primary-foreground" : "bg-background"
-          } rounded-none w-full sm:w-[155px]`}
+          className={`h-[50px] ${activeButton === "buy" ? "bg-primary-foreground" : "bg-background"
+            } rounded-none w-full sm:w-[155px]`}
           onClick={() => handleButtonClick("buy")}
         >
           <span className="text-[20px] text-primary font-cairo font-[800]">{t("filter.Buy")}</span>
@@ -285,7 +304,7 @@ const Filter = () => {
             </Box>
           </Box>
 
-          {/* Search and Reset Buttons */}
+          {/* Search, Reset, and Notify Me Buttons */}
           <Box className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
             <Button className="bg-primary-foreground h-[55px] w-full md:w-auto" onClick={applyFilters}>
               <SearchIcon className="text-primary mr-2" />
@@ -300,9 +319,38 @@ const Filter = () => {
               <ListRestart className="text-primary mr-2 h-4 w-4" />
               <span className="text-primary">{t("filter.reset") || "Reset"}</span>
             </Button>
+
+            {isAuthenticated && (
+              <Button
+                onClick={() => setIsAlertModalOpen(true)}
+                className="bg-primary-light hover:opacity-90 text-white font-semibold h-[55px] rounded-xl shadow-md hover:shadow-lg transition-all w-full md:w-auto"
+              >
+                <Bell className="h-4 w-4 mr-2" />
+                {isArabic ? 'خبرني' : 'Notify Me'}
+              </Button>
+            )}
           </Box>
         </Box>
       </Box>
+
+      {/* Car Alert Modal */}
+      <CarAlertModal
+        open={isAlertModalOpen}
+        onOpenChange={setIsAlertModalOpen}
+        initialData={{
+          makeId: 0,
+          modelId: 0,
+          trimId: 0,
+          minPrice: 0,
+          maxPrice: 0,
+          governorate: '',
+          city: '',
+        }}
+        governorateOptions={getGovernorateOptions(isArabic)}
+        getCityOptions={(gov) => getCityOptions(gov, isArabic)}
+        isArabic={isArabic}
+        t={tProducts}
+      />
     </Box>
   )
 }

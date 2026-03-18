@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Box from '@/components/box/box';
 import Text from '@/components/text/text';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useCarListings } from '@/core/infrastructure-adapters/use-actions/visitors/car.visitor.use-actions';
 import Pagination from '@/components/Pagination';
 import { QueryParams } from '@/core/entities/api/api';
@@ -13,6 +13,13 @@ import { useSession } from '@/hooks/auth/use-session';
 import { RentProductCard } from '@/components/web/design/RentProductCard';
 import { RentProductListCard } from '@/components/web/design/rent-product-list-product';
 import { logger } from '@/lib/logger';
+import { useFilters } from '@/providers/filters.provider';
+import { useToast } from '@/hooks/use-toast';
+import CarAlertModal from '@/components/web/ProductsPage/CarAlertModal';
+import { Button } from '@/components/ui/button';
+import { Bell } from 'lucide-react';
+import { getGovernorateOptions, getCityOptions } from '@/components/web/ProductsPage/addProducts/StepOne/utils';
+import { useAdSlot } from '@/hooks/use-ad-slot';
 
 interface AllCarListingsProps {
   pageSize?: number;
@@ -29,13 +36,19 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
   onTotalItemsChange,
 }) => {
   const t = useTranslations('productsPage');
+  const locale = useLocale();
+  const isArabic = locale === 'ar';
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [favoriteStatuses, setFavoriteStatuses] = useState<
     Record<number, boolean>
   >({});
   const [isMobile, setIsMobile] = useState(false);
+  const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
   const session = useSession();
+  const { filters } = useFilters();
+  const { toast } = useToast();
+  const { adsData, isLoadingAds } = useAdSlot('all-car-listining-space');
 
   // Check for mobile screen size
   useEffect(() => {
@@ -196,6 +209,7 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
     });
   }, []);
 
+
   // Render car listing component based on screen size
   const renderCarListing = useCallback(
     (card: any, index: number) => {
@@ -230,13 +244,23 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
   return (
     <Box className="mb-5 mt-5 w-full">
       <Box variant="column" className="w-full">
-        {showTitle && (
-          <Box variant="column" className="mb-4">
+        <Box className="w-full flex justify-between items-center mb-4">
+          {showTitle ? (
             <Text variant="h3" className="font-bold text-[20px] font-cairo">
               {t('allCars.title', { defaultValue: 'All Cars' })}
             </Text>
-          </Box>
-        )}
+          ) : <div />}
+
+          {isAuthenticated && (
+            <Button
+              onClick={() => setIsAlertModalOpen(true)}
+              className="bg-gradient-to-r from-[#198341] to-[#ABDE3B] hover:opacity-90 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all"
+            >
+              <Bell className="h-4 w-4 mr-2" />
+              {t('allCars.createAlert')}
+            </Button>
+          )}
+        </Box>
 
         {isLoading && (
           <div className="w-full">
@@ -251,15 +275,46 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
         )}
 
         {!isLoading && !error && carListings.length === 0 && (
-          <Box className="w-full py-8 text-center" variant="center">
-            <div className="flex flex-col items-center space-y-4">
-              <div className="text-6xl opacity-50">🚗</div>
-              <Text className="text-xl font-semibold text-gray-600">
-                {t('allCars.noResults')}
-              </Text>
-              <Text className="text-gray-500">
-                {t('allCars.noResultsMessage')}
-              </Text>
+          <Box className="w-full py-12 text-center" variant="center">
+            <div className="flex flex-col items-center space-y-6 max-w-md mx-auto">
+              {/* Empty state illustration */}
+              <div className="relative">
+                <div className="text-7xl opacity-30">🚗</div>
+                <div className="absolute -top-1 -right-1 w-8 h-8 bg-primary-light rounded-full flex items-center justify-center shadow-lg animate-bounce">
+                  <Bell className="h-4 w-4 text-white" />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Text className="text-xl font-bold text-gray-700">
+                  {t('allCars.noResults')}
+                </Text>
+                <Text className="text-gray-500 text-sm leading-relaxed">
+                  {t('allCars.noResultsMessage')}
+                </Text>
+              </div>
+
+              {isAuthenticated && (
+                <div className="bg-gradient-to-br from-[#198341]/5 to-[#ABDE3B]/10 border border-[#198341]/20 rounded-2xl p-6 w-full space-y-3">
+                  <p className="text-sm font-semibold text-[#198341]">
+                    {isArabic
+                      ? '🔔 هل تريد أن تُعلَم عندما تتوفر سيارة مطابقة؟'
+                      : '🔔 Want to be notified when a matching car is listed?'}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {isArabic
+                      ? 'سنُرسل لك تنبيهاً فور توفّر سيارة تناسب بحثك'
+                      : "We'll notify you as soon as a car matching your search is available"}
+                  </p>
+                  <Button
+                    onClick={() => setIsAlertModalOpen(true)}
+                    className="w-full h-12 text-base font-bold rounded-xl bg-gradient-to-r from-[#198341] to-[#ABDE3B] hover:opacity-90 text-white shadow-md hover:shadow-lg transition-all"
+                  >
+                    <Bell className="h-5 w-5 mr-2" />
+                    {isArabic ? 'خبرني عند توفّر السيارة' : 'Notify Me'}
+                  </Button>
+                </div>
+              )}
             </div>
           </Box>
         )}
@@ -273,7 +328,17 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
                     {renderCarListing(card, index)}
 
                     {/* Insert Ad after every 8 listings */}
-                    {(index + 1) % 8 === 0 && <AdsSectionProduct />}
+                    {(index + 1) % 8 === 0 && (() => {
+                      const currentAdIndex = (adsData && adsData.length > 0) ? (currentPage - 1) % adsData.length : 0;
+
+                      return (
+                        <AdsSectionProduct
+                          adIndex={currentAdIndex}
+                          adsData={adsData}
+                          isLoadingAds={isLoadingAds}
+                        />
+                      );
+                    })()}
                   </React.Fragment>
                 ))}
               </Box>
@@ -287,11 +352,19 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
                     {renderCarListing(card, index)}
 
                     {/* Insert Ad after every 8 listings */}
-                    {(index + 1) % 8 === 0 && (
-                      <div className="col-span-full">
-                        <AdsSectionProduct />
-                      </div>
-                    )}
+                    {(index + 1) % 8 === 0 && (() => {
+                      const currentAdIndex = (adsData && adsData.length > 0) ? (currentPage - 1) % adsData.length : 0;
+
+                      return (
+                        <div className="col-span-full">
+                          <AdsSectionProduct 
+                            adIndex={currentAdIndex}
+                            adsData={adsData}
+                            isLoadingAds={isLoadingAds}
+                          />
+                        </div>
+                      );
+                    })()}
                   </React.Fragment>
                 ))}
               </Box>
@@ -313,6 +386,25 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
           </>
         )}
       </Box>
+
+      {/* Car Alert Modal — pre-fill with active search filters */}
+      <CarAlertModal
+        open={isAlertModalOpen}
+        onOpenChange={setIsAlertModalOpen}
+        initialData={{
+          makeId: filters.selectedBrands[0] ? Number(filters.selectedBrands[0]) : 0,
+          modelId: filters.model ? Number(filters.model) : 0,
+          trimId: filters.trim ? Number(filters.trim) : 0,
+          minPrice: filters.minPrice ? Number(filters.minPrice) : 0,
+          maxPrice: filters.maxPrice ? Number(filters.maxPrice) : 0,
+          governorate: filters.governorate || '',
+          city: filters.city || '',
+        }}
+        governorateOptions={getGovernorateOptions(isArabic)}
+        getCityOptions={(gov) => getCityOptions(gov, isArabic)}
+        isArabic={isArabic}
+        t={t}
+      />
     </Box>
   );
 };

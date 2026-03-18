@@ -45,22 +45,30 @@ export const parsePhoneNumber = (contactNumber: string): { countryCode: string; 
     if (!contactNumber) {
         return { countryCode: CountryCode.SY, phoneNumber: "" };
     }
-    
-    // Try to extract country code (e.g., "+963" or "+1")
-    const match = contactNumber.match(/^(\+\d{1,4})\s*(.*)$/);
-    
-    if (match) {
-        const [, code, number] = match;
-        return {
-            countryCode: code as CountryCode,
-            phoneNumber: number.trim()
-        };
+
+    // Clean the input: remove spaces but keep leading +
+    const cleanContact = contactNumber.trim();
+
+    // Sort country codes by length descending to match longest possible prefix first
+    const countryCodes = Object.values(CountryCode).sort((a, b) => b.length - a.length);
+
+    for (const code of countryCodes) {
+        if (cleanContact.startsWith(code)) {
+            const number = cleanContact.slice(code.length).trim();
+            // Remove any other non-digit characters from the number part
+            const cleanNumber = number.replace(/[^\d]/g, "");
+
+            return {
+                countryCode: code as CountryCode,
+                phoneNumber: cleanNumber
+            };
+        }
     }
-    
-    // If no match, return the whole thing as phone number with default country code
+
+    // If no country code matches, default to Syria and clean the whole thing
     return {
         countryCode: CountryCode.SY,
-        phoneNumber: contactNumber.replace(/[\s+-]/g, "")
+        phoneNumber: cleanContact.replace(/[^\d]/g, "")
     };
 };
 
@@ -84,7 +92,7 @@ export const getAdInfoStorageKey = (): string => {
  */
 export const ensureEnumValues = (data: any): AdInformationStorageData => {
     const result = { ...data };
-    
+
     // Handle listingType
     if (data.listingType && typeof data.listingType === 'string') {
         if (Object.values(ListingType).includes(data.listingType as ListingType)) {
@@ -99,7 +107,7 @@ export const ensureEnumValues = (data: any): AdInformationStorageData => {
             }
         }
     }
-    
+
     // Handle saveStatus
     if (data.saveStatus && typeof data.saveStatus === 'string') {
         if (Object.values(SaveStatus).includes(data.saveStatus as SaveStatus)) {
@@ -138,7 +146,7 @@ export const ensureEnumValues = (data: any): AdInformationStorageData => {
             result.countryCode = CountryCode.SY; // Default to Syria
         }
     }
-    
+
     return result as AdInformationStorageData;
 };
 
@@ -153,7 +161,7 @@ export const loadAdInfoData = (): AdInformationStorageData => {
 
         const storageKey = getAdInfoStorageKey();
         const savedData = localStorage.getItem(storageKey);
-        
+
         if (savedData) {
             const parsedData = JSON.parse(savedData);
 
@@ -207,18 +215,18 @@ export const saveAdInfoData = (data: AdInformationStorageData): void => {
  * Automatically saves form data as it changes with edit mode awareness
  */
 export const autoSaveAdInfoData = (
-    data: Partial<AdInformationStorageData>, 
+    data: Partial<AdInformationStorageData>,
     previousData?: Partial<AdInformationStorageData>
 ): void => {
-    if (previousData && 
+    if (previousData &&
         JSON.stringify(data) === JSON.stringify(previousData)) {
         return;
     }
-    
+
     try {
         if (typeof window !== "undefined") {
             const existingData = loadAdInfoData();
-            
+
             const updatedData = {
                 ...existingData,
                 ...data,
@@ -228,7 +236,7 @@ export const autoSaveAdInfoData = (
                 countryCode: data.countryCode || existingData.countryCode,
                 rentType: data.rentType !== undefined ? data.rentType : existingData.rentType
             };
-            
+
             const storageKey = getAdInfoStorageKey();
             localStorage.setItem(storageKey, JSON.stringify(updatedData));
         }
@@ -243,7 +251,7 @@ export const autoSaveAdInfoData = (
 export const useAdInfoData = () => {
     const isCurrentEditMode = isEditMode();
     const storageKey = getAdInfoStorageKey();
-    
+
     return {
         loadData: loadAdInfoData,
         saveData: saveAdInfoData,

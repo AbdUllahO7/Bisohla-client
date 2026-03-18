@@ -11,6 +11,10 @@ import { useGetNewsArticles } from '@/hooks/use-news';
 import { SelectNewsArticleDto } from '@/core/entities/models/news/news.dto';
 import SectionHeader from '@/components/SectionHeader'; // Added import
 import { logger } from '@/lib/logger';
+import AdSpace from '@/components/ads/AdSpace';
+import AdsSectionProduct from '@/components/web/ProductsPage/product/AdsSectionProduct';
+import CardAds from '@/components/web/design/CardAds';
+import { useAdSlot } from '@/hooks/use-ad-slot';
 
 interface NewsSectionProps {
   className?: string;
@@ -23,6 +27,7 @@ const NewsSection: React.FC<NewsSectionProps> = ({
 }) => {
   const locale = useLocale();
   const t = useTranslations('news');
+  const { adsData, isLoadingAds } = useAdSlot('web-home-page-news-section-ad');
 
   const { data, isLoading, error } = useGetNewsArticles({
     page: 1,
@@ -166,23 +171,79 @@ const NewsSection: React.FC<NewsSectionProps> = ({
 
           {/* News Grid */}
           {!isLoading && !error && hasArticles && (
-            <Box
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-              variant="center"
-            >
-              {articles.map((article: SelectNewsArticleDto, index: number) => (
-                <div
-                  key={article.id}
-                  className="animate-fadeInUp h-full"
-                  style={{
-                    animationDelay: `${index * 0.1}s`,
-                    animationFillMode: 'both',
-                  }}
-                >
-                  <NewsCard article={article} />
-                </div>
-              ))}
-            </Box>
+            <>
+              <Box
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                variant="center"
+              >
+                {(() => {
+                  const items: any[] = [];
+                  let adIndexCounter = 0;
+                  
+                  articles.forEach((article: SelectNewsArticleDto, index: number) => {
+                    items.push({ type: 'article', data: article, originalIndex: index });
+                    
+                    if ((index + 1) % 2 === 0) {
+                      items.push({ type: 'ad', adIndex: adIndexCounter });
+                      adIndexCounter++;
+                    }
+                  });
+
+                  while (adIndexCounter < adsData.length) {
+                    items.push({ type: 'ad', adIndex: adIndexCounter });
+                    adIndexCounter++;
+                  }
+
+                  if (adsData.length === 0 && items.filter(i => i.type === 'ad').length === 0) {
+                     // Guarantee at least one fallback ad is rendered if we had 2+ articles
+                     // but actually the loop above already pushes { type: 'ad', adIndex: 0 } 
+                     // when adsData.length === 0, which correctly falls back.
+                  }
+
+                  return items.map((item, i) => {
+                    if (item.type === 'article') {
+                      return (
+                        <div
+                          key={`article-${item.data.id}`}
+                          className="animate-fadeInUp h-full"
+                          style={{
+                            animationDelay: `${item.originalIndex * 0.1}s`,
+                            animationFillMode: 'both',
+                          }}
+                        >
+                          <NewsCard article={item.data} />
+                        </div>
+                      );
+                    } else {
+                      return (
+                        <div
+                          key={`ad-slot-${item.adIndex}-${i}`}
+                          className="animate-fadeInUp h-full"
+                          style={{
+                            animationDelay: `${i * 0.1}s`,
+                            animationFillMode: 'both',
+                          }}
+                        >
+                          <AdSpace
+                            name="web-home-page-news-section-ad"
+                            className="w-full h-full"
+                            wrapperClassName="w-full h-full min-h-[380px]"
+                            fallbackContent={<CardAds isRent={false} />}
+                            isClosable={false}
+                            adsData={adsData}
+                            isLoadingAds={isLoadingAds}
+                            adIndex={item.adIndex}
+                          />
+                        </div>
+                      );
+                    }
+                  });
+                })()}
+              </Box>
+
+              {/* News Section Ad */}
+              <AdsSectionProduct />
+            </>
           )}
         </Box>
       </Box>

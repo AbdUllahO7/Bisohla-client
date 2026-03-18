@@ -13,6 +13,7 @@ import {
   UpdateCarListingDto,
   UpdateSaveStatusDto,
   UpdateViewDurationDto,
+  BatchIncrementViewCountDto,
 } from '@/core/entities/models/cars/cars.zod.dto';
 import {
   UserFavoriteCarListing,
@@ -23,7 +24,7 @@ import {
 import { catchClientRequest } from '@/core/lib/error';
 
 export class CarUserController implements ICarUserController {
-  constructor(private readonly carUserUseCase: ICarUserUseCase) {}
+  constructor(private readonly carUserUseCase: ICarUserUseCase) { }
 
   async getMyCars(
     params: QueryParams,
@@ -107,7 +108,7 @@ export class CarUserController implements ICarUserController {
       return catchClientRequest(e);
     }
   }
-   async updateCarListingSaveStatus(
+  async updateCarListingSaveStatus(
     id: number,
     dto: UpdateSaveStatusDto,
   ): Promise<ApiResponse<SelectCarListingDto>> {
@@ -173,6 +174,16 @@ export class CarUserController implements ICarUserController {
   ): Promise<ApiResponse<SuccessResponseWithNoContent>> {
     try {
       return await this.carUserUseCase.updateViewDuration(dto);
+    } catch (e) {
+      return catchClientRequest(e);
+    }
+  }
+
+  async batchIncrementViewCount(
+    dto: BatchIncrementViewCountDto,
+  ): Promise<ApiResponse<SuccessResponseWithNoContent>> {
+    try {
+      return await this.carUserUseCase.batchIncrementViewCount(dto);
     } catch (e) {
       return catchClientRequest(e);
     }

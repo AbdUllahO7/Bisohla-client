@@ -9,6 +9,9 @@ import { UserProfileService } from '@/core/infrastructure/services/users/user-pr
 import { UserProfileUseCase } from '@/core/application/use-cases/users/user-profile/user-profile.use-case';
 import { NotificationUserController } from '@/core/infrastructure-adapters/controllers/users/notification.user.controller';
 import { UserProfileController } from '@/core/infrastructure-adapters/controllers/users/user-profile.controller';
+import { CarAlertUserService } from '@/core/infrastructure/services/users/car-alert.user.service';
+import { CarAlertUserUseCase } from '@/core/application/use-cases/users/car-alerts/car-alert.user.use-case';
+import { CarAlertUserController } from '@/core/infrastructure-adapters/controllers/users/car-alert.user.controller';
 
 export const createUsersModule = (): Module => {
   const UsersModule = createModule();
@@ -23,6 +26,18 @@ export const createUsersModule = (): Module => {
   UsersModule.bind(DI_SYMBOLS.ICarUserController).toClass(CarUserController, [
     DI_SYMBOLS.ICarUserUseCase,
   ]);
+
+  // car alerts
+  UsersModule.bind(DI_SYMBOLS.ICarAlertUserService).toClass(CarAlertUserService);
+
+  UsersModule.bind(DI_SYMBOLS.ICarAlertUserUseCase).toClass(CarAlertUserUseCase, [
+    DI_SYMBOLS.ICarAlertUserService,
+  ]);
+
+  UsersModule.bind(DI_SYMBOLS.ICarAlertUserController).toClass(
+    CarAlertUserController,
+    [DI_SYMBOLS.ICarAlertUserUseCase],
+  );
 
   // notifications
   UsersModule.bind(DI_SYMBOLS.INotificationUserService).toClass(

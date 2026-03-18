@@ -4,30 +4,43 @@ import {
   ApiResponse,
   SuccessResponseWithNoContent,
 } from '@/core/entities/api/success.response';
-import { IncrementCountDto, UpdateViewDurationDto } from '@/core/entities/models/cars/cars.zod.dto';
-import { incrementContactCount, incrementDetailsViewedCount, incrementSharesCount, incrementViewCount, updateViewDuration } from '@/core/infrastructure-adapters/actions/users/car.user.actions';
+import { IncrementCountDto, UpdateViewDurationDto, BatchIncrementViewCountDto } from '@/core/entities/models/cars/cars.zod.dto';
+import { incrementContactCount, incrementDetailsViewedCount, incrementSharesCount, incrementViewCount, updateViewDuration, batchIncrementViewCount } from '@/core/infrastructure-adapters/actions/users/car.user.actions';
 import { useMutation } from '@tanstack/react-query';
 
-
+export const useBatchIncrementViewCount = () =>
+  useMutation<
+    ApiResponse<SuccessResponseWithNoContent>,
+    Error,
+    BatchIncrementViewCountDto
+  >({
+    mutationFn: async (dto) => {
+      const result = await batchIncrementViewCount(dto);
+      return result;
+    },
+    onError: (error) => {
+      console.error('[Hook] Failed to batch increment view count:', error);
+    },
+  });
 
 export const useIncrementViewCount = () =>
   useMutation
-<ApiResponse<SuccessResponseWithNoContent>,
-    Error,
-    IncrementCountDto
-  >({
-    mutationFn: async (dto) => {
-      const result = await incrementViewCount(dto);
-      return result;
-    },
-    onSuccess: (data) => {
-    },
-    onError: (error) => {
-      console.error('[Hook] Failed to increment view count:', error);
-    },
-    onSettled: () => {
-    },
-  });
+    <ApiResponse<SuccessResponseWithNoContent>,
+      Error,
+      IncrementCountDto
+    >({
+      mutationFn: async (dto) => {
+        const result = await incrementViewCount(dto);
+        return result;
+      },
+      onSuccess: (data) => {
+      },
+      onError: (error) => {
+        console.error('[Hook] Failed to increment view count:', error);
+      },
+      onSettled: () => {
+      },
+    });
 
 export const useIncrementContactCount = () =>
   useMutation<

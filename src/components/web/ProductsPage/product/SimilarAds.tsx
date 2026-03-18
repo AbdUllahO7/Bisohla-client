@@ -13,6 +13,8 @@ import ProductSkeleton from '../../design/ProductSkeletonItem';
 import { RentProductCard } from '../../design/RentProductCard';
 import CardAds from '../../design/CardAds';
 import { logger } from '@/lib/logger';
+import AdSpace from '@/components/ads/AdSpace';
+import { useAdSlot } from '@/hooks/use-ad-slot';
 
 export interface SimilarAdsProps {
   count?: number; // Optional count of cards to display
@@ -31,6 +33,7 @@ const SimilarAds: React.FC<SimilarAdsProps> = ({
 }) => {
   const t = useTranslations('homePage');
   const session = useSession();
+  const { adsData, isLoadingAds } = useAdSlot('sale-page-ads-section');
 
   // Fetch car listings data with filter for listingType = 'for_sale'
   const { data, isLoading, error } = useCarListings({
@@ -72,8 +75,8 @@ const SimilarAds: React.FC<SimilarAdsProps> = ({
     const listings = Array.isArray(data?.data)
       ? data.data
       : Array.isArray(data?.data?.data)
-      ? data.data.data
-      : [];
+        ? data.data.data
+        : [];
 
     const limit = count || 9;
     return listings.slice(0, limit);
@@ -201,41 +204,86 @@ const SimilarAds: React.FC<SimilarAdsProps> = ({
           {/* Display actual cards when data is loaded */}
           {!isLoading && !error && carListings.length > 0 && (
             <Box
-              className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 ${
-                showTitle ? 'lg:grid-cols-5' : 'lg:grid-cols-4'
-              } gap-6 sm:w-[90%] xs:w-[90%] lg:w-full`}
+              className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 ${showTitle ? 'lg:grid-cols-5' : 'lg:grid-cols-4'
+                } gap-6 sm:w-[90%] xs:w-[90%] lg:w-full`}
               variant="center"
             >
-              {carListings.map((card, index) => (
-                <React.Fragment key={card.id || index}>
-                  {/* Card with Fade-in Animation */}
-                  <div
-                    className="animate-fadeInUp"
-                    style={{
-                      animationDelay: `${index * 0.1}s`,
-                      animationFillMode: 'both',
-                    }}
-                  >
-                    <RentProductCard
-                      car={card}
-                      priceWord={t('latestOffers.price')}
-                    />
-                  </div>
-                  {/* Render CardAds only after the first two cards */}
-                  {index === 1 && (
-                    <Box
-                      variant="center"
-                      className="justify-center items-center animate-fadeInUp"
-                      style={{
-                        animationDelay: `${index * 0.1}s`,
-                        animationFillMode: 'both',
-                      }}
-                    >
-                      <CardAds isRent={false} />
-                    </Box>
-                  )}
-                </React.Fragment>
-              ))}
+              {(() => {
+                const items: any[] = [];
+                let adIndexCounter = 0;
+                
+                carListings.forEach((card: any, index: number) => {
+                  items.push({ type: 'product', data: card, originalIndex: index });
+                  
+                  let showAd = false;
+                  let baseAdIndex = -1;
+
+                  if (adsData.length === 0) {
+                      if (index === 1) { showAd = true; baseAdIndex = 0; }
+                  } else if (adsData.length === 1) {
+                      if (index === 3) { showAd = true; baseAdIndex = 0; }
+                  } else {
+                      if (index === 1) { showAd = true; baseAdIndex = 0; }
+                      else if (index === 3) { showAd = true; baseAdIndex = 1; }
+                      else if (index === 5) { showAd = true; baseAdIndex = 2; }
+                      else if (index === 7) { showAd = true; baseAdIndex = 3; }
+                  }
+
+                  if (showAd) {
+                     items.push({ type: 'ad', baseAdIndex });
+                     adIndexCounter = Math.max(adIndexCounter, baseAdIndex + 1);
+                  }
+                });
+
+                while (adIndexCounter < adsData.length) {
+                  items.push({ type: 'ad', baseAdIndex: adIndexCounter });
+                  adIndexCounter++;
+                }
+
+                return items.map((item, i) => {
+                  if (item.type === 'product') {
+                    return (
+                      <React.Fragment key={`product-${item.data.id || item.originalIndex}`}>
+                        {/* Card with Fade-in Animation */}
+                        <div
+                          className="animate-fadeInUp"
+                          style={{
+                            animationDelay: `${item.originalIndex * 0.1}s`,
+                            animationFillMode: 'both',
+                          }}
+                        >
+                          <RentProductCard
+                            car={item.data}
+                            priceWord={t('latestOffers.price')}
+                          />
+                        </div>
+                      </React.Fragment>
+                    );
+                  } else {
+                    const currentAdIndex = (item.baseAdIndex >= 0 && adsData.length > 0) ? item.baseAdIndex % adsData.length : item.baseAdIndex;
+                    return (
+                      <React.Fragment key={`ad-slot-${item.baseAdIndex}-${i}`}>
+                        <Box
+                          variant="center"
+                          className="justify-center items-center animate-fadeInUp"
+                          style={{
+                            animationDelay: `${i * 0.1}s`,
+                            animationFillMode: 'both',
+                          }}
+                        >
+                          <AdSpace 
+                            name="sale-page-ads-section" 
+                            isClosable={false} 
+                            adsData={adsData}
+                            isLoadingAds={isLoadingAds}
+                            adIndex={currentAdIndex}
+                          />
+                        </Box>
+                      </React.Fragment>
+                    );
+                  }
+                });
+              })()}
             </Box>
           )}
         </Box>

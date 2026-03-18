@@ -8,6 +8,7 @@ import {
   RentType,
   SaveStatus,
   Transmission,
+  VehicleCondition,
 } from '../../enums/cars.enums';
 import { Currency } from '../../enums/currency.enum';
 import { SyriaCity, SyriaGovernorate } from '../../enums/syria.enums';
@@ -19,6 +20,7 @@ export interface SelectCarMakeDto {
   name: string;
   logoUrl: string | null;
   description: string | null;
+  isCarTrimRequired: boolean;
   createdAt: string | Date;
   updatedAt: string | Date;
   deletedAt: string | Date | null;
@@ -99,6 +101,7 @@ export interface CarDetails {
   colorExterior: string | null;
   vin: string | null;
   plateNumber: string | null;
+  condition: VehicleCondition;
   createdAt: string | Date;
   updatedAt: string | Date;
   deletedAt: string | Date | null;
@@ -117,6 +120,7 @@ export interface CreateCarDetailsDto {
   colorExterior?: string | null;
   vin?: string | null;
   plateNumber?: string | null;
+  condition?: string | null;
 }
 
 // Update DTO for CarDetails
@@ -166,37 +170,37 @@ export interface SelectCarListingDto {
   // Added damage information
   damages?: SelectCarDamageDto[];
 
-  
-  statics:{
-   id: number;
-  carListingId: number;
-  viewsCount: number | null;
-  contactCount: number | null;
-  favoritesCount: number | null;
-  viewDuration: number | null;     // seconds
-  sharesCount: number | null;
-  detailsViewedCount: number | null;
-  lastViewedAt: string | null;     // because { mode: "string" }
-  createdAt: string;               // from timestamps(false)
-  updatedAt: string;               // from timestamps(false)
 
-  
+  statics: {
+    id: number;
+    carListingId: number;
+    viewsCount: number | null;
+    contactCount: number | null;
+    favoritesCount: number | null;
+    viewDuration: number | null;     // seconds
+    sharesCount: number | null;
+    detailsViewedCount: number | null;
+    lastViewedAt: string | null;     // because { mode: "string" }
+    createdAt: string;               // from timestamps(false)
+    updatedAt: string;               // from timestamps(false)
+
+
   }
 
   // ===== CAR LISTING STATISTICS =====
-  
+
 
   // Engagement Statistics
   totalContacts?: number;           // Number of contact/inquiry requests
   totalShares?: number;             // Number of times shared
   totalFavorites?: number;          // Number of users who favorited this car
   totalClicks?: number;             // Total clicks on "View Details"
-  
+
   // Performance Metrics
   contactRate?: number;             // Percentage of views that resulted in contact
   favoriteRate?: number;            // Percentage of views that resulted in favorite
   engagementScore?: number;         // Overall engagement score (0-100)
-  
+
   // Recent Activity (Last 7/30 days)
   recentViews?: {
     today?: number;
@@ -204,22 +208,22 @@ export interface SelectCarListingDto {
     last7Days?: number;
     last30Days?: number;
   };
-  
+
   recentContacts?: {
     today?: number;
     yesterday?: number;
     last7Days?: number;
     last30Days?: number;
   };
-  
+
   // Trend Data
   viewTrend?: 'increasing' | 'decreasing' | 'stable';
   contactTrend?: 'increasing' | 'decreasing' | 'stable';
-  
+
   // Ranking/Comparison
   viewRank?: number;                // Rank compared to other listings
   priceCompetitiveness?: number;    // How competitive is the price (0-100)
-  
+
   // Time on Market
   daysOnMarket?: number;            // Days since published
   lastViewedAt?: string | Date;    // Last time someone viewed this car

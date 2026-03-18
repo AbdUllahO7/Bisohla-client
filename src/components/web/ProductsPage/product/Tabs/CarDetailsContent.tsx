@@ -31,7 +31,7 @@ const CarDetailsContent: React.FC<CarDetailsContentProps> = ({
   isLoading = false,
 }) => {
   const t = useTranslations('product.CarDetailsContent');
-
+  console.log("data", data)
   // State for expanded text fields
   const [expandedFields, setExpandedFields] = useState<{
     [key: string]: boolean;
@@ -75,11 +75,6 @@ const CarDetailsContent: React.FC<CarDetailsContentProps> = ({
   // Ad basic information
   const adsDetails: DetailItem[] = [
     {
-      label: t('trim'),
-      value: data?.trim?.name || '-',
-      icon: <Settings className="w-4 h-4" />,
-    },
-    {
       label: t('engineSize'),
       value: data?.details?.engineSize || '-',
       icon: <Settings className="w-4 h-4" />,
@@ -90,11 +85,6 @@ const CarDetailsContent: React.FC<CarDetailsContentProps> = ({
       icon: <Settings className="w-4 h-4" />,
     },
     {
-      label: t('doors'),
-      value: data?.details?.doors || '-',
-      icon: <Car className="w-4 h-4" />,
-    },
-    {
       label: t('plateNumber'),
       value: data?.details?.plateNumber || '-',
       icon: <Hash className="w-4 h-4" />,
@@ -103,6 +93,11 @@ const CarDetailsContent: React.FC<CarDetailsContentProps> = ({
       label: t('vin'),
       value: data?.details?.vin || '-',
       icon: <Key className="w-4 h-4" />,
+    },
+    {
+      label: t('vehicleCondition.label'),
+      value: data?.condition ? t(`vehicleCondition.${data?.condition}`) : '-',
+      icon: <Settings className="w-4 h-4" />,
     },
   ];
 
@@ -234,22 +229,22 @@ const CarDetailsContent: React.FC<CarDetailsContentProps> = ({
     <div key={index} className="group relative">
       {/* Outer glow effect */}
       <div className="absolute -inset-0.5 bg-gradient-to-r from-[#198341] to-[#ABDE3B] rounded-xl opacity-0 group-hover:opacity-20 blur transition-opacity duration-300"></div>
-      
+
       <div className="relative p-4 bg-white rounded-xl border-2 border-slate-200 shadow-sm hover:shadow-lg hover:border-[#198341] transition-all duration-300 space-y-3 overflow-hidden">
         {/* Top accent line */}
         <div className="absolute top-0 left-0 w-0 group-hover:w-full h-0.5 bg-gradient-to-r from-[#198341] to-[#ABDE3B] transition-all duration-300"></div>
-        
+
         {/* Side accent indicator */}
         <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-0 group-hover:h-16 bg-gradient-to-b from-[#198341] to-[#ABDE3B] transition-all duration-300 rounded-r-full"></div>
-        
+
         {/* Background gradient on hover */}
         <div className="absolute inset-0 bg-gradient-to-br from-[#198341]/5 to-[#ABDE3B]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-        
+
         <div className="flex items-center gap-3 relative z-10">
           <div className="relative group/icon">
             {/* Icon glow */}
             <div className="absolute inset-0 bg-[#198341] blur-md opacity-0 group-hover:opacity-30 transition-opacity duration-300 rounded-lg"></div>
-            
+
             <div className="relative flex-shrink-0 w-8 h-8 bg-gradient-to-br from-[#198341]/10 to-[#ABDE3B]/10 rounded-lg flex items-center justify-center text-[#198341] group-hover:from-[#198341]/20 group-hover:to-[#ABDE3B]/20 group-hover/icon:scale-110 transition-all duration-300">
               {detail.icon}
             </div>
@@ -285,26 +280,26 @@ const CarDetailsContent: React.FC<CarDetailsContentProps> = ({
       >
         {/* Outer glow effect */}
         <div className="absolute -inset-1 bg-gradient-to-r from-[#198341] via-[#ABDE3B] to-[#198341] rounded-xl opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500"></div>
-        
+
         <div className="relative p-6 bg-white rounded-xl border-2 border-slate-200 shadow-sm hover:shadow-xl transition-all duration-500 space-y-4 overflow-hidden">
           {/* Decorative corner accents */}
           <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-[#ABDE3B]/10 to-transparent rounded-bl-full pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
           <div className="absolute bottom-0 left-0 w-20 h-20 bg-gradient-to-tr from-[#198341]/10 to-transparent rounded-tr-full pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-          
+
           {/* Top accent line */}
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#198341] via-[#ABDE3B] to-[#198341]"></div>
-          
+
           {/* Side accent indicator */}
           <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-0 group-hover:h-32 bg-gradient-to-b from-[#198341] to-[#ABDE3B] transition-all duration-500 rounded-r-full"></div>
-          
+
           {/* Background gradient on hover */}
           <div className="absolute inset-0 bg-gradient-to-br from-[#198341]/3 to-[#ABDE3B]/3 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-          
+
           <div className="flex items-center gap-3 relative z-10">
             <div className="relative group/icon">
               {/* Icon glow */}
               <div className="absolute inset-0 bg-[#198341] blur-lg opacity-0 group-hover:opacity-40 transition-opacity duration-300 rounded-lg"></div>
-              
+
               <div className="relative flex-shrink-0 w-8 h-8 bg-gradient-to-br from-[#198341]/10 to-[#ABDE3B]/10 rounded-lg flex items-center justify-center text-[#198341] group-hover:from-[#198341]/20 group-hover:to-[#ABDE3B]/20 group-hover/icon:scale-110 transition-all duration-300">
                 {detail.icon}
               </div>
@@ -325,7 +320,7 @@ const CarDetailsContent: React.FC<CarDetailsContentProps> = ({
               <div className="relative inline-block group/button">
                 {/* Button glow */}
                 <div className="absolute -inset-1 bg-gradient-to-r from-[#198341] to-[#ABDE3B] rounded-lg opacity-0 group-hover/button:opacity-30 blur transition-opacity duration-300"></div>
-                
+
                 <Button
                   variant="ghost"
                   size="sm"
@@ -334,7 +329,7 @@ const CarDetailsContent: React.FC<CarDetailsContentProps> = ({
                 >
                   {/* Animated shine effect */}
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700"></div>
-                  
+
                   {isExpanded ? (
                     <div className="flex items-center gap-2 relative z-10">
                       <span>{t('showLess')}</span>

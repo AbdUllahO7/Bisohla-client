@@ -2,7 +2,7 @@
 
 import { Locale, routing, usePathname, useRouter } from '@/i18n/routing';
 import { useParams } from 'next/navigation';
-import { ReactNode } from 'react';
+import { ReactNode, startTransition } from 'react';
 import {
   Select,
   SelectContent,
@@ -29,18 +29,21 @@ export default function LocaleSwitcherSelect({ defaultValue, label }: Props) {
   const updateUserLocale = useUpdateLocale();
 
   function onSelectChange(nextLocale: string) {
-    // send request to change user locale in back end, but even if failed nothign happen
+    // Non-blocking locale switch using startTransition so the UI stays responsive
+    startTransition(() => {
+      router.replace(
+        // @ts-expect-error -- TypeScript will validate that only known `params`
+        // are used in combination with a given `pathname`. Since the two will
+        // always match for the current route, we can skip runtime checks.
+        { pathname, params },
+        { locale: nextLocale as Locale },
+      );
+    });
+
+    // Update backend locale preference (fire-and-forget)
     if (session.user) {
       updateUserLocale.mutate({ id: session.user.id, locale: nextLocale });
     }
-
-    router.replace(
-      // @ts-expect-error -- TypeScript will validate that only known `params`
-      // are used in combination with a given `pathname`. Since the two will
-      // always match for the current route, we can skip runtime checks.
-      { pathname, params },
-      { locale: nextLocale as Locale },
-    );
   }
 
   return (

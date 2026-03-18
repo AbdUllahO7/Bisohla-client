@@ -40,6 +40,7 @@ interface CarMake {
   label: string;
   logoUrl?: string;
   isSelected: boolean;
+  isCarTrimRequired: boolean;
 }
 
 interface CarModel {
@@ -181,6 +182,8 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
     refetchOnWindowFocus: false,
   });
 
+  console.log("makesData",makesData)
+
   // =============================================================================
   // DATA TRANSFORMATION
   // =============================================================================
@@ -189,30 +192,38 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
   const makes = useMemo(() => {
     const allMakes = new Map<string, CarMake>();
 
-    // 2. Then, add makes from search results
+    // 1. First, ensure selected brands are in the list even if not in current page
+    // Note: We might miss isCarTrimRequired for these if they are not in makesData
+    selectedBrands.forEach((brandId) => {
+      if (!allMakes.has(brandId)) {
+        allMakes.set(brandId, {
+          value: brandId,
+          label: `Brand ${brandId}`, // Fallback label
+          isSelected: true,
+          isCarTrimRequired: true, // Default to true to be safe, will be updated if found in data
+        });
+      }
+    });
+
+    // 2. Then, add/update makes from search results
     if (makesData?.pages) {
       makesData.pages.forEach((page) => {
         page.data?.data.forEach((item) => {
           const makeValue = String(item[carMakesConfig.valueField]);
+          const label = String(item[carMakesConfig.labelField]);
+          const logoUrl = carMakesConfig.logoField
+            ? String(item[carMakesConfig.logoField])
+            : undefined;
+          const isSelected = selectedBrands.includes(makeValue);
+          const isCarTrimRequired = !!item.isCarTrimRequired;
 
-          // Only add if not already exists (selected items take priority)
-          if (!allMakes.has(makeValue)) {
-            const make: CarMake = {
-              value: makeValue,
-              label: String(item[carMakesConfig.labelField]),
-              logoUrl: carMakesConfig.logoField
-                ? String(item[carMakesConfig.logoField])
-                : undefined,
-              isSelected: selectedBrands.includes(makeValue), // FIXED: Proper multi-brand check
-            };
-            allMakes.set(make.value, make);
-          } else {
-            // Update selection status if make already exists
-            const existingMake = allMakes.get(makeValue);
-            if (existingMake) {
-              existingMake.isSelected = selectedBrands.includes(makeValue);
-            }
-          }
+          allMakes.set(makeValue, {
+            value: makeValue,
+            label,
+            logoUrl,
+            isSelected,
+            isCarTrimRequired,
+          });
         });
       });
     }
@@ -403,22 +414,19 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
     return (
       <div className="mb-2">
         <div
-          className={`rounded-lg border transition-all duration-200 ${
-            brand.isSelected
+          className={`rounded-lg border transition-all duration-200 ${brand.isSelected
               ? 'bg-primary/10 border-primary/30 shadow-sm'
               : 'bg-white border-slate-200 hover:border-slate-300'
-          }`}
+            }`}
         >
           <div className="p-3">
             <div
-              className={`flex items-center w-full ${
-                isRTL ? 'text-right' : 'text-left'
-              }`}
+              className={`flex items-center w-full ${isRTL ? 'text-right' : 'text-left'
+                }`}
             >
               <div
-                className={`flex items-center flex-1 ${
-                  isRTL ? 'flex-row' : 'justify-start'
-                }`}
+                className={`flex items-center flex-1 ${isRTL ? 'flex-row' : 'justify-start'
+                  }`}
               >
                 <Checkbox
                   id={`brand-${brand.value}`}
@@ -428,22 +436,19 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
                 />
                 <Label
                   htmlFor={`brand-${brand.value}`}
-                  className={`text-sm font-medium cursor-pointer flex items-center ${
-                    brand.isSelected ? 'text-primary' : 'text-slate-700'
-                  } ${isRTL ? 'pr-3' : 'pl-3'}`}
+                  className={`text-sm font-medium cursor-pointer flex items-center ${brand.isSelected ? 'text-primary' : 'text-slate-700'
+                    } ${isRTL ? 'pr-3' : 'pl-3'}`}
                 >
                   {brand.isSelected && (
                     <Star
-                      className={`w-3 h-3 text-primary fill-current ${
-                        isRTL ? 'ml-2' : 'mr-2'
-                      }`}
+                      className={`w-3 h-3 text-primary fill-current ${isRTL ? 'ml-2' : 'mr-2'
+                        }`}
                     />
                   )}
                   {brand.logoUrl && (
                     <div
-                      className={`relative w-6 h-6 flex-shrink-0 ${
-                        isRTL ? 'ml-2' : 'mr-2'
-                      }`}
+                      className={`relative w-6 h-6 flex-shrink-0 ${isRTL ? 'ml-2' : 'mr-2'
+                        }`}
                     >
                       <Image
                         src={brand.logoUrl}
@@ -479,9 +484,8 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
                     <ChevronDown className="w-4 h-4 text-primary" />
                   ) : (
                     <ChevronRight
-                      className={`w-4 h-4 text-primary ${
-                        isRTL ? 'rotate-180' : ''
-                      }`}
+                      className={`w-4 h-4 text-primary ${isRTL ? 'rotate-180' : ''
+                        }`}
                     />
                   )}
                 </button>
@@ -494,9 +498,8 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
               {modelsQuery.isLoading ? (
                 <div className="flex items-center p-2 text-sm text-slate-500">
                   <Loader2
-                    className={`w-4 h-4 animate-spin ${
-                      isRTL ? 'ml-2' : 'mr-2'
-                    }`}
+                    className={`w-4 h-4 animate-spin ${isRTL ? 'ml-2' : 'mr-2'
+                      }`}
                   />
                   {isRTL ? 'جارٍ تحميل الموديلات...' : 'Loading models...'}
                 </div>
@@ -506,7 +509,11 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
                 </div>
               ) : (
                 models.map((model) => (
-                  <ModelItem key={model.value} model={model} />
+                  <ModelItem
+                    key={model.value}
+                    model={model}
+                    isCarTrimRequired={brand.isCarTrimRequired}
+                  />
                 ))
               )}
             </div>
@@ -516,7 +523,10 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
     );
   });
 
-  const ModelItem: React.FC<{ model: CarModel }> = React.memo(({ model }) => {
+  const ModelItem: React.FC<{
+    model: CarModel;
+    isCarTrimRequired: boolean;
+  }> = React.memo(({ model, isCarTrimRequired }) => {
     const isExpanded = expandedModels.has(model.value);
     const trimsQuery = useTrimsForModel(model.value);
 
@@ -544,22 +554,19 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
     return (
       <div className="mb-1">
         <div
-          className={`rounded-md border transition-all duration-200 ${
-            model.isSelected
+          className={`rounded-md border transition-all duration-200 ${model.isSelected
               ? 'bg-white border-primary/30 shadow-sm'
               : 'bg-white/70 border-slate-200 hover:bg-white'
-          }`}
+            }`}
         >
           <div className="p-2">
             <div
-              className={`flex items-center w-full ${
-                isRTL ? 'text-right' : 'text-left'
-              }`}
+              className={`flex items-center w-full ${isRTL ? 'text-right' : 'text-left'
+                }`}
             >
               <div
-                className={`flex items-center flex-1 ${
-                  isRTL ? 'flex-row' : 'justify-start'
-                }`}
+                className={`flex items-center flex-1 ${isRTL ? 'flex-row' : 'justify-start'
+                  }`}
               >
                 <Checkbox
                   id={`model-${model.value}`}
@@ -569,24 +576,22 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
                 />
                 <Label
                   htmlFor={`model-${model.value}`}
-                  className={`text-sm cursor-pointer flex items-center ${
-                    model.isSelected
+                  className={`text-sm cursor-pointer flex items-center ${model.isSelected
                       ? 'text-primary font-medium'
                       : 'text-slate-600'
-                  } ${isRTL ? 'pr-2' : 'pl-2'}`}
+                    } ${isRTL ? 'pr-2' : 'pl-2'}`}
                 >
                   {model.isSelected && (
                     <Star
-                      className={`w-3 h-3 text-primary fill-current ${
-                        isRTL ? 'ml-1' : 'mr-1'
-                      }`}
+                      className={`w-3 h-3 text-primary fill-current ${isRTL ? 'ml-1' : 'mr-1'
+                        }`}
                     />
                   )}
                   <span className="truncate">{model.label}</span>
                 </Label>
               </div>
 
-              {model.isSelected && trims.length > 0 && (
+              {model.isSelected && isCarTrimRequired && (
                 <button
                   type="button"
                   onClick={(e) => {
@@ -607,9 +612,8 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
                     <ChevronDown className="w-3 h-3 text-primary" />
                   ) : (
                     <ChevronRight
-                      className={`w-3 h-3 text-primary ${
-                        isRTL ? 'rotate-180' : ''
-                      }`}
+                      className={`w-3 h-3 text-primary ${isRTL ? 'rotate-180' : ''
+                        }`}
                     />
                   )}
                 </button>
@@ -617,14 +621,13 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
             </div>
           </div>
 
-          {model.isSelected && isExpanded && trims.length > 0 && (
+          {model.isSelected && isExpanded && isCarTrimRequired && (
             <div className="border-t border-primary/20 bg-primary/5 p-2 space-y-1">
               {trimsQuery.isLoading ? (
                 <div className="flex items-center p-2 text-sm text-slate-500">
                   <Loader2
-                    className={`w-4 h-4 animate-spin ${
-                      isRTL ? 'ml-2' : 'mr-2'
-                    }`}
+                    className={`w-4 h-4 animate-spin ${isRTL ? 'ml-2' : 'mr-2'
+                      }`}
                   />
                   {isRTL ? 'جارٍ تحميل الفئات...' : 'Loading trims...'}
                 </div>
@@ -640,17 +643,15 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
 
   const TrimItem: React.FC<{ trim: CarTrim }> = React.memo(({ trim }) => (
     <div
-      className={`rounded border transition-all duration-200 ${
-        trim.isSelected
+      className={`rounded border transition-all duration-200 ${trim.isSelected
           ? 'bg-white border-primary/30 shadow-sm'
           : 'bg-white/50 border-slate-200 hover:bg-white'
-      }`}
+        }`}
     >
       <div className="p-2">
         <div
-          className={`flex items-center w-full ${
-            isRTL ? 'text-right' : 'text-left'
-          }`}
+          className={`flex items-center w-full ${isRTL ? 'text-right' : 'text-left'
+            }`}
         >
           <Checkbox
             id={`trim-${trim.value}`}
@@ -660,15 +661,13 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
           />
           <Label
             htmlFor={`trim-${trim.value}`}
-            className={`text-sm cursor-pointer flex items-center ${
-              trim.isSelected ? 'text-primary font-medium' : 'text-slate-500'
-            } ${isRTL ? 'pr-2' : 'pl-2'}`}
+            className={`text-sm cursor-pointer flex items-center ${trim.isSelected ? 'text-primary font-medium' : 'text-slate-500'
+              } ${isRTL ? 'pr-2' : 'pl-2'}`}
           >
             {trim.isSelected && (
               <Star
-                className={`w-3 h-3 text-primary fill-current ${
-                  isRTL ? 'ml-1' : 'mr-1'
-                }`}
+                className={`w-3 h-3 text-primary fill-current ${isRTL ? 'ml-1' : 'mr-1'
+                  }`}
               />
             )}
             <span className="truncate">{trim.label}</span>
@@ -693,11 +692,9 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
       <div className="relative">
         <div className="relative group">
           <Search
-            className={`absolute ${
-              isRTL ? 'right-3' : 'left-3'
-            } top-1/2 transform -translate-y-1/2 h-4 w-4 ${
-              isFocused || searchTerm ? 'text-primary' : 'text-slate-400'
-            }`}
+            className={`absolute ${isRTL ? 'right-3' : 'left-3'
+              } top-1/2 transform -translate-y-1/2 h-4 w-4 ${isFocused || searchTerm ? 'text-primary' : 'text-slate-400'
+              }`}
           />
           <input
             type="text"
@@ -707,19 +704,16 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
             onBlur={() => setIsFocused(false)}
             onKeyDown={(e) => e.key === 'Escape' && setSearchTerm('')}
             placeholder={searchPlaceholder}
-            className={`w-full border border-slate-200 bg-[#EFEFEF] transition-all duration-200 ${
-              isRTL ? 'pr-9 pl-8 text-right' : 'pl-9 pr-8 text-left'
-            } h-10 rounded-lg text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 hover:border-slate-300 ${
-              isFocused ? 'bg-white shadow-sm' : ''
-            }`}
+            className={`w-full border border-slate-200 bg-[#EFEFEF] transition-all duration-200 ${isRTL ? 'pr-9 pl-8 text-right' : 'pl-9 pr-8 text-left'
+              } h-10 rounded-lg text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 hover:border-slate-300 ${isFocused ? 'bg-white shadow-sm' : ''
+              }`}
           />
           {searchTerm && (
             <button
               type="button"
               onClick={() => setSearchTerm('')}
-              className={`absolute ${
-                isRTL ? 'left-2' : 'right-2'
-              } top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600`}
+              className={`absolute ${isRTL ? 'left-2' : 'right-2'
+                } top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600`}
             >
               <X className="h-4 w-4" />
             </button>
@@ -774,9 +768,8 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
       {(selectedBrands.length > 0 || selectedModel || selectedTrim) && (
         <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg">
           <div
-            className={`flex items-center justify-between text-xs ${
-              isRTL ? 'flex-row-reverse' : ''
-            }`}
+            className={`flex items-center justify-between text-xs ${isRTL ? 'flex-row-reverse' : ''
+              }`}
           >
             <div className={isRTL ? 'text-right' : 'text-left'}>
               <span className="font-medium">

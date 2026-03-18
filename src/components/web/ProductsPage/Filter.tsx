@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import React from 'react';
 
 import {
@@ -10,13 +10,13 @@ import {
   X,
   SlidersHorizontal,
   Check,
+  Bell,
 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 
 // UI Components
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import SelectDropdown from '@/components/SelectDropdown';
 import {
   Accordion,
@@ -30,7 +30,6 @@ import {
   SheetDescription,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
   SheetClose,
 } from '@/components/ui/sheet';
 
@@ -45,6 +44,10 @@ import { getCurrencyOptions } from '@/core/entities/enums/currency.enum';
 import { useFilters } from '@/providers/filters.provider';
 import NestedCarFilter from './nested-car-filter';
 import { getListingTypeOptions } from '@/core/entities/enums/cars.enums';
+import { useToast } from '@/hooks/use-toast';
+import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions';
+import CarAlertModal from './CarAlertModal';
+import { getCityOptions } from './addProducts/StepOne/utils';
 
 // Types for components
 interface FilterOptionDropdownProps {
@@ -84,13 +87,11 @@ const FilterOptionDropdown = React.memo(
         <SelectDropdown
           options={options}
           placeholder={placeholder}
-          SelectTriggerStyle={`border border-slate-200 rounded-lg p-3 shadow-sm ${
-            disabled
-              ? 'bg-slate-50 text-slate-400 cursor-not-allowed'
-              : `bg-white hover:bg-slate-50 ${
-                  value ? 'border-primary/50 bg-primary/5' : ''
-                }`
-          } transition-all duration-200 w-full text-slate-800 text-sm font-medium`}
+          SelectTriggerStyle={`border border-slate-200 rounded-lg p-3 shadow-sm ${disabled
+            ? 'bg-slate-50 text-slate-400 cursor-not-allowed'
+            : `bg-white hover:bg-slate-50 ${value ? 'border-primary/50 bg-primary/5' : ''
+            }`
+            } transition-all duration-200 w-full text-slate-800 text-sm font-medium`}
           className="w-full"
           onChange={onChange}
           value={value || ''}
@@ -110,9 +111,8 @@ const AccordionHeader = React.memo(
     <div className="flex items-center justify-between w-full py-1">
       <div className="flex items-center gap-3">
         <span
-          className={`text-slate-800 font-semibold text-sm ${
-            hasActiveFilters ? 'text-primary' : ''
-          }`}
+          className={`text-slate-800 font-semibold text-sm ${hasActiveFilters ? 'text-primary' : ''
+            }`}
         >
           {title}
         </span>
@@ -194,9 +194,7 @@ MobileFilterButton.displayName = 'MobileFilterButton';
 const FilterContent = React.memo(
   ({
     filters,
-    updateFilter,
     resetFilters,
-    toggleBrand,
     governorateOptions,
     cityOptions,
     carMakesConfig,
@@ -222,9 +220,14 @@ const FilterContent = React.memo(
     handleAccordionChange,
     getActiveFiltersCount,
     t,
+    handleCreateAlert,
+    isCreatingAlert,
     isMobile = false,
   }: any) => {
     const trans = useTranslations('addProduct.enteredData');
+
+
+    console.log("stepOneTitles",stepOneTitles)
 
     return (
       <>
@@ -305,8 +308,8 @@ const FilterContent = React.memo(
                       placeholder={
                         !filters.governorate
                           ? t(
-                              'filter.filterOptions.address.selectGovernorateFirst',
-                            ) || 'Please select a governorate first'
+                            'filter.filterOptions.address.selectGovernorateFirst',
+                          ) || 'Please select a governorate first'
                           : stepOneTitles.city
                       }
                       onChange={handleFilterChange}
@@ -560,8 +563,19 @@ const FilterContent = React.memo(
           {/* </ScrollArea> */}
         </div>
 
-        {/* Reset Button */}
-        <div className="p-4 border-t border-slate-200 bg-gradient-to-r from-slate-50 to-white">
+        {/* Action Buttons */}
+        <div className="p-4 border-t border-slate-200 bg-gradient-to-r from-slate-50 to-white flex flex-col gap-3">
+          <Button
+            onClick={handleCreateAlert}
+            disabled={isCreatingAlert}
+            className="w-full bg-gradient-to-r from-[#198341] to-[#ABDE3B] hover:shadow-lg text-white font-bold transition-all duration-300 rounded-lg h-11 border-none flex items-center justify-center gap-2"
+          >
+            <Bell size={18} className={isCreatingAlert ? 'animate-pulse' : ''} />
+            {isCreatingAlert
+              ? t('allCars.creatingAlert', { defaultValue: 'Saving...' })
+              : t('allCars.createAlert', { defaultValue: 'Notify Me' })}
+          </Button>
+
           <Button
             variant="outline"
             className="w-full bg-white hover:bg-slate-50 hover:text-primary text-slate-700 border-slate-300 hover:border-primary font-medium transition-all duration-200 rounded-lg h-11 shadow-sm hover:shadow"
@@ -586,6 +600,11 @@ const ProductsFilter: React.FC = React.memo(() => {
   const filterRef = useRef<HTMLDivElement>(null);
   const [headerHeight, setHeaderHeight] = useState(80);
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
+  const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isCreatingAlert, setIsCreatingAlert] = useState(false);
+  const { toast } = useToast();
+  const isArabic = locale === 'ar';
 
   // Smart accordion state management
   const [openAccordions, setOpenAccordions] = useState<string[]>([]);
@@ -593,12 +612,12 @@ const ProductsFilter: React.FC = React.memo(() => {
   // Use filter context
   const { filters, updateFilter, resetFilters, toggleBrand } = useFilters();
 
+
   // Get data from hooks
-  const handleValidationChangeStepOne = (isValid: boolean) => {};
-  const handleValidationChangeStepTwo = (isValid: boolean) => {};
+  const handleValidationChangeStepOne = (isValid: boolean) => { };
+  const handleValidationChangeStepTwo = (isValid: boolean) => { };
 
   const {
-    selectedOptions,
     governorateOptions,
     cityOptions,
     carMakesConfig,
@@ -609,12 +628,13 @@ const ProductsFilter: React.FC = React.memo(() => {
     titles: stepOneTitles,
   } = useProductStepOne(handleValidationChangeStepOne);
 
+
   const {
-    carInfo,
     options: stepTwoOptions,
     labels: stepTwoLabels,
     handleSelectChange: handleStepTwoSelectChange,
   } = useAddProductStepTwo(handleValidationChangeStepTwo);
+
 
   const currencyOptions = getCurrencyOptions(t);
   const priceRanges = getPriceRanges;
@@ -639,6 +659,19 @@ const ProductsFilter: React.FC = React.memo(() => {
 
     setOpenAccordions(newOpenAccordions);
   }, [filters]);
+
+  // Check authentication
+  useEffect(() => {
+    const checkUserAuth = async () => {
+      try {
+        const auth = await checkAuth();
+        setIsAuthenticated(!!auth?.success);
+      } catch (error) {
+        setIsAuthenticated(false);
+      }
+    };
+    checkUserAuth();
+  }, []);
 
   // Calculate header height
   useEffect(() => {
@@ -745,6 +778,23 @@ const ProductsFilter: React.FC = React.memo(() => {
     setOpenAccordions(value);
   };
 
+  const handleCreateAlert = async () => {
+    if (!isAuthenticated) {
+      toast({
+        title: t('allCars.loginToCreateAlert', {
+          defaultValue: 'Login Required',
+        }),
+        description: t('allCars.loginToCreateAlertDesc', {
+          defaultValue: 'Please login to create an alert',
+        }),
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsAlertModalOpen(true);
+  };
+
   // FIXED: Helper function to count active filters per section - added listing-type case
   const getActiveFiltersCount = (section: string) => {
     switch (section) {
@@ -808,6 +858,8 @@ const ProductsFilter: React.FC = React.memo(() => {
     handleAccordionChange,
     getActiveFiltersCount,
     t,
+    handleCreateAlert,
+    isCreatingAlert,
   };
 
   return (
@@ -888,8 +940,8 @@ const ProductsFilter: React.FC = React.memo(() => {
               <span>
                 {activeFiltersCount > 0
                   ? t('filter.filtersApplied', {
-                      count: String(activeFiltersCount),
-                    })
+                    count: String(activeFiltersCount),
+                  })
                   : t('filter.noFiltersApplied')}
               </span>
               {activeFiltersCount > 0 && (
@@ -917,6 +969,24 @@ const ProductsFilter: React.FC = React.memo(() => {
           </div>
         </SheetContent>
       </Sheet>
+
+      <CarAlertModal
+        open={isAlertModalOpen}
+        onOpenChange={setIsAlertModalOpen}
+        initialData={{
+          makeId: filters.selectedBrands[0] ? Number(filters.selectedBrands[0]) : 0,
+          modelId: Number(filters.model),
+          trimId: Number(filters.trim),
+          minPrice: Number(filters.minPrice),
+          maxPrice: Number(filters.maxPrice),
+          governorate: filters.governorate,
+          city: filters.city,
+        }}
+        governorateOptions={governorateOptions}
+        getCityOptions={(gov) => getCityOptions(gov, isArabic)}
+        isArabic={isArabic}
+        t={t}
+      />
     </>
   );
 });

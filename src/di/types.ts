@@ -3,6 +3,9 @@ import { INotificationUserController } from './../core/application/controllers/u
 import { IUserProfileUseCase } from './../core/application/use-cases/users/user-profile/user-profile.use-case.interface';
 import { IUserProfileService } from './../core/application/services/users/user-profile.service.interface';
 import { INotificationUserService } from './../core/application/services/users/notification.user.service.interface';
+import { ICarAlertUserController } from './../core/application/controllers/users/car-alerts/car-alert-controller.interface';
+import { ICarAlertUserService } from './../core/application/services/users/car-alert.user.service.interface';
+import { ICarAlertUserUseCase } from './../core/application/use-cases/users/car-alerts/car-alert.user.use-case.interface';
 import { ICarUserController } from './../core/application/controllers/users/cars/car-controller.interface';
 import { IFileManagerController } from '@/core/application/controllers/file-manager.controller.interface';
 import { IRolesRepoController } from './../core/application/controllers/repositories/roles.repo.controller.interface';
@@ -57,6 +60,7 @@ import { INotificationUserUseCase } from '@/core/application/use-cases/users/not
 import { INewsVisitorController } from '@/core/application/controllers/visitors/news/news-controller.interface';
 import { INewsVisitorUseCase } from '@/core/application/use-cases/visitors/news/news.visitor.use-case.interface';
 import { INewsVisitorStrategy } from '@/core/application/strategies/visitors/news.visitor.strategy.interface';
+import { IAdVisitorRepository } from '@/core/application/repositories/ads/ads.visitor.repo.interface';
 
 export const DI_SYMBOLS = {
   // ? services
@@ -72,6 +76,7 @@ export const DI_SYMBOLS = {
   ICarUserService: Symbol.for('ICarUserService'),
   INotificationUserService: Symbol.for('INotificationUserService'),
   IUserProfileService: Symbol.for('IUserProfileService'),
+  ICarAlertUserService: Symbol.for('ICarAlertUserService'),
 
   //? use cases
   IAuthUseCase: Symbol.for('IAuthUseCase'),
@@ -87,6 +92,7 @@ export const DI_SYMBOLS = {
   ICarUserUseCase: Symbol.for('ICarUserUseCase'),
   INotificationUserUseCase: Symbol.for('INotificationUserUseCase'),
   IUserProfileUseCase: Symbol.for('IUserProfileUseCase'),
+  ICarAlertUserUseCase: Symbol.for('ICarAlertUserUseCase'),
 
   //? controllers
   IAuthController: Symbol.for('IAuthController'),
@@ -102,6 +108,7 @@ export const DI_SYMBOLS = {
   ICarUserController: Symbol.for('ICarUserController'),
   INotificationUserController: Symbol.for('INotificationUserController'),
   IUserProfileController: Symbol.for('IUserProfileController'),
+  ICarAlertUserController: Symbol.for('ICarAlertUserController'),
 
   //? REPOSITORIES
   IBaseRepo: Symbol.for('IBaseRepo'),
@@ -159,7 +166,8 @@ export const DI_SYMBOLS = {
   INewsVisitorController: Symbol.for('INewsVisitorController'),
   INewsVisitorUseCase: Symbol.for('INewsVisitorUseCase'),
   INewsVisitorStrategy: Symbol.for('INewsVisitorStrategy'),
-  
+
+  IAdVisitorRepository: Symbol.for('IAdVisitorRepository'),
 };
 
 export interface DI_RETURN_TYPES {
@@ -176,6 +184,7 @@ export interface DI_RETURN_TYPES {
   ICarUserService: ICarUserService;
   INotificationUserService: INotificationUserService;
   IUserProfileService: IUserProfileService;
+  ICarAlertUserService: ICarAlertUserService;
 
   // use cases
   IAuthUseCase: IAuthUseCase;
@@ -191,6 +200,7 @@ export interface DI_RETURN_TYPES {
   ICarUserUseCase: ICarUserUseCase;
   INotificationUserUseCase: INotificationUserUseCase;
   IUserProfileUseCase: IUserProfileUseCase;
+  ICarAlertUserUseCase: ICarAlertUserUseCase;
 
   // controllers
   IAuthController: IAuthController;
@@ -206,6 +216,7 @@ export interface DI_RETURN_TYPES {
   ICarUserController: ICarUserController;
   INotificationUserController: INotificationUserController;
   IUserProfileController: IUserProfileController;
+  ICarAlertUserController: ICarAlertUserController;
 
   //REPOSITORIES
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -252,6 +263,7 @@ export interface DI_RETURN_TYPES {
   INewsVisitorController: INewsVisitorController;
   INewsVisitorUseCase: INewsVisitorUseCase;
   INewsVisitorStrategy: INewsVisitorStrategy;
+  IAdVisitorRepository: IAdVisitorRepository;
 
   //repo patths
   usersRepoPath: string;

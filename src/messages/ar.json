@@ -29,7 +29,6 @@
       "ContactUs": "اتصل بنا",
       "News": "الأخبار"
     },
-
     "hero": {
       "title": "بسهولة",
       "description": "بيع . شراء . تأجير . استئجار"
@@ -190,20 +189,62 @@
       "title": "اكتشف عالم السيارات",
       "showMore": "عرض المزيد",
       "cities": {
-        "idlib": { "title": "إدلب", "productCount": "150" },
-        "aleppo": { "title": "حلب", "productCount": "223" },
-        "damascus": { "title": "دمشق", "productCount": "240" },
-        "hama": { "title": "حماة", "productCount": "110" },
-        "homs": { "title": "حمص", "productCount": "310" },
-        "latakia": { "title": "اللاذقية", "productCount": "55" },
-        "tartus": { "title": "طرطوس", "productCount": "105" },
-        "daraa": { "title": "درعا", "productCount": "102" },
-        "quneitra": { "title": "القنيطرة", "productCount": "202" },
-        "as_suwayda": { "title": "السويداء", "productCount": "50" },
-        "deir_ez_zor": { "title": "دير الزور", "productCount": "90" },
-        "raqqa": { "title": "الرقة", "productCount": "305" },
-        "al_hasakah": { "title": "الحسكة", "productCount": "302" },
-        "rif_dimashq": { "title": "ريف دمشق", "productCount": "400" }
+        "idlib": {
+          "title": "إدلب",
+          "productCount": "150"
+        },
+        "aleppo": {
+          "title": "حلب",
+          "productCount": "223"
+        },
+        "damascus": {
+          "title": "دمشق",
+          "productCount": "240"
+        },
+        "hama": {
+          "title": "حماة",
+          "productCount": "110"
+        },
+        "homs": {
+          "title": "حمص",
+          "productCount": "310"
+        },
+        "latakia": {
+          "title": "اللاذقية",
+          "productCount": "55"
+        },
+        "tartus": {
+          "title": "طرطوس",
+          "productCount": "105"
+        },
+        "daraa": {
+          "title": "درعا",
+          "productCount": "102"
+        },
+        "quneitra": {
+          "title": "القنيطرة",
+          "productCount": "202"
+        },
+        "as_suwayda": {
+          "title": "السويداء",
+          "productCount": "50"
+        },
+        "deir_ez_zor": {
+          "title": "دير الزور",
+          "productCount": "90"
+        },
+        "raqqa": {
+          "title": "الرقة",
+          "productCount": "305"
+        },
+        "al_hasakah": {
+          "title": "الحسكة",
+          "productCount": "302"
+        },
+        "rif_dimashq": {
+          "title": "ريف دمشق",
+          "productCount": "400"
+        }
       }
     },
     "rentProduct": {
@@ -322,6 +363,11 @@
         "bishola": "بسـهولـــة"
       }
     },
+    "ads": {
+      "advertiseTitle": "أعلن معنا!",
+      "advertiseSubtitle": "تواصل مع آلاف المشترين والمستأجرين يومياً.",
+      "advertiseButton": "تواصل معنا"
+    },
     "faq": {
       "title": "الأسئلة الشائعة",
       "showMore": "عرض المزيد",
@@ -365,7 +411,6 @@
     },
     "filter": {
       "listingTypeSelect": "اختر نوع القوائم",
-
       "activeFilters": "{count} مرشح نشط",
       "activeFilters_other": "{count} مرشحات نشطة",
       "mobileDescription": "تصفية السيارات حسب تفضيلاتك",
@@ -407,12 +452,10 @@
         "address": {
           "filterOptionsTitle": "العنوان",
           "listingTypeTitle": "نوع القوائم",
-
           "placeHolder": "المدينة",
           "governorate": "المحافظة",
           "city": "المدينة",
           "selectGovernorateFirst": "اختر المحافظة أولاً",
-
           "options": {
             "Damascus": "دمشق",
             "Idlib": "إدلب",
@@ -476,10 +519,19 @@
       "loading": "جاري تحميل السيارات...",
       "error": "فشل في تحميل قوائم السيارات",
       "noResults": "لم يتم العثور على سيارات",
-
       "noResultsMessage": "حاول تعديل معايير البحث أو المرشحات",
       "totalFound": "سيارة موجودة",
-      "loadingMore": "جاري تحميل المزيد من السيارات..."
+      "loadingMore": "جاري تحميل المزيد من السيارات...",
+      "createAlert": "خبرني ",
+      "creatingAlert": "جاري الحفظ...",
+      "alertCreated": "تم بنجاح",
+      "alertCreatedDesc": "تم إنشاء التنبيه بنجاح!",
+      "alertCreateError": "خطأ",
+      "alertCreateErrorDesc": "فشل في إنشاء التنبيه",
+      "loginToCreateAlert": "تسجيل الدخول مطلوب",
+      "loginToCreateAlertDesc": "يرجى تسجيل الدخول لإنشاء تنبيه",
+      "selectBrandForAlert": "الماركة مطلوبة",
+      "selectBrandForAlertDesc": "يرجى اختيار ماركة لإنشاء تنبيه"
     },
     "categories": {
       "cat_name_one": "اقتصادي",
@@ -501,7 +553,6 @@
     "signIn": "تسجيل الدخول",
     "error": "خطأ",
     "favoriteError": "فشل في تحديث المفضلة. يرجى المحاولة مرة أخرى.",
-
     "sellerInfo": {
       "title": "البائع",
       "verified": "موثق",
@@ -509,7 +560,6 @@
       "memberSince": "عضو منذ",
       "viewProfile": "عرض ملف البائع"
     },
-
     "header": {
       "whatsApp": "مراسة عبر الواتس"
     },
@@ -649,6 +699,12 @@
       "engineSize": "حجم المحرك",
       "year": "السنة",
       "enginePower": "قوة المحرك",
+      "vehicleCondition": {
+        "label": "حالة السيارة",
+        "new": "جديد",
+        "used": "مستعمل",
+        "certified_pre_owned": "مستعملة معتمدة"
+      },
       "plateNumber": "رقم اللوحة",
       "mileage": "العمر",
       "doors": "الأبواب",
@@ -721,7 +777,6 @@
             "gbp": "جنيه إسترليني"
           }
         },
-
         "color": {
           "options": {
             "red": "أحمر",
@@ -735,7 +790,6 @@
             "black": "أسود",
             "white": "أبيض",
             "gray": "رمادي",
-
             "light_red": "أحمر فاتح",
             "light_green": "أخضر فاتح",
             "light_blue": "أزرق فاتح",
@@ -745,7 +799,6 @@
             "light_pink": "وردي فاتح",
             "light_brown": "بني فاتح",
             "light_gray": "رمادي فاتح",
-
             "dark_red": "أحمر داكن",
             "dark_green": "أخضر داكن",
             "dark_blue": "أزرق داكن",
@@ -755,7 +808,6 @@
             "dark_pink": "وردي داكن",
             "dark_brown": "بني داكن",
             "dark_gray": "رمادي داكن",
-
             "turquoise": "فيروزي",
             "teal": "أزرق مخضر",
             "navy": "أزرق غامق",
@@ -788,16 +840,23 @@
           "gasoline_gas": "بنزين / غاز"
         },
         "bodyType": {
-          "suv": "شاحنة",
+          "suv": "SUV",
           "sedan": "سيدان",
           "hatchback": "هاتشباك",
           "coupe": "كوبيه",
+          "grand_coupe": "كراند كوبي",
           "convertible": "كشف ",
           "wagon": "عربة",
+          "station_wagon": "ستيشن واجن",
           "van": "شاحنة صغيرة",
           "minivan": "ميني فان",
           "pickup": "بيك أب",
           "other": "أخرى"
+        },
+        "vehicleCondition": {
+          "new": "جديد",
+          "used": "مستعمل",
+          "certified_pre_owned": "مستعملة معتمدة"
         },
         "transmission": {
           "automatic": "أوتوماتيك",
@@ -880,7 +939,6 @@
             "winterTires": "إطارات شتوية",
             "alarmSystem": "نظام إنذار"
           },
-
           "carStatus": {
             "pending": "قيد الانتظار",
             "approved": "موافق عليه",
@@ -894,7 +952,6 @@
         "carInfo": "حالة السيارة",
         "carPhotos": "صور السيارة",
         "carSectionName": "اسم قسم السيارة",
-
         "damageType": {
           "paint": "طلاء",
           "replacement": "استبدال",
@@ -947,7 +1004,6 @@
           "published": "نشر",
           "sold": "تم البيع"
         },
-
         "dateValue": {
           "forSale": "للبيع",
           "forRent": "للإيجار",
@@ -978,7 +1034,6 @@
       "actions": "عمليات",
       "showing": "إظهار",
       "to": "إلى",
-
       "of": "من",
       "results": "النتائج"
     },
@@ -990,7 +1045,6 @@
           "items": [
             {
               "title": "الأدوار والصلاحيات",
-
               "children": [
                 {
                   "title": "قائمة الأدوار"
@@ -1091,7 +1145,6 @@
       "userInfo": "معلومات المستخدم",
       "logout": "تسجيل الخروج"
     },
-
     "profile": {
       "YourProfile": "الملف الشخصي",
       "editProfile": "تعديل الملف الشخصي",
@@ -1277,7 +1330,6 @@
     "myProducts": "منتجاتي",
     "sale": "بيع",
     "forSale": "للبيع",
-
     "rent": "إيجار",
     "edit": "تعديل",
     "delete": "حذف",
@@ -1548,7 +1600,72 @@
       "noTrimsFound": "لم يتم العثور على فئات"
     }
   },
+  "carAlerts": {
+    "title": "تنبيهاتي",
+    "breadcrumb": "تنبيهاتي",
+    "createNew": "إنشاء تنبيه جديد",
+    "getStarted": "استعرض السيارات وأنشئ تنبيهاً",
+    "noAlerts": "لا توجد تنبيهات بعد",
+    "noAlertsDesc": "أنشئ تنبيهاً لتصلك إشعارات عند توفّر سيارات تطابق معاييرك.",
+    "anyVehicle": "أي سيارة",
+    "allTrims": "جميع الفئات",
+    "anyPrice": "أي سعر",
+    "anyLocation": "أي موقع",
+    "any": "أي",
+    "activeStatus": "نشط",
+    "pausedStatus": "متوقف",
+    "enabled": "تم تفعيل التنبيه",
+    "disabled": "تم إيقاف التنبيه",
+    "toggleSuccess": "تم تحديث حالة التنبيه.",
+    "toggleError": "فشل تحديث حالة التنبيه.",
+    "deleted": "تم حذف التنبيه",
+    "deleteSuccess": "تم إزالة التنبيه بنجاح.",
+    "deleteError": "فشل حذف التنبيه.",
+    "deleteAlert": "حذف التنبيه",
+    "confirmDeleteTitle": "حذف هذا التنبيه؟",
+    "confirmDeleteDescription": "ستتوقف عن تلقّي الإشعارات لـ",
+    "cannotUndo": "لا يمكن التراجع عن هذا الإجراء.",
+    "thisVehicle": "هذه السيارة",
+    "clickToDisable": "انقر لإيقاف الإشعارات",
+    "clickToEnable": "انقر لتفعيل الإشعارات",
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "error": "خطأ",
+    "unexpectedError": "حدث خطأ غير متوقع."
+  },
   "breadcrumb": {
     "home": "الرئيسية"
+  },
+  "carAlertModal": {
+    "editAlert": "تعديل التنبيه",
+    "notifyMe": "خبرني",
+    "updateCriteria": "قم بتحديث معايير التنبيه الخاص بك",
+    "beFirst": "كن أول من يعرف بالسيارات الجديدة",
+    "minPriceSyp": "السعر الأدنى (ل.س)",
+    "maxPriceSyp": "السعر الأعلى (ل.س)",
+    "fillOneField": "الرجاء ملء حقل واحد على الأقل",
+    "priceRangeError": "الحد الأدنى للسعر يجب أن يكون أقل من أو يساوي الحد الأعلى",
+    "saveChanges": "حفظ التعديلات",
+    "activateAlert": "تفعيل التنبيه",
+    "alertUpdated": "تم تحديث التنبيه",
+    "changesSaved": "تم حفظ التعديلات بنجاح",
+    "alertCreated": "تم إنشاء التنبيه",
+    "willNotify": "سنقوم بإعلامك عند توفر سيارات مطابقة",
+    "updateError": "خطأ في التحديث",
+    "creationError": "خطأ في الإنشاء",
+    "failedUpdate": "فشل تحديث التنبيه",
+    "failedCreate": "فشل إنشاء التنبيه",
+    "unexpectedError": "حدث خطأ غير متوقع",
+    "make": "الماركة",
+    "model": "الموديل",
+    "trim": "الفئة",
+    "governorate": "المحافظة",
+    "city": "المدينة",
+    "cancel": "إلغاء",
+    "saving": "جاري الحفظ...",
+    "loading": "جاري التحميل...",
+    "loadingShort": "جاري...",
+    "select": "اختر",
+    "editAlertHint": "تعديل التنبيه"
   }
 }

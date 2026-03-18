@@ -1,6 +1,6 @@
 // types/index.ts
 import { Currency } from '@/core/entities/enums/currency.enum';
-import { BodyType, DamageType, DamageZone, FuelType, ListingType, RentType, SaveStatus, Transmission } from '@/core/entities/enums/cars.enums';
+import { BodyType, DamageType, DamageZone, FuelType, ListingType, RentType, SaveStatus, Transmission, VehicleCondition } from '@/core/entities/enums/cars.enums';
 import { SyriaCity, SyriaGovernorate } from '@/core/entities/enums/syria.enums';
 import { CarDetails, CarImage, CarListingFeature, SelectCarMakeDto, SelectCarModelDto, SelectCarTrimDto } from '@/core/entities/models/cars/cars.dto';
 import { SelectUserDto } from '@/core/entities/models/users/users.dto';
@@ -18,7 +18,7 @@ export interface StepOneData {
   governorate: string;
   city: string;
   address: string;
-  story : string | null;
+  story: string | null;
 }
 
 export interface StepTwoData {
@@ -30,9 +30,10 @@ export interface StepTwoData {
   doors: string | number;
   plateNumber: string | number;
   mileage: string | number;
-  enginePower: string | number; 
+  enginePower: string | number;
   engineSize: string | number;
   vin: string | number;
+  condition: VehicleCondition;
   selectedFeatures: Array<{
     id: number;
     carListingId: number;
@@ -58,11 +59,11 @@ export interface StepFourData {
   title: string;
   price: string | number;
   description: string;
-  listingType : ListingType,
-  rentType : RentType | null;
-  contactNumber : string | null;
-  publicationDate : string | null;
-  saveStatus : SaveStatus;
+  listingType: ListingType,
+  rentType: RentType | null;
+  contactNumber: string | null;
+  publicationDate: string | null;
+  saveStatus: SaveStatus;
 }
 
 // // Update CarListingDTO to use Currency enum type
@@ -107,16 +108,16 @@ export interface CreateCarListingDto {
   year: number;
   story: string | null;
   isTrend: boolean,
-  
+
   // Location details - update types to match enums
   address: string | undefined;
   city: SyriaCity | undefined;
   governorate: SyriaGovernorate | undefined;
-  
+
   // Pricing
   currency: Currency;
   price: number | null;
-  
+
   // Listing metadata
   isFeatured: boolean;
   isSold: boolean;
@@ -126,16 +127,16 @@ export interface CreateCarListingDto {
   rentType: RentType | null;
   contactNumber: string | null;
   publishedAt: string | null;
-  
+
   // Listing content
   title: string;
   description: string;
-  
+
   // Features and images
   featureIds: number[] | undefined;
   images: string[] | undefined;
   primaryImageIndex?: number;
-  
+
   // Car details
   mileage: number | null;
   fuelType: FuelType | null;
@@ -147,6 +148,7 @@ export interface CreateCarListingDto {
   colorExterior: string | null;
   vin: string | null;
   plateNumber: string | null;
+  condition: VehicleCondition | null;
   damages?: { damageZone: DamageZone; damageType: DamageType; description: string | null; }[];
 }
 

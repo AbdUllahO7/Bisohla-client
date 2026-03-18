@@ -11,6 +11,7 @@ import {
   RentType,
   DamageZone,
   DamageType,
+  VehicleCondition,
 } from '@/core/entities/enums/cars.enums';
 import { Currency } from '@/core/entities/enums/currency.enum';
 import { SyriaCity, SyriaGovernorate } from '../../enums/syria.enums';
@@ -20,6 +21,7 @@ export const CreateCarMakeSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   logoUrl: z.string().url('Invalid URL').nullable().optional(),
   description: z.string().nullable().optional(),
+  isCarTrimRequired: z.boolean().default(false).optional(),
 });
 
 export type CreateCarMakeDto = z.infer<typeof CreateCarMakeSchema>;
@@ -117,6 +119,7 @@ export const CreateCarListingSchema = z.object({
   colorExterior: z.string().nullable().optional(),
   vin: z.string().nullable().optional(),
   plateNumber: z.string().nullable().optional(),
+  condition: z.nativeEnum(VehicleCondition).nullable().optional(),
 
   // Features
   featureIds: z.array(z.number().int().positive()).optional(),
@@ -186,6 +189,14 @@ export const UpdateViewDurationDtoSchema = z.object({
 
 export type IncrementCountDto = z.infer<typeof IncrementCountDtoSchema>;
 export type UpdateViewDurationDto = z.infer<typeof UpdateViewDurationDtoSchema>;
+
+// ============= Batch Increment View Count DTO =============
+export const BatchIncrementViewCountDtoSchema = z.object({
+  carListingIds: z.array(z.number().positive()).min(1, 'At least one car listing ID is required'),
+  userId: z.number().positive().optional(),
+});
+
+export type BatchIncrementViewCountDto = z.infer<typeof BatchIncrementViewCountDtoSchema>;
 
 export type CreateFeatureDto = z.infer<typeof CreateFeatureSchema>;
 

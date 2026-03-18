@@ -26,6 +26,9 @@ import NewsCard from '@/components/web/Home/NewsCard';
 import { SelectNewsArticleDto } from '@/core/entities/models/news/news.dto';
 import { cn } from '@/lib/utils';
 import { useDirection } from '@/hooks/use-direction';
+import AdSpace from '@/components/ads/AdSpace';
+import AdsSectionProduct from '@/components/web/ProductsPage/product/AdsSectionProduct';
+import CardAds from '@/components/web/design/CardAds';
 
 // Extended type for article with relations
 type ArticleWithRelations = SelectNewsArticleDto & {
@@ -478,6 +481,17 @@ export const NewsDetailClient: React.FC<NewsDetailClientProps> = ({
                       />
                     ))}
                   </div>
+
+                  {/* Sidebar Ad Slot */}
+                  <div className="mt-8">
+                    <AdSpace
+                      name="details-news-page-ad-space-card"
+                      className="w-full h-full"
+                      wrapperClassName="w-full h-full min-h-[380px]"
+                      fallbackContent={<CardAds isRent={false} />}
+                      isClosable={false}
+                    />
+                  </div>
                   {/* --- END MODIFICATION --- */}
                 </div>
               )}
@@ -486,6 +500,11 @@ export const NewsDetailClient: React.FC<NewsDetailClientProps> = ({
           {/* --- End Grid --- */}
         </div>{' '}
         {/* --- End Container --- */}
+
+        {/* Full-width bottom ad */}
+        <div className="mt-16 border-t container border-gray-100 pt-16">
+          <AdsSectionProduct name='news-details-page-bottom-full-width-ad' />
+        </div>
       </div>
       {/* Animations */}
       <style jsx>{`

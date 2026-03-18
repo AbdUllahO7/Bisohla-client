@@ -13,6 +13,7 @@ import {
   UpdateCarListingDto,
   UpdateSaveStatusDto,
   UpdateViewDurationDto,
+  BatchIncrementViewCountDto,
 } from '@/core/entities/models/cars/cars.zod.dto';
 import {
   CreateFavoriteCarListingDto,
@@ -172,5 +173,13 @@ export const updateViewDuration = async (
 ): Promise<ApiResponse<SuccessResponseWithNoContent>> => {
   const carListingController = getInjection('ICarUserController');
   const res = await carListingController.updateViewDuration(dto);
+  return res;
+};
+
+export const batchIncrementViewCount = async (
+  dto: BatchIncrementViewCountDto,
+): Promise<ApiResponse<SuccessResponseWithNoContent>> => {
+  const carListingController = getInjection('ICarUserController');
+  const res = await carListingController.batchIncrementViewCount(dto);
   return res;
 };

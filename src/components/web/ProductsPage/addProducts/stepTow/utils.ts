@@ -26,35 +26,26 @@ export const getCarInfoStorageKey = (): string => {
  */
 export const groupFeaturesByCategory = (allFeatures: SelectFeatureDto[]): GroupedFeatures => {
     const categoriesMap: GroupedFeatures = {};
-    
+
     // Group features by their category
     allFeatures.forEach(feature => {
         if (!categoriesMap[feature.category]) {
-        categoriesMap[feature.category] = {
-            label: feature.category.charAt(0).toUpperCase() + feature.category.slice(1), // Capitalize first letter
-            features: []
-        };
+            categoriesMap[feature.category] = {
+                label: feature.category.charAt(0).toUpperCase() + feature.category.slice(1), // Capitalize first letter
+                features: []
+            };
         }
-        
+
         categoriesMap[feature.category].features.push({
-        id: feature.id.toString(),
-        label: feature.name
+            id: feature.id.toString(),
+            label: feature.name
         });
     });
-    
+
     return categoriesMap;
 };
 
 
-/**
- * Validate doors value
- * @param value - Doors value to validate
- * @returns Boolean indicating if doors count is valid
- */
-export const isValidDoors = (value: string): boolean => {
-    const doorsNum = parseInt(value);
-    return Number.isInteger(doorsNum) && doorsNum > 0 && doorsNum <= 10;
-};
 
 /**
  * Validate engine size value
@@ -74,8 +65,8 @@ export const loadFromStorage = (): CarInfoState => {
     try {
         const storageKey = getCarInfoStorageKey();
         const savedData = localStorage.getItem(storageKey);
-        
-        
+
+
         if (savedData) {
             const parsed = JSON.parse(savedData);
 
@@ -85,7 +76,7 @@ export const loadFromStorage = (): CarInfoState => {
                 if (!Array.isArray(parsed.selectedFeatures)) {
                     // If stored as an object with categories, convert to array of objects
                     const featureArray: CarListingFeature[] = [];
-                    
+
                     // Loop through each category
                     Object.entries(parsed.selectedFeatures).forEach(([category, featureIds]) => {
                         // Convert each feature ID to a CarListingFeature object
@@ -106,21 +97,21 @@ export const loadFromStorage = (): CarInfoState => {
                             });
                         });
                     });
-                    
+
                     parsed.selectedFeatures = featureArray;
                 }
             } else {
                 parsed.selectedFeatures = [];
             }
 
-         
+
 
             return parsed;
         }
     } catch (e) {
         console.error(`Failed to parse saved data from ${getCarInfoStorageKey()}:`, e);
     }
-    
+
     // Return default state if loading failed
     return {
         colorExterior: "",
@@ -130,9 +121,9 @@ export const loadFromStorage = (): CarInfoState => {
         mileage: "",
         enginePower: "",
         engineSize: "",
-        doors: "",
         plateNumber: "",
         vin: "",
+        condition: "",
         selectedFeatures: [], // Empty array
     };
 };
@@ -158,23 +149,20 @@ export const saveToStorage = (data: CarInfoState): void => {
  */
 export const validateForm = (carInfo: CarInfoState, validationErrors: any): boolean => {
     const requiredFields = [
-        "colorExterior",  "fuelType", "bodyType", "transmission", "mileage", "engineSize", "doors"
+        "colorExterior", "fuelType", "bodyType", "transmission", "mileage", "engineSize", "condition"
     ];
-  
-    // Doors validation
-    const isDoorsValid = isValidDoors(carInfo.doors);
-    
+
     // Engine Size validation
     const isEngineSizeValid = isValidEngineSize(carInfo.engineSize);
-    
+
     // Other fields validation
     const areOtherFieldsValid = requiredFields
-        .filter(field => field !== 'doors' && field !== 'engineSize') // Handling these separately
+        .filter(field => field !== 'engineSize') // Handling these separately
         .every((field) => Boolean(carInfo[field]));
-    
+
     // Form is valid if all conditions are met AND there are no validation errors
-    return isDoorsValid && isEngineSizeValid && areOtherFieldsValid && 
-            !validationErrors.doors && !validationErrors.engineSize;
+    return isEngineSizeValid && areOtherFieldsValid &&
+        !validationErrors.engineSize;
 };
 
 /**
@@ -184,7 +172,7 @@ export const validateForm = (carInfo: CarInfoState, validationErrors: any): bool
 export const useCarInfo = () => {
     const currentEditMode = isEditMode();
     const storageKey = getCarInfoStorageKey();
-    
+
     return {
         loadFromStorage,
         saveToStorage,

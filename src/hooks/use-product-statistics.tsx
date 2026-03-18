@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from 'react';
 import {
   useIncrementContactCount,
-  useIncrementViewCount,
   useIncrementDetailsViewedCount,
   useUpdateViewDuration,
   useIncrementSharesCount,
@@ -70,7 +69,7 @@ export const useProductStatistics = ({
 
   const logPrefix = componentType === 'mobile' ? '[MOBILE]' : '[DESKTOP]';
 
-  // 📊 TRACKING: Track details viewed count on mount (once per visit across all components)
+  // 📊 TRACKING: Track view count on mount using batch endpoint (once per visit across all components)
   useEffect(() => {
     if (!carId) return;
 
@@ -113,7 +112,7 @@ export const useProductStatistics = ({
       isTrackingInitiator.current = true;
 
       logger.log(
-        `📊 ${logPrefix} Tracking details viewed for car ID: ${carId}`,
+        `📊 ${logPrefix} Tracking view count for car ID: ${carId}`,
       );
 
       incrementDetailsViewedCount.mutate(
@@ -121,11 +120,11 @@ export const useProductStatistics = ({
         {
           onSuccess: () => {
             setHasTrackedDetailsViewed(true);
-            logger.log(`✅ ${logPrefix} Details viewed tracked successfully`);
+            logger.log(`✅ ${logPrefix} View count tracked successfully`);
           },
-          onError: (error) => {
+          onError: (error: any) => {
             console.error(
-              `❌ ${logPrefix} Failed to track details viewed:`,
+              `❌ ${logPrefix} Failed to track view count:`,
               error,
             );
             setHasTrackedDetailsViewed(true);

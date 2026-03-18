@@ -24,24 +24,24 @@ export const useProductStepOne = (onValidationChange: (isValid: boolean) => void
     const [selectedOptions, setSelectedOptions] = useState<SelectedOptions>(loadSelections());
     const [isClient, setIsClient] = useState(false);
     const [prevValidationState, setPrevValidationState] = useState(false);
-    
+
     // Create refs to track user interactions vs. initial load
     const isInitialLoad = useRef(true);
     const userChangedMarka = useRef(false);
     const userChangedModel = useRef(false);
     const userChangedGovernorate = useRef(false);
     const editModeDataApplied = useRef(false);
-    
+
     // Set isClient to true once the component has mounted
     useEffect(() => {
         setIsClient(true);
-              window.scrollTo(0, 0);
+        window.scrollTo(0, 0);
 
         // Mark when the initial load is complete
         const timer = setTimeout(() => {
             isInitialLoad.current = false;
         }, 1000); // Give enough time for API calls to complete
-        
+
         return () => clearTimeout(timer);
     }, []);
 
@@ -56,10 +56,10 @@ export const useProductStepOne = (onValidationChange: (isValid: boolean) => void
     const setInitialEditData = useCallback((editData: SelectedOptions) => {
         // Only apply edit data once
         if (!editModeDataApplied.current) {
-            
+
             setSelectedOptions(editData);
             editModeDataApplied.current = true;
-            
+
             // Set validation based on provided data
             if (onValidationChange && validateForm(editData)) {
                 onValidationChange(true);
@@ -78,35 +78,42 @@ export const useProductStepOne = (onValidationChange: (isValid: boolean) => void
 
     // Data fetching with appropriate filters
     const { data: carMakesResponse, error: makesError } = useCarMakes({ pageSize: 200 });
-    const { data: carModelsResponse, error: modelsError } = useCarModels({ where: makeFilter , pageSize: 200 });
-    const { data: carTrimsResponse, error: trimsError } = useCarTrims({ where: modelFilter , pageSize: 200 });
+    const { data: carModelsResponse, error: modelsError } = useCarModels({ where: makeFilter, pageSize: 200 });
+    const { data: carTrimsResponse, error: trimsError } = useCarTrims({ where: modelFilter, pageSize: 200 });
 
 
     // Transform data for SelectableList components
-    const carMarka = useMemo(() => 
+    const carMarka = useMemo(() =>
         carMakesResponse?.data?.data?.map(make => ({
             value: make.id.toString(),
             label: make.name,
             logoUrl: make.logoUrl,
-        })).sort((a, b) => a.label.localeCompare(b.label)) || [] ,
+            isCarTrimRequired: make.isCarTrimRequired,
+        })).sort((a, b) => a.label.localeCompare(b.label)) || [],
         [carMakesResponse]
     );
 
-    const carModel = useMemo(() => 
+    const carModel = useMemo(() =>
         carModelsResponse?.data?.data?.map(model => ({
             value: model.id.toString(),
             label: model.name,
-        })).sort((a, b) => a.label.localeCompare(b.label)) || [], 
+        })).sort((a, b) => a.label.localeCompare(b.label)) || [],
         [carModelsResponse]
     );
 
-    const carTrim = useMemo(() => 
+    const carTrim = useMemo(() =>
         carTrimsResponse?.data?.data?.map(trim => ({
             value: trim.id.toString(),
             label: trim.name,
         })).sort((a, b) => a.label.localeCompare(b.label)) || [],
         [carTrimsResponse]
     );
+
+    const isTrimRequired = useMemo(() => {
+        const selectedMake = carMarka.find(m => m.value === selectedOptions.marka);
+        return !!selectedMake?.isCarTrimRequired;
+    }, [carMarka, selectedOptions.marka]);
+
 
     // Location options
     const governorateOptions = useMemo(() => getGovernorateOptions(isArabic), [isArabic]);
@@ -117,14 +124,14 @@ export const useProductStepOne = (onValidationChange: (isValid: boolean) => void
     const handleSelectChange = useCallback((type: string, value: string) => {
         if (type === "marka") {
             userChangedMarka.current = true;
-            
+
             // Only reset dependent fields if this is a user change, not initial load
             if (!isInitialLoad.current) {
                 setSelectedOptions(prev => ({
                     ...prev,
                     [type]: value,
                     model: "",
-                    trim: ""
+                    trim: "",
                 }));
             } else {
                 setSelectedOptions(prev => ({
@@ -134,13 +141,13 @@ export const useProductStepOne = (onValidationChange: (isValid: boolean) => void
             }
         } else if (type === "model") {
             userChangedModel.current = true;
-            
+
             // Only reset trim if this is a user change, not initial load
             if (!isInitialLoad.current) {
                 setSelectedOptions(prev => ({
                     ...prev,
                     [type]: value,
-                    trim: ""
+                    trim: "",
                 }));
             } else {
                 setSelectedOptions(prev => ({
@@ -150,7 +157,7 @@ export const useProductStepOne = (onValidationChange: (isValid: boolean) => void
             }
         } else if (type === "governorate") {
             userChangedGovernorate.current = true;
-            
+
             // Only reset city if this is a user change, not initial load
             if (!isInitialLoad.current) {
                 setSelectedOptions(prev => ({
@@ -185,22 +192,22 @@ export const useProductStepOne = (onValidationChange: (isValid: boolean) => void
 
     // Validate and notify parent component
     useEffect(() => {
-        const isValid = validateForm(selectedOptions);
-        
+        const isValid = validateForm(selectedOptions, isTrimRequired);
+
         if (isValid !== prevValidationState && onValidationChange) {
             onValidationChange(isValid);
             setPrevValidationState(isValid);
         }
-    }, [selectedOptions, onValidationChange, prevValidationState]);
+    }, [selectedOptions, onValidationChange, prevValidationState, isTrimRequired]);
 
     // Check for errors
     const hasErrors = makesError || modelsError || trimsError;
 
     // Translated titles
     const titles = useMemo(() => ({
-        trim: t("enteredData.stepOne.trims.title") || "Trim",
         model: t("enteredData.stepOne.model.title"),
         brand: t("enteredData.stepOne.branda.title"),
+        trim: isArabic ? "الفئة" : "Trim",
         year: t("enteredData.stepOne.madeYear.title"),
         governorate: isArabic ? "المحافظة" : "Governorate",
         city: isArabic ? "المدينة" : "City",
@@ -208,9 +215,9 @@ export const useProductStepOne = (onValidationChange: (isValid: boolean) => void
         addressPlaceholder: isArabic ? "أدخل العنوان التفصيلي هنا" : "Enter detailed address here",
         story: isArabic ? "قصة السيارة" : "Story of car",
         placeholder: isArabic ? "اكتب رسالتك هنا" : "Write your message here",
-        error: isArabic 
-        ? "حدث خطأ أثناء تحميل بعض البيانات. الرجاء المحاولة مرة أخرى لاحقًا."
-        : "There was an error loading some data. Please try again later."
+        error: isArabic
+            ? "حدث خطأ أثناء تحميل بعض البيانات. الرجاء المحاولة مرة أخرى لاحقًا."
+            : "There was an error loading some data. Please try again later."
     }), [t, isArabic]);
 
     return {
@@ -219,6 +226,7 @@ export const useProductStepOne = (onValidationChange: (isValid: boolean) => void
         carMarka,
         carModel,
         carTrim,
+        isTrimRequired,
         governorateOptions,
         cityOptions,
         madeYear,
