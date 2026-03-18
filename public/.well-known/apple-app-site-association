@@ -5,24 +5,24 @@
       {
         "appID": "Q3UK9FAQ24.com.bishola.app",
         "paths": [
+          "/LoginScreen",
+          "/SignupScreen",
+          "/ResetPasswordScreen",
+          "/Explore",
+          "/Search",
+          "/News",
+          "/Profile",
+          "/BuyScreen",
+          "/RentScreen",
+          "/CarDetailsScreen*",
+          "/MyCarsScreen",
+          "/MyFavoriteScreen",
+          "/ContactUs",
           "/auth/*",
           "/products/*",
           "/userProfile/*",
-          "/ContactUs",
-          "/Privacypolicy",
-          "/Links",
-          "/en/auth/*",
-          "/en/products/*",
-          "/en/userProfile/*",
-          "/en/ContactUs",
-          "/en/Privacypolicy",
-          "/en/Links",
-          "/ar/auth/*",
-          "/ar/products/*",
-          "/ar/userProfile/*",
-          "/ar/ContactUs",
-          "/ar/Privacypolicy",
-          "/ar/Links"
+          "/en/*",
+          "/ar/*"
         ]
       }
     ]
