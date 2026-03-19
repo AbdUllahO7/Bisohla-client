@@ -10,7 +10,7 @@ import NewsGrid from './NewsGrid';
 import NewsEmptyState from './NewsEmptyState';
 import { useDebounce } from '@/hooks/use-debounce';
 
-const PAGE_SIZE = 9;
+const PAGE_SIZE = 12;
 
 export default function NewsPageClient() {
   const locale = useLocale();
