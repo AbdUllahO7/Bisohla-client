@@ -65,7 +65,7 @@ const AdSpace: React.FC<AdSpaceProps> = ({
                             extractedAds = Array.isArray(data) ? data : [data];
                         }
 
-                        setFetchedAds(extractedAds);
+                        setFetchedAds(extractedAds.filter((ad: any) => ad && ad.id !== undefined && ad.displayTemplate !== undefined));
                     } else {
                         setFetchError(response.message || 'No ads returned');
                     }

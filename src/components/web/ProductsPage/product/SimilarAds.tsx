@@ -273,7 +273,8 @@ const SimilarAds: React.FC<SimilarAdsProps> = ({
                         >
                           <AdSpace 
                             name="sale-page-ads-section" 
-                            isClosable={false} 
+                            isClosable={false}
+                            fallbackContent={<CardAds isRent={false} />}
                             adsData={adsData}
                             isLoadingAds={isLoadingAds}
                             adIndex={currentAdIndex}

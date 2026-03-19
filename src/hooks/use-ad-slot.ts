@@ -33,7 +33,7 @@ export const useAdSlot = (slotKey: string, platform: string = 'web') => {
               extractedAds = Array.isArray(data) ? data : [data as any];
             }
 
-            setAdsData(extractedAds.filter(Boolean));
+            setAdsData(extractedAds.filter((ad: any) => ad && ad.id !== undefined && ad.displayTemplate !== undefined));
           } else {
             setError(response.message || 'No ads returned');
           }

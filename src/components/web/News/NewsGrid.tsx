@@ -38,8 +38,8 @@ export default function NewsGrid({
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        {[...Array(12)].map((_, i) => (
           <div key={i} className="animate-pulse">
             <div className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-3xl h-[450px] relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent animate-shimmer" />
@@ -72,21 +72,37 @@ export default function NewsGrid({
           </div>
         </Box>
       )}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             {(() => {
               const items: any[] = [];
               let adIndexCounter = 0;
+              const actualAdsLength = adsData?.length || 0;
+              const totalAdsTarget = Math.max(actualAdsLength, 1);
+              let lastAdIndex = -10;
               
               articles.forEach((article: SelectNewsArticleDto, index: number) => {
                 items.push({ type: 'article', data: article, originalIndex: index });
                 
-                if ((index + 1) % 2 === 0) {
-                  items.push({ type: 'ad', adIndex: adIndexCounter });
-                  adIndexCounter++;
+                const remainingArticles = articles.length - 1 - index;
+                const remainingAds = totalAdsTarget - adIndexCounter;
+                
+                if (remainingAds > 0) {
+                  const mustPlace = remainingAds > remainingArticles;
+                  const hasSpacing = (items.length - lastAdIndex) > 1;
+                  
+                  const seedStr = article.title || String(article.id);
+                  const hash = seedStr.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+                  const randomPlace = (hash + index) % 3 === 0;
+
+                  if (mustPlace || (randomPlace && hasSpacing)) {
+                    items.push({ type: 'ad', adIndex: adIndexCounter });
+                    adIndexCounter++;
+                    lastAdIndex = items.length - 1;
+                  }
                 }
               });
 
-              while (adIndexCounter < adsData.length) {
+              while (adIndexCounter < totalAdsTarget) {
                 items.push({ type: 'ad', adIndex: adIndexCounter });
                 adIndexCounter++;
               }
