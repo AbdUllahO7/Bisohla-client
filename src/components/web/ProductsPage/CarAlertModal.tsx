@@ -199,17 +199,20 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-2xl p-0 gap-0 bg-white rounded-3xl border-none shadow-2xl overflow-hidden">
+            <DialogContent 
+                dir={isArabic ? 'rtl' : 'ltr'}
+                className="sm:max-w-2xl p-0 gap-0 bg-white rounded-3xl border-none shadow-2xl overflow-hidden"
+            >
                 {/* Premium Header with Gradient */}
                 <div className="relative bg-primary-light px-8 py-8">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
                     <div className="absolute bottom-0 left-0 w-48 h-48 bg-black/5 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2" />
 
-                    <div className={cn("relative flex items-center gap-4", isArabic ? "flex-row" : "flex-row-reverse")}>
+                    <div className="relative flex items-center gap-4">
                         <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30">
                             <Bell className="h-8 w-8 text-white" />
                         </div>
-                        <div >
+                        <div className='flex flex-col items-start'>
                             <DialogTitle className="text-3xl font-bold text-white m-0 mb-1">
                                 {initialData.id ? tModal('editAlert') : tModal('notifyMe')}
                             </DialogTitle>
