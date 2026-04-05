@@ -40,7 +40,7 @@ const BottomNavigation = () => {
   ];
 
   return (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 z-[100] bg-white/80 backdrop-blur-lg border-t border-gray-200 pb-safe shadow-[0_-4px_12px_rgba(0,0,0,0.05)]">
+    <div className="lg:hidden fixed bottom-0 left-0 right-0 z-[100] bg-white/80 backdrop-blur-lg border-t border-gray-200 pb-safe shadow-[0_-4px_12px_rgba(0,0,0,0.05)]">
       <div className="flex justify-around items-center h-16 max-w-md mx-auto">
         {navItems.map((item) => {
           const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
