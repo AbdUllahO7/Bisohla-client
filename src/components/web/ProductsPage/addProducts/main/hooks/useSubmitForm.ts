@@ -167,7 +167,6 @@ export const useSubmitForm = () => {
       if (isEditMode) {
         response = await updateCarListing(Number(carIdToEdit), carListingDto);
       } else {
-        console.log('Creating car listing:', carListingDto);
         response = await createCarListing(carListingDto);
       }
 

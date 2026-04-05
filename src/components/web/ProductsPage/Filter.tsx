@@ -227,7 +227,6 @@ const FilterContent = React.memo(
     const trans = useTranslations('addProduct.enteredData');
 
 
-    console.log("stepOneTitles",stepOneTitles)
 
     return (
       <>
