@@ -182,7 +182,6 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
     refetchOnWindowFocus: false,
   });
 
-  console.log("makesData",makesData)
 
   // =============================================================================
   // DATA TRANSFORMATION

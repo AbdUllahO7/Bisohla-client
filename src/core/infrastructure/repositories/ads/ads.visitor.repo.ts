@@ -19,7 +19,6 @@ export class AdVisitorRepository implements IAdVisitorRepository {
         const res = await getReq({
             url: `/visitor/ad-spaces/resolve-by-slot-key?slotKeys=${encodeURIComponent(slotKey)}&platform=${platform}`,
         });
-        console.log('res', res)
         return res as ApiResponse<AdContentDto[]>;
     }
 

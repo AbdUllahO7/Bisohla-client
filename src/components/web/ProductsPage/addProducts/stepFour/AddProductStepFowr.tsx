@@ -433,7 +433,6 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
         // Auto-save any valid changes
         const prevData = previousFormData.current;
         if (JSON.stringify(currentData) !== JSON.stringify(prevData)) {
-          console.log("Auto-saving step four data:", currentData.saveStatus);
           autoSaveAdInfoData(currentData, prevData || undefined);
           previousFormData.current = currentData;
         }

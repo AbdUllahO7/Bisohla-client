@@ -37,7 +37,6 @@ const AdSpace: React.FC<AdSpaceProps> = ({
     const ads = adsData !== undefined ? adsData : fetchedAds;
     const isLoading = isLoadingAds !== undefined ? isLoadingAds : isFetching;
     const error = fetchError;
-    console.log(name,ads)
     useEffect(() => {
         // If external ads data is provided, don't fetch internally
         if (adsData !== undefined) {
