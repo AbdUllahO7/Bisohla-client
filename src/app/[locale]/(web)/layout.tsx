@@ -6,6 +6,7 @@ import { getTranslations } from 'next-intl/server';
 import type { PropsWithChildren } from 'react';
 import HeaderTwo from '@/components/web/Home/HeaderTow';
 import ChatbotWidget from '@/components/web/Home/ChatbotWidget';
+import BottomNavigation from '@/components/web/Navigation/BottomNavigation';
 interface WebLayoutProps extends PropsWithChildren {
   pageType?:
     | 'home'
@@ -87,11 +88,14 @@ const WebLayout = async ({
         <div className="h-[100px] md:h-[98px] flex-shrink-0 bg-background"></div>
 
         {/* Main Content */}
-        <main className="flex-1 bg-background">{children}</main>
+        <main className="flex-1 bg-background pb-16 md:pb-0">{children}</main>
 
         {/* Footer */}
         <Footer />
         <ChatbotWidget />
+
+        {/* Bottom Navigation for Mobile */}
+        <BottomNavigation />
 
         {/* Toast Notifications */}
         <Toaster />

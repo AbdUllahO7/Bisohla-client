@@ -214,7 +214,7 @@ const FloatingShareButton: React.FC<FloatingShareButtonProps> = ({
   return (
     <>
       {/* Floating Button */}
-      <div className="fixed bottom-24 right-4 md:right-8 z-50">
+      <div className="fixed bottom-32 right-4 md:right-8 z-50">
         {/* Share Options Menu */}
         {isOpen && (
           <div className="absolute bottom-16 right-0 bg-white rounded-2xl shadow-2xl p-4 min-w-[280px] border border-gray-200 animate-in slide-in-from-bottom-5 duration-300">

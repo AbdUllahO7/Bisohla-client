@@ -18,6 +18,12 @@
       "logoutButton": "Logout",
       "menuTitle": "Menu"
     },
+    "bottomNav": {
+      "home": "Home",
+      "explore": "Explore",
+      "sell": "Sell",
+      "profile": "Profile"
+    },
     "headerTow": {
       "home": "Home",
       "rent": "Rent",
@@ -175,6 +181,11 @@
           "gaz": "Benzin"
         }
       }
+    },
+    "recentlyViewed": {
+      "title": "Recently Viewed",
+      "clearAll": "Clear All",
+      "noItems": "No recently viewed items"
     },
     "productAds": {
       "title": "Your ad here reaches hundreds of thousands daily.",

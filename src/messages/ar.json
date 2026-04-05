@@ -18,6 +18,12 @@
       "logoutButton": "تسجيل الخروج",
       "menuTitle": "القائمة"
     },
+    "bottomNav": {
+      "home": "الرئيسية",
+      "explore": "اكتشف",
+      "sell": "بيع",
+      "profile": "حسابي"
+    },
     "headerTow": {
       "home": "الرئيسية",
       "rent": "تأجير",
@@ -175,6 +181,11 @@
           "gaz": "بانزين"
         }
       }
+    },
+    "recentlyViewed": {
+      "title": "شوهد مؤخراً",
+      "clearAll": "مسح الكل",
+      "noItems": "لا توجد عناصر عرضت مؤخراً"
     },
     "productAds": {
       "title": "اعلانك هنا يصل لمئات الآلاف يومياً",
