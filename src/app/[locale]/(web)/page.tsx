@@ -13,6 +13,7 @@ import { getLocale } from 'next-intl/server';
 import AnimatedPageWrapper from '@/components/AnimatedPageWrapper';
 import NewsSection from '@/components/web/Home/NewsSection';
 import RentProduct from '@/components/web/Home/RentProduct';
+import RecentlyViewed from '@/components/web/Home/RecentlyViewed';
 
 // Generate metadata based on locale and settings
 export async function generateMetadata(): Promise<Metadata> {
@@ -138,6 +139,7 @@ const WebPage = async () => {
         <RentProduct />
         <SpaceAds />
         <NewsSection />
+        <RecentlyViewed />
         <FAQ />
       </Box>
     </AnimatedPageWrapper>

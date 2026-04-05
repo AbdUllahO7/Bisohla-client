@@ -24,6 +24,9 @@ import {
 import { useCardViewTracking } from '@/hooks/use-card-view-tracking';
 import { useSession } from '@/core/infrastructure-adapters/use-actions/auth/use-session';
 import { CAR_DEFAULTS } from '@/constants/cars';
+import { useCompare } from '@/providers/CompareProvider';
+import { Scale } from 'lucide-react';
+import { useLocale } from 'next-intl';
 
 interface RentProductCardProps {
   car: SelectCarListingDto;
@@ -40,6 +43,8 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
 }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const session = useSession();
+  const locale = useLocale();
+  const isRTL = locale === 'ar';
   const isAuthenticated = session && session.accessToken;
   const isOwner =
     (!session.isLoading &&
@@ -63,6 +68,9 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
   const [favoriteStatus, setFavoriteStatus] = useState(car.isFavorite ?? false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const { isInCompare, addToCompare, removeFromCompare } = useCompare();
+
+  const isCompared = isInCompare(car.id);
 
   // Get the translated options from the car enums
   const transmissionOptions = useMemo(
@@ -173,7 +181,7 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
         {/* Heart Icon with favorite status */}
         {!isOwner && (
           <Button
-            className="absolute top-12 left-2 bg-white p-2 rounded-full shadow-md z-10 transition-transform duration-200 active:scale-90"
+            className="absolute top-12 left-2 bg-white p-2 rounded-full shadow-md z-50 transition-transform duration-200 active:scale-90"
             onClick={handleFavoriteClick}
             disabled={!isAuthenticated || isSold || isOwner}
           >
@@ -190,6 +198,28 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
             />
           </Button>
         )}
+
+        {/* Compare Toggle */}
+        <Button
+          className={`absolute top-12 right-2 bg-white p-2 rounded-full shadow-md z-50 transition-all duration-200 active:scale-90`}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (isCompared) {
+              removeFromCompare(car.id);
+            } else {
+              addToCompare(car.id);
+            }
+          }}
+          title={isCompared ? 'Remove from compare' : 'Add to compare'}
+        >
+          <Scale
+            size={20}
+            className={`transition-colors duration-200 ${
+              isCompared ? 'text-emerald-600' : 'text-gray-500 hover:text-emerald-500'
+            }`}
+          />
+        </Button>
 
         {/* SOLD Badge and Overlay */}
         {isSold && (
