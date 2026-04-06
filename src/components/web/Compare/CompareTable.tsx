@@ -25,7 +25,7 @@ const CompareTable: React.FC<CompareTableProps> = ({ cars }) => {
     { key: 'fuel', label: t('fuel'), getValue: (car: any) => car.details?.fuelType },
     { key: 'transmission', label: t('transmission'), getValue: (car: any) => car.details?.transmission },
     { key: 'mileage', label: t('mileage'), getValue: (car: any) => `${car.details?.mileage} km` },
-    { key: 'bodyType', label: t('bodyType'), getValue: (car: any) => car.details?.bodyType },
+    { key: 'bodyType', label: tHome('bodyType'), getValue: (car: any) => car.details?.bodyType },
   ];
 
   return (

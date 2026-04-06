@@ -11,6 +11,8 @@ import { History } from 'lucide-react';
 import { RentProductCard } from '../design/RentProductCard';
 import { Button } from '@/components/ui/button';
 
+import { motion } from 'framer-motion';
+
 const RecentlyViewed = () => {
   const t = useTranslations('homePage.recentlyViewed');
   const tCommon = useTranslations('homePage.latestOffers');
@@ -60,6 +62,28 @@ const RecentlyViewed = () => {
     return null;
   }
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, x: 20 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        duration: 0.5,
+        ease: 'easeOut',
+      },
+    },
+  };
+
   return (
     <div className="relative py-12 w-full bg-gray-50/50">
       <Box variant="container">
@@ -76,16 +100,26 @@ const RecentlyViewed = () => {
             <ProductSkeleton count={4} showTitle={false} />
           ) : carListings.length > 0 ? (
             <div className="w-full overflow-x-auto scrollbar-hide pb-4">
-              <div className="flex gap-6 min-w-max px-2">
+              <motion.div 
+                className="flex gap-6 min-w-max px-2"
+                variants={containerVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+              >
                 {carListings.map((card: any) => (
-                  <div key={card.id} className="w-[280px] sm:w-[300px]">
+                  <motion.div 
+                    key={card.id} 
+                    className="w-[280px] sm:w-[300px]"
+                    variants={itemVariants}
+                  >
                     <RentProductCard
                       car={card}
                       priceWord={tCommon('price')}
                     />
-                  </div>
+                  </motion.div>
                 ))}
-              </div>
+              </motion.div>
             </div>
           ) : (
             <p className="text-gray-500 text-center py-4">{t('noItems')}</p>
