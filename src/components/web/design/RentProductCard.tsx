@@ -28,6 +28,8 @@ import { useCompare } from '@/providers/CompareProvider';
 import { Scale } from 'lucide-react';
 import { useLocale } from 'next-intl';
 
+import { motion } from 'framer-motion';
+
 interface RentProductCardProps {
   car: SelectCarListingDto;
   onFavoriteToggle?: (productId: number, isFavorite: boolean) => void;
@@ -67,7 +69,6 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
   // Favorite state
   const [favoriteStatus, setFavoriteStatus] = useState(car.isFavorite ?? false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
   const { isInCompare, addToCompare, removeFromCompare } = useCompare();
 
   const isCompared = isInCompare(car.id);
@@ -162,22 +163,22 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
   const isSold = car.saveStatus === SaveStatus.SOLD;
 
   return (
-    <div ref={cardRef} className="w-full">
+    <motion.div 
+      ref={cardRef} 
+      className="w-full"
+      whileHover={!isSold ? { 
+        y: -10, 
+        transition: { duration: 0.3, ease: 'easeOut' } 
+      } : {}}
+    >
       <Card
-        className={`border-none h-[370px] bg-white relative group transition-all duration-500 ease-out overflow-hidden ${
+        className={`border-none h-[370px] bg-white relative group transition-all duration-500 ease-out overflow-hidden shadow-md ${
           isSold
             ? 'opacity-90 cursor-pointer shadow-lg'
-            : 'hover:shadow-2xl hover:shadow-emerald-500/10'
+            : 'hover:shadow-2xl hover:shadow-emerald-500/15'
         }`}
-        onMouseEnter={() => !isSold && setIsHovered(true)}
-        onMouseLeave={() => !isSold && setIsHovered(false)}
-        style={{
-          transform:
-            isHovered && !isSold
-              ? 'translateY(-8px) scale(1.02)'
-              : 'translateY(0) scale(1)',
-        }}
       >
+
         {/* Heart Icon with favorite status */}
         {!isOwner && (
           <Button
@@ -365,6 +366,6 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
           </>
         )}
       </Card>
-    </div>
+    </motion.div>
   );
 };

@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Slot } from '@radix-ui/react-slot';
 import { cva, type VariantProps } from 'class-variance-authority';
+import { motion, HTMLMotionProps } from 'framer-motion';
 
 import { cn } from '@/lib/utils';
 
@@ -33,19 +34,42 @@ const buttonVariants = cva(
   },
 );
 
+// Define motion props to include in ButtonProps
+type MotionProps = {
+  whileHover?: HTMLMotionProps<'button'>['whileHover'];
+  whileTap?: HTMLMotionProps<'button'>['whileTap'];
+  initial?: HTMLMotionProps<'button'>['initial'];
+  animate?: HTMLMotionProps<'button'>['animate'];
+  exit?: HTMLMotionProps<'button'>['exit'];
+  transition?: HTMLMotionProps<'button'>['transition'];
+  variants?: HTMLMotionProps<'button'>['variants'];
+};
+
 export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
+  extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, keyof MotionProps>,
+    VariantProps<typeof buttonVariants>,
+    MotionProps {
   asChild?: boolean;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
+  ({ className, variant, size, asChild = false, whileHover, whileTap, ...props }, ref) => {
     const Comp = asChild ? Slot : 'button';
+    
+    // Create a motion component from the resolved Comp
+    // Note: Use any here because motion() wrapper can be tricky with Slot types
+    const MotionComp = motion(Comp as any);
+
+    // Default micro-interactions for primary/secondary buttons
+    const defaultWhileHover = (variant === 'default' || variant === 'secondary' || !variant) ? { scale: 1.02 } : undefined;
+    const defaultWhileTap = (variant === 'default' || variant === 'secondary' || !variant) ? { scale: 0.98 } : undefined;
+
     return (
-      <Comp
+      <MotionComp
         className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
+        whileHover={whileHover || defaultWhileHover}
+        whileTap={whileTap || defaultWhileTap}
         {...props}
       />
     );

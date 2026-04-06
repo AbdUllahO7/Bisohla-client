@@ -13,6 +13,8 @@ import AdSpace from '@/components/ads/AdSpace';
 import CardAds from '../design/CardAds';
 import { useAdSlot } from '@/hooks/use-ad-slot';
 
+import { motion } from 'framer-motion';
+
 const RentProduct = () => {
   const t = useTranslations('homePage');
   const session = useSession();
@@ -54,6 +56,28 @@ const RentProduct = () => {
     return listings.slice(0, 9);
   }, [data]);
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.5,
+        ease: 'easeOut',
+      },
+    },
+  };
+
   return (
     <Box variant="container" className="mb-10">
       <Box variant="column">
@@ -73,18 +97,14 @@ const RentProduct = () => {
           </Box>
         )}
 
-        {/* Show empty state */}
-        {/*  {!isLoading && !error && rentListings.length === 0 && (
-                    <Box className="w-full py-4" variant="center">
-                        <Text>No rental listings available</Text>
-                    </Box>
-                )} */}
-
         {/* Display Rental Cards */}
         {!isLoading && !error && rentListings.length > 0 && (
-          <Box
-            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:w-[90%] xs:w-[90%] lg:w-full"
-            variant="center"
+          <motion.div
+            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:w-[90%] xs:w-[90%] lg:w-full mx-auto"
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-50px' }}
           >
             {(() => {
                 const items: any[] = [];
@@ -121,37 +141,40 @@ const RentProduct = () => {
                 return items.map((item, i) => {
                   if (item.type === 'product') {
                     return (
-                      <React.Fragment key={`product-${item.data.id || item.originalIndex}`}>
-                        {/* Card wrapper with fixed dimensions */}
-                        <div className="w-full">
-                          <RentProductCard
-                            car={item.data}
-                            priceWord={t('latestOffers.price')}
-                          />
-                        </div>
-                      </React.Fragment>
+                      <motion.div 
+                        key={`product-${item.data.id || item.originalIndex}`}
+                        className="w-full"
+                        variants={itemVariants}
+                      >
+                        <RentProductCard
+                          car={item.data}
+                          priceWord={t('latestOffers.price')}
+                        />
+                      </motion.div>
                     );
                   } else {
                     const currentAdIndex = (item.baseAdIndex >= 0 && adsData.length > 0) ? item.baseAdIndex % adsData.length : item.baseAdIndex;
                     return (
-                      <React.Fragment key={`ad-slot-${item.baseAdIndex}-${i}`}>
-                        <div className="w-full h-[370px] rounded-lg overflow-hidden">
-                          <AdSpace
-                            name="rent-page-ad-section"
-                            className="w-full h-full"
-                            fallbackContent={<CardAds isRent={true} />}
-                            isClosable={false}
-                            adsData={adsData}
-                            isLoadingAds={isLoadingAds}
-                            adIndex={currentAdIndex}
-                          />
-                        </div>
-                      </React.Fragment>
+                      <motion.div 
+                        key={`ad-slot-${item.baseAdIndex}-${i}`}
+                        className="w-full h-[370px] rounded-lg overflow-hidden"
+                        variants={itemVariants}
+                      >
+                        <AdSpace
+                          name="rent-page-ad-section"
+                          className="w-full h-full"
+                          fallbackContent={<CardAds isRent={true} />}
+                          isClosable={false}
+                          adsData={adsData}
+                          isLoadingAds={isLoadingAds}
+                          adIndex={currentAdIndex}
+                        />
+                      </motion.div>
                     );
                   }
                 });
             })()}
-          </Box>
+          </motion.div>
         )}
       </Box>
     </Box>
@@ -159,3 +182,4 @@ const RentProduct = () => {
 };
 
 export default RentProduct;
+
