@@ -52,13 +52,14 @@ export interface ButtonProps
   asChild?: boolean;
 }
 
+const MotionButton = motion('button');
+const MotionSlot = motion(Slot);
+
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, whileHover, whileTap, ...props }, ref) => {
-    const Comp = asChild ? Slot : 'button';
     
-    // Create a motion component from the resolved Comp
-    // Note: Use any here because motion() wrapper can be tricky with Slot types
-    const MotionComp = motion(Comp as any);
+    // Use pre-created motion components to maintain stable references across renders
+    const MotionComp = asChild ? MotionSlot : MotionButton;
 
     // Default micro-interactions for primary/secondary buttons
     const defaultWhileHover = (variant === 'default' || variant === 'secondary' || !variant) ? { scale: 1.02 } : undefined;

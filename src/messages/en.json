@@ -1082,9 +1082,9 @@
         },
         "images": {
           "coverImage": "Cover image",
-          "oneImage": "You can enter up to 10 images",
+          "oneImage": "You can enter up to 20 images",
           "carImages": "Car Images",
-          "tenImages": "You can enter up to 10 images",
+          "tenImages": "You can enter up to 20 images",
           "documents": "Documents",
           "tenFiles": "You can enter up to 10 files"
         }

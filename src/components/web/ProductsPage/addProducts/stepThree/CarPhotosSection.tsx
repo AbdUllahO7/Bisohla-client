@@ -276,7 +276,7 @@ const CarPhotosSection: React.FC<CarPhotosSectionProps> = ({
 
         <ImageUploader
           ref={coverImageRef}
-          maxImages={10}
+          maxImages={20}
           onChange={onCoverImageChange}
           setDisableForm={setIsFormDisabled}
           value={coverImage}
