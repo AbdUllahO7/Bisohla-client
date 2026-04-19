@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Box from '@/components/box/box';
 import Text from '@/components/text/text';
 import ProductBasicInfo from '@/components/web/ProductsPage/product/ProductBasicInfo';
@@ -35,6 +35,23 @@ const MobileProductClient = ({
     carUserId: carData?.user?.id,
     componentType: 'mobile',
   });
+
+  // Track recently viewed products
+  useEffect(() => {
+    if (carData?.id) {
+      const STORAGE_KEY = 'bishola-recently-viewed';
+      try {
+        const storedIds = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        const updatedIds = [
+          carData.id,
+          ...storedIds.filter((id: number) => id !== carData.id),
+        ].slice(0, 10);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedIds));
+      } catch (error) {
+        console.error('Failed to update recently viewed:', error);
+      }
+    }
+  }, [carData?.id]);
 
   const [favoriteStatus, setFavoriteStatus] = useState(
     carData?.isFavorite ?? false,

@@ -53,6 +53,12 @@ export const useAddProductStepTwo = (onValidationChange: (isValid: boolean) => v
   // Use ref to track previous validation state
   const prevValidState = useRef<boolean | null>(null);
 
+  // Store the callback in a ref so effects don't need it as a dependency
+  const onValidationChangeRef = useRef(onValidationChange);
+  useEffect(() => {
+    onValidationChangeRef.current = onValidationChange;
+  });
+
   // Use the hook to fetch features from backend
   const { data: featuresData, isLoading: isFeaturesLoading } = useCarFeatrues({
     pageSize: 100,
@@ -98,25 +104,26 @@ export const useAddProductStepTwo = (onValidationChange: (isValid: boolean) => v
     }
   }, [carInfo, isClient]);
 
-  // Validate loaded data
+  // Validate loaded data — does NOT close over validationErrors to avoid loops
   const validateLoadedData = useCallback((data: CarInfoState) => {
-    const newValidationErrors = { ...validationErrors };
+    setValidationErrors(prev => {
+      const newValidationErrors = { ...prev };
 
-    // Check engine size with new range validation (1.0 to 4.0)
-    const engineSizeValue = parseFloat(data.engineSize);
-    if (data.engineSize) {
-      if (isNaN(engineSizeValue) || engineSizeValue <= 0) {
-        newValidationErrors.engineSize = locale === 'ar'
-          ? "يجب أن يكون حجم المحرك قيمة موجبة"
-          : "Engine size must be a positive value";
+      // Check engine size with new range validation (1.0 to 4.0)
+      const engineSizeValue = parseFloat(data.engineSize);
+      if (data.engineSize) {
+        if (isNaN(engineSizeValue) || engineSizeValue <= 0) {
+          newValidationErrors.engineSize = locale === 'ar'
+            ? "يجب أن يكون حجم المحرك قيمة موجبة"
+            : "Engine size must be a positive value";
+        } else {
+          newValidationErrors.engineSize = "";
+        }
       }
-      else {
-        newValidationErrors.engineSize = "";
-      }
-    }
 
-    setValidationErrors(newValidationErrors);
-  }, [locale, validationErrors]);
+      return newValidationErrors;
+    });
+  }, [locale]);
 
   // Handle select change events
   const handleSelectChange = useCallback((field: string, value: string) => {
@@ -195,15 +202,15 @@ export const useAddProductStepTwo = (onValidationChange: (isValid: boolean) => v
     });
   }, [allFeatures]);
 
-  // Form validation effect
+  // Form validation effect — uses ref for callback so it's not a dependency
   useEffect(() => {
     const isValid = validateForm(carInfo, validationErrors);
 
     if (isValid !== prevValidState.current) {
       prevValidState.current = isValid;
-      onValidationChange(isValid);
+      onValidationChangeRef.current(isValid);
     }
-  }, [carInfo, validationErrors, onValidationChange]);
+  }, [carInfo, validationErrors]);
 
   // Memoized options for selects
   const options = useMemo(

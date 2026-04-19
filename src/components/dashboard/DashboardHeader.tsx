@@ -399,9 +399,9 @@ export function DashboardHeader({
 
           {/* Language Switcher */}
           <LocaleSwitcher />
-
+              {/* this code make a rendier error  */}
           {/* User Menu */}
-          {isAuthenticated && (
+        {/*   {isAuthenticated && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -456,7 +456,7 @@ export function DashboardHeader({
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          )}
+          )} */}
         </div>
         <div
           className="flex items-center cursor-pointer"

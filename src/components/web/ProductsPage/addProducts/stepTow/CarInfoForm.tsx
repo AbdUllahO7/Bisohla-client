@@ -25,6 +25,12 @@ interface CarInfoFormProps {
   onSelectChange: (field: string, value: string) => void
 }
 
+// Generate engine size options from 0.8 to 8.0 outside the component to keep references stable
+const engineSizeOptions = Array.from({ length: 73 }, (_, i) => {
+  const value = (0.8 + i * 0.1).toFixed(1)
+  return { value, label: `${value} L` }
+})
+
 /**
  * Car information form component with helpful tooltips
  */
@@ -137,13 +143,18 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
 
   const info = fieldInfo[locale as keyof typeof fieldInfo] || fieldInfo.en
 
-  // Initialize refs with current values
+  // Seed refs ONCE on mount with the initial values coming from the parent.
+  // Inputs are uncontrolled (defaultValue), so we only need to seed them once;
+  // re-running on every carInfo change would reset values the user has typed.
+  const carInfoRef = useRef(carInfo);
   useEffect(() => {
-    if (mileageInputRef.current) mileageInputRef.current.value = carInfo.mileage || ""
-    if (enginePowerInputRef.current) enginePowerInputRef.current.value = carInfo.enginePower || ""
-    if (vinInputRef.current) vinInputRef.current.value = carInfo.vin || ""
-    if (plateInputRef.current) plateInputRef.current.value = carInfo.plateNumber || ""
-  }, [carInfo])
+    const initial = carInfoRef.current;
+    if (mileageInputRef.current) mileageInputRef.current.value = initial.mileage || ""
+    if (enginePowerInputRef.current) enginePowerInputRef.current.value = initial.enginePower || ""
+    if (vinInputRef.current) vinInputRef.current.value = initial.vin || ""
+    if (plateInputRef.current) plateInputRef.current.value = initial.plateNumber || ""
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const handleMileageBlur = useCallback(() => {
     onTextFieldBlur("mileage", mileageInputRef.current?.value || "")
@@ -161,14 +172,8 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
     onTextFieldBlur("plateNumber", plateInputRef.current?.value || "")
   }, [onTextFieldBlur])
 
-  // Generate engine size options from 0.8 to 8.0
-  const engineSizeOptions = Array.from({ length: 73 }, (_, i) => {
-    const value = (0.8 + i * 0.1).toFixed(1)
-    return { value, label: `${value} L` }
-  })
-
-  // Info Icon Component with proper RTL support
-  const InfoIcon: React.FC<{ tooltip: string }> = ({ tooltip }) => (
+  // Info Icon helper with proper RTL support
+  const renderInfoIcon = (tooltip: string) => (
     <TooltipProvider>
       <Tooltip delayDuration={200}>
         <TooltipTrigger asChild>
@@ -194,67 +199,64 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
     </TooltipProvider>
   )
 
-  // Modified SelectField with proper RTL support
-  const SelectField = useCallback(
-    ({
-      label,
-      field,
-      options,
-      placeholder,
-      required = false,
-      tooltip,
-    }: {
-      label: string
-      field: string
-      options: Array<{ value: string; label: string }>
-      placeholder: string
-      optionsLabel?: string
-      required?: boolean
-      tooltip: string
-    }) => {
-      const hasError =
-        Object.prototype.hasOwnProperty.call(validationErrors, field) &&
-        validationErrors[field as keyof ValidationErrors]
-      const errorMessage = hasError ? validationErrors[field as keyof ValidationErrors] : ""
+  // Modified SelectField helper with proper RTL support
+  const renderSelectField = ({
+    label,
+    field,
+    options,
+    placeholder,
+    required = false,
+    tooltip,
+  }: {
+    label: string
+    field: string
+    options: Array<{ value: string; label: string }>
+    placeholder: string
+    optionsLabel?: string
+    required?: boolean
+    tooltip: string
+  }) => {
+    const hasError =
+      Object.prototype.hasOwnProperty.call(validationErrors, field) &&
+      validationErrors[field as keyof ValidationErrors]
+    const errorMessage = hasError ? validationErrors[field as keyof ValidationErrors] : ""
 
-      // Access the current value from carInfo state
-      const fieldValue = (carInfo[field as keyof CarInfoState] as string) || ""
+    // Access the current value from carInfo state
+    const fieldValue = (carInfo[field as keyof CarInfoState] as string) || ""
 
-      return (
-        <div className="relative z-10" dir={isRTL ? "rtl" : "ltr"}>
-          <div className={cn(
-            "flex items-center gap-1 mb-2",
-            isRTL ? "flex-row-reverse justify-end" : "justify-start"
-          )}>
-            <span className="text-sm font-medium text-gray-700">{label}</span>
-            {required && <span className="text-red-500">*</span>}
-            <InfoIcon tooltip={tooltip} />
-          </div>
-          <div className="relative">
-            <SelectFieldWithSearch
-              options={options}
-              placeholder={placeholder}
-              name={field}
-              value={fieldValue}
-              onChange={onSelectChange}
-              onBlur={onTextFieldBlur}
-              SelectTriggerStyle={`${hasError ? "border-red-500" : ""} relative z-20`}
-              className="w-full text-primary relative z-20"
-              required={required}
-              error={errorMessage}
-            />
-          </div>
-          {errorMessage && (
-            <p className={cn(
-              "text-red-500 text-xs mt-1",
-              isRTL && "text-right"
-            )}>{errorMessage}</p>
-          )}
+    return (
+      <div className="relative z-10" dir={isRTL ? "rtl" : "ltr"} key={field}>
+        <div className={cn(
+          "flex items-center gap-1 mb-2",
+          isRTL ? "flex-row-reverse justify-end" : "justify-start"
+        )}>
+          <span className="text-sm font-medium text-gray-700">{label}</span>
+          {required && <span className="text-red-500">*</span>}
+          {renderInfoIcon(tooltip)}
         </div>
-      )
-    },
-    [validationErrors, carInfo, onSelectChange, onTextFieldBlur, isRTL]
-  )
+        <div className="relative">
+          <SelectFieldWithSearch
+            options={options}
+            placeholder={placeholder}
+            name={field}
+            value={fieldValue}
+            onChange={onSelectChange}
+            onBlur={onTextFieldBlur}
+            SelectTriggerStyle={`${hasError ? "border-red-500" : ""} relative z-20`}
+            className="w-full text-primary relative z-20"
+            required={required}
+            error={errorMessage}
+          />
+        </div>
+        {errorMessage && (
+          <p className={cn(
+            "text-red-500 text-xs mt-1",
+            isRTL && "text-right"
+          )}>{errorMessage}</p>
+        )}
+      </div>
+    )
+  }
 
   return (
     <div className="p-3 sm:p-5 w-full relative" dir={isRTL ? "rtl" : "ltr"}>
@@ -269,7 +271,7 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
           )}>
             <span className="text-sm font-medium text-gray-700">{labels.mileage}</span>
             <span className="text-red-500">*</span>
-            <InfoIcon tooltip={info.mileage.tooltip} />
+            {renderInfoIcon(info.mileage.tooltip)}
           </div>
           <Input
             type="text"
@@ -293,7 +295,7 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
             isRTL ? "flex-row-reverse justify-end" : "justify-start"
           )}>
             <span className="text-sm font-medium text-gray-700">{labels.enginePower}</span>
-            <InfoIcon tooltip={info.enginePower.tooltip} />
+            {renderInfoIcon(info.enginePower.tooltip)}
           </div>
           <Input
             type="text"
@@ -316,7 +318,7 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
             isRTL ? "flex-row-reverse justify-end" : "justify-start"
           )}>
             <span className="text-sm font-medium text-gray-700">{labels.plateNumber}</span>
-            <InfoIcon tooltip={info.plateNumber.tooltip} />
+            {renderInfoIcon(info.plateNumber.tooltip)}
           </div>
           <Input
             type="text"
@@ -339,7 +341,7 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
             isRTL ? "flex-row-reverse justify-end" : "justify-start"
           )}>
             <span className="text-sm font-medium text-gray-700">{labels.vin}</span>
-            <InfoIcon tooltip={info.vin.tooltip} />
+            {renderInfoIcon(info.vin.tooltip)}
           </div>
           <Input
             type="text"
@@ -356,64 +358,64 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
         </div>
 
         {/* Exterior Color */}
-        <SelectField
-          label={labels.colorExterior}
-          field="colorExterior"
-          options={options.colors}
-          placeholder={info.colorExterior.placeholder}
-          tooltip={info.colorExterior.tooltip}
-          required
-        />
+        {renderSelectField({
+          label: labels.colorExterior,
+          field: "colorExterior",
+          options: options.colors,
+          placeholder: info.colorExterior.placeholder,
+          tooltip: info.colorExterior.tooltip,
+          required: true
+        })}
 
         {/* Engine Size */}
-        <SelectField
-          label={labels.engineSize}
-          field="engineSize"
-          options={engineSizeOptions}
-          placeholder={info.engineSize.placeholder}
-          tooltip={info.engineSize.tooltip}
-          required
-        />
+        {renderSelectField({
+          label: labels.engineSize,
+          field: "engineSize",
+          options: engineSizeOptions,
+          placeholder: info.engineSize.placeholder,
+          tooltip: info.engineSize.tooltip,
+          required: true
+        })}
 
         {/* Vehicle Condition */}
-        <SelectField
-          label={labels.vehicleCondition}
-          field="condition"
-          options={options.vehicleCondition}
-          placeholder={info.condition.placeholder}
-          tooltip={info.condition.tooltip}
-          required
-        />
+        {renderSelectField({
+          label: labels.vehicleCondition,
+          field: "condition",
+          options: options.vehicleCondition,
+          placeholder: info.condition.placeholder,
+          tooltip: info.condition.tooltip,
+          required: true
+        })}
 
         {/* Fuel Type */}
-        <SelectField
-          label={labels.fuelType}
-          field="fuelType"
-          options={options.fuelType}
-          placeholder={info.fuelType.placeholder}
-          tooltip={info.fuelType.tooltip}
-          required
-        />
+        {renderSelectField({
+          label: labels.fuelType,
+          field: "fuelType",
+          options: options.fuelType,
+          placeholder: info.fuelType.placeholder,
+          tooltip: info.fuelType.tooltip,
+          required: true
+        })}
 
         {/* Transmission */}
-        <SelectField
-          label={labels.transmission}
-          field="transmission"
-          options={options.transmission}
-          placeholder={info.transmission.placeholder}
-          tooltip={info.transmission.tooltip}
-          required
-        />
+        {renderSelectField({
+          label: labels.transmission,
+          field: "transmission",
+          options: options.transmission,
+          placeholder: info.transmission.placeholder,
+          tooltip: info.transmission.tooltip,
+          required: true
+        })}
 
         {/* Body Type */}
-        <SelectField
-          label={labels.bodyType}
-          field="bodyType"
-          options={options.bodyType}
-          placeholder={info.bodyType.placeholder}
-          tooltip={info.bodyType.tooltip}
-          required
-        />
+        {renderSelectField({
+          label: labels.bodyType,
+          field: "bodyType",
+          options: options.bodyType,
+          placeholder: info.bodyType.placeholder,
+          tooltip: info.bodyType.tooltip,
+          required: true
+        })}
       </div>
     </div>
   )

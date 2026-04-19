@@ -31,7 +31,6 @@ const CarDetailsContent: React.FC<CarDetailsContentProps> = ({
   isLoading = false,
 }) => {
   const t = useTranslations('product.CarDetailsContent');
-  console.log("data", data)
   // State for expanded text fields
   const [expandedFields, setExpandedFields] = useState<{
     [key: string]: boolean;

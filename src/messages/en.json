@@ -1,6 +1,27 @@
 {
+  "compare": {
+    "title": "Compare Cars",
+    "addToCompare": "Add to compare",
+    "removeFromCompare": "Remove from compare",
+    "limitReachedTitle": "Comparison Limit",
+    "limitReachedDesc": "You can compare up to {max} cars at a time.",
+    "clearAll": "Clear All",
+    "compareNow": "Compare Now",
+    "noCarsTitle": "No cars to compare",
+    "noCarsDesc": "Add cars from the listings to see them here side-by-side.",
+    "specLabel": "Feature",
+    "price": "Price",
+    "make": "Make",
+    "model": "Model",
+    "year": "Year",
+    "fuel": "Fuel",
+    "transmission": "Transmission",
+    "mileage": "Mileage",
+    "backToList": "Back to listings"
+  },
   "homePage": {
     "lang": "en",
+    "bodyType":"Body Type",
     "metadata": {
       "title": "Bishola - Car Rental & Car Sales Platform",
       "description": "Rent or buy your perfect car with Bishola. Premium car rental services and quality used cars for sale. Find the best deals on vehicles in Syria."
@@ -17,6 +38,12 @@
       "profileButton": "Profile",
       "logoutButton": "Logout",
       "menuTitle": "Menu"
+    },
+    "bottomNav": {
+      "home": "Home",
+      "explore": "Explore",
+      "sell": "Sell",
+      "profile": "Profile"
     },
     "headerTow": {
       "home": "Home",
@@ -175,6 +202,11 @@
           "gaz": "Benzin"
         }
       }
+    },
+    "recentlyViewed": {
+      "title": "Recently Viewed",
+      "clearAll": "Clear All",
+      "noItems": "No recently viewed items"
     },
     "productAds": {
       "title": "Your ad here reaches hundreds of thousands daily.",
@@ -1050,9 +1082,9 @@
         },
         "images": {
           "coverImage": "Cover image",
-          "oneImage": "You can enter up to 10 images",
+          "oneImage": "You can enter up to 20 images",
           "carImages": "Car Images",
-          "tenImages": "You can enter up to 10 images",
+          "tenImages": "You can enter up to 20 images",
           "documents": "Documents",
           "tenFiles": "You can enter up to 10 files"
         }
