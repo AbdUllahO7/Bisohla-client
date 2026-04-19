@@ -59,7 +59,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, whileHover, whileTap, ...props }, ref) => {
     
     // Use pre-created motion components to maintain stable references across renders
-    const MotionComp = asChild ? MotionSlot : MotionButton;
+    const MotionComp = (asChild ? MotionSlot : MotionButton) as any;
 
     // Default micro-interactions for primary/secondary buttons
     const defaultWhileHover = (variant === 'default' || variant === 'secondary' || !variant) ? { scale: 1.02 } : undefined;
