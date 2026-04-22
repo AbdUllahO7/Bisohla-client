@@ -819,6 +819,10 @@
       "carImages": "Car Images",
       "adsDetails": "Ad Details"
     },
+    "typeSelection": {
+      "title": "Select Category",
+      "description": "What kind of ad would you like to post?"
+    },
     "enteredData": {
       "stepOne": {
         "branda": {

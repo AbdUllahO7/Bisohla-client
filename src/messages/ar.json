@@ -750,6 +750,10 @@
       "carImages": "صور السيارة",
       "adsDetails": "تفاصيل الاعلان"
     },
+    "typeSelection": {
+      "title": "اختر الفئة",
+      "description": "ما هو نوع الإعلان الذي تود نشره؟"
+    },
     "enteredData": {
       "currency": {
         "syp": "ليرة سورية",

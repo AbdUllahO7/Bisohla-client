@@ -1,12 +1,8 @@
 // hooks/useSubmitForm.ts
 import { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createCarListing, updateCarListing } from '@/core/infrastructure-adapters/actions/users/car.user.actions';
-import { Currency } from '@/core/entities/enums/currency.enum';
-import { BodyType, DamageType, DamageZone, FuelType, ListingType, RentType, Transmission, VehicleCondition } from '@/core/entities/enums/cars.enums';
-import { CreateCarListingDto } from '../types';
-import { transformDamages } from '../../stepThree/utils';
-import { SyriaCity, SyriaGovernorate } from '@/core/entities/enums/syria.enums';
+import { createListing, updateListing } from '@/core/infrastructure-adapters/actions/users/listing.user.actions';
+import { CreateListingDto, UpdateListingDto, AttributeValue, AttributeMeta } from '@/core/entities/models/listings/create-listing.dto';
 import {
   STORAGE_KEYS,
   getAllFormData,
@@ -15,20 +11,56 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { useLocale } from 'next-intl';
 
-
 // Format error message for display
 const formatErrorMessage = (error: any): string => {
   if (typeof error === 'string') return error;
-
-  if (error.message) {
-    return error.message;
-  }
-
+  if (error.message) return error.message;
   if (error.status && error.path) {
     return `Error ${error.status}: ${error.message || 'An error occurred'} (${error.path})`;
   }
-
   return JSON.stringify(error, null, 2);
+};
+
+// Determine the correct value key and value to use for an attribute
+const buildAttributeValue = (
+  attrId: number,
+  attrType: string,
+  rawValue: any,
+): AttributeValue | null => {
+  // Skip empty/null values
+  if (rawValue === undefined || rawValue === null || rawValue === '') return null;
+
+  const base: AttributeValue = { attributeId: attrId };
+
+  const type = attrType.toLowerCase();
+
+  // Repeating groups / arrays → valueJson
+  if (type === 'repeating_group' || Array.isArray(rawValue)) {
+    if (Array.isArray(rawValue) && rawValue.length === 0) return null;
+    return { ...base, valueJson: rawValue };
+  }
+
+  // Numbers → valueNumber
+  if (type === 'number' || type === 'integer') {
+    const num = Number(rawValue);
+    if (isNaN(num)) return { ...base, valueText: String(rawValue) };
+    return { ...base, valueNumber: num };
+  }
+
+  // Booleans → valueBoolean
+  if (type === 'boolean' || type === 'checkbox') {
+    return { ...base, valueBoolean: Boolean(rawValue) };
+  }
+
+  // Reference (foreign key IDs) → valueNumber
+  if (type === 'reference') {
+    const num = Number(rawValue);
+    if (!isNaN(num)) return { ...base, valueNumber: num };
+    return { ...base, valueText: String(rawValue) };
+  }
+
+  // Default: text
+  return { ...base, valueText: String(rawValue) };
 };
 
 export const useSubmitForm = () => {
@@ -71,161 +103,147 @@ export const useSubmitForm = () => {
 
       const { stepOne: storedData1, stepTwo: storedData2, stepThree: storedData3, stepFour: storedData4 } = formData;
 
+      // ─────────────────────────────────────────────────────────────────────
+      // 1. listingTypeId — from stepOne (the full ListingTypeDto object)
+      // ─────────────────────────────────────────────────────────────────────
+      const listingTypeId: number = storedData1?.id || storedData1?.listingTypeId;
 
+      // ─────────────────────────────────────────────────────────────────────
+      // 2. top-level fields — from stepFour
+      // ─────────────────────────────────────────────────────────────────────
+      const listingOfferType: string = storedData4?.listingType || 'for_sale';
+      const price = storedData4?.price ? Number(storedData4.price) : null;
+      const currency: string = storedData4?.currency || 'USD';
+      const contactNumber: string | null = storedData4?.contactNumber || null;
+      const publicationStatus: string = storedData4?.adStatus === 'publish' ? 'published' : 'draft';
 
-      // Extract ONLY feature IDs to send to the API
-      const featureIds: number[] = [];
+      // ─────────────────────────────────────────────────────────────────────
+      // 3. location — location fields are in stepTwo as virtual fields
+      //    (governorate, city, address are injected with negative IDs so they
+      //     won't appear in __attributeMap__, we handle them separately)
+      // ─────────────────────────────────────────────────────────────────────
+      const governorate: string | null = storedData2?.governorate || null;
+      const city: string | null = storedData2?.city || null;
+      const address: string | null = storedData2?.address || null;
 
-      if (storedData2.selectedFeatures && Array.isArray(storedData2.selectedFeatures)) {
-        for (const featureItem of storedData2.selectedFeatures) {
-          if (featureItem && typeof featureItem === 'object') {
-            // Get the feature ID, whether it's directly available or inside a feature object
-            let featureId = null;
+      // ─────────────────────────────────────────────────────────────────────
+      // 4. translations — title & description from stepFour
+      // ─────────────────────────────────────────────────────────────────────
+      const title: string = storedData4?.title || '';
+      const description: string = storedData4?.description || '';
+      const story: string | null = storedData4?.story || null;
 
-            if (featureItem.feature && featureItem.feature.id) {
-              featureId = featureItem.feature.id;
-            } else if (featureItem.featureId) {
-              featureId = parseInt(featureItem.featureId, 10);
-            }
+      // Build bilingual translations — use the same text for both if single-language
+      const translations = {
+        en: { title, description, story },
+        ar: { title, description, story },
+      };
 
-            if (featureId) {
-              featureIds.push(featureId);
-            }
-          }
+      // ─────────────────────────────────────────────────────────────────────
+      // 5. attributeValues — from stepTwo dynamic fields via __attributeMap__
+      // ─────────────────────────────────────────────────────────────────────
+      const attributeMap: Record<string, AttributeMeta> = storedData2?.__attributeMap__ || {};
+      const attributeValues: AttributeValue[] = [];
+
+      // Virtual/injected location slugs that we handle as top-level fields
+      const LOCATION_SLUGS = new Set(['governorate', 'city', 'address']);
+
+      for (const [slug, meta] of Object.entries(attributeMap)) {
+        if (LOCATION_SLUGS.has(slug)) continue; // Already handled as top-level
+        if (!meta?.id || meta.id <= 0) continue; // Skip invalid/virtual attrs
+
+        const rawValue = storedData2?.[slug];
+        const attrValue = buildAttributeValue(meta.id, meta.type, rawValue);
+        if (attrValue) {
+          attributeValues.push(attrValue);
         }
       }
 
-      const imageUrls: string[] = [];
-
-      if (storedData3.coverImage && Array.isArray(storedData3.coverImage) && storedData3.coverImage.length > 0) {
-        // Add all images
-        imageUrls.push(...storedData3.coverImage);
+      // ─────────────────────────────────────────────────────────────────────
+      // 6. images — from stepThree
+      // ─────────────────────────────────────────────────────────────────────
+      const images: string[] = [];
+      if (storedData3?.coverImage && Array.isArray(storedData3.coverImage)) {
+        images.push(...storedData3.coverImage);
       }
 
-      // Transform car damages from sectionStatus to the backend format
-      const damages = transformDamages(storedData3.sectionStatus || {});
-
-      // Create the car listing submission with a FLATTENED structure
-      const carListingDto: CreateCarListingDto = {
-        // Basic vehicle details from step 1
-        makeId: Number(storedData1.marka),
-        modelId: Number(storedData1.model),
-        trimId: Number(storedData1.trim) || null,
-        year: Number(storedData1.year),
-        story: storedData1.story || null,
-
-        // Location details from step 1 - cast to enum types
-        address: storedData1.address,
-        city: storedData1.city as SyriaCity,
-        governorate: storedData1.governorate as SyriaGovernorate,
-
-        // Pricing from step 2
-        currency: Currency[storedData4.currency as keyof typeof Currency] || Currency.SYP,
-        price: Number(storedData4.price) || null,
-
-        // Listing metadata
-        isFeatured: false,
-        isSold: false,
-        saveStatus: storedData4.saveStatus,
-
-        // Listing content from step 4
-        title: storedData4.title,
-        description: storedData4.description,
-
-        // Using featureIds to match the schema
-        featureIds: featureIds,
-
-        // Images
-        images: imageUrls,
-        primaryImageIndex: 0,
-        isTrend: false,
-
-        // Car details - FLATTENED structure
-        mileage: Number(storedData2.mileage) || null,
-        fuelType: storedData2.fuelType as FuelType || null,
-        transmission: storedData2.transmission as Transmission || null,
-        engineSize: Number(storedData2.engineSize) || null,
-        enginePower: Number(storedData2.enginePower) || null,
-        bodyType: storedData2.bodyType as BodyType || null,
-        doors: Number(storedData2.doors) || null,
-        colorExterior: storedData2.colorExterior || null,
-        vin: storedData2.vin?.toString() || null,
-        plateNumber: storedData2.plateNumber?.toString() || null,
-        listingType: storedData4.listingType as ListingType,
-        rentType: storedData4.rentType as RentType || null,
-        contactNumber: storedData4.contactNumber || null,
-        condition: (storedData2.condition as VehicleCondition) || null,
-        publishedAt: storedData4.publicationDate || null,
-        damages: damages?.map(d => ({
-          damageZone: d.damageZone as DamageZone,
-          damageType: d.damageType as DamageType,
-          description: d.description
-        })),
-      };
+      // ─────────────────────────────────────────────────────────────────────
+      // 7. Build the final payload
+      // ─────────────────────────────────────────────────────────────────────
+      console.log('[useSubmitForm] stepTwo data:', storedData2);
+      console.log('[useSubmitForm] attributeMap:', attributeMap);
+      console.log('[useSubmitForm] attributeValues built:', attributeValues);
 
       let response;
-      if (isEditMode) {
-        response = await updateCarListing(Number(carIdToEdit), carListingDto);
+
+      if (isEditMode && carIdToEdit) {
+        const updateDto: UpdateListingDto = {
+          price,
+          currency,
+          governorate,
+          city,
+          address,
+          contactNumber,
+          publicationStatus,
+          translations,
+          attributeValues,
+          images,
+        };
+        console.log('[useSubmitForm] PATCH payload:', updateDto);
+        response = await updateListing(Number(carIdToEdit), updateDto);
       } else {
-        response = await createCarListing(carListingDto);
+        const createDto: CreateListingDto = {
+          listingTypeId,
+          listingOfferType,
+          price,
+          currency,
+          governorate,
+          city,
+          address,
+          contactNumber,
+          publicationStatus,
+          translations,
+          attributeValues,
+          images,
+        };
+        console.log('[useSubmitForm] POST payload:', createDto);
+        response = await createListing(createDto);
+        console.log('response',response)
       }
 
       if (response.success) {
-        // Show success toast notification using shadcn/ui toast
         toast({
-          title: locale === 'en' ? "Success 🚗" : "تم بنجاح 🚗",
+          title: locale === 'en' ? '🚗 Success!' : '🚗 تم بنجاح',
           description: locale === 'en'
-            ? (isEditMode
-              ? 'Your listing has been successfully updated!'
-              : 'Your listing has been successfully created!')
-            : (isEditMode
-              ? 'تم تحديث القائمة الخاصة بك بنجاح!'
-              : 'تم إنشاء القائمة الخاصة بك بنجاح!'),
-          className: "bg-green-600 text-white w-[330px] border-green-700 fixed bottom-4 right-4 z-[999]",
+            ? (isEditMode ? 'Your listing has been updated!' : 'Your listing has been created!')
+            : (isEditMode ? 'تم تحديث الإعلان بنجاح!' : 'تم إنشاء الإعلان بنجاح!'),
+          className: 'bg-green-600 text-white w-[330px] border-green-700 fixed bottom-4 right-4 z-[999]',
         });
 
-        // Clear all form data properly - both edit and normal data
         clearFormData(true);
-
-        // Redirect to success page or next step
         router.push('/userProfile/Products');
-        // Small delay to ensure navigation completes before refresh
-        setTimeout(() => {
-          router.refresh();
-        }, 100);
-
-
+        setTimeout(() => router.refresh(), 100);
         return response;
       } else {
-        // Show error dialog on unsuccessful response
         setErrorMessage(formatErrorMessage(response));
         setShowErrorDialog(true);
-
-        // Also show error toast using shadcn/ui toast
         toast({
-          variant: "destructive",
-          title: locale === 'en' ? "Error" : "خطأ",
+          variant: 'destructive',
+          title: locale === 'en' ? 'Error' : 'خطأ',
           description: formatErrorMessage(response),
         });
-
-
-        console.error("Error submitting form:", response);
-
-
+        console.error('[useSubmitForm] Error response:', response);
         return null;
       }
     } catch (error) {
-      console.error("Error submitting form:", error);
+      console.error('[useSubmitForm] Exception:', error);
       setErrorMessage(formatErrorMessage(error));
       setShowErrorDialog(true);
-
-      // Show error toast using shadcn/ui toast
       toast({
-        variant: "destructive",
-        title: locale === 'en' ? "Error" : "خطأ",
+        variant: 'destructive',
+        title: locale === 'en' ? 'Error' : 'خطأ',
         description: formatErrorMessage(error),
       });
-
       return null;
     } finally {
       setIsSubmitting(false);
@@ -239,6 +257,6 @@ export const useSubmitForm = () => {
     handleTryAgain,
     setShowErrorDialog,
     submitForm,
-    isEditMode
+    isEditMode,
   };
 };

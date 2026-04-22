@@ -616,16 +616,16 @@ const ProductsFilter: React.FC = React.memo(() => {
   const handleValidationChangeStepOne = (isValid: boolean) => { };
   const handleValidationChangeStepTwo = (isValid: boolean) => { };
 
-  const {
-    governorateOptions,
-    cityOptions,
-    carMakesConfig,
-    carModelsConfig,
-    carTrimsConfig,
-    madeYear,
-    handleSelectChange: handleStepOneSelectChange,
-    titles: stepOneTitles,
-  } = useProductStepOne(handleValidationChangeStepOne);
+    const {
+      governorateOptions,
+      cityOptions,
+      carMakesConfig,
+      carModelsConfig,
+      carTrimsConfig,
+      madeYear,
+      handleSelectChange: handleStepOneSelectChange,
+      titles: stepOneTitles,
+    } = useProductStepOne(handleValidationChangeStepOne, filters.listingType);
 
 
   const {

@@ -19,9 +19,7 @@ interface ValidationAttempted {
   [key: string]: boolean;
 }
 
-export const useStepManagement = (isEditMode = false) => {
-  // Define all steps
-  const steps = ["productType", "location", "productInfo", "adsInfo"];
+export const useStepManagement = (isEditMode = false, steps: string[] = ["productType", "location", "productInfo", "adsInfo"]) => {
   
   // Get the form submission hook
   const { 
@@ -37,22 +35,44 @@ export const useStepManagement = (isEditMode = false) => {
   const [currentStep, setCurrentStep] = useState(steps[0]);
   
   // State for validation
-  const [stepValidation, setStepValidation] = useState<StepValidation>({
-    productType: isEditMode, // Assume valid in edit mode initially
-    location: isEditMode,    // Assume valid in edit mode initially
-    productInfo: isEditMode, // Assume valid in edit mode initially
-    adsInfo: false,          // This always needs validation
+  const [stepValidation, setStepValidation] = useState<StepValidation>(() => {
+    const initial: any = {};
+    steps.forEach(step => {
+      initial[step] = isEditMode && step !== 'adsInfo';
+    });
+    return initial;
   });
   
   // State to track which steps have had validation attempted
-  const [validationAttempted, setValidationAttempted] = useState<ValidationAttempted>({
-    productType: false,
-    location: false,
-    productInfo: false,
-    adsInfo: false,
+  const [validationAttempted, setValidationAttempted] = useState<ValidationAttempted>(() => {
+    const initial: any = {};
+    steps.forEach(step => {
+      initial[step] = false;
+    });
+    return initial;
   });
 
-  // Check localStorage on initial load to see if form data exists for each step
+  // Sync validation when steps change
+  useEffect(() => {
+    setStepValidation(prev => {
+      const updated: any = { ...prev };
+      steps.forEach(step => {
+        if (updated[step] === undefined) {
+          updated[step] = isEditMode && step !== 'adsInfo';
+        }
+      });
+      return updated;
+    });
+    setValidationAttempted(prev => {
+      const updated: any = { ...prev };
+      steps.forEach(step => {
+        if (updated[step] === undefined) {
+          updated[step] = false;
+        }
+      });
+      return updated;
+    });
+  }, [steps, isEditMode]);
   useEffect(() => {
     if (isEditMode) {
       // In edit mode, we'll check if each step's data is already present using the appropriate keys

@@ -97,7 +97,7 @@ export interface CarDetails {
   engineSize: number | null;
   enginePower: number | null;
   bodyType?: BodyType | null;
-  doors: number | null;
+  doors: string | null;
   colorExterior: string | null;
   vin: string | null;
   plateNumber: string | null;
@@ -116,7 +116,7 @@ export interface CreateCarDetailsDto {
   engineSize?: number | null;
   enginePower?: number | null;
   bodyType?: string | null;
-  doors?: number | null;
+  doors?: string | null;
   colorExterior?: string | null;
   vin?: string | null;
   plateNumber?: string | null;

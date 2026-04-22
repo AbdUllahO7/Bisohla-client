@@ -1,0 +1,28 @@
+import { IListingsVisitorRepo } from '@/core/application/repositories/listings/listings.visitor.repo.interface';
+import { PaginatedResponse } from '@/core/entities/api/success.response';
+import { ListingDto } from '@/core/entities/models/listings/listings.dto';
+import { getReq } from '@/core/lib/api';
+
+export class ListingsVisitorRepo implements IListingsVisitorRepo {
+  async getFeaturedListings(
+    page?: number,
+    pageSize?: number
+  ): Promise<PaginatedResponse<ListingDto>> {
+    const res = await getReq<any, PaginatedResponse<ListingDto>>({
+      url: '/listings-visitor/featured',
+      params: { page, pageSize },
+    });
+    return res;
+  }
+
+  async getTrendingListings(
+    page?: number,
+    pageSize?: number
+  ): Promise<PaginatedResponse<ListingDto>> {
+    const res = await getReq<any, PaginatedResponse<ListingDto>>({
+      url: '/listings-visitor/trending',
+      params: { page, pageSize },
+    });
+    return res;
+  }
+}

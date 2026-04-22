@@ -1,20 +1,21 @@
 // hooks.ts
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import {
-    useCarMakes,
-    useCarModels,
-    useCarTrims,
-} from "@/core/infrastructure-adapters/use-actions/visitors/car.visitor.use-actions";
-import { Filter } from "@/core/entities/api/api";
+import { getInjection } from "@/di/container";
+import { ListingTypeRefItemDto } from "@/core/entities/models/listing-type-refs/listing-type-refs.dto";
+import { SchemaAttributeDto } from "@/core/entities/models/listing-types/listing-types.dto";
 import { SelectedOptions } from "./types";
 import { getGovernorateOptions, getCityOptions, getYearOptions, validateForm } from "./utils";
 import { loadSelections, saveSelections } from "./StorageUtils";
+import { STORAGE_KEYS } from "../main/hooks/useLocalStorage";
 
 /**
  * Custom hook for managing the product step one form
  */
-export const useProductStepOne = (onValidationChange: (isValid: boolean) => void) => {
+export const useProductStepOne = (
+    onValidationChange: (isValid: boolean) => void,
+    externalListingTypeId?: number | string
+) => {
     const t = useTranslations("addProduct");
     const locale = useLocale();
     const direction = locale === "ar" ? "rtl" : "ltr";
@@ -24,6 +25,15 @@ export const useProductStepOne = (onValidationChange: (isValid: boolean) => void
     const [selectedOptions, setSelectedOptions] = useState<SelectedOptions>(loadSelections());
     const [isClient, setIsClient] = useState(false);
     const [prevValidationState, setPrevValidationState] = useState(false);
+
+    // Dynamic schema and reference data
+    const [groupIds, setGroupIds] = useState({ make: 0, model: 0, trim: 0 });
+    const [isTrimInSchema, setIsTrimInSchema] = useState(false);
+    const [makes, setMakes] = useState<ListingTypeRefItemDto[]>([]);
+    const [models, setModels] = useState<ListingTypeRefItemDto[]>([]);
+    const [trims, setTrims] = useState<ListingTypeRefItemDto[]>([]);
+    const [loading, setLoading] = useState({ schema: false, makes: false, models: false, trims: false });
+    const [error, setError] = useState<string | null>(null);
 
     // Create refs to track user interactions vs. initial load
     const isInitialLoad = useRef(true);
@@ -56,7 +66,6 @@ export const useProductStepOne = (onValidationChange: (isValid: boolean) => void
     const setInitialEditData = useCallback((editData: SelectedOptions) => {
         // Only apply edit data once
         if (!editModeDataApplied.current) {
-
             setSelectedOptions(editData);
             editModeDataApplied.current = true;
 
@@ -68,51 +77,165 @@ export const useProductStepOne = (onValidationChange: (isValid: boolean) => void
         }
     }, [onValidationChange]);
 
-    // Extract IDs only when needed
-    const makeId = selectedOptions.marka ? Number.parseInt(selectedOptions.marka) : undefined;
-    const modelId = selectedOptions.model ? Number.parseInt(selectedOptions.model) : undefined;
+    // 1. Get Listing Type ID from external prop, else localStorage, else default to 1 (Cars)
+    const listingTypeId = useMemo(() => {
+        if (externalListingTypeId) return Number(externalListingTypeId);
+        if (typeof window === 'undefined') return 1; 
+        const stored = localStorage.getItem(STORAGE_KEYS.STEP_ONE);
+        if (stored) {
+            try {
+                const parsed = JSON.parse(stored);
+                return parsed.id || 1;
+            } catch (e) {
+                return 1;
+            }
+        }
+        return 1;
+    }, [externalListingTypeId]);
 
-    // Build filters based on selected values
-    const makeFilter: Filter[] | undefined = makeId ? [{ field: "makeId", operator: "eq", value: makeId }] : undefined;
-    const modelFilter: Filter[] | undefined = modelId ? [{ field: "modelId", operator: "eq", value: modelId }] : undefined;
+    // 2. Fetch Schema to get Reference Group IDs
+    useEffect(() => {
+        const fetchSchema = async () => {
+            setLoading(prev => ({ ...prev, schema: true }));
+            try {
+                const controller = getInjection('IListingTypesRepoController');
+                const res = await controller.getActiveSchema(listingTypeId);
+                if (res.success) {
+                    const attrs: Record<string, SchemaAttributeDto> = res.data.attributes;
+                    const newGroupIds = { make: 0, model: 0, trim: 0 };
+                    let trimFound = false;
 
-    // Data fetching with appropriate filters
-    const { data: carMakesResponse, error: makesError } = useCarMakes({ pageSize: 200 });
-    const { data: carModelsResponse, error: modelsError } = useCarModels({ where: makeFilter, pageSize: 200 });
-    const { data: carTrimsResponse, error: trimsError } = useCarTrims({ where: modelFilter, pageSize: 200 });
+                    for (const [slug, attr] of Object.entries(attrs)) {
+                        const lowSlug = slug.toLowerCase();
+                        if (lowSlug === 'make' || lowSlug === 'branda') {
+                            newGroupIds.make = attr.referenceGroupId || 0;
+                        } else if (lowSlug === 'model') {
+                            newGroupIds.model = attr.referenceGroupId || 0;
+                        } else if (lowSlug === 'trim') {
+                            newGroupIds.trim = attr.referenceGroupId || 0;
+                            trimFound = true;
+                        }
+                    }
+                    setGroupIds(newGroupIds);
+                    setIsTrimInSchema(trimFound);
+                }
+            } catch (err) {
+                console.error("Failed to fetch schema for ref groups", err);
+                setError("Failed to fetch schema");
+            } finally {
+                setLoading(prev => ({ ...prev, schema: false }));
+            }
+        };
+        fetchSchema();
+    }, [listingTypeId]);
 
+    // 3. Fetch Makes
+    useEffect(() => {
+        if (!groupIds.make) return;
+        const fetchMakes = async () => {
+            setLoading(prev => ({ ...prev, makes: true }));
+            try {
+                const controller = getInjection('IListingTypeRefsRepoController');
+                const res = await controller.getItemsByGroupId(groupIds.make, undefined, 1000);
+                if (res.success) {
+                    setMakes(res.data.data);
+                }
+            } catch (err) {
+                console.error("Failed to fetch makes", err);
+            } finally {
+                setLoading(prev => ({ ...prev, makes: false }));
+            }
+        };
+        fetchMakes();
+    }, [groupIds.make]);
+
+    // 4. Fetch Models (dependent on Make)
+    useEffect(() => {
+        if (!groupIds.model || !selectedOptions.marka) {
+            setModels([]);
+            return;
+        }
+        const fetchModels = async () => {
+            setLoading(prev => ({ ...prev, models: true }));
+            try {
+                const controller = getInjection('IListingTypeRefsRepoController');
+                const res = await controller.getItemsByGroupId(groupIds.model, Number(selectedOptions.marka), 1000);
+                if (res.success) {
+                    setModels(res.data.data);
+                }
+            } catch (err) {
+                console.error("Failed to fetch models", err);
+            } finally {
+                setLoading(prev => ({ ...prev, models: false }));
+            }
+        };
+        fetchModels();
+    }, [groupIds.model, selectedOptions.marka]);
+
+    // 5. Fetch Trims (dependent on Model)
+    useEffect(() => {
+        if (!groupIds.trim || !selectedOptions.model) {
+            setTrims([]);
+            return;
+        }
+        const fetchTrims = async () => {
+            setLoading(prev => ({ ...prev, trims: true }));
+            try {
+                const controller = getInjection('IListingTypeRefsRepoController');
+                const res = await controller.getItemsByGroupId(groupIds.trim, Number(selectedOptions.model), 1000);
+                if (res.success) {
+                    setTrims(res.data.data);
+                }
+            } catch (err) {
+                console.error("Failed to fetch trims", err);
+            } finally {
+                setLoading(prev => ({ ...prev, trims: false }));
+            }
+        };
+        fetchTrims();
+    }, [groupIds.trim, selectedOptions.model]);
+
+    // Helper for multilingual translation
+    const getTranslation = useCallback((val: any) => {
+        if (!val) return "";
+        if (typeof val === 'string') return val;
+        if (typeof val === 'object') {
+            return val[locale] || val['en'] || val['ar'] || "";
+        }
+        return String(val);
+    }, [locale]);
 
     // Transform data for SelectableList components
     const carMarka = useMemo(() =>
-        carMakesResponse?.data?.data?.map(make => ({
-            value: make.id.toString(),
-            label: make.name,
-            logoUrl: make.logoUrl,
-            isCarTrimRequired: make.isCarTrimRequired,
-        })).sort((a, b) => a.label.localeCompare(b.label)) || [],
-        [carMakesResponse]
+        makes.map(item => ({
+            value: item.id.toString(),
+            label: getTranslation(item.name),
+            logoUrl: item.logoUrl || item.iconUrl || undefined,
+        })).sort((a, b) => a.label.localeCompare(b.label)),
+        [makes, getTranslation]
     );
 
     const carModel = useMemo(() =>
-        carModelsResponse?.data?.data?.map(model => ({
-            value: model.id.toString(),
-            label: model.name,
-        })).sort((a, b) => a.label.localeCompare(b.label)) || [],
-        [carModelsResponse]
+        models.map(item => ({
+            value: item.id.toString(),
+            label: getTranslation(item.name),
+        })).sort((a, b) => a.label.localeCompare(b.label)),
+        [models, getTranslation]
     );
 
     const carTrim = useMemo(() =>
-        carTrimsResponse?.data?.data?.map(trim => ({
-            value: trim.id.toString(),
-            label: trim.name,
-        })).sort((a, b) => a.label.localeCompare(b.label)) || [],
-        [carTrimsResponse]
+        trims.map(item => ({
+            value: item.id.toString(),
+            label: getTranslation(item.name),
+        })).sort((a, b) => a.label.localeCompare(b.label)),
+        [trims, getTranslation]
     );
 
     const isTrimRequired = useMemo(() => {
-        const selectedMake = carMarka.find(m => m.value === selectedOptions.marka);
-        return !!selectedMake?.isCarTrimRequired;
-    }, [carMarka, selectedOptions.marka]);
+        // If trim is in schema, we assume it's required for this step
+        // In a more complex scenario, we could check attr.isRequired from schema
+        return isTrimInSchema;
+    }, [isTrimInSchema]);
 
 
     // Location options
@@ -201,7 +324,7 @@ export const useProductStepOne = (onValidationChange: (isValid: boolean) => void
     }, [selectedOptions, onValidationChange, prevValidationState, isTrimRequired]);
 
     // Check for errors
-    const hasErrors = makesError || modelsError || trimsError;
+    const hasErrors = !!error;
 
     // Translated titles
     const titles = useMemo(() => ({
@@ -235,6 +358,7 @@ export const useProductStepOne = (onValidationChange: (isValid: boolean) => void
         handleSelectChange,
         handleAddressChange,
         handleStoryChange,
-        setInitialEditData, // Export this function to be used by the component
+        setInitialEditData,
+        loading,
     };
 };
