@@ -169,6 +169,10 @@ export const useAddProductStepThree = (
           // Mark initial load as complete
           initialLoadComplete.current = true;
         } else {
+          // No saved data found, but we still mark initial load as complete 
+          // so that future changes can be saved.
+          initialLoadComplete.current = true;
+          
           // Run validation even with default state
           setTimeout(() => {
             runValidation(defaultState);

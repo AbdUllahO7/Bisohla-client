@@ -31,6 +31,8 @@ export interface CreateListingDto {
 }
 
 export interface UpdateListingDto {
+  listingTypeId?: number;
+  listingOfferType?: string;
   price?: number | null;
   currency?: string;
   governorate?: string | null;

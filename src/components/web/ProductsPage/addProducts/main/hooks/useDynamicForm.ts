@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { FormAttributeDto } from '@/core/entities/models/listing-types/listing-types.dto';
 import { getInjection } from '@/di/container';
 import { ListingTypeRefItemDto } from '@/core/entities/models/listing-type-refs/listing-type-refs.dto';
-import { STORAGE_KEYS } from './useLocalStorage';
+import { STORAGE_KEYS, getStorageKey } from './useLocalStorage';
 
 export const useDynamicForm = (
   attributes: FormAttributeDto[],
@@ -20,30 +20,68 @@ export const useDynamicForm = (
   // Initialize form data from initialData, localStorage, or defaults
   useEffect(() => {
     const isEditMode = !!localStorage.getItem(STORAGE_KEYS.EDIT_MODE_FLAG);
-    const initial: Record<string, any> = {};
+    const storageKey = getStorageKey('STEP_TWO', isEditMode);
     
-    // Load from localStorage if not in edit mode
+    // Load from localStorage
     let savedData: Record<string, any> = {};
-    if (!isEditMode) {
-      const raw = localStorage.getItem(STORAGE_KEYS.STEP_TWO);
-      if (raw) {
-        try {
-          savedData = JSON.parse(raw);
-        } catch (e) {
-          console.error("Failed to parse STEP_TWO data", e);
-        }
+    const raw = localStorage.getItem(storageKey);
+    if (raw) {
+      try {
+        savedData = JSON.parse(raw);
+      } catch (e) {
+        console.error("Failed to parse STEP_TWO data", e);
       }
     }
 
+    // Parse attributeValues from initialData if available (Generic Listing API)
+    const apiAttributeMap: Record<string, any> = {};
+    if (initialData?.attributeValues && Array.isArray(initialData.attributeValues)) {
+      initialData.attributeValues.forEach((av: any) => {
+        const slug = av.attribute?.slug;
+        if (slug) {
+          // Normalize value from different possible value fields
+          let val = null;
+          if (av.valueNumber !== null && av.valueNumber !== undefined) val = Number(av.valueNumber);
+          else if (av.valueJson !== null && av.valueJson !== undefined) val = av.valueJson;
+          else if (av.valueBoolean !== null && av.valueBoolean !== undefined) val = av.valueBoolean;
+          else if (av.valueText !== null && av.valueText !== undefined) val = av.valueText;
+          else if (av.valueDate !== null && av.valueDate !== undefined) val = av.valueDate;
+          
+          apiAttributeMap[slug] = val;
+        }
+      });
+    }
+
+    const initial: Record<string, any> = {};
     attributes.forEach(attr => {
-      // Priority: initialData (edit mode) > localStorage > defaults
-      const editValue = initialData?.details?.[attr.slug] || initialData?.[attr.slug];
+      // Priority: localStorage (current session) > apiAttributeMap > details > top-level > defaults
       const savedValue = savedData[attr.slug];
+      
+      // Try to find the value in initialData mapping sources
+      let editValue = savedValue; // Start with savedValue
+      
+      if (editValue === undefined || editValue === null) {
+        // Fallback to API attribute map (flattened list)
+        editValue = apiAttributeMap[attr.slug];
+        
+        if (editValue === undefined || editValue === null) {
+            // Fallback to details (legacy) or top-level listing fields
+            editValue = initialData?.details?.[attr.slug] ?? initialData?.[attr.slug];
+            
+            // If not found, try with "Id" suffix
+            if ((editValue === undefined || editValue === null) && (attr.type === 'reference' || attr.type === 'select')) {
+              editValue = initialData?.[`${attr.slug}Id`] ?? initialData?.details?.[`${attr.slug}Id`];
+            }
+            
+            // Extract ID from object if necessary
+            if (editValue && typeof editValue === 'object' && !Array.isArray(editValue) && editValue.id !== undefined) {
+              editValue = editValue.id;
+            }
+        }
+      }
       
       if (editValue !== undefined && editValue !== null) {
         initial[attr.slug] = editValue;
-      } else if (!isEditMode && savedValue !== undefined && savedValue !== null) {
-        initial[attr.slug] = savedValue;
       } else {
         initial[attr.slug] = attr.type === 'repeating_group' ? [] : '';
       }
@@ -57,29 +95,37 @@ export const useDynamicForm = (
   useEffect(() => {
     if (!isInitialized.current) return;
     const isEditMode = !!localStorage.getItem(STORAGE_KEYS.EDIT_MODE_FLAG);
-    if (isEditMode) return;
-    
-    if (Object.keys(formData).length > 0) {
-      const existingRaw = localStorage.getItem(STORAGE_KEYS.STEP_TWO);
-      let existingData: Record<string, any> = {};
-      try {
-        existingData = existingRaw ? JSON.parse(existingRaw) : {};
-      } catch (e) {}
+    const storageKey = getStorageKey('STEP_TWO', isEditMode);
 
-      // Build the attribute metadata map: slug → { id, type }
-      // This is used by useSubmitForm to resolve attributeId for the new API
-      const attributeMap: Record<string, { id: number; type: string }> = {
-        ...(existingData.__attributeMap__ || {}),
-      };
-      attributes.forEach(attr => {
-        if (attr.id && attr.id > 0) { // Skip injected virtual attrs (negative IDs)
-          attributeMap[attr.slug] = { id: attr.id, type: attr.type || 'text' };
-        }
-      });
-
-      const newData = { ...existingData, ...formData, __attributeMap__: attributeMap };
-      localStorage.setItem(STORAGE_KEYS.STEP_TWO, JSON.stringify(newData));
+    // Get current data from localStorage to merge
+    let currentStoredData: Record<string, any> = {};
+    try {
+      const raw = localStorage.getItem(storageKey);
+      if (raw) currentStoredData = JSON.parse(raw);
+    } catch (e) {
+      console.error("Failed to read STEP_TWO for merging", e);
     }
+
+    // Capture the current attributes' meta for useSubmitForm
+    const currentAttrMap = { ...(currentStoredData.__attributeMap__ || {}) };
+    attributes.forEach(attr => {
+      if (attr.id > 0) { // Only map real attributes, not virtual ones like injected location
+        currentAttrMap[attr.slug] = {
+          id: attr.id,
+          type: attr.type,
+          isRequired: attr.isRequired || (attr as any).required
+        };
+      }
+    });
+
+    // Merge only the fields owned by this section into the global STEP_TWO
+    const updatedData = {
+      ...currentStoredData,
+      ...formData,
+      __attributeMap__: currentAttrMap
+    };
+
+    localStorage.setItem(storageKey, JSON.stringify(updatedData));
   }, [formData, attributes]);
 
   // Function to fetch reference options

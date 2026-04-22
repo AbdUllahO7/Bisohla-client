@@ -11,7 +11,7 @@ import AddProductStepFour from '../stepFour/AddProductStepFowr';
 import ErrorDialog from './Components/ErrorDialog';
 import { StepTrigger, StepperContainer } from './Components/StepTrigger';
 import { useStepManagement } from './hooks/useStepManagement';
-import { STORAGE_KEYS } from './hooks/useLocalStorage';
+import { STORAGE_KEYS, getStorageKey } from './hooks/useLocalStorage';
 import AddProductTypeSelection from '../TypeSelection/AddProductTypeSelection';
 import DynamicFormStep from './Components/DynamicFormStep';
 import CarPhotosSection from '../stepThree/CarPhotosSection';
@@ -65,13 +65,13 @@ const Steps: React.FC<StepsProps> = ({ isEditMode = false, carId, initialData })
   }, [selectedType]);
 
   const dynamicSteps = useMemo(() => {
-    const baseSteps = ["typeSelection"];
+    const baseSteps = isEditMode ? [] : ["typeSelection"];
     if (schema) {
       const sectionSteps = schema.sections.map(s => `section_${s.id}`);
       return [...baseSteps, ...sectionSteps, "carPhotos", "adsInfo"];
     }
     return baseSteps;
-  }, [schema]);
+  }, [schema, isEditMode]);
   
   // Use the step management hook with edit mode flag and dynamic steps
   const {
@@ -94,11 +94,13 @@ const Steps: React.FC<StepsProps> = ({ isEditMode = false, carId, initialData })
 
   // Load initial photos from localStorage or initialData
   useEffect(() => {
-    if (isEditMode && initialData?.data?.[0]?.images) {
-      setPhotos(initialData.data[0].images);
-      updateStepValidation('carPhotos', initialData.data[0].images.length > 0);
+    if (isEditMode && initialData?.images) {
+      const imageUrls = initialData.images.map((img: any) => typeof img === 'string' ? img : img.url);
+      setPhotos(imageUrls);
+      updateStepValidation('carPhotos', imageUrls.length > 0);
     } else {
-      const savedPhotos = localStorage.getItem(STORAGE_KEYS.STEP_THREE); // Photos were step 3 in old design
+      const storageKey = getStorageKey('STEP_THREE', isEditMode);
+      const savedPhotos = localStorage.getItem(storageKey); // Photos were step 3 in old design
       if (savedPhotos) {
         try {
           const parsed = JSON.parse(savedPhotos);
@@ -116,30 +118,44 @@ const Steps: React.FC<StepsProps> = ({ isEditMode = false, carId, initialData })
   // Save photos to localStorage whenever they change
   useEffect(() => {
     if (photos.length > 0) {
-      const current = localStorage.getItem(STORAGE_KEYS.STEP_THREE);
+      const storageKey = getStorageKey('STEP_THREE', isEditMode);
+      const current = localStorage.getItem(storageKey);
       const parsed = current ? JSON.parse(current) : {};
-      localStorage.setItem(STORAGE_KEYS.STEP_THREE, JSON.stringify({
+      localStorage.setItem(storageKey, JSON.stringify({
         ...parsed,
         coverImage: photos
       }));
     }
-  }, [photos]);
+  }, [photos, isEditMode]);
 
-  // Load initial Listing Type from localStorage
+  // Load initial Listing Type from localStorage or initialData
   useEffect(() => {
-    if (!isEditMode) {
+    if (isEditMode && initialData) {
+      // Find the listing type from initialData
+      // If we only have ID, we might need to fetch the full object or just set ID
+      // For now, let's assume we can at least set the ID to trigger schema fetch
+      const typeId = initialData.listingTypeId || (initialData.data?.[0]?.listingTypeId);
+      if (typeId && (!selectedType || selectedType.id !== typeId)) {
+        // We set a partial type object, the fetchSchema useEffect will handle the rest
+        setSelectedType({ id: typeId } as any);
+        updateStepValidation('typeSelection', true);
+      }
+    } else if (!isEditMode) {
       const savedType = localStorage.getItem(STORAGE_KEYS.STEP_ONE);
       if (savedType) {
         try {
           const parsed = JSON.parse(savedType);
-          setSelectedType(parsed);
-          updateStepValidation('typeSelection', true);
+          // Only update if current selectedType is different to prevent loops
+          if (!selectedType || parsed.id !== selectedType.id) {
+            setSelectedType(parsed);
+            updateStepValidation('typeSelection', true);
+          }
         } catch (e) {
           console.error("Failed to parse saved type", e);
         }
       }
     }
-  }, [isEditMode, updateStepValidation]);
+  }, [isEditMode, initialData, selectedType, updateStepValidation]);
 
   const handleTypeSelect = (type: ListingTypeDto) => {
     setSelectedType(type);

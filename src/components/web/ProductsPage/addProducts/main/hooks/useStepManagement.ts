@@ -72,7 +72,12 @@ export const useStepManagement = (isEditMode = false, steps: string[] = ["produc
       });
       return updated;
     });
-  }, [steps, isEditMode]);
+
+    // Sync currentStep if it's no longer valid or was not set
+    if (steps.length > 0 && (!currentStep || !steps.includes(currentStep))) {
+      setCurrentStep(steps[0]);
+    }
+  }, [steps, isEditMode, currentStep]);
   useEffect(() => {
     if (isEditMode) {
       // In edit mode, we'll check if each step's data is already present using the appropriate keys

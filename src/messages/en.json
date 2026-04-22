@@ -1098,6 +1098,7 @@
         "usd": "US Dollar",
         "eur": "Euro"
       },
+      "pickDate": "Pick a date",
       "stepFour": {
         "title": "Ad Details",
         "adTitle": "Ad Title",

@@ -35,10 +35,10 @@ import {
 import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions';
 import { toggleCarListingFavorite } from '@/core/infrastructure-adapters/actions/users/car.user.actions';
 import { 
-  useDeleteCarListing, 
   useUpdateSaveStatus,
   useMyCarById 
 } from '@/core/infrastructure-adapters/use-actions/users/car.user.use-actions';
+import { useDeleteListing } from '@/core/infrastructure-adapters/use-actions/users/listing.user.use-actions';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -118,7 +118,7 @@ export const EnhancedProductCardItem: React.FC<ExtendedCarCardItemPropsProfile> 
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   
   const updateSaveStatusMutation = useUpdateSaveStatus();
-  const deleteCarListingMutation = useDeleteCarListing();
+  const deleteListingMutation = useDeleteListing();
   const { toast } = useToast();
 
   // Get locale and direction
@@ -391,7 +391,7 @@ export const EnhancedProductCardItem: React.FC<ExtendedCarCardItemPropsProfile> 
 
     try {
       setIsDeleting(true);
-      await deleteCarListingMutation.mutateAsync({ id: Number(ProductId) });
+      await deleteListingMutation.mutateAsync({ id: Number(ProductId) });
       setShowDeleteDialog(false);
 
       if (onDelete) {

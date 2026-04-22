@@ -115,7 +115,7 @@ export const useSubmitForm = () => {
       const price = storedData4?.price ? Number(storedData4.price) : null;
       const currency: string = storedData4?.currency || 'USD';
       const contactNumber: string | null = storedData4?.contactNumber || null;
-      const publicationStatus: string = storedData4?.adStatus === 'publish' ? 'published' : 'draft';
+      const publicationStatus: string = storedData4?.saveStatus === 'published' ? 'published' : 'draft';
 
       // ─────────────────────────────────────────────────────────────────────
       // 3. location — location fields are in stepTwo as virtual fields
@@ -178,6 +178,8 @@ export const useSubmitForm = () => {
 
       if (isEditMode && carIdToEdit) {
         const updateDto: UpdateListingDto = {
+          listingTypeId,
+          listingOfferType,
           price,
           currency,
           governorate,
@@ -191,6 +193,7 @@ export const useSubmitForm = () => {
         };
         console.log('[useSubmitForm] PATCH payload:', updateDto);
         response = await updateListing(Number(carIdToEdit), updateDto);
+        console.log('response',response)
       } else {
         const createDto: CreateListingDto = {
           listingTypeId,

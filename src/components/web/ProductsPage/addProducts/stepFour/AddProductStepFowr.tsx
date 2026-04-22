@@ -31,6 +31,7 @@ import {
   autoSaveAdInfoData,
   combinePhoneNumber,
   defaultAdInfoData,
+  getAdInfoStorageKey,
   loadAdInfoData,
   parsePhoneNumber,
   saveAdInfoData
@@ -287,63 +288,57 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
     editModeDataApplied.current = true;
   };
 
-  useEffect(() => {
-    if (isEditMode && initialData?.data && !editModeDataApplied.current) {
-      const formData: AdInformationFormData = {
-        title: initialData.data[0].title || '',
-        description: initialData.data[0].description || '',
-        price: initialData.data[0].price?.toString() || '',
-        contactNumber: initialData.data[0].contactNumber || '',
-        listingType: initialData.data[0].listingType || ListingType.FOR_SALE,
-        rentType: initialData.data[0].rentType || null,
-        saveStatus: initialData.data[0].saveStatus || SaveStatus.PUBLISHED,
-        publicationDate: initialData.data[0].publishedAt ? new Date(initialData.data[0].publishedAt) : new Date(),
-        currency: initialData.data[0].currency || Currency.USD
-      };
-
-      applyEditData(formData);
-    }
-  }, [isEditMode, initialData]);
-
+  // Initialize data on mount
   useEffect(() => {
     const htmlDir = document.documentElement.dir || "ltr";
     setDirection(htmlDir);
     window.scrollTo(0, 0);
 
-    if (!isEditMode && !editModeDataApplied.current) {
-      const savedData = loadAdInfoData();
+    // 1. Try to load from localStorage (respects edit mode)
+    const savedData = loadAdInfoData();
+    const isActuallySaved = !!localStorage.getItem(getAdInfoStorageKey());
+
+    // 2. Fallback to initialData if localStorage is empty and we are in edit mode
+    if (!isActuallySaved && isEditMode && initialData && !editModeDataApplied.current) {
+      // Find listing object (handle both direct listing or data[0] wrapper)
+      const listing = initialData.data?.[0] || (initialData.id ? initialData : null);
+      
+      if (listing) {
+        const formData: AdInformationFormData = {
+          title: listing.title || '',
+          description: listing.description || '',
+          price: listing.price?.toString() || '',
+          contactNumber: listing.contactNumber || '',
+          listingType: listing.listingOfferType || listing.listingType || ListingType.FOR_SALE,
+          rentType: listing.rentType || null,
+          saveStatus: listing.saveStatus || SaveStatus.PUBLISHED,
+          publicationDate: listing.publishedAt ? new Date(listing.publishedAt) : new Date(),
+          currency: listing.currency || Currency.USD
+        };
+        applyEditData(formData);
+        return;
+      }
+    }
+
+    // 3. Apply savedData if available
+    if (isActuallySaved && !editModeDataApplied.current) {
       let phoneOnly = savedData.contactNumber || "";
       let extractedCountryCode = savedData.countryCode || CountryCode.SY;
 
-      if (savedData.listingType) {
-        setListingTypeValue(savedData.listingType);
-        if (savedData.listingType === ListingType.FOR_RENT) {
-          setShowRentType(true);
-        }
-      }
       if (savedData.contactNumber) {
         const { countryCode, phoneNumber } = parsePhoneNumber(savedData.contactNumber);
         extractedCountryCode = countryCode as CountryCode;
         phoneOnly = phoneNumber;
       }
-      setCountryCodeValue(extractedCountryCode);
-
-      if (savedData.listingType) {
-        setListingTypeValue(savedData.listingType);
-        if (savedData.listingType === ListingType.FOR_RENT) {
-          setShowRentType(true);
-        }
+      
+      setListingTypeValue(savedData.listingType || ListingType.FOR_SALE);
+      if (savedData.listingType === ListingType.FOR_RENT) {
+        setShowRentType(true);
       }
-
-      if (savedData.saveStatus) {
-        setSaveStatusValue(savedData.saveStatus);
-      }
-
-      if (savedData.rentType) {
-        setRentTypeValue(savedData.rentType);
-      }
-
+      setSaveStatusValue(savedData.saveStatus || SaveStatus.PUBLISHED);
+      setRentTypeValue(savedData.rentType || null);
       setCurrencyValue(savedData.currency || Currency.USD);
+      setCountryCodeValue(extractedCountryCode);
 
       form.reset({
         ...savedData,
@@ -357,8 +352,10 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
       if (onValidationChange) {
         onValidationChange(isValid);
       }
+      
+      editModeDataApplied.current = true;
     }
-  }, []);
+  }, [isEditMode, initialData]);
 
   // Auto-fill phone number from profile if empty
   useEffect(() => {
