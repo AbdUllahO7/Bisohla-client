@@ -13,10 +13,11 @@ import SmartBreadcrumb from '@/components/smart-breadcrumbs';
 import type { QueryParams } from '@/core/entities/api/api';
 import { FilterProvider, useFilters } from '@/providers/filters.provider';
 import ProductsFilter from '@/components/web/ProductsPage/Filter';
+import AddProductTypeSelection from '@/components/web/ProductsPage/addProducts/TypeSelection/AddProductTypeSelection';
 
 // Inner component that uses the filter context
 const ProductsContent = () => {
-  const { queryParams } = useFilters();
+  const { queryParams, filters, updateFilter } = useFilters();
   const [totalItems, setTotalItems] = useState<number>(0);
   const [currentSort, setCurrentSort] = useState({
     sortBy: 'publishedAt',
@@ -42,6 +43,17 @@ const ProductsContent = () => {
     sortBy: currentSort.sortBy,
     sortDirection: currentSort.sortDirection,
   };
+
+  if (filters.listingTypeId === 0) {
+    return (
+      <Box variant="container" className="py-12">
+        <AddProductTypeSelection 
+          onSelect={(type) => updateFilter('listingTypeId', type.id)}
+          selectedTypeId={0}
+        />
+      </Box>
+    );
+  }
 
   return (
     <Box

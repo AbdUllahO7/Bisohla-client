@@ -470,6 +470,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
       listingType: submittedData.listingType,
       rentType: submittedData.rentType || "",
       publicationDate: submittedData.publicationDate ? submittedData.publicationDate.toISOString() : null,
+      publishedAt: submittedData.publicationDate ? submittedData.publicationDate.toISOString() : null,
       saveStatus: submittedData.saveStatus,
       currency: submittedData.currency
     };

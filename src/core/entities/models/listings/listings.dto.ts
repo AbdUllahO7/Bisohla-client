@@ -10,6 +10,7 @@ export interface ListingImageDto {
 
 export interface ListingDto {
   id: number;
+  slug: string;
   title: string;
   description: string;
   price: number | null;

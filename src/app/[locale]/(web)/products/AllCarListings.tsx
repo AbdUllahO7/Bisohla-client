@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Box from '@/components/box/box';
 import Text from '@/components/text/text';
 import { useLocale, useTranslations } from 'next-intl';
-import { useCarListings } from '@/core/infrastructure-adapters/use-actions/visitors/car.visitor.use-actions';
+import { useListings } from '@/core/infrastructure-adapters/use-actions/visitors/listing.visitor.use-actions';
 import Pagination from '@/components/Pagination';
 import { QueryParams } from '@/core/entities/api/api';
 import AdsSectionProduct from '@/components/web/ProductsPage/product/AdsSectionProduct';
@@ -12,7 +12,6 @@ import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.acti
 import { useSession } from '@/hooks/auth/use-session';
 import { RentProductCard } from '@/components/web/design/RentProductCard';
 import { RentProductListCard } from '@/components/web/design/rent-product-list-product';
-import { logger } from '@/lib/logger';
 import { useFilters } from '@/providers/filters.provider';
 import { useToast } from '@/hooks/use-toast';
 import CarAlertModal from '@/components/web/ProductsPage/CarAlertModal';
@@ -20,6 +19,7 @@ import { Button } from '@/components/ui/button';
 import { Bell } from 'lucide-react';
 import { getGovernorateOptions, getCityOptions } from '@/components/web/ProductsPage/addProducts/StepOne/utils';
 import { useAdSlot } from '@/hooks/use-ad-slot';
+import { normalizeListingToCarDto } from '@/utils/listing-normalization';
 
 interface AllCarListingsProps {
   pageSize?: number;
@@ -68,6 +68,7 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
       pageSize,
       sortBy: 'createdAt',
       sortDirection: 'desc',
+      include: 'attributeValues.attribute,images,user,listingType,listingTypeVersion',
       ...externalQueryParams, // This will override defaults with provider values
       page: currentPage,
     }),
@@ -113,44 +114,68 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
     [],
   );
 
-  // Fetch all car listings with pagination and filters
-  const { data, isLoading, error } = useCarListings(queryParams);
-  logger.log('Car Listings Data:', data);
+  // Fetch listings with pagination and filters
+  const { data, isLoading, error } = useListings(filters.listingTypeId, queryParams);
   // Extract car listings array safely
   const carListings = useMemo(() => {
     const apiData = data as any;
+    if (!apiData) return [];
 
     let listings: Array<any> = [];
-    if (Array.isArray(apiData?.data)) {
-      listings = apiData.data;
-    } else if (
-      apiData?.data &&
-      'data' in apiData.data &&
-      Array.isArray(apiData.data.data)
-    ) {
+    
+    // The response structure from handleResponse (src/core/lib/api.ts) 
+    // puts the actual API result in the 'data' field.
+    // Based on the provided example, apiData.data contains { data: [], currentPage: 1, ... }
+    if (apiData.data && Array.isArray(apiData.data.data)) {
       listings = apiData.data.data;
+    } else if (Array.isArray(apiData.data)) {
+      listings = apiData.data;
+    } else if (Array.isArray(apiData)) {
+      listings = apiData;
     }
 
-    // Initialize favorite statuses from backend data if not already set
-    const newFavoriteStatuses: Record<number, boolean> = {};
-    listings.forEach((item) => {
-      if (item.id && favoriteStatuses[item.id] === undefined) {
-        newFavoriteStatuses[item.id] = !!item.isFavorite;
-      }
-    });
+    // Normalize each listing to ensure consistent DTO structure
+    return listings.map(item => normalizeListingToCarDto(item, locale));
+  }, [data, locale]);
 
-    if (Object.keys(newFavoriteStatuses).length > 0) {
-      setFavoriteStatuses((prev) => ({ ...prev, ...newFavoriteStatuses }));
+  // Sync favorite statuses from backend data when it changes
+  useEffect(() => {
+    if (carListings.length > 0) {
+      setFavoriteStatuses((prev) => {
+        const newStatuses = { ...prev };
+        let changed = false;
+        
+        carListings.forEach((item) => {
+          if (item.id && prev[item.id] === undefined) {
+            newStatuses[item.id] = !!item.isFavorite;
+            changed = true;
+          }
+        });
+        
+        return changed ? newStatuses : prev;
+      });
     }
-
-    return listings;
-  }, [data, favoriteStatuses]);
+  }, [carListings]);
 
   // Get pagination information
   const paginationInfo = useMemo(() => {
     const apiData = data as any;
+    if (!apiData) return { currentPage: 1, totalPages: 1, hasNextPage: false, hasPreviousPage: false, totalItems: 0 };
 
-    if (apiData?.currentPage !== undefined) {
+    // Structure 1: apiData.data = { currentPage, totalPages, data: [] }
+    if (apiData.data && typeof apiData.data === 'object' && 'currentPage' in apiData.data) {
+      const p = apiData.data;
+      return {
+        currentPage: p.currentPage || 1,
+        totalPages: p.totalPages || 1,
+        hasNextPage: p.hasNextPage || false,
+        hasPreviousPage: p.hasPreviousPage || false,
+        totalItems: p.totalItems || 0,
+      };
+    }
+
+    // Structure 2: apiData = { currentPage, totalPages, data: [] }
+    if (apiData.currentPage !== undefined) {
       return {
         currentPage: apiData.currentPage,
         totalPages: apiData.totalPages || 1,
@@ -158,31 +183,9 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
         hasPreviousPage: apiData.hasPreviousPage || false,
         totalItems: apiData.totalItems || 0,
       };
-    } else if (
-      apiData?.data &&
-      typeof apiData.data === 'object' &&
-      !Array.isArray(apiData.data) &&
-      'currentPage' in apiData.data
-    ) {
-      const nestedData = apiData.data;
-      return {
-        currentPage: nestedData.currentPage,
-        totalPages: nestedData.totalPages || 1,
-        hasNextPage: nestedData.hasNextPage || false,
-        hasPreviousPage: nestedData.hasPreviousPage || false,
-        totalItems: nestedData.totalItems || 0,
-      };
-    } else if (apiData?.meta) {
-      return {
-        currentPage: apiData.meta.currentPage || 1,
-        totalPages: apiData.meta.totalPages || 1,
-        hasNextPage:
-          (apiData.meta.currentPage || 1) < (apiData.meta.totalPages || 1),
-        hasPreviousPage: (apiData.meta.currentPage || 1) > 1,
-        totalItems: apiData.meta.total || 0,
-      };
     }
 
+    // Fallback
     return {
       currentPage: currentPage,
       totalPages: 1,
@@ -191,6 +194,7 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
       totalItems: carListings.length,
     };
   }, [data, carListings.length, currentPage]);
+
 
   // Update total items for parent component
   useEffect(() => {
@@ -391,6 +395,7 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
       <CarAlertModal
         open={isAlertModalOpen}
         onOpenChange={setIsAlertModalOpen}
+        listingTypeId={filters.listingTypeId}
         initialData={{
           makeId: filters.selectedBrands[0] ? Number(filters.selectedBrands[0]) : 0,
           modelId: filters.model ? Number(filters.model) : 0,

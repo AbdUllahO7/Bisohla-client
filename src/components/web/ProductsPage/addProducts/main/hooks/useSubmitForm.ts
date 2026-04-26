@@ -116,6 +116,7 @@ export const useSubmitForm = () => {
       const currency: string = storedData4?.currency || 'USD';
       const contactNumber: string | null = storedData4?.contactNumber || null;
       const publicationStatus: string = storedData4?.saveStatus === 'published' ? 'published' : 'draft';
+      const publishedAt: string | null = storedData4?.publishedAt || storedData4?.publicationDate || null;
 
       // ─────────────────────────────────────────────────────────────────────
       // 3. location — location fields are in stepTwo as virtual fields
@@ -187,6 +188,7 @@ export const useSubmitForm = () => {
           address,
           contactNumber,
           publicationStatus,
+          publishedAt,
           translations,
           attributeValues,
           images,
@@ -205,6 +207,7 @@ export const useSubmitForm = () => {
           address,
           contactNumber,
           publicationStatus,
+          publishedAt,
           translations,
           attributeValues,
           images,

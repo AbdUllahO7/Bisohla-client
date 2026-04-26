@@ -22,7 +22,6 @@ interface ProductClientProps {
 
 const ProductClient = ({ carDataRes, isAuthenticated }: ProductClientProps) => {
   const carData = carDataRes.data;
-
   // Use the custom statistics hook
   const { handleContactClick, handleShareClick, isSharePending } =
     useProductStatistics({

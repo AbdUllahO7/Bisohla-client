@@ -128,6 +128,7 @@ export type UpdateCarDetailsDto = Partial<CreateCarDetailsDto>;
 
 export interface SelectCarListingDto {
   id: number;
+  slug: string;
   title: string;
   description: string;
   story?: string | null;

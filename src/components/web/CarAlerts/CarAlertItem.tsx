@@ -470,7 +470,9 @@ export const CarAlertItem: React.FC<CarAlertItemProps> = ({
                     maxPrice: alert.maxPrice || 0,
                     governorate: alert.governorate || '',
                     city: alert.city || '',
+                    attributeFilters: alert.attributeFilters,
                 }}
+                listingTypeId={alert.listingTypeId}
                 governorateOptions={getGovernorateOptions(isRtl)}
                 getCityOptions={(gov) => getCityOptions(gov, isRtl)}
                 isArabic={isRtl}

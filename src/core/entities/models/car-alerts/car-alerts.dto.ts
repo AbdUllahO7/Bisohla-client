@@ -3,17 +3,21 @@ import { SelectCarMakeDto, SelectCarModelDto, SelectCarTrimDto } from '../cars/c
 export interface SelectCarAlertDto {
   id: number;
   userId: number;
-  makeId: number;
-  modelId: number;
-  trimId: number;
+  listingTypeId: number;
   minPrice: number;
   maxPrice: number;
   governorate: string;
   city: string;
   isActive: boolean;
+  attributeFilters?: Record<string, any>;
   createdAt: string;
   updatedAt: string;
 
+  // For backward compatibility or car-specific views
+  makeId?: number;
+  modelId?: number;
+  trimId?: number;
+  
   // Optional relations
   make?: SelectCarMakeDto;
   model?: SelectCarModelDto;

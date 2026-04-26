@@ -25,6 +25,7 @@ export interface CreateListingDto {
   address?: string | null;
   contactNumber?: string | null;
   publicationStatus?: string;     // "draft" | "published"
+  publishedAt?: string | null;
   translations: ListingTranslations;
   attributeValues: AttributeValue[];
   images?: string[];
@@ -40,6 +41,7 @@ export interface UpdateListingDto {
   address?: string | null;
   contactNumber?: string | null;
   publicationStatus?: string;
+  publishedAt?: string | null;
   translations?: ListingTranslations;
   attributeValues?: AttributeValue[];
   images?: string[];

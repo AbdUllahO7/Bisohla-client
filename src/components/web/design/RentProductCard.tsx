@@ -53,6 +53,7 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
       isAuthenticated &&
       session.user?.id === car.userId) ||
     false;
+      console.log("car in rent",car)
 
   // Get translators for different namespaces
   const t = useTranslations('SoldCard');
@@ -268,7 +269,7 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
           </Text>
         </Box>
 
-        <Link href={`/products/product/${car.id}`} className="block">
+        <Link href={`/products/product/${car.slug || car.id}`} className="block">
           <CardHeader className="p-0">
             <CardTitle className="w-full relative h-48 overflow-hidden">
               <Image
