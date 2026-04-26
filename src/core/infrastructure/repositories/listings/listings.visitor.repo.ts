@@ -1,5 +1,5 @@
 import { IListingsVisitorRepo } from '@/core/application/repositories/listings/listings.visitor.repo.interface';
-import { PaginatedResponse } from '@/core/entities/api/success.response';
+import { PaginatedResponse, ApiResponse } from '@/core/entities/api/success.response';
 import { ListingDto } from '@/core/entities/models/listings/listings.dto';
 import { getReq } from '@/core/lib/api';
 import { QueryParams } from '@/core/entities/api/api';

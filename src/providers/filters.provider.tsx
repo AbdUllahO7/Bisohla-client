@@ -723,7 +723,7 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
         const controller = getInjection('IListingTypesRepoController');
         console.log("filters.listingTypeId", filters.listingTypeId)
         const res = await controller.getFilterSchema(filters.listingTypeId);
-        if (res.success) {
+        if (res.success && res.data) {
           setFilterSchema(res.data);
         }
       } catch (error) {

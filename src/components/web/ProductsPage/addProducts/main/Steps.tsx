@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Tabs } from "@/components/ui/tabs";
 import { useLocale } from 'next-intl';
 
@@ -42,6 +42,7 @@ const Steps: React.FC<StepsProps> = ({ isEditMode = false, carId, initialData })
   // Photo State
   const [photos, setPhotos] = useState<string[]>([]);
   const [photoValidation, setPhotoValidation] = useState(false);
+  const coverImageRef = useRef<any>(null);
 
   // Fetch schema when type is selected
   useEffect(() => {
@@ -51,7 +52,7 @@ const Steps: React.FC<StepsProps> = ({ isEditMode = false, carId, initialData })
         try {
           const controller = getInjection('IListingTypesRepoController');
           const res = await controller.getFormSchema(selectedType.id);
-          if (res.success) {
+          if (res.success && res.data) {
             setSchema(res.data);
           }
         } catch (error) {
@@ -344,8 +345,11 @@ const Steps: React.FC<StepsProps> = ({ isEditMode = false, carId, initialData })
                   <CarPhotosSection 
                     labels={{
                       coverImage: isArabic ? "صور السيارة" : "Car Photos",
-                      oneImage: isArabic ? "يمكنك إدخال 20 صور" : "You can enter 20 images"
+                      oneImage: isArabic ? "يمكنك إدخال 20 صور" : "You can enter 20 images",
+                      tenImages: "",
+                      tenFiles: ""
                     }}
+                    coverImageRef={coverImageRef}
                     coverImage={photos}
                     onCoverImageChange={(newPhotos) => {
                       setPhotos(newPhotos);

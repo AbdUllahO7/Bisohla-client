@@ -64,13 +64,16 @@ const SimilarCarAlertBanner: React.FC<SimilarCarAlertBannerProps> = ({
 
         try {
             const res = await createCarAlert({
-                makeId: car.makeId || null,
-                modelId: car.modelId || null,
-                trimId: car.trimId ?? null,
+                listingTypeId: 1, // For Cars
                 minPrice: null,
                 maxPrice: null,
                 governorate: null,
                 city: null,
+                attributeFilters: {
+                    make: car.makeId,
+                    model: car.modelId,
+                    trim: car.trimId,
+                }
             });
 
             if (res.success) {

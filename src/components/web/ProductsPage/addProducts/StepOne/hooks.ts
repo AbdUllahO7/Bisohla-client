@@ -100,7 +100,7 @@ export const useProductStepOne = (
             try {
                 const controller = getInjection('IListingTypesRepoController');
                 const res = await controller.getActiveSchema(listingTypeId);
-                if (res.success) {
+                if (res.success && res.data) {
                     const attrs: Record<string, SchemaAttributeDto> = res.data.attributes;
                     const newGroupIds = { make: 0, model: 0, trim: 0 };
                     let trimFound = false;
@@ -137,7 +137,7 @@ export const useProductStepOne = (
             try {
                 const controller = getInjection('IListingTypeRefsRepoController');
                 const res = await controller.getItemsByGroupId(groupIds.make, undefined, 1000);
-                if (res.success) {
+                if (res.success && res.data) {
                     setMakes(res.data.data);
                 }
             } catch (err) {
@@ -160,7 +160,7 @@ export const useProductStepOne = (
             try {
                 const controller = getInjection('IListingTypeRefsRepoController');
                 const res = await controller.getItemsByGroupId(groupIds.model, Number(selectedOptions.marka), 1000);
-                if (res.success) {
+                if (res.success && res.data) {
                     setModels(res.data.data);
                 }
             } catch (err) {
@@ -183,7 +183,7 @@ export const useProductStepOne = (
             try {
                 const controller = getInjection('IListingTypeRefsRepoController');
                 const res = await controller.getItemsByGroupId(groupIds.trim, Number(selectedOptions.model), 1000);
-                if (res.success) {
+                if (res.success && res.data) {
                     setTrims(res.data.data);
                 }
             } catch (err) {

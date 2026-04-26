@@ -19,6 +19,17 @@ export interface FilterState {
   [key: string]: string | undefined;
 }
 
+export interface Filter {
+  field: string;
+  operator: string;
+  value: string | number | string[] | number[];
+}
+
+export interface FilterGroup {
+  operator: string;
+  filters: Filter[];
+}
+
 export interface QueryParams {
   page?: number;
   pageSize?: number;
@@ -33,6 +44,7 @@ export interface QueryParams {
   filterGroups?: FilterGroup[];
   include?: string;
   listingOfferType?: string;
+  [key: string]: any;
 }
 
 export interface SortOption {
@@ -49,35 +61,6 @@ export interface FilterOption {
   id: string;
   label: string;
   value: string;
-}
-
-// Define interfaces for component usage
-export interface CarImage {
-  isPrimary: boolean;
-  url: string;
-}
-
-export interface CarMake {
-  name: string;
-}
-
-//
-
-// Define proper TypeScript interfaces
-export interface FilterOption {
-  id: string;
-  label: string;
-  value: string;
-}
-
-export interface FilterGroup {
-  operator: string;
-  filters: Filter[];
-}
-
-export interface SortOption {
-  sortBy: string;
-  sortDirection: 'asc' | 'desc';
 }
 
 export interface CarImage {
@@ -100,77 +83,9 @@ export interface VehicleListing {
   imageSrc?: string;
   gaz?: string;
   type?: string;
-  [key: string]: any; // Allow additional properties for flexibility
+  [key: string]: any; 
 }
 
-export interface PaginationInfo {
-  currentPage: number;
-  totalPages: number;
-  hasNextPage: boolean;
-  hasPreviousPage: boolean;
-  totalItems: number;
-}
-
-// types/car-listings.ts
-
-// Filter state for component use
-
-// Query parameters for the API
-export interface QueryParams {
-  page?: number;
-  pageSize?: number;
-  sortBy?: string;
-  sortDirection?: 'asc' | 'desc';
-  searchTerm?: unknown | unknown[];
-  id?: number | number[];
-  locale?: string;
-  where?: Filter[];
-  filterGroups?: FilterGroup[];
-  include?: string;
-  userId?: number | null;
-  listingOfferType?: string;
-}
-
-// Filter and FilterGroup for API queries
-export interface Filter {
-  field: string;
-  operator: string;
-  value: string | number | string[] | number[];
-}
-
-export interface FilterGroup {
-  operator: string;
-  filters: Filter[];
-}
-
-// Options for UI components
-export interface FilterOption {
-  id: string;
-  label: string;
-  value: string;
-}
-
-export interface SortOption {
-  sortBy: string;
-  sortDirection: 'asc' | 'desc';
-}
-
-export interface PriceRange {
-  min: number | null;
-  max: number | null;
-}
-
-// Car-related interfaces
-export interface CarImage {
-  isPrimary: boolean;
-  url: string;
-}
-
-export interface CarMake {
-  name: string;
-}
-
-// Standard pagination info
 export interface PaginationInfo {
   currentPage: number;
   totalPages: number;

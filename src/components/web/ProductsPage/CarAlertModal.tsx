@@ -96,7 +96,7 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
         setIsLoadingSchema(true);
         try {
           const res = await getAlertFormSchema(listingTypeId);
-          if (res.success) {
+          if (res.success && res.data) {
             setSchema(res.data);
             
             // Initialize form data from schema and initialData
@@ -240,7 +240,7 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
   const fetchRefItems = useCallback(async (groupId: number, parentId?: number, params?: any) => {
     const controller = getInjection('IListingTypeRefsRepoController');
     const res = await controller.getItemsByGroupId(groupId, parentId, params?.pageSize || 100);
-    if (res.success) {
+    if (res.success && res.data) {
       // Translate names for UI
       res.data.data = res.data.data.map((item: any) => ({
         ...item,

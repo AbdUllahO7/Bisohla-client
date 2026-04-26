@@ -105,7 +105,7 @@ export const useProductStepOne = (
       try {
         const controller = getInjection('IListingTypesRepoController');
         const res = await controller.getActiveSchema(listingTypeId);
-        if (res.success) {
+        if (res.success && res.data) {
           const attrs: Record<string, SchemaAttributeDto> = res.data.attributes;
           const newGroupIds = { make: 0, model: 0, trim: 0 };
           let trimFound = false;
@@ -160,7 +160,7 @@ export const useProductStepOne = (
       if (!groupIds.make) return { success: true, data: { data: [], total: 0, page: 1, pageSize: params.pageSize || 10 } };
       const controller = getInjection('IListingTypeRefsRepoController');
       const res = await controller.getItemsByGroupId(groupIds.make, undefined, params.pageSize);
-      if (res.success) {
+      if (res.success && res.data) {
         // Map names for the UI
         res.data.data = res.data.data.map(item => ({
           ...item,
@@ -177,7 +177,7 @@ export const useProductStepOne = (
       if (!groupIds.model || !makeId) return { success: true, data: { data: [], total: 0, page: 1, pageSize: params.pageSize || 10 } };
       const controller = getInjection('IListingTypeRefsRepoController');
       const res = await controller.getItemsByGroupId(groupIds.model, makeId, params.pageSize);
-      if (res.success) {
+      if (res.success && res.data) {
         res.data.data = res.data.data.map(item => ({
           ...item,
           name: translateName(item)
@@ -193,7 +193,7 @@ export const useProductStepOne = (
       if (!groupIds.trim || !modelId) return { success: true, data: { data: [], total: 0, page: 1, pageSize: params.pageSize || 10 } };
       const controller = getInjection('IListingTypeRefsRepoController');
       const res = await controller.getItemsByGroupId(groupIds.trim, modelId, params.pageSize);
-      if (res.success) {
+      if (res.success && res.data) {
         res.data.data = res.data.data.map(item => ({
           ...item,
           name: translateName(item)

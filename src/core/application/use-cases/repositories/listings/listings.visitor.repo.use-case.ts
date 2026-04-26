@@ -10,13 +10,13 @@ export class ListingsVisitorRepoUseCase implements IListingsVisitorRepoUseCase {
     page?: number,
     pageSize?: number
   ): Promise<PaginatedResponse<ListingDto>> {
-    return await this.repository.getFeaturedListings(page, pageSize);
+    return await this.repository.getFeaturedListings(undefined, { page, pageSize });
   }
 
   async getTrendingListings(
     page?: number,
     pageSize?: number
   ): Promise<PaginatedResponse<ListingDto>> {
-    return await this.repository.getTrendingListings(page, pageSize);
+    return await this.repository.getTrendingListings({ page, pageSize });
   }
 }

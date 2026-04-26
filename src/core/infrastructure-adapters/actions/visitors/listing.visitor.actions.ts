@@ -1,7 +1,7 @@
 'use server';
 
 import { QueryParams } from '@/core/entities/api/api';
-import { PaginatedResponse } from '@/core/entities/api/success.response';
+import { PaginatedResponse, ApiResponse } from '@/core/entities/api/success.response';
 import { ListingDto } from '@/core/entities/models/listings/listings.dto';
 import { getInjection } from '@/di/container';
 
@@ -18,7 +18,7 @@ export const getFeaturedListings = async (
   pageSize?: number
 ): Promise<PaginatedResponse<ListingDto>> => {
   const repo = getInjection('IListingsVisitorRepo');
-  return await repo.getFeaturedListings(page, pageSize);
+  return await repo.getFeaturedListings(undefined, { page, pageSize });
 };
 
 export const getTrendingListings = async (
@@ -26,7 +26,7 @@ export const getTrendingListings = async (
   pageSize?: number
 ): Promise<PaginatedResponse<ListingDto>> => {
   const repo = getInjection('IListingsVisitorRepo');
-  return await repo.getTrendingListings(page, pageSize);
+  return await repo.getTrendingListings({ page, pageSize });
 };
 
 export const getListingBySlug = async (slug: string): Promise<ApiResponse<any>> => {

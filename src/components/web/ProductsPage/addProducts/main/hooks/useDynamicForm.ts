@@ -136,8 +136,9 @@ export const useDynamicForm = (
     try {
       const controller = getInjection('IListingTypeRefsRepoController');
       const response = await controller.getItemsByGroupId(attr.referenceGroupId, parentItemId, 1000);
-      if (response.success) {
-        setReferenceOptions(prev => ({ ...prev, [attr.id]: response.data.data }));
+      if (response.success && response.data) {
+        const options = response.data.data;
+        setReferenceOptions(prev => ({ ...prev, [attr.id]: options }));
       }
     } catch (error) {
       console.error(`Failed to fetch options for attribute ${attr.id}`, error);

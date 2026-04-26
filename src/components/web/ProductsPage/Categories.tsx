@@ -4,7 +4,7 @@ import Box from '@/components/box/box';
 import { useLocale, useTranslations } from 'next-intl';
 import React, { useMemo } from 'react';
 import CategoryCarousel from '../design/CategoryCarousel';
-import { getBodyTypeOptions } from '@/core/entities/enums/cars.enums';
+import { getBodyTypeOptions, SelectOption } from '@/core/entities/enums/cars.enums';
 import { useGetBodyTypeCategoryCounts } from '@/core/infrastructure-adapters/use-actions/visitors/car.visitor.use-actions';
 import { useFilters } from '@/providers/filters.provider';
 
@@ -55,7 +55,7 @@ const Categories = () => {
     });
 
     // Map body type options with their counts
-    return bodyTypeOptions.map((option) => {
+    return bodyTypeOptions.map((option: SelectOption) => {
       const count = countsMap.get(option.value) || 0;
 
       return {

@@ -23,7 +23,7 @@ const AddProductTypeSelection: React.FC<AddProductTypeSelectionProps> = ({ onSel
       try {
         const controller = getInjection('IListingTypesRepoController');
         const response = await controller.getListingTypes(1, 100);
-        if (response.success) {
+        if (response.success && response.data) {
           setTypes(response.data.data.filter(t => t.isActive));
         }
       } catch (error) {
