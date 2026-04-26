@@ -35,12 +35,19 @@ const ProductClient = ({ carDataRes, isAuthenticated }: ProductClientProps) => {
     if (carData?.id) {
       const STORAGE_KEY = 'bishola-recently-viewed';
       try {
-        const storedIds = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-        const updatedIds = [
-          carData.id,
-          ...storedIds.filter((id: number) => id !== carData.id),
+        const storedItems = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        // Handle both old (number) and new ({id, typeId}) formats
+        const normalizedItems = storedItems.map((item: any) => 
+          typeof item === 'number' ? { id: item, typeId: 1 } : item
+        );
+        
+        const newItem = { id: carData.id, typeId: (carData as any).listingTypeId || 1 };
+        const updatedItems = [
+          newItem,
+          ...normalizedItems.filter((item: any) => item.id !== carData.id),
         ].slice(0, 10);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedIds));
+        
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedItems));
       } catch (error) {
         console.error('Failed to update recently viewed:', error);
       }

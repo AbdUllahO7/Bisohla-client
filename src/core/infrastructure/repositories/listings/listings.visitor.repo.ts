@@ -6,23 +6,22 @@ import { QueryParams } from '@/core/entities/api/api';
 
 export class ListingsVisitorRepo implements IListingsVisitorRepo {
   async getFeaturedListings(
-    page?: number,
-    pageSize?: number
+    typeId?: number,
+    params?: QueryParams
   ): Promise<PaginatedResponse<ListingDto>> {
     const res = await getReq<any, PaginatedResponse<ListingDto>>({
       url: '/listings-visitor/featured',
-      params: { page, pageSize },
+      params: { typeId, ...params },
     });
     return res;
   }
 
   async getTrendingListings(
-    page?: number,
-    pageSize?: number
+    params?: QueryParams
   ): Promise<PaginatedResponse<ListingDto>> {
     const res = await getReq<any, PaginatedResponse<ListingDto>>({
       url: '/listings-visitor/trending',
-      params: { page, pageSize },
+      params,
     });
     return res;
   }

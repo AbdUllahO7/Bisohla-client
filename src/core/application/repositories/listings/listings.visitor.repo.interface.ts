@@ -1,16 +1,15 @@
-import { PaginatedResponse } from '@/core/entities/api/success.response';
+import { PaginatedResponse, ApiResponse } from '@/core/entities/api/success.response';
 import { ListingDto } from '@/core/entities/models/listings/listings.dto';
-import { QueryParams } from 'next-intl/navigation';
+import { QueryParams } from '@/core/entities/api/api';
 
 export interface IListingsVisitorRepo {
   getFeaturedListings(
-    page?: number,
-    pageSize?: number
+    typeId?: number,
+    params?: QueryParams
   ): Promise<PaginatedResponse<ListingDto>>;
 
   getTrendingListings(
-    page?: number,
-    pageSize?: number
+    params?: QueryParams
   ): Promise<PaginatedResponse<ListingDto>>;
 
   searchListings(

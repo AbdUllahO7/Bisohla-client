@@ -31,6 +31,8 @@ export interface QueryParams {
   locale?: string; 
   where?: Filter[]; 
   filterGroups?: FilterGroup[];
+  include?: string;
+  listingOfferType?: string;
 }
 
 export interface SortOption {
@@ -124,6 +126,9 @@ export interface QueryParams {
   locale?: string;
   where?: Filter[];
   filterGroups?: FilterGroup[];
+  include?: string;
+  userId?: number | null;
+  listingOfferType?: string;
 }
 
 // Filter and FilterGroup for API queries

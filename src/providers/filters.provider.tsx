@@ -161,7 +161,7 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
           operator: 'and',
           filters: [
             {
-              field: 'listingType',
+              field: 'listingOfferType',
               operator: 'eq',
               value: currentFilters.listingType,
             },
@@ -558,7 +558,7 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
       transmission: getDecodedParam('transmission'),
       fuelType: getDecodedParam('fuelType'),
       bodyType: getDecodedParam('bodyType'),
-      listingType: getDecodedParam('listingType'),
+      listingType: getDecodedParam('listingOfferType'),
       listingTypeId: getDecodedParam('listingTypeId'),
     };
 
@@ -662,7 +662,7 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
           transmission: debouncedFiltersForUrl.transmission,
           fuelType: debouncedFiltersForUrl.fuelType,
           bodyType: debouncedFiltersForUrl.bodyType,
-          listingType: debouncedFiltersForUrl.listingType,
+          listingOfferType: debouncedFiltersForUrl.listingType,
           listingTypeId: String(debouncedFiltersForUrl.listingTypeId),
         };
 
