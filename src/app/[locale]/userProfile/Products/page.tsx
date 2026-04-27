@@ -15,6 +15,7 @@ import { Link } from '@/i18n/routing';
 import MyProductsFilter from '@/components/dashboard/Products/MyProductsFilter';
 import { EnhancedProductCardItem } from '@/components/web/design/ProductCardItemEnhanced';
 import { SaveStatus } from '../../../../core/entities/enums/cars.enums';
+import { normalizeListingToCarDto } from '@/utils/listing-normalization';
 
 // View mode type
 type ViewMode = 'grid' | 'list';
@@ -50,6 +51,7 @@ const UserProductPage = () => {
     searchKey: filterParams.searchKey,
     searchTerm: filterParams.searchTerm,
   });
+  console.log("data",data)
   useEffect(() => {
     refetch();
   }, []); 
@@ -134,8 +136,9 @@ const UserProductPage = () => {
       setFavoriteStatuses((prev) => ({ ...prev, ...newFavoriteStatuses }));
     }
 
-    return listings;
-  }, [data, favoriteStatuses]);
+    // Normalize each listing to ensure consistent DTO structure (fixes image display and other inconsistencies)
+    return listings.map(item => normalizeListingToCarDto(item, locale));
+  }, [data, favoriteStatuses, locale]);
 
   // Extract pagination metadata from response
   const paginationMeta = useMemo(() => {
@@ -270,6 +273,7 @@ const UserProductPage = () => {
                 carStatus={car.status}
                 saveStatus={car.saveStatus as SaveStatus}
                 imageSrc={
+                  car.primaryImage ||
                   car.images?.find((img: { isPrimary: any }) => img.isPrimary)
                     ?.url ||
                   car.images?.[0]?.url ||

@@ -124,6 +124,7 @@ export const normalizeListingToCarDto = (listing: any, locale: string = 'en'): S
     createdAt: listing.createdAt,
     updatedAt: listing.updatedAt,
     publishedAt: listing.publishedAt,
+    primaryImage: listing.primaryImage || (listing.images && listing.images.length > 0 ? listing.images.find((img: any) => img.isPrimary)?.url || listing.images[0]?.url : null),
     details: {
       id: listing.id,
       carListingId: listing.id,

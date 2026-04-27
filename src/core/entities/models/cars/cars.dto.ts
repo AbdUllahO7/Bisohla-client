@@ -159,6 +159,7 @@ export interface SelectCarListingDto {
   updatedAt: string | Date;
   deletedAt?: string | Date | null;
   publishedAt?: string | Date | null;
+  primaryImage?: string | null;
 
   // Related entities
   details: CarDetails;

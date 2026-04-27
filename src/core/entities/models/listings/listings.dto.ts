@@ -26,6 +26,7 @@ export interface ListingDto {
   city: SyriaCity;
   address: string;
   images: ListingImageDto[];
+  primaryImage?: string | null;
   attributeValues?: any[];
   makeId?: number | null;
   modelId?: number | null;

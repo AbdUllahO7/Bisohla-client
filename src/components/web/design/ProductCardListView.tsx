@@ -169,6 +169,10 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
 
   // Helper functions
   const getPrimaryImage = () => {
+    // Priority 1: Direct primaryImage field
+    if (carListing.primaryImage) return carListing.primaryImage;
+    
+    // Priority 2: images array
     if (!carListing.images?.length) return '/placeholder-car.jpg';
 
     const primaryImage = carListing.images.find((img) => img.isPrimary);
