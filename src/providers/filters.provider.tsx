@@ -558,7 +558,7 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
       transmission: getDecodedParam('transmission'),
       fuelType: getDecodedParam('fuelType'),
       bodyType: getDecodedParam('bodyType'),
-      listingType: getDecodedParam('listingOfferType'),
+      listingType: getDecodedParam('listingOfferType') || getDecodedParam('listingType'),
       listingTypeId: getDecodedParam('listingTypeId'),
     };
 
@@ -600,7 +600,7 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
     newFilters.fuelType = urlParams.fuelType || '';
     newFilters.bodyType = urlParams.bodyType || '';
     newFilters.listingType = urlParams.listingType || '';
-    newFilters.listingTypeId = parseInt(urlParams.listingTypeId || '1', 10);
+    newFilters.listingTypeId = parseInt(urlParams.listingTypeId || '0', 10);
 
     // Update state
     setFilters((prev) => ({ ...prev, ...newFilters }));

@@ -81,10 +81,10 @@ const Footer = ({ isUserProfile }: { isUserProfile?: boolean }) => {
           <Link href="/" className="text-primary">
             {locale === 'ar' ? 'الصفحة الرئيسية' : 'Home Page'}
           </Link>
-          <Link href="/products?listingType=for_rent" className="text-primary">
+          <Link href="/products?listingOfferType=for_rent" className="text-primary">
             {locale === 'ar' ? 'الاستئجار' : 'Rent'}
           </Link>
-          <Link href="/products?listingType=for_sale" className="text-primary">
+          <Link href="/products?listingOfferType=for_sale" className="text-primary">
             {locale === 'ar' ? ' البيع' : 'Sale'}
           </Link>
         </Box>
