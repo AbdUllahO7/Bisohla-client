@@ -11,6 +11,7 @@ export interface AdInfoState {
     listingType: string;
     rentType?: string | null;
     publicationDate: string | null;
+    publishedAt?: string | null;
     saveStatus?: string;
     currency: string;
     countryCode?: string; // Frontend-only field

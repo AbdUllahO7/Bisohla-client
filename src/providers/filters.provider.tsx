@@ -12,6 +12,8 @@ import React, {
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import type { QueryParams, FilterGroup, Filter } from '@/core/entities/api/api';
 import { useDebounce } from '@/hooks/use-debounce';
+import { getInjection } from '@/di/container';
+import { ListingTypeFilterSchemaDto } from '@/core/entities/models/listing-types/listing-types.dto';
 
 // Filter state interface
 export interface FilterState {
@@ -30,7 +32,8 @@ export interface FilterState {
   transmission: string;
   fuelType: string;
   bodyType: string;
-  listingType: string; // ADDED: Listing type filter
+  listingType: string; // ADDED: Listing type filter (Sale/Rent)
+  listingTypeId: number; // ADDED: Category ID (e.g. 1 for Cars)
   selectedBrands: string[]; // This is the main source of truth for brands
 }
 
@@ -57,6 +60,7 @@ const initialFilterState: FilterState = {
   fuelType: '',
   bodyType: '',
   listingType: '', // ADDED: Initialize listing type
+  listingTypeId: 0,
   selectedBrands: [],
 };
 
@@ -72,9 +76,10 @@ interface FilterContextValue {
   queryParams: QueryParams; // Debounced query params for API calls
   immediateQueryParams: QueryParams; // Immediate query params for UI
   isLoading: boolean;
+  filterSchema: ListingTypeFilterSchemaDto | null;
 
   // Filter actions
-  updateFilter: (key: keyof FilterState, value: string | string[]) => void;
+  updateFilter: (key: keyof FilterState, value: string | string[] | number) => void;
   updateFilters: (updates: Partial<FilterState>) => void;
   resetFilters: () => void;
   toggleBrand: (brandId: string) => void;
@@ -118,6 +123,7 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
   const [searchState, setSearchState] =
     useState<SearchState>(initialSearchState);
   const [isLoading, setIsLoading] = useState(false);
+  const [filterSchema, setFilterSchema] = useState<ListingTypeFilterSchemaDto | null>(null);
 
   // Refs for optimization and tracking
   const isInitialized = useRef(false);
@@ -155,7 +161,7 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
           operator: 'and',
           filters: [
             {
-              field: 'listingType',
+              field: 'listingOfferType',
               operator: 'eq',
               value: currentFilters.listingType,
             },
@@ -361,11 +367,27 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
 
   // Filter actions with optimizations
   const updateFilter = useCallback(
-    (key: keyof FilterState, value: string | string[]) => {
+    (key: keyof FilterState, value: string | string[] | number) => {
       userInitiatedChange.current = true;
 
       setFilters((prev) => {
         const newFilters = { ...prev, [key]: value };
+
+        // Handle category change
+        if (key === 'listingTypeId' && value !== prev.listingTypeId) {
+          // Clear all category-specific filters
+          newFilters.marka = '';
+          newFilters.model = '';
+          newFilters.trim = '';
+          newFilters.bodyType = '';
+          newFilters.fuelType = '';
+          newFilters.transmission = '';
+          newFilters.selectedBrands = [];
+          newFilters.minYear = '';
+          newFilters.maxYear = '';
+          newFilters.minMileage = '';
+          newFilters.maxMileage = '';
+        }
 
         // Handle cascading updates
         if (key === 'governorate' && value !== prev.governorate) {
@@ -374,7 +396,7 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
 
         // Handle selectedBrands updates properly
         if (key === 'selectedBrands') {
-          const brands = Array.isArray(value) ? value : [value].filter(Boolean);
+          const brands = Array.isArray(value) ? value : [value as string].filter(Boolean);
           newFilters.selectedBrands = brands;
           // Update marka for backward compatibility (use first selected brand)
           newFilters.marka = brands.length > 0 ? brands[0] : '';
@@ -536,7 +558,8 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
       transmission: getDecodedParam('transmission'),
       fuelType: getDecodedParam('fuelType'),
       bodyType: getDecodedParam('bodyType'),
-      listingType: getDecodedParam('listingType'),
+      listingType: getDecodedParam('listingOfferType') || getDecodedParam('listingType'),
+      listingTypeId: getDecodedParam('listingTypeId'),
     };
 
     // Build new state based on URL params
@@ -577,6 +600,7 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
     newFilters.fuelType = urlParams.fuelType || '';
     newFilters.bodyType = urlParams.bodyType || '';
     newFilters.listingType = urlParams.listingType || '';
+    newFilters.listingTypeId = parseInt(urlParams.listingTypeId || '0', 10);
 
     // Update state
     setFilters((prev) => ({ ...prev, ...newFilters }));
@@ -638,7 +662,8 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
           transmission: debouncedFiltersForUrl.transmission,
           fuelType: debouncedFiltersForUrl.fuelType,
           bodyType: debouncedFiltersForUrl.bodyType,
-          listingType: debouncedFiltersForUrl.listingType,
+          listingOfferType: debouncedFiltersForUrl.listingType,
+          listingTypeId: String(debouncedFiltersForUrl.listingTypeId),
         };
 
         Object.entries(paramMap).forEach(([key, value]) => {
@@ -691,6 +716,26 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
     }
   }, [debouncedFiltersForUrl, debouncedSearchForUrl, updateUrl]);
 
+  // Fetch filter schema when listingTypeId changes
+  useEffect(() => {
+    const fetchSchema = async () => {
+      try {
+        const controller = getInjection('IListingTypesRepoController');
+        console.log("filters.listingTypeId", filters.listingTypeId)
+        const res = await controller.getFilterSchema(filters.listingTypeId);
+        if (res.success && res.data) {
+          setFilterSchema(res.data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch filter schema in FilterProvider:', error);
+      }
+    };
+
+    if (filters.listingTypeId) {
+      fetchSchema();
+    }
+  }, [filters.listingTypeId]);
+
   // Call API callback only when heavily debounced params change
   useEffect(() => {
     if (isInitialized.current && onFiltersChange) {
@@ -715,6 +760,7 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
       queryParams: apiQueryParams, // Debounced for API calls
       immediateQueryParams, // Immediate for UI
       isLoading,
+      filterSchema,
       updateFilter,
       updateFilters,
       resetFilters,
@@ -730,6 +776,7 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
       apiQueryParams,
       immediateQueryParams,
       isLoading,
+      filterSchema,
       updateFilter,
       updateFilters,
       resetFilters,

@@ -891,3 +891,27 @@ input,
     transform: translateX(0);
   }
 }
+
+/* Custom RTL Scrollbar for SelectFieldWithSearch */
+.custom-scrollbar-rtl {
+  direction: rtl;
+}
+
+.custom-scrollbar-rtl::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar-rtl::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar-rtl::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1; /* slate-300 light grey/blue */
+  border-radius: 20px;
+}
+
+/* Firefox support */
+.custom-scrollbar-rtl {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}

@@ -35,10 +35,10 @@ import { ar, enUS } from 'date-fns/locale';
 import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions';
 import { toggleCarListingFavorite } from '@/core/infrastructure-adapters/actions/users/car.user.actions';
 import {
-  useDeleteCarListing,
   useUpdateSaveStatus,
   useMyCarById
 } from '@/core/infrastructure-adapters/use-actions/users/car.user.use-actions';
+import { useDeleteListing } from '@/core/infrastructure-adapters/use-actions/users/listing.user.use-actions';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -110,7 +110,7 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
   const [showStatisticsDialog, setShowStatisticsDialog] = useState(false);
   const authChecked = useRef(false);
 
-  const deleteCarListingMutation = useDeleteCarListing();
+  const deleteListingMutation = useDeleteListing();
   const updateSaveStatusMutation = useUpdateSaveStatus();
 
   // Fetch car statistics when modal is open
@@ -169,6 +169,10 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
 
   // Helper functions
   const getPrimaryImage = () => {
+    // Priority 1: Direct primaryImage field
+    if (carListing.primaryImage) return carListing.primaryImage;
+    
+    // Priority 2: images array
     if (!carListing.images?.length) return '/placeholder-car.jpg';
 
     const primaryImage = carListing.images.find((img) => img.isPrimary);
@@ -629,7 +633,7 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
 
     try {
       setIsDeleting(true);
-      await deleteCarListingMutation.mutateAsync({ id: Number(carListing.id) });
+      await deleteListingMutation.mutateAsync({ id: Number(carListing.id) });
       setShowDeleteDialog(false);
 
       if (onDelete) {

@@ -254,7 +254,7 @@ const CarDetailsContent: React.FC<CarDetailsContentProps> = ({
         </div>
         <div className="pl-11 relative z-10">
           <p className="text-base font-bold text-[#2C3C39] group-hover:text-[#198341] transition-colors duration-300">
-            {detail.value}
+            {typeof detail.value === 'object' ? JSON.stringify(detail.value) : detail.value}
           </p>
         </div>
       </div>
@@ -267,10 +267,11 @@ const CarDetailsContent: React.FC<CarDetailsContentProps> = ({
     const maxLength = 200;
     const shouldTruncate = detail.value.length > maxLength;
 
+    const valueStr = typeof detail.value === 'string' ? detail.value : JSON.stringify(detail.value) || '';
     const displayValue =
       shouldTruncate && !isExpanded
-        ? `${detail.value.substring(0, maxLength)}...`
-        : detail.value;
+        ? `${valueStr.substring(0, maxLength)}...`
+        : valueStr;
 
     return (
       <div

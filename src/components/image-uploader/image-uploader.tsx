@@ -122,13 +122,21 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
     const { data: userFilesResponse, isLoading: isLoadingUserFiles } =
       useGetUserUploads();
 
-    // Initialize from value prop ONLY ONCE
+    // Sync internal imageUrls with value prop when it changes from parent
     useEffect(() => {
-      if (!didInitialize.current && value?.length) {
-        setImageUrls(value);
-        didInitialize.current = true;
+      // If parent value changes and it's different from our internal state,
+      // we should update our internal state to match.
+      // Crucially, we skip this if an upload is currently in progress to avoid race conditions.
+      if (value && !uploadInProgressRef.current) {
+        const valString = JSON.stringify(value);
+        const internalString = JSON.stringify(imageUrls);
+        
+        if (valString !== internalString) {
+          setImageUrls(value);
+          didInitialize.current = true;
+        }
       }
-    }, [value]);
+    }, [value, imageUrls]);
 
     // Cleanup preview URLs when component unmounts
     useEffect(() => {

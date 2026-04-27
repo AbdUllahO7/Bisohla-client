@@ -4,7 +4,7 @@ import { ProductCardItem } from '@/components/web/design/ProductCardItem';
 import { ProductCardListView } from '@/components/web/design/ProductCardListView';
 import { useLocale, useTranslations } from 'next-intl';
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import { useMyCarListings } from '@/core/infrastructure-adapters/use-actions/users/car.user.use-actions';
+import { useMyListings } from '@/core/infrastructure-adapters/use-actions/users/listing.user.use-actions';
 import ProductSkeleton from '@/components/web/design/ProductSkeletonItem';
 import { useSession } from '@/hooks/auth/use-session';
 import type { QueryParams } from '@/core/entities/api/api';
@@ -15,6 +15,7 @@ import { Link } from '@/i18n/routing';
 import MyProductsFilter from '@/components/dashboard/Products/MyProductsFilter';
 import { EnhancedProductCardItem } from '@/components/web/design/ProductCardItemEnhanced';
 import { SaveStatus } from '../../../../core/entities/enums/cars.enums';
+import { normalizeListingToCarDto } from '@/utils/listing-normalization';
 
 // View mode type
 type ViewMode = 'grid' | 'list';
@@ -40,17 +41,17 @@ const UserProductPage = () => {
     sortDirection: 'desc',
   });
 
-  // Fetch user's car listings using the hook
-  const { data, isLoading, error, refetch } = useMyCarListings({
-    userId: session?.user?.id,
+  // Fetch user's listings using the generic hook
+  const { data, isLoading, error, refetch } = useMyListings({
     page: filterParams.page || 1,
     pageSize: filterParams.pageSize || pageSize,
     sortBy: filterParams.sortBy || 'createdAt',
     sortDirection: filterParams.sortDirection || 'desc',
     filterGroups: filterParams.filterGroups,
-    searchKey: filterParams.searchKey, // Add this
-    searchTerm: filterParams.searchTerm, // Add this
+    searchKey: filterParams.searchKey,
+    searchTerm: filterParams.searchTerm,
   });
+  console.log("data",data)
   useEffect(() => {
     refetch();
   }, []); 
@@ -135,8 +136,9 @@ const UserProductPage = () => {
       setFavoriteStatuses((prev) => ({ ...prev, ...newFavoriteStatuses }));
     }
 
-    return listings;
-  }, [data, favoriteStatuses]);
+    // Normalize each listing to ensure consistent DTO structure (fixes image display and other inconsistencies)
+    return listings.map(item => normalizeListingToCarDto(item, locale));
+  }, [data, favoriteStatuses, locale]);
 
   // Extract pagination metadata from response
   const paginationMeta = useMemo(() => {
@@ -185,13 +187,13 @@ const UserProductPage = () => {
               <Car className="h-12 w-12 text-destructive mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-destructive mb-2">
                 {direction === 'ltr'
-                  ? 'Failed to Load Cars'
-                  : 'فشل في تحميل السيارات'}
+                  ? 'Failed to Load Products'
+                  : 'فشل في تحميل الإعلانات'}
               </h3>
               <p className="text-muted-foreground mb-4">
                 {direction === 'ltr'
-                  ? "We couldn't load your car listings. Please try again."
-                  : 'لم نتمكن من تحميل قوائم سياراتك. يرجى المحاولة مرة أخرى.'}
+                  ? "We couldn't load your listings. Please try again."
+                  : 'لم نتمكن من تحميل إعلاناتك. يرجى المحاولة مرة أخرى.'}
               </p>
               <button
                 onClick={handleRefresh}
@@ -210,17 +212,17 @@ const UserProductPage = () => {
           <CardContent className="p-12 text-center">
             <Car className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-xl font-semibold mb-2">
-              {direction === 'ltr' ? 'No Cars Yet' : 'لا توجد سيارات بعد'}
+              {direction === 'ltr' ? 'No Listings Yet' : 'لا توجد إعلانات بعد'}
             </h3>
             <p className="text-muted-foreground mb-6 max-w-md mx-auto">
               {direction === 'ltr'
-                ? "You haven't created any car listings yet. Add your first car to get started!"
-                : 'لم تقم بإنشاء أي قوائم سيارات بعد. أضف سيارتك الأولى للبدء!'}
+                ? "You haven't created any listings yet. Add your first product to get started!"
+                : 'لم تقم بإنشاء أي إعلانات بعد. أضف إعلانك الأول للبدء!'}
             </p>
             <Link href="/products/AddProducts">
               <button className="bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2 mx-auto">
                 <Plus className="h-4 w-4" />
-                {direction === 'ltr' ? 'Add New Car' : 'إضافة سيارة جديدة'}
+                {direction === 'ltr' ? 'Add New Product' : 'إضافة إعلان جديد'}
               </button>
             </Link>
           </CardContent>
@@ -271,6 +273,7 @@ const UserProductPage = () => {
                 carStatus={car.status}
                 saveStatus={car.saveStatus as SaveStatus}
                 imageSrc={
+                  car.primaryImage ||
                   car.images?.find((img: { isPrimary: any }) => img.isPrimary)
                     ?.url ||
                   car.images?.[0]?.url ||

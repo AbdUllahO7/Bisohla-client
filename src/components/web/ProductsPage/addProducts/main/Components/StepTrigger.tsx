@@ -14,6 +14,7 @@ interface StepTriggerProps {
   validationAttempted: Record<string, boolean>
   onStepClick: (step: string) => void
   isStepAccessible: (stepIndex: number) => boolean
+  label?: string
 }
 
 export const StepTrigger: React.FC<StepTriggerProps> = ({ 
@@ -24,20 +25,15 @@ export const StepTrigger: React.FC<StepTriggerProps> = ({
   stepValidation,
   validationAttempted,
   onStepClick,
-  isStepAccessible
+  isStepAccessible,
+  label
 }) => {
   const t = useTranslations("addProduct")
   const locale = useLocale()
   const isRTL = locale === 'ar'
 
-  // Define steps for each locale
-  const carstesp = {
-    en: ['Car Type', 'Car Info', 'Additional Info', 'Ads Details'],
-    ar: ['نوع السيارة', 'معلومات السيارة', 'معلومات إضافية', 'تفاصيل الإعلان']
-  }
-
-  // Get the step name based on locale and index
-  const stepName = carstesp[locale as 'en' | 'ar'][index] || t(`steps.step${index + 1}`)
+  // Get the step name from prop or fallback to generic
+  const stepName = label || t(`steps.step${index + 1}`)
 
   // Determine step status
   const isCurrentStep = currentStep === step
@@ -196,7 +192,7 @@ export const StepTrigger: React.FC<StepTriggerProps> = ({
         )}
       </div>
 
-      {/* Desktop Layout (Horizontal with Cards) */}
+      {/* Desktop Layout (Standard Horizontal Stepper) */}
       <div className="hidden sm:flex items-center flex-1">
         <div
           className={getStepClasses()}
@@ -210,56 +206,20 @@ export const StepTrigger: React.FC<StepTriggerProps> = ({
             }
           }}
         >
-          <div className={`relative bg-white rounded-xl shadow-sm border transition-all duration-300 hover:shadow-md p-4 lg:p-6 flex flex-col items-center gap-3 min-w-[160px] lg:min-w-[200px] ${
-            isCurrentStep 
-              ? 'border-emerald-400 bg-emerald-50 shadow-lg' 
-              : isCompleted
-                ? 'border-gray-200 hover:border-emerald-300'
-                : hasError 
-                  ? 'border-red-300 bg-red-50'
-                  : !isAccessible
-                    ? 'border-gray-200 opacity-60'
-                    : 'border-gray-200 hover:border-gray-300'
-          }`}>
+          <div className="flex flex-col items-center gap-2 group px-2">
             {/* Circle with number/icon */}
             <div className={getCircleClasses()}>
               {getStepIcon()}
             </div>
             
             {/* Step name */}
-            <span className={`${getTextClasses()} text-center`}>
+            <span className={`${getTextClasses()} text-center whitespace-nowrap`}>
               {stepName}
             </span>
             
-            {/* Status badge */}
-            <div className={`text-xs px-2 py-1 rounded-full ${
-              isCurrentStep 
-                ? 'bg-emerald-100 text-emerald-700'
-                : isCompleted
-                  ? 'bg-gray-100 text-gray-600'
-                  : hasError
-                    ? 'bg-red-100 text-red-600'
-                    : !isAccessible
-                      ? 'bg-gray-100 text-gray-400'
-                      : 'bg-gray-100 text-gray-500'
-            }`}>
-              {isCurrentStep 
-                ? (locale === 'ar' ? 'الحالية' : 'Current')
-                : isCompleted 
-                  ? (locale === 'ar' ? 'مكتملة' : 'Done')
-                  : hasError
-                    ? (locale === 'ar' ? 'خطأ' : 'Error')
-                    : !isAccessible
-                      ? (locale === 'ar' ? 'مقفلة' : 'Locked')
-                      : (locale === 'ar' ? 'متاحة' : 'Ready')
-              }
-            </div>
-            
-            {/* Error indicator for desktop */}
+            {/* Simple dot for error/status */}
             {hasError && (
-              <div className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
-                <span className="text-white text-xs font-bold">!</span>
-              </div>
+              <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white" />
             )}
           </div>
         </div>

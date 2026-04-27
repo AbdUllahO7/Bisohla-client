@@ -171,7 +171,7 @@ const Filter = () => {
 
     // Set listing type based on active button
     const listingType = activeButton === "hire" ? "for_rent" : "for_sale"
-    params.set("listingType", listingType)
+    params.set("listingOfferType", listingType)
 
     // Add filter parameters
     if (filterState.productType) params.set("bodyType", filterState.productType)

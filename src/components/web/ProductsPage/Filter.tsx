@@ -48,6 +48,8 @@ import { useToast } from '@/hooks/use-toast';
 import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions';
 import CarAlertModal from './CarAlertModal';
 import { getCityOptions } from './addProducts/StepOne/utils';
+import { getInjection } from '@/di/container';
+import { ListingTypeFilterSchemaDto } from '@/core/entities/models/listing-types/listing-types.dto';
 
 // Types for components
 interface FilterOptionDropdownProps {
@@ -222,6 +224,7 @@ const FilterContent = React.memo(
     t,
     handleCreateAlert,
     isCreatingAlert,
+    dynamicOptions,
     isMobile = false,
   }: any) => {
     const trans = useTranslations('addProduct.enteredData');
@@ -503,7 +506,7 @@ const FilterContent = React.memo(
                 </AccordionTrigger>
                 <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50">
                   <FilterOptionDropdown
-                    options={stepTwoOptions.transmission}
+                    options={dynamicOptions?.transmission?.length > 0 ? dynamicOptions.transmission : stepTwoOptions.transmission}
                     placeholder={stepTwoLabels.selectTransmission}
                     onChange={handleTransmissionChange}
                     value={filters.transmission}
@@ -526,7 +529,7 @@ const FilterContent = React.memo(
                 </AccordionTrigger>
                 <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50">
                   <FilterOptionDropdown
-                    options={stepTwoOptions.fuelType}
+                    options={dynamicOptions?.fuelType?.length > 0 ? dynamicOptions.fuelType : stepTwoOptions.fuelType}
                     placeholder={stepTwoLabels.selectFuelType}
                     onChange={handleTransmissionChange}
                     value={filters.fuelType}
@@ -549,7 +552,7 @@ const FilterContent = React.memo(
                 </AccordionTrigger>
                 <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50">
                   <FilterOptionDropdown
-                    options={stepTwoOptions.bodyType}
+                    options={dynamicOptions?.bodyType?.length > 0 ? dynamicOptions.bodyType : stepTwoOptions.bodyType}
                     placeholder={stepTwoLabels.selectBodyType}
                     onChange={handleTransmissionChange}
                     value={filters.bodyType}
@@ -609,23 +612,23 @@ const ProductsFilter: React.FC = React.memo(() => {
   const [openAccordions, setOpenAccordions] = useState<string[]>([]);
 
   // Use filter context
-  const { filters, updateFilter, resetFilters, toggleBrand } = useFilters();
+  const { filters, updateFilter, resetFilters, toggleBrand, filterSchema } = useFilters();
 
 
   // Get data from hooks
   const handleValidationChangeStepOne = (isValid: boolean) => { };
   const handleValidationChangeStepTwo = (isValid: boolean) => { };
 
-  const {
-    governorateOptions,
-    cityOptions,
-    carMakesConfig,
-    carModelsConfig,
-    carTrimsConfig,
-    madeYear,
-    handleSelectChange: handleStepOneSelectChange,
-    titles: stepOneTitles,
-  } = useProductStepOne(handleValidationChangeStepOne);
+    const {
+      governorateOptions,
+      cityOptions,
+      carMakesConfig,
+      carModelsConfig,
+      carTrimsConfig,
+      madeYear,
+      handleSelectChange: handleStepOneSelectChange,
+      titles: stepOneTitles,
+    } = useProductStepOne(handleValidationChangeStepOne, filters.listingTypeId);
 
 
   const {
@@ -638,6 +641,29 @@ const ProductsFilter: React.FC = React.memo(() => {
   const currencyOptions = getCurrencyOptions(t);
   const priceRanges = getPriceRanges;
   const mileageRanges = getMileageRanges;
+
+
+  // Map schema attributes to dropdown options
+  const getDynamicOptions = (attributeSlug: string) => {
+    if (!filterSchema) return [];
+    
+    const attribute = filterSchema.sections
+      .flatMap(section => section.attributes)
+      .find(attr => attr.slug === attributeSlug);
+      
+    if (!attribute || !attribute.options) return [];
+    
+    return attribute.options.map((opt: any) => ({
+      value: opt.id,
+      label: opt.label[locale] || opt.label['en'] || opt.id
+    }));
+  };
+
+  const dynamicOptions = {
+    transmission: getDynamicOptions('transmission'),
+    fuelType: getDynamicOptions('fuel_type'),
+    bodyType: getDynamicOptions('body_type'),
+  };
 
   // FIXED: Auto-manage accordion states based on active filters including listing type
   useEffect(() => {
@@ -859,6 +885,7 @@ const ProductsFilter: React.FC = React.memo(() => {
     t,
     handleCreateAlert,
     isCreatingAlert,
+    dynamicOptions,
   };
 
   return (
@@ -981,6 +1008,7 @@ const ProductsFilter: React.FC = React.memo(() => {
           governorate: filters.governorate,
           city: filters.city,
         }}
+        listingTypeId={filters.listingTypeId}
         governorateOptions={governorateOptions}
         getCityOptions={(gov) => getCityOptions(gov, isArabic)}
         isArabic={isArabic}

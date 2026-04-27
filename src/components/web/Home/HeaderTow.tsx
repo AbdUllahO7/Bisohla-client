@@ -17,8 +17,8 @@ const HeaderTwo: React.FC<HeaderTowProps> = ({ translations }) => {
 
   const navItems = [
     { href: '/', label: translations.home },
-    { href: '/products?listingType=for_rent', label: translations.rent },
-    { href: '/products?listingType=for_sale', label: translations.sale },
+    { href: '/products?listingOfferType=for_rent', label: translations.rent },
+    { href: '/products?listingOfferType=for_sale', label: translations.sale },
     { href: '/products', label: translations.BrowseAll },
     // { href: '/Privacypolicy', label: translations.Privacypolicy },
     { href: '/ContactUs', label: translations.ContactUs },

@@ -13,6 +13,7 @@ export interface CarCardItemProps {
     transmission: string;
   };
   ProductId: number;
+  slug?: string;
   type?: string;
   saveStatus?: SaveStatus;
 }
@@ -27,6 +28,7 @@ export interface CarCardItemPropsProfile {
     type: string;
   };
   ProductId: number;
+  slug?: string;
   isFavorites: boolean;
   type?: string;
   onFavoriteToggle?: (productId: number, isFavorite: boolean) => void;

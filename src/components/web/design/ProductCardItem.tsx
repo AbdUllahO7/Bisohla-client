@@ -45,6 +45,7 @@ export const ProductCardItem: React.FC<ExtendedCarCardItemPropsProfile> = ({
   marka,
   imageSrc,
   ProductId,
+  slug,
   isFavorites,
   priceWord,
   price,
@@ -272,7 +273,7 @@ export const ProductCardItem: React.FC<ExtendedCarCardItemPropsProfile> = ({
 
         {/* Make the card content clickable */}
         <Link
-          href={`/products/product/${ProductId}${
+          href={`/products/product/${slug || ProductId}${
             profile ? '?profile=true' : ''
           }`}
           className="block"
@@ -303,7 +304,7 @@ export const ProductCardItem: React.FC<ExtendedCarCardItemPropsProfile> = ({
         {/* Conditional Footer based on auth state */}
         {isFavorites ? (
           <Link
-            href={`/products/product/${ProductId}${
+            href={`/products/product/${slug || ProductId}${
               profile ? '?profile=true' : ''
             }`}
           >

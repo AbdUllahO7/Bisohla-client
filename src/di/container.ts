@@ -12,6 +12,9 @@ import { createCarRepoModule } from './modules/repositories/cars/car.module';
 import { createVisitorsModule } from './modules/visitors/visitor.module';
 import { createUsersModule } from './modules/users/users.module';
 import { createNotificationsModule } from './modules/notifications.module';
+import { createListingTypeRefsRepoModule } from './modules/repositories/listing-type-refs.repo.module';
+import { createListingTypesRepoModule } from './modules/repositories/listing-types.repo.module';
+import { createListingsVisitorRepoModule } from './modules/repositories/listings-visitor.repo.module';
 
 
 const AppContainer = createContainer();
@@ -40,6 +43,21 @@ AppContainer.load(Symbol('NotificationModule'), createNotificationsModule());
 AppContainer.load(
   Symbol('ProductGroupsRepoModule'),
   createProductGroupsRepoModule(),
+);
+
+AppContainer.load(
+  Symbol('ListingTypeRefsRepoModule'),
+  createListingTypeRefsRepoModule(),
+);
+
+AppContainer.load(
+  Symbol('ListingTypesRepoModule'),
+  createListingTypesRepoModule(),
+);
+
+AppContainer.load(
+  Symbol('ListingsVisitorRepoModule'),
+  createListingsVisitorRepoModule(),
 );
 
 export function getInjection<K extends keyof typeof DI_SYMBOLS>(

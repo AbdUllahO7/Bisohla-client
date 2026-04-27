@@ -3,13 +3,14 @@
 import React, { useEffect, useState } from 'react';
 import Box from '@/components/box/box';
 import { useTranslations } from 'next-intl';
-import { useCarListings } from '@/core/infrastructure-adapters/use-actions/visitors/car.visitor.use-actions';
+import { useListings } from '@/core/infrastructure-adapters/use-actions/visitors/listing.visitor.use-actions';
 import ProductSkeleton from '../design/ProductSkeletonItem';
 import { useSession } from '@/hooks/auth/use-session';
 import SectionHeader from '@/components/SectionHeader';
 import { History } from 'lucide-react';
 import { RentProductCard } from '../design/RentProductCard';
-import { Button } from '@/components/ui/button';
+import { normalizeListingToCarDto } from '@/utils/listing-normalization';
+import { useLocale } from 'next-intl';
 
 import { motion } from 'framer-motion';
 
@@ -17,14 +18,19 @@ const RecentlyViewed = () => {
   const t = useTranslations('homePage.recentlyViewed');
   const tCommon = useTranslations('homePage.latestOffers');
   const session = useSession();
-  const [recentlyViewedIds, setRecentlyViewedIds] = useState<number[]>([]);
+  const locale = useLocale();
+  const [recentlyViewed, setRecentlyViewed] = useState<{ id: number, typeId: number }[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
     const STORAGE_KEY = 'bishola-recently-viewed';
     try {
-      const storedIds = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-      setRecentlyViewedIds(storedIds);
+      const storedItems = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      // Handle both old (number) and new ({id, typeId}) formats
+      const normalizedItems = storedItems.map((item: any) => 
+        typeof item === 'number' ? { id: item, typeId: 1 } : item
+      );
+      setRecentlyViewed(normalizedItems);
     } catch (error) {
       console.error('Failed to load recently viewed:', error);
     } finally {
@@ -34,31 +40,43 @@ const RecentlyViewed = () => {
 
   const handleClearAll = () => {
     localStorage.removeItem('bishola-recently-viewed');
-    setRecentlyViewedIds([]);
+    setRecentlyViewed([]);
   };
 
-  const { data, isLoading } = useCarListings({
+  const carIds = recentlyViewed.filter(item => item.typeId === 1).map(item => item.id);
+
+  const { data, isLoading } = useListings(1, {
     page: 1,
     pageSize: 10,
-    userId: session.user.id,
-    id: recentlyViewedIds.length > 0 ? recentlyViewedIds : [-1], // Fetch by IDs
+    userId: session.user?.id,
+    include: 'attributeValues.attribute,images,user,listingType,listingTypeVersion',
+    id: carIds.length > 0 ? carIds : [-1], // Fetch by IDs
   });
 
   // Sort the fetched data to match the order of IDs in localStorage
   const carListings = React.useMemo(() => {
-    const listings = Array.isArray(data?.data)
-      ? data.data
-      : Array.isArray(data?.data?.data)
-        ? data.data.data
-        : [];
-    
-    // Sort based on the order of recentlyViewedIds
-    return recentlyViewedIds
-      .map(id => listings.find((item: any) => item.id === id))
-      .filter(Boolean);
-  }, [data, recentlyViewedIds]);
+    const apiData = data as any;
+    if (!apiData) return [];
 
-  if (!isLoaded || (recentlyViewedIds.length === 0 && !isLoading)) {
+    let listings: any[] = [];
+    if (apiData.data && Array.isArray(apiData.data.data)) {
+      listings = apiData.data.data;
+    } else if (Array.isArray(apiData.data)) {
+      listings = apiData.data;
+    } else if (Array.isArray(apiData)) {
+      listings = apiData;
+    }
+    
+    // Normalize and sort based on the order of recentlyViewed car items
+    return carIds
+      .map(id => {
+        const item = listings.find((listing: any) => listing.id === id);
+        return item ? normalizeListingToCarDto(item, locale) : null;
+      })
+      .filter(Boolean);
+  }, [data, carIds, locale]);
+
+  if (!isLoaded || (recentlyViewed.length === 0 && !isLoading)) {
     return null;
   }
 

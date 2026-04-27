@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Tabs } from "@/components/ui/tabs";
 import { useLocale } from 'next-intl';
 
@@ -7,14 +7,17 @@ import { useLocale } from 'next-intl';
 import { getRequiredFieldsMessage, getErrorDialogTexts } from './utils';
 import { showStepNavigationToast, getStepNavigationMessages } from './utils/stepNavigationUtils';
 import { StepContent } from './Components/StepContent';
-import AddProductStepOne from '../StepOne/AddProductStepOne';
-import AddProductStepTwo from '../stepTow/AddProductStepTwo';
-import AddProductStepThree from '../stepThree/AddProductStepThree';
 import AddProductStepFour from '../stepFour/AddProductStepFowr';
 import ErrorDialog from './Components/ErrorDialog';
 import { StepTrigger, StepperContainer } from './Components/StepTrigger';
 import { useStepManagement } from './hooks/useStepManagement';
-import { STORAGE_KEYS } from './hooks/useLocalStorage';
+import { STORAGE_KEYS, getStorageKey } from './hooks/useLocalStorage';
+import AddProductTypeSelection from '../TypeSelection/AddProductTypeSelection';
+import DynamicFormStep from './Components/DynamicFormStep';
+import CarPhotosSection from '../stepThree/CarPhotosSection';
+import { getInjection } from '@/di/container';
+import { ListingTypeDto, ListingTypeFormSchemaDto } from '@/core/entities/models/listing-types/listing-types.dto';
+import { useMemo, useCallback } from 'react';
 
 // Props interface for Steps component
 interface StepsProps {
@@ -30,8 +33,48 @@ const Steps: React.FC<StepsProps> = ({ isEditMode = false, carId, initialData })
   
   // Add state for step four validation
   const [stepFourIsValid, setStepFourIsValid] = useState(false);
+
+  // Dynamic Step States
+  const [selectedType, setSelectedType] = useState<ListingTypeDto | null>(null);
+  const [schema, setSchema] = useState<ListingTypeFormSchemaDto | null>(null);
+  const [loadingSchema, setLoadingSchema] = useState(false);
   
-  // Use the step management hook with edit mode flag
+  // Photo State
+  const [photos, setPhotos] = useState<string[]>([]);
+  const [photoValidation, setPhotoValidation] = useState(false);
+  const coverImageRef = useRef<any>(null);
+
+  // Fetch schema when type is selected
+  useEffect(() => {
+    if (selectedType) {
+      const fetchSchema = async () => {
+        setLoadingSchema(true);
+        try {
+          const controller = getInjection('IListingTypesRepoController');
+          const res = await controller.getFormSchema(selectedType.id);
+          if (res.success && res.data) {
+            setSchema(res.data);
+          }
+        } catch (error) {
+          console.error("Failed to fetch schema", error);
+        } finally {
+          setLoadingSchema(false);
+        }
+      };
+      fetchSchema();
+    }
+  }, [selectedType]);
+
+  const dynamicSteps = useMemo(() => {
+    const baseSteps = isEditMode ? [] : ["typeSelection"];
+    if (schema) {
+      const sectionSteps = schema.sections.map(s => `section_${s.id}`);
+      return [...baseSteps, ...sectionSteps, "carPhotos", "adsInfo"];
+    }
+    return baseSteps;
+  }, [schema, isEditMode]);
+  
+  // Use the step management hook with edit mode flag and dynamic steps
   const {
     steps,
     currentStep,
@@ -48,7 +91,83 @@ const Steps: React.FC<StepsProps> = ({ isEditMode = false, carId, initialData })
     setShowErrorDialog,
     isStepAccessible,
     getStepProgress,
-  } = useStepManagement(isEditMode);
+  } = useStepManagement(isEditMode, dynamicSteps);
+
+  // Load initial photos from localStorage or initialData
+  useEffect(() => {
+    if (isEditMode && initialData?.images) {
+      const imageUrls = initialData.images.map((img: any) => typeof img === 'string' ? img : img.url);
+      setPhotos(imageUrls);
+      updateStepValidation('carPhotos', imageUrls.length > 0);
+    } else {
+      const storageKey = getStorageKey('STEP_THREE', isEditMode);
+      const savedPhotos = localStorage.getItem(storageKey); // Photos were step 3 in old design
+      if (savedPhotos) {
+        try {
+          const parsed = JSON.parse(savedPhotos);
+          if (Array.isArray(parsed.coverImage)) {
+            setPhotos(parsed.coverImage);
+            updateStepValidation('carPhotos', parsed.coverImage.length > 0);
+          }
+        } catch (e) {
+          console.error("Failed to parse saved photos", e);
+        }
+      }
+    }
+  }, [isEditMode, initialData, updateStepValidation]);
+
+  // Save photos to localStorage whenever they change
+  useEffect(() => {
+    if (photos.length > 0) {
+      const storageKey = getStorageKey('STEP_THREE', isEditMode);
+      const current = localStorage.getItem(storageKey);
+      const parsed = current ? JSON.parse(current) : {};
+      localStorage.setItem(storageKey, JSON.stringify({
+        ...parsed,
+        coverImage: photos
+      }));
+    }
+  }, [photos, isEditMode]);
+
+  // Load initial Listing Type from localStorage or initialData
+  useEffect(() => {
+    if (isEditMode && initialData) {
+      // Find the listing type from initialData
+      // If we only have ID, we might need to fetch the full object or just set ID
+      // For now, let's assume we can at least set the ID to trigger schema fetch
+      const typeId = initialData.listingTypeId || (initialData.data?.[0]?.listingTypeId);
+      if (typeId && (!selectedType || selectedType.id !== typeId)) {
+        // We set a partial type object, the fetchSchema useEffect will handle the rest
+        setSelectedType({ id: typeId } as any);
+        updateStepValidation('typeSelection', true);
+      }
+    } else if (!isEditMode) {
+      const savedType = localStorage.getItem(STORAGE_KEYS.STEP_ONE);
+      if (savedType) {
+        try {
+          const parsed = JSON.parse(savedType);
+          // Only update if current selectedType is different to prevent loops
+          if (!selectedType || parsed.id !== selectedType.id) {
+            setSelectedType(parsed);
+            updateStepValidation('typeSelection', true);
+          }
+        } catch (e) {
+          console.error("Failed to parse saved type", e);
+        }
+      }
+    }
+  }, [isEditMode, initialData, selectedType, updateStepValidation]);
+
+  const handleTypeSelect = (type: ListingTypeDto) => {
+    setSelectedType(type);
+    updateStepValidation('typeSelection', true);
+    
+    // Persist to localStorage
+    localStorage.setItem(STORAGE_KEYS.STEP_ONE, JSON.stringify(type));
+    
+    // Clear dynamic step data when type changes to prevent schema mismatch
+    localStorage.removeItem(STORAGE_KEYS.STEP_TWO);
+  };
 
   // Set edit mode flag in localStorage on component mount if in edit mode
   useEffect(() => {
@@ -72,6 +191,23 @@ const Steps: React.FC<StepsProps> = ({ isEditMode = false, carId, initialData })
       showStepNavigationToast(messages.stepLocked, 'warning');
     }
   };
+
+  const stepLabels = useMemo(() => {
+    const labels: Record<string, string> = {
+      typeSelection: isArabic ? "فئة الإعلان" : "Ad Category",
+      carPhotos: isArabic ? "صور السيارة" : "Car Photos",
+      adsInfo: isArabic ? "معلومات الإعلان" : "Ad Information"
+    };
+    schema?.sections.forEach(s => {
+      labels[`section_${s.id}`] = s.name;
+    });
+    return labels;
+  }, [schema, isArabic]);
+
+  // Stabilize validation updates to prevent infinite loops
+  const handleUpdateStepValidation = useCallback((stepId: string, isValid: boolean) => {
+    updateStepValidation(stepId, isValid);
+  }, [updateStepValidation]);
 
   // Get error dialog text based on locale
   const errorDialogTexts = getErrorDialogTexts(isArabic);
@@ -145,6 +281,7 @@ const Steps: React.FC<StepsProps> = ({ isEditMode = false, carId, initialData })
                 step={step} 
                 index={index} 
                 currentStep={currentStep}
+                label={stepLabels[step]}
                 stepValidation={stepValidation}
                 validationAttempted={validationAttempted}
                 onStepClick={handleStepClick}
@@ -159,69 +296,92 @@ const Steps: React.FC<StepsProps> = ({ isEditMode = false, carId, initialData })
           <div className="bg-white rounded-lg shadow-sm border min-h-[600px]">
             {/* Step Content */}
             <div className="p-4 sm:p-6 lg:p-8">
-              <StepContent 
-                handleBack={handleBack} 
-                handleNext={handleNext} 
-                direction={direction} 
-                step="productType"
-                isNextDisabled={validationAttempted.productType && !stepValidation.productType || isSubmitting}
-                requiredFieldsMessage={requiredFieldsMessage}
-              >
-                <AddProductStepOne 
-                  onValidationChange={(isValid) => updateStepValidation('productType', isValid)}
-                  isEditMode={isEditMode}
-                  initialData={initialData}
-                />
-              </StepContent>
+              {currentStep === 'typeSelection' && (
+                <StepContent 
+                  handleBack={handleBack} 
+                  handleNext={handleNext} 
+                  direction={direction} 
+                  step="typeSelection"
+                  isNextDisabled={!selectedType || isSubmitting}
+                  requiredFieldsMessage={requiredFieldsMessage}
+                >
+                  <AddProductTypeSelection 
+                    onSelect={handleTypeSelect}
+                    selectedTypeId={selectedType?.id}
+                  />
+                </StepContent>
+              )}
               
-              <StepContent 
-                handleBack={handleBack} 
-                handleNext={handleNext} 
-                direction={direction} 
-                step="location"
-                isNextDisabled={validationAttempted.location && !stepValidation.location || isSubmitting}
-                requiredFieldsMessage={requiredFieldsMessage}
-              >
-                <AddProductStepTwo 
-                  onValidationChange={(isValid) => updateStepValidation('location', isValid)}
-                  isEditMode={isEditMode}
-                  initialData={initialData}
-                />
-              </StepContent>
+              {schema?.sections.map((section) => (
+                currentStep === `section_${section.id}` && (
+                  <StepContent 
+                    key={section.id}
+                    handleBack={handleBack} 
+                    handleNext={handleNext} 
+                    direction={direction} 
+                    step={`section_${section.id}`}
+                    isNextDisabled={validationAttempted[`section_${section.id}`] && !stepValidation[`section_${section.id}`] || isSubmitting}
+                    requiredFieldsMessage={requiredFieldsMessage}
+                  >
+                  <DynamicFormStep 
+                    section={section}
+                    onValidationChange={(isValid) => handleUpdateStepValidation(`section_${section.id}`, isValid)}
+                    isEditMode={isEditMode}
+                    initialData={initialData}
+                  />
+                  </StepContent>
+                )
+              ))}
               
-              <StepContent 
-                handleBack={handleBack} 
-                handleNext={handleNext} 
-                direction={direction} 
-                step="productInfo"
-                isNextDisabled={validationAttempted.productInfo && !stepValidation.productInfo || isSubmitting}
-                requiredFieldsMessage={requiredFieldsMessage}
-              >
-                <AddProductStepThree   
-                  onValidationChange={(isValid) => updateStepValidation('productInfo', isValid)}
-                  isEditMode={isEditMode}
-                  initialData={initialData}
-                />
-              </StepContent>
-              
-              <StepContent 
-                handleBack={handleBack} 
-                handleNext={handleNext} 
-                direction={direction} 
-                step="adsInfo"
-                isNextDisabled={!stepFourIsValid || isSubmitting}
-                requiredFieldsMessage={requiredFieldsMessage}
-                isLastStep={true}
-              >
-                <AddProductStepFour   
-                  onValidationChange={(isValid) => {
-                    setStepFourIsValid(isValid);
-                    updateStepValidation('adsInfo', isValid);
-                  }}
-                  isEditMode={isEditMode}
-                  initialData={initialData}
-                />    
-              </StepContent>
+              {currentStep === 'carPhotos' && (
+                <StepContent 
+                  handleBack={handleBack} 
+                  handleNext={handleNext} 
+                  direction={direction} 
+                  step="carPhotos"
+                  isNextDisabled={photos.length === 0 || isSubmitting}
+                  requiredFieldsMessage={requiredFieldsMessage}
+                >
+                  <CarPhotosSection 
+                    labels={{
+                      coverImage: isArabic ? "صور السيارة" : "Car Photos",
+                      oneImage: isArabic ? "يمكنك إدخال 20 صور" : "You can enter 20 images",
+                      tenImages: "",
+                      tenFiles: ""
+                    }}
+                    coverImageRef={coverImageRef}
+                    coverImage={photos}
+                    onCoverImageChange={(newPhotos) => {
+                      setPhotos(newPhotos);
+                      const isValid = newPhotos.length > 0;
+                      setPhotoValidation(isValid);
+                      updateStepValidation('carPhotos', isValid);
+                    }}
+                    setIsFormDisabled={() => {}}
+                  />
+                </StepContent>
+              )}
+
+              {currentStep === 'adsInfo' && (
+                <StepContent 
+                  handleBack={handleBack} 
+                  handleNext={handleNext} 
+                  direction={direction} 
+                  step="adsInfo"
+                  isNextDisabled={!stepFourIsValid || isSubmitting}
+                  requiredFieldsMessage={requiredFieldsMessage}
+                  isLastStep={true}
+                >
+                  <AddProductStepFour   
+                    onValidationChange={(isValid) => {
+                      setStepFourIsValid(isValid);
+                      updateStepValidation('adsInfo', isValid);
+                    }}
+                    isEditMode={isEditMode}
+                    initialData={initialData}
+                  />    
+                </StepContent>
+              )}
             </div>
 
      

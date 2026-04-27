@@ -168,6 +168,18 @@ export const DI_SYMBOLS = {
   INewsVisitorStrategy: Symbol.for('INewsVisitorStrategy'),
 
   IAdVisitorRepository: Symbol.for('IAdVisitorRepository'),
+
+  IListingTypeRefsRepo: Symbol.for('IListingTypeRefsRepo'),
+  IListingTypeRefsRepoUseCase: Symbol.for('IListingTypeRefsRepoUseCase'),
+  IListingTypeRefsRepoController: Symbol.for('IListingTypeRefsRepoController'),
+
+  IListingTypesRepo: Symbol.for('IListingTypesRepo'),
+  IListingTypesRepoUseCase: Symbol.for('IListingTypesRepoUseCase'),
+  IListingTypesRepoController: Symbol.for('IListingTypesRepoController'),
+
+  IListingsVisitorRepo: Symbol.for('IListingsVisitorRepo'),
+  IListingsVisitorRepoUseCase: Symbol.for('IListingsVisitorRepoUseCase'),
+  IListingsVisitorRepoController: Symbol.for('IListingsVisitorRepoController'),
 };
 
 export interface DI_RETURN_TYPES {
@@ -277,7 +289,15 @@ export interface DI_RETURN_TYPES {
   carFeatureRepoPath: string;
   carListingRepoPath: string;
 
+  IListingTypeRefsRepo: import('@/core/application/repositories/listing-type-refs/listing-type-refs.repo.interface').IListingTypeRefsRepo;
+  IListingTypeRefsRepoUseCase: import('@/core/application/use-cases/repositories/listing-type-refs/listing-type-refs.repo.use-case.interface').IListingTypeRefsRepoUseCase;
+  IListingTypeRefsRepoController: import('@/core/application/controllers/repositories/listing-type-refs/listing-type-refs.repo.controller.interface').IListingTypeRefsRepoController;
 
+  IListingTypesRepo: import('@/core/application/repositories/listing-types/listing-types.repo.interface').IListingTypesRepo;
+  IListingTypesRepoUseCase: import('@/core/application/use-cases/repositories/listing-types/listing-types.repo.use-case.interface').IListingTypesRepoUseCase;
+  IListingTypesRepoController: import('@/core/application/controllers/repositories/listing-types/listing-types.repo.controller.interface').IListingTypesRepoController;
 
-
+  IListingsVisitorRepo: import('@/core/application/repositories/listings/listings.visitor.repo.interface').IListingsVisitorRepo;
+  IListingsVisitorRepoUseCase: import('@/core/application/use-cases/repositories/listings/listings.visitor.repo.use-case.interface').IListingsVisitorRepoUseCase;
+  IListingsVisitorRepoController: import('@/core/application/controllers/repositories/listings/listings.visitor.repo.controller.interface').IListingsVisitorRepoController;
 }

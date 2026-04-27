@@ -64,7 +64,7 @@ export const RentProductListCard: React.FC<RentProductListCardProps> = ({
   const [favoriteStatus, setFavoriteStatus] = useState(isMarkedFavorite);
   const [isProcessing, setIsProcessing] = useState(false);
   const direction = useDirection();
-
+      console.log("car",car)
   // Get translators for different namespaces
   const productT = useTranslations('product');
   const bodyTypeT = useTranslations('addProduct.enteredData.stepTow');
@@ -196,7 +196,7 @@ export const RentProductListCard: React.FC<RentProductListCardProps> = ({
       }`}
       ref={cardRef}
     >
-      <Link href={`/products/product/${productId}`} className="block w-full">
+      <Link href={`/products/product/${car.slug || productId}`} className="block w-full">
         <div className="flex flex-row h-32 relative">
           {/* SOLD Badge and Overlay */}
           {isSold && (

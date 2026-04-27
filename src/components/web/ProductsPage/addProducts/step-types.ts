@@ -27,7 +27,7 @@ export interface StepTwoData {
   fuelType: string
   bodyType: string
   transmission: string
-  doors: string | number
+  doors: string
   plateNumber: string | number
   mileage: string | number
   enginePower: string | number
@@ -129,7 +129,7 @@ export interface CarListingSubmission {
   engineSize: number
   enginePower: number
   bodyType: BodyType | null
-  doors: number
+  doors: string
   colorExterior: string | null
   vin: string | null
   plateNumber: string | null

@@ -115,7 +115,7 @@ export const CreateCarListingSchema = z.object({
   engineSize: z.number().positive().nullable().optional(),
   enginePower: z.number().int().positive().nullable().optional(),
   bodyType: z.nativeEnum(BodyType).nullable().optional(),
-  doors: z.number().int().min(0).max(10).nullable().optional(),
+  doors: z.string().nullable().optional(),
   colorExterior: z.string().nullable().optional(),
   vin: z.string().nullable().optional(),
   plateNumber: z.string().nullable().optional(),

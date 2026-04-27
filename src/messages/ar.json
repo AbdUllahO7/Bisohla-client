@@ -560,6 +560,10 @@
       "alertCreatedDesc": "تم إنشاء التنبيه بنجاح!",
       "alertCreateError": "خطأ",
       "alertCreateErrorDesc": "فشل في إنشاء التنبيه",
+      "alertFailed": "فشل",
+      "alertFailedDesc": "فشل في إنشاء التنبيه. يرجى المحاولة مرة أخرى.",
+      "alertError": "خطأ",
+      "alertErrorDesc": "حدث خطأ غير متوقع.",
       "loginToCreateAlert": "تسجيل الدخول مطلوب",
       "loginToCreateAlertDesc": "يرجى تسجيل الدخول لإنشاء تنبيه",
       "selectBrandForAlert": "الماركة مطلوبة",
@@ -749,6 +753,10 @@
       "carInfo": "معلومات السيارة",
       "carImages": "صور السيارة",
       "adsDetails": "تفاصيل الاعلان"
+    },
+    "typeSelection": {
+      "title": "اختر الفئة",
+      "description": "ما هو نوع الإعلان الذي تود نشره؟"
     },
     "enteredData": {
       "currency": {
@@ -1018,6 +1026,7 @@
           "tenFiles": "يمكنك إدخال حتى 10 ملفات"
         }
       },
+      "pickDate": "اختيار التاريخ",
       "stepFour": {
         "title": "تفاصيل الإعلان",
         "price": "السعر",

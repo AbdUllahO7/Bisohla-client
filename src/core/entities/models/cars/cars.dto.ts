@@ -97,7 +97,7 @@ export interface CarDetails {
   engineSize: number | null;
   enginePower: number | null;
   bodyType?: BodyType | null;
-  doors: number | null;
+  doors: string | null;
   colorExterior: string | null;
   vin: string | null;
   plateNumber: string | null;
@@ -116,7 +116,7 @@ export interface CreateCarDetailsDto {
   engineSize?: number | null;
   enginePower?: number | null;
   bodyType?: string | null;
-  doors?: number | null;
+  doors?: string | null;
   colorExterior?: string | null;
   vin?: string | null;
   plateNumber?: string | null;
@@ -128,6 +128,7 @@ export type UpdateCarDetailsDto = Partial<CreateCarDetailsDto>;
 
 export interface SelectCarListingDto {
   id: number;
+  slug: string;
   title: string;
   description: string;
   story?: string | null;
@@ -158,6 +159,7 @@ export interface SelectCarListingDto {
   updatedAt: string | Date;
   deletedAt?: string | Date | null;
   publishedAt?: string | Date | null;
+  primaryImage?: string | null;
 
   // Related entities
   details: CarDetails;

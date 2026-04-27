@@ -5,7 +5,7 @@ import Text from "@/components/text/text"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { Skeleton } from "@/components/ui/skeleton"
-import { useTranslations } from "next-intl"
+import { useLocale, useTranslations } from "next-intl"
 import type React from "react"
 import { useMemo } from "react"
 
@@ -33,6 +33,7 @@ interface AccordionProductSafetyProps {
 
 const AccordionProductSafety: React.FC<AccordionProductSafetyProps> = ({ features = [], isLoading = false }) => {
   const t = useTranslations("product")
+  const locale = useLocale()
 
   // Group features by category
   const categorizedFeatures = useMemo(() => {
@@ -145,7 +146,9 @@ const AccordionProductSafety: React.FC<AccordionProductSafetyProps> = ({ feature
                       htmlFor={`feature-${featureItem.carListingId}-${featureItem.feature.id}`}
                       className="relative z-10 text-sm max-w-[500px] font-medium text-[#2C3C39] truncate group-hover/feature:text-[#198341] group-hover/feature:font-semibold transition-all duration-300 cursor-pointer"
                     >
-                      {featureItem.feature.name}
+                      {typeof featureItem.feature.name === 'object' 
+                        ? (featureItem.feature.name[locale] || Object.values(featureItem.feature.name)[0] || '')
+                        : featureItem.feature.name}
                     </Label>
                     
                     {/* Top accent line that expands on hover */}

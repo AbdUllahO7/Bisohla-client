@@ -552,6 +552,10 @@
       "alertCreatedDesc": "Alert created successfully!",
       "alertCreateError": "Error",
       "alertCreateErrorDesc": "Failed to create alert",
+      "alertFailed": "Failed",
+      "alertFailedDesc": "Failed to create alert. Please try again.",
+      "alertError": "Error",
+      "alertErrorDesc": "An unexpected error occurred.",
       "loginToCreateAlert": "Login Required",
       "loginToCreateAlertDesc": "Please login to create an alert",
       "selectBrandForAlert": "Brand Required",
@@ -818,6 +822,10 @@
       "carInfo": "Car Information",
       "carImages": "Car Images",
       "adsDetails": "Ad Details"
+    },
+    "typeSelection": {
+      "title": "Select Category",
+      "description": "What kind of ad would you like to post?"
     },
     "enteredData": {
       "stepOne": {
@@ -1094,6 +1102,7 @@
         "usd": "US Dollar",
         "eur": "Euro"
       },
+      "pickDate": "Pick a date",
       "stepFour": {
         "title": "Ad Details",
         "adTitle": "Ad Title",

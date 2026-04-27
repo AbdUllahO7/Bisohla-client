@@ -4,7 +4,7 @@ import Box from '@/components/box/box';
 import { useLocale, useTranslations } from 'next-intl';
 import React, { useMemo } from 'react';
 import CategoryCarousel from '../design/CategoryCarousel';
-import { getBodyTypeOptions } from '@/core/entities/enums/cars.enums';
+import { getBodyTypeOptions, SelectOption } from '@/core/entities/enums/cars.enums';
 import { useGetBodyTypeCategoryCounts } from '@/core/infrastructure-adapters/use-actions/visitors/car.visitor.use-actions';
 import { useFilters } from '@/providers/filters.provider';
 
@@ -14,14 +14,33 @@ const Categories = () => {
   const direction = locale === 'ar' ? 'rtl' : 'ltr';
 
   // Use filter context to apply category filters
-  const { updateFilter } = useFilters();
+  const { updateFilter, filterSchema, filters } = useFilters();
+
+  // Only show for Cars (listingTypeId 1)
+  if (filters.listingTypeId !== 1) {
+    return null;
+  }
 
   // Fetch body type category counts from backend
   const { data: bodyTypeCategoryCounts, isLoading } =
     useGetBodyTypeCategoryCounts();
 
-  // Get body type options with translations
-  const bodyTypeOptions = getBodyTypeOptions(t);
+  // Get body type options with translations from schema or fallback to enums
+  const bodyTypeOptions = useMemo(() => {
+    if (filterSchema) {
+      const attribute = filterSchema.sections
+        .flatMap(s => s.attributes)
+        .find(a => a.slug === 'body_type');
+        
+      if (attribute && attribute.options) {
+        return attribute.options.map((opt: any) => ({
+          value: opt.id,
+          label: opt.label[locale] || opt.label['en'] || opt.id
+        }));
+      }
+    }
+    return getBodyTypeOptions(t);
+  }, [filterSchema, t, locale]);
 
   // Process the backend data to match the frontend format
   const categoriesWithCounts = useMemo(() => {
@@ -36,7 +55,7 @@ const Categories = () => {
     });
 
     // Map body type options with their counts
-    return bodyTypeOptions.map((option) => {
+    return bodyTypeOptions.map((option: SelectOption) => {
       const count = countsMap.get(option.value) || 0;
 
       return {
