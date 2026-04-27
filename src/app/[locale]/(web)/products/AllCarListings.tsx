@@ -46,7 +46,12 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
   const [isMobile, setIsMobile] = useState(false);
   const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
   const session = useSession();
-  const { filters } = useFilters();
+  const { filters, listingTypes } = useFilters();
+  const currentListingType = useMemo(() => 
+    listingTypes.find(t => t.id === filters.listingTypeId),
+  [listingTypes, filters.listingTypeId]);
+  const categoryName = currentListingType?.name || 'Products';
+  const categoryIcon = currentListingType?.iconUrl || '🛍️';
   const { toast } = useToast();
   const { adsData, isLoadingAds } = useAdSlot('all-car-listining-space');
 
@@ -251,7 +256,7 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
         <Box className="w-full flex justify-between items-center mb-4">
           {showTitle ? (
             <Text variant="h3" className="font-bold text-[20px] font-cairo">
-              {t('allCars.title', { defaultValue: 'All Cars' })}
+              {t('allCars.title', { defaultValue: `All ${categoryName}` })}
             </Text>
           ) : <div />}
 
@@ -283,7 +288,15 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
             <div className="flex flex-col items-center space-y-6 max-w-md mx-auto">
               {/* Empty state illustration */}
               <div className="relative">
-                <div className="text-7xl opacity-30">🚗</div>
+                <div className="text-7xl opacity-30">
+                  {categoryName.toLowerCase().includes('car') ? (
+                    '🚗'
+                  ) : categoryIcon.startsWith('http') ? (
+                    <img src={categoryIcon} alt={categoryName} className="w-20 h-20 object-contain mx-auto opacity-50" />
+                  ) : (
+                    categoryIcon
+                  )}
+                </div>
                 <div className="absolute -top-1 -right-1 w-8 h-8 bg-primary-light rounded-full flex items-center justify-center shadow-lg animate-bounce">
                   <Bell className="h-4 w-4 text-white" />
                 </div>
@@ -302,13 +315,13 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
                 <div className="bg-gradient-to-br from-[#198341]/5 to-[#ABDE3B]/10 border border-[#198341]/20 rounded-2xl p-6 w-full space-y-3">
                   <p className="text-sm font-semibold text-[#198341]">
                     {isArabic
-                      ? '🔔 هل تريد أن تُعلَم عندما تتوفر سيارة مطابقة؟'
-                      : '🔔 Want to be notified when a matching car is listed?'}
+                      ? `🔔 هل تريد أن تُعلَم عندما تتوفر ${categoryName} مطابقة؟`
+                      : `🔔 Want to be notified when a matching ${categoryName.toLowerCase()} is listed?`}
                   </p>
                   <p className="text-xs text-gray-500">
                     {isArabic
-                      ? 'سنُرسل لك تنبيهاً فور توفّر سيارة تناسب بحثك'
-                      : "We'll notify you as soon as a car matching your search is available"}
+                      ? `سنُرسل لك تنبيهاً فور توفّر ${categoryName} تناسب بحثك`
+                      : `We'll notify you as soon as a ${categoryName.toLowerCase()} matching your search is available`}
                   </p>
                   <Button
                     onClick={() => setIsAlertModalOpen(true)}

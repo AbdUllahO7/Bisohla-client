@@ -9,7 +9,7 @@ import CarouselComponent from "../design/CarouselComponent"
 import { useProductStepOne } from "@/components/web/ProductsPage/addProducts/StepOne/hooks"
 import { useGetCityCounts } from "@/core/infrastructure-adapters/use-actions/visitors/car.visitor.use-actions"
 import SectionHeader from "@/components/SectionHeader"
-import { ClipboardTypeIcon, SearchCodeIcon, SearchSlashIcon } from "lucide-react"
+import {  SearchCodeIcon } from "lucide-react"
 
 interface CityData {
   governorate: string
