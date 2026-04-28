@@ -57,23 +57,23 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
   const fieldInfo = {
     en: {
       mileage: {
-        tooltip: "Total distance the car has traveled. This is a key factor in determining the car's value and condition.",
+        tooltip: "Total distance traveled. This is a key factor in determining value and condition.",
         placeholder: "e.g., 50000 KM",
       },
       enginePower: {
-        tooltip: "Engine power measured in horsepower (HP) or kilowatts (kW). You can find this in your car's manual or registration documents.",
+        tooltip: "Engine power measured in horsepower (HP) or kilowatts (kW). You can find this in your manual or registration documents.",
         placeholder: "e.g., 150 HP",
       },
       plateNumber: {
-        tooltip: "Your vehicle's license plate number as it appears on your registration documents.",
+        tooltip: "The license plate number as it appears on registration documents.",
         placeholder: "e.g., ABC 1234",
       },
       vin: {
-        tooltip: "Vehicle Identification Number - a unique 17-character code that identifies your specific vehicle. Found on the dashboard near the windshield or on the driver's door frame.",
+        tooltip: "Identification Number - a unique code that identifies the item.",
         placeholder: "e.g., 1HGBH41JXMN109186",
       },
       colorExterior: {
-        tooltip: "The primary exterior color of your vehicle. Choose the closest match if your exact color isn't listed.",
+        tooltip: "The primary exterior color. Choose the closest match if your exact color isn't listed.",
         placeholder: "Select exterior color",
       },
       engineSize: {
@@ -81,7 +81,7 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
         placeholder: "e.g., 2.0 L",
       },
       fuelType: {
-        tooltip: "The type of fuel your vehicle uses. Check your fuel cap or owner's manual if unsure.",
+        tooltip: "The type of fuel used.",
         placeholder: "Select fuel type",
       },
       transmission: {
@@ -89,33 +89,33 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
         placeholder: "Select transmission",
       },
       bodyType: {
-        tooltip: "The general shape and design category of your vehicle (e.g., sedan, SUV, coupe).",
+        tooltip: "The general shape and design category.",
         placeholder: "Select body type",
       },
       condition: {
-        tooltip: "The current status of your vehicle. Choose the option that best describes its maintenance and usage history.",
-        placeholder: "Select vehicle condition",
+        tooltip: "The current status. Choose the option that best describes its maintenance and usage history.",
+        placeholder: "Select condition",
       },
     },
     ar: {
       mileage: {
-        tooltip: "المسافة الإجمالية التي قطعتها السيارة. هذا عامل رئيسي في تحديد قيمة السيارة وحالتها.",
+        tooltip: "المسافة الإجمالية المقطوعة. هذا عامل رئيسي في تحديد القيمة والحالة.",
         placeholder: "مثال: 50000 KM",
       },
       enginePower: {
-        tooltip: "قوة المحرك مقاسة بالحصان (HP) أو الكيلوواط (kW). يمكنك العثور على هذا في دليل سيارتك أو مستندات التسجيل.",
+        tooltip: "قوة المحرك مقاسة بالحصان (HP) أو الكيلوواط (kW). يمكنك العثور على هذا في الدليل أو مستندات التسجيل.",
         placeholder: "مثال: 150 حصان",
       },
       plateNumber: {
-        tooltip: "رقم لوحة السيارة كما يظهر في مستندات التسجيل الخاصة بك.",
+        tooltip: "رقم اللوحة كما يظهر في مستندات التسجيل الخاصة بك.",
         placeholder: "مثال: أ ب ج 1234",
       },
       vin: {
-        tooltip: "رقم تعريف المركبة - رمز فريد مكون من 17 حرفاً يحدد سيارتك. يوجد على لوحة القيادة بالقرب من الزجاج الأمامي أو على إطار باب السائق.",
+        tooltip: "رقم التعريف - رمز فريد يحدد المنتج.",
         placeholder: "مثال: 1HGBH41JXMN109186",
       },
       colorExterior: {
-        tooltip: "اللون الخارجي الأساسي لسيارتك. اختر أقرب تطابق إذا لم يكن لونك الدقيق مدرجاً.",
+        tooltip: "اللون الخارجي الأساسي. اختر أقرب تطابق إذا لم يكن لونك الدقيق مدرجاً.",
         placeholder: "اختر اللون الخارجي",
       },
       engineSize: {
@@ -123,7 +123,7 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
         placeholder: "مثال: 2.0 لتر",
       },
       fuelType: {
-        tooltip: "نوع الوقود الذي تستخدمه سيارتك. تحقق من غطاء الوقود أو دليل المالك إذا لم تكن متأكداً.",
+        tooltip: "نوع الوقود المستخدم.",
         placeholder: "اختر نوع الوقود",
       },
       transmission: {
@@ -131,12 +131,12 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
         placeholder: "اختر ناقل الحركة",
       },
       bodyType: {
-        tooltip: "الشكل العام وفئة التصميم لسيارتك (مثل سيدان، SUV، كوبيه).",
+        tooltip: "الشكل العام وفئة التصميم.",
         placeholder: "اختر نوع الهيكل",
       },
       condition: {
-        tooltip: "الحالة الحالية لسيارتك. اختر الخيار الذي يصف تاريخ الصيانة والاستخدام بشكل أفضل.",
-        placeholder: "اختر حالة السيارة",
+        tooltip: "الحالة الحالية. اختر الخيار الذي يصف تاريخ الصيانة والاستخدام بشكل أفضل.",
+        placeholder: "اختر الحالة",
       },
     },
   }

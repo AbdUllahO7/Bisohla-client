@@ -40,11 +40,11 @@ const Footer = ({ isUserProfile }: { isUserProfile?: boolean }) => {
           </Text>
           <Link href="/products/AddProducts" className="text-primary">
             {locale === 'ar'
-              ? 'إنشىء إعلان تأجير سيارة'
-              : 'Create a car rental ad'}
+              ? 'إنشىء إعلان تأجير'
+              : 'Create a rental ad'}
           </Link>
           <Link href="/products/AddProducts" className="text-primary">
-            {locale === 'ar' ? 'أنشىء إعلان بيع سيارة' : 'Create a car sale ad'}
+            {locale === 'ar' ? 'أنشىء إعلان بيع' : 'Create a sale ad'}
           </Link>
           <Link href="/auth/sign-in" className="text-primary">
             {locale === 'ar' ? 'أنشىء حساب' : 'Create Account'}

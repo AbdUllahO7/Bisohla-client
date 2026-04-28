@@ -336,7 +336,7 @@ export const useProductStepOne = (
         city: isArabic ? "المدينة" : "City",
         address: isArabic ? "العنوان التفصيلي" : "Detailed Address",
         addressPlaceholder: isArabic ? "أدخل العنوان التفصيلي هنا" : "Enter detailed address here",
-        story: isArabic ? "قصة السيارة" : "Story of car",
+        story: isArabic ? "وصف المنتج" : "Product description",
         placeholder: isArabic ? "اكتب رسالتك هنا" : "Write your message here",
         error: isArabic
             ? "حدث خطأ أثناء تحميل بعض البيانات. الرجاء المحاولة مرة أخرى لاحقًا."

@@ -46,7 +46,7 @@ const FloatingShareButton: React.FC<FloatingShareButtonProps> = ({
 
   // Generate a rich WhatsApp message
   const generateWhatsAppMessage = () => {
-    let message = `🚗 *${productTitle}*\n\n`;
+    let message = `📦 *${productTitle}*\n\n`;
     
     if (productMake || productModel || productYear) {
       message += `📋 *التفاصيل / Details:*\n`;
@@ -60,7 +60,7 @@ const FloatingShareButton: React.FC<FloatingShareButtonProps> = ({
       message += `💰 *السعر / Price:* ${productPrice}\n\n`;
     }
     
-    message += `🔗 *رابط السيارة / Car Link:*\n${shareUrl}\n\n`;
+    message += `🔗 *رابط الإعلان / Ad Link:*\n${shareUrl}\n\n`;
     message += `✨ شاهد المزيد من التفاصيل والصور!\n`;
     message += `✨ Check out more details and photos!`;
     
@@ -139,7 +139,7 @@ const FloatingShareButton: React.FC<FloatingShareButtonProps> = ({
       try {
         await navigator.share({
           title: productTitle,
-          text: `Check out this car: ${productTitle}`,
+          text: `Check out this: ${productTitle}`,
           url: shareUrl,
         });
 

@@ -111,11 +111,11 @@ const WorldOfProduct = () => {
             cityTitle = cityData.governorate
           }
 
-          // Format car count with proper pluralization
+          // Format ad count with proper pluralization
           const carCount =
             locale === "ar"
-              ? `${cityData.count} ${cityData.count <= 1 ? "سيارة" : "سيارات"}`
-              : `${cityData.count} ${cityData.count <= 1 ? "Car" : "Cars"}`
+              ? `${cityData.count} ${cityData.count <= 1 ? "إعلان" : "إعلانات"}`
+              : `${cityData.count} ${cityData.count <= 1 ? "Ad" : "Ads"}`
 
           return {
             title: cityTitle,

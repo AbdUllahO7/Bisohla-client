@@ -17,8 +17,8 @@ const Footer = () => {
                     {/*  create ad */}
                 <Box variant="column" className='items-start justify-start gap-8 md:w-[300px] sm:w-[400px] xs:w-[400px] lg:mt-0 lg:items-start xs:items-center xs:mt-5'>
                     <Text variant="h4" className='text-primary'>{locale === 'ar' ?  'أنشىء اعلان' : 'Create Ad'}</Text>
-                    <Link href="/products/AddProducts" className="text-primary">{locale === 'ar' ? 'إنشىء إعلان تأجير سيارة' :'Create a car rental ad'}</Link>
-                    <Link href="/products/AddProducts" className="text-primary">{locale === 'ar' ? 'أنشىء إعلان بيع سيارة' :'Create a car sale ad'}</Link>
+                    <Link href="/products/AddProducts" className="text-primary">{locale === 'ar' ? 'إنشىء إعلان تأجير' :'Create a rental ad'}</Link>
+                    <Link href="/products/AddProducts" className="text-primary">{locale === 'ar' ? 'أنشىء إعلان بيع' :'Create a sale ad'}</Link>
                     <Link href="/auth/sign-in" className="text-primary">{locale === 'ar' ? 'أنشىء حساب' :'Create Account'}</Link>
 
                 </Box>

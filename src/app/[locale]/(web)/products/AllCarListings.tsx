@@ -316,19 +316,19 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
                   <p className="text-sm font-semibold text-[#198341]">
                     {isArabic
                       ? `🔔 هل تريد أن تُعلَم عندما تتوفر ${categoryName} مطابقة؟`
-                      : `🔔 Want to be notified when a matching ${categoryName.toLowerCase()} is listed?`}
+                      : `🔔 Want to be notified when matching ${categoryName.toLowerCase()} items are listed?`}
                   </p>
                   <p className="text-xs text-gray-500">
                     {isArabic
-                      ? `سنُرسل لك تنبيهاً فور توفّر ${categoryName} تناسب بحثك`
-                      : `We'll notify you as soon as a ${categoryName.toLowerCase()} matching your search is available`}
+                      ? `سنُرسل لك تنبيهاً فور توفّر إعلانات تناسب بحثك`
+                      : `We'll notify you as soon as items matching your search are available`}
                   </p>
                   <Button
                     onClick={() => setIsAlertModalOpen(true)}
                     className="w-full h-12 text-base font-bold rounded-xl bg-gradient-to-r from-[#198341] to-[#ABDE3B] hover:opacity-90 text-white shadow-md hover:shadow-lg transition-all"
                   >
                     <Bell className="h-5 w-5 mr-2" />
-                    {isArabic ? 'خبرني عند توفّر السيارة' : 'Notify Me'}
+                    {isArabic ? 'أخبرني عند التوفر' : 'Notify Me'}
                   </Button>
                 </div>
               )}

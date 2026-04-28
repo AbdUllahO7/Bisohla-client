@@ -82,7 +82,7 @@ const DEFAULT_FALLBACKS = {
       'car marketplace',
       'bishola',
     ],
-    ar: [
+    ar: [ 
       'تأجير السيارات',
       'بيع السيارات',
       'استئجار سيارة',
