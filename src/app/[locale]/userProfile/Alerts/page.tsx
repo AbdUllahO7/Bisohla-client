@@ -10,7 +10,7 @@ import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.acti
 import { useRouter } from '@/i18n/routing';
 import { CarAlertItem } from '@/components/web/CarAlerts/CarAlertItem';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Bell, Plus } from 'lucide-react';
+import { Bell, BellOff, Plus } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import { useDirection } from '@/hooks/use-direction';
 import CarAlertModal from '@/components/web/ProductsPage/CarAlertModal';
