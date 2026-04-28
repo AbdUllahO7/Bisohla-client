@@ -16,6 +16,7 @@ import MyProductsFilter from '@/components/dashboard/Products/MyProductsFilter';
 import { EnhancedProductCardItem } from '@/components/web/design/ProductCardItemEnhanced';
 import { SaveStatus } from '../../../../core/entities/enums/cars.enums';
 import { normalizeListingToCarDto } from '@/utils/listing-normalization';
+import { getInjection } from '@/di/container';
 
 // View mode type
 type ViewMode = 'grid' | 'list';
@@ -32,7 +33,25 @@ const UserProductPage = () => {
   >({});
   const [currentPage, setCurrentPage] = useState(1);
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
+  const [listingTypeId, setListingTypeId] = useState<number | undefined>(undefined);
+  const [listingTypes, setListingTypes] = useState<any[]>([]);
   const pageSize = 12; // Increased for better pagination
+
+  // Fetch listing types for selection
+  useEffect(() => {
+    const fetchTypes = async () => {
+      try {
+        const controller = getInjection('IListingTypesRepoController');
+        const response = await controller.getListingTypes(1, 100);
+        if (response.success && response.data) {
+          setListingTypes(response.data.data.filter((t: any) => t.isActive));
+        }
+      } catch (error) {
+        console.error("Failed to fetch listing types", error);
+      }
+    };
+    fetchTypes();
+  }, []);
 
   const [filterParams, setFilterParams] = useState<QueryParams>({
     page: 1,
@@ -41,26 +60,48 @@ const UserProductPage = () => {
     sortDirection: 'desc',
   });
 
+  // Prepare combined query params including listingTypeId
+  const combinedQueryParams = useMemo(() => {
+    const params: QueryParams = { ...filterParams };
+    
+    if (listingTypeId) {
+      // Ensure filterGroups exists
+      if (!params.filterGroups) params.filterGroups = [];
+      
+      // Add listingTypeId to its own filter group (matches AlertsPage logic)
+      params.filterGroups.push({
+        operator: 'and',
+        filters: [{ field: 'listingTypeId', operator: 'eq', value: listingTypeId }]
+      });
+
+      // Keep listingTypeId as a top-level param too, as it's common for many endpoints
+      (params as any).listingTypeId = listingTypeId;
+    }
+    
+    return params;
+  }, [filterParams, listingTypeId]);
+
   // Fetch user's listings using the generic hook
-  const { data, isLoading, error, refetch } = useMyListings({
-    page: filterParams.page || 1,
-    pageSize: filterParams.pageSize || pageSize,
-    sortBy: filterParams.sortBy || 'createdAt',
-    sortDirection: filterParams.sortDirection || 'desc',
-    filterGroups: filterParams.filterGroups,
-    searchKey: filterParams.searchKey,
-    searchTerm: filterParams.searchTerm,
-  });
+  const { data, isLoading, error, refetch } = useMyListings(combinedQueryParams);
+
   console.log("data",data)
-  useEffect(() => {
-    refetch();
-  }, []); 
   // Handle filter changes from the simple filter component
   const handleFilterChange = useCallback((params: QueryParams) => {
     setFilterParams({
       ...params,
-      page: 1, // Reset to first page when filters change
+      page: 1, 
       pageSize: pageSize,
+    });
+    setCurrentPage(1);
+  }, []);
+
+  const handleListingTypeChange = useCallback((id: number | undefined) => {
+    setListingTypeId(id);
+    setFilterParams({
+      page: 1,
+      pageSize: pageSize,
+      sortBy: 'createdAt',
+      sortDirection: 'desc',
     });
     setCurrentPage(1);
   }, []);
@@ -112,20 +153,20 @@ const UserProductPage = () => {
     }));
   }, [currentPage]);
 
-  // Prepare car listings for display
-  const carListings = useMemo(() => {
-    let listings: any[] = [];
+  // Prepare listings for display
+  const listings = useMemo(() => {
+    let rawListings: any[] = [];
 
     // Handle nested data structure if needed
     if (Array.isArray(data?.data)) {
-      listings = data.data;
+      rawListings = data.data;
     } else if (Array.isArray(data?.data?.data)) {
-      listings = data.data.data;
+      rawListings = data.data.data;
     }
 
     // Initialize favorite statuses from backend data if not already set
     const newFavoriteStatuses: Record<number, boolean> = {};
-    listings.forEach((item) => {
+    rawListings.forEach((item) => {
       if (item.id && favoriteStatuses[item.id] === undefined) {
         newFavoriteStatuses[item.id] = !!item.isFavorite;
       }
@@ -137,7 +178,7 @@ const UserProductPage = () => {
     }
 
     // Normalize each listing to ensure consistent DTO structure (fixes image display and other inconsistencies)
-    return listings.map(item => normalizeListingToCarDto(item, locale));
+    return rawListings.map(item => normalizeListingToCarDto(item, locale));
   }, [data, favoriteStatuses, locale]);
 
   // Extract pagination metadata from response
@@ -155,15 +196,18 @@ const UserProductPage = () => {
       totalPages: meta.totalPages || 1,
       hasNextPage: meta.hasNextPage || false,
       hasPreviousPage: meta.hasPreviousPage || false,
-      totalItems: meta.totalItems || carListings.length,
+      totalItems: meta.totalItems || listings.length,
     };
-  }, [data, currentPage, carListings.length]);
+  }, [data, currentPage, listings.length]);
 
   return (
     <div className="space-y-6" dir={direction}>
       {/* Simple Filter Component */}
       <MyProductsFilter
         onChange={handleFilterChange}
+        onListingTypeChange={handleListingTypeChange}
+        listingTypeId={listingTypeId}
+        listingTypes={listingTypes}
         onViewModeChange={handleViewModeChange}
         viewMode={viewMode}
         totalItems={paginationMeta.totalItems}
@@ -207,22 +251,22 @@ const UserProductPage = () => {
       )}
 
       {/* Empty state */}
-      {!isLoading && !error && carListings.length === 0 && (
+      {!isLoading && !error && listings.length === 0 && (
         <Card>
           <CardContent className="p-12 text-center">
-            <Car className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+            <Plus className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-xl font-semibold mb-2">
               {direction === 'ltr' ? 'No Listings Yet' : 'لا توجد إعلانات بعد'}
             </h3>
             <p className="text-muted-foreground mb-6 max-w-md mx-auto">
               {direction === 'ltr'
-                ? "You haven't created any listings yet. Add your first product to get started!"
+                ? "You haven't created any listings yet. Add your first item to get started!"
                 : 'لم تقم بإنشاء أي إعلانات بعد. أضف إعلانك الأول للبدء!'}
             </p>
             <Link href="/products/AddProducts">
               <button className="bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2 mx-auto">
                 <Plus className="h-4 w-4" />
-                {direction === 'ltr' ? 'Add New Product' : 'إضافة إعلان جديد'}
+                {direction === 'ltr' ? 'Add New Listing' : 'إضافة إعلان جديد'}
               </button>
             </Link>
           </CardContent>
@@ -230,7 +274,7 @@ const UserProductPage = () => {
       )}
 
       {/* Display products */}
-      {!isLoading && !error && carListings.length > 0 && (
+      {!isLoading && !error && listings.length > 0 && (
         <div
           className={
             viewMode === 'grid'
@@ -238,19 +282,19 @@ const UserProductPage = () => {
               : 'space-y-4'
           }
         >
-          {carListings.map((car) => {
+          {listings.map((item) => {
             // Get favorite status from local state or fallback to backend data
             const isFavorite =
-              favoriteStatuses[car.id] !== undefined
-                ? favoriteStatuses[car.id]
-                : !!car.isFavorite;
+              favoriteStatuses[item.id] !== undefined
+                ? favoriteStatuses[item.id]
+                : !!item.isFavorite;
 
             if (viewMode === 'list') {
               // Use the new ProductCardListView for list mode
               return (
                 <ProductCardListView
-                  key={car.id}
-                  carListing={car}
+                  key={item.id}
+                  carListing={item}
                   isMarkedFavorite={isFavorite}
                   onFavoriteToggle={handleFavoriteToggle}
                   showFavorites={false} // Don't show favorites in user's own listings
@@ -265,21 +309,21 @@ const UserProductPage = () => {
             // Grid view - use existing ProductCardItem
             return (
               <EnhancedProductCardItem
-                key={car.id}
-                title={car.title}
-                marka={car.make?.name || ''}
-                price={car.price || 0}
-                type={car.listingType}
-                carStatus={car.status}
-                saveStatus={car.saveStatus as SaveStatus}
+                key={item.id}
+                title={item.title}
+                marka={item.make?.name || ''}
+                price={item.price || 0}
+                type={item.listingType}
+                carStatus={item.status}
+                saveStatus={item.saveStatus as SaveStatus}
                 imageSrc={
-                  car.primaryImage ||
-                  car.images?.find((img: { isPrimary: any }) => img.isPrimary)
+                  item.primaryImage ||
+                  item.images?.find((img: { isPrimary: any }) => img.isPrimary)
                     ?.url ||
-                  car.images?.[0]?.url ||
-                  '/placeholder-car.jpg'
+                  item.images?.[0]?.url ||
+                  '/placeholder-listing.jpg'
                 }
-                ProductId={car.id}
+                ProductId={item.id}
                 priceWord={t('latestOffers.price')}
                 isFavorites={false}
                 isMarkedFavorite={isFavorite}
@@ -298,7 +342,7 @@ const UserProductPage = () => {
       {/* Pagination component */}
       {!isLoading &&
         !error &&
-        carListings.length > 0 &&
+        listings.length > 0 &&
         paginationMeta.totalPages > 1 && (
           <Pagination
             currentPage={paginationMeta.currentPage}

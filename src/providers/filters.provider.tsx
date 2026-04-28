@@ -35,6 +35,7 @@ export interface FilterState {
   listingType: string; // ADDED: Listing type filter (Sale/Rent)
   listingTypeId: number; // ADDED: Category ID (e.g. 1 for Cars)
   selectedBrands: string[]; // This is the main source of truth for brands
+  attributes: Record<string, any>; // Dynamic attributes from schema
 }
 
 // Search state interface
@@ -62,6 +63,7 @@ const initialFilterState: FilterState = {
   listingType: '', // ADDED: Initialize listing type
   listingTypeId: 0,
   selectedBrands: [],
+  attributes: {},
 };
 
 const initialSearchState: SearchState = {
@@ -77,6 +79,7 @@ interface FilterContextValue {
   immediateQueryParams: QueryParams; // Immediate query params for UI
   isLoading: boolean;
   filterSchema: ListingTypeFilterSchemaDto | null;
+  listingTypes: any[];
 
   // Filter actions
   updateFilter: (key: keyof FilterState, value: string | string[] | number) => void;
@@ -86,6 +89,7 @@ interface FilterContextValue {
   selectModel: (modelId: string) => void;
   selectTrim: (trimId: string) => void;
   updateSearchText: (text: string) => void;
+  updateAttribute: (slug: string, value: any) => void;
 
   // URL sync
   syncFromUrl: () => void;
@@ -124,6 +128,7 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
     useState<SearchState>(initialSearchState);
   const [isLoading, setIsLoading] = useState(false);
   const [filterSchema, setFilterSchema] = useState<ListingTypeFilterSchemaDto | null>(null);
+  const [listingTypes, setListingTypes] = useState<any[]>([]);
 
   // Refs for optimization and tracking
   const isInitialized = useRef(false);
@@ -331,7 +336,7 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
         });
       }
 
-      return {
+      const query: QueryParams = {
         page: 1,
         pageSize: 12,
         sortBy: 'createdAt',
@@ -339,6 +344,38 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
         filterGroups: filterGroups.length > 0 ? filterGroups : undefined,
         searchTerm,
       };
+
+      // Add dynamic attributes to filter groups
+      if (currentFilters.attributes && Object.keys(currentFilters.attributes).length > 0) {
+        const attributeFilters: Filter[] = [];
+        Object.entries(currentFilters.attributes).forEach(([slug, value]) => {
+          if (value !== undefined && value !== '' && (Array.isArray(value) ? value.length > 0 : true)) {
+            // Check if it's a range (min/max) or single value
+            if (typeof value === 'object' && !Array.isArray(value)) {
+              if (value.min) {
+                attributeFilters.push({ field: slug, operator: 'gte', value: value.min });
+              }
+              if (value.max) {
+                attributeFilters.push({ field: slug, operator: 'lte', value: value.max });
+              }
+            } else if (Array.isArray(value)) {
+              attributeFilters.push({ field: slug, operator: 'in', value });
+            } else {
+              attributeFilters.push({ field: slug, operator: 'eq', value });
+            }
+          }
+        });
+
+        if (attributeFilters.length > 0) {
+          if (!query.filterGroups) query.filterGroups = [];
+          query.filterGroups.push({
+            operator: 'and',
+            filters: attributeFilters,
+          });
+        }
+      }
+
+      return query;
     },
     [],
   );
@@ -387,6 +424,7 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
           newFilters.maxYear = '';
           newFilters.minMileage = '';
           newFilters.maxMileage = '';
+          newFilters.attributes = {};
         }
 
         // Handle cascading updates
@@ -425,6 +463,17 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
     },
     [],
   );
+
+  const updateAttribute = useCallback((slug: string, value: any) => {
+    userInitiatedChange.current = true;
+    setFilters(prev => ({
+      ...prev,
+      attributes: {
+        ...prev.attributes,
+        [slug]: value
+      }
+    }));
+  }, []);
 
   const updateFilters = useCallback((updates: Partial<FilterState>) => {
     userInitiatedChange.current = true;
@@ -736,6 +785,22 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
     }
   }, [filters.listingTypeId]);
 
+  // Fetch all listing types (categories)
+  useEffect(() => {
+    const fetchListingTypes = async () => {
+      try {
+        const controller = getInjection('IListingTypesRepoController');
+        const response = await controller.getListingTypes(1, 100);
+        if (response.success && response.data) {
+          setListingTypes(response.data.data.filter((t: any) => t.isActive));
+        }
+      } catch (error) {
+        console.error('Failed to fetch listing types in FilterProvider:', error);
+      }
+    };
+    fetchListingTypes();
+  }, []);
+
   // Call API callback only when heavily debounced params change
   useEffect(() => {
     if (isInitialized.current && onFiltersChange) {
@@ -761,7 +826,9 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
       immediateQueryParams, // Immediate for UI
       isLoading,
       filterSchema,
+      listingTypes,
       updateFilter,
+      updateAttribute,
       updateFilters,
       resetFilters,
       toggleBrand,
@@ -777,7 +844,9 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
       immediateQueryParams,
       isLoading,
       filterSchema,
+      listingTypes,
       updateFilter,
+      updateAttribute,
       updateFilters,
       resetFilters,
       toggleBrand,

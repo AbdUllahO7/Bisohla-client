@@ -85,8 +85,8 @@ const SimilarCarAlertBanner: React.FC<SimilarCarAlertBannerProps> = ({
                 toast({
                     title: isArabic ? '✅ تم تفعيل التنبيه' : '✅ Alert Activated',
                     description: isArabic
-                        ? 'سيصلك تنبيه عند توفّر سيارات مشابهة'
-                        : 'You will be notified when similar cars are listed',
+                        ? 'سيصلك تنبيه عند توفّر منتجات مشابهة'
+                        : 'You will be notified when similar products are listed',
                 });
             } else {
                 toast({
@@ -129,13 +129,13 @@ const SimilarCarAlertBanner: React.FC<SimilarCarAlertBannerProps> = ({
                         <div className="flex-1 min-w-0">
                             <p className="font-bold text-[#2C3C39] text-base">
                                 {isArabic
-                                    ? 'هل تريد تنبيهات بسيارات مشابهة؟'
-                                    : 'Get alerts for similar cars?'}
+                                    ? 'هل تريد تنبيهات بمنتجات مشابهة؟'
+                                    : 'Get alerts for similar products?'}
                             </p>
                             <p className="text-sm text-gray-500 mt-0.5 leading-relaxed">
                                 {isArabic
-                                    ? 'إذا أردت أن يصلك تنبيه بالسيارات المشابهة لهذه السيارة، قم بتفعيل التنبيه.'
-                                    : 'Activate to get notified when similar cars matching this listing are available.'}
+                                    ? 'إذا أردت أن يصلك تنبيه بالمنتجات المشابهة، قم بتفعيل التنبيه.'
+                                    : 'Activate to get notified when similar products matching this listing are available.'}
                             </p>
 
                             {/* Action buttons */}

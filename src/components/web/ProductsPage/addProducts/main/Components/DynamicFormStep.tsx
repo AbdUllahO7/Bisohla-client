@@ -1,6 +1,6 @@
 'use client'
 import React from 'react';
-import { SectionDto } from '@/core/entities/models/listing-types/listing-types.dto';
+import { ListingTypeFormSchemaDto, SectionDto } from '@/core/entities/models/listing-types/listing-types.dto';
 import Text from '@/components/text/text';
 import { useDynamicForm } from '../hooks/useDynamicForm';
 import { Input } from '@/components/ui/input';
@@ -34,6 +34,7 @@ import {
   SyriaCity_ARABIC_NAMES, 
   SyriaGovernorate_TO_CITIES 
 } from '@/core/entities/enums/syria.enums';
+import { getInjection } from '@/di/container';
 // --- Sub-components for specialized rendering ---
 
 /**
@@ -91,7 +92,7 @@ const DamageMatrix: React.FC<{
         <thead className="bg-gray-100/80">
           <tr>
             <th className="py-4 px-4 text-sm font-bold text-gray-500 text-center w-1/4 border-b border-gray-200">
-              {isArabic ? "اسم قسم السيارة" : "Vehicle Section"}
+              {isArabic ? "اسم القسم" : "Section Name"}
             </th>
             {types.map((type: any) => (
               <th key={type.id} className="py-4 px-2 border-b border-gray-200">
@@ -147,6 +148,7 @@ const DamageMatrix: React.FC<{
 
 interface DynamicFormStepProps {
   section: SectionDto;
+  schema?: ListingTypeFormSchemaDto | null;
   onValidationChange: (isValid: boolean) => void;
   isEditMode?: boolean;
   initialData?: any;
@@ -154,6 +156,7 @@ interface DynamicFormStepProps {
 
 const DynamicFormStep: React.FC<DynamicFormStepProps> = ({ 
   section, 
+  schema,
   onValidationChange,
   initialData 
 }) => {
@@ -192,9 +195,14 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
     });
 
     const sectionName = getTranslation(section.name);
-    const isVehicleInfo = sectionName === 'معلومات المركبة' || sectionName.toLowerCase().includes('vehicle information') || sectionName.toLowerCase().includes('basic info');
+    
+    // Check if this is the first section in the schema
+    const controller = getInjection('IListingTypesRepoController');
+    const isFirstSection = section.order === 0 || (schema?.sections && schema.sections[0].id === section.id);
 
-    if (isVehicleInfo) {
+    // Inject location fields if they are missing. They are required for ALL listing types.
+    // We inject them into the first section to ensure they appear early.
+    if (isFirstSection) {
       const slugs = baseAttrs.map(a => a.slug?.toLowerCase());
       const hasGovernorate = slugs.includes('governorate') || slugs.includes('محافظة');
       const hasCity = slugs.includes('city') || slugs.includes('مدينة');
@@ -207,7 +215,7 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
           name: { ar: 'المحافظة', en: 'Governorate' },
           type: 'select',
           isRequired: true,
-          order: 990
+          order: -100 // Put at the very top
         } as any);
       }
       if (!hasCity) {
@@ -217,7 +225,7 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
           name: { ar: 'المدينة', en: 'City' },
           type: 'select',
           isRequired: true,
-          order: 991
+          order: -99
         } as any);
       }
       if (!hasAddress) {
@@ -227,12 +235,12 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
           name: { ar: 'العنوان التفصيلي', en: 'Detailed Address' },
           type: 'textarea',
           isRequired: true,
-          order: 992
+          order: -98
         } as any);
       }
     }
     return baseAttrs.sort((a, b) => a.order - b.order);
-  }, [section.attributes, locale]);
+  }, [section.attributes, locale, schema]);
 
   const { 
     formData, 
@@ -269,20 +277,20 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
                 // Get options based on type
                 let options: { value: string; label: string; logoUrl?: string | null }[] = [];
                 if (isGovernorate) {
-                  // SyriaGovernorate_ARABIC_NAMES uses enum values ('damascus', etc.) as keys
-                  // so we use `key` directly as the value — no lookup needed
-                  options = Object.entries(SyriaGovernorate_ARABIC_NAMES).map(([key, label]) => ({
-                    value: key,   // key IS the enum value string (e.g., 'damascus')
-                    label: label as string
+                  options = Object.values(SyriaGovernorate).map((gov) => ({
+                    value: gov,
+                    label: isArabic 
+                      ? SyriaGovernorate_ARABIC_NAMES[gov] 
+                      : gov.replace(/-/g, ' ')
                   }));
                 } else if (isCity) {
                   const selectedGov = formData['governorate'] as SyriaGovernorate;
-                  const cityList = selectedGov && SyriaGovernorate_TO_CITIES[selectedGov as SyriaGovernorate] 
-                    ? SyriaGovernorate_TO_CITIES[selectedGov as SyriaGovernorate] 
+                  const cityList = selectedGov && SyriaGovernorate_TO_CITIES[selectedGov] 
+                    ? SyriaGovernorate_TO_CITIES[selectedGov] 
                     : [];
                   options = cityList.map(city => ({
-                    value: city,  // city IS the enum value string
-                    label: SyriaCity_ARABIC_NAMES[city] || city
+                    value: city,
+                    label: isArabic ? SyriaCity_ARABIC_NAMES[city] : city.replace(/-/g, ' ')
                   }));
                 } else {
                   options = referenceOptions[attr.id]?.map(opt => ({

@@ -227,10 +227,10 @@ export const useAddProductStepTwo = (onValidationChange: (isValid: boolean) => v
   // Text labels with translations
   const labels = useMemo(
     () => ({
-      carInfo: locale === 'ar' ? "معلومات السيارة" : "Car Information",
-      carFeatures: locale === 'ar' ? "ميزات السيارة" : "Car Features",
+      carInfo: locale === 'ar' ? "معلومات المنتج" : "Product Information",
+      carFeatures: locale === 'ar' ? "ميزات المنتج" : "Product Features",
       colorExterior: locale === 'ar' ? "لون الخارجي" : "Exterior Color",
-      vehicleCondition: locale === 'ar' ? "حالة السيارة" : "Vehicle Condition",
+      vehicleCondition: locale === 'ar' ? "حالة المنتج" : "Product Condition",
       fuelType: locale === 'ar' ? "نوع الوقود" : "Fuel Type",
       bodyType: locale === 'ar' ? "نوع الهيكل" : "Body Type",
       transmission: locale === 'ar' ? "ناقل الحركة" : "Transmission",
@@ -243,7 +243,7 @@ export const useAddProductStepTwo = (onValidationChange: (isValid: boolean) => v
       selectFuelType: locale === 'ar' ? "اختر نوع الوقود" : "Select a Fuel Type",
       selectBodyType: locale === 'ar' ? "اختر نوع الهيكل" : "Select a Body Type",
       selectTransmission: locale === 'ar' ? "اختر ناقل الحركة" : "Select a Transmission",
-      selectVehicleCondition: locale === 'ar' ? "اختر حالة السيارة" : "Select a Vehicle Condition",
+      selectVehicleCondition: locale === 'ar' ? "اختر حالة المنتج" : "Select a Product Condition",
       enterMileage: locale === 'ar' ? "أدخل المسافة المقطوعة" : "Enter mileage",
       enterEnginePower: locale === 'ar' ? "أدخل قوة المحرك" : "Enter engine power",
       enterEngineSize: locale === 'ar' ? "أدخل حجم المحرك (1.0 - 4.0)" : "Enter engine size (1.0 - 4.0)",

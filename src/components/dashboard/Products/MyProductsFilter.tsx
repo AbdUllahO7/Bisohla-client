@@ -27,7 +27,7 @@ import {
   Car,
 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { QueryParams, FilterGroup } from '@/core/entities/api/api';
 import ServerSelect from '@/components/server-select';
 
@@ -48,9 +48,14 @@ import {
   getCarTrims,
 } from '@/core/infrastructure-adapters/actions/visitors/car.visitor.actions';
 import { useDebounce } from '@/hooks/use-debounce';
+import { getInjection } from '@/di/container';
+import { ListingTypeFilterSchemaDto } from '@/core/entities/models/listing-types/listing-types.dto';
 
 interface SimpleProductsFilterProps {
   onChange?: (params: QueryParams) => void;
+  onListingTypeChange?: (id: number | undefined) => void;
+  listingTypeId?: number;
+  listingTypes?: any[];
   onViewModeChange?: (mode: ViewMode) => void;
   viewMode?: ViewMode;
   totalItems?: number;
@@ -60,6 +65,9 @@ interface SimpleProductsFilterProps {
 
 const MyProductsFilter: React.FC<SimpleProductsFilterProps> = ({
   onChange,
+  onListingTypeChange,
+  listingTypeId,
+  listingTypes = [],
   onViewModeChange,
   viewMode = 'grid',
   totalItems = 0,
@@ -81,7 +89,9 @@ const MyProductsFilter: React.FC<SimpleProductsFilterProps> = ({
   const [modelId, setModelId] = useState<number | undefined>(undefined);
   const [trimId, setTrimId] = useState<number | undefined>(undefined);
 
-  // UI states
+  // Dynamic filter states
+  const [filterSchema, setFilterSchema] = useState<ListingTypeFilterSchemaDto | null>(null);
+  const [dynamicAttributes, setDynamicAttributes] = useState<Record<string, any>>({});
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
   // Debounced search query
@@ -90,17 +100,17 @@ const MyProductsFilter: React.FC<SimpleProductsFilterProps> = ({
   // Count active car filters
   const activeCarFilters = [makeId, modelId, trimId].filter(Boolean).length;
 
-  // Build filter query
+  // Build filter query matching FilterProvider.tsx pattern
   useEffect(() => {
     const filterGroups: FilterGroup[] = [];
-
-    // Listing type filter
+    
+    // 1. Listing Type (Offer Type) filter group
     if (listingType !== 'all') {
       filterGroups.push({
         operator: 'and',
         filters: [
           {
-            field: 'listingType',
+            field: 'listingOfferType',
             operator: 'eq',
             value: listingType,
           },
@@ -108,13 +118,44 @@ const MyProductsFilter: React.FC<SimpleProductsFilterProps> = ({
       });
     }
 
-    // Status filter
+    // 2. Car filters group
+    const carDetailsFilters: any[] = [];
+    if (makeId) {
+      carDetailsFilters.push({
+        field: 'makeId',
+        operator: 'eq',
+        value: makeId,
+      });
+    }
+    if (modelId) {
+      carDetailsFilters.push({
+        field: 'modelId',
+        operator: 'eq',
+        value: modelId,
+      });
+    }
+    if (trimId) {
+      carDetailsFilters.push({
+        field: 'trimId',
+        operator: 'eq',
+        value: trimId,
+      });
+    }
+
+    if (carDetailsFilters.length > 0) {
+      filterGroups.push({
+        operator: 'and',
+        filters: carDetailsFilters,
+      });
+    }
+
+    // 3. Status filter group (Custom for My Listings)
     if (status !== 'all') {
       filterGroups.push({
         operator: 'and',
         filters: [
           {
-            field: 'status',
+            field: 'publicationStatus', // Using publicationStatus from the example data
             operator: 'eq',
             value: status,
           },
@@ -122,35 +163,24 @@ const MyProductsFilter: React.FC<SimpleProductsFilterProps> = ({
       });
     }
 
-    // Car filters
-    const carFilters = [];
-    if (makeId) {
-      carFilters.push({
-        field: 'makeId',
-        operator: 'eq',
-        value: makeId,
+    // 4. Dynamic attribute filters
+    if (Object.keys(dynamicAttributes).length > 0) {
+      const attributeFilters: any[] = [];
+      Object.entries(dynamicAttributes).forEach(([slug, value]) => {
+        if (value !== undefined && value !== '' && (Array.isArray(value) ? value.length > 0 : true)) {
+          if (Array.isArray(value)) {
+            attributeFilters.push({ field: slug, operator: 'in', value });
+          } else {
+            attributeFilters.push({ field: slug, operator: 'eq', value });
+          }
+        }
       });
-    }
-    if (modelId) {
-      carFilters.push({
-        field: 'modelId',
-        operator: 'eq',
-        value: modelId,
-      });
-    }
-    if (trimId) {
-      carFilters.push({
-        field: 'trimId',
-        operator: 'eq',
-        value: trimId,
-      });
-    }
-
-    if (carFilters.length > 0) {
-      filterGroups.push({
-        operator: 'and',
-        filters: carFilters,
-      });
+      if (attributeFilters.length > 0) {
+        filterGroups.push({
+          operator: 'and',
+          filters: attributeFilters,
+        });
+      }
     }
 
     // Sort configuration
@@ -187,17 +217,12 @@ const MyProductsFilter: React.FC<SimpleProductsFilterProps> = ({
 
     const queryParams: QueryParams = {
       page: 1,
-      pageSize: 8,
+      pageSize: 12,
       sortBy: sortField,
       sortDirection,
       filterGroups: filterGroups.length > 0 ? filterGroups : undefined,
+      searchTerm: debouncedSearchQuery.trim() || undefined,
     };
-
-    // Add search parameters only if search query exists
-    if (debouncedSearchQuery.trim()) {
-      queryParams.searchKey = 'title';
-      queryParams.searchTerm = debouncedSearchQuery.trim();
-    }
 
     if (onChange) {
       onChange(queryParams);
@@ -210,8 +235,44 @@ const MyProductsFilter: React.FC<SimpleProductsFilterProps> = ({
     makeId,
     modelId,
     trimId,
+    dynamicAttributes,
+    listingTypeId,
     onChange,
   ]);
+
+  // Fetch filter schema when listingTypeId changes
+  useEffect(() => {
+    const fetchSchema = async () => {
+      if (!listingTypeId) {
+        setFilterSchema(null);
+        return;
+      }
+      try {
+        const controller = getInjection('IListingTypesRepoController');
+        const res = await controller.getFilterSchema(listingTypeId);
+        if (res.success && res.data) {
+          setFilterSchema(res.data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch filter schema:', error);
+      }
+    };
+    fetchSchema();
+    // Reset all filters when category changes
+    setDynamicAttributes({});
+    setMakeId(undefined);
+    setModelId(undefined);
+    setTrimId(undefined);
+    setListingType('all');
+    setStatus('all');
+  }, [listingTypeId]);
+
+  const updateAttribute = (slug: string, value: any) => {
+    setDynamicAttributes(prev => ({
+      ...prev,
+      [slug]: value
+    }));
+  };
 
   // Handle reset filters
   const handleReset = () => {
@@ -222,6 +283,7 @@ const MyProductsFilter: React.FC<SimpleProductsFilterProps> = ({
     setMakeId(undefined);
     setModelId(undefined);
     setTrimId(undefined);
+    setDynamicAttributes({});
   };
 
   // Handle view mode change
@@ -253,10 +315,10 @@ const MyProductsFilter: React.FC<SimpleProductsFilterProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-primary">
-            {isRTL ? 'سياراتي' : 'My Cars'}
+            {isRTL ? 'إعلاناتي' : 'My Listings'}
           </h2>
           <p className="text-sm text-muted-foreground">
-            {totalItems} {isRTL ? 'سيارة' : 'cars'}
+            {totalItems} {isRTL ? 'إعلان' : 'listings'}
           </p>
         </div>
 
@@ -299,7 +361,6 @@ const MyProductsFilter: React.FC<SimpleProductsFilterProps> = ({
       <Card>
         <CardContent className="p-4">
           <div className="flex flex-col lg:flex-row gap-4 items-center">
-            {/* Search */}
             <div className="relative flex-1 w-full">
               <Search
                 className={`absolute top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground ${
@@ -308,13 +369,36 @@ const MyProductsFilter: React.FC<SimpleProductsFilterProps> = ({
               />
               <Input
                 placeholder={
-                  isRTL ? 'البحث في سياراتي...' : 'Search my cars...'
+                  isRTL ? 'البحث في إعلاناتي...' : 'Search my listings...'
                 }
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className={`${isRTL ? 'pr-9' : 'pl-9'} h-10`}
               />
             </div>
+
+            {/* Category (Listing Type ID) Filter */}
+            <Select
+              value={listingTypeId ? String(listingTypeId) : "all"}
+              onValueChange={(value: string) => {
+                const id = value === "all" ? undefined : Number(value);
+                if (onListingTypeChange) onListingTypeChange(id);
+              }}
+            >
+              <SelectTrigger className="w-full lg:w-[180px]">
+                <SelectValue placeholder={isRTL ? 'الفئة' : 'Category'} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">
+                  {isRTL ? 'جميع الفئات' : 'All Categories'}
+                </SelectItem>
+                {listingTypes.map((type) => (
+                  <SelectItem key={type.id} value={String(type.id)}>
+                    {type.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
             {/* Listing Type Filter */}
             <Select
@@ -392,30 +476,32 @@ const MyProductsFilter: React.FC<SimpleProductsFilterProps> = ({
               </SelectContent>
             </Select>
 
-            {/* Advanced Filters Toggle */}
-            <Button
-              variant="outline"
-              onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-              className="w-full lg:w-auto px-4"
-            >
-              <Car className={`h-4 w-4 ${isRTL ? 'ml-2' : 'mr-2'}`} />
-              {isRTL ? 'مرشحات متقدمة' : 'Car Filters'}
-              {activeCarFilters > 0 && (
-                <Badge
-                  variant="secondary"
-                  className={`${isRTL ? 'mr-2' : 'ml-2'}`}
-                >
-                  {activeCarFilters}
-                </Badge>
-              )}
-              <ChevronDown
-                className={`h-4 w-4 ${
-                  isRTL ? 'mr-2' : 'ml-2'
-                } transition-transform ${
-                  showAdvancedFilters ? 'rotate-180' : ''
-                }`}
-              />
-            </Button>
+            {/* Advanced Filters Toggle - ONLY FOR CARS (ID 1) */}
+            {listingTypeId === 1 && (
+              <Button
+                variant="outline"
+                onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+                className="w-full lg:w-auto px-4"
+              >
+                <Filter className={`h-4 w-4 ${isRTL ? 'ml-2' : 'mr-2'}`} />
+                {isRTL ? 'تفاصيل الإعلان' : 'Listing Details'}
+                {activeCarFilters > 0 && (
+                  <Badge
+                    variant="secondary"
+                    className={`${isRTL ? 'mr-2' : 'ml-2'}`}
+                  >
+                    {activeCarFilters}
+                  </Badge>
+                )}
+                <ChevronDown
+                  className={`h-4 w-4 ${
+                    isRTL ? 'mr-2' : 'ml-2'
+                  } transition-transform ${
+                    showAdvancedFilters ? 'rotate-180' : ''
+                  }`}
+                />
+              </Button>
+            )}
 
             {/* Reset Button */}
             <Button
@@ -429,175 +515,243 @@ const MyProductsFilter: React.FC<SimpleProductsFilterProps> = ({
         </CardContent>
       </Card>
 
-      {/* Advanced Car Filters */}
-      <Collapsible
-        open={showAdvancedFilters}
-        onOpenChange={setShowAdvancedFilters}
-      >
-        <CollapsibleContent>
-          <Card>
-            <CardContent className="p-4 space-y-4">
-              <div className="flex items-center gap-2 mb-4">
-                <Car className="h-5 w-5 text-primary" />
-                <h3 className="text-lg font-semibold">
-                  {isRTL ? 'مرشحات السيارة' : 'Car Filters'}
-                </h3>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {/* Car Make */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">
-                    {isRTL ? 'ماركة السيارة' : 'Car Make'}
-                  </label>
-                  <ServerSelect<SelectCarMakeDto, 'id'>
-                    queryKey={['car-makes']}
-                    fetchFn={getCarMakes}
-                    labelField="name"
-                    valueField="id"
-                    placeholder={isRTL ? 'اختر الماركة...' : 'Select make...'}
-                    value={makeId}
-                    onChange={handleMakeChange}
-                    pageSize={20}
-                    searchPlaceholder={
-                      isRTL ? 'ابحث عن الماركات...' : 'Search makes...'
-                    }
-                    noOptionsMessage={
-                      isRTL ? 'لم يتم العثور على ماركات' : 'No makes found'
-                    }
-                  />
+      {/* Advanced Car Filters - ONLY FOR CARS (ID 1) */}
+      {listingTypeId === 1 && (
+        <Collapsible
+          open={showAdvancedFilters}
+          onOpenChange={setShowAdvancedFilters}
+        >
+          <CollapsibleContent>
+            <Card>
+              <CardContent className="p-4 space-y-4">
+                <div className="flex items-center gap-2 mb-4">
+                  <Filter className="h-5 w-5 text-primary" />
+                  <h3 className="text-lg font-semibold">
+                    {isRTL ? 'تفاصيل الإعلان' : 'Listing Details'}
+                  </h3>
                 </div>
 
-                {/* Car Model - Only show if make is selected */}
-                {makeId && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* Car Make */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium">
-                      {isRTL ? 'موديل السيارة' : 'Car Model'}
+                      {isRTL ? 'الماركة' : 'Make'}
                     </label>
-                    <ServerSelect<SelectCarModelDto, 'id'>
-                      queryKey={['car-models', makeId.toString()]}
-                      fetchFn={(params) =>
-                        getCarModels({
-                          ...params,
-                          where: [
-                            {
-                              field: 'makeId',
-                              operator: 'eq',
-                              value: makeId,
-                            },
-                          ],
-                        })
-                      }
+                    <ServerSelect<SelectCarMakeDto, 'id'>
+                      queryKey={['car-makes']}
+                      fetchFn={getCarMakes}
                       labelField="name"
                       valueField="id"
-                      placeholder={
-                        isRTL ? 'اختر الموديل...' : 'Select model...'
-                      }
-                      value={modelId}
-                      onChange={handleModelChange}
+                      placeholder={isRTL ? 'اختر الماركة...' : 'Select make...'}
+                      value={makeId}
+                      onChange={handleMakeChange}
                       pageSize={20}
                       searchPlaceholder={
-                        isRTL ? 'ابحث عن الموديلات...' : 'Search models...'
+                        isRTL ? 'ابحث عن الماركات...' : 'Search makes...'
                       }
                       noOptionsMessage={
-                        isRTL ? 'لم يتم العثور على موديلات' : 'No models found'
+                        isRTL ? 'لم يتم العثور على ماركات' : 'No makes found'
                       }
                     />
                   </div>
-                )}
 
-                {/* Car Trim - Only show if model is selected */}
-                {modelId && (
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">
-                      {isRTL ? 'فئة السيارة' : 'Car Trim'}
-                    </label>
-                    <ServerSelect<SelectCarTrimDto, 'id'>
-                      queryKey={['car-trims', modelId.toString()]}
-                      fetchFn={(params) =>
-                        getCarTrims({
-                          ...params,
-                          where: [
-                            {
-                              field: 'modelId',
-                              operator: 'eq',
-                              value: modelId,
-                            },
-                          ],
-                        })
-                      }
-                      labelField="name"
-                      valueField="id"
-                      placeholder={isRTL ? 'اختر الفئة...' : 'Select trim...'}
-                      value={trimId}
-                      onChange={(value) => {
-                        const selectedValue = Array.isArray(value)
-                          ? value[0]
-                          : value;
-                        setTrimId(selectedValue);
-                      }}
-                      pageSize={20}
-                      searchPlaceholder={
-                        isRTL ? 'ابحث عن الفئات...' : 'Search trims...'
-                      }
-                      noOptionsMessage={
-                        isRTL ? 'لم يتم العثور على فئات' : 'No trims found'
-                      }
-                    />
-                  </div>
-                )}
-              </div>
+                  {/* Model - Only show if make is selected */}
+                  {makeId && (
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">
+                        {isRTL ? 'الموديل' : 'Model'}
+                      </label>
+                      <ServerSelect<SelectCarModelDto, 'id'>
+                        queryKey={['car-models', makeId.toString()]}
+                        fetchFn={(params) =>
+                          getCarModels({
+                            ...params,
+                            where: [
+                              {
+                                field: 'makeId',
+                                operator: 'eq',
+                                value: makeId,
+                              },
+                            ],
+                          })
+                        }
+                        labelField="name"
+                        valueField="id"
+                        placeholder={
+                          isRTL ? 'اختر الموديل...' : 'Select model...'
+                        }
+                        value={modelId}
+                        onChange={handleModelChange}
+                        pageSize={20}
+                        searchPlaceholder={
+                          isRTL ? 'ابحث عن الموديلات...' : 'Search models...'
+                        }
+                        noOptionsMessage={
+                          isRTL ? 'لم يتم العثور على موديلات' : 'No models found'
+                        }
+                      />
+                    </div>
+                  )}
 
-              {/* Active Car Filters Display */}
-              {activeCarFilters > 0 && (
-                <div className="pt-4 border-t">
-                  <p className="text-sm font-medium mb-2">
-                    {isRTL ? 'المرشحات النشطة:' : 'Active Car Filters:'}
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {makeId && (
-                      <Badge
-                        variant="outline"
-                        className="flex items-center gap-1"
-                      >
-                        {isRTL ? 'ماركة محددة' : 'Make Selected'}
-                        <X
-                          className="h-3 w-3 cursor-pointer"
-                          onClick={() => handleMakeChange(undefined)}
-                        />
-                      </Badge>
-                    )}
-                    {modelId && (
-                      <Badge
-                        variant="outline"
-                        className="flex items-center gap-1"
-                      >
-                        {isRTL ? 'موديل محدد' : 'Model Selected'}
-                        <X
-                          className="h-3 w-3 cursor-pointer"
-                          onClick={() => handleModelChange(undefined)}
-                        />
-                      </Badge>
-                    )}
-                    {trimId && (
-                      <Badge
-                        variant="outline"
-                        className="flex items-center gap-1"
-                      >
-                        {isRTL ? 'فئة محددة' : 'Trim Selected'}
-                        <X
-                          className="h-3 w-3 cursor-pointer"
-                          onClick={() => setTrimId(undefined)}
-                        />
-                      </Badge>
-                    )}
-                  </div>
+                  {/* Trim - Only show if model is selected */}
+                  {modelId && (
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">
+                        {isRTL ? 'الفئة' : 'Trim'}
+                      </label>
+                      <ServerSelect<SelectCarTrimDto, 'id'>
+                        queryKey={['car-trims', modelId.toString()]}
+                        fetchFn={(params) =>
+                          getCarTrims({
+                            ...params,
+                            where: [
+                              {
+                                field: 'modelId',
+                                operator: 'eq',
+                                value: modelId,
+                              },
+                            ],
+                          })
+                        }
+                        labelField="name"
+                        valueField="id"
+                        placeholder={isRTL ? 'اختر الفئة...' : 'Select trim...'}
+                        value={trimId}
+                        onChange={(value) => {
+                          const selectedValue = Array.isArray(value)
+                            ? value[0]
+                            : value;
+                          setTrimId(selectedValue);
+                        }}
+                        pageSize={20}
+                        searchPlaceholder={
+                          isRTL ? 'ابحث عن الفئات...' : 'Search trims...'
+                        }
+                        noOptionsMessage={
+                          isRTL ? 'لم يتم العثور على فئات' : 'No trims found'
+                        }
+                      />
+                    </div>
+                  )}
                 </div>
-              )}
-            </CardContent>
-          </Card>
-        </CollapsibleContent>
-      </Collapsible>
+
+                {/* Active Car Filters Display */}
+                {activeCarFilters > 0 && (
+                  <div className="pt-4 border-t">
+                    <p className="text-sm font-medium mb-2">
+                      {isRTL ? 'المرشحات النشطة:' : 'Active Filters:'}
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {makeId && (
+                        <Badge
+                          variant="outline"
+                          className="flex items-center gap-1"
+                        >
+                          {isRTL ? 'ماركة محددة' : 'Make Selected'}
+                          <X
+                            className="h-3 w-3 cursor-pointer"
+                            onClick={() => handleMakeChange(undefined)}
+                          />
+                        </Badge>
+                      )}
+                      {modelId && (
+                        <Badge
+                          variant="outline"
+                          className="flex items-center gap-1"
+                        >
+                          {isRTL ? 'موديل محدد' : 'Model Selected'}
+                          <X
+                            className="h-3 w-3 cursor-pointer"
+                            onClick={() => handleModelChange(undefined)}
+                          />
+                        </Badge>
+                      )}
+                      {trimId && (
+                        <Badge
+                          variant="outline"
+                          className="flex items-center gap-1"
+                        >
+                          {isRTL ? 'فئة محددة' : 'Trim Selected'}
+                          <X
+                            className="h-3 w-3 cursor-pointer"
+                            onClick={() => setTrimId(undefined)}
+                          />
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </CollapsibleContent>
+        </Collapsible>
+      )}
+
+      {/* Dynamic Category Filters */}
+      {filterSchema && listingTypeId !== 1 && (
+        <Card>
+          <CardContent className="p-4 space-y-6">
+            <div className="flex items-center gap-2 mb-2">
+              <Filter className="h-5 w-5 text-primary" />
+              <h3 className="text-lg font-semibold">
+                {isRTL ? 'مرشحات إضافية' : 'More Filters'}
+              </h3>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filterSchema.sections.map((section) => (
+                <React.Fragment key={section.id}>
+                  {section.attributes.map((attr) => {
+                    if (!attr.isFilterable || !attr.isActive) return null;
+                    
+                    const attrName = attr.translations.find((t: any) => t.locale === locale)?.name || attr.name;
+                    
+                    if (attr.type === 'select') {
+                      return (
+                        <div key={attr.id} className="space-y-2">
+                          <label className="text-sm font-medium">{attrName}</label>
+                          <Select
+                            value={dynamicAttributes[attr.slug] || "all"}
+                            onValueChange={(value) => updateAttribute(attr.slug, value === "all" ? undefined : value)}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder={attrName} />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="all">{isRTL ? 'الكل' : 'All'}</SelectItem>
+                              {attr.options.map((opt: any) => (
+                                <SelectItem key={opt.id} value={opt.id}>
+                                  {opt.label[locale] || opt.label['en'] || opt.id}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      );
+                    }
+
+                    if (attr.type === 'number') {
+                      return (
+                        <div key={attr.id} className="space-y-2">
+                          <label className="text-sm font-medium">{attrName}</label>
+                          <Input
+                            type="number"
+                            placeholder={attrName}
+                            value={dynamicAttributes[attr.slug] || ''}
+                            onChange={(e) => updateAttribute(attr.slug, e.target.value)}
+                          />
+                        </div>
+                      );
+                    }
+
+                    return null;
+                  })}
+                </React.Fragment>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };

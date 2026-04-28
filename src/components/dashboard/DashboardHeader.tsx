@@ -389,7 +389,7 @@ export function DashboardHeader({
             >
               <Plus className="h-4 w-4 sm:mr-2 rtl:sm:mr-0 rtl:sm:ml-2" />
               <span className="hidden sm:inline">
-                {direction === 'ltr' ? 'Add Car' : 'إضافة سيارة'}
+                {direction === 'ltr' ? 'Add Listing' : 'إضافة إعلان'}
               </span>
             </Button>
           </Link>

@@ -19,11 +19,11 @@ export function QuickActions() {
     {
       href: '/products/AddProducts',
       icon: Car,
-      title: direction === 'ltr' ? 'Add New Car' : 'إضافة سيارة جديدة',
+      title: direction === 'ltr' ? 'Add New Listing' : 'إضافة إعلان جديد',
       description:
         direction === 'ltr'
-          ? 'List a new car for sale or rent'
-          : 'أدرج سيارة جديدة للبيع أو الإيجار',
+          ? 'List a new listing for sale or rent'
+          : 'أدرج إعلان جديد للبيع أو الإيجار',
       color: 'text-primary',
     },
     {

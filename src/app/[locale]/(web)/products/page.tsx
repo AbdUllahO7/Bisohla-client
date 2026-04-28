@@ -17,7 +17,7 @@ import AddProductTypeSelection from '@/components/web/ProductsPage/addProducts/T
 
 // Inner component that uses the filter context
 const ProductsContent = () => {
-  const { queryParams, filters, updateFilter } = useFilters();
+  const { queryParams, filters, updateFilter, listingTypes } = useFilters();
   const [totalItems, setTotalItems] = useState<number>(0);
   const [currentSort, setCurrentSort] = useState({
     sortBy: 'publishedAt',
@@ -65,8 +65,8 @@ const ProductsContent = () => {
         <SmartBreadcrumb
           items={[
             {
-              label: 'Cars',
-              arLabel: 'السيارات',
+              label: listingTypes.find(t => t.id === filters.listingTypeId)?.name || 'Products',
+              arLabel: listingTypes.find(t => t.id === filters.listingTypeId)?.name || 'المنتجات',
               // No href since this is the current page
             },
           ]}

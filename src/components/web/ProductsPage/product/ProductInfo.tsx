@@ -172,7 +172,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
             
             <Text className="font-bold font-cairo text-white text-lg tracking-wide relative z-10 flex items-center gap-2">
               <span className="w-1.5 h-6 bg-[#ABDE3B] rounded-full"></span>
-              {locale === 'ar' ? 'معلومات السيارة' : 'Car Info'}
+              {locale === 'ar' ? 'معلومات المنتج' : 'Product Info'}
             </Text>
           </div>
 

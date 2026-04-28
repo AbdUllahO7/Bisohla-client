@@ -39,6 +39,10 @@ const Steps: React.FC<StepsProps> = ({ isEditMode = false, carId, initialData })
   const [schema, setSchema] = useState<ListingTypeFormSchemaDto | null>(null);
   const [loadingSchema, setLoadingSchema] = useState(false);
   
+  const categoryName = useMemo(() => {
+    return selectedType?.name || (isArabic ? 'إعلان' : 'Listing');
+  }, [selectedType, isArabic]);
+  
   // Photo State
   const [photos, setPhotos] = useState<string[]>([]);
   const [photoValidation, setPhotoValidation] = useState(false);
@@ -195,7 +199,7 @@ const Steps: React.FC<StepsProps> = ({ isEditMode = false, carId, initialData })
   const stepLabels = useMemo(() => {
     const labels: Record<string, string> = {
       typeSelection: isArabic ? "فئة الإعلان" : "Ad Category",
-      carPhotos: isArabic ? "صور السيارة" : "Car Photos",
+      carPhotos: isArabic ? "صور الإعلان" : "Photos",
       adsInfo: isArabic ? "معلومات الإعلان" : "Ad Information"
     };
     schema?.sections.forEach(s => {
@@ -227,8 +231,8 @@ const Steps: React.FC<StepsProps> = ({ isEditMode = false, carId, initialData })
           <div className="flex items-center gap-3 mb-4">
             <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
               {isEditMode 
-                ? (isArabic ? 'تعديل السيارة' : 'Edit Car Listing') 
-                : (isArabic ? 'إضافة سيارة جديدة' : 'Add New Car Listing')}
+                ? (isArabic ? `تعديل ${categoryName}` : `Edit ${categoryName} Listing`) 
+                : (isArabic ? `إضافة ${categoryName} جديد` : `Add New ${categoryName} Listing`)}
             </h1>
           </div>
           
@@ -325,6 +329,7 @@ const Steps: React.FC<StepsProps> = ({ isEditMode = false, carId, initialData })
                   >
                   <DynamicFormStep 
                     section={section}
+                    schema={schema}
                     onValidationChange={(isValid) => handleUpdateStepValidation(`section_${section.id}`, isValid)}
                     isEditMode={isEditMode}
                     initialData={initialData}
@@ -344,7 +349,7 @@ const Steps: React.FC<StepsProps> = ({ isEditMode = false, carId, initialData })
                 >
                   <CarPhotosSection 
                     labels={{
-                      coverImage: isArabic ? "صور السيارة" : "Car Photos",
+                      coverImage: isArabic ? "صور الإعلان" : "Photos",
                       oneImage: isArabic ? "يمكنك إدخال 20 صور" : "You can enter 20 images",
                       tenImages: "",
                       tenFiles: ""

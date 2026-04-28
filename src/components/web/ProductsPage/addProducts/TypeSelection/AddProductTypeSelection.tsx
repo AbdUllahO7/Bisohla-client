@@ -24,7 +24,13 @@ const AddProductTypeSelection: React.FC<AddProductTypeSelectionProps> = ({ onSel
         const controller = getInjection('IListingTypesRepoController');
         const response = await controller.getListingTypes(1, 100);
         if (response.success && response.data) {
-          setTypes(response.data.data.filter(t => t.isActive));
+          const activeTypes = response.data.data.filter(t => t.isActive);
+          setTypes(activeTypes);
+          
+          // Auto-select if only one active type exists
+          if (activeTypes.length === 1) {
+            onSelect(activeTypes[0]);
+          }
         }
       } catch (error) {
         console.error("Failed to fetch listing types", error);
@@ -36,7 +42,7 @@ const AddProductTypeSelection: React.FC<AddProductTypeSelectionProps> = ({ onSel
     fetchTypes();
   }, []);
 
-  if (loading) {
+  if (loading || (types.length === 1 && !selectedTypeId)) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
         {[1, 2, 3].map((i) => (
