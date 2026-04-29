@@ -57,7 +57,7 @@ const Steps: React.FC<StepsProps> = ({ isEditMode = false, carId, initialData })
           const controller = getInjection('IListingTypesRepoController');
           const res = await controller.getFormSchema(selectedType.id);
           if (res.success && res.data) {
-            setSchema(res.data);
+            setSchema({ ...res.data, listingTypeId: selectedType.id });
           }
         } catch (error) {
           console.error("Failed to fetch schema", error);

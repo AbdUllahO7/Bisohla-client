@@ -156,6 +156,7 @@ export const normalizeListingToCarDto = (listing: any, locale: string = 'en'): S
     makeId: makeAttr?.referenceItemId || 0,
     modelId: modelAttr?.referenceItemId || 0,
     trimId: trimAttr?.referenceItemId || null,
+    listingTypeId: listing.listingTypeId,
     status: listing.publicationStatus,
     isFeatured: listing.isFeatured || false,
     isTrend: listing.isTrend || false,

@@ -251,7 +251,7 @@ const MyProductsFilter: React.FC<SimpleProductsFilterProps> = ({
         const controller = getInjection('IListingTypesRepoController');
         const res = await controller.getFilterSchema(listingTypeId);
         if (res.success && res.data) {
-          setFilterSchema(res.data);
+          setFilterSchema({ ...res.data, listingTypeId });
         }
       } catch (error) {
         console.error('Failed to fetch filter schema:', error);

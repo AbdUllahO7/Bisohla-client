@@ -819,8 +819,8 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
         if (!currentSchema || currentSchema.listingTypeId !== filters.listingTypeId) {
           const res = await listingTypesController.getFilterSchema(filters.listingTypeId);
           if (res.success && res.data) {
-            currentSchema = res.data;
-            setFilterSchema(res.data);
+            currentSchema = { ...res.data, listingTypeId: filters.listingTypeId };
+            setFilterSchema(currentSchema);
             // Reset options when schema changes to avoid showing stale options
             setDynamicOptions({});
           }

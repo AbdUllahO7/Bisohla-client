@@ -63,17 +63,20 @@ const SimilarCarAlertBanner: React.FC<SimilarCarAlertBannerProps> = ({
         setIsSubmitting(true);
 
         try {
+            const attributeFilters: Record<string, any> = {};
+            
+            // Only add filters that have valid values (not null, undefined, or 0)
+            if (car.makeId && car.makeId !== 0) attributeFilters.make = car.makeId;
+            if (car.modelId && car.modelId !== 0) attributeFilters.model = car.modelId;
+            if (car.trimId && car.trimId !== 0) attributeFilters.trim = car.trimId;
+
             const res = await createCarAlert({
-                listingTypeId: 1, // For Cars
+                listingTypeId: car.listingTypeId || 1,
                 minPrice: null,
                 maxPrice: null,
                 governorate: null,
                 city: null,
-                attributeFilters: {
-                    make: car.makeId,
-                    model: car.modelId,
-                    trim: car.trimId,
-                }
+                attributeFilters
             });
 
             if (res.success) {

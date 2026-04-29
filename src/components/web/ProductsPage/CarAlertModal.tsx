@@ -97,7 +97,7 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
         try {
           const res = await getAlertFormSchema(listingTypeId);
           if (res.success && res.data) {
-            setSchema(res.data);
+            setSchema({ ...res.data, listingTypeId });
             
             // Initialize form data from schema and initialData
             const initial: Record<string, any> = {
