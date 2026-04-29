@@ -174,13 +174,27 @@ export const useProductStepOne = (
 
   const fetchCarModels = useCallback(
     async (params: any) => {
-      if (!groupIds.model || !makeId) return { success: true, data: { data: [], total: 0, page: 1, pageSize: params.pageSize || 10 } };
+      // NestedCarFilter passes brandId via params.where[0].value
+      // Fall back to hook's internal makeId if where is not provided
+      const resolvedMakeId =
+        params?.where?.find((f: any) => f.field === 'makeId')?.value ??
+        makeId;
+
+      if (!groupIds.model || !resolvedMakeId)
+        return { success: true, data: { data: [], total: 0, page: 1, pageSize: params.pageSize || 10 } };
+
       const controller = getInjection('IListingTypeRefsRepoController');
-      const res = await controller.getItemsByGroupId(groupIds.model, makeId, params.pageSize);
+      const res = await controller.getItemsByGroupId(
+        groupIds.model,
+        Number(resolvedMakeId),
+        params.pageSize,
+      );
       if (res.success && res.data) {
-        res.data.data = res.data.data.map(item => ({
+        res.data.data = res.data.data.map((item) => ({
           ...item,
-          name: translateName(item)
+          name: translateName(item),
+          // NestedCarFilter reads 'makeId' off each item — attach it
+          makeId: resolvedMakeId,
         } as any));
       }
       return res;
@@ -190,13 +204,25 @@ export const useProductStepOne = (
 
   const fetchCarTrims = useCallback(
     async (params: any) => {
-      if (!groupIds.trim || !modelId) return { success: true, data: { data: [], total: 0, page: 1, pageSize: params.pageSize || 10 } };
+      // NestedCarFilter passes modelId via params.where[0].value
+      const resolvedModelId =
+        params?.where?.find((f: any) => f.field === 'modelId')?.value ??
+        modelId;
+
+      if (!groupIds.trim || !resolvedModelId)
+        return { success: true, data: { data: [], total: 0, page: 1, pageSize: params.pageSize || 10 } };
+
       const controller = getInjection('IListingTypeRefsRepoController');
-      const res = await controller.getItemsByGroupId(groupIds.trim, modelId, params.pageSize);
+      const res = await controller.getItemsByGroupId(
+        groupIds.trim,
+        Number(resolvedModelId),
+        params.pageSize,
+      );
       if (res.success && res.data) {
-        res.data.data = res.data.data.map(item => ({
+        res.data.data = res.data.data.map((item) => ({
           ...item,
-          name: translateName(item)
+          name: translateName(item),
+          modelId: resolvedModelId,
         } as any));
       }
       return res;

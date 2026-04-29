@@ -350,18 +350,20 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
         const attributeFilters: Filter[] = [];
         Object.entries(currentFilters.attributes).forEach(([slug, value]) => {
           if (value !== undefined && value !== '' && (Array.isArray(value) ? value.length > 0 : true)) {
+            // Prefix with 'attributeValues.' so the backend resolves against the nested relation
+            const field = `attributeValues.${slug}`;
             // Check if it's a range (min/max) or single value
             if (typeof value === 'object' && !Array.isArray(value)) {
               if (value.min) {
-                attributeFilters.push({ field: slug, operator: 'gte', value: value.min });
+                attributeFilters.push({ field, operator: 'gte', value: value.min });
               }
               if (value.max) {
-                attributeFilters.push({ field: slug, operator: 'lte', value: value.max });
+                attributeFilters.push({ field, operator: 'lte', value: value.max });
               }
             } else if (Array.isArray(value)) {
-              attributeFilters.push({ field: slug, operator: 'in', value });
+              attributeFilters.push({ field, operator: 'in', value });
             } else {
-              attributeFilters.push({ field: slug, operator: 'eq', value });
+              attributeFilters.push({ field, operator: 'eq', value });
             }
           }
         });
