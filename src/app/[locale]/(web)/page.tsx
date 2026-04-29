@@ -8,7 +8,7 @@ import WorldOfCar from '@/components/web/Home/WorldOfProduct';
 import { Locale } from '@/i18n/routing';
 import { generateSettingsBasedMetadata } from '@/utils/settings-metadata.utils';
 import { Metadata } from 'next';
-import { getLocale } from 'next-intl/server';
+import { getLocale, getTranslations } from 'next-intl/server';
 import AnimatedPageWrapper from '@/components/AnimatedPageWrapper';
 import NewsSection from '@/components/web/Home/NewsSection';
 import RecentlyViewed from '@/components/web/Home/RecentlyViewed';
@@ -138,6 +138,7 @@ const WebPage = async () => {
   const listingTypes = listingTypesRes.data?.data || [];
 
   const locale = await getLocale();
+  const t = await getTranslations('homePage');
 
   // Fetch trending listings
   const trendingRes = await listingsVisitorRepo.getTrendingListings({
@@ -247,14 +248,14 @@ const WebPage = async () => {
         {/* Global Featured Section */}
         <DynamicListingSection
           listings={featuredListings}
-          title="Featured Listings"
+          title={t('featuredListings')}
           iconName="star"
         />
 
         {/* Trending Section */}
         <DynamicListingSection
-          listings={trendingListings}
-          title="Trending Listings"
+          listings={trendingListings} 
+          title={t('trendingListings')}
           iconName="trending"
         />
 

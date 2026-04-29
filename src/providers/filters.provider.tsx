@@ -14,6 +14,7 @@ import type { QueryParams, FilterGroup, Filter } from '@/core/entities/api/api';
 import { useDebounce } from '@/hooks/use-debounce';
 import { getInjection } from '@/di/container';
 import { ListingTypeFilterSchemaDto } from '@/core/entities/models/listing-types/listing-types.dto';
+import { useLocale } from 'next-intl';
 
 // Filter state interface
 export interface FilterState {
@@ -61,7 +62,7 @@ const initialFilterState: FilterState = {
   fuelType: '',
   bodyType: '',
   listingType: '', // ADDED: Initialize listing type
-  listingTypeId: 1,
+  listingTypeId: 0,
   selectedBrands: [],
   attributes: {},
 };
@@ -112,19 +113,25 @@ export const useFilters = (): FilterContextValue => {
 interface FilterProviderProps {
   children: React.ReactNode;
   onFiltersChange?: (queryParams: QueryParams) => void;
+  initialListingTypeId?: number;
 }
 
 // Filter Provider component
 export const FilterProvider: React.FC<FilterProviderProps> = ({
   children,
   onFiltersChange,
+  initialListingTypeId,
 }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
+  const locale = useLocale();
 
   // State
-  const [filters, setFilters] = useState<FilterState>(initialFilterState);
+  const [filters, setFilters] = useState<FilterState>(() => ({
+    ...initialFilterState,
+    listingTypeId: initialListingTypeId ?? 0
+  }));
   const [searchState, setSearchState] =
     useState<SearchState>(initialSearchState);
   const [isLoading, setIsLoading] = useState(false);
@@ -182,16 +189,15 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
       // Use selectedBrands array instead of single marka
       if (currentFilters.selectedBrands.length > 0) {
         if (currentFilters.selectedBrands.length === 1) {
-          // Single brand - use 'eq' operator
           carDetailsFilters.push({
-            field: 'attributeValues.make',
+            field: 'attrs.make',
             operator: 'eq',
             value: parseInt(currentFilters.selectedBrands[0], 10),
           });
         } else {
           // Multiple brands - use 'in' operator
           carDetailsFilters.push({
-            field: 'attributeValues.make',
+            field: 'attrs.make',
             operator: 'in',
             value: currentFilters.selectedBrands.map((id) => parseInt(id, 10)),
           });
@@ -199,14 +205,14 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
       }
       if (currentFilters.model) {
         carDetailsFilters.push({
-          field: 'attributeValues.model',
+          field: 'attrs.model',
           operator: 'eq',
           value: parseInt(currentFilters.model, 10),
         });
       }
       if (currentFilters.trim) {
         carDetailsFilters.push({
-          field: 'attributeValues.trim',
+          field: 'attrs.trim',
           operator: 'eq',
           value: parseInt(currentFilters.trim, 10),
         });
@@ -246,49 +252,49 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
 
       if (currentFilters.minYear) {
         technicalDetailsFilters.push({
-          field: 'attributeValues.year',
+          field: 'attrs.year',
           operator: 'gte',
           value: parseInt(currentFilters.minYear, 10),
         });
       }
       if (currentFilters.maxYear) {
         technicalDetailsFilters.push({
-          field: 'attributeValues.year',
+          field: 'attrs.year',
           operator: 'lte',
           value: parseInt(currentFilters.maxYear, 10),
         });
       }
       if (currentFilters.minMileage) {
         technicalDetailsFilters.push({
-          field: 'attributeValues.mileage',
+          field: 'attrs.mileage',
           operator: 'gte',
           value: parseInt(currentFilters.minMileage, 10),
         });
       }
       if (currentFilters.maxMileage) {
         technicalDetailsFilters.push({
-          field: 'attributeValues.mileage',
+          field: 'attrs.mileage',
           operator: 'lte',
           value: parseInt(currentFilters.maxMileage, 10),
         });
       }
       if (currentFilters.transmission) {
         technicalDetailsFilters.push({
-          field: 'attributeValues.transmission',
+          field: 'attrs.transmission',
           operator: 'eq',
           value: currentFilters.transmission,
         });
       }
       if (currentFilters.fuelType) {
         technicalDetailsFilters.push({
-          field: 'attributeValues.fuel_type',
+          field: 'attrs.fuel_type',
           operator: 'eq',
           value: currentFilters.fuelType,
         });
       }
       if (currentFilters.bodyType) {
         technicalDetailsFilters.push({
-          field: 'attributeValues.body_type',
+          field: 'attrs.body_type',
           operator: 'eq',
           value: currentFilters.bodyType,
         });
@@ -352,20 +358,20 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
         const attributeFilters: Filter[] = [];
         Object.entries(currentFilters.attributes).forEach(([slug, value]) => {
           if (value !== undefined && value !== '' && (Array.isArray(value) ? value.length > 0 : true)) {
-            // Prefix with 'attributeValues.' so the backend resolves against the nested relation
-            const field = `attributeValues.${slug}`;
+            // Prefix with 'attrs.' so the backend resolves against the dynamic attribute system
+            const field = `attrs.${slug}`;
             // Check if it's a range (min/max) or single value
             if (typeof value === 'object' && !Array.isArray(value)) {
               if (value.min) {
-                attributeFilters.push({ field, operator: 'gte', value: value.min });
+                attributeFilters.push({ field, operator: 'gte', value: isNaN(Number(value.min)) ? value.min : Number(value.min) });
               }
               if (value.max) {
-                attributeFilters.push({ field, operator: 'lte', value: value.max });
+                attributeFilters.push({ field, operator: 'lte', value: isNaN(Number(value.max)) ? value.max : Number(value.max) });
               }
             } else if (Array.isArray(value)) {
               attributeFilters.push({ field, operator: 'in', value });
             } else {
-              attributeFilters.push({ field, operator: 'eq', value });
+              attributeFilters.push({ field, operator: 'eq', value: isNaN(Number(value)) ? value : Number(value) });
             }
           }
         });
@@ -655,10 +661,10 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
     newFilters.listingType = urlParams.listingType || '';
     if (urlParams.listingTypeId) {
       newFilters.listingTypeId = parseInt(urlParams.listingTypeId, 10);
-    } else if (filters.listingTypeId) {
-      newFilters.listingTypeId = filters.listingTypeId;
     } else {
-      newFilters.listingTypeId = 1; // Default to 1 if nothing else
+      // Default behavior based on current page
+      const isHomePage = pathname === '/' || pathname === `/${locale}` || pathname === `/${locale}/`;
+      newFilters.listingTypeId = isHomePage ? 1 : 0;
     }
 
     // Extract dynamic attributes from URL (any parameter not in core list)

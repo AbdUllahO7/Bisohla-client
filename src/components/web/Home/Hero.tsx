@@ -56,7 +56,7 @@ const Hero = async () => {
           />
         </div>
       </Box>
-      <FilterProvider>
+      <FilterProvider initialListingTypeId={1}>
         <Filter />
       </FilterProvider>
     </div>

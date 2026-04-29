@@ -20,6 +20,8 @@
     "backToList": "Back to listings"
   },
   "homePage": {
+    "featuredListings": "Featured Listings",
+    "trendingListings": "Trending Listings",
     "lang": "en",
     "bodyType":"Body Type",
     "metadata": {
