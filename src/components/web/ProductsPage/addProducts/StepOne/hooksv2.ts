@@ -159,7 +159,15 @@ export const useProductStepOne = (
     async (params: QueryParams) => {
       if (!groupIds.make) return { success: true, data: { data: [], total: 0, page: 1, pageSize: params.pageSize || 10 } };
       const controller = getInjection('IListingTypeRefsRepoController');
-      const res = await controller.getItemsByGroupId(groupIds.make, undefined, params.pageSize);
+      const res = await controller.getItemsByGroupId(
+        groupIds.make,
+        undefined,
+        params.pageSize,
+        params.searchTerm as string,
+        params.page,
+        locale,
+        params.searchKey,
+      );
       if (res.success && res.data) {
         // Map names for the UI
         res.data.data = res.data.data.map(item => ({
@@ -188,6 +196,10 @@ export const useProductStepOne = (
         groupIds.model,
         Number(resolvedMakeId),
         params.pageSize,
+        params.searchTerm as string,
+        params.page,
+        locale,
+        params.searchKey,
       );
       if (res.success && res.data) {
         res.data.data = res.data.data.map((item) => ({
@@ -217,6 +229,10 @@ export const useProductStepOne = (
         groupIds.trim,
         Number(resolvedModelId),
         params.pageSize,
+        params.searchTerm as string,
+        params.page,
+        locale,
+        params.searchKey,
       );
       if (res.success && res.data) {
         res.data.data = res.data.data.map((item) => ({

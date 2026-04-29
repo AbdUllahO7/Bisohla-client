@@ -182,31 +182,31 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
         if (currentFilters.selectedBrands.length === 1) {
           // Single brand - use 'eq' operator
           carDetailsFilters.push({
-            field: 'makeId',
+            field: 'attributeValues.make',
             operator: 'eq',
-            value: currentFilters.selectedBrands[0],
+            value: parseInt(currentFilters.selectedBrands[0], 10),
           });
         } else {
           // Multiple brands - use 'in' operator
           carDetailsFilters.push({
-            field: 'makeId',
+            field: 'attributeValues.make',
             operator: 'in',
-            value: currentFilters.selectedBrands,
+            value: currentFilters.selectedBrands.map((id) => parseInt(id, 10)),
           });
         }
       }
       if (currentFilters.model) {
         carDetailsFilters.push({
-          field: 'modelId',
+          field: 'attributeValues.model',
           operator: 'eq',
-          value: currentFilters.model,
+          value: parseInt(currentFilters.model, 10),
         });
       }
       if (currentFilters.trim) {
         carDetailsFilters.push({
-          field: 'trimId',
+          field: 'attributeValues.trim',
           operator: 'eq',
-          value: currentFilters.trim,
+          value: parseInt(currentFilters.trim, 10),
         });
       }
       if (carDetailsFilters.length > 0) {
@@ -244,49 +244,49 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
 
       if (currentFilters.minYear) {
         technicalDetailsFilters.push({
-          field: 'details.year',
+          field: 'attributeValues.year',
           operator: 'gte',
           value: parseInt(currentFilters.minYear, 10),
         });
       }
       if (currentFilters.maxYear) {
         technicalDetailsFilters.push({
-          field: 'details.year',
+          field: 'attributeValues.year',
           operator: 'lte',
           value: parseInt(currentFilters.maxYear, 10),
         });
       }
       if (currentFilters.minMileage) {
         technicalDetailsFilters.push({
-          field: 'details.mileage',
+          field: 'attributeValues.mileage',
           operator: 'gte',
           value: parseInt(currentFilters.minMileage, 10),
         });
       }
       if (currentFilters.maxMileage) {
         technicalDetailsFilters.push({
-          field: 'details.mileage',
+          field: 'attributeValues.mileage',
           operator: 'lte',
           value: parseInt(currentFilters.maxMileage, 10),
         });
       }
       if (currentFilters.transmission) {
         technicalDetailsFilters.push({
-          field: 'details.transmission',
+          field: 'attributeValues.transmission',
           operator: 'eq',
           value: currentFilters.transmission,
         });
       }
       if (currentFilters.fuelType) {
         technicalDetailsFilters.push({
-          field: 'details.fuelType',
+          field: 'attributeValues.fuel_type',
           operator: 'eq',
           value: currentFilters.fuelType,
         });
       }
       if (currentFilters.bodyType) {
         technicalDetailsFilters.push({
-          field: 'details.bodyType',
+          field: 'attributeValues.body_type',
           operator: 'eq',
           value: currentFilters.bodyType,
         });

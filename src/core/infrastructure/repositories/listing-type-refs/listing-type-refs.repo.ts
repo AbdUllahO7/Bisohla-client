@@ -7,7 +7,11 @@ export class ListingTypeRefsRepo implements IListingTypeRefsRepo {
   async getItemsByGroupId(
     groupId: number,
     parentItemId?: number,
-    pageSize?: number
+    pageSize?: number,
+    searchTerm?: string,
+    page?: number,
+    locale?: string,
+    searchKey?: string
   ): Promise<PaginatedResponse<ListingTypeRefItemDto>> {
     const queryParams = new URLSearchParams();
     if (parentItemId !== undefined) {
@@ -15,6 +19,18 @@ export class ListingTypeRefsRepo implements IListingTypeRefsRepo {
     }
     if (pageSize !== undefined) {
       queryParams.append('pageSize', pageSize.toString());
+    }
+    if (searchTerm) {
+      queryParams.append('searchTerm', searchTerm);
+    }
+    if (searchKey) {
+      queryParams.append('searchKey', searchKey);
+    }
+    if (page !== undefined) {
+      queryParams.append('page', page.toString());
+    }
+    if (locale) {
+      queryParams.append('locale', locale);
     }
     
     const queryString = queryParams.toString();
