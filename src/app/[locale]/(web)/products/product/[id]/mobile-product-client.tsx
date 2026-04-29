@@ -8,14 +8,17 @@ import ProductHeader from '@/components/web/ProductsPage/product/ProductHeader';
 import ProductImages from '@/components/web/ProductsPage/product/ProductImages';
 import ProductInfo from '@/components/web/ProductsPage/product/ProductInfo';
 import TabsSection from '@/components/web/ProductsPage/product/TabsSection';
+import AttributeGrid from '@/components/web/ProductsPage/product/AttributeGrid';
 import { ApiResponse } from '@/core/entities/api/success.response';
 import { SelectCarListingDto } from '@/core/entities/models/cars/cars.dto';
+import { GenericListingDto } from '@/core/entities/models/listings/generic-listing.dto';
 import SmartBreadcrumb from '@/components/smart-breadcrumbs';
 import { useProductStatistics } from '@/hooks/use-product-statistics';
 import FloatingShareButton from './FloatingShareButton';
 
 interface ProductClientProps {
   carDataRes: ApiResponse<SelectCarListingDto>;
+  rawListing?: GenericListingDto | null;
   isAuthenticated: boolean;
   locale: string;
   isProfileView: boolean;
@@ -23,11 +26,15 @@ interface ProductClientProps {
 
 const MobileProductClient = ({
   carDataRes,
+  rawListing,
   isAuthenticated,
   locale,
   isProfileView,
 }: ProductClientProps) => {
   const carData = carDataRes.data;
+
+  // Determine if this is a car listing based on raw listing type slug
+  const isCarListing = !rawListing || rawListing?.listingType?.slug === 'cars';
 
   // Use the custom statistics hook
   const { handleContactClick, handleShareClick, isSharePending } = useProductStatistics({
@@ -43,16 +50,16 @@ const MobileProductClient = ({
       try {
         const storedItems = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
         // Handle both old (number) and new ({id, typeId}) formats
-        const normalizedItems = storedItems.map((item: any) => 
+        const normalizedItems = storedItems.map((item: any) =>
           typeof item === 'number' ? { id: item, typeId: 1 } : item
         );
-        
-        const newItem = { id: carData.id, typeId: (carData as any).listingTypeId || 1 };
+
+        const newItem = { id: carData.id, typeId: (carData as any).listingTypeId || rawListing?.listingTypeId || 1 };
         const updatedItems = [
           newItem,
           ...normalizedItems.filter((item: any) => item.id !== carData.id),
         ].slice(0, 10);
-        
+
         localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedItems));
       } catch (error) {
         console.error('Failed to update recently viewed:', error);
@@ -67,7 +74,7 @@ const MobileProductClient = ({
   if (!carData) {
     return (
       <Box variant="center" className="min-h-screen">
-        <Text variant="p">No car data available</Text>
+        <Text variant="p">No listing data available</Text>
       </Box>
     );
   }
@@ -77,11 +84,12 @@ const MobileProductClient = ({
     setFavoriteStatus(isFavorite);
   };
 
-  // Define breadcrumb items
+  // Breadcrumb — use listing type name for non-car types
+  const listingTypeName = rawListing?.listingType?.name || 'Products';
   const breadcrumbItems = [
     {
-      label: 'Cars',
-      arLabel: 'السيارات',
+      label: listingTypeName,
+      arLabel: listingTypeName,
       href: '/products',
     },
     {
@@ -127,49 +135,65 @@ const MobileProductClient = ({
         </Box>
       </div>
 
-      {/* Mobile: Basic Info Cards - Horizontal Scroll */}
+      {/* Mobile: Basic Info Cards */}
       <div className="md:hidden w-full mb-4">
         <Box variant="container">
-          <ProductBasicInfo
-            isLoading={false}
-            carType={carData.make?.name || ''}
-            model={carData.model?.name || ''}
-            controlType={carData.details?.transmission || ''}
-            distance={carData.details?.mileage?.toString() || ''}
-            modelYear={carData.details?.year?.toString() || ''}
-            gaz={carData.details?.fuelType || ''}
-            bodyType={carData.details?.bodyType || ''}
-          />
+          {isCarListing ? (
+            <ProductBasicInfo
+              isLoading={false}
+              carType={carData.make?.name || ''}
+              model={carData.model?.name || ''}
+              controlType={carData.details?.transmission || ''}
+              distance={carData.details?.mileage?.toString() || ''}
+              modelYear={carData.details?.year?.toString() || ''}
+              gaz={carData.details?.fuelType || ''}
+              bodyType={carData.details?.bodyType || ''}
+            />
+          ) : (
+            <AttributeGrid
+              attributeValues={rawListing?.attributeValues || []}
+              locale={locale}
+              isLoading={false}
+            />
+          )}
         </Box>
       </div>
 
-      {/* Mobile: Car Info in Card */}
-      <div className="md:hidden w-full mb-4">
-        <Box variant="container">
-          <ProductInfo
-            isLoading={false}
-            carType={carData.make?.name || ''}
-            model={carData.model?.name || ''}
-            controlType={carData.details?.transmission || ''}
-            distance={carData.details?.mileage?.toString() || ''}
-            modelYear={carData.details?.year?.toString() || ''}
-            gaz={carData.details?.fuelType || ''}
-            price={carData.price?.toString() || ''}
-            currency={carData.currency}
-            adsNumber={carData.id?.toString() || ''}
-            adsDate={carData.publishedAt?.toString() || ''}
-          />
-        </Box>
-      </div>
+      {/* Mobile: Car Info in Card (cars only) */}
+      {isCarListing && (
+        <div className="md:hidden w-full mb-4">
+          <Box variant="container">
+            <ProductInfo
+              isLoading={false}
+              carType={carData.make?.name || ''}
+              model={carData.model?.name || ''}
+              controlType={carData.details?.transmission || ''}
+              distance={carData.details?.mileage?.toString() || ''}
+              modelYear={carData.details?.year?.toString() || ''}
+              gaz={carData.details?.fuelType || ''}
+              price={carData.price?.toString() || ''}
+              currency={carData.currency}
+              adsNumber={carData.id?.toString() || ''}
+              adsDate={carData.publishedAt?.toString() || ''}
+            />
+          </Box>
+        </div>
+      )}
 
       {/* Mobile: Tabs Section */}
       <div className="md:hidden w-full mb-20">
         <Box variant="container">
-          <TabsSection data={carDataRes} isLoading={false} />
+          <TabsSection
+            data={carDataRes}
+            isLoading={false}
+            isCarListing={isCarListing}
+            attributeValues={rawListing?.attributeValues || []}
+            locale={locale}
+          />
         </Box>
       </div>
 
-      {/* Desktop: Original Layout */}
+      {/* Desktop: Original Layout (kept for safety, hidden on mobile) */}
       <div className="hidden md:block">
         <div className="w-full mb-3 bg-white">
           <Box variant="container">
@@ -189,16 +213,24 @@ const MobileProductClient = ({
         <Box variant="container">
           {/* Product Details Section */}
           <Box className="mt-1 w-full mb-3">
-            <ProductBasicInfo
-              isLoading={false}
-              carType={carData.make?.name || ''}
-              model={carData.model?.name || ''}
-              controlType={carData.details?.transmission || ''}
-              distance={carData.details?.mileage?.toString() || ''}
-              modelYear={carData.details?.year?.toString() || ''}
-              gaz={carData.details?.fuelType || ''}
-              bodyType={carData.details?.bodyType || ''}
-            />
+            {isCarListing ? (
+              <ProductBasicInfo
+                isLoading={false}
+                carType={carData.make?.name || ''}
+                model={carData.model?.name || ''}
+                controlType={carData.details?.transmission || ''}
+                distance={carData.details?.mileage?.toString() || ''}
+                modelYear={carData.details?.year?.toString() || ''}
+                gaz={carData.details?.fuelType || ''}
+                bodyType={carData.details?.bodyType || ''}
+              />
+            ) : (
+              <AttributeGrid
+                attributeValues={rawListing?.attributeValues || []}
+                locale={locale}
+                isLoading={false}
+              />
+            )}
           </Box>
 
           {/* Images and Info Section */}
@@ -207,20 +239,22 @@ const MobileProductClient = ({
               variant="row"
               className="w-full gap-4 items-start justify-start md:flex-wrap xs:flex-wrap xs:justify-center"
             >
-              <Box className="xs:w-[90%] lg:w-fit">
-                <ProductInfo
-                  isLoading={false}
-                  carType={carData.make?.name || ''}
-                  model={carData.model?.name || ''}
-                  controlType={carData.details?.transmission || ''}
-                  distance={carData.details?.mileage?.toString() || ''}
-                  modelYear={carData.details?.year?.toString() || ''}
-                  gaz={carData.details?.fuelType || ''}
-                  price={carData.price?.toString() || ''}
-                  adsNumber={carData.id?.toString() || ''}
-                  adsDate={carData.publishedAt?.toString() || ''}
-                />
-              </Box>
+              {isCarListing && (
+                <Box className="xs:w-[90%] lg:w-fit">
+                  <ProductInfo
+                    isLoading={false}
+                    carType={carData.make?.name || ''}
+                    model={carData.model?.name || ''}
+                    controlType={carData.details?.transmission || ''}
+                    distance={carData.details?.mileage?.toString() || ''}
+                    modelYear={carData.details?.year?.toString() || ''}
+                    gaz={carData.details?.fuelType || ''}
+                    price={carData.price?.toString() || ''}
+                    adsNumber={carData.id?.toString() || ''}
+                    adsDate={carData.publishedAt?.toString() || ''}
+                  />
+                </Box>
+              )}
 
               <Box className="lg:flex-1 xs:w-full">
                 <ProductImages
@@ -233,7 +267,13 @@ const MobileProductClient = ({
 
           {/* Tabs */}
           <Box className="lg:w-full xs:w-[90%] mt-5">
-            <TabsSection data={carDataRes} isLoading={false} />
+            <TabsSection
+              data={carDataRes}
+              isLoading={false}
+              isCarListing={isCarListing}
+              attributeValues={rawListing?.attributeValues || []}
+              locale={locale}
+            />
           </Box>
         </Box>
       </div>

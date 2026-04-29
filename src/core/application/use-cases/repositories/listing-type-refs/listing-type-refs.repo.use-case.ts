@@ -9,8 +9,12 @@ export class ListingTypeRefsRepoUseCase implements IListingTypeRefsRepoUseCase {
   async getItemsByGroupId(
     groupId: number,
     parentItemId?: number,
-    pageSize?: number
+    pageSize?: number,
+    searchTerm?: string,
+    page?: number,
+    locale?: string,
+    searchKey?: string
   ): Promise<PaginatedResponse<ListingTypeRefItemDto>> {
-    return await this.repository.getItemsByGroupId(groupId, parentItemId, pageSize);
+    return await this.repository.getItemsByGroupId(groupId, parentItemId, pageSize, searchTerm, page, locale, searchKey);
   }
 }

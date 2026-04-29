@@ -139,6 +139,7 @@ export interface SelectCarListingDto {
   makeId: number;
   modelId: number;
   trimId: number | null;
+  listingTypeId: number;
   status: string;
   isFeatured: boolean;
   isTrend: boolean; // Added instead of isSold

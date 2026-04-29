@@ -1,4 +1,50 @@
 import { SelectCarListingDto } from '@/core/entities/models/cars/cars.dto';
+import { GenericAttributeValue } from '@/core/entities/models/listings/generic-listing.dto';
+
+/**
+ * Resolves a raw GenericAttributeValue into a human-readable display string.
+ * Handles: reference, select, number, boolean, date, text.
+ */
+export const resolveAttributeValue = (
+  av: GenericAttributeValue,
+  locale: string = 'en',
+): string => {
+  const { attribute, referenceItem, valueText, valueNumber, valueBoolean, valueDate, valueJson } = av;
+
+  switch (attribute.type) {
+    case 'reference':
+      return referenceItem?.name || '';
+
+    case 'select': {
+      if (!valueText) return '';
+      const option = attribute.options?.find((o) => o.id === valueText);
+      if (option) return option.label[locale as 'ar' | 'en'] || option.label.en || valueText;
+      return valueText;
+    }
+
+    case 'number': {
+      if (valueNumber === null || valueNumber === undefined) return '';
+      // Strip unnecessary trailing zeros
+      const num = parseFloat(valueNumber);
+      return isNaN(num) ? valueNumber : num.toString();
+    }
+
+    case 'boolean':
+      if (valueBoolean === null || valueBoolean === undefined) return '';
+      return locale === 'ar' ? (valueBoolean ? 'نعم' : 'لا') : (valueBoolean ? 'Yes' : 'No');
+
+    case 'date':
+      return valueDate || '';
+
+    case 'text':
+    default:
+      if (valueText) return valueText;
+      if (valueJson !== null && valueJson !== undefined) {
+        return typeof valueJson === 'string' ? valueJson : JSON.stringify(valueJson);
+      }
+      return '';
+  }
+};
 
 /**
  * Normalizes a generic listing response from the API into the structured SelectCarListingDto
@@ -110,6 +156,7 @@ export const normalizeListingToCarDto = (listing: any, locale: string = 'en'): S
     makeId: makeAttr?.referenceItemId || 0,
     modelId: modelAttr?.referenceItemId || 0,
     trimId: trimAttr?.referenceItemId || null,
+    listingTypeId: listing.listingTypeId,
     status: listing.publicationStatus,
     isFeatured: listing.isFeatured || false,
     isTrend: listing.isTrend || false,

@@ -97,6 +97,7 @@ export interface SectionDto {
 }
 
 export interface ListingTypeFormSchemaDto {
+  listingTypeId: number;
   sections: SectionDto[];
   compiledSchema: ListingTypeSchemaDto;
 }

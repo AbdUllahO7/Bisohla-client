@@ -5,6 +5,10 @@ export interface IListingTypeRefsRepoUseCase {
   getItemsByGroupId(
     groupId: number,
     parentItemId?: number,
-    pageSize?: number
+    pageSize?: number,
+    searchTerm?: string,
+    page?: number,
+    locale?: string,
+    searchKey?: string
   ): Promise<PaginatedResponse<ListingTypeRefItemDto>>;
 }
