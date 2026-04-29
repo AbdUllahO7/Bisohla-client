@@ -7,21 +7,28 @@ import ProductHeader from '@/components/web/ProductsPage/product/ProductHeader';
 import ProductImages from '@/components/web/ProductsPage/product/ProductImages';
 import ProductInfo from '@/components/web/ProductsPage/product/ProductInfo';
 import TabsSection from '@/components/web/ProductsPage/product/TabsSection';
+import AttributeGrid from '@/components/web/ProductsPage/product/AttributeGrid';
 import { ApiResponse } from '@/core/entities/api/success.response';
 import { SelectCarListingDto } from '@/core/entities/models/cars/cars.dto';
+import { GenericListingDto } from '@/core/entities/models/listings/generic-listing.dto';
 import SmartBreadcrumb from '@/components/smart-breadcrumbs';
 import { useProductStatistics } from '@/hooks/use-product-statistics';
 import FloatingShareButton from './FloatingShareButton';
 
 interface ProductClientProps {
   carDataRes: ApiResponse<SelectCarListingDto>;
+  rawListing?: GenericListingDto | null;
   isAuthenticated: boolean;
   locale: string;
   isProfileView: boolean;
 }
 
-const ProductClient = ({ carDataRes, isAuthenticated }: ProductClientProps) => {
+const ProductClient = ({ carDataRes, rawListing, isAuthenticated, locale }: ProductClientProps) => {
   const carData = carDataRes.data;
+
+  // Determine if this is a car listing based on raw listing type slug
+  const isCarListing = !rawListing || rawListing?.listingType?.slug === 'cars';
+
   // Use the custom statistics hook
   const { handleContactClick, handleShareClick, isSharePending } =
     useProductStatistics({
@@ -37,16 +44,16 @@ const ProductClient = ({ carDataRes, isAuthenticated }: ProductClientProps) => {
       try {
         const storedItems = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
         // Handle both old (number) and new ({id, typeId}) formats
-        const normalizedItems = storedItems.map((item: any) => 
+        const normalizedItems = storedItems.map((item: any) =>
           typeof item === 'number' ? { id: item, typeId: 1 } : item
         );
-        
-        const newItem = { id: carData.id, typeId: (carData as any).listingTypeId || 1 };
+
+        const newItem = { id: carData.id, typeId: (carData as any).listingTypeId || rawListing?.listingTypeId || 1 };
         const updatedItems = [
           newItem,
           ...normalizedItems.filter((item: any) => item.id !== carData.id),
         ].slice(0, 10);
-        
+
         localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedItems));
       } catch (error) {
         console.error('Failed to update recently viewed:', error);
@@ -59,7 +66,7 @@ const ProductClient = ({ carDataRes, isAuthenticated }: ProductClientProps) => {
   );
 
   if (!carData) {
-    return <>no car data</>;
+    return <>no listing data</>;
   }
 
   // Handle favorite toggle from child component
@@ -67,11 +74,12 @@ const ProductClient = ({ carDataRes, isAuthenticated }: ProductClientProps) => {
     setFavoriteStatus(isFavorite);
   };
 
-  // Define breadcrumb items
+  // Define breadcrumb items — use listing type name for non-car types
+  const listingTypeName = rawListing?.listingType?.name || 'Products';
   const breadcrumbItems = [
     {
-      label: 'Cars',
-      arLabel: 'السيارات',
+      label: listingTypeName,
+      arLabel: listingTypeName,
       href: '/products',
     },
     {
@@ -110,18 +118,26 @@ const ProductClient = ({ carDataRes, isAuthenticated }: ProductClientProps) => {
       </div>
 
       <Box variant="container">
-        {/* Product Details Section */}
+        {/* Basic info cards — car-specific or generic attribute grid */}
         <Box className="mt-1 w-full mb-3">
-          <ProductBasicInfo
-            isLoading={false}
-            carType={carData.make?.name || ''}
-            model={carData.model?.name || ''}
-            controlType={carData.details?.transmission || ''}
-            distance={carData.details?.mileage?.toString() || ''}
-            modelYear={carData.details?.year?.toString() || ''}
-            gaz={carData.details?.fuelType || ''}
-            bodyType={carData.details?.bodyType || ''}
-          />
+          {isCarListing ? (
+            <ProductBasicInfo
+              isLoading={false}
+              carType={carData.make?.name || ''}
+              model={carData.model?.name || ''}
+              controlType={carData.details?.transmission || ''}
+              distance={carData.details?.mileage?.toString() || ''}
+              modelYear={carData.details?.year?.toString() || ''}
+              gaz={carData.details?.fuelType || ''}
+              bodyType={carData.details?.bodyType || ''}
+            />
+          ) : (
+            <AttributeGrid
+              attributeValues={rawListing?.attributeValues || []}
+              locale={locale}
+              isLoading={false}
+            />
+          )}
         </Box>
 
         {/* Images and Info Section */}
@@ -130,21 +146,24 @@ const ProductClient = ({ carDataRes, isAuthenticated }: ProductClientProps) => {
             variant="row"
             className="w-full gap-4 items-start justify-start md:flex-wrap xs:flex-wrap xs:justify-center"
           >
-            <Box className="xs:w-[90%] lg:w-fit">
-              <ProductInfo
-                isLoading={false}
-                carType={carData.make?.name || ''}
-                model={carData.model?.name || ''}
-                controlType={carData.details?.transmission || ''}
-                distance={carData.details?.mileage?.toString() || ''}
-                modelYear={carData.details?.year?.toString() || ''}
-                gaz={carData.details?.fuelType || ''}
-                price={carData.price?.toString() || ''}
-                currency={carData.currency}
-                adsNumber={carData.id?.toString() || ''}
-                adsDate={carData.publishedAt?.toString() || ''}
-              />
-            </Box>
+            {/* Show ProductInfo sidebar only for cars */}
+            {isCarListing && (
+              <Box className="xs:w-[90%] lg:w-fit">
+                <ProductInfo
+                  isLoading={false}
+                  carType={carData.make?.name || ''}
+                  model={carData.model?.name || ''}
+                  controlType={carData.details?.transmission || ''}
+                  distance={carData.details?.mileage?.toString() || ''}
+                  modelYear={carData.details?.year?.toString() || ''}
+                  gaz={carData.details?.fuelType || ''}
+                  price={carData.price?.toString() || ''}
+                  currency={carData.currency}
+                  adsNumber={carData.id?.toString() || ''}
+                  adsDate={carData.publishedAt?.toString() || ''}
+                />
+              </Box>
+            )}
 
             <Box className="lg:flex-1 xs:w-full">
               <ProductImages isLoading={false} images={carData.images || []} />
@@ -154,7 +173,13 @@ const ProductClient = ({ carDataRes, isAuthenticated }: ProductClientProps) => {
 
         {/* Tabs */}
         <Box className="lg:w-full xs:w-[90%] mt-5">
-          <TabsSection data={carDataRes} isLoading={false} />
+          <TabsSection
+            data={carDataRes}
+            isLoading={false}
+            isCarListing={isCarListing}
+            attributeValues={rawListing?.attributeValues || []}
+            locale={locale}
+          />
         </Box>
       </Box>
 
@@ -166,9 +191,9 @@ const ProductClient = ({ carDataRes, isAuthenticated }: ProductClientProps) => {
             ? `${carData.price} ${carData.currency || ''}`
             : undefined
         }
-        productMake={carData.make?.name}
-        productModel={carData.model?.name}
-        productYear={carData.details?.year?.toString()}
+        productMake={isCarListing ? carData.make?.name : undefined}
+        productModel={isCarListing ? carData.model?.name : undefined}
+        productYear={isCarListing ? carData.details?.year?.toString() : undefined}
         onShare={handleShareClick}
         isSharePending={isSharePending}
       />

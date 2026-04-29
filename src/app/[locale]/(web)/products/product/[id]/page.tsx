@@ -5,6 +5,7 @@ import { generateWebMetadata } from '../../../MetaData';
 import { generateProductMetadata } from '@/utils/settings-metadata.utils';
 import { ApiResponse } from '@/core/entities/api/success.response';
 import { SelectCarListingDto } from '@/core/entities/models/cars/cars.dto';
+import { GenericListingDto } from '@/core/entities/models/listings/generic-listing.dto';
 import { getMyCarById } from '@/core/infrastructure-adapters/actions/users/car.user.actions';
 import { QueryParams } from '@/core/entities/api/api';
 import { getCarListingById } from '@/core/infrastructure-adapters/actions/visitors/car.visitor.actions';
@@ -28,30 +29,41 @@ interface ProductPageProps {
   }>;
 }
 
+interface FetchListingResult {
+  carResponse: ApiResponse<SelectCarListingDto>;
+  rawListing: GenericListingDto | null;
+}
+
 async function fetchCarData(
   idOrSlug: string,
   isProfileView: boolean,
   locale: string,
   userId?: number,
-): Promise<ApiResponse<SelectCarListingDto>> {
+): Promise<FetchListingResult> {
   if (isProfileView) {
     const myCarRes = await getMyCarById(Number(idOrSlug));
     if (myCarRes.success && myCarRes.data) {
       return {
-        ...myCarRes,
-        data: normalizeListingToCarDto(myCarRes.data, locale)
-      } as ApiResponse<SelectCarListingDto>;
+        carResponse: {
+          ...myCarRes,
+          data: normalizeListingToCarDto(myCarRes.data, locale),
+        } as ApiResponse<SelectCarListingDto>,
+        rawListing: myCarRes.data as unknown as GenericListingDto,
+      };
     }
-    return myCarRes;
+    return { carResponse: myCarRes as ApiResponse<SelectCarListingDto>, rawListing: null };
   }
 
   // Attempt 1: Fetch by Slug (New generic endpoint)
   const slugRes = await getListingBySlug(idOrSlug);
   if (slugRes.success && slugRes.data) {
     return {
-      ...slugRes,
-      data: normalizeListingToCarDto(slugRes.data, locale)
-    } as ApiResponse<SelectCarListingDto>;
+      carResponse: {
+        ...slugRes,
+        data: normalizeListingToCarDto(slugRes.data, locale),
+      } as ApiResponse<SelectCarListingDto>,
+      rawListing: slugRes.data as GenericListingDto,
+    };
   }
 
   // Attempt 2: Fetch by ID if numeric (New generic endpoint)
@@ -60,19 +72,22 @@ async function fetchCarData(
     const idRes = await getListingById(id);
     if (idRes.success && idRes.data) {
       return {
-        ...idRes,
-        data: normalizeListingToCarDto(idRes.data, locale)
-      } as ApiResponse<SelectCarListingDto>;
+        carResponse: {
+          ...idRes,
+          data: normalizeListingToCarDto(idRes.data, locale),
+        } as ApiResponse<SelectCarListingDto>,
+        rawListing: idRes.data as GenericListingDto,
+      };
     }
 
     // Attempt 3: Legacy car endpoint fallback
     const legacyRes = await getCarListingById({ id, userId });
     if (legacyRes.success && legacyRes.data) {
-      return legacyRes;
+      return { carResponse: legacyRes, rawListing: null };
     }
   }
 
-  return slugRes as ApiResponse<SelectCarListingDto>;
+  return { carResponse: slugRes as ApiResponse<SelectCarListingDto>, rawListing: null };
 }
 
 export async function generateMetadata({
@@ -85,7 +100,7 @@ export async function generateMetadata({
   try {
     const session = await getSession();
     const locale = await getLocale();
-    const carResponse = await fetchCarData(id, isProfileView, locale, session?.user?.id);
+    const { carResponse } = await fetchCarData(id, isProfileView, locale, session?.user?.id);
 
     if (!carResponse.success || !carResponse.data) {
       return generateWebMetadata('car-detail');
@@ -130,7 +145,7 @@ const ProductPage = async ({ params, searchParams }: ProductPageProps) => {
     const isAuthenticated = !!(session?.accessToken || session?.user);
     const locale = await getLocale();
 
-    const carResponse = await fetchCarData(id, isProfileView, locale, session?.user?.id);
+    const { carResponse, rawListing } = await fetchCarData(id, isProfileView, locale, session?.user?.id);
 
     if (!carResponse.success || !carResponse.data) {
       notFound();
@@ -142,6 +157,7 @@ const ProductPage = async ({ params, searchParams }: ProductPageProps) => {
         <div className="hidden md:block">
           <ProductClient
             carDataRes={carResponse}
+            rawListing={rawListing}
             isAuthenticated={isAuthenticated}
             locale={locale}
             isProfileView={isProfileView}
@@ -152,6 +168,7 @@ const ProductPage = async ({ params, searchParams }: ProductPageProps) => {
         <div className="block md:hidden">
           <MobileProductClient
             carDataRes={carResponse}
+            rawListing={rawListing}
             isAuthenticated={isAuthenticated}
             locale={locale}
             isProfileView={isProfileView}
