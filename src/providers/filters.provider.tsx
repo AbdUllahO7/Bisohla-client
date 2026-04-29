@@ -61,7 +61,7 @@ const initialFilterState: FilterState = {
   fuelType: '',
   bodyType: '',
   listingType: '', // ADDED: Initialize listing type
-  listingTypeId: 0,
+  listingTypeId: 1,
   selectedBrands: [],
   attributes: {},
 };
@@ -77,9 +77,10 @@ interface FilterContextValue {
   searchState: SearchState;
   queryParams: QueryParams; // Debounced query params for API calls
   immediateQueryParams: QueryParams; // Immediate query params for UI
-  isLoading: boolean;
+  // Schema & Reference Data
   filterSchema: ListingTypeFilterSchemaDto | null;
   listingTypes: any[];
+  dynamicOptions: Record<string, any[]>;
 
   // Filter actions
   updateFilter: (key: keyof FilterState, value: string | string[] | number) => void;
@@ -129,6 +130,7 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [filterSchema, setFilterSchema] = useState<ListingTypeFilterSchemaDto | null>(null);
   const [listingTypes, setListingTypes] = useState<any[]>([]);
+  const [dynamicOptions, setDynamicOptions] = useState<Record<string, any[]>>({});
 
   // Refs for optimization and tracking
   const isInitialized = useRef(false);
@@ -651,7 +653,29 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
     newFilters.fuelType = urlParams.fuelType || '';
     newFilters.bodyType = urlParams.bodyType || '';
     newFilters.listingType = urlParams.listingType || '';
-    newFilters.listingTypeId = parseInt(urlParams.listingTypeId || '0', 10);
+    if (urlParams.listingTypeId) {
+      newFilters.listingTypeId = parseInt(urlParams.listingTypeId, 10);
+    } else if (filters.listingTypeId) {
+      newFilters.listingTypeId = filters.listingTypeId;
+    } else {
+      newFilters.listingTypeId = 1; // Default to 1 if nothing else
+    }
+
+    // Extract dynamic attributes from URL (any parameter not in core list)
+    const coreParams = [
+      'search', 'make', 'makes', 'model', 'trim', 'minYear', 'maxYear', 
+      'minPrice', 'maxPrice', 'minMileage', 'maxMileage', 'currency', 
+      'governorate', 'city', 'transmission', 'fuelType', 'bodyType', 
+      'listingOfferType', 'listingType', 'listingTypeId', 'page', 'pageSize', 'sortBy', 'sortDirection'
+    ];
+    
+    const attributes: Record<string, any> = {};
+    searchParams.forEach((value, key) => {
+      if (!coreParams.includes(key)) {
+        attributes[key] = value;
+      }
+    });
+    newFilters.attributes = attributes;
 
     // Update state
     setFilters((prev) => ({ ...prev, ...newFilters }));
@@ -723,6 +747,13 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
           }
         });
 
+        // Add dynamic attributes to URL
+        Object.entries(debouncedFiltersForUrl.attributes).forEach(([slug, value]) => {
+          if (value !== undefined && value !== '' && (Array.isArray(value) ? value.length > 0 : true)) {
+             params.set(slug, String(value));
+          }
+        });
+
         const newUrl = params.toString()
           ? `${pathname}?${params.toString()}`
           : pathname;
@@ -767,25 +798,92 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
     }
   }, [debouncedFiltersForUrl, debouncedSearchForUrl, updateUrl]);
 
-  // Fetch filter schema when listingTypeId changes
+  // Fetch filter schema when listingTypeId changes OR if it's missing
   useEffect(() => {
-    const fetchSchema = async () => {
+    const fetchSchemaAndOptions = async () => {
+      if (!filters.listingTypeId) return;
+      
       try {
-        const controller = getInjection('IListingTypesRepoController');
-        console.log("filters.listingTypeId", filters.listingTypeId)
-        const res = await controller.getFilterSchema(filters.listingTypeId);
-        if (res.success && res.data) {
-          setFilterSchema(res.data);
+        setIsLoading(true);
+        const listingTypesController = getInjection('IListingTypesRepoController');
+        const refsController = getInjection('IListingTypeRefsRepoController');
+        
+        // 1. Fetch Schema if needed
+        let currentSchema = filterSchema;
+        if (!currentSchema || currentSchema.listingTypeId !== filters.listingTypeId) {
+          const res = await listingTypesController.getFilterSchema(filters.listingTypeId);
+          if (res.success && res.data) {
+            currentSchema = res.data;
+            setFilterSchema(res.data);
+            // Reset options when schema changes to avoid showing stale options
+            setDynamicOptions({});
+          }
+        }
+
+        // 2. Fetch Reference Options based on current schema
+        if (currentSchema) {
+          const allAttributes = currentSchema.sections.flatMap((s: any) => s.attributes);
+          const referenceAttrs = allAttributes.filter((a: any) => a.type === 'reference' && a.referenceGroupId);
+          
+          if (referenceAttrs.length > 0) {
+            const newOptions: Record<string, any[]> = { ...dynamicOptions };
+            let hasChanges = false;
+
+            for (const attr of referenceAttrs) {
+              let parentItemId: number | undefined = undefined;
+              
+              if (attr.dependsOnAttributeId) {
+                const parentAttr = allAttributes.find((a: any) => a.id === attr.dependsOnAttributeId);
+                if (parentAttr) {
+                  const parentValue = filters.attributes[parentAttr.slug] || 
+                                     (parentAttr.slug === 'make' ? filters.selectedBrands[0] : undefined) ||
+                                     (parentAttr.slug === 'marka' ? filters.selectedBrands[0] : undefined);
+                  
+                  if (parentValue) {
+                    parentItemId = Number(parentValue);
+                  } else {
+                    // Skip fetching if parent is required but not selected
+                    if (newOptions[attr.slug]?.length !== 0) {
+                      newOptions[attr.slug] = [];
+                      hasChanges = true;
+                    }
+                    continue;
+                  }
+                }
+              }
+
+              // Only fetch if we don't have these options yet or parent changed
+              // (Simplification: we fetch if it's a dependent field or if options are empty)
+              const res = await refsController.getItemsByGroupId(attr.referenceGroupId, parentItemId, 100);
+              
+              if (res.success && res.data) {
+                const items = Array.isArray(res.data) ? res.data : (res.data.data || []);
+                const formatted = items.map((item: any) => ({
+                  value: String(item.id),
+                  label: (typeof item.name === 'object' 
+                    ? (item.name['ar'] || item.name['en'] || item.id) // Default to Arabic/English for labels in provider
+                    : (item.name || item.id))
+                }));
+                
+                newOptions[attr.slug] = formatted;
+                hasChanges = true;
+              }
+            }
+
+            if (hasChanges) {
+              setDynamicOptions(newOptions);
+            }
+          }
         }
       } catch (error) {
-        console.error('Failed to fetch filter schema in FilterProvider:', error);
+        console.error('Failed in fetchSchemaAndOptions:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    if (filters.listingTypeId) {
-      fetchSchema();
-    }
-  }, [filters.listingTypeId]);
+    fetchSchemaAndOptions();
+  }, [filters.listingTypeId, filters.selectedBrands, filters.attributes, filterSchema?.listingTypeId]);
 
   // Fetch all listing types (categories)
   useEffect(() => {
@@ -829,6 +927,7 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
       isLoading,
       filterSchema,
       listingTypes,
+      dynamicOptions,
       updateFilter,
       updateAttribute,
       updateFilters,
@@ -847,6 +946,7 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
       isLoading,
       filterSchema,
       listingTypes,
+      dynamicOptions,
       updateFilter,
       updateAttribute,
       updateFilters,

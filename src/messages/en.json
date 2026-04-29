@@ -63,6 +63,8 @@
     "filter": {
       "Buy": "Buy",
       "Hire": "Hire",
+      "listingType": "Category",
+      "listingTypeSelect": "Select Category",
       "productType": "product Type",
       "selectproductType": "Select product Type",
       "state": "State",

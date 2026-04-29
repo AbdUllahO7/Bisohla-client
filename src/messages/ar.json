@@ -63,6 +63,8 @@
     "filter": {
       "Buy": "شراء",
       "Hire": "اســــتئجار",
+      "listingType": "نوع الفئة",
+      "listingTypeSelect": "اختر الفئة",
       "productType": "نوع الإعلان",
       "selectproductType": "اختر نوع الإعلان",
       "state": "المحافظة",

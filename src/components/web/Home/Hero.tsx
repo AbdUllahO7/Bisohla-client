@@ -4,6 +4,8 @@ import Box from "@/components/box/box"
 import Text from "@/components/text/text"
 import Filter from "./Filter"
 
+import { FilterProvider } from "@/providers/filters.provider"
+
 const Hero = async () => {
   const t = await getTranslations("homePage")
 
@@ -54,7 +56,9 @@ const Hero = async () => {
           />
         </div>
       </Box>
-      <Filter />
+      <FilterProvider>
+        <Filter />
+      </FilterProvider>
     </div>
   )
 }

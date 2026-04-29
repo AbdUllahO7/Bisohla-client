@@ -48,8 +48,6 @@ import { useToast } from '@/hooks/use-toast';
 import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions';
 import CarAlertModal from './CarAlertModal';
 import { getCityOptions } from './addProducts/StepOne/utils';
-import { getInjection } from '@/di/container';
-import { ListingTypeFilterSchemaDto } from '@/core/entities/models/listing-types/listing-types.dto';
 
 // Types for components
 interface FilterOptionDropdownProps {
