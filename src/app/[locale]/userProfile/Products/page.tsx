@@ -65,14 +65,14 @@ const UserProductPage = () => {
     const params: QueryParams = { ...filterParams };
     
     if (listingTypeId) {
-      // Ensure filterGroups exists
-      if (!params.filterGroups) params.filterGroups = [];
+      // Ensure where exists
+      if (!params.where) params.where = [];
       
-      // Add listingTypeId to its own filter group (matches AlertsPage logic)
-      params.filterGroups.push({
-        operator: 'and',
-        filters: [{ field: 'listingTypeId', operator: 'eq', value: listingTypeId }]
-      });
+      // Add listingTypeId to where filters if not already present
+      const hasTypeFilter = params.where.some(f => f.field === 'listingTypeId');
+      if (!hasTypeFilter) {
+        params.where.push({ field: 'listingTypeId', operator: 'eq', value: listingTypeId });
+      }
 
       // Keep listingTypeId as a top-level param too, as it's common for many endpoints
       (params as any).listingTypeId = listingTypeId;
