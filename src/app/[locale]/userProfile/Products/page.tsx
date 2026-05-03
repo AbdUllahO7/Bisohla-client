@@ -62,24 +62,34 @@ const UserProductPage = () => {
 
   // Prepare combined query params including listingTypeId
   const combinedQueryParams = useMemo(() => {
-    const params: QueryParams = { ...filterParams };
+    const params: QueryParams = {
+      ...filterParams,
+      page: currentPage,
+      where: undefined, // Explicitly omit where array to avoid conflicting with filterGroups
+      filterGroups: filterParams.filterGroups ? JSON.parse(JSON.stringify(filterParams.filterGroups)) : undefined,
+    };
     
     if (listingTypeId) {
-      // Ensure filterGroups exists
+      // 1. Add to filterGroups if not present
       if (!params.filterGroups) params.filterGroups = [];
-      
-      // Add listingTypeId to its own filter group (matches AlertsPage logic)
-      params.filterGroups.push({
-        operator: 'and',
-        filters: [{ field: 'listingTypeId', operator: 'eq', value: listingTypeId }]
-      });
+      const hasFgTypeFilter = params.filterGroups.some(fg => 
+        fg.filters && fg.filters.some(f => f.field === 'listingTypeId')
+      );
+      if (!hasFgTypeFilter) {
+        params.filterGroups.push({
+          operator: 'and',
+          filters: [
+            { field: 'listingTypeId', operator: 'eq', value: listingTypeId }
+          ]
+        });
+      }
 
-      // Keep listingTypeId as a top-level param too, as it's common for many endpoints
+      // 2. Keep listingTypeId as a top-level param too, as it's common for many endpoints
       (params as any).listingTypeId = listingTypeId;
     }
     
     return params;
-  }, [filterParams, listingTypeId]);
+  }, [filterParams, listingTypeId, currentPage]);
 
   // Fetch user's listings using the generic hook
   const { data, isLoading, error, refetch } = useMyListings(combinedQueryParams);
@@ -134,10 +144,6 @@ const UserProductPage = () => {
   // Handle page change from pagination
   const handlePageChange = useCallback((page: number) => {
     setCurrentPage(page);
-    setFilterParams((prev) => ({
-      ...prev,
-      page: page,
-    }));
   }, []);
 
   // Handle refresh
@@ -145,13 +151,18 @@ const UserProductPage = () => {
     refetch();
   }, [refetch]);
 
-  // Reset page when filters change
+  // Reset to page 1 when filters change like AllCarListings.tsx
   useEffect(() => {
-    setFilterParams((prev) => ({
-      ...prev,
-      page: currentPage,
-    }));
-  }, [currentPage]);
+    if (filterParams) {
+      setCurrentPage(1);
+    }
+  }, [
+    filterParams?.filterGroups,
+    filterParams?.where,
+    filterParams?.searchTerm,
+    filterParams?.sortBy,
+    filterParams?.sortDirection,
+  ]);
 
   // Prepare listings for display
   const listings = useMemo(() => {

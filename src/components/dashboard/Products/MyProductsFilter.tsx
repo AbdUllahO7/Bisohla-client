@@ -102,8 +102,22 @@ const MyProductsFilter: React.FC<SimpleProductsFilterProps> = ({
 
   // Build filter query matching FilterProvider.tsx pattern
   useEffect(() => {
-    const filterGroups: FilterGroup[] = [];
+    const filterGroups: any[] = [];
     
+    // Always include listingTypeId if provided
+    if (listingTypeId) {
+      filterGroups.push({
+        operator: 'and',
+        filters: [
+          {
+            field: 'listingTypeId',
+            operator: 'eq',
+            value: listingTypeId,
+          },
+        ],
+      });
+    }
+
     // 1. Listing Type (Offer Type) filter group
     if (listingType !== 'all') {
       filterGroups.push({
@@ -119,34 +133,35 @@ const MyProductsFilter: React.FC<SimpleProductsFilterProps> = ({
     }
 
     // 2. Car filters group
-    const carDetailsFilters: any[] = [];
-    if (makeId) {
-      carDetailsFilters.push({
-        field: 'makeId',
-        operator: 'eq',
-        value: makeId,
-      });
-    }
-    if (modelId) {
-      carDetailsFilters.push({
-        field: 'modelId',
-        operator: 'eq',
-        value: modelId,
-      });
-    }
-    if (trimId) {
-      carDetailsFilters.push({
-        field: 'trimId',
-        operator: 'eq',
-        value: trimId,
-      });
-    }
-
-    if (carDetailsFilters.length > 0) {
-      filterGroups.push({
-        operator: 'and',
-        filters: carDetailsFilters,
-      });
+    if (listingTypeId === 1) {
+      const carFilters: any[] = [];
+      if (makeId) {
+        carFilters.push({
+          field: 'attrs.make',
+          operator: 'eq',
+          value: makeId,
+        });
+      }
+      if (modelId) {
+        carFilters.push({
+          field: 'attrs.model',
+          operator: 'eq',
+          value: modelId,
+        });
+      }
+      if (trimId) {
+        carFilters.push({
+          field: 'attrs.trim',
+          operator: 'eq',
+          value: trimId,
+        });
+      }
+      if (carFilters.length > 0) {
+        filterGroups.push({
+          operator: 'and',
+          filters: carFilters,
+        });
+      }
     }
 
     // 3. Status filter group (Custom for My Listings)
@@ -165,20 +180,20 @@ const MyProductsFilter: React.FC<SimpleProductsFilterProps> = ({
 
     // 4. Dynamic attribute filters
     if (Object.keys(dynamicAttributes).length > 0) {
-      const attributeFilters: any[] = [];
+      const dynamicFilters: any[] = [];
       Object.entries(dynamicAttributes).forEach(([slug, value]) => {
         if (value !== undefined && value !== '' && (Array.isArray(value) ? value.length > 0 : true)) {
           if (Array.isArray(value)) {
-            attributeFilters.push({ field: slug, operator: 'in', value });
+            dynamicFilters.push({ field: `attrs.${slug}`, operator: 'in', value });
           } else {
-            attributeFilters.push({ field: slug, operator: 'eq', value });
+            dynamicFilters.push({ field: `attrs.${slug}`, operator: 'eq', value });
           }
         }
       });
-      if (attributeFilters.length > 0) {
+      if (dynamicFilters.length > 0) {
         filterGroups.push({
           operator: 'and',
-          filters: attributeFilters,
+          filters: dynamicFilters,
         });
       }
     }
@@ -711,7 +726,7 @@ const MyProductsFilter: React.FC<SimpleProductsFilterProps> = ({
                         <div key={attr.id} className="space-y-2">
                           <label className="text-sm font-medium">{attrName}</label>
                           <Select
-                            value={dynamicAttributes[attr.slug] || "all"}
+                            value={dynamicAttributes[attr.slug] ? String(dynamicAttributes[attr.slug]) : "all"}
                             onValueChange={(value) => updateAttribute(attr.slug, value === "all" ? undefined : value)}
                           >
                             <SelectTrigger>
@@ -720,7 +735,7 @@ const MyProductsFilter: React.FC<SimpleProductsFilterProps> = ({
                             <SelectContent>
                               <SelectItem value="all">{isRTL ? 'الكل' : 'All'}</SelectItem>
                               {attr.options.map((opt: any) => (
-                                <SelectItem key={opt.id} value={opt.id}>
+                                <SelectItem key={String(opt.id)} value={String(opt.id)}>
                                   {opt.label[locale] || opt.label['en'] || opt.id}
                                 </SelectItem>
                               ))}

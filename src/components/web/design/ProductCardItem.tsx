@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button';
 import { CarCardItemPropsProfile } from '@/types/homePageTypes';
 import { AlertTriangle, Edit, HeartIcon, Trash2 } from 'lucide-react';
 import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions';
-import { toggleCarListingFavorite } from '@/core/infrastructure-adapters/actions/users/car.user.actions';
+import { toggleListingFavorite } from '@/core/infrastructure-adapters/actions/users/listing.user.actions';
 import { useDeleteCarListing } from '@/core/infrastructure-adapters/use-actions/users/car.user.use-actions';
 import {
   AlertDialog,
@@ -138,8 +138,8 @@ export const ProductCardItem: React.FC<ExtendedCarCardItemPropsProfile> = ({
         }
 
         // Call API
-        const response = await toggleCarListingFavorite({
-          carListingId: Number(ProductId),
+        const response = await toggleListingFavorite({
+          listingId: Number(ProductId),
         });
 
         // Handle API response

@@ -33,7 +33,7 @@ import clsx from 'clsx';
 import { formatDistanceToNow } from 'date-fns';
 import { ar, enUS } from 'date-fns/locale';
 import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions';
-import { toggleCarListingFavorite } from '@/core/infrastructure-adapters/actions/users/car.user.actions';
+import { toggleListingFavorite } from '@/core/infrastructure-adapters/actions/users/listing.user.actions';
 import {
   useUpdateSaveStatus,
   useMyCarById
@@ -580,8 +580,8 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
           onFavoriteToggle(Number(carListing.id), newStatus);
         }
 
-        const response = await toggleCarListingFavorite({
-          carListingId: Number(carListing.id),
+        const response = await toggleListingFavorite({
+          listingId: Number(carListing.id),
         });
 
         if (response.success) {

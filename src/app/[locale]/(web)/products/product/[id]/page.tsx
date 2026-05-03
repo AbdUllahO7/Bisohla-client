@@ -7,6 +7,7 @@ import { ApiResponse } from '@/core/entities/api/success.response';
 import { SelectCarListingDto } from '@/core/entities/models/cars/cars.dto';
 import { GenericListingDto } from '@/core/entities/models/listings/generic-listing.dto';
 import { getMyCarById } from '@/core/infrastructure-adapters/actions/users/car.user.actions';
+import { getListingById as getMyListingById } from '@/core/infrastructure-adapters/actions/users/listing.user.actions';
 import { QueryParams } from '@/core/entities/api/api';
 import { getCarListingById } from '@/core/infrastructure-adapters/actions/visitors/car.visitor.actions';
 import { getListingBySlug, getListingById } from '@/core/infrastructure-adapters/actions/visitors/listing.visitor.actions';
@@ -40,22 +41,48 @@ async function fetchCarData(
   locale: string,
   userId?: number,
 ): Promise<FetchListingResult> {
+  console.log(`[ProductPage] start fetchCarData for: ${idOrSlug}, isProfileView: ${isProfileView}, userId: ${userId}`);
+
   if (isProfileView) {
-    const myCarRes = await getMyCarById(Number(idOrSlug));
-    if (myCarRes.success && myCarRes.data) {
-      return {
-        carResponse: {
-          ...myCarRes,
-          data: normalizeListingToCarDto(myCarRes.data, locale),
-        } as ApiResponse<SelectCarListingDto>,
-        rawListing: myCarRes.data as unknown as GenericListingDto,
-      };
+    let id = Number(idOrSlug);
+    if (isNaN(id)) {
+      // It's a slug! Let's get the listing by slug first to extract its numeric id.
+      const slugRes = await getListingBySlug(idOrSlug);
+      if (slugRes.success && slugRes.data) {
+        id = slugRes.data.id;
+      }
     }
-    return { carResponse: myCarRes as ApiResponse<SelectCarListingDto>, rawListing: null };
+
+    if (!isNaN(id)) {
+      const myListingRes = await getMyListingById(id);
+      console.log(`[ProductPage] getMyListingById(${id}) returned success=${myListingRes?.success}`);
+      if (myListingRes.success && myListingRes.data) {
+        return {
+          carResponse: {
+            ...myListingRes,
+            data: normalizeListingToCarDto(myListingRes.data, locale),
+          } as ApiResponse<SelectCarListingDto>,
+          rawListing: myListingRes.data as unknown as GenericListingDto,
+        };
+      }
+
+      const myCarRes = await getMyCarById(id);
+      console.log(`[ProductPage] getMyCarById(${id}) returned success=${myCarRes?.success}`);
+      if (myCarRes.success && myCarRes.data) {
+        return {
+          carResponse: {
+            ...myCarRes,
+            data: normalizeListingToCarDto(myCarRes.data, locale),
+          } as ApiResponse<SelectCarListingDto>,
+          rawListing: myCarRes.data as unknown as GenericListingDto,
+        };
+      }
+    }
   }
 
   // Attempt 1: Fetch by Slug (New generic endpoint)
   const slugRes = await getListingBySlug(idOrSlug);
+  console.log(`[ProductPage] getListingBySlug(${idOrSlug}) returned success=${slugRes?.success}`);
   if (slugRes.success && slugRes.data) {
     return {
       carResponse: {
@@ -70,6 +97,7 @@ async function fetchCarData(
   const id = Number(idOrSlug);
   if (!isNaN(id) && idOrSlug.trim() !== '') {
     const idRes = await getListingById(id);
+    console.log(`[ProductPage] getListingById(${id}) returned success=${idRes?.success}`);
     if (idRes.success && idRes.data) {
       return {
         carResponse: {
@@ -82,11 +110,13 @@ async function fetchCarData(
 
     // Attempt 3: Legacy car endpoint fallback
     const legacyRes = await getCarListingById({ id, userId });
+    console.log(`[ProductPage] getCarListingById(${id}) returned success=${legacyRes?.success}`);
     if (legacyRes.success && legacyRes.data) {
       return { carResponse: legacyRes, rawListing: null };
     }
   }
 
+  console.warn(`[ProductPage] all attempts failed for ${idOrSlug}`);
   return { carResponse: slugRes as ApiResponse<SelectCarListingDto>, rawListing: null };
 }
 
