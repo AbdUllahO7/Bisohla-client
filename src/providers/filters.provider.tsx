@@ -183,6 +183,19 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
         });
       }
 
+      if (currentFilters.listingTypeId && currentFilters.listingTypeId > 0) {
+        filterGroups.push({
+          operator: 'and',
+          filters: [
+            {
+              field: 'listingTypeId',
+              operator: 'eq',
+              value: currentFilters.listingTypeId,
+            },
+          ],
+        });
+      }
+
       // Car brands filter group - supports multiple brands with "in" operator
       const carDetailsFilters: Filter[] = [];
 

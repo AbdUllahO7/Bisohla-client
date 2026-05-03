@@ -14,7 +14,7 @@ import Box from '@/components/box/box';
 import { ArrowRight, Eye, Fuel, HeartIcon, LifeBuoy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from '@/i18n/routing';
-import { toggleCarListingFavorite } from '@/core/infrastructure-adapters/actions/users/car.user.actions';
+import { toggleListingFavorite } from '@/core/infrastructure-adapters/actions/users/listing.user.actions';
 import { useTranslations } from 'next-intl';
 import {
   getFuelTypeOptions,
@@ -129,8 +129,8 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
     onFavoriteToggle?.(car.id, optimisticState);
 
     try {
-      const response = await toggleCarListingFavorite({
-        carListingId: car.id,
+      const response = await toggleListingFavorite({
+        listingId: car.id,
       });
 
       // Handle successful response

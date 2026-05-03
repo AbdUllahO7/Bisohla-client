@@ -22,7 +22,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Link } from '@/i18n/routing';
 import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions';
-import { toggleCarListingFavorite } from '@/core/infrastructure-adapters/actions/users/car.user.actions';
+import { toggleListingFavorite } from '@/core/infrastructure-adapters/actions/users/listing.user.actions';
 import { useTranslations } from 'next-intl';
 import {
   getFuelTypeOptions,
@@ -146,8 +146,8 @@ export const RentProductListCard: React.FC<RentProductListCardProps> = ({
           onFavoriteToggle(Number(productId), newStatus);
         }
 
-        const response = await toggleCarListingFavorite({
-          carListingId: Number(productId),
+        const response = await toggleListingFavorite({
+          listingId: Number(productId),
         });
 
         if (response.success) {

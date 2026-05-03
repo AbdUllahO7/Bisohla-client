@@ -102,71 +102,100 @@ const MyProductsFilter: React.FC<SimpleProductsFilterProps> = ({
 
   // Build filter query matching FilterProvider.tsx pattern
   useEffect(() => {
-    const where: any[] = [];
+    const filterGroups: any[] = [];
     
     // Always include listingTypeId if provided
     if (listingTypeId) {
-      where.push({
-        field: 'listingTypeId',
-        operator: 'eq',
-        value: listingTypeId,
+      filterGroups.push({
+        operator: 'and',
+        filters: [
+          {
+            field: 'listingTypeId',
+            operator: 'eq',
+            value: listingTypeId,
+          },
+        ],
       });
     }
 
     // 1. Listing Type (Offer Type) filter group
     if (listingType !== 'all') {
-      where.push({
-        field: 'listingOfferType',
-        operator: 'eq',
-        value: listingType,
+      filterGroups.push({
+        operator: 'and',
+        filters: [
+          {
+            field: 'listingOfferType',
+            operator: 'eq',
+            value: listingType,
+          },
+        ],
       });
     }
 
     // 2. Car filters group
     if (listingTypeId === 1) {
+      const carFilters: any[] = [];
       if (makeId) {
-        where.push({
+        carFilters.push({
           field: 'attrs.make',
           operator: 'eq',
           value: makeId,
         });
       }
       if (modelId) {
-        where.push({
+        carFilters.push({
           field: 'attrs.model',
           operator: 'eq',
           value: modelId,
         });
       }
       if (trimId) {
-        where.push({
+        carFilters.push({
           field: 'attrs.trim',
           operator: 'eq',
           value: trimId,
+        });
+      }
+      if (carFilters.length > 0) {
+        filterGroups.push({
+          operator: 'and',
+          filters: carFilters,
         });
       }
     }
 
     // 3. Status filter group (Custom for My Listings)
     if (status !== 'all') {
-      where.push({
-        field: 'publicationStatus', // Using publicationStatus from the example data
-        operator: 'eq',
-        value: status,
+      filterGroups.push({
+        operator: 'and',
+        filters: [
+          {
+            field: 'publicationStatus', // Using publicationStatus from the example data
+            operator: 'eq',
+            value: status,
+          },
+        ],
       });
     }
 
     // 4. Dynamic attribute filters
     if (Object.keys(dynamicAttributes).length > 0) {
+      const dynamicFilters: any[] = [];
       Object.entries(dynamicAttributes).forEach(([slug, value]) => {
         if (value !== undefined && value !== '' && (Array.isArray(value) ? value.length > 0 : true)) {
           if (Array.isArray(value)) {
-            where.push({ field: `attrs.${slug}`, operator: 'in', value });
+            dynamicFilters.push({ field: `attrs.${slug}`, operator: 'in', value });
           } else {
-            where.push({ field: `attrs.${slug}`, operator: 'eq', value });
+            dynamicFilters.push({ field: `attrs.${slug}`, operator: 'eq', value });
           }
         }
       });
+      if (dynamicFilters.length > 0) {
+        filterGroups.push({
+          operator: 'and',
+          filters: dynamicFilters,
+        });
+      }
     }
 
     // Sort configuration
@@ -206,7 +235,7 @@ const MyProductsFilter: React.FC<SimpleProductsFilterProps> = ({
       pageSize: 12,
       sortBy: sortField,
       sortDirection,
-      where: where.length > 0 ? where : undefined,
+      filterGroups: filterGroups.length > 0 ? filterGroups : undefined,
       searchTerm: debouncedSearchQuery.trim() || undefined,
     };
 

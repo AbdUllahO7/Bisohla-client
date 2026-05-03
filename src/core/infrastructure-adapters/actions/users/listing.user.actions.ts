@@ -5,6 +5,7 @@ import { ApiResponse, PaginatedResponse } from '@/core/entities/api/success.resp
 import { CreateListingDto, UpdateListingDto } from '@/core/entities/models/listings/create-listing.dto';
 import { ListingDto } from '@/core/entities/models/listings/listings.dto';
 import { QueryParams } from '@/core/entities/api/api';
+import { UserFavoriteListing, ToggleFavoriteListingDto, ToggleFavoriteListingResponse, CreateFavoriteListingDto } from '@/core/entities/models/listings/users-favorites-listings.zod.dto';
 
 /**
  * Create a new listing via POST /my-listings
@@ -66,6 +67,57 @@ export const deleteListing = async (
 ): Promise<ApiResponse<Record<string, unknown>>> => {
   const res = await deleteAuthReq<Record<string, unknown>, Record<string, unknown>>({
     url: `/my-listings/${id}`,
+  });
+  return res;
+};
+
+/**
+ * Get listing favorites
+ */
+export const getListingFavorites = async (
+  params: QueryParams,
+): Promise<PaginatedResponse<UserFavoriteListing>> => {
+  const res = await getAuthReq<QueryParams, any>({
+    url: '/listing-favorites',
+    params,
+  });
+  return res as PaginatedResponse<UserFavoriteListing>;
+};
+
+/**
+ * Get listing favorite by id
+ */
+export const getListingFavoriteById = async (
+  id: number,
+): Promise<ApiResponse<UserFavoriteListing>> => {
+  const res = await getAuthReq<Record<string, unknown>, UserFavoriteListing>({
+    url: `/listing-favorites/${id}`,
+  });
+  return res;
+};
+
+/**
+ * Toggle listing favorite
+ */
+export const toggleListingFavorite = async (
+  dto: ToggleFavoriteListingDto,
+): Promise<ApiResponse<ToggleFavoriteListingResponse>> => {
+  const res = await postAuthReq<ToggleFavoriteListingDto, ToggleFavoriteListingResponse>({
+    url: '/listing-favorites/toggle',
+    body: dto,
+  });
+  return res;
+};
+
+/**
+ * Add listing to favorites
+ */
+export const createListingFavorite = async (
+  dto: CreateFavoriteListingDto,
+): Promise<ApiResponse<UserFavoriteListing>> => {
+  const res = await postAuthReq<CreateFavoriteListingDto, UserFavoriteListing>({
+    url: '/listing-favorites',
+    body: dto,
   });
   return res;
 };

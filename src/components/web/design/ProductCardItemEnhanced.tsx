@@ -33,7 +33,7 @@ import {
   Calendar,
 } from 'lucide-react';
 import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions';
-import { toggleCarListingFavorite } from '@/core/infrastructure-adapters/actions/users/car.user.actions';
+import { toggleListingFavorite } from '@/core/infrastructure-adapters/actions/users/listing.user.actions';
 import { 
   useUpdateSaveStatus,
   useMyCarById 
@@ -336,8 +336,8 @@ export const EnhancedProductCardItem: React.FC<ExtendedCarCardItemPropsProfile> 
           onFavoriteToggle(Number(ProductId), newStatus);
         }
 
-        const response = await toggleCarListingFavorite({
-          carListingId: Number(ProductId),
+        const response = await toggleListingFavorite({
+          listingId: Number(ProductId),
         });
 
         if (response.success) {
