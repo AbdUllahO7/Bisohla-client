@@ -241,74 +241,6 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
     });
   }, [makesData?.pages, selectedBrands, carMakesConfig, locale]);
 
-  // =============================================================================
-  // HOOKS FOR MODELS AND TRIMS
-  // =============================================================================
-
-  const useModelsForBrand = useCallback(
-    (brandId: string) => {
-      return useInfiniteQuery({
-        queryKey: [...carModelsConfig.queryKey, brandId, locale],
-        queryFn: async ({ pageParam = 1 }) => {
-          const response = await carModelsConfig.fetchFn({
-            page: Number(pageParam),
-            pageSize: 100,
-            where: [{ field: 'makeId', operator: 'eq', value: brandId }],
-          });
-
-          if (!response.success) {
-            throw new Error(response.message || 'Failed to fetch car models');
-          }
-
-          return response;
-        },
-        getNextPageParam: (lastPage) => {
-          if (!lastPage.data) return undefined;
-          return lastPage.data.hasNextPage
-            ? Number(lastPage.data.currentPage) + 1
-            : undefined;
-        },
-        initialPageParam: 1,
-        enabled:
-          selectedBrands.includes(brandId) && expandedBrands.has(brandId),
-        staleTime: 5 * 60 * 1000,
-        refetchOnWindowFocus: false,
-      });
-    },
-    [carModelsConfig, selectedBrands, expandedBrands],
-  );
-
-  const useTrimsForModel = useCallback(
-    (modelId: string) => {
-      return useInfiniteQuery({
-        queryKey: [...carTrimsConfig.queryKey, modelId, locale],
-        queryFn: async ({ pageParam = 1 }) => {
-          const response = await carTrimsConfig.fetchFn({
-            page: Number(pageParam),
-            pageSize: 100,
-            where: [{ field: 'modelId', operator: 'eq', value: modelId }],
-          });
-
-          if (!response.success) {
-            throw new Error(response.message || 'Failed to fetch car trims');
-          }
-
-          return response;
-        },
-        getNextPageParam: (lastPage) => {
-          if (!lastPage.data) return undefined;
-          return lastPage.data.hasNextPage
-            ? Number(lastPage.data.currentPage) + 1
-            : undefined;
-        },
-        initialPageParam: 1,
-        enabled: !!modelId && expandedModels.has(modelId),
-        staleTime: 5 * 60 * 1000,
-        refetchOnWindowFocus: false,
-      });
-    },
-    [carTrimsConfig, expandedModels],
-  );
 
   // =============================================================================
   // EFFECTS
@@ -386,7 +318,32 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
 
   const BrandItem: React.FC<{ brand: CarMake }> = React.memo(({ brand }) => {
     const isExpanded = expandedBrands.has(brand.value);
-    const modelsQuery = useModelsForBrand(brand.value);
+    const modelsQuery = useInfiniteQuery({
+      queryKey: [...carModelsConfig.queryKey, brand.value, locale],
+      queryFn: async ({ pageParam = 1 }) => {
+        const response = await carModelsConfig.fetchFn({
+          page: Number(pageParam),
+          pageSize: 100,
+          where: [{ field: 'makeId', operator: 'eq', value: brand.value }],
+        });
+
+        if (!response.success) {
+          throw new Error(response.message || 'Failed to fetch car models');
+        }
+
+        return response;
+      },
+      getNextPageParam: (lastPage) => {
+        if (!lastPage.data) return undefined;
+        return lastPage.data.hasNextPage
+          ? Number(lastPage.data.currentPage) + 1
+          : undefined;
+      },
+      initialPageParam: 1,
+      enabled: selectedBrands.includes(brand.value) && expandedBrands.has(brand.value),
+      staleTime: 5 * 60 * 1000,
+      refetchOnWindowFocus: false,
+    });
 
     const models = useMemo(() => {
       if (!modelsQuery.data?.pages) return [];
@@ -527,7 +484,32 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
     isCarTrimRequired: boolean;
   }> = React.memo(({ model, isCarTrimRequired }) => {
     const isExpanded = expandedModels.has(model.value);
-    const trimsQuery = useTrimsForModel(model.value);
+    const trimsQuery = useInfiniteQuery({
+      queryKey: [...carTrimsConfig.queryKey, model.value, locale],
+      queryFn: async ({ pageParam = 1 }) => {
+        const response = await carTrimsConfig.fetchFn({
+          page: Number(pageParam),
+          pageSize: 100,
+          where: [{ field: 'modelId', operator: 'eq', value: model.value }],
+        });
+
+        if (!response.success) {
+          throw new Error(response.message || 'Failed to fetch car trims');
+        }
+
+        return response;
+      },
+      getNextPageParam: (lastPage) => {
+        if (!lastPage.data) return undefined;
+        return lastPage.data.hasNextPage
+          ? Number(lastPage.data.currentPage) + 1
+          : undefined;
+      },
+      initialPageParam: 1,
+      enabled: !!model.value && expandedModels.has(model.value),
+      staleTime: 5 * 60 * 1000,
+      refetchOnWindowFocus: false,
+    });
 
     const trims = useMemo(() => {
       if (!trimsQuery.data?.pages) return [];

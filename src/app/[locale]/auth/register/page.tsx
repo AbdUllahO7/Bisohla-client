@@ -118,7 +118,7 @@ const RegisterPage = () => {
                   </>
                 ) : (
                   <>
-                    We've sent a verification link to
+                    {"We've sent a verification link to"}
                     <br />
                     <span className="font-semibold text-emerald-600">
                       {state.data.email}
@@ -159,8 +159,7 @@ const RegisterPage = () => {
                     </>
                   ) : (
                     <>
-                      <strong>Note:</strong> If you don't see the email, please
-                      check your spam or junk folder.
+                      <strong>Note:</strong> {"If you don't see the email, please check your spam or junk folder."}
                     </>
                   )}
                 </p>

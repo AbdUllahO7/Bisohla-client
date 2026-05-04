@@ -15,6 +15,13 @@ import {
 import { loadSelections, saveSelections } from './StorageUtils';
 import { STORAGE_KEYS } from '../main/hooks/useLocalStorage';
 
+// Translation helper for ref items
+const translateName = (item: ListingTypeRefItemDto, locale: string) => {
+  if (!item.name) return "";
+  if (typeof item.name === 'string') return item.name;
+  return item.name[locale] || item.name['en'] || item.name['ar'] || "";
+};
+
 /**
  * Custom hook for managing the product step one form with infinite scroll support
  */
@@ -147,13 +154,6 @@ export const useProductStepOne = (
     ? [{ field: 'modelId', operator: 'eq', value: modelId }]
     : undefined;
 
-  // Translation helper for ref items
-  const translateName = (item: ListingTypeRefItemDto) => {
-    if (!item.name) return "";
-    if (typeof item.name === 'string') return item.name;
-    return item.name[locale] || item.name['en'] || item.name['ar'] || "";
-  };
-
   // Create fetch functions for infinite scroll dropdowns
   const fetchCarMakes = useCallback(
     async (params: QueryParams) => {
@@ -172,7 +172,7 @@ export const useProductStepOne = (
         // Map names for the UI
         res.data.data = res.data.data.map(item => ({
           ...item,
-          name: translateName(item)
+          name: translateName(item, locale)
         } as any));
       }
       return res;
@@ -204,7 +204,7 @@ export const useProductStepOne = (
       if (res.success && res.data) {
         res.data.data = res.data.data.map((item) => ({
           ...item,
-          name: translateName(item),
+          name: translateName(item, locale),
           // NestedCarFilter reads 'makeId' off each item — attach it
           makeId: resolvedMakeId,
         } as any));
@@ -237,7 +237,7 @@ export const useProductStepOne = (
       if (res.success && res.data) {
         res.data.data = res.data.data.map((item) => ({
           ...item,
-          name: translateName(item),
+          name: translateName(item, locale),
           modelId: resolvedModelId,
         } as any));
       }

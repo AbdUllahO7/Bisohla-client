@@ -3,15 +3,17 @@ import Box from '@/components/box/box';
 import { ProductCardItem } from '@/components/web/design/ProductCardItem';
 import { ProductCardListView } from '@/components/web/design/ProductCardListView';
 import { useLocale, useTranslations } from 'next-intl';
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { useMyListings } from '@/core/infrastructure-adapters/use-actions/users/listing.user.use-actions';
 import ProductSkeleton from '@/components/web/design/ProductSkeletonItem';
 import { useSession } from '@/hooks/auth/use-session';
 import type { QueryParams } from '@/core/entities/api/api';
 import Pagination from '@/components/Pagination';
 import { Card, CardContent } from '@/components/ui/card';
-import { Car, Plus } from 'lucide-react';
+import { Car, Plus, Sun, Moon } from 'lucide-react';
 import { Link } from '@/i18n/routing';
+import { useTheme } from 'next-themes';
+import { motion } from 'framer-motion';
 import MyProductsFilter from '@/components/dashboard/Products/MyProductsFilter';
 import { EnhancedProductCardItem } from '@/components/web/design/ProductCardItemEnhanced';
 import { SaveStatus } from '../../../../core/entities/enums/cars.enums';
@@ -60,7 +62,7 @@ const UserProductPage = () => {
     sortDirection: 'desc',
   });
 
-  // Prepare combined query params including listingTypeId
+  const lastParamsStr = useRef<string>('');
   const combinedQueryParams = useMemo(() => {
     const params: QueryParams = {
       ...filterParams,
@@ -88,12 +90,18 @@ const UserProductPage = () => {
       (params as any).listingTypeId = listingTypeId;
     }
     
-    return params;
+    const currentStr = JSON.stringify(params);
+    if (lastParamsStr.current !== currentStr) {
+      lastParamsStr.current = currentStr;
+      return params;
+    }
+    return JSON.parse(lastParamsStr.current) as QueryParams;
   }, [filterParams, listingTypeId, currentPage]);
 
   // Fetch user's listings using the generic hook
   const { data, isLoading, error, refetch } = useMyListings(combinedQueryParams);
 
+  console.log("combinedQueryParams in UserProductPage", combinedQueryParams);
   console.log("data",data)
   // Handle filter changes from the simple filter component
   const handleFilterChange = useCallback((params: QueryParams) => {
@@ -157,8 +165,8 @@ const UserProductPage = () => {
       setCurrentPage(1);
     }
   }, [
-    filterParams?.filterGroups,
-    filterParams?.where,
+    JSON.stringify(filterParams?.filterGroups),
+    JSON.stringify(filterParams?.where),
     filterParams?.searchTerm,
     filterParams?.sortBy,
     filterParams?.sortDirection,
@@ -211,8 +219,55 @@ const UserProductPage = () => {
     };
   }, [data, currentPage, listings.length]);
 
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   return (
     <div className="space-y-6" dir={direction}>
+      {/* Glassmorphism Header with Dynamic Theme Switcher */}
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
+        className="backdrop-blur-md bg-white/60 dark:bg-black/60 border border-white/40 dark:border-white/20 rounded-2xl p-5 shadow-2xl flex items-center justify-between gap-4 transition-all duration-300 select-none bg-gradient-to-r from-emerald-500/5 to-transparent dark:from-emerald-900/10 dark:to-transparent"
+      >
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-1.5 bg-gradient-to-b from-emerald-600 to-emerald-400 dark:from-emerald-400 dark:to-emerald-300 rounded-full animate-pulse" />
+          <div>
+            <h1 className="text-xl font-extrabold tracking-tight text-gray-900 dark:text-gray-100 flex items-center gap-2">
+              {direction === 'ltr' ? 'My Product Listings' : 'إعلاناتي'}
+              <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-500 animate-ping" />
+            </h1>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              {direction === 'ltr' ? 'Manage, refine, and filter your published items.' : 'إدارة وتصفية إعلاناتك المنشورة.'}
+            </p>
+          </div>
+        </div>
+
+        <motion.button
+          whileHover={{ scale: 1.08 }}
+          whileTap={{ scale: 0.92 }}
+          onClick={() => setTheme(mounted && theme === 'dark' ? 'light' : 'dark')}
+          className="p-3.5 bg-white dark:bg-black/80 backdrop-blur-md border-2 border-emerald-500/40 dark:border-emerald-500/40 hover:border-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 rounded-2xl text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 transition-all shadow-lg hover:shadow-emerald-500/20 dark:hover:shadow-emerald-400/10 flex items-center gap-2 cursor-pointer relative z-50 ring-4 ring-emerald-500/10 dark:ring-emerald-500/5"
+          title={direction === 'ltr' ? 'Toggle Theme' : 'تغيير المظهر'}
+        >
+          {mounted && theme === 'dark' ? (
+            <>
+              <Sun className="h-5 w-5 text-amber-500 animate-pulse" />
+              <span className="text-xs font-bold hidden sm:inline">{direction === 'ltr' ? 'Light' : 'نهاري'}</span>
+            </>
+          ) : (
+            <>
+              <Moon className="h-5 w-5 text-indigo-600 dark:text-indigo-400 animate-pulse" />
+              <span className="text-xs font-bold hidden sm:inline">{direction === 'ltr' ? 'Dark' : 'ليلي'}</span>
+            </>
+          )}
+        </motion.button>
+      </motion.div>
+
       {/* Simple Filter Component */}
       <MyProductsFilter
         onChange={handleFilterChange}

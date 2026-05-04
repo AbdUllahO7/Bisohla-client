@@ -96,23 +96,23 @@ const PublicProfileFilter: React.FC<PublicProfileFilterProps> = ({
     const carFilters = [];
     if (makeId) {
       carFilters.push({
-        field: 'makeId',
+        field: 'attrs.make',
         operator: 'eq',
-        value: makeId,
+        value: isNaN(Number(makeId)) ? makeId : Number(makeId),
       });
     }
     if (modelId) {
       carFilters.push({
-        field: 'modelId',
+        field: 'attrs.model',
         operator: 'eq',
-        value: modelId,
+        value: isNaN(Number(modelId)) ? modelId : Number(modelId),
       });
     }
     if (trimId) {
       carFilters.push({
-        field: 'trimId',
+        field: 'attrs.trim',
         operator: 'eq',
-        value: trimId,
+        value: isNaN(Number(trimId)) ? trimId : Number(trimId),
       });
     }
 

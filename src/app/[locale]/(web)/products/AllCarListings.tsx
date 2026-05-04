@@ -101,12 +101,13 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
       setCurrentPage(1);
     }
   }, [
-    externalQueryParams?.filterGroups,
-    externalQueryParams?.where,
+    JSON.stringify(externalQueryParams?.filterGroups),
+    JSON.stringify(externalQueryParams?.where),
     externalQueryParams?.searchTerm,
     externalQueryParams?.sortBy,
     externalQueryParams?.sortDirection,
   ]);
+
 
   // Handle favorite status update from child component
   const handleFavoriteToggle = useCallback(

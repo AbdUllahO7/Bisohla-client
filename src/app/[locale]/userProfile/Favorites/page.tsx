@@ -39,6 +39,7 @@ import { useGetListingFavorites } from '@/core/infrastructure-adapters/use-actio
 import { QueryParams } from '@/core/entities/api/api';
 import ProductSkeleton from '@/components/web/design/ProductSkeletonItem';
 import { ProductCardListView } from '@/components/web/design/ProductCardListView';
+import { Link } from '@/i18n/routing';
 
 // Define a type for the transformed favorite listings
 interface FavoriteListing {
@@ -587,10 +588,10 @@ const UserFavoritesEnhanced = () => {
               {t('empty.message')}
             </p>
             <Button asChild>
-              <a href="/products">
+              <Link href="/products">
                 <Car className="h-4 w-4 mr-2 rtl:mr-0 rtl:ml-2" />
                 {t('empty.browseButton')}
-              </a>
+              </Link>
             </Button>
           </CardContent>
         </Card>
