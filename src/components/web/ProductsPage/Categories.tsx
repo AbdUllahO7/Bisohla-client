@@ -16,10 +16,6 @@ const Categories = () => {
   // Use filter context to apply category filters
   const { updateFilter, filterSchema, filters } = useFilters();
 
-  // Only show for Cars (listingTypeId 1)
-  if (filters.listingTypeId !== 1) {
-    return null;
-  }
 
   // Fetch body type category counts from backend
   const { data: bodyTypeCategoryCounts, isLoading } =
@@ -90,6 +86,11 @@ const Categories = () => {
 
     // Return specific image if available, otherwise use default
     return imageMap[bodyType] || '/assets/icons/001-car.png';
+  }
+
+  // Only show for Cars (listingTypeId 1)
+  if (filters.listingTypeId !== 1) {
+    return null;
   }
 
   return (

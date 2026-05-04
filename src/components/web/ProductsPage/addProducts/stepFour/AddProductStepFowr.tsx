@@ -448,7 +448,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
       subscription.unsubscribe();
       if (autoSaveTimeout.current) clearTimeout(autoSaveTimeout.current);
     };
-  }, [form, onValidationChange]); // Depend only on form and validation callback
+  }, [form, onValidationChange, listingTypeValue, saveStatusValue, currencyValue, rentTypeValue]);
 
   const onSubmit = (data: AdInformationFormData) => {
     const submittedData = {

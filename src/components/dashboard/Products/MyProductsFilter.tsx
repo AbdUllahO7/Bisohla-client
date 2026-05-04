@@ -139,21 +139,21 @@ const MyProductsFilter: React.FC<SimpleProductsFilterProps> = ({
         carFilters.push({
           field: 'attrs.make',
           operator: 'eq',
-          value: makeId,
+          value: isNaN(Number(makeId)) ? makeId : Number(makeId),
         });
       }
       if (modelId) {
         carFilters.push({
           field: 'attrs.model',
           operator: 'eq',
-          value: modelId,
+          value: isNaN(Number(modelId)) ? modelId : Number(modelId),
         });
       }
       if (trimId) {
         carFilters.push({
           field: 'attrs.trim',
           operator: 'eq',
-          value: trimId,
+          value: isNaN(Number(trimId)) ? trimId : Number(trimId),
         });
       }
       if (carFilters.length > 0) {
@@ -186,7 +186,11 @@ const MyProductsFilter: React.FC<SimpleProductsFilterProps> = ({
           if (Array.isArray(value)) {
             dynamicFilters.push({ field: `attrs.${slug}`, operator: 'in', value });
           } else {
-            dynamicFilters.push({ field: `attrs.${slug}`, operator: 'eq', value });
+            dynamicFilters.push({
+              field: `attrs.${slug}`,
+              operator: 'eq',
+              value: isNaN(Number(value)) ? value : Number(value),
+            });
           }
         }
       });
