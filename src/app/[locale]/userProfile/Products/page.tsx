@@ -157,8 +157,8 @@ const UserProductPage = () => {
       setCurrentPage(1);
     }
   }, [
-    filterParams?.filterGroups,
-    filterParams?.where,
+    JSON.stringify(filterParams?.filterGroups),
+    JSON.stringify(filterParams?.where),
     filterParams?.searchTerm,
     filterParams?.sortBy,
     filterParams?.sortDirection,

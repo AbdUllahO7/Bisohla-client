@@ -29,22 +29,21 @@ export default function LocaleSwitcherSelect({ defaultValue, label }: Props) {
   const updateUserLocale = useUpdateLocale();
 
   function onSelectChange(nextLocale: string) {
+    const searchParams = typeof window !== 'undefined' ? window.location.search : '';
     // Non-blocking locale switch using startTransition so the UI stays responsive
     startTransition(() => {
       router.replace(
-        // @ts-expect-error -- TypeScript will validate that only known `params`
-        // are used in combination with a given `pathname`. Since the two will
-        // always match for the current route, we can skip runtime checks.
-        { pathname, params },
+        `${pathname}${searchParams}`,
         { locale: nextLocale as Locale },
       );
     });
 
-    // Update backend locale preference (fire-and-forget)
-    if (session.user) {
+    // Update backend locale preference if logged in
+    if (session.user && session.user.id > 0) {
       updateUserLocale.mutate({ id: session.user.id, locale: nextLocale });
     }
   }
+
 
   return (
     <Select defaultValue={defaultValue} onValueChange={onSelectChange}>

@@ -11,7 +11,7 @@ import {
 import Image from 'next/image';
 import { SelectCarListingDto } from '@/core/entities/models/cars/cars.dto';
 import Box from '@/components/box/box';
-import { ArrowRight, Eye, Fuel, HeartIcon, LifeBuoy } from 'lucide-react';
+import { ArrowRight, Eye, Fuel, HeartIcon, LifeBuoy, Bed, Bath, Home, Ruler } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from '@/i18n/routing';
 import { toggleListingFavorite } from '@/core/infrastructure-adapters/actions/users/listing.user.actions';
@@ -100,6 +100,82 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
   const translatedTransmission = car.details?.transmission
     ? getTranslatedLabel(car.details.transmission, transmissionOptions)
     : '';
+
+  // Extract attributes from rawListing if available
+  const rawAttributes = useMemo(() => {
+    return (car as any).rawListing?.attributeValues?.map((av: any) => ({
+      slug: av.attribute?.slug,
+      name: av.attribute?.name,
+      value: av.valueText || av.valueNumber || ''
+    })) || [];
+  }, [car]);
+
+  const getAttrValue = (slug: string) => {
+    const attr = rawAttributes.find((a: any) => a.slug === slug);
+    return attr ? attr.value : null;
+  };
+
+  const categoryName = (car as any).rawListing?.listingType?.name || (car as any).rawListing?.listingType?.translations?.find((t: any) => t.locale === locale)?.name;
+
+  const subTitle = useMemo(() => {
+    if (car.listingTypeId === 1 || !car.listingTypeId) {
+      return car.make?.name && car.make?.name !== 'Unknown' ? car.make?.name : 'Car';
+    }
+    const locationStr = [car.governorate, car.city].filter(Boolean).join(', ');
+    return locationStr || categoryName || 'Real Estate';
+  }, [car.listingTypeId, car.make?.name, car.governorate, car.city, categoryName]);
+
+  const footerDetails = useMemo(() => {
+    if (car.listingTypeId === 1 || !car.listingTypeId) {
+      return [
+        {
+          icon: <Fuel className="h-4 w-4" />,
+          value: translatedFuelType
+        },
+        {
+          icon: <LifeBuoy className="h-4 w-4" />,
+          value: translatedTransmission
+        }
+      ].filter(item => item.value);
+    }
+
+    const rooms = getAttrValue('rooms_count') || getAttrValue('rooms') || getAttrValue('bedrooms');
+    const area = getAttrValue('area') || getAttrValue('square_meters');
+    const bathrooms = getAttrValue('bathrooms');
+
+    const details = [];
+    if (rooms) {
+      details.push({
+        icon: <Bed className="h-4 w-4" />,
+        value: `${rooms} ${locale === 'ar' ? 'غرف' : 'Rooms'}`
+      });
+    }
+    if (area) {
+      details.push({
+        icon: <Ruler className="h-4 w-4" />,
+        value: `${area} m²`
+      });
+    }
+    if (bathrooms) {
+      details.push({
+        icon: <Bath className="h-4 w-4" />,
+        value: `${bathrooms} ${locale === 'ar' ? 'حمامات' : 'Baths'}`
+      });
+    }
+
+    if (details.length === 0) {
+      rawAttributes.slice(0, 2).forEach((attr: any) => {
+        if (attr.value && attr.slug !== 'make' && attr.slug !== 'model') {
+          details.push({
+            icon: <Home className="h-4 w-4" />,
+            value: `${attr.value}`
+          });
+        }
+      });
+    }
+
+    return details;
+  }, [car.listingTypeId, translatedFuelType, translatedTransmission, rawAttributes, locale]);
 
   // Get primary image or first available image
   const imageSrc =
@@ -305,7 +381,7 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
                   isSold ? 'text-gray-400' : 'text-primary'
                 }`}
               >
-                {car.make?.name}
+                {subTitle}
               </Text>
             </CardDescription>
           </CardHeader>
@@ -313,43 +389,27 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
 
         <CardFooter className="flex justify-between items-center p-4 pt-0 gap-4">
           <div className="flex gap-4">
-            <div
-              className={`flex items-center gap-2 text-sm transition-colors duration-300 ${
-                isSold
-                  ? 'text-gray-400'
-                  : 'text-gray-600 group-hover:text-emerald-600'
-              }`}
-            >
+            {footerDetails.map((detail, idx) => (
               <div
-                className={`p-1.5 rounded-lg transition-colors duration-300 ${
+                key={idx}
+                className={`flex items-center gap-2 text-sm transition-colors duration-300 ${
                   isSold
-                    ? 'bg-gray-200'
-                    : 'bg-gray-100 group-hover:bg-emerald-100'
+                    ? 'text-gray-400'
+                    : 'text-gray-600 group-hover:text-emerald-600'
                 }`}
               >
-                <Fuel className="h-4 w-4" />
+                <div
+                  className={`p-1.5 rounded-lg transition-colors duration-300 ${
+                    isSold
+                      ? 'bg-gray-200'
+                      : 'bg-gray-100 group-hover:bg-emerald-100'
+                  }`}
+                >
+                  {detail.icon}
+                </div>
+                <span className="font-medium">{detail.value}</span>
               </div>
-              <span className="font-medium">{translatedFuelType}</span>
-            </div>
-
-            <div
-              className={`flex items-center gap-2 text-sm transition-colors duration-300 ${
-                isSold
-                  ? 'text-gray-400'
-                  : 'text-gray-600 group-hover:text-emerald-600'
-              }`}
-            >
-              <div
-                className={`p-1.5 rounded-lg transition-colors duration-300 ${
-                  isSold
-                    ? 'bg-gray-200'
-                    : 'bg-gray-100 group-hover:bg-emerald-100'
-                }`}
-              >
-                <LifeBuoy className="h-4 w-4" />
-              </div>
-              <span className="font-medium">{translatedTransmission}</span>
-            </div>
+            ))}
           </div>
 
           {!isSold && (

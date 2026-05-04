@@ -802,7 +802,10 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
                       {carListing.title}
                     </h3>
                     <p className="text-sm text-gray-600 mt-1">
-                      {carListing.make?.name} {carListing.model?.name}
+                      {carListing.listingTypeId === 1 || carListing.listingTypeId === undefined 
+                        ? (carListing.make?.name && carListing.make?.name !== 'Unknown' ? `${carListing.make.name} ${carListing.model?.name || ''}` : '')
+                        : (`${carListing.city}, ${carListing.governorate}`)
+                      }
                     </p>
                   </div>
                 </Link>
@@ -817,38 +820,41 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
                   <div className="mb-3 sm:hidden">{getSaveStatusBadge()}</div>
                 )}
 
-                {/* Vehicle Details */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-4 text-sm">
-                  {carListing.details?.year && (
-                    <div className="flex items-center gap-2 text-gray-600">
-                      <Calendar size={14} />
-                      <span>{carListing.details.year}</span>
-                    </div>
-                  )}
+                 {/* Vehicle Details */}
+                {(carListing.listingTypeId === 1 || carListing.listingTypeId === undefined) && (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-4 text-sm">
+                    {carListing.details?.year && (
+                      <div className="flex items-center gap-2 text-gray-600">
+                        <Calendar size={14} />
+                        <span>{carListing.details.year}</span>
+                      </div>
+                    )}
 
-                  {carListing.details?.mileage && (
-                    <div className="flex items-center gap-2 text-gray-600">
-                      <Gauge size={14} />
-                      <span>
-                        {carListing.details.mileage.toLocaleString()} {t('km')}
-                      </span>
-                    </div>
-                  )}
+                    {carListing.details?.mileage && (
+                      <div className="flex items-center gap-2 text-gray-600">
+                        <Gauge size={14} />
+                        <span>
+                          {carListing.details.mileage.toLocaleString()} {t('km')}
+                        </span>
+                      </div>
+                    )}
 
-                  {carListing.details?.fuelType && (
-                    <div className="flex items-center gap-2 text-gray-600">
-                      <Fuel size={14} />
-                      <span>{carListing.details.fuelType}</span>
-                    </div>
-                  )}
+                    {carListing.details?.fuelType && (
+                      <div className="flex items-center gap-2 text-gray-600">
+                        <Fuel size={14} />
+                        <span>{carListing.details.fuelType}</span>
+                      </div>
+                    )}
 
-                  {carListing.details?.transmission && (
-                    <div className="flex items-center gap-2 text-gray-600">
-                      <Car size={14} />
-                      <span>{carListing.details.transmission}</span>
-                    </div>
-                  )}
-                </div>
+                    {carListing.details?.transmission && (
+                      <div className="flex items-center gap-2 text-gray-600">
+                        <Car size={14} />
+                        <span>{carListing.details.transmission}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
 
                 {/* Location and Date */}
                 <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 mb-4">

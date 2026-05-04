@@ -273,6 +273,7 @@ export const normalizeListingToCarDto = (listing: any, locale: string = 'en'): S
         lastViewedAt: null,
         createdAt: listing.createdAt,
         updatedAt: listing.updatedAt
-    }
-  } as SelectCarListingDto;
+    },
+    rawListing: listing
+  } as any;
 };
