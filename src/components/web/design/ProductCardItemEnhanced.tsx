@@ -36,9 +36,8 @@ import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.acti
 import { toggleListingFavorite } from '@/core/infrastructure-adapters/actions/users/listing.user.actions';
 import { 
   useUpdateSaveStatus,
-  useMyCarById 
 } from '@/core/infrastructure-adapters/use-actions/users/car.user.use-actions';
-import { useDeleteListing } from '@/core/infrastructure-adapters/use-actions/users/listing.user.use-actions';
+import { useDeleteListing, useGetListingStatistics } from '@/core/infrastructure-adapters/use-actions/users/listing.user.use-actions';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -128,7 +127,7 @@ export const EnhancedProductCardItem: React.FC<ExtendedCarCardItemPropsProfile> 
   const t = useTranslations('common');
 
   // Fetch car statistics when modal is open
-  const { data: carStatistics, isLoading: isLoadingStatistics, refetch: refetchStatistics } = useMyCarById(
+  const { data: carStatistics, isLoading: isLoadingStatistics, refetch: refetchStatistics } = useGetListingStatistics(
     Number(ProductId)
   );
 
@@ -185,9 +184,9 @@ export const EnhancedProductCardItem: React.FC<ExtendedCarCardItemPropsProfile> 
 
   // Format statistics for display
   const formatStatistics = () => {
-    if (!carStatistics?.data?.statics) return null;
+    if (!carStatistics?.data) return null;
     
-    const stats = carStatistics.data.statics;
+    const stats = carStatistics.data;
     const formatDateValue = (dateString: string | null) => {
       if (!dateString) return locale === 'ar' ? 'غير متوفر' : 'N/A';
       try {

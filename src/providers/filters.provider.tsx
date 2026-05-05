@@ -128,10 +128,18 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
   const locale = useLocale();
 
   // State
-  const [filters, setFilters] = useState<FilterState>(() => ({
-    ...initialFilterState,
-    listingTypeId: initialListingTypeId ?? 0
-  }));
+  const [filters, setFilters] = useState<FilterState>(() => {
+    let lastType = 0;
+    if (typeof window !== 'undefined') {
+      const stored = sessionStorage.getItem('lastListingTypeId');
+      if (stored) lastType = parseInt(stored, 10);
+    }
+    
+    return {
+      ...initialFilterState,
+      listingTypeId: initialListingTypeId ?? lastType
+    };
+  });
   const [searchState, setSearchState] =
     useState<SearchState>(initialSearchState);
   const [isLoading, setIsLoading] = useState(false);
@@ -481,6 +489,11 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
           newFilters.trim = '';
         }
 
+        // Persist listingTypeId to sessionStorage for better navigation (back button)
+        if (key === 'listingTypeId' && typeof window !== 'undefined') {
+          sessionStorage.setItem('lastListingTypeId', String(value));
+        }
+
         return newFilters;
       });
     },
@@ -675,9 +688,19 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
     if (urlParams.listingTypeId) {
       newFilters.listingTypeId = parseInt(urlParams.listingTypeId, 10);
     } else {
-      // Default behavior based on current page
-      const isHomePage = pathname === '/' || pathname === `/${locale}` || pathname === `/${locale}/`;
-      newFilters.listingTypeId = isHomePage ? 1 : 0;
+      // Default behavior: check sessionStorage first, then fallback to page-based defaults
+      let fallbackType = 0;
+      if (typeof window !== 'undefined') {
+        const stored = sessionStorage.getItem('lastListingTypeId');
+        if (stored) fallbackType = parseInt(stored, 10);
+      }
+
+      if (fallbackType > 0 && pathname.includes('/products')) {
+        newFilters.listingTypeId = fallbackType;
+      } else {
+        const isHomePage = pathname === '/' || pathname === `/${locale}` || pathname === `/${locale}/`;
+        newFilters.listingTypeId = isHomePage ? 1 : 0;
+      }
     }
 
     // Extract dynamic attributes from URL (any parameter not in core list)

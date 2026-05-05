@@ -67,6 +67,14 @@ const MobileProductClient = ({
     }
   }, [carData?.id]);
 
+  // Persist current category for back-button navigation
+  useEffect(() => {
+    const typeId = carData?.listingTypeId || (carData as any).listingTypeId || rawListing?.listingTypeId;
+    if (typeId && typeof window !== 'undefined') {
+      sessionStorage.setItem('lastListingTypeId', String(typeId));
+    }
+  }, [carData?.listingTypeId, rawListing?.listingTypeId]);
+
   const [favoriteStatus, setFavoriteStatus] = useState(
     carData?.isFavorite ?? false,
   );

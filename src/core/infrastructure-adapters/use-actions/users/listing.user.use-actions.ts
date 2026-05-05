@@ -14,7 +14,8 @@ import {
   getListingFavorites,
   getListingFavoriteById,
   toggleListingFavorite,
-  createListingFavorite
+  createListingFavorite,
+  getListingStatistics
 } from '../../actions/users/listing.user.actions';
 import { UserFavoriteListing, ToggleFavoriteListingDto, ToggleFavoriteListingResponse, CreateFavoriteListingDto } from '@/core/entities/models/listings/users-favorites-listings.zod.dto';
 import { useSession } from '../auth/use-session';
@@ -114,4 +115,16 @@ export const useCreateListingFavorite = () =>
     onError: (error) => {
       console.error('Failed to create listing favorite:', error);
     },
+  });
+
+/**
+ * Hook to get listing statistics
+ */
+export const useGetListingStatistics = (id: number) =>
+  useLocaleQuery<ApiResponse<any>>({
+    queryKey: ['my-listing-statistics', id],
+    queryFn: async () => await getListingStatistics(id),
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    enabled: !!id,
   });

@@ -43,7 +43,6 @@ const ProductClient = ({ carDataRes, rawListing, isAuthenticated, locale }: Prod
       const STORAGE_KEY = 'bishola-recently-viewed';
       try {
         const storedItems = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-        // Handle both old (number) and new ({id, typeId}) formats
         const normalizedItems = storedItems.map((item: any) =>
           typeof item === 'number' ? { id: item, typeId: 1 } : item
         );
@@ -60,6 +59,14 @@ const ProductClient = ({ carDataRes, rawListing, isAuthenticated, locale }: Prod
       }
     }
   }, [carData?.id]);
+
+  // Persist current category for back-button navigation
+  useEffect(() => {
+    const typeId = carData?.listingTypeId || (carData as any).listingTypeId || rawListing?.listingTypeId;
+    if (typeId && typeof window !== 'undefined') {
+      sessionStorage.setItem('lastListingTypeId', String(typeId));
+    }
+  }, [carData?.listingTypeId, rawListing?.listingTypeId]);
 
   const [favoriteStatus, setFavoriteStatus] = useState(
     carData?.isFavorite ?? false,

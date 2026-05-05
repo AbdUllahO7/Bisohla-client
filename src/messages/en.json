@@ -1168,7 +1168,8 @@
         "next": "Next"
       },
       "refreshing": "Refreshing...",
-      "priceLabel": "Price"
+      "priceLabel": "Price",
+      "advancedFilters": "Advanced Filters"
     },
     "products": {
       "searchPlaceholder": "Search my listings...",
