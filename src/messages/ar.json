@@ -1155,7 +1155,8 @@
         "browseButton": "تصفح الإعلانات"
       },
       "refreshing": "جارٍ التحديث...",
-      "priceLabel": "السعر"
+      "priceLabel": "السعر",
+      "advancedFilters": "مرشحات متقدمة"
     },
     "products": {
       "searchPlaceholder": "بحث في إعلاناتي...",

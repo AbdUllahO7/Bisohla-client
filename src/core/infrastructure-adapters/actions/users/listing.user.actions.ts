@@ -121,3 +121,15 @@ export const createListingFavorite = async (
   });
   return res;
 };
+
+/**
+ * Get listing statistics via GET /my-listings/{id}/statistics
+ */
+export const getListingStatistics = async (
+  id: number,
+): Promise<ApiResponse<any>> => {
+  const res = await getAuthReq<Record<string, unknown>, any>({
+    url: `/my-listings/${id}/statistics`,
+  });
+  return res;
+};

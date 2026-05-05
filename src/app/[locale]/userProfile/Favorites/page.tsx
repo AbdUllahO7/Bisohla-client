@@ -47,9 +47,10 @@ interface FavoriteListing {
   title: string;
   marka: string;
   price: number;
-  type: ListingType;
+  type: string;
   imageSrc: string;
   details: CarDetails;
+  slug?: string;
 }
 
 // View mode type
@@ -89,7 +90,7 @@ const UserFavoritesEnhanced = () => {
   const [favoriteStatuses, setFavoriteStatuses] = useState<Record<number, boolean>>({});
 
   // Dynamic filter states
-  const [listingTypeId, setListingTypeId] = useState<number | undefined>(undefined);
+  const [listingTypeId, setListingTypeId] = useState<number | undefined>(1);
   const [listingTypes, setListingTypes] = useState<any[]>([]);
   const [filterSchema, setFilterSchema] = useState<ListingTypeFilterSchemaDto | null>(null);
   const [dynamicAttributes, setDynamicAttributes] = useState<Record<string, any>>({});
@@ -161,12 +162,12 @@ const UserFavoritesEnhanced = () => {
           operator: 'or',
           filters: [
             {
-              field: 'listing.title',
+              field: 'title',
               operator: 'like',
               value: `%${debouncedSearchQuery.trim()}%`,
             },
             {
-              field: 'listing.make.name',
+              field: 'make.name',
               operator: 'like',
               value: `%${debouncedSearchQuery.trim()}%`,
             },
@@ -178,26 +179,13 @@ const UserFavoritesEnhanced = () => {
     // Add filter for listing type ID if selected
     if (listingTypeId) {
       const typeIdFilter = {
-        field: 'listing.listingTypeId',
-        operator: 'eq' as const,
-        value: listingTypeId,
-      };
-      const directTypeIdFilter = {
         field: 'listingTypeId',
         operator: 'eq' as const,
         value: listingTypeId,
       };
 
-      if (params.filterGroups) {
-        params.filterGroups.push({
-          operator: 'and',
-          filters: [typeIdFilter, directTypeIdFilter],
-        });
-      } else {
-        if (!params.where) params.where = [];
-        params.where.push(typeIdFilter);
-        params.where.push(directTypeIdFilter);
-      }
+      if (!params.where) params.where = [];
+      params.where.push(typeIdFilter);
 
       // Add as top-level param too as we did on Products/page.tsx
       (params as any).listingTypeId = listingTypeId;
@@ -206,20 +194,13 @@ const UserFavoritesEnhanced = () => {
     // Add filter for listing offer type (Sale/Rent)
     if (filterType !== 'all') {
       const typeFilter = {
-        field: 'listing.listingOfferType',
+        field: 'listingOfferType',
         operator: 'eq' as const,
         value: filterType,
       };
 
-      if (params.filterGroups) {
-        params.filterGroups.push({
-          operator: 'and',
-          filters: [typeFilter],
-        });
-      } else {
-        if (!params.where) params.where = [];
-        params.where.push(typeFilter);
-      }
+      if (!params.where) params.where = [];
+      params.where.push(typeFilter);
     }
 
     // Add dynamic attribute filters
@@ -228,9 +209,9 @@ const UserFavoritesEnhanced = () => {
       Object.entries(dynamicAttributes).forEach(([slug, value]) => {
         if (value !== undefined && value !== '' && (Array.isArray(value) ? value.length > 0 : true)) {
           if (Array.isArray(value)) {
-            dynamicFilters.push({ field: `listing.attrs.${slug}`, operator: 'in', value });
+            dynamicFilters.push({ field: `attrs.${slug}`, operator: 'in', value });
           } else {
-            dynamicFilters.push({ field: `listing.attrs.${slug}`, operator: 'eq', value });
+            dynamicFilters.push({ field: `attrs.${slug}`, operator: 'eq', value });
           }
         }
       });
@@ -253,7 +234,7 @@ const UserFavoritesEnhanced = () => {
   // Force refetch when search or filter changes (additional safeguard)
   useEffect(() => {
     refetch();
-  }, [debouncedSearchQuery, filterType, listingTypeId, refetch]);
+  }, [debouncedSearchQuery, filterType, listingTypeId, dynamicAttributes, refetch]);
 
   // Reset to page 1 when search or filter changes
   useEffect(() => {
@@ -280,15 +261,19 @@ const UserFavoritesEnhanced = () => {
     if (!data?.data?.data) return [];
 
     const transformedListings = data.data.data
-      .map((favorite) => {
-        const listing = favorite.listing;
-        if (!listing) return null;
+      .map((item: any) => {
+        // The API now returns the listing directly in the array
+        const listing = item.listing || item;
+        if (!listing || !listing.id) return null;
 
         // Safely find primary image or first image
         let imageSrc = '/placeholder-car.jpg';
-        if (listing.images && Array.isArray(listing.images)) {
+        
+        if (listing.primaryImage) {
+          imageSrc = listing.primaryImage;
+        } else if (listing.images && Array.isArray(listing.images)) {
           const primaryImage = listing.images.find(
-            (img) => isPrimaryImage(img) && img.isPrimary,
+            (img: any) => isPrimaryImage(img) && img.isPrimary,
           );
           if (primaryImage && 'url' in primaryImage) {
             imageSrc = primaryImage.url;
@@ -301,10 +286,11 @@ const UserFavoritesEnhanced = () => {
           id: listing.id,
           title: listing.title,
           marka: listing.make?.name || '',
-          price: listing.price || 0,
-          type: listing.listingType as ListingType,
+          price: Number(listing.price) || 0,
+          type: listing.listingOfferType || 'for_sale',
           imageSrc,
           details: (listing as any).details || ({} as CarDetails),
+          slug: listing.slug
         } as FavoriteListing;
       })
       .filter(isValidFavoriteListing);
@@ -669,6 +655,7 @@ const UserFavoritesEnhanced = () => {
                   type={card.type}
                   imageSrc={card.imageSrc}
                   ProductId={card.id}
+                  slug={card.slug}
                   priceWord={t('priceLabel')}
                   isFavorites={true}
                   isMarkedFavorite={isFavorite}
