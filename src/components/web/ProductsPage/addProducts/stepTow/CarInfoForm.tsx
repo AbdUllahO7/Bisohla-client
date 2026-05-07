@@ -5,7 +5,7 @@ import FormField from "./FormField"
 import type { CarInfoState, ValidationErrors } from "./types"
 import { useTranslations } from "next-intl"
 import SelectFieldWithSearch from "@/components/web/design/SelectFieldWithSearch"
-import { Info } from "lucide-react"
+import { Info, Fuel, Zap, Sparkles, Activity, Settings } from "lucide-react"
 import {
   Tooltip,
   TooltipContent,
@@ -259,6 +259,106 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
     )
   }
 
+  // Render visual cards for field selections instead of boring dropdowns
+  const renderVisualCardSelect = ({
+    label,
+    field,
+    options,
+    tooltip,
+    required = false,
+  }: {
+    label: string
+    field: string
+    options: Array<{ value: string; label: string }>
+    tooltip: string
+    required?: boolean
+  }) => {
+    const hasError =
+      Object.prototype.hasOwnProperty.call(validationErrors, field) &&
+      validationErrors[field as keyof ValidationErrors]
+    const errorMessage = hasError ? validationErrors[field as keyof ValidationErrors] : ""
+    const fieldValue = (carInfo[field as keyof CarInfoState] as string) || ""
+
+    // Icon mapping helper
+    const getOptionIcon = (val: string) => {
+      const v = val.toLowerCase()
+      if (v.includes("benz") || v.includes("petrol") || v.includes("fuel") || v.includes("بنزين") || v.includes("مازوت")) {
+        return <Fuel className="w-5 h-5 text-emerald-600" />
+      }
+      if (v.includes("elect") || v.includes("كهربا") || v.includes("zap")) {
+        return <Zap className="w-5 h-5 text-amber-500" />
+      }
+      if (v.includes("hybrid") || v.includes("هجين")) {
+        return <Sparkles className="w-5 h-5 text-indigo-500" />
+      }
+      if (v.includes("auto") || v.includes("توماتيك") || v.includes("cvt")) {
+        return <Activity className="w-5 h-5 text-emerald-600" />
+      }
+      return <Settings className="w-5 h-5 text-slate-500" />
+    }
+
+    return (
+      <div className="col-span-1 sm:col-span-2 lg:col-span-3 xl:col-span-4 space-y-3" dir={isRTL ? "rtl" : "ltr"} key={field}>
+        <div className={cn(
+          "flex items-center gap-1.5",
+          isRTL ? "flex-row-reverse justify-end" : "justify-start"
+        )}>
+          <span className="text-sm font-bold text-slate-700">{label}</span>
+          {required && <span className="text-rose-500">*</span>}
+          {renderInfoIcon(tooltip)}
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {options.map((opt) => {
+            const isSelected = fieldValue === opt.value
+            return (
+              <button
+                type="button"
+                key={opt.value}
+                onClick={() => onSelectChange(field, opt.value)}
+                className={cn(
+                  "flex items-center gap-3 p-3 sm:p-4 rounded-2xl border text-right transition-all duration-300 relative overflow-hidden group",
+                  isSelected
+                    ? "border-[#198341] bg-[#198341]/5 text-[#198341] shadow-md shadow-[#198341]/5 font-bold scale-[1.01]"
+                    : "border-slate-100 bg-white hover:bg-slate-50/50 hover:border-slate-200 text-slate-600 hover:shadow-sm"
+                )}
+              >
+                {/* Glowing selection corner */}
+                {isSelected && (
+                  <div className="absolute top-0 right-0 w-3 h-3 bg-[#198341] rounded-bl-lg" />
+                )}
+                
+                <div className={cn(
+                  "p-2 rounded-lg transition-all duration-300",
+                  isSelected 
+                    ? "bg-[#198341]/10 text-[#198341]" 
+                    : "bg-slate-50 text-slate-500 group-hover:bg-slate-100"
+                )}>
+                  {getOptionIcon(opt.value)}
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-slate-400 font-medium mb-0.5">
+                    {label}
+                  </p>
+                  <p className="text-sm font-bold truncate">
+                    {opt.label}
+                  </p>
+                </div>
+              </button>
+            )
+          })}
+        </div>
+        {errorMessage && (
+          <p className={cn(
+            "text-rose-500 text-xs mt-1 font-semibold",
+            isRTL && "text-right"
+          )}>{errorMessage}</p>
+        )}
+      </div>
+    )
+  }
+
   return (
     <div className="p-3 sm:p-5 w-full relative" dir={isRTL ? "rtl" : "ltr"}>
       {/* Responsive grid: 1 column on mobile, 2 on tablet, 3-4 on desktop */}
@@ -389,21 +489,19 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
         })}
 
         {/* Fuel Type */}
-        {renderSelectField({
+        {renderVisualCardSelect({
           label: labels.fuelType,
           field: "fuelType",
           options: options.fuelType,
-          placeholder: info.fuelType.placeholder,
           tooltip: info.fuelType.tooltip,
           required: true
         })}
 
         {/* Transmission */}
-        {renderSelectField({
+        {renderVisualCardSelect({
           label: labels.transmission,
           field: "transmission",
           options: options.transmission,
-          placeholder: info.transmission.placeholder,
           tooltip: info.transmission.tooltip,
           required: true
         })}

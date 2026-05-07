@@ -21,6 +21,7 @@ import {
   Camera,
   History,
   Upload,
+  Sparkles,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -108,6 +109,32 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
 
     // Track uploaded image URLs internally
     const [imageUrls, setImageUrls] = useState<string[]>([]);
+    
+    // HTML5 Drag and Drop re-ordering state and handlers
+    const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+
+    const handleDragStart = (e: React.DragEvent, index: number) => {
+      setDraggedIndex(index);
+      e.dataTransfer.effectAllowed = 'move';
+    };
+
+    const handleDragOverItem = (index: number) => {
+      if (draggedIndex === null || draggedIndex === index) return;
+      
+      const newUrls = [...imageUrls];
+      const draggedItem = newUrls[draggedIndex];
+      newUrls.splice(draggedIndex, 1);
+      newUrls.splice(index, 0, draggedItem);
+      
+      setDraggedIndex(index);
+      setImageUrls(newUrls);
+      onChange?.(newUrls);
+    };
+
+    const handleDragEnd = () => {
+      setDraggedIndex(null);
+    };
+
     const didInitialize = useRef(false);
     const uploadInProgressRef = useRef(false);
 
@@ -888,44 +915,68 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
                   )}
                 >
                   <AnimatePresence>
-                    {imageUrls.map((preview, index) => (
-                      <motion.div
-                        key={`${index}-${preview.substring(0, 20)}`}
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.8, height: 0 }}
-                        transition={{ duration: 0.2 }}
-                        whileHover={{
-                          scale: 1.03,
-                          boxShadow:
-                            '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
-                        }}
-                      >
-                        <Card className="group relative overflow-hidden border-2 hover:border-primary transition-colors duration-200">
-                          <CardContent className="p-0">
-                            <div className="relative aspect-square">
-                              {renderPreview(preview, `Preview ${index + 1}`)}
-                              <div
-                                className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-200"
-                                onClick={() => setSelectedImageIndex(index)}
-                              />
-                              <Button
-                                variant="destructive"
-                                size="icon"
-                                className="absolute top-2 right-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity duration-200 shadow-lg"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  removeImage(index);
-                                }}
-                                disabled={isUploading}
-                              >
-                                <X className="h-3 w-3" />
-                              </Button>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </motion.div>
-                    ))}
+                    {imageUrls.map((preview, index) => {
+                      const isCover = index === 0;
+                      const isRtl = typeof document !== 'undefined' && document.documentElement.dir === 'rtl';
+                      return (
+                        <motion.div
+                          key={`${index}-${preview.substring(0, 20)}`}
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.8, height: 0 }}
+                          transition={{ duration: 0.2 }}
+                          whileHover={{
+                            scale: 1.03,
+                            boxShadow:
+                              '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
+                          }}
+                          draggable={!isUploading}
+                          onDragStart={(e) => handleDragStart(e, index)}
+                          onDragOver={(e) => {
+                            e.preventDefault();
+                            handleDragOverItem(index);
+                          }}
+                          onDragEnd={handleDragEnd}
+                          className={cn(
+                            "cursor-grab active:cursor-grabbing touch-none select-none",
+                            draggedIndex === index && "opacity-40 scale-95"
+                          )}
+                        >
+                          <Card className={cn(
+                            "group relative overflow-hidden border-2 transition-all duration-200",
+                            isCover ? "border-amber-400 shadow-md shadow-amber-400/5" : "hover:border-primary border-slate-100"
+                          )}>
+                            <CardContent className="p-0">
+                              <div className="relative aspect-square">
+                                {isCover && (
+                                  <span className="absolute top-2 left-2 z-10 inline-flex items-center gap-1 bg-gradient-to-r from-amber-500 via-amber-600 to-yellow-500 text-white font-bold text-[10px] px-2 py-0.5 rounded-full shadow-md select-none animate-pulse">
+                                    <Sparkles className="w-3.5 h-3.5 text-white" />
+                                    <span>{isRtl ? "صورة الغلاف" : "Main Cover"}</span>
+                                  </span>
+                                )}
+                                {renderPreview(preview, `Preview ${index + 1}`)}
+                                <div
+                                  className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-200"
+                                  onClick={() => setSelectedImageIndex(index)}
+                                />
+                                <Button
+                                  variant="destructive"
+                                  size="icon"
+                                  className="absolute top-2 right-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity duration-200 shadow-lg"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    removeImage(index);
+                                  }}
+                                  disabled={isUploading}
+                                >
+                                  <X className="h-3 w-3" />
+                                </Button>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        </motion.div>
+                      );
+                    })}
                   </AnimatePresence>
                 </div>
               </motion.div>

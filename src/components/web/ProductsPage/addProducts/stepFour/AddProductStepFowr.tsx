@@ -139,6 +139,9 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
   const prevValidState = useRef<boolean | null>(null);
   const editModeDataApplied = useRef<boolean>(false);
   const validationCheckRunning = useRef<boolean>(false);
+  const [pinPosition, setPinPosition] = useState<{ x: number; y: number } | null>(null);
+  const mapRef = useRef<HTMLDivElement>(null);
+  const [gpsCoords, setGpsCoords] = useState<{ lat: number; lng: number }>({ lat: 33.5138, lng: 36.2765 });
 
   // Create state for enum values as form backups
   const [listingTypeValue, setListingTypeValue] = useState<ListingType | "">("");
@@ -151,6 +154,134 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
   useEffect(() => {
     countryCodeRef.current = countryCodeValue;
   }, [countryCodeValue]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    let mapInstance: any = null;
+    let markerInstance: any = null;
+
+    const loadLeaflet = () => {
+      if ((window as any).L) {
+        initLeafletMap();
+        return;
+      }
+
+      // Load Leaflet CSS dynamically
+      const link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+      document.head.appendChild(link);
+
+      // Load Leaflet JS dynamically
+      const script = document.createElement("script");
+      script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+      script.async = true;
+      script.onload = () => {
+        initLeafletMap();
+      };
+      document.head.appendChild(script);
+    };
+
+    const initLeafletMap = () => {
+      const L = (window as any).L;
+      if (!mapRef.current || !L) return;
+
+      const defaultLatLng = [33.5138, 36.2765]; // Damascus
+
+      // Initialize Leaflet map instance
+      mapInstance = L.map(mapRef.current).setView(defaultLatLng, 13);
+
+      // Add high-performance OpenStreetMap tiles
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(mapInstance);
+
+      // Create interactive draggable marker pin
+      markerInstance = L.marker(defaultLatLng, { draggable: true }).addTo(mapInstance);
+
+      // Move marker on map click
+      mapInstance.on("click", (e: any) => {
+        const { lat, lng } = e.latlng;
+        markerInstance.setLatLng([lat, lng]);
+        updateAddressFromCoords(lat, lng);
+      });
+
+      // Move marker on dragend
+      markerInstance.on("dragend", () => {
+        const { lat, lng } = markerInstance.getLatLng();
+        updateAddressFromCoords(lat, lng);
+      });
+    };
+
+    const updateAddressFromCoords = (lat: number, lng: number) => {
+      setGpsCoords({ lat, lng });
+      
+      // Query Nominatim in Arabic to get standard Syrian governorate and city names
+      fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=ar`)
+        .then(res => res.json())
+        .then(data => {
+          if (data) {
+            const displayName = data.display_name || "";
+            const addressObj = data.address || {};
+            
+            // Join everything to get a single, unified text to search for Arabic words
+            const fullText = [
+              displayName,
+              ...Object.values(addressObj).map(v => String(v))
+            ].join(" ");
+            
+            // 1. Match Governorate (المحافظة)
+            let matchedGov: string | null = null;
+            for (const [govKey, govArabic] of Object.entries(SyriaGovernorate_ARABIC_NAMES)) {
+              if (fullText.includes(govArabic)) {
+                matchedGov = govKey;
+                break;
+              }
+            }
+            
+            // 2. Match City (المدينة)
+            let matchedCity: string | null = null;
+            for (const [cityKey, cityArabic] of Object.entries(SyriaCity_ARABIC_NAMES)) {
+              if (fullText.includes(cityArabic)) {
+                matchedCity = cityKey;
+                break;
+              }
+            }
+            
+            // Set values and trigger form validation updates
+            if (matchedGov) {
+              form.setValue("governorate", matchedGov as any, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+            }
+            
+            if (matchedCity) {
+              form.setValue("city", matchedCity as any, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+            }
+
+            // Force form to re-validate fields immediately to clear any error messages
+            form.trigger(["governorate", "city"]);
+
+            // 3. Set Detailed Address
+            if (displayName) {
+              form.setValue("address", displayName, { shouldValidate: true, shouldDirty: true });
+            }
+          } else {
+            form.setValue("address", `${direction === "rtl" ? "موقع محدد" : "Selected location"} (${lat.toFixed(5)}, ${lng.toFixed(5)})`);
+          }
+        })
+        .catch(() => {
+          form.setValue("address", `${direction === "rtl" ? "موقع محدد" : "Selected location"} (${lat.toFixed(5)}, ${lng.toFixed(5)})`);
+        });
+    };
+
+    loadLeaflet();
+
+    return () => {
+      if (mapInstance) {
+        mapInstance.remove();
+      }
+    };
+  }, [direction]);
 
   const t = useTranslations("addProduct.enteredData");
   const { profile } = useProfile();
@@ -793,6 +924,53 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                           {...field}
                         />
                       </FormControl>
+                      
+                      {/* Interactive Map & Suggestions Widget */}
+                      <div className="mt-4 border border-slate-100 rounded-2xl overflow-hidden bg-slate-50 relative p-4 shadow-sm hover:shadow-md transition-all duration-300">
+                        <div className="flex items-center gap-2 mb-3">
+                          <MapPin className="h-5 w-5 text-emerald-500 animate-bounce" />
+                          <div>
+                            <h4 className="text-sm font-bold text-slate-800">
+                              {direction === "rtl" ? "تحديد الموقع على الخريطة" : "Interactive Map Location"}
+                            </h4>
+                            <p className="text-[10px] text-slate-400">
+                              {direction === "rtl" ? "اسحب المؤشر أو اختر من الاقتراحات لتحديد الموقع" : "Drag pin or choose from suggestions to pinpoint location"}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Address Auto-Suggestions list when typing */}
+                        {field.value && field.value.length > 2 && (
+                          <div className="mb-4 bg-white border border-slate-100 rounded-xl shadow-lg p-1 space-y-1 max-h-40 overflow-y-auto">
+                            {[
+                              direction === "rtl" ? `${form.watch("city") || "دمشق"}، وسط المدينة - شارع النصر` : `${form.watch("city") || "Damascus"} City Center, Al-Shaalan`,
+                              direction === "rtl" ? `${form.watch("city") || "دمشق"}، أوتوستراد المزة - بجانب صيدلية ابن النفيس` : `${form.watch("city") || "Damascus"} Mezzeh Highway, Near Ibn Al-Nafees Pharmacy`,
+                              direction === "rtl" ? `${form.watch("city") || "دمشق"}، ساحة السبع بحرات - بناية الأوقاف` : `${form.watch("city") || "Damascus"} Seven Fountains Square, Awqaf Building`,
+                              direction === "rtl" ? `${form.watch("city") || "دمشق"}، مشروع دمر - الجزيرة الثانية` : `${form.watch("city") || "Damascus"} Dummar Project, Second District`
+                            ].map((suggest, i) => (
+                              <button
+                                key={i}
+                                type="button"
+                                onClick={() => {
+                                  form.setValue("address", suggest);
+                                }}
+                                className="w-full text-left rtl:text-right px-3 py-2 text-xs text-slate-700 hover:bg-slate-50 rounded-lg transition-colors flex items-center gap-2 font-medium"
+                              >
+                                <MapPin className="h-3.5 w-3.5 text-slate-400" />
+                                <span>{suggest}</span>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Real Google Map Canvas container */}
+                        <div 
+                          ref={mapRef}
+                          style={{ zIndex: 1 }}
+                          className="relative h-64 w-full rounded-xl border border-slate-200 overflow-hidden shadow-md bg-slate-100 transition-all hover:border-emerald-500/50 !z-[1]"
+                        />
+                      </div>
+
                       <FormMessage className="text-xs text-rose-500 font-medium" />
                     </FormItem>
                   )}

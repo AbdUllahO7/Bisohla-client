@@ -18,6 +18,7 @@ import CarPhotosSection from '../stepThree/CarPhotosSection';
 import { getInjection } from '@/di/container';
 import { ListingTypeDto, ListingTypeFormSchemaDto } from '@/core/entities/models/listing-types/listing-types.dto';
 import { useMemo, useCallback } from 'react';
+import { cn } from '@/lib/utils';
 
 // Props interface for Steps component
 interface StepsProps {
@@ -186,6 +187,24 @@ const Steps: React.FC<StepsProps> = ({ isEditMode = false, carId, initialData })
     };
   }, [isEditMode, carId]);
 
+  // Show a beautiful "Draft Restored" toast if we successfully recovered previous progress
+  useEffect(() => {
+    if (!isEditMode) {
+      const hasDraft = localStorage.getItem(STORAGE_KEYS.STEP_ONE) || localStorage.getItem(STORAGE_KEYS.STEP_TWO);
+      if (hasDraft) {
+        const timer = setTimeout(() => {
+          showStepNavigationToast(
+            isArabic 
+              ? "🔄 تم استعادة مسودتك المحفوظة تلقائياً!" 
+              : "🔄 Your saved draft has been automatically restored!",
+            "success"
+          );
+        }, 1200);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [isEditMode, isArabic]);
+
   // Function to handle direct step navigation
   const handleStepClick = (targetStep: string) => {
     const success = setCurrentStep(targetStep);
@@ -227,53 +246,64 @@ const Steps: React.FC<StepsProps> = ({ isEditMode = false, carId, initialData })
       <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
         {/* Header Section */}
         <div className="mb-6 sm:mb-8">
-          {/* Page title */}
-          <div className="flex items-center gap-3 mb-4">
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
-              {isEditMode 
-                ? (isArabic ? `تعديل ${categoryName}` : `Edit ${categoryName} Listing`) 
-                : (isArabic ? `إضافة ${categoryName} جديد` : `Add New ${categoryName} Listing`)}
-            </h1>
-          </div>
-          
-          {/* Progress indicator - Mobile */}
-          <div className="block sm:hidden bg-white rounded-lg p-4 shadow-sm border">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-sm font-medium text-gray-700">
-                {isArabic 
-                  ? `الخطوة ${progress.currentStepIndex + 1} من ${progress.totalSteps}` 
-                  : `Step ${progress.currentStepIndex + 1} of ${progress.totalSteps}`}
-              </span>
-              <span className="text-sm font-bold text-emerald-600">
-                {progress.progressPercentage}%
-              </span>
+          {/* Page title & Progress Ring Header Layout */}
+          <div className={cn(
+            "flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8",
+            isArabic && "sm:flex-row-reverse"
+          )}>
+            <div>
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
+                {isEditMode 
+                  ? (isArabic ? `تعديل ${categoryName}` : `Edit ${categoryName} Listing`) 
+                  : (isArabic ? `إضافة ${categoryName} جديد` : `Add New ${categoryName} Listing`)}
+              </h1>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div 
-                className="bg-emerald-500 h-2 rounded-full transition-all duration-500 ease-out"
-                style={{ width: `${progress.progressPercentage}%` }}
-              />
-            </div>
-          </div>
 
-          {/* Progress indicator - Desktop */}
-          <div className="hidden sm:flex items-center gap-4">
-            <span className="text-sm font-medium text-gray-600">
-              {isArabic 
-                ? `الخطوة ${progress.currentStepIndex + 1} من ${progress.totalSteps}` 
-                : `Step ${progress.currentStepIndex + 1} of ${progress.totalSteps}`}
-            </span>
-            <div className="flex-1 max-w-md bg-gray-200 rounded-full h-2">
-              <div 
-                className="bg-emerald-500 h-2 rounded-full transition-all duration-500 ease-out"
-                style={{ width: `${progress.progressPercentage}%` }}
-              />
+            {/* Interactive Circular Step Progress Ring */}
+            <div className={cn(
+              "flex items-center gap-4 bg-white p-3 px-4 rounded-2xl border border-slate-100 shadow-sm transition-all duration-300 hover:shadow-md",
+              isArabic && "flex-row-reverse"
+            )}>
+              <div className="relative flex items-center justify-center h-14 w-14">
+                {/* SVG Progress Ring */}
+                <svg className="w-full h-full transform -rotate-90">
+                  <circle
+                    cx="28"
+                    cy="28"
+                    r="23"
+                    className="stroke-slate-100"
+                    strokeWidth="4"
+                    fill="transparent"
+                  />
+                  <circle
+                    cx="28"
+                    cy="28"
+                    r="23"
+                    className="stroke-emerald-500 transition-all duration-500 ease-out"
+                    strokeWidth="4"
+                    fill="transparent"
+                    strokeDasharray={`${2 * Math.PI * 23}`}
+                    strokeDashoffset={`${2 * Math.PI * 23 * (1 - progress.progressPercentage / 100)}`}
+                    strokeLinecap="round"
+                  />
+                </svg>
+                <span className="absolute text-xs font-black text-slate-800">
+                  {progress.progressPercentage}%
+                </span>
+              </div>
+              <div className={isArabic ? "text-right" : "text-left"}>
+                <p className="text-[10px] font-extrabold text-emerald-600 tracking-wider uppercase mb-0.5">
+                  {isArabic ? "نسبة الإنجاز" : "Completion Status"}
+                </p>
+                <p className="text-sm font-bold text-slate-800">
+                  {isArabic 
+                    ? `الخطوة ${progress.currentStepIndex + 1} من ${progress.totalSteps}` 
+                    : `Step ${progress.currentStepIndex + 1} of ${progress.totalSteps}`}
+                </p>
             </div>
-            <span className="text-sm font-bold text-emerald-600">
-              {progress.progressPercentage}%
-            </span>
           </div>
         </div>
+      </div>
 
         {/* Steps Navigation */}
         <div className="mb-6 sm:mb-8">
