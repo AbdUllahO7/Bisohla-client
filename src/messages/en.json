@@ -1640,6 +1640,7 @@
     "email": "Email",
     "phone": "Phone",
     "noData": "No profile data available",
+    "share": "Share this profile",
     "stats": {
       "totalListings": "Total Listings",
       "forSale": "For Sale",

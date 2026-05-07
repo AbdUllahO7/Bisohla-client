@@ -123,9 +123,9 @@ export const useSubmitForm = () => {
       //    (governorate, city, address are injected with negative IDs so they
       //     won't appear in __attributeMap__, we handle them separately)
       // ─────────────────────────────────────────────────────────────────────
-      const governorate: string | null = storedData2?.governorate || null;
-      const city: string | null = storedData2?.city || null;
-      const address: string | null = storedData2?.address || null;
+      const governorate: string | null = storedData4?.governorate || storedData2?.governorate || null;
+      const city: string | null = storedData4?.city || storedData2?.city || null;
+      const address: string | null = storedData4?.address || storedData2?.address || null;
 
       // ─────────────────────────────────────────────────────────────────────
       // 4. translations — title & description from stepFour

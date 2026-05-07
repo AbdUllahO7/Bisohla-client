@@ -246,6 +246,7 @@ const CarInfoForm: React.FC<CarInfoFormProps> = ({
             className="w-full text-primary relative z-20"
             required={required}
             error={errorMessage}
+            isRtl={isRTL}
           />
         </div>
         {errorMessage && (

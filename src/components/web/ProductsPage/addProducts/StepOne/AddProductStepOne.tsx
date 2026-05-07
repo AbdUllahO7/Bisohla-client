@@ -102,39 +102,6 @@ const AddProductStepOne: React.FC<AddProductStepOneProps> = ({
           required={true}
         />
 
-        {/* Location selection fields */}
-        <SelectableList
-          title={titles.governorate}
-          type="governorate"
-          options={governorateOptions}
-          selectedValue={selectedOptions.governorate}
-          direction={direction}
-          onSelect={handleSelectChange}
-          required={true}
-        />
-
-        <SelectableList
-          title={titles.city}
-          type="city"
-          options={selectedOptions.governorate ? cityOptions : []}
-          selectedValue={selectedOptions.city}
-          direction={direction}
-          onSelect={handleSelectChange}
-          required={true}
-        />
-
-        {/* Address field */}
-        <div className="sm:col-span-2">
-          <AddressField
-            title={titles.address}
-            placeholder={titles.addressPlaceholder}
-            value={selectedOptions.address}
-            onChange={handleAddressChange}
-            direction={direction}
-            required={true}
-          />
-        </div>
-
         {/* Story field */}
         <div className="col-span-1 sm:col-span-2 lg:col-span-4">
           <StoryField

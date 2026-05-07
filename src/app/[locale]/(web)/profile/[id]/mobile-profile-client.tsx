@@ -5,7 +5,7 @@ import Text from '@/components/text/text';
 import SmartBreadcrumb from '@/components/smart-breadcrumbs';
 import ProfileHeader from '@/components/web/ProfilePage/ProfileHeader';
 import ProfileStats from '@/components/web/ProfilePage/ProfileStats';
-import PublicProfileFilter from '@/components/web/ProfilePage/PublicProfileFilter';
+import MyProductsFilter from '@/components/dashboard/Products/MyProductsFilter';
 import { ApiResponse } from '@/core/entities/api/success.response';
 import { PublicProfileData } from '@/core/entities/models/public-profile/public-profile.dto';
 import { useGetPublicUserCarListings } from '@/core/infrastructure-adapters/use-actions/visitors/public-profile.use-actions';
@@ -14,10 +14,14 @@ import { Card, CardContent } from '@/components/ui/card';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
+import { ProductCardListView } from '@/components/web/design/ProductCardListView';
+import { getInjection } from '@/di/container';
 import type { QueryParams } from '@/core/entities/api/api';
+import type { ViewMode } from '@/core/entities/models/cars/filter-types';
 import Pagination from '@/components/Pagination';
 import { ProfileCarCard } from './profile-car-card';
+import FloatingProfileShareButton from './FloatingProfileShareButton';
 
 interface MobileProfileClientProps {
   profileDataRes: ApiResponse<PublicProfileData>;
@@ -38,7 +42,26 @@ const MobileProfileClient = ({
 
   // State management
   const [currentPage, setCurrentPage] = useState(1);
+  const [viewMode, setViewMode] = useState<ViewMode>('grid');
+  const [listingTypeId, setListingTypeId] = useState<number | undefined>(undefined);
+  const [listingTypes, setListingTypes] = useState<any[]>([]);
   const pageSize = 12;
+
+  // Fetch listing types for selection
+  useEffect(() => {
+    const fetchTypes = async () => {
+      try {
+        const controller = getInjection('IListingTypesRepoController');
+        const response = await controller.getListingTypes(1, 100);
+        if (response.success && response.data) {
+          setListingTypes(response.data.data.filter((t: any) => t.isActive));
+        }
+      } catch (error) {
+        console.error("Failed to fetch listing types", error);
+      }
+    };
+    fetchTypes();
+  }, []);
 
   const [filterParams, setFilterParams] = useState<QueryParams>({
     page: 1,
@@ -47,17 +70,35 @@ const MobileProfileClient = ({
     sortDirection: 'desc',
   });
 
-  // Fetch user's car listings with filters
-  const { data: carListingsData, isLoading: isLoadingListings } =
-    useGetPublicUserCarListings(userId, true, {
-      page: filterParams.page || 1,
-      pageSize: filterParams.pageSize || pageSize,
-      sortBy: filterParams.sortBy || 'createdAt',
-      sortDirection: filterParams.sortDirection || 'desc',
-      filterGroups: filterParams.filterGroups,
-      searchKey: filterParams.searchKey,
-      searchTerm: filterParams.searchTerm,
-    });
+  const lastParamsStr = useRef<string>('');
+  const combinedQueryParams = useMemo(() => {
+    const params: QueryParams = {
+      ...filterParams,
+      page: currentPage,
+      filterGroups: filterParams.filterGroups ? JSON.parse(JSON.stringify(filterParams.filterGroups)) : undefined,
+      where: filterParams.where ? JSON.parse(JSON.stringify(filterParams.where)) : undefined,
+    };
+    
+    if (listingTypeId) {
+      (params as any).listingTypeId = listingTypeId;
+    }
+    
+    const currentStr = JSON.stringify(params);
+    if (lastParamsStr.current !== currentStr) {
+      lastParamsStr.current = currentStr;
+      return params;
+    }
+    return JSON.parse(lastParamsStr.current) as QueryParams;
+  }, [filterParams, listingTypeId, currentPage]);
+
+  // Fetch user's listings with filters
+  const { data: carListingsData, isLoading: isLoadingListings, refetch } =
+    useGetPublicUserCarListings(userId, true, combinedQueryParams);
+
+  // Force refetch when query params change to ensure real-time updates
+  useEffect(() => {
+    if (refetch) refetch();
+  }, [combinedQueryParams, refetch]);
 
   // Handle filter changes
   const handleFilterChange = useCallback((params: QueryParams) => {
@@ -67,16 +108,39 @@ const MobileProfileClient = ({
       pageSize: pageSize,
     });
     setCurrentPage(1);
+
+    // Synchronize listingTypeId from the filter component's where array
+    const typeFilter = params.where?.find((f) => f.field === 'listingTypeId');
+    if (typeFilter && typeFilter.value !== listingTypeId) {
+      setListingTypeId(Number(typeFilter.value));
+    }
+  }, [listingTypeId, pageSize]);
+
+  const handleListingTypeChange = useCallback((id: number | undefined) => {
+    setListingTypeId(id);
+    setFilterParams({
+      page: 1,
+      pageSize: pageSize,
+      sortBy: 'createdAt',
+      sortDirection: 'desc',
+    });
+    setCurrentPage(1);
+  }, [pageSize]);
+
+  // Handle view mode change
+  const handleViewModeChange = useCallback((mode: ViewMode) => {
+    setViewMode(mode);
   }, []);
 
   // Handle page change from pagination
   const handlePageChange = useCallback((page: number) => {
     setCurrentPage(page);
-    setFilterParams((prev) => ({
-      ...prev,
-      page: page,
-    }));
   }, []);
+
+  // Handle refresh
+  const handleRefresh = useCallback(() => {
+    if (refetch) refetch();
+  }, [refetch]);
 
   // Extract pagination metadata from response
   const paginationMeta = useMemo(() => {
@@ -87,7 +151,7 @@ const MobileProfileClient = ({
       hasPreviousPage?: boolean;
       totalItems?: number;
     }
-    const meta = (carListingsData?.data || {}) as PaginationMeta;
+    const meta = (carListingsData?.data || carListingsData || {}) as PaginationMeta;
     return {
       currentPage: meta.currentPage || currentPage,
       totalPages: meta.totalPages || 1,
@@ -151,16 +215,28 @@ const MobileProfileClient = ({
 
           {/* Filter Component */}
           <div className="mb-4">
-            <PublicProfileFilter
+            <MyProductsFilter
               onChange={handleFilterChange}
+              onListingTypeChange={handleListingTypeChange}
+              listingTypeId={listingTypeId}
+              listingTypes={listingTypes}
+              onViewModeChange={handleViewModeChange}
+              viewMode={viewMode}
               totalItems={paginationMeta.totalItems}
               isLoading={isLoadingListings}
+              onRefresh={handleRefresh}
             />
           </div>
 
           {/* Listings Grid */}
           {isLoadingListings ? (
-            <div className="grid grid-cols-1 gap-3">
+            <div
+              className={
+                viewMode === 'grid'
+                  ? 'grid grid-cols-1 sm:grid-cols-2 gap-3 w-full'
+                  : 'space-y-3 w-full'
+              }
+            >
               {Array.from({ length: 6 }).map((_, index) => (
                 <Card
                   key={`skeleton-${index}`}
@@ -177,18 +253,29 @@ const MobileProfileClient = ({
             </div>
           ) : carListingsData?.data?.data &&
             carListingsData.data.data.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
+            <div
+              className={
+                viewMode === 'grid'
+                  ? 'grid grid-cols-1 sm:grid-cols-2 gap-3 w-full'
+                  : 'space-y-3 w-full'
+              }
+            >
               {carListingsData.data.data.map((car, index) => {
+                if (viewMode === 'list') {
+                  return (
+                    <ProductCardListView
+                      key={car.id}
+                      carListing={car}
+                      isMarkedFavorite={car.isFavorite}
+                      onFavoriteToggle={() => {}}
+                      showFavorites={false}
+                      profile={true}
+                      isAuthenticated={isAuthenticated}
+                      isMine={isOwnProfile}
+                    />
+                  );
+                }
                 return (
-                  // <>
-                  //   {/* Insert Ad after every 8 listings */}
-                  //   {(index + 1) % 8 === 0 && (
-                  //     <div className="col-span-4">
-                  //       <AdsSectionProduct />
-                  //     </div>
-                  //   )}
-                  //   <ProfileCarCard car={car} />
-                  // </>
                   <div key={index} className="col-span-1">
                     <ProfileCarCard car={car} />
                   </div>
@@ -224,6 +311,7 @@ const MobileProfileClient = ({
             )}
         </div>
       </Box>
+      <FloatingProfileShareButton profileName={profileData.name} />
     </div>
   );
 };

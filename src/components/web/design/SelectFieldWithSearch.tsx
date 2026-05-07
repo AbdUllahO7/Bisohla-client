@@ -116,18 +116,21 @@ const SelectFieldWithSearch: React.FC<SelectFieldWithSearchProps> = ({
           dir={isRtl ? "rtl" : "ltr"}
         >
           <div className="p-5 pb-3 bg-gradient-to-r from-gray-50 to-white border-b border-gray-100">
-            <Input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              onKeyDown={handleSearchKeyDown}
-              placeholder={isRtl ? `بحث ${placeholder}...` : searchPlaceholder}
-              className={cn(
-                "w-full py-4 h-12 text-sm border-2 border-[#198341]/30 focus:border-[#198341] focus:ring-4 focus:ring-[#ABDE3B]/20 rounded-xl focus-visible:ring-0 focus-visible:ring-offset-0 bg-white text-gray-800 transition-all duration-300 shadow-sm hover:shadow-md",
-                isRtl ? "pr-12 pl-4" : "pl-12 pr-4"
-              )}
-            />
-            <Search className={cn("absolute h-5 w-5 text-[#198341]", isRtl ? "right-9 top-[46px]" : "left-9 top-[46px]")} />
+            <div className="relative w-full">
+              <Input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyDown={handleSearchKeyDown}
+                placeholder={isRtl ? `بحث ${placeholder}...` : searchPlaceholder}
+                className={cn(
+                  "w-full py-4 h-12 text-sm border-2 border-[#198341]/30 focus:border-[#198341] focus:ring-4 focus:ring-[#ABDE3B]/20 rounded-xl focus-visible:ring-0 focus-visible:ring-offset-0 bg-white text-gray-800 transition-all duration-300 shadow-sm hover:shadow-md",
+                  isRtl ? "pr-10 pl-4 text-right" : "pl-10 pr-4 text-left"
+                )}
+                dir={isRtl ? "rtl" : "ltr"}
+              />
+              <Search className={cn("absolute h-5 w-5 text-[#198341] top-1/2 -translate-y-1/2 pointer-events-none", isRtl ? "right-3" : "left-3")} />
+            </div>
           </div>
 
           <Command className="bg-transparent border-none">
@@ -150,14 +153,14 @@ const SelectFieldWithSearch: React.FC<SelectFieldWithSearchProps> = ({
                       value={option.value}
                       onSelect={() => handleSelect(option.value)}
                       className={cn(
-                        "flex items-center justify-between px-4 py-4 cursor-pointer rounded-xl mb-1 transition-all duration-300 border border-transparent group",
+                        "flex items-center justify-between px-4 py-2.5 cursor-pointer rounded-xl mb-1 transition-all duration-300 border border-transparent group",
                         isSelected 
                           ? "bg-gradient-to-r from-[#198341] to-[#2C3C39] text-white shadow-lg scale-[1.01] border-[#198341]" 
                           : "bg-white text-[#2C3C39] hover:bg-gradient-to-r hover:from-[#ABDE3B]/10 hover:to-[#198341]/5 hover:shadow-md hover:border-[#198341]/20"
                       )}
                     >
                       <div className="flex items-center gap-3 overflow-hidden">
-                        <span className="font-bold text-base truncate">{option.label}</span>
+                        <span className="font-semibold text-sm truncate">{option.label}</span>
                       </div>
                       <ChevronRight 
                         className={cn(
