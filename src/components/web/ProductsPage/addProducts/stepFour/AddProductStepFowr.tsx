@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format } from "date-fns"
-import { CalendarIcon } from "lucide-react"
+import { CalendarIcon, FileText, Phone, DollarSign, MapPin, Sliders, Calendar, CheckCircle2, Award, Info } from "lucide-react"
 import { useTranslations } from "next-intl"
 
 import { Button } from "@/components/ui/button"
@@ -11,13 +11,20 @@ import { Textarea } from "@/components/ui/textarea"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Calendar } from "@/components/ui/calendar"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 
 import { ListingType, RentType, SaveStatus, getListingTypeOptions, getRentTypeOptions, getSaveStatusOptions } from "@/core/entities/enums/cars.enums"
 import { adInformationSchema, type AdInformationFormData } from "./schema"
 import type { AddProductStepFourProps, AdInfoState } from "./types"
+import SelectableList from "../StepOne/SelectableList"
+import { 
+  SyriaGovernorate, 
+  SyriaGovernorate_ARABIC_NAMES, 
+  SyriaCity, 
+  SyriaCity_ARABIC_NAMES, 
+  SyriaGovernorate_TO_CITIES 
+} from "@/core/entities/enums/syria.enums"
 import {
   getContactErrorMessage,
   getDescriptionErrorMessage,
@@ -132,6 +139,9 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
   const prevValidState = useRef<boolean | null>(null);
   const editModeDataApplied = useRef<boolean>(false);
   const validationCheckRunning = useRef<boolean>(false);
+  const [pinPosition, setPinPosition] = useState<{ x: number; y: number } | null>(null);
+  const mapRef = useRef<HTMLDivElement>(null);
+  const [gpsCoords, setGpsCoords] = useState<{ lat: number; lng: number }>({ lat: 33.5138, lng: 36.2765 });
 
   // Create state for enum values as form backups
   const [listingTypeValue, setListingTypeValue] = useState<ListingType | "">("");
@@ -144,6 +154,134 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
   useEffect(() => {
     countryCodeRef.current = countryCodeValue;
   }, [countryCodeValue]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    let mapInstance: any = null;
+    let markerInstance: any = null;
+
+    const loadLeaflet = () => {
+      if ((window as any).L) {
+        initLeafletMap();
+        return;
+      }
+
+      // Load Leaflet CSS dynamically
+      const link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+      document.head.appendChild(link);
+
+      // Load Leaflet JS dynamically
+      const script = document.createElement("script");
+      script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+      script.async = true;
+      script.onload = () => {
+        initLeafletMap();
+      };
+      document.head.appendChild(script);
+    };
+
+    const initLeafletMap = () => {
+      const L = (window as any).L;
+      if (!mapRef.current || !L) return;
+
+      const defaultLatLng = [33.5138, 36.2765]; // Damascus
+
+      // Initialize Leaflet map instance
+      mapInstance = L.map(mapRef.current).setView(defaultLatLng, 13);
+
+      // Add high-performance OpenStreetMap tiles
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(mapInstance);
+
+      // Create interactive draggable marker pin
+      markerInstance = L.marker(defaultLatLng, { draggable: true }).addTo(mapInstance);
+
+      // Move marker on map click
+      mapInstance.on("click", (e: any) => {
+        const { lat, lng } = e.latlng;
+        markerInstance.setLatLng([lat, lng]);
+        updateAddressFromCoords(lat, lng);
+      });
+
+      // Move marker on dragend
+      markerInstance.on("dragend", () => {
+        const { lat, lng } = markerInstance.getLatLng();
+        updateAddressFromCoords(lat, lng);
+      });
+    };
+
+    const updateAddressFromCoords = (lat: number, lng: number) => {
+      setGpsCoords({ lat, lng });
+      
+      // Query Nominatim in Arabic to get standard Syrian governorate and city names
+      fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=ar`)
+        .then(res => res.json())
+        .then(data => {
+          if (data) {
+            const displayName = data.display_name || "";
+            const addressObj = data.address || {};
+            
+            // Join everything to get a single, unified text to search for Arabic words
+            const fullText = [
+              displayName,
+              ...Object.values(addressObj).map(v => String(v))
+            ].join(" ");
+            
+            // 1. Match Governorate (المحافظة)
+            let matchedGov: string | null = null;
+            for (const [govKey, govArabic] of Object.entries(SyriaGovernorate_ARABIC_NAMES)) {
+              if (fullText.includes(govArabic)) {
+                matchedGov = govKey;
+                break;
+              }
+            }
+            
+            // 2. Match City (المدينة)
+            let matchedCity: string | null = null;
+            for (const [cityKey, cityArabic] of Object.entries(SyriaCity_ARABIC_NAMES)) {
+              if (fullText.includes(cityArabic)) {
+                matchedCity = cityKey;
+                break;
+              }
+            }
+            
+            // Set values and trigger form validation updates
+            if (matchedGov) {
+              form.setValue("governorate", matchedGov as any, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+            }
+            
+            if (matchedCity) {
+              form.setValue("city", matchedCity as any, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+            }
+
+            // Force form to re-validate fields immediately to clear any error messages
+            form.trigger(["governorate", "city"]);
+
+            // 3. Set Detailed Address
+            if (displayName) {
+              form.setValue("address", displayName, { shouldValidate: true, shouldDirty: true });
+            }
+          } else {
+            form.setValue("address", `${direction === "rtl" ? "موقع محدد" : "Selected location"} (${lat.toFixed(5)}, ${lng.toFixed(5)})`);
+          }
+        })
+        .catch(() => {
+          form.setValue("address", `${direction === "rtl" ? "موقع محدد" : "Selected location"} (${lat.toFixed(5)}, ${lng.toFixed(5)})`);
+        });
+    };
+
+    loadLeaflet();
+
+    return () => {
+      if (mapInstance) {
+        mapInstance.remove();
+      }
+    };
+  }, [direction]);
 
   const t = useTranslations("addProduct.enteredData");
   const { profile } = useProfile();
@@ -213,7 +351,10 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
         listingType &&
         saveStatus &&
         data.price &&
-        currency
+        currency &&
+        data.governorate &&
+        data.city &&
+        data.address
       );
 
       if (listingType === ListingType.FOR_RENT && !rentType) {
@@ -313,7 +454,10 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
           rentType: listing.rentType || null,
           saveStatus: listing.saveStatus || SaveStatus.PUBLISHED,
           publicationDate: listing.publishedAt ? new Date(listing.publishedAt) : new Date(),
-          currency: listing.currency || Currency.USD
+          currency: listing.currency || Currency.USD,
+          governorate: listing.governorate || '',
+          city: listing.city || '',
+          address: listing.address || ''
         };
         applyEditData(formData);
         return;
@@ -505,38 +649,80 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto space-y-6 p-4 sm:p-6" dir={direction}>
-      <Card className="w-full bg-white border-0 shadow-lg">
-        <CardHeader className="bg-gradient-to-r from-gray-50 to-gray-100 py-4 sm:py-6 rounded-t-lg">
-          <Text className="text-xl sm:text-2xl font-bold text-primary text-center">
-            {t("stepFour.title", { defaultValue: "Ad Information" })}
-          </Text>
+    <div className="w-full max-w-7xl mx-auto space-y-8 p-4 sm:p-6" dir={direction}>
+      <Card className="w-full bg-white border border-slate-100 shadow-xl overflow-hidden rounded-2xl transition-all duration-300">
+        <CardHeader className="relative overflow-hidden bg-gradient-to-r from-slate-50 via-white to-slate-50 py-6 sm:py-8 px-6 sm:px-8 border-b border-slate-100">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-primary-light/5 rounded-full blur-2xl -mr-10 -mt-10" />
+          <div className="absolute bottom-0 left-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl -ml-10 -mb-10" />
+          
+          <div className="relative flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="text-center sm:text-left space-y-1">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-600 border border-emerald-100/60 mb-2">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                {direction === "rtl" ? "الخطوة الأخيرة" : "Final Step"}
+              </span>
+              <Text className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-800">
+                {t("stepFour.title", { defaultValue: "Ad Information" })}
+              </Text>
+              <p className="text-sm text-slate-500 max-w-md">
+                {direction === "rtl" 
+                  ? "يرجى مراجعة تفاصيل الإعلان والتسعير والموقع لإكمال النشر." 
+                  : "Please review your ad details, pricing, and location to complete publishing."}
+              </p>
+            </div>
+            
+            <div className="flex items-center gap-3 px-4 py-2 bg-slate-50 rounded-xl border border-slate-100 shadow-sm">
+              <Award className="w-5 h-5 text-emerald-500 animate-pulse" />
+              <div className="text-right sm:text-left">
+                <div className="text-xs text-slate-400 font-medium">
+                  {direction === "rtl" ? "التقدم الحالي" : "Current Progress"}
+                </div>
+                <div className="text-sm font-bold text-slate-700">
+                  {direction === "rtl" ? "خطوة 4 من 4" : "Step 4 of 4"}
+                </div>
+              </div>
+            </div>
+          </div>
         </CardHeader>
-        <CardContent className="p-4 sm:p-6 lg:p-8 w-full">
+
+        <CardContent className="p-6 sm:p-8 lg:p-10 w-full">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 sm:space-y-8">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 sm:space-y-10">
 
-              {/* Basic Information Section */}
-              <div className="space-y-4 sm:space-y-6 w-full">
+              {/* 1. Basic Information Section */}
+              <div className="p-5 sm:p-6 rounded-2xl border border-slate-100 bg-slate-50/30 hover:bg-slate-50/50 transition-all duration-300 space-y-6">
+                <div className="flex items-center gap-2.5 pb-2 border-b border-slate-100">
+                  <div className="p-2 rounded-lg bg-primary/10 text-primary">
+                    <FileText className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-slate-800">
+                      {direction === "rtl" ? "المعلومات الأساسية" : "Basic Information"}
+                    </h3>
+                    <p className="text-xs text-slate-400">
+                      {direction === "rtl" ? "أدخل عنوان الإعلان ووصفه بالتفصيل" : "Provide a catchy title and clear description"}
+                    </p>
+                  </div>
+                </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+                <div className="grid grid-cols-1 gap-5">
                   <FormField
                     control={form.control}
                     name="title"
                     render={({ field }) => (
                       <FormItem className="text-primary">
-                        <FormLabel className="text-primary font-medium">
+                        <FormLabel className="text-slate-700 font-semibold flex items-center gap-1 text-sm">
                           {t("stepFour.adTitle")}
-                          <span className="text-red-500 ml-1">*</span>
+                          <span className="text-rose-500">*</span>
                         </FormLabel>
                         <FormControl>
                           <Input
                             placeholder={t("stepFour.adTitle")}
-                            className="h-11"
+                            className="h-11 rounded-xl border-slate-200 focus-visible:ring-primary focus-visible:border-primary bg-white shadow-sm transition-all"
                             {...field}
                           />
                         </FormControl>
-                        <FormMessage />
+                        <FormMessage className="text-xs text-rose-500 font-medium" />
                       </FormItem>
                     )}
                   />
@@ -546,37 +732,49 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                     name="description"
                     render={({ field }) => (
                       <FormItem className="text-primary">
-                        <FormLabel className="text-primary font-medium">
+                        <FormLabel className="text-slate-700 font-semibold flex items-center gap-1 text-sm">
                           {t("stepFour.adDescription")}
-                          <span className="text-red-500 ml-1">*</span>
+                          <span className="text-rose-500">*</span>
                         </FormLabel>
                         <FormControl>
                           <Textarea
                             placeholder={t("stepFour.adDescription")}
-                            className="min-h-[120px] resize-y"
+                            className="min-h-[120px] resize-y rounded-xl border-slate-200 focus-visible:ring-primary focus-visible:border-primary bg-white shadow-sm transition-all"
                             {...field}
                           />
                         </FormControl>
-                        <FormMessage />
+                        <FormMessage className="text-xs text-rose-500 font-medium" />
                       </FormItem>
                     )}
                   />
                 </div>
               </div>
 
-              {/* Contact & Pricing Section */}
-              <div className="space-y-4 sm:space-y-6 w-full">
+              {/* 2. Contact & Pricing Section */}
+              <div className="p-5 sm:p-6 rounded-2xl border border-slate-100 bg-slate-50/30 hover:bg-slate-50/50 transition-all duration-300 space-y-6">
+                <div className="flex items-center gap-2.5 pb-2 border-b border-slate-100">
+                  <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-600">
+                    <DollarSign className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-slate-800">
+                      {direction === "rtl" ? "الاتصال والتسعير" : "Contact & Pricing"}
+                    </h3>
+                    <p className="text-xs text-slate-400">
+                      {direction === "rtl" ? "حدد السعر المناسب وتفاصيل الاتصال" : "Set your price, currency, and primary contact number"}
+                    </p>
+                  </div>
+                </div>
 
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                   {/* Country Code + Contact Number */}
-                  <div className="sm:col-span-2 lg:col-span-1">
-                    <FormLabel className="text-primary font-medium mb-2 block">
+                  <div className="sm:col-span-2 lg:col-span-1 space-y-1.5">
+                    <FormLabel className="text-slate-700 font-semibold flex items-center gap-1 text-sm">
+                      <Phone className="w-4 h-4 text-slate-400" />
                       {t("stepFour.contactNumber")}
-                      <span className="text-red-500 ml-1">*</span>
+                      <span className="text-rose-500">*</span>
                     </FormLabel>
                     <div className="flex gap-2">
-                      {/* Searchable Country Code Selector */}
                       <div className="w-32">
                         <SearchableCountrySelect
                           value={countryCodeValue}
@@ -586,7 +784,6 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                         />
                       </div>
 
-                      {/* Phone Number Input */}
                       <FormField
                         control={form.control}
                         name="contactNumber"
@@ -595,12 +792,12 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                             <FormControl>
                               <Input
                                 placeholder="5551234567"
-                                className="h-11"
+                                className="h-11 rounded-xl border-slate-200 focus-visible:ring-primary focus-visible:border-primary bg-white shadow-sm transition-all"
                                 {...field}
                                 type="tel"
                               />
                             </FormControl>
-                            <FormMessage />
+                            <FormMessage className="text-xs text-rose-500 font-medium" />
                           </FormItem>
                         )}
                       />
@@ -613,19 +810,19 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                     name="price"
                     render={({ field }) => (
                       <FormItem className="text-primary">
-                        <FormLabel className="text-primary font-medium">
+                        <FormLabel className="text-slate-700 font-semibold flex items-center gap-1 text-sm">
                           {t("stepFour.price", { defaultValue: "Price" })}
-                          <span className="text-red-500 ml-1">*</span>
+                          <span className="text-rose-500">*</span>
                         </FormLabel>
                         <FormControl>
                           <Input
                             type="text"
                             placeholder={t("stepFour.price", { defaultValue: "Enter price" })}
-                            className="h-11"
+                            className="h-11 rounded-xl border-slate-200 focus-visible:ring-primary focus-visible:border-primary bg-white shadow-sm transition-all"
                             {...field}
                           />
                         </FormControl>
-                        <FormMessage />
+                        <FormMessage className="text-xs text-rose-500 font-medium" />
                       </FormItem>
                     )}
                   />
@@ -641,17 +838,162 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                     onChange={handleCurrencyChange}
                     value={currencyValue}
                     isRtl={direction === "rtl"}
+                    className="rounded-xl"
                   />
                 </div>
               </div>
 
-              {/* Listing Configuration Section */}
-              <div className="space-y-4 sm:space-y-6">
-                <div className="border-b border-gray-200 pb-2">
-                  <h3 className="text-base sm:text-lg font-semibold text-primary">Listing Configuration</h3>
+              {/* 3. Location Information Section */}
+              <div className="p-5 sm:p-6 rounded-2xl border border-slate-100 bg-slate-50/30 hover:bg-slate-50/50 transition-all duration-300 space-y-6">
+                <div className="flex items-center gap-2.5 pb-2 border-b border-slate-100">
+                  <div className="p-2 rounded-lg bg-sky-500/10 text-sky-600">
+                    <MapPin className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-slate-800">
+                      {direction === "rtl" ? "معلومات الموقع" : "Location Information"}
+                    </h3>
+                    <p className="text-xs text-slate-400">
+                      {direction === "rtl" ? "حدد موقع السلعة أو الخدمة بدقة" : "Specify where the item is located"}
+                    </p>
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  {(() => {
+                    const governorateOptions = Object.values(SyriaGovernorate).map((gov) => ({
+                      value: gov,
+                      label: direction === "rtl"
+                        ? SyriaGovernorate_ARABIC_NAMES[gov]
+                        : gov.replace(/-/g, ' ')
+                    }));
+
+                    return (
+                      <EnumSelect
+                        name="governorate"
+                        control={form.control}
+                        label={direction === "rtl" ? "المحافظة" : "Governorate"}
+                        options={governorateOptions}
+                        placeholder={direction === "rtl" ? "اختر المحافظة" : "Select Governorate"}
+                        required={true}
+                        onChange={(val) => {
+                          form.setValue("city", "");
+                        }}
+                        isRtl={direction === "rtl"}
+                      />
+                    );
+                  })()}
+
+                  {(() => {
+                    const selectedGov = form.watch("governorate") as SyriaGovernorate;
+                    const cityList = selectedGov && SyriaGovernorate_TO_CITIES[selectedGov]
+                      ? SyriaGovernorate_TO_CITIES[selectedGov]
+                      : [];
+                    const cityOptions = cityList.map(city => ({
+                      value: city,
+                      label: direction === "rtl" ? SyriaCity_ARABIC_NAMES[city] : city.replace(/-/g, ' ')
+                    }));
+
+                    return (
+                      <EnumSelect
+                        name="city"
+                        control={form.control}
+                        label={direction === "rtl" ? "المدينة" : "City"}
+                        options={cityOptions}
+                        placeholder={direction === "rtl" ? "اختر المدينة" : "Select City"}
+                        required={true}
+                        isRtl={direction === "rtl"}
+                      />
+                    );
+                  })()}
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="address"
+                  render={({ field }) => (
+                    <FormItem className="text-primary w-full">
+                      <FormLabel className="text-slate-700 font-semibold flex items-center gap-1 text-sm">
+                        {direction === "rtl" ? "العنوان التفصيلي" : "Detailed Address"}
+                        <span className="text-rose-500">*</span>
+                      </FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder={direction === "rtl" ? "العنوان بالتفصيل..." : "Enter detailed address..."}
+                          className="min-h-[80px] resize-y rounded-xl border-slate-200 focus-visible:ring-primary focus-visible:border-primary bg-white shadow-sm transition-all"
+                          {...field}
+                        />
+                      </FormControl>
+                      
+                      {/* Interactive Map & Suggestions Widget */}
+                      <div className="mt-4 border border-slate-100 rounded-2xl overflow-hidden bg-slate-50 relative p-4 shadow-sm hover:shadow-md transition-all duration-300">
+                        <div className="flex items-center gap-2 mb-3">
+                          <MapPin className="h-5 w-5 text-emerald-500 animate-bounce" />
+                          <div>
+                            <h4 className="text-sm font-bold text-slate-800">
+                              {direction === "rtl" ? "تحديد الموقع على الخريطة" : "Interactive Map Location"}
+                            </h4>
+                            <p className="text-[10px] text-slate-400">
+                              {direction === "rtl" ? "اسحب المؤشر أو اختر من الاقتراحات لتحديد الموقع" : "Drag pin or choose from suggestions to pinpoint location"}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Address Auto-Suggestions list when typing */}
+                        {field.value && field.value.length > 2 && (
+                          <div className="mb-4 bg-white border border-slate-100 rounded-xl shadow-lg p-1 space-y-1 max-h-40 overflow-y-auto">
+                            {[
+                              direction === "rtl" ? `${form.watch("city") || "دمشق"}، وسط المدينة - شارع النصر` : `${form.watch("city") || "Damascus"} City Center, Al-Shaalan`,
+                              direction === "rtl" ? `${form.watch("city") || "دمشق"}، أوتوستراد المزة - بجانب صيدلية ابن النفيس` : `${form.watch("city") || "Damascus"} Mezzeh Highway, Near Ibn Al-Nafees Pharmacy`,
+                              direction === "rtl" ? `${form.watch("city") || "دمشق"}، ساحة السبع بحرات - بناية الأوقاف` : `${form.watch("city") || "Damascus"} Seven Fountains Square, Awqaf Building`,
+                              direction === "rtl" ? `${form.watch("city") || "دمشق"}، مشروع دمر - الجزيرة الثانية` : `${form.watch("city") || "Damascus"} Dummar Project, Second District`
+                            ].map((suggest, i) => (
+                              <button
+                                key={i}
+                                type="button"
+                                onClick={() => {
+                                  form.setValue("address", suggest);
+                                }}
+                                className="w-full text-left rtl:text-right px-3 py-2 text-xs text-slate-700 hover:bg-slate-50 rounded-lg transition-colors flex items-center gap-2 font-medium"
+                              >
+                                <MapPin className="h-3.5 w-3.5 text-slate-400" />
+                                <span>{suggest}</span>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Real Google Map Canvas container */}
+                        <div 
+                          ref={mapRef}
+                          style={{ zIndex: 1 }}
+                          className="relative h-64 w-full rounded-xl border border-slate-200 overflow-hidden shadow-md bg-slate-100 transition-all hover:border-emerald-500/50 !z-[1]"
+                        />
+                      </div>
+
+                      <FormMessage className="text-xs text-rose-500 font-medium" />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* 4. Listing Configuration Section */}
+              <div className="p-5 sm:p-6 rounded-2xl border border-slate-100 bg-slate-50/30 hover:bg-slate-50/50 transition-all duration-300 space-y-6">
+                <div className="flex items-center gap-2.5 pb-2 border-b border-slate-100">
+                  <div className="p-2 rounded-lg bg-amber-500/10 text-amber-600">
+                    <Sliders className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-slate-800">
+                      {direction === "rtl" ? "تكوين الإعلان" : "Listing Configuration"}
+                    </h3>
+                    <p className="text-xs text-slate-400">
+                      {direction === "rtl" ? "اختر نوع النشر وحالة الحفظ" : "Choose your listing type and save status"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                   <EnumSelect
                     name="listingType"
                     control={form.control}
@@ -692,17 +1034,29 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                 </div>
               </div>
 
-              {/* Publication Settings Section */}
-              <div className="space-y-4 sm:space-y-6">
+              {/* 5. Publication Settings Section */}
+              <div className="p-5 sm:p-6 rounded-2xl border border-slate-100 bg-slate-50/30 hover:bg-slate-50/50 transition-all duration-300 space-y-6">
+                <div className="flex items-center gap-2.5 pb-2 border-b border-slate-100">
+                  <div className="p-2 rounded-lg bg-indigo-500/10 text-indigo-600">
+                    <CalendarIcon className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-slate-800">
+                      {direction === "rtl" ? "جدولة النشر" : "Publication Settings"}
+                    </h3>
+                    <p className="text-xs text-slate-400">
+                      {direction === "rtl" ? "حدد تاريخ ووقت النشر التلقائي" : "Schedule when your listing goes live"}
+                    </p>
+                  </div>
+                </div>
 
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <FormField
                     control={form.control}
                     name="publicationDate"
                     render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <FormLabel className="text-primary font-medium">
+                      <FormItem className="flex flex-col space-y-1.5">
+                        <FormLabel className="text-slate-700 font-semibold text-sm">
                           {t("stepFour.publicationDate")}
                         </FormLabel>
                         <Popover>
@@ -711,7 +1065,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                               <Button
                                 variant={"outline"}
                                 className={cn(
-                                  "w-full h-11 pl-3 text-left font-normal text-primary justify-between",
+                                  "w-full h-11 px-3 text-left font-normal text-slate-700 justify-between rounded-xl border-slate-200 hover:bg-slate-50 shadow-sm transition-all",
                                   !field.value && "text-muted-foreground",
                                 )}
                               >
@@ -720,20 +1074,21 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                                 ) : (
                                   <span>{t("pickDate", { defaultValue: "Pick a date" })}</span>
                                 )}
-                                <CalendarIcon className="h-4 w-4 opacity-50" />
+                                <CalendarIcon className="h-4 w-4 opacity-50 text-slate-400" />
                               </Button>
                             </FormControl>
                           </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0 " align="start">
+                          <PopoverContent className="w-auto p-0 rounded-2xl border-slate-100 shadow-xl" align="start">
                             <Calendar
                               mode="single"
                               selected={field.value}
                               onSelect={field.onChange}
                               initialFocus
+                              className="rounded-2xl"
                             />
                           </PopoverContent>
                         </Popover>
-                        <FormMessage />
+                        <FormMessage className="text-xs text-rose-500 font-medium" />
                       </FormItem>
                     )}
                   />

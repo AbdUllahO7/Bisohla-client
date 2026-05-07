@@ -194,51 +194,6 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
       return attr;
     });
 
-    const sectionName = getTranslation(section.name);
-    
-    // Check if this is the first section in the schema
-    const controller = getInjection('IListingTypesRepoController');
-    const isFirstSection = section.order === 0 || (schema?.sections && schema.sections[0].id === section.id);
-
-    // Inject location fields if they are missing. They are required for ALL listing types.
-    // We inject them into the first section to ensure they appear early.
-    if (isFirstSection) {
-      const slugs = baseAttrs.map(a => a.slug?.toLowerCase());
-      const hasGovernorate = slugs.includes('governorate') || slugs.includes('محافظة');
-      const hasCity = slugs.includes('city') || slugs.includes('مدينة');
-      const hasAddress = slugs.includes('address') || slugs.includes('عنوان');
-
-      if (!hasGovernorate) {
-        baseAttrs.push({
-          id: -1001,
-          slug: 'governorate',
-          name: { ar: 'المحافظة', en: 'Governorate' },
-          type: 'select',
-          isRequired: true,
-          order: -100 // Put at the very top
-        } as any);
-      }
-      if (!hasCity) {
-        baseAttrs.push({
-          id: -1002,
-          slug: 'city',
-          name: { ar: 'المدينة', en: 'City' },
-          type: 'select',
-          isRequired: true,
-          order: -99
-        } as any);
-      }
-      if (!hasAddress) {
-        baseAttrs.push({
-          id: -1003,
-          slug: 'address',
-          name: { ar: 'العنوان التفصيلي', en: 'Detailed Address' },
-          type: 'textarea',
-          isRequired: true,
-          order: -98
-        } as any);
-      }
-    }
     return baseAttrs.sort((a, b) => a.order - b.order);
   }, [section.attributes, locale, schema]);
 
@@ -481,28 +436,33 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
             .filter(a => isDateLike(a))
             .sort((a, b) => a.order - b.order)
             .map((attr) => (
-              <div key={attr.id} className="space-y-2">
-                <div className="flex items-center gap-1.5">
-                  <Label className="text-gray-700 font-semibold text-sm">
-                    {getTranslation(attr.name)}
-                    {attr.isRequired && <span className="text-red-500 ml-0.5">*</span>}
-                  </Label>
+              <div key={attr.id} className="space-y-4">
+                {/* Label Rendering matched with standard fields */}
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-1.5 pb-1">
+                    <Label className="text-[#1a2b28] font-bold tracking-tight text-base">
+                      {getTranslation(attr.name)}
+                      {attr.isRequired && <span className={cn("text-red-500", isArabic ? "mr-1" : "ml-1")}>*</span>}
+                    </Label>
+                  </div>
                 </div>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       variant={"outline"}
                       className={cn(
-                        "w-full h-11 px-3 text-left font-normal border-gray-300 focus:border-[#198341] justify-between",
-                        !formData[attr.slug] && "text-muted-foreground"
+                        "w-full h-11 px-3 text-left font-normal border-gray-300 focus:border-[#198341] justify-between rounded-xl shadow-sm transition-all hover:bg-slate-50",
+                        !formData[attr.slug] && "text-muted-foreground",
+                        isArabic && "text-right"
                       )}
+                      dir={isArabic ? "rtl" : "ltr"}
                     >
                       {formData[attr.slug] ? (
                         format(new Date(formData[attr.slug]), "PPP")
                       ) : (
                         <span>{getTranslation(attr.hint || attr.name)}</span>
                       )}
-                      <CalendarIcon className="h-4 w-4 opacity-50" />
+                      <CalendarIcon className="h-4 w-4 opacity-50 text-[#198341]" />
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0 bg-white" align="start" dir={isArabic ? "rtl" : "ltr"}>

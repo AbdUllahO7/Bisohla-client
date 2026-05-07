@@ -21,6 +21,9 @@ export const defaultAdInfoData: AdInformationStorageData = {
     saveStatus: SaveStatus.PUBLISHED,
     currency: Currency.USD,
     countryCode: CountryCode.SY, // Default to Syria (frontend-only)
+    governorate: "",
+    city: "",
+    address: "",
 };
 
 /**
