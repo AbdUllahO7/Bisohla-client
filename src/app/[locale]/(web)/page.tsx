@@ -135,7 +135,11 @@ const WebPage = async () => {
 
   // Fetch listing types
   const listingTypesRes = await listingTypesRepo.getListingTypes();
-  const listingTypes = listingTypesRes.data?.data || [];
+  const listingTypes = (listingTypesRes.data?.data || []).sort((a: any, b: any) => {
+    if (a.slug === 'cars') return -1;
+    if (b.slug === 'cars') return 1;
+    return 0;
+  });
 
   const locale = await getLocale();
   const t = await getTranslations('homePage');
@@ -252,13 +256,6 @@ const WebPage = async () => {
           iconName="star"
         />
 
-        {/* Trending Section */}
-        <DynamicListingSection
-          listings={trendingListings} 
-          title={t('trendingListings')}
-          iconName="trending"
-        />
-
         {/* Dynamic Sections per Listing Type */}
         {typeFeaturedListings.map(({ type, listings, title, adSlotName, listingOfferType }, index) => (
           <DynamicListingSection
@@ -269,6 +266,13 @@ const WebPage = async () => {
             adSlotName={adSlotName}
           />
         ))}
+
+        {/* Trending Section */}
+        <DynamicListingSection
+          listings={trendingListings} 
+          title={t('trendingListings')}
+          iconName="trending"
+        />
 
         <AdsSection />
         <WorldOfCar />
