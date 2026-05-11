@@ -2,8 +2,6 @@
 import { Currency } from '@/core/entities/enums/currency.enum'
 import { SyriaCity, SyriaGovernorate } from '@/core/entities/enums/syria.enums'
 import { BodyType, FuelType, Transmission } from '@/core/entities/enums/cars.enums'
-import { CarImage, CarListingFeature, SelectCarMakeDto, SelectCarModelDto, SelectCarTrimDto } from '@/core/entities/models/cars/cars.dto'
-import { SelectUserDto } from '@/core/entities/models/users/users.dto'
 
 // Basic shared types
 export interface SectionStatus {
