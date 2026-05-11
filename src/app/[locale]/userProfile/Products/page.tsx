@@ -92,8 +92,6 @@ const UserProductPage = () => {
     refetch();
   }, [combinedQueryParams, refetch]);
 
-  console.log("combinedQueryParams in UserProductPage", combinedQueryParams);
-  console.log("data",data)
   // Handle filter changes from the simple filter component
   const handleFilterChange = useCallback((params: QueryParams) => {
     setFilterParams({

@@ -64,7 +64,6 @@ export const RentProductListCard: React.FC<RentProductListCardProps> = ({
   const [favoriteStatus, setFavoriteStatus] = useState(isMarkedFavorite);
   const [isProcessing, setIsProcessing] = useState(false);
   const direction = useDirection();
-      console.log("car",car)
   // Get translators for different namespaces
   const productT = useTranslations('product');
   const bodyTypeT = useTranslations('addProduct.enteredData.stepTow');

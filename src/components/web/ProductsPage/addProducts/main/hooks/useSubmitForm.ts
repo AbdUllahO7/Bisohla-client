@@ -168,12 +168,7 @@ export const useSubmitForm = () => {
         images.push(...storedData3.coverImage);
       }
 
-      // ─────────────────────────────────────────────────────────────────────
-      // 7. Build the final payload
-      // ─────────────────────────────────────────────────────────────────────
-      console.log('[useSubmitForm] stepTwo data:', storedData2);
-      console.log('[useSubmitForm] attributeMap:', attributeMap);
-      console.log('[useSubmitForm] attributeValues built:', attributeValues);
+
 
       let response;
 
@@ -193,9 +188,7 @@ export const useSubmitForm = () => {
           attributeValues,
           images,
         };
-        console.log('[useSubmitForm] PATCH payload:', updateDto);
         response = await updateListing(Number(carIdToEdit), updateDto);
-        console.log('response',response)
       } else {
         const createDto: CreateListingDto = {
           listingTypeId,
@@ -212,9 +205,7 @@ export const useSubmitForm = () => {
           attributeValues,
           images,
         };
-        console.log('[useSubmitForm] POST payload:', createDto);
         response = await createListing(createDto);
-        console.log('response',response)
       }
 
       if (response.success) {

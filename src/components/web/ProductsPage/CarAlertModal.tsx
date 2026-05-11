@@ -207,7 +207,6 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
       }
 
       const res = await createCarAlert(payload);
-      console.log("create alert result", res)
       if (res.success) {
         toast({
           title: t('allCars.alertCreated'),

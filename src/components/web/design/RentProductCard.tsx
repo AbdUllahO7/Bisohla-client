@@ -53,7 +53,6 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
       isAuthenticated &&
       session.user?.id === car.userId) ||
     false;
-      console.log("car in rent",car)
 
   // Get translators for different namespaces
   const t = useTranslations('SoldCard');
