@@ -1,7 +1,7 @@
 'use client'
 import React from 'react';
 import { ListingTypeFormSchemaDto, SectionDto } from '@/core/entities/models/listing-types/listing-types.dto';
-import Text from '@/components/text/text';
+import Text from '@/components/ui/text';
 import { useDynamicForm } from '../hooks/useDynamicForm';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -162,7 +162,7 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
 }) => {
   const locale = useLocale();
   const isArabic = locale === 'ar';
-  const t = useTranslations('addProduct.enteredData.stepTow'); // Match the nested path in ar.json
+  const t = useTranslations('addProduct.enteredData.stepTwo'); // Match the nested path in ar.json
 
   // Helper to extract translation from objects like { ar: "...", en: "..." }
   const getTranslation = (val: any) => {

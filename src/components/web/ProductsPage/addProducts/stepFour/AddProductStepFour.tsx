@@ -43,10 +43,10 @@ import {
   parsePhoneNumber,
   saveAdInfoData
 } from "./storageUtils"
-import Text from "@/components/text/text"
+import Text from "@/components/ui/text"
 import { Currency, getCurrencyOptions } from "@/core/entities/enums/currency.enum"
 import { CountryCode, getCountryCodeOptions } from "@/core/entities/enums/country-codes.enum"
-import { SearchableCountrySelect } from "@/components/searchable-country-select"
+import { SearchableCountrySelect } from "@/components/forms/searchable-country-select"
 import { useProfile } from "@/providers/profile.provider"
 
 // Simplified EnumSelect component without internal state tracking

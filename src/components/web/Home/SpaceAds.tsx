@@ -1,5 +1,5 @@
-import Box from "@/components/box/box"
-import Text from "@/components/text/text"
+import Box from "@/components/ui/box"
+import Text from "@/components/ui/text"
 import AdSpace from "@/components/ads/AdSpace"
 import { useTranslations } from "next-intl"
 

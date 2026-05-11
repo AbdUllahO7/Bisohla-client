@@ -1,11 +1,11 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import Box from '@/components/box/box';
+import Box from '@/components/ui/box';
 import Categories from '@/components/web/ProductsPage/Categories';
 import Header from '@/components/web/ProductsPage/Header';
 import AllCarListings from './AllCarListings';
-import SmartBreadcrumb from '@/components/smart-breadcrumbs';
+import SmartBreadcrumb from '@/components/shared/smart-breadcrumbs';
 
 // Import the filter provider
 
@@ -123,7 +123,7 @@ const ProductsContent = () => {
 // Main Products component with provider wrapper
 const Products = () => {
   return (
-    <FilterProvider>
+    <FilterProvider initialListingTypeId={0}>
       <ProductsContent />
     </FilterProvider>
   );

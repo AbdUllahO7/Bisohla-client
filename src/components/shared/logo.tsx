@@ -3,7 +3,7 @@
 import { cn } from '@/lib/utils';
 import { useTheme } from 'next-themes';
 import Image from 'next/image';
-import Box from './box/box';
+import Box from '@/components/ui/box';
 import { useEffect, useState } from 'react';
 import { useRouter } from '@/i18n/routing';
 import { useSettings } from '@/providers/settings.provider';

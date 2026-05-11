@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useState, useMemo, useRef } from 'react';
-import Text from '@/components/text/text';
+import Text from '@/components/ui/text';
 import {
   Card,
   CardDescription,
@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/card';
 import Image from 'next/image';
 import { SelectCarListingDto } from '@/core/entities/models/cars/cars.dto';
-import Box from '@/components/box/box';
+import Box from '@/components/ui/box';
 import { ArrowRight, Eye, Fuel, HeartIcon, LifeBuoy, Bed, Bath, Home, Ruler } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from '@/i18n/routing';
@@ -56,7 +56,7 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
 
   // Get translators for different namespaces
   const t = useTranslations('SoldCard');
-  const bodyTypeT = useTranslations('addProduct.enteredData.stepTow');
+  const bodyTypeT = useTranslations('addProduct.enteredData.stepTwo');
 
   // Use the custom card view tracking hook with owner protection
   const { hasTrackedView } = useCardViewTracking({

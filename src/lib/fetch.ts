@@ -1,10 +1,10 @@
 'use server';
 
-import { ApiResponse } from '@/interfaces/api-response.interface';
+import { ApiResponse } from '@/core/entities/interfaces/api-response.interface';
 import { verifyZodFields } from './validation';
 import { ZodTypeAny } from 'zod';
-import { ValidationError } from '@/interfaces/errors/validation.error';
-import { AppError } from '@/interfaces/errors/app-error';
+import { ValidationError } from '@/core/entities/interfaces/errors/validation.error';
+import { AppError } from '@/core/entities/interfaces/errors/app-error';
 import { getLocale } from 'next-intl/server';
 import { BACKEND_URL } from '@/core/lib/web/constants';
 

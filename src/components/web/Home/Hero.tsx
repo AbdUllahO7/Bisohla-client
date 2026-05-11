@@ -1,7 +1,7 @@
 import Image from "next/image"
 import { getTranslations } from "next-intl/server"
-import Box from "@/components/box/box"
-import Text from "@/components/text/text"
+import Box from "@/components/ui/box"
+import Text from "@/components/ui/text"
 import Filter from "./Filter"
 
 import { FilterProvider } from "@/providers/filters.provider"

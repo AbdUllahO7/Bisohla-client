@@ -1,4 +1,4 @@
-import Box from '@/components/box/box';
+import Box from '@/components/ui/box';
 import AdsSection from '@/components/web/Home/AdsSection';
 import FAQ from '@/components/web/Home/FAQ';
 
@@ -9,7 +9,7 @@ import { Locale } from '@/i18n/routing';
 import { generateSettingsBasedMetadata } from '@/utils/settings-metadata.utils';
 import { Metadata } from 'next';
 import { getLocale, getTranslations } from 'next-intl/server';
-import AnimatedPageWrapper from '@/components/AnimatedPageWrapper';
+import AnimatedPageWrapper from '@/components/shared/AnimatedPageWrapper';
 import NewsSection from '@/components/web/Home/NewsSection';
 import RecentlyViewed from '@/components/web/Home/RecentlyViewed';
 import { getInjection } from '@/di/container';

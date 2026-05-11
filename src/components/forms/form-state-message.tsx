@@ -1,10 +1,10 @@
-import { ApiResponse } from '@/interfaces/api-response.interface';
-import Text, { TextProps } from '@/components/text/text';
+import { ApiResponse } from '@/core/entities/interfaces/api-response.interface';
+import Text, { TextProps } from '@/components/ui/text';
 import { cn } from '@/lib/utils';
 import { Link } from '@/i18n/routing';
 import { allRoutes } from '@/constants/routes.constant';
 import { useLocale } from 'next-intl'; // or wherever your useLocale comes from
-import Box from './box/box';
+import Box from '@/components/ui/box';
 
 interface FormStateMessageProps extends TextProps {
   state: ApiResponse<unknown>;

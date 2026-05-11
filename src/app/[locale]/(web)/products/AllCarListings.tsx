@@ -1,10 +1,10 @@
 'use client';
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import Box from '@/components/box/box';
-import Text from '@/components/text/text';
+import Box from '@/components/ui/box';
+import Text from '@/components/ui/text';
 import { useLocale, useTranslations } from 'next-intl';
 import { useListings } from '@/core/infrastructure-adapters/use-actions/visitors/listing.visitor.use-actions';
-import Pagination from '@/components/Pagination';
+import Pagination from '@/components/shared/Pagination';
 import { QueryParams } from '@/core/entities/api/api';
 import AdsSectionProduct from '@/components/web/ProductsPage/product/AdsSectionProduct';
 import AllCarListingsSkeleton from '@/components/web/design/AllCarListingsSkeleton';

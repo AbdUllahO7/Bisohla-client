@@ -7,7 +7,7 @@ import { SchemaAttributeDto } from "@/core/entities/models/listing-types/listing
 import { SelectedOptions } from "./types";
 import { getGovernorateOptions, getCityOptions, getYearOptions, validateForm } from "./utils";
 import { loadSelections, saveSelections } from "./StorageUtils";
-import { STORAGE_KEYS } from "../main/hooks/useLocalStorage";
+import { STORAGE_KEYS } from "../Main/hooks/useLocalStorage";
 
 /**
  * Custom hook for managing the product step one form

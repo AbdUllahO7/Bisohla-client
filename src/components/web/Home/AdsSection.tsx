@@ -1,6 +1,6 @@
 'use client';
 
-import Box from '@/components/box/box';
+import Box from '@/components/ui/box';
 import AdSpace from '@/components/ads/AdSpace';
 import StaticAdsDesign from './StaticAdsDesign';
 

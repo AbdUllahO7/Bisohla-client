@@ -2,7 +2,7 @@
 import { SelectFeatureDto, CarListingFeature } from "@/core/entities/models/cars/cars.dto";
 import { Feature, GroupedFeatures, CarInfoState } from "./types";
 import { FeatureCategory } from "@/core/entities/enums/cars.enums";
-import { EDIT_STORAGE_KEYS, STORAGE_KEYS } from "../main/hooks/useLocalStorage";
+import { EDIT_STORAGE_KEYS, STORAGE_KEYS } from "../Main/hooks/useLocalStorage";
 
 /**
  * Checks if the application is in edit mode

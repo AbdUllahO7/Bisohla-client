@@ -5,7 +5,7 @@ import { getSession } from '@/core/lib/web/session';
 import { BACKEND_URL } from '@/constants/constants';
 import { allRoutes } from '@/constants/routes.constant';
 import { redirect } from 'next/navigation';
-import { ApiResponse } from '@/interfaces/api-response.interface';
+import { ApiResponse } from '@/core/entities/interfaces/api-response.interface';
 
 interface FetchAuthConfig {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE';

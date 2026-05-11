@@ -1,5 +1,5 @@
-import Text from "./text/text"
-import { Input } from "./ui/input"
+import Text from "@/components/ui/text"
+import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 import { useLocale } from "next-intl"
 import type { ReactNode } from "react"

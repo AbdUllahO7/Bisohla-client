@@ -1,5 +1,5 @@
-import Box from '@/components/box/box';
-import Text from '@/components/text/text';
+import Box from '@/components/ui/box';
+import Text from '@/components/ui/text';
 import { Card, CardDescription, CardHeader } from '@/components/ui/card';
 import { useTranslations } from 'next-intl';
 import React from 'react';

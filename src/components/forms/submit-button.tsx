@@ -1,5 +1,5 @@
 import { useFormStatus } from 'react-dom';
-import { Button, ButtonProps } from './ui/button';
+import { Button, ButtonProps } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useLocale } from 'next-intl';
 

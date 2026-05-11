@@ -1,9 +1,9 @@
 "use client"
 
 import type React from "react"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useTranslations } from "next-intl"
-import type { SelectDropdownProps } from "@/types/homePageTypes"
+import type { SelectDropdownProps } from "@/core/entities/types/homePageTypes"
 
 const SelectDropdown: React.FC<SelectDropdownProps> = ({
   label,

@@ -1,4 +1,4 @@
-import Text from '@/components/text/text';
+import Text from '@/components/ui/text';
 import { CheckCircle2, AlertTriangle, Wrench, Palette } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import React from 'react';

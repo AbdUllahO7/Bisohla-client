@@ -1,5 +1,5 @@
 import React from "react";
-import Box from "@/components/box/box";
+import Box from "@/components/ui/box";
 import { Button } from "@/components/ui/button";
 import { TabsContent } from "@/components/ui/tabs";
 import { ArrowLeft, ArrowRight, Send } from "lucide-react";

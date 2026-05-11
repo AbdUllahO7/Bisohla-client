@@ -9,7 +9,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../ui/select';
+} from '@/components/ui/select';
 import { useUpdateLocale } from '@/core/infrastructure-adapters/use-actions/users/locale.use-actions';
 import { useSession } from '@/core/infrastructure-adapters/use-actions/auth/use-session';
 

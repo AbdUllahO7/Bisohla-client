@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import Box from './box/box';
+import Box from '@/components/ui/box';
 
 // app/loading.tsx
 const WholeAppLoadingProgress: FC = () => {

@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import Box from '@/components/box/box';
+import Box from '@/components/ui/box';
 import {
   Card,
   CardDescription,

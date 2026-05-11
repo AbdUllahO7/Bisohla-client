@@ -1,8 +1,8 @@
 import React from 'react';
-import Box from '@/components/box/box';
-import Text from '@/components/text/text';
+import Box from '@/components/ui/box';
+import Text from '@/components/ui/text';
 import NewsCard from '@/components/web/Home/NewsCard';
-import Pagination from '@/components/Pagination';
+import Pagination from '@/components/shared/Pagination';
 import { SelectNewsArticleDto } from '@/core/entities/models/news/news.dto';
 import AdSpace from '@/components/ads/AdSpace';
 import AdsSectionProduct from '@/components/web/ProductsPage/product/AdsSectionProduct';

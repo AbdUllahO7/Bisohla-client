@@ -17,7 +17,7 @@ import { useLocale, useTranslations } from 'next-intl';
 // UI Components
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import SelectDropdown from '@/components/SelectDropdown';
+import SelectDropdown from '@/components/forms/SelectDropdown';
 import {
   Accordion,
   AccordionContent,
@@ -34,11 +34,11 @@ import {
 } from '@/components/ui/sheet';
 
 // Custom Components
-import OptimizedSearchInput from '@/components/optimized-search-input';
+import OptimizedSearchInput from '@/components/forms/optimized-search-input';
 
 // Hooks and Data
 import { useProductStepOne } from './addProducts/StepOne/hooksv2';
-import { useAddProductStepTwo } from './addProducts/stepTow/hooks';
+import { useAddProductStepTwo } from './addProducts/StepTwo/hooks';
 import { getPriceRanges, getMileageRanges } from '@/constants/filterData';
 import { getCurrencyOptions } from '@/core/entities/enums/currency.enum';
 import { useFilters } from '@/providers/filters.provider';

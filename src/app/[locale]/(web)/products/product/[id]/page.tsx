@@ -131,8 +131,16 @@ export async function generateMetadata({
     }
 
     const car = carResponse.data;
-    const carTitle = `${car.make?.name || ''} ${car.model?.name || ''} ${car.details?.year || ''}`.trim();
-    const carDescription = `${carTitle} - ${car.details?.fuelType || ''} - ${car.details?.transmission || ''} - Price: ${car.price || 'N/A'}`;
+    const makeModel = `${car.make?.name || ''} ${car.model?.name || ''}`.trim();
+    const baseTitle = makeModel || car.title || 'Car Details';
+    const yearStr = car.details?.year && car.details.year > 0 ? car.details.year.toString() : '';
+    const carTitle = yearStr && !baseTitle.includes(yearStr) ? `${baseTitle} ${yearStr}`.trim() : baseTitle;
+    const carDescription = [
+      carTitle,
+      car.details?.fuelType,
+      car.details?.transmission,
+      car.price ? `Price: ${car.price}` : null
+    ].filter(Boolean).join(' - ');
 
     const baseUrl = APP_URL;
     const canonicalPath = `${baseUrl}/${locale}/products/product/${id}${isProfileView ? '?profile=true' : ''}`;

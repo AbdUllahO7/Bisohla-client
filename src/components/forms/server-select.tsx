@@ -33,8 +33,8 @@ import { Alert } from '@/components/ui/alert';
 import { QueryParams } from '@/core/entities/api/api';
 import { PaginatedResponse } from '@/core/entities/api/success.response';
 import { useDebounce } from '@/hooks/use-debounce';
-import Text from './text/text';
-import Box from './box/box';
+import Text from '@/components/ui/text';
+import Box from '@/components/ui/box';
 
 export interface ServerSelectProps<
   T extends Record<string, any>,

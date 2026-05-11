@@ -1,6 +1,6 @@
 'use client'
 import React, { useState } from "react";
-import Text from "@/components/text/text";
+import Text from "@/components/ui/text";
 import ImageUploader from "@/components/image-uploader/image-uploader";
 import { CarPhotosSectionProps } from "./types";
 import { useLocale } from "next-intl";

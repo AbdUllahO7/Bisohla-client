@@ -1,5 +1,5 @@
 'use client';
-import Box from '@/components/box/box';
+import Box from '@/components/ui/box';
 import { ProductCardItem } from '@/components/web/design/ProductCardItem';
 import { ProductCardListView } from '@/components/web/design/ProductCardListView';
 import { useLocale, useTranslations } from 'next-intl';
@@ -8,7 +8,7 @@ import { useMyListings } from '@/core/infrastructure-adapters/use-actions/users/
 import ProductSkeleton from '@/components/web/design/ProductSkeletonItem';
 import { useSession } from '@/hooks/auth/use-session';
 import type { QueryParams } from '@/core/entities/api/api';
-import Pagination from '@/components/Pagination';
+import Pagination from '@/components/shared/Pagination';
 import { Card, CardContent } from '@/components/ui/card';
 import { Car, Plus, Sun, Moon } from 'lucide-react';
 import { Link } from '@/i18n/routing';

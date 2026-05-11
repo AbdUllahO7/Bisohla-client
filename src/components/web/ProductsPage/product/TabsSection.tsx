@@ -3,7 +3,7 @@
 import type React from 'react';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { useLocale, useTranslations } from 'next-intl';
-import Box from '@/components/box/box';
+import Box from '@/components/ui/box';
 import { Skeleton } from '@/components/ui/skeleton';
 import AccordionProductSafety from './Tabs/AccordionProductSafety';
 import CarDetailsContent from './Tabs/CarDetailsContent';

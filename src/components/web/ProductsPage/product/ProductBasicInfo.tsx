@@ -1,7 +1,7 @@
 'use client';
 
-import Box from '@/components/box/box';
-import Text from '@/components/text/text';
+import Box from '@/components/ui/box';
+import Text from '@/components/ui/text';
 import { Card, CardContent } from '@/components/ui/card';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
@@ -38,7 +38,7 @@ const ProductBasicInfo: React.FC<ProductBasicInfoProps> = ({
 }: ProductBasicInfoProps) => {
   // Get translators for different namespaces
   const productT = useTranslations('product');
-  const bodyTypeT = useTranslations('addProduct.enteredData.stepTow');
+  const bodyTypeT = useTranslations('addProduct.enteredData.stepTwo');
 
   // Get the translated options from the car enums
   const bodyTypeOptions = useMemo(

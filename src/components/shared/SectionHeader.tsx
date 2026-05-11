@@ -1,7 +1,7 @@
 "use client"
 
-import Box from "@/components/box/box"
-import Text from "@/components/text/text"
+import Box from "@/components/ui/box"
+import Text from "@/components/ui/text"
 import { Link } from "@/i18n/routing"
 import { Sparkles, LucideIcon } from "lucide-react"
 import { ReactNode } from "react"

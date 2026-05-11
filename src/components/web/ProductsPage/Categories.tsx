@@ -1,6 +1,6 @@
 'use client';
 
-import Box from '@/components/box/box';
+import Box from '@/components/ui/box';
 import { useLocale, useTranslations } from 'next-intl';
 import React, { useMemo } from 'react';
 import CategoryCarousel from '../design/CategoryCarousel';
@@ -9,7 +9,7 @@ import { useGetBodyTypeCategoryCounts } from '@/core/infrastructure-adapters/use
 import { useFilters } from '@/providers/filters.provider';
 
 const Categories = () => {
-  const t = useTranslations('addProduct.enteredData.stepTow');
+  const t = useTranslations('addProduct.enteredData.stepTwo');
   const locale = useLocale();
   const direction = locale === 'ar' ? 'rtl' : 'ltr';
 

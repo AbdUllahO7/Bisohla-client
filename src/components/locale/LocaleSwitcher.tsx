@@ -1,7 +1,7 @@
 import { routing } from "@/i18n/routing";
 import { Globe } from "lucide-react";
 import { useLocale } from "next-intl";
-import LocaleSwitcherSelect from "./localSwitcherSelect";
+import LocaleSwitcherSelect from "./LocaleSwitcherSelect";
 
 export default function LocaleSwitcher() {
     const locale = useLocale();

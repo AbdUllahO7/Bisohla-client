@@ -687,6 +687,8 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
     newFilters.listingType = urlParams.listingType || '';
     if (urlParams.listingTypeId) {
       newFilters.listingTypeId = parseInt(urlParams.listingTypeId, 10);
+    } else if (initialListingTypeId !== undefined) {
+      newFilters.listingTypeId = initialListingTypeId;
     } else {
       // Default behavior: check sessionStorage first, then fallback to page-based defaults
       let fallbackType = 0;
@@ -727,7 +729,7 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
     setTimeout(() => {
       isUpdatingFromUrl.current = false;
     }, 100);
-  }, [searchParams]);
+  }, [searchParams, initialListingTypeId, locale, pathname]);
 
   // IMPROVED: URL update with better conflict resolution
   const updateUrl = useCallback(() => {

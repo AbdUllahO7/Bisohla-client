@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import Box from '@/components/box/box';
+import Box from '@/components/ui/box';
 import { Search, Filter, ArrowRight, ArrowLeft } from 'lucide-react';
 import { useDirection } from '@/hooks/use-direction';
 

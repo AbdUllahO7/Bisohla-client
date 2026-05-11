@@ -21,7 +21,7 @@ import {
 import { Bell, Loader2, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { createCarAlert } from '@/core/infrastructure-adapters/actions/users/car-alert.user.actions';
-import ServerSelect from '@/components/server-select';
+import ServerSelect from '@/components/forms/server-select';
 import { getInjection } from '@/di/container';
 import { ListingTypeRefItemDto } from '@/core/entities/models/listing-type-refs/listing-type-refs.dto';
 import { useLocale, useTranslations } from 'next-intl';

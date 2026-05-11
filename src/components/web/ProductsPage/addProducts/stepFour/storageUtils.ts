@@ -1,6 +1,6 @@
 import { ListingType, RentType, SaveStatus } from "@/core/entities/enums/cars.enums";
 import { AdInformationFormData } from "./schema";
-import { EDIT_STORAGE_KEYS, STORAGE_KEYS } from "../main/hooks/useLocalStorage";
+import { EDIT_STORAGE_KEYS, STORAGE_KEYS } from "../Main/hooks/useLocalStorage";
 import { Currency } from "@/core/entities/enums/currency.enum";
 import { CountryCode } from "@/core/entities/enums/country-codes.enum";
 

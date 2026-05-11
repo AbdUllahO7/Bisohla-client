@@ -1,6 +1,6 @@
 'use client'
 import React from 'react';
-import Text from '@/components/text/text';
+import Text from '@/components/ui/text';
 
 interface DynamicSectionHeaderProps {
   title: string;

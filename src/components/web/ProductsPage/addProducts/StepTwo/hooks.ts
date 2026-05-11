@@ -18,7 +18,7 @@ import { SelectFeatureDto, CarListingFeature } from "@/core/entities/models/cars
  * Custom hook for the AddProductStepTwo component
  */
 export const useAddProductStepTwo = (onValidationChange: (isValid: boolean) => void) => {
-  const t = useTranslations("addProduct.enteredData.stepTow");
+  const t = useTranslations("addProduct.enteredData.stepTwo");
   const locale = useLocale();
   const direction = locale === "ar" ? "rtl" : "ltr";
 

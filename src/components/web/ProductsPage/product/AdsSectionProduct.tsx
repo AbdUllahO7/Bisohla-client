@@ -1,6 +1,6 @@
 'use client';
 
-import Text from '@/components/text/text';
+import Text from '@/components/ui/text';
 import { useTranslations, useLocale } from 'next-intl';
 import Image from 'next/image';
 import { Link } from '@/i18n/routing';

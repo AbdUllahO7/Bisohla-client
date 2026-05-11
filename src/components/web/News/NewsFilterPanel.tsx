@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import Text from '@/components/text/text';
+import Text from '@/components/ui/text';
 import { Filter, X } from 'lucide-react';
 import { SelectNewsCategoryDto } from '@/core/entities/models/news/news.dto';
 

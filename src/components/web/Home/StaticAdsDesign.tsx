@@ -1,7 +1,7 @@
 'use client';
 
-import Box from '@/components/box/box';
-import Text from '@/components/text/text';
+import Box from '@/components/ui/box';
+import Text from '@/components/ui/text';
 import { Link } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
