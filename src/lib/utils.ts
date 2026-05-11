@@ -1,7 +1,7 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { Duration } from './duration';
-import { RouteConfig } from '@/interfaces/routes.interface';
+import { RouteConfig } from '@/core/entities/interfaces/routes.interface';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

@@ -13,7 +13,7 @@ import {
   validateForm,
 } from './utils';
 import { loadSelections, saveSelections } from './StorageUtils';
-import { STORAGE_KEYS } from '../main/hooks/useLocalStorage';
+import { STORAGE_KEYS } from '../Main/hooks/useLocalStorage';
 
 // Translation helper for ref items
 const translateName = (item: ListingTypeRefItemDto, locale: string) => {

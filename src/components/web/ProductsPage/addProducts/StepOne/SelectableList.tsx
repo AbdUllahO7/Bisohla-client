@@ -2,8 +2,8 @@
 
 import type React from "react"
 import { useState, useMemo } from "react"
-import Box from "@/components/box/box"
-import Text from "@/components/text/text"
+import Box from "@/components/ui/box"
+import Text from "@/components/ui/text"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Input } from "@/components/ui/input"

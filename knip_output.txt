@@ -1,0 +1,420 @@
+Unused files (77)
+ecosystem.config.js                                                            
+src/app/[locale]/(web)/SettingsMetaData.tsx                                    
+src/app/[locale]/actions.ts                                                    
+src/components/auth/permission-check.tsx                                       
+src/components/auth/role-check.tsx                                             
+src/components/auth/signout-form-button.tsx                                    
+src/components/auth/signout-link.tsx                                           
+src/components/BackToTop.tsx                                                   
+src/components/image-uploader.tsx                                              
+src/components/index.ts                                                        
+src/components/infinity-scroll-checkbox-list.tsx                               
+src/components/infinity-scrolldown.tsx                                         
+src/components/menu-button.tsx                                                 
+src/components/ui/Breadcrumbs.tsx                                              
+src/components/ui/chart.tsx                                                    
+src/components/ui/collapsible.tsx                                              
+src/components/ui/menubar.tsx                                                  
+src/components/ui/multi-select.tsx                                             
+src/components/ui/radio-group.tsx                                              
+src/components/ui/table.tsx                                                    
+src/components/web/Home/LatestOffers.tsx                                       
+src/components/web/Home/MobileMenu.tsx                                         
+src/components/web/Home/RentProduct.tsx                                        
+src/components/web/Home/useMenuToggle.tsx                                      
+src/components/web/Pordıcts/VehicleListings.tsx                                
+src/components/web/ProductsPage/addProducts/main/hooks/useImageProcessor.ts    
+src/components/web/ProductsPage/addProducts/main/hooks/useStepNavigation.ts    
+src/components/web/ProductsPage/addProducts/main/hooks/useStepValidation.ts    
+src/components/web/ProductsPage/addProducts/main/types.ts                      
+src/components/web/ProductsPage/addProducts/SelectableList.tsx                 
+src/components/web/ProductsPage/addProducts/step-types.ts                      
+src/components/web/ProductsPage/addProducts/StepOne/AddProductStepOne.tsx      
+src/components/web/ProductsPage/addProducts/StepOne/AddressField.tsx           
+src/components/web/ProductsPage/addProducts/StepOne/ErrorMessage.tsx           
+src/components/web/ProductsPage/addProducts/StepOne/StoryField.tsx             
+src/components/web/ProductsPage/addProducts/stepThree/AddProductStepThree.tsx  
+src/components/web/ProductsPage/addProducts/stepThree/CarConditionTable.tsx    
+src/components/web/ProductsPage/addProducts/stepThree/hooks.ts                 
+src/components/web/ProductsPage/addProducts/stepThree/utils.ts                 
+src/components/web/ProductsPage/addProducts/stepTow/AddProductStepTwo.tsx      
+src/components/web/ProductsPage/addProducts/stepTow/CarInfoForm.tsx            
+src/components/web/ProductsPage/addProducts/stepTow/FeatureSection.tsx         
+src/components/web/ProductsPage/addProducts/stepTow/FormField.tsx              
+src/components/web/ProductsPage/addProducts/utils/formatErrorMessage.ts        
+src/components/web/ProductsPage/dialogs/ErrorDialog.tsx                        
+src/components/web/ProductsPage/dialogs/SuccessDialogProps.tsx                 
+src/components/web/ProductsPage/mobile-filter-drawer.tsx                       
+src/components/web/ProductsPage/product/AccordionDetails.tsx                   
+src/components/web/ProductsPage/product/Tabs/AdsDetailsTab.tsx                 
+src/components/web/ProductsPage/product/Tabs/car-damages-tab-content.tsx       
+src/components/web/ProfilePage/PublicProfileFilter.tsx                         
+src/components/web/UserProfilePage/dashboard-sidebar.tsx                       
+src/components/web/UserProfilePage/Footer.tsx                                  
+src/constants/ProductsData.ts                                                  
+src/constants/session.constant.ts                                              
+src/core/entities/config/locale.ts                                             
+src/core/entities/config/request.ts                                            
+src/core/entities/enums/cars.damegs.enum.ts                                    
+src/core/entities/errors/fetch-error.ts                                        
+src/core/infrastructure-adapters/actions/admin/notifications.action.ts         
+src/core/infrastructure-adapters/use-actions/admin/notifications.use-actions.ts
+src/core/infrastructure-adapters/use-actions/auth/auth.use-actions.tsx         
+src/hooks/use-generic-form.hook.tsx                                            
+src/hooks/useOptimizedFilters.tsx                                              
+src/interfaces/session.interface.ts                                            
+src/interfaces/use-handle-api.interface.ts                                     
+src/lib/axios.ts                                                               
+src/lib/ImageUpload.tsx                                                        
+src/lib/routes.utils.ts                                                        
+src/lib/utils/auth-utils 2.ts                                                  
+src/scripts/generateRoutes.ts                                                  
+src/types/carLisitingTypes.ts                                                  
+src/types/ProductsPageTypes.ts                                                 
+src/zod-schemas/auth/login-form-schema.ts                                      
+src/zod-schemas/auth/reset-password.schem.ts                                   
+src/zod-schemas/auth/send-verification-email.schema.ts                         
+src/zod-schemas/index.ts                                                       
+Unused dependencies (9)
+@next/font                   package.json:17:6
+@radix-ui/react-collapsible  package.json:22:6
+@radix-ui/react-icons        package.json:25:6
+@radix-ui/react-menubar      package.json:27:6
+@radix-ui/react-radio-group  package.json:30:6
+@tabler/icons-react          package.json:39:6
+axios                        package.json:41:6
+react-router-dom             package.json:60:6
+recharts                     package.json:61:6
+Unused devDependencies (2)
+eslint              package.json:72:6
+eslint-config-next  package.json:73:6
+Unlisted dependencies (1)
+postcss-load-config  postcss.config.mjs:1:10
+Unused exports (220)
+generateWebStructuredData             function  src/app/[locale]/(web)/MetaData.tsx:422:23                              
+WebMetadataProvider                             src/app/[locale]/(web)/MetaData.tsx:576:14                              
+default                               variable  src/app/[locale]/(web)/MetaData.tsx:599:16                              
+RegisterAction                                  src/app/[locale]/auth/actions.ts:53:14                                  
+useUploadImages                                 src/components/image-uploader/use-actions.tsx:20:14                     
+ServerSelect                          function  src/components/server-select.tsx:82:17                                  
+AlertDialogPortal                               src/components/ui/alert-dialog.tsx:131:3                                
+AlertDialogOverlay                              src/components/ui/alert-dialog.tsx:132:3                                
+AlertTitle                                      src/components/ui/alert.tsx:59:17                                       
+badgeVariants                                   src/components/ui/badge.tsx:36:17                                       
+BreadcrumbPage                                  src/components/ui/breadcrumb.tsx:113:3                                  
+BreadcrumbEllipsis                              src/components/ui/breadcrumb.tsx:115:3                                  
+CommandDialog                                   src/components/ui/command.tsx:145:3                                     
+CommandShortcut                                 src/components/ui/command.tsx:151:3                                     
+DialogPortal                                    src/components/ui/dialog.tsx:131:3                                      
+DialogTrigger                                   src/components/ui/dialog.tsx:133:3                                      
+DialogClose                                     src/components/ui/dialog.tsx:134:3                                      
+DropdownMenuCheckboxItem                        src/components/ui/dropdown-menu.tsx:190:3                               
+DropdownMenuRadioItem                           src/components/ui/dropdown-menu.tsx:191:3                               
+DropdownMenuShortcut                            src/components/ui/dropdown-menu.tsx:194:3                               
+DropdownMenuGroup                               src/components/ui/dropdown-menu.tsx:195:3                               
+DropdownMenuPortal                              src/components/ui/dropdown-menu.tsx:196:3                               
+DropdownMenuSub                                 src/components/ui/dropdown-menu.tsx:197:3                               
+DropdownMenuSubContent                          src/components/ui/dropdown-menu.tsx:198:3                               
+DropdownMenuSubTrigger                          src/components/ui/dropdown-menu.tsx:199:3                               
+DropdownMenuRadioGroup                          src/components/ui/dropdown-menu.tsx:200:3                               
+useFormField                                    src/components/ui/form.tsx:170:3                                        
+PopoverAnchor                                   src/components/ui/popover.tsx:33:51                                     
+ScrollBar                                       src/components/ui/scroll-area.tsx:48:22                                 
+SelectGroup                                     src/components/ui/select.tsx:150:3                                      
+SelectLabel                                     src/components/ui/select.tsx:154:3                                      
+SelectSeparator                                 src/components/ui/select.tsx:156:3                                      
+SelectScrollUpButton                            src/components/ui/select.tsx:157:3                                      
+SelectScrollDownButton                          src/components/ui/select.tsx:158:3                                      
+SheetPortal                                     src/components/ui/sheet.tsx:131:3                                       
+SheetOverlay                                    src/components/ui/sheet.tsx:132:3                                       
+SheetTrigger                                    src/components/ui/sheet.tsx:133:3                                       
+SheetFooter                                     src/components/ui/sheet.tsx:137:3                                       
+SidebarGroup                                    src/components/ui/sidebar.tsx:767:3                                     
+SidebarGroupAction                              src/components/ui/sidebar.tsx:768:3                                     
+SidebarGroupContent                             src/components/ui/sidebar.tsx:769:3                                     
+SidebarGroupLabel                               src/components/ui/sidebar.tsx:770:3                                     
+SidebarInput                                    src/components/ui/sidebar.tsx:772:3                                     
+SidebarMenuAction                               src/components/ui/sidebar.tsx:775:3                                     
+SidebarMenuBadge                                src/components/ui/sidebar.tsx:776:3                                     
+SidebarMenuSkeleton                             src/components/ui/sidebar.tsx:779:3                                     
+SidebarMenuSub                                  src/components/ui/sidebar.tsx:780:3                                     
+SidebarMenuSubButton                            src/components/ui/sidebar.tsx:781:3                                     
+SidebarMenuSubItem                              src/components/ui/sidebar.tsx:782:3                                     
+SidebarSeparator                                src/components/ui/sidebar.tsx:785:3                                     
+SidebarTrigger                                  src/components/ui/sidebar.tsx:786:3                                     
+ToastAction                                     src/components/ui/toast.tsx:128:3                                       
+ErrorDialog                                     …ents/web/ProductsPage/addProducts/main/Components/ErrorDialog.tsx:26:14
+useLocalStorageWithEditMode           function  …onents/web/ProductsPage/addProducts/main/hooks/useLocalStorage.ts:46:17
+getSuccessDialogTexts                           src/components/web/ProductsPage/addProducts/main/utils/index.ts:15:16   
+checkStepAccessibility                          …ts/web/ProductsPage/addProducts/main/utils/stepNavigationUtils.ts:53:14
+isEditMode                                      …/components/web/ProductsPage/addProducts/stepFour/storageUtils.ts:81:14
+ensureEnumValues                                …/components/web/ProductsPage/addProducts/stepFour/storageUtils.ts:96:14
+useAdInfoData                                   …components/web/ProductsPage/addProducts/stepFour/storageUtils.ts:254:14
+STORAGE_KEY                                     src/components/web/ProductsPage/addProducts/stepFour/types.ts:51:14     
+defaultState                                    src/components/web/ProductsPage/addProducts/stepFour/types.ts:53:14     
+getCurrencyErrorMessage                         …mponents/web/ProductsPage/addProducts/stepFour/validationUtils.ts:85:14
+STORAGE_KEY                                     src/components/web/ProductsPage/addProducts/stepThree/types.ts:57:14    
+EDIT_STORAGE_KEY                                src/components/web/ProductsPage/addProducts/stepThree/types.ts:58:14    
+EDIT_MODE_FLAG                                  src/components/web/ProductsPage/addProducts/stepThree/types.ts:59:14    
+defaultState                                    src/components/web/ProductsPage/addProducts/stepThree/types.ts:62:14    
+STORAGE_KEY                                     src/components/web/ProductsPage/addProducts/stepTow/types.ts:74:14      
+defaultState                                    src/components/web/ProductsPage/addProducts/stepTow/types.ts:77:14      
+isEditMode                                      src/components/web/ProductsPage/addProducts/stepTow/utils.ts:10:14      
+getCarInfoStorageKey                            src/components/web/ProductsPage/addProducts/stepTow/utils.ts:18:14      
+isValidEngineSize                               src/components/web/ProductsPage/addProducts/stepTow/utils.ts:55:14      
+useCarInfo                                      src/components/web/ProductsPage/addProducts/stepTow/utils.ts:172:14     
+default                                         src/config/zod.config.ts:114:16                                         
+COOKIE_DOMAIN                                   src/constants/constants.ts:10:14                                        
+getCitiesOptions                                src/constants/filterData.ts:1:14                                        
+getStatesOptions                                src/constants/filterData.ts:8:14                                        
+getCarMarkaItems                                src/constants/filterData.ts:15:14                                       
+getControlType                                  src/constants/filterData.ts:68:14                                       
+getFuelType                                     src/constants/filterData.ts:81:14                                       
+getCarModelsOptions                             src/constants/filterData.ts:94:14                                       
+default                                         src/core/config/zod.config.ts:114:16                                    
+defaultActionState                              src/core/entities/api/success.response.ts:41:14                         
+sortOptionsAlphabetically             function  src/core/entities/enums/cars.enums.ts:271:17                            
+getFeatureCategoryOptions                       src/core/entities/enums/cars.enums.ts:348:14                            
+getCarStatusOptions                             src/core/entities/enums/cars.enums.ts:473:14                            
+CURRENCY_INFO                                   src/core/entities/enums/currency.enum.ts:15:14                          
+formatCurrency                        function  src/core/entities/enums/currency.enum.ts:60:17                          
+getSyriaGovernorateOptions                      src/core/entities/enums/syria.enums.ts:864:14                           
+getBilingualSyriaGovernorateOptions             src/core/entities/enums/syria.enums.ts:874:14                           
+getSyriaCityOptions                             src/core/entities/enums/syria.enums.ts:886:14                           
+getBilingualSyriaCityOptions                    src/core/entities/enums/syria.enums.ts:896:14                           
+getCitiesBySyriaGovernorate                     src/core/entities/enums/syria.enums.ts:907:14                           
+getBilingualCitiesBySyriaGovernorate            src/core/entities/enums/syria.enums.ts:921:14                           
+CreateCarAlertSchema                            src/core/entities/models/car-alerts/car-alerts.zod.dto.ts:3:14          
+UpdateCarAlertSchema                            src/core/entities/models/car-alerts/car-alerts.zod.dto.ts:14:14         
+ToggleCarAlertStatusSchema                      src/core/entities/models/car-alerts/car-alerts.zod.dto.ts:20:14         
+CreateCarMakeSchema                             src/core/entities/models/cars/cars.zod.dto.ts:20:14                     
+UpdateCarMakeSchema                             src/core/entities/models/cars/cars.zod.dto.ts:29:14                     
+CreateCarModelSchema                            src/core/entities/models/cars/cars.zod.dto.ts:33:14                     
+UpdateCarModelSchema                            src/core/entities/models/cars/cars.zod.dto.ts:43:14                     
+CreateCarTrimSchema                             src/core/entities/models/cars/cars.zod.dto.ts:47:14                     
+UpdateCarTrimSchema                             src/core/entities/models/cars/cars.zod.dto.ts:55:14                     
+CarImageSchema                                  src/core/entities/models/cars/cars.zod.dto.ts:59:14                     
+CreateCarListingSchema                          src/core/entities/models/cars/cars.zod.dto.ts:79:14                     
+UpdateCarListingSchema                          src/core/entities/models/cars/cars.zod.dto.ts:148:14                    
+UpdateSaveStatusSchema                          src/core/entities/models/cars/cars.zod.dto.ts:155:14                    
+UpdateCarListingStatusSchema                    src/core/entities/models/cars/cars.zod.dto.ts:162:14                    
+CreateFeatureSchema                             src/core/entities/models/cars/cars.zod.dto.ts:172:14                    
+IncrementCountDtoSchema                         src/core/entities/models/cars/cars.zod.dto.ts:179:14                    
+UpdateViewDurationDtoSchema                     src/core/entities/models/cars/cars.zod.dto.ts:184:14                    
+BatchIncrementViewCountDtoSchema                src/core/entities/models/cars/cars.zod.dto.ts:194:14                    
+UpdateFeatureSchema                             src/core/entities/models/cars/cars.zod.dto.ts:203:14                    
+CreateFavoriteCarListingSchema                  src/core/entities/models/cars/users-favorites-cars.zod.dto.ts:15:14     
+UpdateFavoriteCarListingSchema                  src/core/entities/models/cars/users-favorites-cars.zod.dto.ts:29:14     
+ToggleFavoriteCarListingSchema                  src/core/entities/models/cars/users-favorites-cars.zod.dto.ts:38:14     
+CreateFavoriteListingSchema                     …core/entities/models/listings/users-favorites-listings.zod.dto.ts:15:14
+ToggleFavoriteListingSchema                     …core/entities/models/listings/users-favorites-listings.zod.dto.ts:29:14
+SelectNewsCategorySchema                        src/core/entities/models/news/news.dto.ts:4:14                          
+SelectNewsAuthorSchema                          src/core/entities/models/news/news.dto.ts:16:14                         
+SelectNewsArticleSchema                         src/core/entities/models/news/news.dto.ts:36:14                         
+SelectNewsArticleWithRelationsSchema            src/core/entities/models/news/news.dto.ts:59:14                         
+BaseNotificationSchema                          src/core/entities/models/notifications/notifications.zod.dto.ts:12:14   
+CreateUserNotificationSchema                    src/core/entities/models/notifications/notifications.zod.dto.ts:40:14   
+CreateMultiUserNotificationSchema               src/core/entities/models/notifications/notifications.zod.dto.ts:61:14   
+CreateGroupNotificationSchema                   src/core/entities/models/notifications/notifications.zod.dto.ts:84:14   
+CreateTemplatedNotificationSchema               src/core/entities/models/notifications/notifications.zod.dto.ts:105:14  
+CreateBroadcastNotificationSchema               src/core/entities/models/notifications/notifications.zod.dto.ts:162:14  
+UpdateNotificationReadStatusSchema              src/core/entities/models/notifications/notifications.zod.dto.ts:185:14  
+UpdateNotificationStatusSchema                  src/core/entities/models/notifications/notifications.zod.dto.ts:195:14  
+CreateNotificationTemplateSchema                src/core/entities/models/notifications/notifications.zod.dto.ts:207:14  
+UpdateNotificationTemplateSchema                src/core/entities/models/notifications/notifications.zod.dto.ts:226:14  
+CreateNotificationGroupSchema                   src/core/entities/models/notifications/notifications.zod.dto.ts:236:14  
+UpdateNotificationGroupSchema                   src/core/entities/models/notifications/notifications.zod.dto.ts:248:14  
+AddUsersToGroupSchema                           src/core/entities/models/notifications/notifications.zod.dto.ts:256:14  
+RemoveUsersFromGroupSchema                      src/core/entities/models/notifications/notifications.zod.dto.ts:266:14  
+GetUserNotificationsQuerySchema                 src/core/entities/models/notifications/notifications.zod.dto.ts:280:14  
+selectPermissionSchema                          src/core/entities/models/permissions/permissions.dto.ts:3:14            
+CreatePermissionSchema                          src/core/entities/models/permissions/permissions.dto.ts:26:14           
+createRoleSchema                                src/core/entities/models/permissions/roles.dto.ts:11:14                 
+updateRoleSchema                                src/core/entities/models/permissions/roles.dto.ts:18:14                 
+createInfoSectionSchema                         src/core/entities/models/products/info-sections.dt.ts:27:14             
+updateInfoSectionSchema                         src/core/entities/models/products/info-sections.dt.ts:36:14             
+createProductsCategorySchema                    src/core/entities/models/products/product-categories.dto.ts:20:14       
+createProductGroupsInfoSchema                   src/core/entities/models/products/product-groups-info.dto.ts:35:14      
+createProductGroupSchema                        src/core/entities/models/products/product-groups.dto.ts:21:14           
+updateProductGroupSchema                        src/core/entities/models/products/product-groups.dto.ts:30:14           
+editProductGroupCategoriesSchema                src/core/entities/models/products/product-groups.dto.ts:40:14           
+editProductGroupsInfoSchema                     src/core/entities/models/products/product-groups.dto.ts:68:14           
+editProductGroupsInfoSectionSchema              src/core/entities/models/products/product-groups.dto.ts:95:14           
+editProductGroupSchemaForPage                   src/core/entities/models/products/product-groups.dto.ts:118:14          
+updateProfileSchema                             src/core/entities/models/profile/user.profile.dto.ts:26:14              
+usersToRolesSchema                              src/core/entities/models/users/users.dto.ts:37:14                       
+selectUserSchema                                src/core/entities/models/users/users.dto.ts:46:14                       
+selectUserWithTransformedRolesSchema            src/core/entities/models/users/users.dto.ts:59:14                       
+CreateUserSchema                                src/core/entities/models/users/users.dto.ts:73:14                       
+UpdateUserSchema                                src/core/entities/models/users/users.dto.ts:95:14                       
+checkRole                                       src/core/infrastructure-adapters/actions/auth/auth.actions.ts:19:14     
+checkPermission                                 src/core/infrastructure-adapters/actions/auth/auth.actions.ts:29:14     
+updateCarAlert                                  …e/infrastructure-adapters/actions/users/car-alert.user.actions.ts:38:14
+resolveAdsAction                                src/core/infrastructure-adapters/actions/visitors/ads.actions.ts:7:14   
+getAdsByPageAction                              src/core/infrastructure-adapters/actions/visitors/ads.actions.ts:23:14  
+getActiveAdsBySpaceAction                       src/core/infrastructure-adapters/actions/visitors/ads.actions.ts:39:14  
+useSetting                                      …astructure-adapters/use-actions/settings/settings.use-actions.tsx:45:14
+useCarAlertById                                 …ructure-adapters/use-actions/users/car-alert.user.use-actions.tsx:23:14
+useGetCarFavorites                              …nfrastructure-adapters/use-actions/users/car.user.use-actions.tsx:40:14
+useAddCarToFavorites                            …nfrastructure-adapters/use-actions/users/car.user.use-actions.tsx:53:14
+useRemoveCarFromFavorites                       …nfrastructure-adapters/use-actions/users/car.user.use-actions.tsx:67:14
+useToggleCarFavorite                            …nfrastructure-adapters/use-actions/users/car.user.use-actions.tsx:78:14
+useCheckCarIsFavorite                           …nfrastructure-adapters/use-actions/users/car.user.use-actions.tsx:91:14
+useCreateCarListing                             …frastructure-adapters/use-actions/users/car.user.use-actions.tsx:104:14
+useUpdateCarListing                             …frastructure-adapters/use-actions/users/car.user.use-actions.tsx:110:14
+useMyCarListings                                …frastructure-adapters/use-actions/users/car.user.use-actions.tsx:145:14
+useMyCarById                                    …frastructure-adapters/use-actions/users/car.user.use-actions.tsx:153:14
+useCreateListing                                …astructure-adapters/use-actions/users/listing.user.use-actions.ts:58:14
+useUpdateListing                                …astructure-adapters/use-actions/users/listing.user.use-actions.ts:66:14
+useGetListingFavoriteById                       …astructure-adapters/use-actions/users/listing.user.use-actions.ts:83:14
+useToggleListingFavorite                        …astructure-adapters/use-actions/users/listing.user.use-actions.ts:96:14
+useCreateListingFavorite                        …structure-adapters/use-actions/users/listing.user.use-actions.ts:108:14
+useGetAuthUserMyNotificationById                …ture-adapters/use-actions/users/notification.user.use-actions.tsx:35:14
+useCarListingById                               …ructure-adapters/use-actions/visitors/car.visitor.use-actions.tsx:57:14
+useCarMakes                                     …ructure-adapters/use-actions/visitors/car.visitor.use-actions.tsx:65:14
+useCarModels                                    …ructure-adapters/use-actions/visitors/car.visitor.use-actions.tsx:74:14
+useCarTrims                                     …ructure-adapters/use-actions/visitors/car.visitor.use-actions.tsx:83:14
+useGetPublicFilterFacets                        …ucture-adapters/use-actions/visitors/car.visitor.use-actions.tsx:101:14
+useFeaturedListings                             …ure-adapters/use-actions/visitors/listing.visitor.use-actions.tsx:18:14
+useTrendingListings                             …ure-adapters/use-actions/visitors/listing.visitor.use-actions.tsx:26:14
+useGetUserInfo                                  …ture-adapters/use-actions/visitors/public-profile.use-actions.tsx:16:14
+makeRequest                           function  src/core/lib/api.ts:223:23                                              
+catchActionRequest                              src/core/lib/api.ts:310:14                                              
+putReq                                          src/core/lib/api.ts:364:14                                              
+deleteReq                                       src/core/lib/api.ts:371:14                                              
+cn                                    function  src/core/lib/env.ts:16:17                                               
+isProduction                                    src/core/lib/web/constants.ts:8:14                                      
+isStaging                                       src/core/lib/web/constants.ts:9:14                                      
+zodTimestampsWithDeleteAt             function  src/core/lib/zod.ts:12:17                                               
+useIncrementViewCount                           src/hooks/use-carStatistics.tsx:26:14                                   
+useGetNewsArticleById                           src/hooks/use-news.ts:26:14                                             
+useGetNewsArticleBySlug                         src/hooks/use-news.ts:37:14                                             
+useGetNewsCategoryById                          src/hooks/use-news.ts:59:14                                             
+useGetNewsCategoryBySlug                        src/hooks/use-news.ts:70:14                                             
+reducer                                         src/hooks/use-toast.ts:77:14                                            
+makeRequest                           function  src/lib/fetch.ts:116:23                                                 
+catchActionRequest                    function  src/lib/fetch.ts:164:23                                                 
+getReq                                          src/lib/fetch.ts:213:14                                                 
+putReq                                          src/lib/fetch.ts:220:14                                                 
+deleteReq                                       src/lib/fetch.ts:227:14                                                 
+checkPermission                                 src/lib/permission.ts:3:14                                              
+generatePath                          function  src/lib/utils.ts:44:17                                                  
+triggerLogoutStateChange                        src/lib/utils/auth-utils.ts:21:14                                       
+invalidateAuthCaches                            src/lib/utils/auth-utils.ts:35:14                                       
+refetchSessionData                              src/lib/utils/auth-utils.ts:45:14                                       
+NavigationProvider                              src/providers/navigation.provider.tsx:23:14                             
+useNavigation                                   src/providers/navigation.provider.tsx:71:14                             
+validateResetPasswordToken                      src/services/auth/auth.service.ts:64:14                                 
+handleSignout                                   src/services/auth/auth.service.ts:75:14                                 
+rolesSeed                                       src/services/permission.service.ts:1:14                                 
+getTraderRole                                   src/services/permission.service.ts:9:14                                 
+generateSettingsBasedStructuredData   function  src/utils/settings-metadata.utils.ts:389:23                             
+getAnalyticsConfig                    function  src/utils/settings-metadata.utils.ts:472:23                             
+getPageType                           function  src/utils/settings-metadata.utils.ts:1038:17                            
+Unused exported types (92)
+BoxProps                           interface  src/components/box/box.tsx:28:18                                      
+ServerSelectProps                  interface  src/components/server-select.tsx:39:18                                
+BadgeProps                         interface  src/components/ui/badge.tsx:26:18                                     
+CalendarProps                      type       src/components/ui/calendar.tsx:10:13                                  
+CarouselApi                        type       src/components/ui/carousel.tsx:260:8                                  
+FormFieldProps                     interface  src/components/web/ProductsPage/addProducts/stepFour/types.ts:26:18   
+StatusSelectProps                  interface  src/components/web/ProductsPage/addProducts/stepFour/types.ts:37:18   
+PublicationDateProps               interface  src/components/web/ProductsPage/addProducts/stepFour/types.ts:43:18   
+AddProductStepOneProps             interface  src/components/web/ProductsPage/addProducts/StepOne/types.ts:5:18     
+SelectableListProps                interface  src/components/web/ProductsPage/addProducts/StepOne/types.ts:33:18    
+AddProductStepThreeProps           interface  src/components/web/ProductsPage/addProducts/stepThree/types.ts:5:18   
+SectionStatusMap                   interface  src/components/web/ProductsPage/addProducts/stepThree/types.ts:10:18  
+CarConditionTableProps             interface  src/components/web/ProductsPage/addProducts/stepThree/types.ts:14:18  
+CarConditionState                  interface  src/components/web/ProductsPage/addProducts/stepThree/types.ts:41:18  
+Damage                             interface  src/components/web/ProductsPage/addProducts/stepThree/types.ts:50:18  
+AddProductStepTwoProps             interface  src/components/web/ProductsPage/addProducts/stepTow/types.ts:5:18     
+FormFieldProps                     interface  src/components/web/ProductsPage/addProducts/stepTow/types.ts:19:18    
+SelectFieldProps                   interface  src/components/web/ProductsPage/addProducts/stepTow/types.ts:28:18    
+CategoryData                       interface  src/components/web/ProductsPage/addProducts/stepTow/types.ts:63:18    
+ProductBasicInfoProps              interface  src/components/web/ProductsPage/product/ProductBasicInfo.tsx:18:18    
+ProductInfoProps                   interface  src/components/web/ProductsPage/product/ProductInfo.tsx:16:18         
+SimilarAdsProps                    interface  src/components/web/ProductsPage/product/SimilarAds.tsx:19:18          
+DrizzleOperator                    type       src/core/entities/api/api.ts:1:13                                     
+LogicalOperator                    type       src/core/entities/api/api.ts:13:13                                    
+FilterState                        interface  src/core/entities/api/api.ts:15:18                                    
+SortOption                         interface  src/core/entities/api/api.ts:50:18                                    
+PriceRange                         interface  src/core/entities/api/api.ts:55:18                                    
+FilterOption                       interface  src/core/entities/api/api.ts:60:18                                    
+CarImage                           interface  src/core/entities/api/api.ts:66:18                                    
+CarMake                            interface  src/core/entities/api/api.ts:71:18                                    
+VehicleListing                     interface  src/core/entities/api/api.ts:75:18                                    
+PaginationInfo                     interface  src/core/entities/api/api.ts:89:18                                    
+PaginationInfo                     interface  src/core/entities/api/success.response.ts:27:18                       
+CarouselItem                       interface  src/core/entities/enums/cars.enums.ts:4:18                            
+CarouselComponentProps             interface  src/core/entities/enums/cars.enums.ts:11:18                           
+Feature                            interface  src/core/entities/enums/cars.enums.ts:26:18                           
+FeatureCategoryType                interface  src/core/entities/enums/cars.enums.ts:31:18                           
+FeaturesData                       interface  src/core/entities/enums/cars.enums.ts:36:18                           
+Colors                             enum       src/core/entities/enums/cars.enums.ts:58:13                           
+AdType                             type       src/core/entities/models/ads/ads.dto.ts:1:13                          
+AdPlatform                         type       src/core/entities/models/ads/ads.dto.ts:18:13                         
+AdTranslationDto                   interface  src/core/entities/models/ads/ads.dto.ts:20:18                         
+AdSpaceDto                         interface  src/core/entities/models/ads/ads.dto.ts:33:18                         
+AdPageDto                          interface  src/core/entities/models/ads/ads.dto.ts:53:18                         
+AdSectionDto                       interface  src/core/entities/models/ads/ads.dto.ts:63:18                         
+AdSpacePlacementDto                interface  src/core/entities/models/ads/ads.dto.ts:75:18                         
+SendVerificationEmailResponse      interface  src/core/entities/models/auth/send-verification-email.dto.ts:14:18    
+CarImage                           interface  src/core/entities/models/cars/cars.dto.ts:70:18                       
+CreateCarDetailsDto                interface  src/core/entities/models/cars/cars.dto.ts:111:18                      
+UpdateCarDetailsDto                type       src/core/entities/models/cars/cars.dto.ts:127:13                      
+CarImage                           interface  src/core/entities/models/cars/cars.zod.dto.ts:68:18                   
+UpdateCarListingStatusDto          type       src/core/entities/models/cars/cars.zod.dto.ts:167:13                  
+CreateCarDamages                   type       src/core/entities/models/cars/cars.zod.dto.ts:206:13                  
+UpdateFavoriteCarListingDto        type       src/core/entities/models/cars/users-favorites-cars.zod.dto.ts:33:13   
+SchemaDependencyDto                interface  src/core/entities/models/listing-types/listing-types.dto.ts:34:18     
+TranslationDto                     interface  src/core/entities/models/listing-types/listing-types.dto.ts:47:18     
+ListingTranslations                interface  src/core/entities/models/listings/create-listing.dto.ts:4:18          
+StepTwoStorage                     interface  src/core/entities/models/listings/create-listing.dto.ts:58:18         
+GenericAttributeOption             interface  src/core/entities/models/listings/generic-listing.dto.ts:6:18         
+GenericAttributeReferenceItem      interface  src/core/entities/models/listings/generic-listing.dto.ts:14:18        
+GenericAttributeMeta               interface  src/core/entities/models/listings/generic-listing.dto.ts:22:18        
+GenericListingUser                 interface  src/core/entities/models/listings/generic-listing.dto.ts:46:18        
+GenericListingImage                interface  src/core/entities/models/listings/generic-listing.dto.ts:54:18        
+GenericListingType                 interface  src/core/entities/models/listings/generic-listing.dto.ts:60:18        
+ListingImageDto                    interface  src/core/entities/models/listings/listings.dto.ts:5:18                
+SelectNewsAuthorDto                type       src/core/entities/models/news/news.dto.ts:33:13                       
+SelectNewsArticleWithRelationsDto  type       src/core/entities/models/news/news.dto.ts:64:13                       
+NotificationRecipient              interface  src/core/entities/models/notifications/notifications.domain.ts:9:18   
+NotificationUserGroup              interface  src/core/entities/models/notifications/notifications.domain.ts:63:18  
+NotificationTemplateTranslation    interface  src/core/entities/models/notifications/notifications.domain.ts:88:18  
+GetUserNotificationsQueryDto       type       src/core/entities/models/notifications/notifications.zod.dto.ts:299:13
+CreatePermissionDto                type       src/core/entities/models/permissions/permissions.dto.ts:32:13         
+InfoSectionDto                     type       src/core/entities/models/products/info-sections.dt.ts:25:13           
+CreateInfoSectionDto               type       src/core/entities/models/products/info-sections.dt.ts:34:13           
+UpdateInfoSectionDto               type       src/core/entities/models/products/info-sections.dt.ts:42:13           
+ProductsCategoryDto                type       src/core/entities/models/products/product-categories.dto.ts:18:13     
+CreateProductsCategoryDto          type       src/core/entities/models/products/product-categories.dto.ts:29:13     
+UpdateProductsCategoryDto          type       src/core/entities/models/products/product-categories.dto.ts:33:13     
+ProductGroupsInfoDto               type       src/core/entities/models/products/product-groups-info.dto.ts:33:13    
+CreateProductGroupsInfoDto         type       src/core/entities/models/products/product-groups-info.dto.ts:47:13    
+UpdateProductGroupsInfoDto         type       src/core/entities/models/products/product-groups-info.dto.ts:51:13    
+EditProductGroupCategory           interface  src/core/entities/models/products/product-groups.dto.ts:57:18         
+EditProductGroupsInfo              interface  src/core/entities/models/products/product-groups.dto.ts:81:18         
+EditInfoSectionDto                 interface  src/core/entities/models/products/product-groups.dto.ts:109:18        
+UsersToRolesType                   type       src/core/entities/models/users/users.dto.ts:44:13                     
+CreateUserResponse                 type       src/core/entities/models/users/users.dto.ts:114:13                    
+UpdateUserResponse                 type       src/core/entities/models/users/users.dto.ts:115:13                    
+RouteConfig                        interface  src/core/lib/env.ts:5:18                                              
+FilterState                        interface  src/providers/filters.provider.tsx:20:18                              
+SearchState                        interface  src/providers/filters.provider.tsx:43:18                              
+CarCardItemProps                   interface  src/types/homePageTypes.ts:4:18                                       
+CitiesDataType                     interface  src/types/homePageTypes.ts:36:18                                      
+Unused exported enum members (5)
+PENDING   CarStatus  src/core/entities/enums/cars.enums.ts:140:3
+APPROVED  CarStatus  src/core/entities/enums/cars.enums.ts:141:3
+REJECTED  CarStatus  src/core/entities/enums/cars.enums.ts:142:3
+EXPIRED   CarStatus  src/core/entities/enums/cars.enums.ts:143:3
+SOLD      CarStatus  src/core/entities/enums/cars.enums.ts:144:3
+Duplicate exports (4)
+WebMetadataProvider|default  src/app/[locale]/(web)/MetaData.tsx                                        
+ServerSelect|default         src/components/server-select.tsx                                           
+ErrorDialog|default          src/components/web/ProductsPage/addProducts/main/Components/ErrorDialog.tsx
+NavigationProvider|default   src/providers/navigation.provider.tsx                                      
+Configuration hints (1)
+. (root)    .  Create knip.json configuration file, and add entry and/or refine project files (77 unused files)

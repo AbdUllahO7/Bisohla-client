@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Box from '@/components/box/box';
-import Text from '@/components/text/text';
+import Box from '@/components/ui/box';
+import Text from '@/components/ui/text';
 import ProductBasicInfo from '@/components/web/ProductsPage/product/ProductBasicInfo';
 import ProductHeader from '@/components/web/ProductsPage/product/ProductHeader';
 import ProductImages from '@/components/web/ProductsPage/product/ProductImages';
@@ -12,7 +12,7 @@ import AttributeGrid from '@/components/web/ProductsPage/product/AttributeGrid';
 import { ApiResponse } from '@/core/entities/api/success.response';
 import { SelectCarListingDto } from '@/core/entities/models/cars/cars.dto';
 import { GenericListingDto } from '@/core/entities/models/listings/generic-listing.dto';
-import SmartBreadcrumb from '@/components/smart-breadcrumbs';
+import SmartBreadcrumb from '@/components/shared/smart-breadcrumbs';
 import { useProductStatistics } from '@/hooks/use-product-statistics';
 import FloatingShareButton from './FloatingShareButton';
 

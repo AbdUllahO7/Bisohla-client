@@ -1,4 +1,4 @@
-import Box from '@/components/box/box';
+import Box from '@/components/ui/box';
 import AdsSection from '@/components/web/Home/AdsSection';
 import FAQ from '@/components/web/Home/FAQ';
 
@@ -9,7 +9,7 @@ import { Locale } from '@/i18n/routing';
 import { generateSettingsBasedMetadata } from '@/utils/settings-metadata.utils';
 import { Metadata } from 'next';
 import { getLocale, getTranslations } from 'next-intl/server';
-import AnimatedPageWrapper from '@/components/AnimatedPageWrapper';
+import AnimatedPageWrapper from '@/components/shared/AnimatedPageWrapper';
 import NewsSection from '@/components/web/Home/NewsSection';
 import RecentlyViewed from '@/components/web/Home/RecentlyViewed';
 import { getInjection } from '@/di/container';
@@ -135,7 +135,11 @@ const WebPage = async () => {
 
   // Fetch listing types
   const listingTypesRes = await listingTypesRepo.getListingTypes();
-  const listingTypes = listingTypesRes.data?.data || [];
+  const listingTypes = (listingTypesRes.data?.data || []).sort((a: any, b: any) => {
+    if (a.slug === 'cars') return -1;
+    if (b.slug === 'cars') return 1;
+    return 0;
+  });
 
   const locale = await getLocale();
   const t = await getTranslations('homePage');
@@ -252,13 +256,6 @@ const WebPage = async () => {
           iconName="star"
         />
 
-        {/* Trending Section */}
-        <DynamicListingSection
-          listings={trendingListings} 
-          title={t('trendingListings')}
-          iconName="trending"
-        />
-
         {/* Dynamic Sections per Listing Type */}
         {typeFeaturedListings.map(({ type, listings, title, adSlotName, listingOfferType }, index) => (
           <DynamicListingSection
@@ -269,6 +266,13 @@ const WebPage = async () => {
             adSlotName={adSlotName}
           />
         ))}
+
+        {/* Trending Section */}
+        <DynamicListingSection
+          listings={trendingListings} 
+          title={t('trendingListings')}
+          iconName="trending"
+        />
 
         <AdsSection />
         <WorldOfCar />

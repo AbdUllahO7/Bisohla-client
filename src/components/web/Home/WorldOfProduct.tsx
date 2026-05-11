@@ -1,14 +1,14 @@
 "use client"
 
 import { useMemo } from "react"
-import Box from "@/components/box/box"
-import Text from "@/components/text/text"
+import Box from "@/components/ui/box"
+import Text from "@/components/ui/text"
 import { useRouter } from "next/navigation"
 import { useTranslations, useLocale } from "next-intl"
 import CarouselComponent from "../design/CarouselComponent"
 import { useProductStepOne } from "@/components/web/ProductsPage/addProducts/StepOne/hooks"
 import { useGetCityCounts } from "@/core/infrastructure-adapters/use-actions/visitors/car.visitor.use-actions"
-import SectionHeader from "@/components/SectionHeader"
+import SectionHeader from "@/components/shared/SectionHeader"
 import {  SearchCodeIcon } from "lucide-react"
 
 interface CityData {

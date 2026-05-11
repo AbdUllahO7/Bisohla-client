@@ -1,15 +1,15 @@
 // app/[locale]/layout.tsx
 import GlobalProvider from '@/providers/global.provider';
 import '../../globals.css';
-import { initConfigs } from '@/config';
+import { initConfigs } from '@/core/config';
 import { Locale, routing } from '@/i18n/routing';
 import { notFound } from 'next/navigation';
 import { getMessages } from 'next-intl/server';
 import { NextIntlClientProvider } from 'next-intl';
 import NextTopLoader from 'nextjs-toploader';
 import { Cairo } from 'next/font/google';
-import AppDeepLink from '@/components/AppDeepLink';
-import SmartAppBanner from '@/components/SmartAppBanner';
+import AppDeepLink from '@/components/shared/AppDeepLink';
+import SmartAppBanner from '@/components/shared/SmartAppBanner';
 import AppDownloadModalProvider from '@/providers/AppDownloadModalProvider';
 
 const cairo = Cairo({

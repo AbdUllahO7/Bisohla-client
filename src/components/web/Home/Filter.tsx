@@ -1,14 +1,14 @@
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
-import Box from "@/components/box/box"
+import Box from "@/components/ui/box"
 import { Button } from "@/components/ui/button"
 import { SearchIcon, ListRestart, Bell } from "lucide-react"
 import { useLocale, useTranslations } from "next-intl"
 import { useRouter, useSearchParams } from "next/navigation"
-import Text from "@/components/text/text"
+import Text from "@/components/ui/text"
 import { Input } from "@/components/ui/input"
-import SelectDropdown from "@/components/SelectDropdown"
+import SelectDropdown from "@/components/forms/SelectDropdown"
 import { getGovernorateOptions, getCityOptions } from "../ProductsPage/addProducts/StepOne/utils"
 import CarAlertModal from "../ProductsPage/CarAlertModal"
 import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions'

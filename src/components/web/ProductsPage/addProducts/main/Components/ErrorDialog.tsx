@@ -9,8 +9,8 @@ import {
   DialogFooter
 } from "@/components/ui/dialog"
 import { Button } from '@/components/ui/button'
-import Box from '@/components/box/box'
-import Text from '@/components/text/text'
+import Box from '@/components/ui/box'
+import Text from '@/components/ui/text'
 import { AlertCircle } from 'lucide-react'
 
 interface ErrorDialogProps {

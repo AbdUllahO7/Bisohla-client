@@ -1,10 +1,10 @@
 'use client';
-import Box from '@/components/box/box';
+import Box from '@/components/ui/box';
 import { useParams, useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
-import Steps from '@/components/web/ProductsPage/addProducts/main/Steps';
+import Steps from '@/components/web/ProductsPage/addProducts/Main/Steps';
 import { Skeleton } from '@/components/ui/skeleton';
-import { EDIT_STORAGE_KEYS, STORAGE_KEYS, clearFormData } from '@/components/web/ProductsPage/addProducts/main/hooks/useLocalStorage';
+import { EDIT_STORAGE_KEYS, STORAGE_KEYS, clearFormData } from '@/components/web/ProductsPage/addProducts/Main/hooks/useLocalStorage';
 import { useGetListingById } from '@/core/infrastructure-adapters/use-actions/users/listing.user.use-actions';
 
 const EditProductPage = () => {

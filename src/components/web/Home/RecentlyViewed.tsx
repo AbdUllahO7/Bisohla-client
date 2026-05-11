@@ -1,12 +1,12 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import Box from '@/components/box/box';
+import Box from '@/components/ui/box';
 import { useTranslations } from 'next-intl';
 import { useListings } from '@/core/infrastructure-adapters/use-actions/visitors/listing.visitor.use-actions';
 import ProductSkeleton from '../design/ProductSkeletonItem';
 import { useSession } from '@/hooks/auth/use-session';
-import SectionHeader from '@/components/SectionHeader';
+import SectionHeader from '@/components/shared/SectionHeader';
 import { History } from 'lucide-react';
 import { RentProductCard } from '../design/RentProductCard';
 import { normalizeListingToCarDto } from '@/utils/listing-normalization';

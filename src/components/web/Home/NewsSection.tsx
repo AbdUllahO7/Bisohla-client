@@ -2,14 +2,14 @@
 
 import React from 'react';
 import Link from 'next/link';
-import Box from '@/components/box/box';
-import Text from '@/components/text/text';
+import Box from '@/components/ui/box';
+import Text from '@/components/ui/text';
 import NewsCard from './NewsCard';
 import { useLocale, useTranslations } from 'next-intl';
 import { Newspaper } from 'lucide-react'; // Removed ArrowRight, ArrowLeft
 import { useGetNewsArticles } from '@/hooks/use-news';
 import { SelectNewsArticleDto } from '@/core/entities/models/news/news.dto';
-import SectionHeader from '@/components/SectionHeader'; // Added import
+import SectionHeader from '@/components/shared/SectionHeader'; // Added import
 import { logger } from '@/lib/logger';
 import AdSpace from '@/components/ads/AdSpace';
 import AdsSectionProduct from '@/components/web/ProductsPage/product/AdsSectionProduct';

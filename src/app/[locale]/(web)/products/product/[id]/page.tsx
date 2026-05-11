@@ -41,7 +41,6 @@ async function fetchCarData(
   locale: string,
   userId?: number,
 ): Promise<FetchListingResult> {
-  console.log(`[ProductPage] start fetchCarData for: ${idOrSlug}, isProfileView: ${isProfileView}, userId: ${userId}`);
 
   if (isProfileView) {
     let id = Number(idOrSlug);
@@ -55,7 +54,6 @@ async function fetchCarData(
 
     if (!isNaN(id)) {
       const myListingRes = await getMyListingById(id);
-      console.log(`[ProductPage] getMyListingById(${id}) returned success=${myListingRes?.success}`);
       if (myListingRes.success && myListingRes.data) {
         return {
           carResponse: {
@@ -67,7 +65,6 @@ async function fetchCarData(
       }
 
       const myCarRes = await getMyCarById(id);
-      console.log(`[ProductPage] getMyCarById(${id}) returned success=${myCarRes?.success}`);
       if (myCarRes.success && myCarRes.data) {
         return {
           carResponse: {
@@ -82,7 +79,6 @@ async function fetchCarData(
 
   // Attempt 1: Fetch by Slug (New generic endpoint)
   const slugRes = await getListingBySlug(idOrSlug);
-  console.log(`[ProductPage] getListingBySlug(${idOrSlug}) returned success=${slugRes?.success}`);
   if (slugRes.success && slugRes.data) {
     return {
       carResponse: {
@@ -97,7 +93,6 @@ async function fetchCarData(
   const id = Number(idOrSlug);
   if (!isNaN(id) && idOrSlug.trim() !== '') {
     const idRes = await getListingById(id);
-    console.log(`[ProductPage] getListingById(${id}) returned success=${idRes?.success}`);
     if (idRes.success && idRes.data) {
       return {
         carResponse: {
@@ -110,7 +105,6 @@ async function fetchCarData(
 
     // Attempt 3: Legacy car endpoint fallback
     const legacyRes = await getCarListingById({ id, userId });
-    console.log(`[ProductPage] getCarListingById(${id}) returned success=${legacyRes?.success}`);
     if (legacyRes.success && legacyRes.data) {
       return { carResponse: legacyRes, rawListing: null };
     }
@@ -137,8 +131,16 @@ export async function generateMetadata({
     }
 
     const car = carResponse.data;
-    const carTitle = `${car.make?.name || ''} ${car.model?.name || ''} ${car.details?.year || ''}`.trim();
-    const carDescription = `${carTitle} - ${car.details?.fuelType || ''} - ${car.details?.transmission || ''} - Price: ${car.price || 'N/A'}`;
+    const makeModel = `${car.make?.name || ''} ${car.model?.name || ''}`.trim();
+    const baseTitle = makeModel || car.title || 'Car Details';
+    const yearStr = car.details?.year && car.details.year > 0 ? car.details.year.toString() : '';
+    const carTitle = yearStr && !baseTitle.includes(yearStr) ? `${baseTitle} ${yearStr}`.trim() : baseTitle;
+    const carDescription = [
+      carTitle,
+      car.details?.fuelType,
+      car.details?.transmission,
+      car.price ? `Price: ${car.price}` : null
+    ].filter(Boolean).join(' - ');
 
     const baseUrl = APP_URL;
     const canonicalPath = `${baseUrl}/${locale}/products/product/${id}${isProfileView ? '?profile=true' : ''}`;

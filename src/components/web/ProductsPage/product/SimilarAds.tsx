@@ -1,12 +1,12 @@
 'use client';
 import React from 'react';
-import Box from '@/components/box/box';
-import Text from '@/components/text/text';
+import Box from '@/components/ui/box';
+import Text from '@/components/ui/text';
 import { useTranslations } from 'next-intl';
-import { LatestOffersProps } from '@/types/homePageTypes';
+import { LatestOffersProps } from '@/core/entities/types/homePageTypes';
 import { useCarListings } from '@/core/infrastructure-adapters/use-actions/visitors/car.visitor.use-actions';
 import { useSession } from '@/hooks/auth/use-session';
-import SectionHeader from '@/components/SectionHeader';
+import SectionHeader from '@/components/shared/SectionHeader';
 import { CarFrontIcon } from 'lucide-react';
 import { SelectCarListingDto } from '@/core/entities/models/cars/cars.dto';
 import ProductSkeleton from '../../design/ProductSkeletonItem';

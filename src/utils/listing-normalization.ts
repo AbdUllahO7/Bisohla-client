@@ -33,8 +33,28 @@ export const resolveAttributeValue = (
       if (valueBoolean === null || valueBoolean === undefined) return '';
       return locale === 'ar' ? (valueBoolean ? 'نعم' : 'لا') : (valueBoolean ? 'Yes' : 'No');
 
-    case 'date':
-      return valueDate || '';
+    case 'date': {
+      const rawValue = valueDate || valueText;
+      if (!rawValue) return '';
+      try {
+        const date = new Date(rawValue);
+        if (isNaN(date.getTime())) return rawValue;
+        
+        // If slug is "year", just show the year
+        if (attribute.slug === 'year') {
+          return date.getFullYear().toString();
+        }
+        
+        // Otherwise return formatted local date
+        return date.toLocaleDateString(locale === 'ar' ? 'ar-EG' : 'en-US', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+        });
+      } catch {
+        return rawValue;
+      }
+    }
 
     case 'text':
     default:
@@ -175,7 +195,12 @@ export const normalizeListingToCarDto = (listing: any, locale: string = 'en'): S
     details: {
       id: listing.id,
       carListingId: listing.id,
-      year: yearAttr?.valueNumber ? Number(yearAttr.valueNumber) : 0,
+      year: yearAttr?.valueNumber 
+        ? Number(yearAttr.valueNumber) 
+        : (yearAttr?.valueText ? (() => {
+            const d = new Date(yearAttr.valueText);
+            return isNaN(d.getTime()) ? 0 : d.getFullYear();
+          })() : 0),
       mileage: mileageAttr?.valueNumber ? Number(mileageAttr.valueNumber) : null,
       fuelType: normalizeValue(fuelTypeAttr?.valueText),
       transmission: normalizeValue(transmissionAttr?.valueText),
@@ -223,7 +248,7 @@ export const normalizeListingToCarDto = (listing: any, locale: string = 'en'): S
       deletedAt: null
     } : {
       id: makeAttr?.referenceItemId || 0,
-      name: 'Unknown',
+      name: '',
       logoUrl: null,
       description: null,
       isCarTrimRequired: false,
@@ -244,7 +269,7 @@ export const normalizeListingToCarDto = (listing: any, locale: string = 'en'): S
     } : {
       id: modelAttr?.referenceItemId || 0,
       makeId: makeAttr?.referenceItemId || 0,
-      name: 'Unknown',
+      name: '',
       yearStart: null,
       yearEnd: null,
       description: null,

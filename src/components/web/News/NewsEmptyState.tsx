@@ -1,6 +1,6 @@
 import React from 'react';
-import Box from '@/components/box/box';
-import Text from '@/components/text/text';
+import Box from '@/components/ui/box';
+import Text from '@/components/ui/text';
 import { Newspaper, ArrowRight } from 'lucide-react';
 
 interface NewsEmptyStateProps {

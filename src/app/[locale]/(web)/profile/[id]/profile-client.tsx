@@ -1,8 +1,8 @@
 'use client';
 
-import Box from '@/components/box/box';
-import Text from '@/components/text/text';
-import SmartBreadcrumb from '@/components/smart-breadcrumbs';
+import Box from '@/components/ui/box';
+import Text from '@/components/ui/text';
+import SmartBreadcrumb from '@/components/shared/smart-breadcrumbs';
 import ProfileHeader from '@/components/web/ProfilePage/ProfileHeader';
 import ProfileStats from '@/components/web/ProfilePage/ProfileStats';
 import MyProductsFilter from '@/components/dashboard/Products/MyProductsFilter';
@@ -19,7 +19,7 @@ import { ProductCardListView } from '@/components/web/design/ProductCardListView
 import { getInjection } from '@/di/container';
 import type { QueryParams } from '@/core/entities/api/api';
 import type { ViewMode } from '@/core/entities/models/cars/filter-types';
-import Pagination from '@/components/Pagination';
+import Pagination from '@/components/shared/Pagination';
 import { ProfileCarCard } from './profile-car-card';
 import AdsSectionProduct from '@/components/web/ProductsPage/product/AdsSectionProduct';
 import FloatingProfileShareButton from './FloatingProfileShareButton';

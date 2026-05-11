@@ -1,7 +1,7 @@
 'use client'
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
-import Text from "@/components/text/text";
+import Text from "@/components/ui/text";
 import { getInjection } from '@/di/container';
 import { ListingTypeDto } from '@/core/entities/models/listing-types/listing-types.dto';
 import Image from 'next/image';
@@ -76,17 +76,17 @@ const AddProductTypeSelection: React.FC<AddProductTypeSelectionProps> = ({ onSel
             onClick={() => onSelect(type)}
           >
             <CardContent className="p-6 flex flex-col items-center text-center space-y-4">
-              <div className="w-20 h-20 relative bg-emerald-100 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                {type.iconUrl ? (
+              <div className="w-32 h-32 relative flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                {(type.imageUrl || type.iconUrl) ? (
                   <Image 
-                    src={type.iconUrl} 
+                    src={type.imageUrl || type.iconUrl!} 
                     alt={type.name} 
-                    width={48} 
-                    height={48} 
+                    fill
+                    sizes="(max-width: 768px) 128px, 128px"
                     className="object-contain"
                   />
                 ) : (
-                  <div className="w-12 h-12 bg-emerald-200 rounded-full" />
+                  <div className="w-16 h-16 bg-gray-100 rounded-full" />
                 )}
               </div>
               <div className="space-y-1">

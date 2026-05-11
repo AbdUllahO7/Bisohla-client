@@ -2,8 +2,8 @@
 
 import type React from 'react';
 
-import Box from '@/components/box/box';
-import Text from '@/components/text/text';
+import Box from '@/components/ui/box';
+import Text from '@/components/ui/text';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Heart, MessageCircle, PhoneCall, LogIn } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';

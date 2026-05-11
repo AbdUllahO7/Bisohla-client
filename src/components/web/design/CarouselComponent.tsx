@@ -6,11 +6,11 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel"
 import Autoplay from "embla-carousel-autoplay"
 import Image from "next/image"
-import Box from "@/components/box/box"
-import Text from "@/components/text/text"
+import Box from "@/components/ui/box"
+import Text from "@/components/ui/text"
 import { ArrowUpRight, ArrowUpLeft, MapPin, Building2, Car, Sparkles, Eye } from "lucide-react"
 import { useRouter } from "next/navigation"
-import type { CarouselComponentProps } from "@/types/homePageTypes"
+import type { CarouselComponentProps } from "@/core/entities/types/homePageTypes"
 
 interface CarouselItemData {
   title: string

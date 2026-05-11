@@ -1,7 +1,7 @@
 'use client';
 
-import Box from '@/components/box/box';
-import Text from '@/components/text/text';
+import Box from '@/components/ui/box';
+import Text from '@/components/ui/text';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useLocale, useTranslations } from 'next-intl';
@@ -39,7 +39,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
 }: ProductInfoProps) => {
   const locale = useLocale();
   const productT = useTranslations('product');
-  const bodyTypeT = useTranslations('addProduct.enteredData.stepTow');
+  const bodyTypeT = useTranslations('addProduct.enteredData.stepTwo');
 
   // Get the translated options from the car enums - similar to ProductBasicInfo
   // Translation functions are stable, so we can safely omit them from dependencies

@@ -1,11 +1,11 @@
 'use client';
 import React from 'react';
-import Box from '@/components/box/box';
+import Box from '@/components/ui/box';
 import { motion } from 'framer-motion';
-import Text from '@/components/text/text';
+import Text from '@/components/ui/text';
 import { useTranslations } from 'next-intl';
 import { RentProductCard } from '../design/RentProductCard';
-import SectionHeader from '@/components/SectionHeader';
+import SectionHeader from '@/components/shared/SectionHeader';
 import { ListingDto } from '@/core/entities/models/listings/listings.dto';
 import { SelectCarListingDto } from '@/core/entities/models/cars/cars.dto';
 import { TrendingUp, Star, CarFrontIcon } from 'lucide-react';

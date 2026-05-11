@@ -1,13 +1,13 @@
 'use client';
-import Box from '@/components/box/box';
-import Text from '@/components/text/text';
+import Box from '@/components/ui/box';
+import Text from '@/components/ui/text';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useLocale } from 'next-intl';
 import Image from 'next/image';
 import { Link } from '@/i18n/routing';
 import React from 'react';
-import Logo from '@/components/logo';
+import Logo from '@/components/shared/logo';
 import { useSettings } from '@/providers/settings.provider';
 import { Skeleton } from '@/components/ui/skeleton';
 

@@ -13,8 +13,8 @@ import { useLocale } from 'next-intl';
 import Image from 'next/image';
 import { Link } from '@/i18n/routing';
 import { Smartphone, X, ChevronRight } from 'lucide-react';
-import Box from '@/components/box/box';
-import Text from '@/components/text/text';
+import Box from '@/components/ui/box';
+import Text from '@/components/ui/text';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface AppDownloadModalProps {

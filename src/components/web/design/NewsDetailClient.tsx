@@ -5,8 +5,8 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import 'quill/dist/quill.snow.css';
-import Box from '@/components/box/box';
-import Text from '@/components/text/text';
+import Box from '@/components/ui/box';
+import Text from '@/components/ui/text';
 import {
   Calendar,
   Eye,

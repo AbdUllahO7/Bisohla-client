@@ -1,6 +1,6 @@
 'use client';
 
-import Text from '@/components/text/text';
+import Text from '@/components/ui/text';
 import { Card, CardContent } from '@/components/ui/card';
 import { Link } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';

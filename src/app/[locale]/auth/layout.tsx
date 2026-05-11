@@ -1,4 +1,4 @@
-import Text from '@/components/text/text';
+import Text from '@/components/ui/text';
 import { PropsWithChildren, Suspense } from 'react';
 import Hero from './components/Hero';
 import MetadataProvider from './components/MetaData';

@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useState, useRef } from 'react';
-import Text from '@/components/text/text';
+import Text from '@/components/ui/text';
 import {
   Card,
   CardDescription,
@@ -11,7 +11,7 @@ import {
 import Image from 'next/image';
 import { Link } from '@/i18n/routing';
 import { Button } from '@/components/ui/button';
-import { CarCardItemPropsProfile } from '@/types/homePageTypes';
+import { CarCardItemPropsProfile } from '@/core/entities/types/homePageTypes';
 import { AlertTriangle, Edit, HeartIcon, Trash2 } from 'lucide-react';
 import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions';
 import { toggleListingFavorite } from '@/core/infrastructure-adapters/actions/users/listing.user.actions';
