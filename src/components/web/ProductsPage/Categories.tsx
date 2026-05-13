@@ -19,7 +19,7 @@ const Categories = () => {
 
   // Fetch body type category counts from backend
   const { data: bodyTypeCategoryCounts, isLoading } =
-    useGetBodyTypeCategoryCounts();
+    useGetBodyTypeCategoryCounts(filters.listingTypeId ?? 1);
 
   // Get body type options with translations from schema or fallback to enums
   const bodyTypeOptions = useMemo(() => {
@@ -44,11 +44,18 @@ const Categories = () => {
       return [];
     }
 
+    // The new API returns an array of attributes. Find the one for 'body_type'
+    const bodyTypeData = bodyTypeCategoryCounts.data.find(
+      (attr: any) => attr.attributeSlug === 'body_type'
+    );
+
     // Create a map from backend data for quick lookup
     const countsMap = new Map<string, number>();
-    bodyTypeCategoryCounts.data.forEach((item: any) => {
-      countsMap.set(item.bodyType, item.count);
-    });
+    if (bodyTypeData?.counts) {
+      bodyTypeData.counts.forEach((item: any) => {
+        countsMap.set(item.value, item.count);
+      });
+    }
 
     // Map body type options with their counts
     return bodyTypeOptions.map((option: SelectOption) => {
