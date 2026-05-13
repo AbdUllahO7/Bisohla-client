@@ -136,9 +136,10 @@ const WebPage = async () => {
   // Fetch listing types
   const listingTypesRes = await listingTypesRepo.getListingTypes();
   const listingTypes = (listingTypesRes.data?.data || []).sort((a: any, b: any) => {
-    if (a.slug === 'cars') return -1;
-    if (b.slug === 'cars') return 1;
-    return 0;
+    const orderA = !a.order ? Infinity : Number(a.order);
+    const orderB = !b.order ? Infinity : Number(b.order);
+    if (orderA === orderB) return 0;
+    return orderA - orderB;
   });
 
   const locale = await getLocale();
