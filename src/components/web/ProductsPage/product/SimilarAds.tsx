@@ -51,7 +51,7 @@ const SimilarAds: React.FC<SimilarAdsProps> = ({
           {
             field: 'listingType',
             operator: 'eq',
-            value: car.listingType,
+            value: (car.listingType || car.listingOfferType || '') as string,
           },
         ],
       },

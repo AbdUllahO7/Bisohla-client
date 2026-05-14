@@ -20,7 +20,7 @@ import { getInjection } from '@/di/container';
 import type { QueryParams } from '@/core/entities/api/api';
 import type { ViewMode } from '@/core/entities/models/cars/filter-types';
 import Pagination from '@/components/shared/Pagination';
-import { ProfileCarCard } from './profile-car-card';
+import { RentProductCard } from '@/components/web/design/RentProductCard';
 import FloatingProfileShareButton from './FloatingProfileShareButton';
 
 interface MobileProfileClientProps {
@@ -33,6 +33,7 @@ interface MobileProfileClientProps {
 
 const MobileProfileClient = ({
   profileDataRes,
+  isAuthenticated,
   isOwnProfile,
   userId,
 }: MobileProfileClientProps) => {
@@ -266,7 +267,7 @@ const MobileProfileClient = ({
                     <ProductCardListView
                       key={car.id}
                       carListing={car}
-                      isMarkedFavorite={car.isFavorite}
+                      isMarkedFavorite={!!car.isFavorite}
                       onFavoriteToggle={() => {}}
                       showFavorites={false}
                       profile={true}
@@ -277,7 +278,7 @@ const MobileProfileClient = ({
                 }
                 return (
                   <div key={index} className="col-span-1">
-                    <ProfileCarCard car={car} />
+                    <RentProductCard car={car} />
                   </div>
                 );
               })}

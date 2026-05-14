@@ -13,7 +13,7 @@ export const getUserProfileInfo = async (
   id: number,
 ): Promise<ApiResponse<PublicProfileData>> => {
   const result = await getReq({
-    url: '/public/profile/' + id,
+    url: '/public/profile/v2/' + id,
   });
 
   return result;
@@ -24,7 +24,7 @@ export const getPublicUserCarListings = async (
   params: QueryParams,
 ): Promise<PaginatedResponse<SelectCarListingDto>> => {
   const result = await getReq({
-    url: `/public/profile/${id}/car-listings`,
+    url: `/public/profile/v2/${id}/listings`,
     params,
   });
 

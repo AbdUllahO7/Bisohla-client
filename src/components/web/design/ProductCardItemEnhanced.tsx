@@ -346,10 +346,16 @@ export const EnhancedProductCardItem: React.FC<ExtendedCarCardItemPropsProfile> 
             responseStatus = response.data;
           } else if (
             response.data &&
-            typeof response.data === 'object' &&
-            'isFavorite' in response.data
+            typeof response.data === 'object'
           ) {
-            responseStatus = response.data.isFavorite as boolean;
+            const data = response.data as any;
+            if ('isFavorited' in data) {
+              responseStatus = data.isFavorited as boolean;
+            } else if ('isFavorite' in data) {
+              responseStatus = data.isFavorite as boolean;
+            } else {
+              responseStatus = newStatus;
+            }
           } else {
             responseStatus = newStatus;
           }

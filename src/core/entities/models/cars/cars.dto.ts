@@ -145,14 +145,17 @@ export interface SelectCarListingDto {
   isTrend: boolean; // Added instead of isSold
   isFavorite?: boolean | null;
   // Save status and listing type
-  saveStatus: SaveStatus;
-  listingType: ListingType;
-  rentType?: RentType | null;
+  saveStatus?: SaveStatus | string;
+  listingType?: ListingType | string;
+  listingOfferType?: string | null;
+  publicationStatus?: string | null;
+  moderationStatus?: string | null;
+  rentType?: RentType | string | null;
   contactNumber?: string | null;
 
   // location
-  governorate: SyriaGovernorate;
-  city: SyriaCity;
+  governorate: SyriaGovernorate | string;
+  city: SyriaCity | string;
   address: string;
 
   // Timestamps

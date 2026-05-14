@@ -9,8 +9,12 @@ export interface PublicProfileData {
   createdAt: string;
   // email: string;
   // phone: string | null;
-  totalForSellCarListings: number;
-  totalForRentCarListings: number;
+  totalForSaleListings: number;
+  totalForRentListings: number;
   // totalViews: number;
   totalListings: number;
+  countsByListingType?: {
+    listingTypeId: number;
+    count: number;
+  }[];
 }

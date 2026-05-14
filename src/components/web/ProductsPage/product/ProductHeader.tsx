@@ -161,10 +161,16 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
           actualStatus = response.data;
         } else if (
           response.data &&
-          typeof response.data === 'object' &&
-          'isFavorite' in response.data
+          typeof response.data === 'object'
         ) {
-          actualStatus = response.data.isFavorite as boolean;
+          const data = response.data as any;
+          if ('isFavorited' in data) {
+            actualStatus = data.isFavorited as boolean;
+          } else if ('isFavorite' in data) {
+            actualStatus = data.isFavorite as boolean;
+          } else {
+            actualStatus = newState;
+          }
         } else {
           // If response format is unexpected, keep optimistic update
           actualStatus = newState;

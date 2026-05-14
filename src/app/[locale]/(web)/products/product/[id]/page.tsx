@@ -8,7 +8,6 @@ import { SelectCarListingDto } from '@/core/entities/models/cars/cars.dto';
 import { GenericListingDto } from '@/core/entities/models/listings/generic-listing.dto';
 import { getMyCarById } from '@/core/infrastructure-adapters/actions/users/car.user.actions';
 import { getListingById as getMyListingById } from '@/core/infrastructure-adapters/actions/users/listing.user.actions';
-import { QueryParams } from '@/core/entities/api/api';
 import { getCarListingById } from '@/core/infrastructure-adapters/actions/visitors/car.visitor.actions';
 import { getListingBySlug, getListingById } from '@/core/infrastructure-adapters/actions/visitors/listing.visitor.actions';
 import { getSession } from '@/core/lib/web/session';
@@ -19,7 +18,6 @@ import { APP_URL } from '@/core/lib/web/constants';
 import SimilarAds from '@/components/web/ProductsPage/product/SimilarAds';
 import SimilarCarAlertBanner from '@/components/web/ProductsPage/product/SimilarCarAlertBanner';
 import AdsSectionProduct from '@/components/web/ProductsPage/product/AdsSectionProduct';
-import { logger } from '@/lib/logger';
 
 interface ProductPageProps {
   params: Promise<{
@@ -78,7 +76,9 @@ async function fetchCarData(
   }
 
   // Attempt 1: Fetch by Slug (New generic endpoint)
-  const slugRes = await getListingBySlug(idOrSlug);
+  const params = userId ? { userId } : undefined;
+  
+  const slugRes = await getListingBySlug(idOrSlug, params);
   if (slugRes.success && slugRes.data) {
     return {
       carResponse: {
@@ -92,7 +92,7 @@ async function fetchCarData(
   // Attempt 2: Fetch by ID if numeric (New generic endpoint)
   const id = Number(idOrSlug);
   if (!isNaN(id) && idOrSlug.trim() !== '') {
-    const idRes = await getListingById(id);
+    const idRes = await getListingById(id, params);
     if (idRes.success && idRes.data) {
       return {
         carResponse: {

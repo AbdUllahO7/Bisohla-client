@@ -177,14 +177,14 @@ export const CreateFeatureSchema = z.object({
 
 // DTO Schemas
 export const IncrementCountDtoSchema = z.object({
-  carListingId: z.number().positive(),
-  userId: z.number().positive().optional(),
+  listingId: z.number().positive(),
+  userId: z.number().positive().nullable().optional(),
 });
 
 export const UpdateViewDurationDtoSchema = z.object({
-  carListingId: z.number().positive(),
+  listingId: z.number().positive(),
   durationInSeconds: z.number().positive(),
-  userId: z.number().positive().optional(),
+  userId: z.number().positive().nullable().optional(),
 });
 
 export type IncrementCountDto = z.infer<typeof IncrementCountDtoSchema>;
@@ -192,8 +192,8 @@ export type UpdateViewDurationDto = z.infer<typeof UpdateViewDurationDtoSchema>;
 
 // ============= Batch Increment View Count DTO =============
 export const BatchIncrementViewCountDtoSchema = z.object({
-  carListingIds: z.array(z.number().positive()).min(1, 'At least one car listing ID is required'),
-  userId: z.number().positive().optional(),
+  listingIds: z.array(z.number().positive()).min(1, 'At least one listing ID is required'),
+  userId: z.number().positive().nullable().optional(),
 });
 
 export type BatchIncrementViewCountDto = z.infer<typeof BatchIncrementViewCountDtoSchema>;

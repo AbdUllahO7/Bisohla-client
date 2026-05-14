@@ -29,12 +29,12 @@ export const getTrendingListings = async (
   return await repo.getTrendingListings({ page, pageSize });
 };
 
-export const getListingBySlug = async (slug: string): Promise<ApiResponse<any>> => {
+export const getListingBySlug = async (slug: string, params?: QueryParams): Promise<ApiResponse<any>> => {
   const repo = getInjection('IListingsVisitorRepo');
-  return await repo.getListingBySlug(slug);
+  return await repo.getListingBySlug(slug, params);
 };
 
-export const getListingById = async (id: number): Promise<ApiResponse<any>> => {
+export const getListingById = async (id: number, params?: QueryParams): Promise<ApiResponse<any>> => {
   const repo = getInjection('IListingsVisitorRepo');
-  return await repo.getListingById(id);
+  return await repo.getListingById(id, params);
 };

@@ -126,7 +126,7 @@ const MobileProductClient = ({
           <Box variant="column" className="w-full gap-3">
             {/* Action Buttons - Full Width */}
             <ProductHeader
-              saveStatus={carData.saveStatus}
+              saveStatus={carData.saveStatus as any}
               productName={carData.title}
               price={carData.price?.toString() || ''}
               currency={carData.currency}

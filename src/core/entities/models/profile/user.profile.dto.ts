@@ -7,20 +7,23 @@ export interface GetUserProfile {
   phoneNumber: string | null;
   createdAt: string;
   updatedAt: string;
-  totalForSellCarListings: number;
-  totalForRentCarListings: number;
-  totalFavoriteCarListings: number;
-  totalViews: number;
-  totalContacts: number;
-  totalShares: number;
-  averageViews: number;
-  contactRate: number;
-  engagementScore: number;
-  totalViewDuration: number;
-  recentViews: {
-    last7Days: number;
-    last30Days: number;
-  }
+  totalListings: number;
+  totalForSaleListings: number;
+  totalForRentListings: number;
+  countsByListingType: any[];
+  totalViewsReceived: string | number;
+  totalContactsReceived: string | number;
+  totalFavoritesReceived: string | number;
+  totalSharesReceived: string | number;
+  totalDetailsViewedReceived: string | number;
+  avgViewDurationReceived: string | number;
+  totalFavoritesGiven: number;
+  mostViewedListing: any;
+  trendingListing: any;
+  recentActivity: {
+    last7Days: string | number;
+    last30Days: string | number;
+  };
 }
 
 export const updateProfileSchema = z.object({

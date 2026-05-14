@@ -108,7 +108,7 @@ const ProductClient = ({ carDataRes, rawListing, isAuthenticated, locale }: Prod
       <div className="sticky top-[95px] z-50 w-full mb-3 bg-white shadow-md">
         <Box variant="container">
           <ProductHeader
-            saveStatus={carData.saveStatus}
+            saveStatus={carData.saveStatus as any}
             productName={carData.title}
             ContactNumber={carData.contactNumber?.toString()}
             price={carData.price?.toString() || ''}

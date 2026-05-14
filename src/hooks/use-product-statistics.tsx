@@ -116,7 +116,7 @@ export const useProductStatistics = ({
       );
 
       incrementDetailsViewedCount.mutate(
-        { carListingId: carId, userId: userId },
+        { listingId: carId, userId: userId },
         {
           onSuccess: () => {
             setHasTrackedDetailsViewed(true);
@@ -186,7 +186,7 @@ export const useProductStatistics = ({
         // Only send if we haven't exceeded the max duration
         if (newTotalDuration <= MAX_TRACKING_DURATION) {
           updateViewDuration.mutate(
-            { carListingId: carId, durationInSeconds, userId: userId },
+            { listingId: carId, durationInSeconds, userId: userId },
             {
               onSuccess: () => {
                 // Update total accumulated duration
@@ -235,7 +235,7 @@ export const useProductStatistics = ({
 
           if (cappedDuration > 0) {
             updateViewDuration.mutate({
-              carListingId: carId,
+              listingId: carId,
               durationInSeconds: cappedDuration,
               userId: userId,
             });
@@ -266,6 +266,7 @@ export const useProductStatistics = ({
 
   // 📊 TRACKING: Track contact button clicks (once per visit across all components)
   const handleContactClick = () => {
+
     if (!carId) return;
 
     // Wait for session to load before tracking (in case user clicks very quickly)
@@ -297,9 +298,9 @@ export const useProductStatistics = ({
     globalState.contact = true; // Mark immediately to prevent race conditions
 
     logger.log(`📊 ${logPrefix} Tracking contact count for car ID: ${carId}`);
-
+    console.log(`${logPrefix} Tracking contact count for car ID: ${carId}`);
     incrementContactCount.mutate(
-      { carListingId: carId, userId: userId },
+      { listingId: carId, userId: userId },
       {
         onSuccess: () => {
           setHasTrackedContact(true);
@@ -339,7 +340,7 @@ export const useProductStatistics = ({
     logger.log(`📊 ${logPrefix} Tracking share count for car ID: ${carId}`);
 
     incrementSharesCount.mutate(
-      { carListingId: carId, userId: userId },
+      { listingId: carId, userId: userId },
       {
         onSuccess: () => {
           logger.log(`✅ ${logPrefix} Share tracked successfully`);
