@@ -77,10 +77,8 @@ export function ActivitySummary({ profile }: ActivitySummaryProps) {
   const getEngagementPercentage = () => {
     if (!profile || !isClient) return 0;
 
-    const totalListings =
-      (profile.totalForSellCarListings || 0) +
-      (profile.totalForRentCarListings || 0);
-    const favorites = profile.totalFavoriteCarListings || 0;
+    const totalListings = profile.totalListings || 0;
+    const favorites = profile.totalFavoritesGiven || 0;
 
     if (totalListings === 0) return 0;
 
@@ -89,10 +87,7 @@ export function ActivitySummary({ profile }: ActivitySummaryProps) {
 
   // Calculate total listings
   const getTotalListings = () => {
-    return (
-      (profile?.totalForSellCarListings || 0) +
-      (profile?.totalForRentCarListings || 0)
-    );
+    return profile?.totalListings || 0;
   };
 
   return (
@@ -113,13 +108,13 @@ export function ActivitySummary({ profile }: ActivitySummaryProps) {
                 {t('carsForSale')}
               </span>
               <span className="font-medium">
-                {profile?.totalForSellCarListings || 0}
+                {profile?.totalForSaleListings || 0}
               </span>
             </div>
             <Progress
               value={
                 getTotalListings() > 0
-                  ? ((profile?.totalForSellCarListings || 0) /
+                  ? ((profile?.totalForSaleListings || 0) /
                       getTotalListings()) *
                     100
                   : 0
@@ -135,13 +130,13 @@ export function ActivitySummary({ profile }: ActivitySummaryProps) {
                 {t('carsForRent')}
               </span>
               <span className="font-medium">
-                {profile?.totalForRentCarListings || 0}
+                {profile?.totalForRentListings || 0}
               </span>
             </div>
             <Progress
               value={
                 getTotalListings() > 0
-                  ? ((profile?.totalForRentCarListings || 0) /
+                  ? ((profile?.totalForRentListings || 0) /
                       getTotalListings()) *
                     100
                   : 0
@@ -157,13 +152,13 @@ export function ActivitySummary({ profile }: ActivitySummaryProps) {
                 {t('favorites')}
               </span>
               <span className="font-medium">
-                {profile?.totalFavoriteCarListings || 0}
+                {profile?.totalFavoritesGiven || 0}
               </span>
             </div>
             <Progress
               value={
                 getTotalListings() > 0
-                  ? ((profile?.totalFavoriteCarListings || 0) /
+                  ? ((profile?.totalFavoritesGiven || 0) /
                       getTotalListings()) *
                     100
                   : 0

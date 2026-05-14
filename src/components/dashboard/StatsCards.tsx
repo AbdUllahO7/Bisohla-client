@@ -28,10 +28,7 @@ export function StatsCards({ profile }: StatsCardsProps) {
   const t = useTranslations('UserProfile.home');
 
   const getTotalListings = () => {
-    return (
-      (profile?.totalForSellCarListings || 0) +
-      (profile?.totalForRentCarListings || 0)
-    );
+    return profile?.totalListings || 0;
   };
 
   // Format duration in hours and minutes
@@ -50,11 +47,19 @@ export function StatsCards({ profile }: StatsCardsProps) {
     return `${value.toFixed(1)}%`;
   };
 
+  const views = Number(profile?.totalViewsReceived || 0);
+  const contacts = Number(profile?.totalContactsReceived || 0);
+  const shares = Number(profile?.totalSharesReceived || 0);
+  const totalListingsCount = getTotalListings();
+
+  const averageViews = totalListingsCount > 0 ? Math.round(views / totalListingsCount) : 0;
+  const contactRate = views > 0 ? (contacts / views) * 100 : 0;
+
   const statsData = [
     // Listing Statistics
     {
       title: t('carsForSale'),
-      value: profile?.totalForSellCarListings || 0,
+      value: profile?.totalForSaleListings || 0,
       icon: Car,
       color: 'text-primary',
       bgColor: 'bg-primary/10',
@@ -63,7 +68,7 @@ export function StatsCards({ profile }: StatsCardsProps) {
     },
     {
       title: t('carsForRent'),
-      value: profile?.totalForRentCarListings || 0,
+      value: profile?.totalForRentListings || 0,
       icon: Car,
       color: 'text-primary-light',
       bgColor: 'bg-primary-light/10',
@@ -72,7 +77,7 @@ export function StatsCards({ profile }: StatsCardsProps) {
     },
     {
       title: t('favorites'),
-      value: profile?.totalFavoriteCarListings || 0,
+      value: profile?.totalFavoritesGiven || 0,
       icon: Heart,
       color: 'text-rose-500',
       bgColor: 'bg-rose-500/10',
@@ -81,7 +86,7 @@ export function StatsCards({ profile }: StatsCardsProps) {
     },
     {
       title: t('totalListings'),
-      value: getTotalListings(),
+      value: totalListingsCount,
       icon: TrendingUp,
       color: 'text-primary',
       bgColor: 'bg-primary/10',
@@ -92,7 +97,7 @@ export function StatsCards({ profile }: StatsCardsProps) {
     // Engagement Statistics
     {
       title: t('totalViews'),
-      value: profile?.totalViews || 0,
+      value: views,
       icon: Eye,
       color: 'text-blue-600',
       bgColor: 'bg-blue-600/10',
@@ -101,7 +106,7 @@ export function StatsCards({ profile }: StatsCardsProps) {
     },
     {
       title: t('averageViews'),
-      value: profile?.averageViews || 0,
+      value: averageViews,
       icon: BarChart3,
       color: 'text-cyan-600',
       bgColor: 'bg-cyan-600/10',
@@ -110,7 +115,7 @@ export function StatsCards({ profile }: StatsCardsProps) {
     },
     {
       title: t('totalContacts'),
-      value: profile?.totalContacts || 0,
+      value: contacts,
       icon: Phone,
       color: 'text-green-600',
       bgColor: 'bg-green-600/10',
@@ -119,7 +124,7 @@ export function StatsCards({ profile }: StatsCardsProps) {
     },
     {
       title: t('totalShares'),
-      value: profile?.totalShares || 0,
+      value: shares,
       icon: Share2,
       color: 'text-purple-600',
       bgColor: 'bg-purple-600/10',
@@ -130,7 +135,7 @@ export function StatsCards({ profile }: StatsCardsProps) {
     // Performance Metrics
     {
       title: t('contactRate'),
-      value: formatPercentage(profile?.contactRate || 0),
+      value: formatPercentage(contactRate),
       icon: Target,
       color: 'text-orange-600',
       bgColor: 'bg-orange-600/10',
@@ -139,7 +144,7 @@ export function StatsCards({ profile }: StatsCardsProps) {
     },
     {
       title: t('engagementScore'),
-      value: profile?.engagementScore || 0,
+      value: 0, // Score calculation omitted as not present in new profile v2 API
       icon: Activity,
       color: 'text-pink-600',
       bgColor: 'bg-pink-600/10',
@@ -148,7 +153,7 @@ export function StatsCards({ profile }: StatsCardsProps) {
     },
     {
       title: t('viewDuration'),
-      value: formatDuration(profile?.totalViewDuration || 0),
+      value: formatDuration(Number(profile?.avgViewDurationReceived || 0)),
       icon: Clock,
       color: 'text-amber-600',
       bgColor: 'bg-amber-600/10',
@@ -159,7 +164,7 @@ export function StatsCards({ profile }: StatsCardsProps) {
     // Recent Activity
     {
       title: t('last7Days'),
-      value: profile?.recentViews?.last7Days || 0,
+      value: Number(profile?.recentActivity?.last7Days || 0),
       icon: Calendar,
       color: 'text-indigo-600',
       bgColor: 'bg-indigo-600/10',
@@ -168,7 +173,7 @@ export function StatsCards({ profile }: StatsCardsProps) {
     },
     {
       title: t('last30Days'),
-      value: profile?.recentViews?.last30Days || 0,
+      value: Number(profile?.recentActivity?.last30Days || 0),
       icon: Calendar,
       color: 'text-violet-600',
       bgColor: 'bg-violet-600/10',

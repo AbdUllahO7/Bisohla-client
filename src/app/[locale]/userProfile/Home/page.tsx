@@ -84,8 +84,8 @@ const UserHomePage = () => {
   const getEngagementPercentage = () => {
     if (!userProfile || !isClient) return 0
     
-    const totalListings = (userProfile.totalForSellCarListings || 0) + (userProfile.totalForRentCarListings || 0)
-    const favorites = userProfile.totalFavoriteCarListings || 0
+    const totalListings = userProfile.totalListings || 0
+    const favorites = userProfile.totalFavoritesGiven || 0
     
     if (totalListings === 0) return 0
     
@@ -203,7 +203,7 @@ const UserHomePage = () => {
                     <CardDescription className="text-primary">{t('activeListings')}</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-3xl font-bold text-primary">{userProfile?.totalForSellCarListings || 0}</div>
+                    <div className="text-3xl font-bold text-primary">{userProfile?.totalForSaleListings || 0}</div>
                     <div className="flex items-center text-xs text-muted-foreground mt-2">
                       <ArrowUpRight className="mr-1 h-4 w-4 text-[#ABDE3B]" />
                       <span className="text-[#ABDE3B]">{t('activeListings')}</span>
@@ -217,7 +217,7 @@ const UserHomePage = () => {
                     <CardDescription>{t('activeListings')}</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-3xl font-bold">{userProfile?.totalForRentCarListings || 0}</div>
+                    <div className="text-3xl font-bold">{userProfile?.totalForRentListings || 0}</div>
                     <div className="flex items-center text-xs text-muted-foreground mt-2">
                       <ArrowUpRight className="mr-1 h-4 w-4 text-[#ABDE3B]" />
                       <span className="text-[#ABDE3B]">{t('activeListings')}</span>
@@ -231,7 +231,7 @@ const UserHomePage = () => {
                     <CardDescription>{t('savedListings')}</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-3xl font-bold">{userProfile?.totalFavoriteCarListings || 0}</div>
+                    <div className="text-3xl font-bold">{userProfile?.totalFavoritesGiven || 0}</div>
                     <div className="flex items-center text-xs text-muted-foreground mt-2">
                       <Heart className="mr-1 h-4 w-4 text-rose-500" />
                       <span className="text-rose-500">{t('savedListings')}</span>
@@ -252,7 +252,7 @@ const UserHomePage = () => {
                       <TrendingUp className="h-8 w-8 text-[#ABDE3B] mb-2" />
                       <h3 className="text-lg font-semibold">{t('totalListings')}</h3>
                       <p className="text-3xl font-bold">
-                        {(userProfile?.totalForSellCarListings || 0) + (userProfile?.totalForRentCarListings || 0)}
+                        {userProfile?.totalListings || 0}
                       </p>
                       <p className="text-sm text-muted-foreground">{t('combinedSaleRental')}</p>
                     </div>

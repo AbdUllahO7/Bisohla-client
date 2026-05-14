@@ -32,14 +32,14 @@ const ProfileStats: React.FC<ProfileStatsProps> = ({
     {
       key: 'forSale',
       label: t('forSale'),
-      value: profile.totalForSellCarListings,
+      value: profile.totalForSaleListings,
       icon: <ShoppingCart className="h-6 w-6 text-primary-light" />,
       gradient: 'from-primary to-primary-light',
     },
     {
       key: 'forRent',
       label: t('forRent'),
-      value: profile.totalForRentCarListings,
+      value: profile.totalForRentListings,
       icon: <Car className="h-6 w-6 text-primary-light" />,
       gradient: 'from-primary to-primary-light',
     },

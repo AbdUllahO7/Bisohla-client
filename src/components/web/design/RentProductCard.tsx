@@ -178,6 +178,7 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
 
   // Get primary image or first available image
   const imageSrc =
+    car.primaryImage ||
     car.images?.find((img) => img.isPrimary)?.url ||
     car.images?.[0]?.url ||
     '/placeholder-car.jpg';
@@ -236,7 +237,7 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
     }
   };
 
-  const isSold = car.saveStatus === SaveStatus.SOLD;
+  const isSold = car.saveStatus === SaveStatus.SOLD || car.publicationStatus === 'sold';
 
   return (
     <motion.div 
@@ -318,7 +319,7 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
         )}
 
         <Text className="absolute bottom-32 z-20 left-2 bg-primary-light px-2 py-1 rounded-lg shadow-md text-secondary text-sm">
-          {car.listingType === 'for_rent' ? 'Rent' : 'Sale'}
+          {(car.listingType || car.listingOfferType) === 'for_rent' ? 'Rent' : 'Sale'}
         </Text>
 
         <Box

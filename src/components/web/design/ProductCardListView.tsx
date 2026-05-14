@@ -104,7 +104,7 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [currentSaveStatus, setCurrentSaveStatus] = useState(carListing.saveStatus);
+  const [currentSaveStatus, setCurrentSaveStatus] = useState(carListing.saveStatus || carListing.publicationStatus);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [showStatisticsDialog, setShowStatisticsDialog] = useState(false);
   const authChecked = useRef(false);
@@ -117,10 +117,10 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
     Number(carListing.id)
   );
 
-  // Update currentSaveStatus when carListing.saveStatus changes
+  // Update currentSaveStatus when carListing.saveStatus or carListing.publicationStatus changes
   useEffect(() => {
-    setCurrentSaveStatus(carListing.saveStatus);
-  }, [carListing.saveStatus]);
+    setCurrentSaveStatus(carListing.saveStatus || carListing.publicationStatus);
+  }, [carListing.saveStatus, carListing.publicationStatus]);
 
   // Authentication check
   useEffect(() => {
@@ -209,11 +209,13 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
   };
 
   const getListingTypeLabel = () => {
-    return carListing.listingType === 'for_sale' ? t('forSale') : t('forRent');
+    const type = String(carListing.listingType || carListing.listingOfferType || '').toLowerCase();
+    return type === 'for_sale' ? t('forSale') : t('forRent');
   };
 
   const getListingTypeColor = () => {
-    return carListing.listingType === 'for_sale'
+    const type = String(carListing.listingType || carListing.listingOfferType || '').toLowerCase();
+    return type === 'for_sale'
       ? 'bg-green-100 text-green-800'
       : 'bg-blue-100 text-blue-800';
   };

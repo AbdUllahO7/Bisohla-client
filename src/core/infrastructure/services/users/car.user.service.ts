@@ -158,7 +158,7 @@ export class CarUserService implements ICarUserService {
   ): Promise<ApiResponse<SuccessResponseWithNoContent>> {
 
     const res = await postReq<IncrementCountDto, SuccessResponseWithNoContent>({
-      url: '/car-listing-statics-visitor/increment-view-count',
+      url: '/listing-statistics/increment-view-count',
       body: dto,
     });
 
@@ -169,7 +169,7 @@ export class CarUserService implements ICarUserService {
     dto: IncrementCountDto,
   ): Promise<ApiResponse<SuccessResponseWithNoContent>> {
     const res = await postReq<IncrementCountDto, SuccessResponseWithNoContent>({
-      url: '/car-listing-statics-visitor/increment-contact-count',
+      url: '/listing-statistics/increment-contact-count',
       body: dto,
     });
     return res;
@@ -179,7 +179,7 @@ export class CarUserService implements ICarUserService {
     dto: IncrementCountDto,
   ): Promise<ApiResponse<SuccessResponseWithNoContent>> {
     const res = await postReq<IncrementCountDto, SuccessResponseWithNoContent>({
-      url: '/car-listing-statics-visitor/increment-shares-count',
+      url: '/listing-statistics/increment-shares-count',
       body: dto,
     });
 
@@ -190,7 +190,7 @@ export class CarUserService implements ICarUserService {
     dto: IncrementCountDto,
   ): Promise<ApiResponse<SuccessResponseWithNoContent>> {
     const res = await postReq<IncrementCountDto, SuccessResponseWithNoContent>({
-      url: '/car-listing-statics-visitor/increment-details-viewed-count',
+      url: '/listing-statistics/increment-details-viewed-count',
       body: dto,
     });
 
@@ -201,7 +201,7 @@ export class CarUserService implements ICarUserService {
     dto: UpdateViewDurationDto,
   ): Promise<ApiResponse<SuccessResponseWithNoContent>> {
     const res = await postReq<UpdateViewDurationDto, SuccessResponseWithNoContent>({
-      url: '/car-listing-statics-visitor/update-view-duration',
+      url: '/listing-statistics/update-view-duration',
       body: dto,
     });
 
@@ -212,7 +212,7 @@ export class CarUserService implements ICarUserService {
     dto: BatchIncrementViewCountDto,
   ): Promise<ApiResponse<SuccessResponseWithNoContent>> {
     const res = await postReq<BatchIncrementViewCountDto, SuccessResponseWithNoContent>({
-      url: '/car-listing-statics-visitor/batch-increment-view-count',
+      url: '/listing-statistics/batch-increment-view-count',
       body: dto,
     });
 

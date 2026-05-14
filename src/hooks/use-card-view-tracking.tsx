@@ -98,16 +98,16 @@ export const useCardViewTracking = ({
   flushRef.current = (views: PendingView[]) => {
     if (batchIncrementViewCount.isPending) return;
 
-    const carListingIds = views.map((v) => v.carId);
+    const listingIds = views.map((v) => v.carId);
     const flushUserId = views[0]?.userId; // userId is the same for all cards
 
-    logger.log(`🚀 [BATCH] Flushing ${carListingIds.length} car IDs:`, carListingIds);
+    logger.log(`🚀 [BATCH] Flushing ${listingIds.length} car IDs:`, listingIds);
 
     batchIncrementViewCount.mutate(
-      { carListingIds, userId: flushUserId },
+      { listingIds, userId: flushUserId },
       {
         onSuccess: () => {
-          logger.log(`✅ [BATCH] Views tracked for car IDs:`, carListingIds);
+          logger.log(`✅ [BATCH] Views tracked for car IDs:`, listingIds);
           // Mark this specific card as tracked
           setHasTrackedView(true);
         },

@@ -16,6 +16,6 @@ export interface IListingsVisitorRepo {
     listingTypeId: number,
     params: QueryParams
   ): Promise<PaginatedResponse<ListingDto>>;
-  getListingBySlug(slug: string): Promise<ApiResponse<any>>;
-  getListingById(id: number): Promise<ApiResponse<any>>;
+  getListingBySlug(slug: string, params?: QueryParams): Promise<ApiResponse<any>>;
+  getListingById(id: number, params?: QueryParams): Promise<ApiResponse<any>>;
 }

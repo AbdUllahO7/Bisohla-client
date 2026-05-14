@@ -37,16 +37,18 @@ export class ListingsVisitorRepo implements IListingsVisitorRepo {
     return res;
   }
   
-  async getListingBySlug(slug: string): Promise<ApiResponse<any>> {
+  async getListingBySlug(slug: string, params?: QueryParams): Promise<ApiResponse<any>> {
     const res = await getReq<any, ApiResponse<any>>({
       url: `/listings-visitor/slug/${slug}`,
+      params,
     });
     return res;
   }
 
-  async getListingById(id: number): Promise<ApiResponse<any>> {
+  async getListingById(id: number, params?: QueryParams): Promise<ApiResponse<any>> {
     const res = await getReq<any, ApiResponse<any>>({
       url: `/listings-visitor/${id}`,
+      params,
     });
     return res;
   }
