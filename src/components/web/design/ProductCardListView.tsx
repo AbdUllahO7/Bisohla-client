@@ -223,7 +223,7 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
   // Format statistics for display
   const formatStatistics = () => {
     if (!carStatistics?.data) return null;
-    const stats = carStatistics.data;
+    const stats = carStatistics.data.statics || carStatistics.data;
     const formatDateValue = (dateString: string | null) => {
       if (!dateString) return locale === 'ar' ? 'غير متوفر' : 'N/A';
       try {
@@ -1095,106 +1095,115 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
                   {locale === 'ar' ? 'جاري تحميل الإحصائيات...' : 'Loading statistics...'}
                 </p>
               </div>
-            ) : carStatistics?.data?.statics ? (
-              <div className="space-y-6">
-                {/* Car Info Header */}
-                <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 rounded-xl p-5 border-2 border-primary/20">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <h3 className="font-bold text-xl text-gray-900 mb-2">
-                        {carListing.title}
-                      </h3>
-                      <p className="text-sm text-gray-600">
-                        {carListing.make?.name} {carListing.model?.name}
-                      </p>
-                      <div className="flex items-center gap-2 mt-3">
-                        <Badge className="bg-primary text-white">
-                          ID: {carListing.id}
-                        </Badge>
-                        {getStatusBadge()}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Statistics Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {formatStatistics()?.map((stat, index) => {
-                    const IconComponent = stat.icon;
-                    return (
-                      <div
-                        key={index}
-                        className={clsx(
-                          'rounded-xl p-5 border-2 transition-all duration-200 hover:shadow-md hover:scale-[1.02]',
-                          stat.bgColor,
-                          stat.borderColor,
-                          stat.fullWidth && 'md:col-span-2'
-                        )}
-                      >
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-3">
-                              <div className={clsx('p-2 rounded-lg bg-white/80 shadow-sm', stat.color)}>
-                                <IconComponent size={20} strokeWidth={2.5} />
-                              </div>
-                              <p className="text-sm font-medium text-gray-700">
-                                {stat.label}
-                              </p>
-                            </div>
-                            <p className={clsx('text-3xl font-bold', stat.color)}>
-                              {stat.value}
-                            </p>
+            ) : (carStatistics?.data?.statics || carStatistics?.data) ? (
+              (() => {
+                const statsObj = carStatistics.data.statics || carStatistics.data;
+                return (
+                  <div className="space-y-6">
+                    {/* Car Info Header */}
+                    <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 rounded-xl p-5 border-2 border-primary/20">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <h3 className="font-bold text-xl text-gray-900 mb-2">
+                            {carListing.title}
+                          </h3>
+                          <p className="text-sm text-gray-600">
+                            {carListing.make?.name} {carListing.model?.name}
+                          </p>
+                          <div className="flex items-center gap-2 mt-3">
+                            <Badge className="bg-primary text-white">
+                              ID: {carListing.id}
+                            </Badge>
+                            {getStatusBadge()}
                           </div>
                         </div>
                       </div>
-                    );
-                  })}
-                </div>
-
-                {/* Additional Info Section */}
-                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-5 border border-gray-200">
-                  <div className="flex items-center gap-2 mb-4">
-                    <Clock className="text-gray-600" size={20} />
-                    <h4 className="font-semibold text-gray-900">
-                      {locale === 'ar' ? 'معلومات إضافية' : 'Additional Information'}
-                    </h4>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-                    <div className="flex items-center justify-between bg-white rounded-lg p-3">
-                      <span className="text-gray-600">
-                        {locale === 'ar' ? 'تاريخ الإنشاء:' : 'Created:'}
-                      </span>
-                      <span className="font-medium text-gray-900">
-                        {new Date(carStatistics.data.statics.createdAt).toLocaleDateString(
-                          locale === 'ar' ? 'ar-SA' : 'en-US'
-                        )}
-                      </span>
                     </div>
-                    <div className="flex items-center justify-between bg-white rounded-lg p-3">
-                      <span className="text-gray-600">
-                        {locale === 'ar' ? 'آخر تحديث:' : 'Last Updated:'}
-                      </span>
-                      <span className="font-medium text-gray-900">
-                        {new Date(carStatistics.data.statics.updatedAt).toLocaleDateString(
-                          locale === 'ar' ? 'ar-SA' : 'en-US'
+
+                    {/* Statistics Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {formatStatistics()?.map((stat, index) => {
+                        const IconComponent = stat.icon;
+                        return (
+                          <div
+                            key={index}
+                            className={clsx(
+                              'rounded-xl p-5 border-2 transition-all duration-200 hover:shadow-md hover:scale-[1.02]',
+                              stat.bgColor,
+                              stat.borderColor,
+                              stat.fullWidth && 'md:col-span-2'
+                            )}
+                          >
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-3 mb-3">
+                                  <div className={clsx('p-2 rounded-lg bg-white/80 shadow-sm', stat.color)}>
+                                    <IconComponent size={20} strokeWidth={2.5} />
+                                  </div>
+                                  <p className="text-sm font-medium text-gray-700">
+                                    {stat.label}
+                                  </p>
+                                </div>
+                                <p className={clsx('text-3xl font-bold', stat.color)}>
+                                  {stat.value}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Additional Info Section */}
+                    <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-5 border border-gray-200">
+                      <div className="flex items-center gap-2 mb-4">
+                        <Clock className="text-gray-600" size={20} />
+                        <h4 className="font-semibold text-gray-900">
+                          {locale === 'ar' ? 'معلومات إضافية' : 'Additional Information'}
+                        </h4>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                        {statsObj.createdAt && (
+                          <div className="flex items-center justify-between bg-white rounded-lg p-3">
+                            <span className="text-gray-600">
+                              {locale === 'ar' ? 'تاريخ الإنشاء:' : 'Created:'}
+                            </span>
+                            <span className="font-medium text-gray-900">
+                              {new Date(statsObj.createdAt).toLocaleDateString(
+                                locale === 'ar' ? 'ar-SA' : 'en-US'
+                              )}
+                            </span>
+                          </div>
                         )}
-                      </span>
+                        {statsObj.updatedAt && (
+                          <div className="flex items-center justify-between bg-white rounded-lg p-3">
+                            <span className="text-gray-600">
+                              {locale === 'ar' ? 'آخر تحديث:' : 'Last Updated:'}
+                            </span>
+                            <span className="font-medium text-gray-900">
+                              {new Date(statsObj.updatedAt).toLocaleDateString(
+                                locale === 'ar' ? 'ar-SA' : 'en-US'
+                              )}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Footer Note */}
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <p className="text-sm text-blue-800 flex items-start gap-2">
+                        <TrendingUp size={16} className="flex-shrink-0 mt-0.5" />
+                        <span>
+                          {locale === 'ar'
+                            ? 'يتم تحديث الإحصائيات بشكل دوري. قد يستغرق ظهور البيانات الجديدة بعض الوقت.'
+                            : 'Statistics are updated periodically. New data may take some time to appear.'}
+                        </span>
+                      </p>
                     </div>
                   </div>
-                </div>
-
-                {/* Footer Note */}
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <p className="text-sm text-blue-800 flex items-start gap-2">
-                    <TrendingUp size={16} className="flex-shrink-0 mt-0.5" />
-                    <span>
-                      {locale === 'ar'
-                        ? 'يتم تحديث الإحصائيات بشكل دوري. قد يستغرق ظهور البيانات الجديدة بعض الوقت.'
-                        : 'Statistics are updated periodically. New data may take some time to appear.'}
-                    </span>
-                  </p>
-                </div>
-              </div>
+                );
+              })()
             ) : (
               <div className="flex flex-col items-center justify-center py-16">
                 <AlertTriangle className="text-gray-400 mb-4" size={48} />
