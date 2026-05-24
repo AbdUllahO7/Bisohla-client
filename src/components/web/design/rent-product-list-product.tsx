@@ -124,6 +124,23 @@ export const RentProductListCard: React.FC<RentProductListCardProps> = ({
     ? getTranslatedLabel(details.transmission, transmissionOptions)
     : '';
 
+  const getAttrIcon = (slug: string, defaultIcon: React.ReactNode) => {
+    const av = (car as any).rawListing?.attributeValues?.find(
+      (av: any) => av.attribute?.slug === slug
+    );
+    const iconUrl = av?.attribute?.iconUrl;
+    if (iconUrl) {
+      return (
+        <img
+          src={iconUrl}
+          alt={slug}
+          className="h-3 w-3 object-contain"
+        />
+      );
+    }
+    return defaultIcon;
+  };
+
   // Update internal state when the prop changes
   useEffect(() => {
     setFavoriteStatus(isMarkedFavorite);
@@ -254,7 +271,7 @@ export const RentProductListCard: React.FC<RentProductListCardProps> = ({
             <div className="flex items-center gap-3 my-2">
               {translatedFuelType && (
                 <div className="flex items-center gap-1">
-                  <Fuel className="h-3 w-3 text-gray-500" />
+                  {getAttrIcon('fuel_type', <Fuel className="h-3 w-3 text-gray-500" />)}
                   <span className="text-xs text-gray-600">
                     {translatedFuelType}
                   </span>
@@ -263,7 +280,7 @@ export const RentProductListCard: React.FC<RentProductListCardProps> = ({
 
               {translatedTransmission && (
                 <div className="flex items-center gap-1">
-                  <LifeBuoy className="h-3 w-3 text-gray-500" />
+                  {getAttrIcon('transmission', <LifeBuoy className="h-3 w-3 text-gray-500" />)}
                   <span className="text-xs text-gray-600">
                     {translatedTransmission}
                   </span>
@@ -272,7 +289,7 @@ export const RentProductListCard: React.FC<RentProductListCardProps> = ({
 
               {details?.year && (
                 <div className="flex items-center gap-1">
-                  <Calendar className="h-3 w-3 text-gray-500" />
+                  {getAttrIcon('year', <Calendar className="h-3 w-3 text-gray-500" />)}
                   <span className="text-xs text-gray-600">{details.year}</span>
                 </div>
               )}

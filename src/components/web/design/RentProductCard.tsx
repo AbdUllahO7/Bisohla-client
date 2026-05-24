@@ -125,14 +125,31 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
   }, [car.listingTypeId, car.make?.name, car.governorate, car.city, categoryName]);
 
   const footerDetails = useMemo(() => {
+    const getAttrIcon = (slug: string, defaultIcon: React.ReactNode) => {
+      const av = (car as any).rawListing?.attributeValues?.find(
+        (av: any) => av.attribute?.slug === slug
+      );
+      const iconUrl = av?.attribute?.iconUrl;
+      if (iconUrl) {
+        return (
+          <img
+            src={iconUrl}
+            alt={slug}
+            className="h-4 w-4 object-contain"
+          />
+        );
+      }
+      return defaultIcon;
+    };
+
     if (car.listingTypeId === 1 || !car.listingTypeId) {
       return [
         {
-          icon: <Fuel className="h-4 w-4" />,
+          icon: getAttrIcon('fuel_type', <Fuel className="h-4 w-4" />),
           value: translatedFuelType
         },
         {
-          icon: <LifeBuoy className="h-4 w-4" />,
+          icon: getAttrIcon('transmission', <LifeBuoy className="h-4 w-4" />),
           value: translatedTransmission
         }
       ].filter(item => item.value);
@@ -144,20 +161,22 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
 
     const details = [];
     if (rooms) {
+      const roomsSlug = getAttrValue('rooms_count') ? 'rooms_count' : (getAttrValue('rooms') ? 'rooms' : 'bedrooms');
       details.push({
-        icon: <Bed className="h-4 w-4" />,
+        icon: getAttrIcon(roomsSlug, <Bed className="h-4 w-4" />),
         value: `${rooms} ${locale === 'ar' ? 'غرف' : 'Rooms'}`
       });
     }
     if (area) {
+      const areaSlug = getAttrValue('area') ? 'area' : 'square_meters';
       details.push({
-        icon: <Ruler className="h-4 w-4" />,
+        icon: getAttrIcon(areaSlug, <Ruler className="h-4 w-4" />),
         value: `${area} m²`
       });
     }
     if (bathrooms) {
       details.push({
-        icon: <Bath className="h-4 w-4" />,
+        icon: getAttrIcon('bathrooms', <Bath className="h-4 w-4" />),
         value: `${bathrooms} ${locale === 'ar' ? 'حمامات' : 'Baths'}`
       });
     }
@@ -166,7 +185,15 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
       rawAttributes.slice(0, 2).forEach((attr: any) => {
         if (attr.value && attr.slug !== 'make' && attr.slug !== 'model') {
           details.push({
-            icon: <Home className="h-4 w-4" />,
+            icon: attr.iconUrl ? (
+              <img
+                src={attr.iconUrl}
+                alt={attr.slug}
+                className="h-4 w-4 object-contain"
+              />
+            ) : (
+              <Home className="h-4 w-4" />
+            ),
             value: `${attr.value}`
           });
         }
@@ -174,7 +201,7 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
     }
 
     return details;
-  }, [car.listingTypeId, translatedFuelType, translatedTransmission, rawAttributes, locale]);
+  }, [car.listingTypeId, translatedFuelType, translatedTransmission, rawAttributes, locale, car]);
 
   // Get primary image or first available image
   const imageSrc =
@@ -238,22 +265,21 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
   };
 
   const isSold = car.saveStatus === SaveStatus.SOLD || car.publicationStatus === 'sold';
-
+  console.log("car", car)
   return (
-    <motion.div 
-      ref={cardRef} 
+    <motion.div
+      ref={cardRef}
       className="w-full"
-      whileHover={!isSold ? { 
-        y: -10, 
-        transition: { duration: 0.3, ease: 'easeOut' } 
+      whileHover={!isSold ? {
+        y: -10,
+        transition: { duration: 0.3, ease: 'easeOut' }
       } : {}}
     >
       <Card
-        className={`border-none h-[370px] bg-white relative group transition-all duration-500 ease-out overflow-hidden shadow-md ${
-          isSold
+        className={`border-none h-[370px] bg-white relative group transition-all duration-500 ease-out overflow-hidden shadow-md ${isSold
             ? 'opacity-90 cursor-pointer shadow-lg'
             : 'hover:shadow-2xl hover:shadow-emerald-500/15'
-        }`}
+          }`}
       >
 
         {/* Heart Icon with favorite status */}
@@ -265,13 +291,12 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
           >
             <HeartIcon
               size={24}
-              className={`transition-colors duration-200 ${
-                !isAuthenticated || isSold || isOwner
+              className={`transition-colors duration-200 ${!isAuthenticated || isSold || isOwner
                   ? 'text-gray-400'
                   : favoriteStatus
-                  ? 'text-red-500'
-                  : 'text-gray-600'
-              }`}
+                    ? 'text-red-500'
+                    : 'text-gray-600'
+                }`}
               fill={favoriteStatus ? 'currentColor' : 'none'}
             />
           </Button>
@@ -293,9 +318,8 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
         >
           <Scale
             size={20}
-            className={`transition-colors duration-200 ${
-              isCompared ? 'text-emerald-600' : 'text-gray-500 hover:text-emerald-500'
-            }`}
+            className={`transition-colors duration-200 ${isCompared ? 'text-emerald-600' : 'text-gray-500 hover:text-emerald-500'
+              }`}
           />
         </Button>
 
@@ -323,21 +347,18 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
         </Text>
 
         <Box
-          className={`flex z-40 justify-between p-[8px] rounded-t-[10px] duration-500 ${
-            isSold ? 'bg-gray-400' : 'bg-primary-light group-hover:bg-primary'
-          }`}
+          className={`flex z-40 justify-between p-[8px] rounded-t-[10px] duration-500 ${isSold ? 'bg-gray-400' : 'bg-primary-light group-hover:bg-primary'
+            }`}
         >
           <Text
-            className={`mid font-cairo text-[500] text-[14px] ${
-              isSold ? 'text-gray-200' : 'text-[#EFEFEF]'
-            }`}
+            className={`mid font-cairo text-[500] text-[14px] ${isSold ? 'text-gray-200' : 'text-[#EFEFEF]'
+              }`}
           >
             {priceWord || 'Price'}
           </Text>
           <Text
-            className={`mid font-cairo font-bold ${
-              isSold ? 'text-gray-200 line-through' : 'text-white'
-            }`}
+            className={`mid font-cairo font-bold ${isSold ? 'text-gray-200 line-through' : 'text-white'
+              }`}
           >
             {car.price
               ? `${car.price} ${car.currency}`
@@ -353,9 +374,8 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
                 alt={car.title}
                 fill
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                className={`object-cover transition-all duration-500 ${
-                  isSold ? 'grayscale' : ''
-                }`}
+                className={`object-cover transition-all duration-500 ${isSold ? 'grayscale' : ''
+                  }`}
                 priority={false}
               />
               {!isSold && (
@@ -369,17 +389,15 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
             <CardDescription className="p-[8px]">
               <Text
                 variant="h4"
-                className={`pr-2 pl-2 line-clamp-1 ${
-                  isSold ? 'text-gray-500' : 'text-primary'
-                }`}
+                className={`pr-2 pl-2 line-clamp-1 ${isSold ? 'text-gray-500' : 'text-primary'
+                  }`}
               >
                 {car.title}
               </Text>
               <Text
                 variant="mid"
-                className={`pr-2 pl-2 ${
-                  isSold ? 'text-gray-400' : 'text-primary'
-                }`}
+                className={`pr-2 pl-2 ${isSold ? 'text-gray-400' : 'text-primary'
+                  }`}
               >
                 {subTitle}
               </Text>
@@ -392,18 +410,16 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
             {footerDetails.map((detail, idx) => (
               <div
                 key={idx}
-                className={`flex items-center gap-2 text-sm transition-colors duration-300 ${
-                  isSold
+                className={`flex items-center gap-2 text-sm transition-colors duration-300 ${isSold
                     ? 'text-gray-400'
                     : 'text-gray-600 group-hover:text-emerald-600'
-                }`}
+                  }`}
               >
                 <div
-                  className={`p-1.5 rounded-lg transition-colors duration-300 ${
-                    isSold
+                  className={`p-1.5 rounded-lg transition-colors duration-300 ${isSold
                       ? 'bg-gray-200'
                       : 'bg-gray-100 group-hover:bg-emerald-100'
-                  }`}
+                    }`}
                 >
                   {detail.icon}
                 </div>

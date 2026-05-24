@@ -96,6 +96,23 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
   const t = useTranslations('common');
   const { toast } = useToast();
 
+  const getAttrIcon = (slug: string, defaultIcon: React.ReactNode) => {
+    const av = (carListing as any).rawListing?.attributeValues?.find(
+      (av: any) => av.attribute?.slug === slug
+    );
+    const iconUrl = av?.attribute?.iconUrl;
+    if (iconUrl) {
+      return (
+        <img
+          src={iconUrl}
+          alt={slug}
+          className="h-3.5 w-3.5 object-contain"
+        />
+      );
+    }
+    return defaultIcon;
+  };
+
   // State management
   const [isAuthenticated, setIsAuthenticated] = useState(
     isAuthenticatedProp !== undefined ? isAuthenticatedProp : false,
@@ -825,14 +842,14 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
                   <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-4 text-sm">
                     {carListing.details?.year && (
                       <div className="flex items-center gap-2 text-gray-600">
-                        <Calendar size={14} />
+                        {getAttrIcon('year', <Calendar size={14} />)}
                         <span>{carListing.details.year}</span>
                       </div>
                     )}
 
                     {carListing.details?.mileage && (
                       <div className="flex items-center gap-2 text-gray-600">
-                        <Gauge size={14} />
+                        {getAttrIcon('mileage', <Gauge size={14} />)}
                         <span>
                           {carListing.details.mileage.toLocaleString()} {t('km')}
                         </span>
@@ -841,14 +858,14 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
 
                     {carListing.details?.fuelType && (
                       <div className="flex items-center gap-2 text-gray-600">
-                        <Fuel size={14} />
+                        {getAttrIcon('fuel_type', <Fuel size={14} />)}
                         <span>{carListing.details.fuelType}</span>
                       </div>
                     )}
 
                     {carListing.details?.transmission && (
                       <div className="flex items-center gap-2 text-gray-600">
-                        <Car size={14} />
+                        {getAttrIcon('transmission', <Car size={14} />)}
                         <span>{carListing.details.transmission}</span>
                       </div>
                     )}
