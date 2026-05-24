@@ -108,3 +108,12 @@ export interface AdContentDto {
     videoUrl?: string;
     actionText?: string;
 }
+
+export interface AdSlotConfigDto {
+    ads: AdContentDto[];
+    position: string;
+    interleaveEvery: number | null;
+    rotationStrategy: 'priority' | 'round_robin' | 'random';
+    dismissable: boolean;
+    allowPlaceholders: boolean;
+}

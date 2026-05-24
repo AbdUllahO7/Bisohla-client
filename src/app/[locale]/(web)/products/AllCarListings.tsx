@@ -53,7 +53,7 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
   const categoryName = currentListingType?.name || 'Products';
   const categoryIcon = currentListingType?.iconUrl || '🛍️';
   const { toast } = useToast();
-  const { adsData, isLoadingAds } = useAdSlot('all-car-listining-space');
+  const { adsData, isLoadingAds, allowPlaceholders, dismissable, rotationStrategy } = useAdSlot('all-car-listining-space');
 
   // Check for mobile screen size
   useEffect(() => {
@@ -348,12 +348,19 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
                     {/* Insert Ad after every 8 listings */}
                     {(index + 1) % 8 === 0 && (() => {
                       const currentAdIndex = (adsData && adsData.length > 0) ? (currentPage - 1) % adsData.length : 0;
+                      const showPlaceholder = allowPlaceholders !== true;
+                      if (adsData.length === 0 && !showPlaceholder) {
+                        return null;
+                      }
 
                       return (
                         <AdsSectionProduct
                           adIndex={currentAdIndex}
                           adsData={adsData}
                           isLoadingAds={isLoadingAds}
+                          allowPlaceholders={allowPlaceholders}
+                          dismissable={dismissable}
+                          rotationStrategy={rotationStrategy}
                         />
                       );
                     })()}
@@ -372,6 +379,10 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
                     {/* Insert Ad after every 8 listings */}
                     {(index + 1) % 8 === 0 && (() => {
                       const currentAdIndex = (adsData && adsData.length > 0) ? (currentPage - 1) % adsData.length : 0;
+                      const showPlaceholder = allowPlaceholders !== true;
+                      if (adsData.length === 0 && !showPlaceholder) {
+                        return null;
+                      }
 
                       return (
                         <div className="col-span-full">
@@ -379,6 +390,9 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
                             adIndex={currentAdIndex}
                             adsData={adsData}
                             isLoadingAds={isLoadingAds}
+                            allowPlaceholders={allowPlaceholders}
+                            dismissable={dismissable}
+                            rotationStrategy={rotationStrategy}
                           />
                         </div>
                       );

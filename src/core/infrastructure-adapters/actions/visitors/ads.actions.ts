@@ -1,5 +1,7 @@
+'use server';
+
 import { ApiResponse } from '@/core/entities/api/success.response';
-import { AdContentDto } from '@/core/entities/models/ads/ads.dto';
+import { AdContentDto, AdSlotConfigDto } from '@/core/entities/models/ads/ads.dto';
 import { AdVisitorRepository } from '@/core/infrastructure/repositories/ads/ads.visitor.repo';
 
 const adRepo = new AdVisitorRepository();
@@ -55,15 +57,18 @@ export const getActiveAdsBySpaceAction = async (
 export const resolveBySlotKeyAction = async (
     slotKey: string,
     platform: string = 'Web',
-): Promise<ApiResponse<AdContentDto[]>> => {
+): Promise<ApiResponse<Record<string, AdSlotConfigDto>>> => {
+    console.log(" [SERVER ACTION] resolveBySlotKeyAction CALLED with slotKey:", slotKey, "platform:", platform);
     try {
         const res = await adRepo.resolveBySlotKey(slotKey, platform);
+        console.log(" [SERVER ACTION] resolveBySlotKeyAction COMPLETED for:", slotKey, "success:", res?.success);
         return res;
     } catch (error: any) {
+        console.error(" [SERVER ACTION] resolveBySlotKeyAction ERROR for:", slotKey, error);
         return {
             success: false,
             message: error.message || 'Failed to resolve ads by slot key',
-            data: [],
+            data: {},
         } as any;
     }
 };

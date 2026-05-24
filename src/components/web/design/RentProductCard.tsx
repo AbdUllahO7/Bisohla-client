@@ -313,6 +313,11 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
   const visibleDetails = footerDetails.slice(0, maxVisibleAttributes);
   const remainingCount = footerDetails.length - maxVisibleAttributes;
 
+  const isRent = (car.listingType || car.listingOfferType) === 'for_rent';
+  const badgeText = isRent
+    ? (locale === 'ar' ? 'إيجار' : 'Rent')
+    : (locale === 'ar' ? 'بيع' : 'Sale');
+
   return (
     <motion.div
       ref={cardRef}
@@ -389,10 +394,6 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
           </>
         )}
 
-        <Text className="absolute bottom-32 z-20 left-2 bg-primary-light px-2 py-1 rounded-lg shadow-md text-secondary text-sm">
-          {(car.listingType || car.listingOfferType) === 'for_rent' ? 'Rent' : 'Sale'}
-        </Text>
-
         <div className="flex-1 flex flex-col justify-start">
           <Box
             className={`flex z-40 justify-between p-[8px] rounded-t-[10px] duration-500 ${isSold ? 'bg-gray-400' : 'bg-primary-light group-hover:bg-primary'
@@ -426,6 +427,16 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
                     }`}
                   priority={false}
                 />
+
+                {/* Rent/Sale Badge inside image container */}
+                <span className={`absolute bottom-3 ${isRTL ? 'right-3' : 'left-3'} z-30 px-2.5 py-1 text-[12px] font-bold font-cairo rounded-md shadow-md backdrop-blur-sm transition-all duration-300 ${
+                  isRent
+                    ? 'bg-emerald-600/95 text-white border border-emerald-500/20'
+                    : 'bg-blue-600/95 text-white border border-blue-500/20'
+                }`}>
+                  {badgeText}
+                </span>
+
                 {!isSold && (
                   <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
                     <div className="bg-white/90 backdrop-blur-sm rounded-full p-3 transform scale-75 group-hover:scale-100 transition-transform duration-300">

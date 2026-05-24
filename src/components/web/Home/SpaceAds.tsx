@@ -1,10 +1,29 @@
+'use client';
+
 import Box from "@/components/ui/box"
 import Text from "@/components/ui/text"
 import AdSpace from "@/components/ads/AdSpace"
 import { useTranslations } from "next-intl"
+import { useAdSlot } from "@/hooks/use-ad-slot"
 
 const SpaceAds = () => {
   const t = useTranslations('homePage');
+
+  const {
+    adsData: leftAds,
+    isLoadingAds: leftLoading,
+    allowPlaceholders: leftAllowPlaceholders,
+    dismissable: leftDismissable,
+    rotationStrategy: leftRotationStrategy
+  } = useAdSlot('web-home-page-ads-section-left-side');
+
+  const {
+    adsData: rightAds,
+    isLoadingAds: rightLoading,
+    allowPlaceholders: rightAllowPlaceholders,
+    dismissable: rightDismissable,
+    rotationStrategy: rightRotationStrategy
+  } = useAdSlot('web-home-page-ads-section-right-side');
 
   const FallbackBanner = ({ title, bishola }: { title: string; bishola: string }) => (
     <Box
@@ -42,6 +61,11 @@ const SpaceAds = () => {
             className="w-full h-full"
             fallbackContent={<FallbackBanner title={t("spaceAds.box1.title")} bishola={t("spaceAds.box1.bishola")} />}
             isClosable={false}
+            adsData={leftAds}
+            isLoadingAds={leftLoading}
+            allowPlaceholders={leftAllowPlaceholders}
+            dismissable={leftDismissable}
+            rotationStrategy={leftRotationStrategy}
           />
         </div>
         <div className="w-full md:w-[48%] min-h-[200px] sm:h-[220px] md:h-[250px]">
@@ -50,6 +74,11 @@ const SpaceAds = () => {
             className="w-full h-full"
             fallbackContent={<FallbackBanner title={t("spaceAds.box2.title")} bishola={t("spaceAds.box2.bishola")} />}
             isClosable={false}
+            adsData={rightAds}
+            isLoadingAds={rightLoading}
+            allowPlaceholders={rightAllowPlaceholders}
+            dismissable={rightDismissable}
+            rotationStrategy={rightRotationStrategy}
           />
         </div>
       </Box>
