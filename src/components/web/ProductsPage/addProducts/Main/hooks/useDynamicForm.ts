@@ -172,6 +172,41 @@ export const useDynamicForm = (
     });
   }, [formData, attributes, fetchOptions]);
 
+  // Helper to evaluate valueDependency for an attribute
+  const evaluateValueDependency = useCallback((attr: FormAttributeDto, currentData: Record<string, any>): boolean => {
+    const valDep = (attr as any).valueDependency;
+    if (!valDep) return true;
+    const { op, value, refAttributeSlug } = valDep;
+    if (!refAttributeSlug) return true;
+
+    const parentValue = currentData[refAttributeSlug];
+    if (parentValue === undefined || parentValue === null || parentValue === '') return true;
+
+    let conditionMet = false;
+    const pValStr = String(parentValue).toLowerCase();
+    const valStr = String(value).toLowerCase();
+
+    if (op === 'eq' || op === '=') {
+      conditionMet = pValStr === valStr;
+    } else if (op === 'neq' || op === '!=') {
+      conditionMet = pValStr !== valStr;
+    } else if (op === 'gt') {
+      conditionMet = Number(parentValue) > Number(value);
+    } else if (op === 'lt') {
+      conditionMet = Number(parentValue) < Number(value);
+    } else if (op === 'in') {
+      const list = Array.isArray(value) ? value : [value];
+      conditionMet = list.map(v => String(v).toLowerCase()).includes(pValStr);
+    } else if (op === 'nin') {
+      const list = Array.isArray(value) ? value : [value];
+      conditionMet = !list.map(v => String(v).toLowerCase()).includes(pValStr);
+    } else {
+      conditionMet = pValStr === valStr;
+    }
+
+    return !conditionMet;
+  }, []);
+
   const handleFieldChange = useCallback((slug: string, value: any) => {
     setFormData(prev => {
       const newData = { ...prev, [slug]: value };
@@ -185,10 +220,18 @@ export const useDynamicForm = (
           }
         }
       });
+
+      // Clear values of fields whose valueDependency is met (they become hidden)
+      attributes.forEach(attr => {
+        const isShown = evaluateValueDependency(attr, newData);
+        if (!isShown) {
+          newData[attr.slug] = attr.type === 'repeating_group' ? [] : '';
+        }
+      });
       
       return newData;
     });
-  }, [attributes]);
+  }, [attributes, evaluateValueDependency]);
 
   // Use refs to avoid infinite loops with unstable parent callbacks
   const onValidationChangeRef = useRef(onValidationChange);
@@ -200,6 +243,10 @@ export const useDynamicForm = (
 
   useEffect(() => {
     const isValid = attributes.every(attr => {
+      // If the field is hidden by valueDependency, it should NOT be required for validation!
+      const isShown = evaluateValueDependency(attr, formData);
+      if (!isShown) return true;
+
       if (attr.isRequired || (attr as any).required) {
         const val = formData[attr.slug];
         if (Array.isArray(val)) {
@@ -214,7 +261,7 @@ export const useDynamicForm = (
       lastValidRef.current = isValid;
       onValidationChangeRef.current(isValid);
     }
-  }, [formData, attributes]); // Removed onValidationChange from dependencies
+  }, [formData, attributes, evaluateValueDependency]); // Removed onValidationChange from dependencies
 
   return {
     formData,

@@ -213,16 +213,50 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
     return dateNames.some(d => name.includes(d) || slug.includes(d));
   };
 
+  const shouldShowField = (attr: any) => {
+    const valDep = attr.valueDependency;
+    if (!valDep) return true;
+    const { op, value, refAttributeSlug } = valDep;
+    if (!refAttributeSlug) return true;
+
+    const parentValue = formData[refAttributeSlug];
+    if (parentValue === undefined || parentValue === null || parentValue === '') return true;
+
+    let conditionMet = false;
+    const pValStr = String(parentValue).toLowerCase();
+    const valStr = String(value).toLowerCase();
+
+    if (op === 'eq' || op === '=') {
+      conditionMet = pValStr === valStr;
+    } else if (op === 'neq' || op === '!=') {
+      conditionMet = pValStr !== valStr;
+    } else if (op === 'gt') {
+      conditionMet = Number(parentValue) > Number(value);
+    } else if (op === 'lt') {
+      conditionMet = Number(parentValue) < Number(value);
+    } else if (op === 'in') {
+      const list = Array.isArray(value) ? value : [value];
+      conditionMet = list.map(v => String(v).toLowerCase()).includes(pValStr);
+    } else if (op === 'nin') {
+      const list = Array.isArray(value) ? value : [value];
+      conditionMet = !list.map(v => String(v).toLowerCase()).includes(pValStr);
+    } else {
+      conditionMet = pValStr === valStr;
+    }
+
+    return !conditionMet;
+  };
+
   return (
     <div className="space-y-8" dir={isArabic ? "rtl" : "ltr"}>
       <DynamicSectionHeader title={getTranslation(section.name)} />
       
       <div className="space-y-10">
         {/* Render Reference Fields & Location Cards (Image 1 Design) */}
-        {(attributes.some(a => a.type === 'reference' || a.slug === 'governorate' || a.slug === 'city')) && (
+        {(attributes.some(a => (a.type === 'reference' || a.slug === 'governorate' || a.slug === 'city') && shouldShowField(a))) && (
           <div className="flex flex-wrap justify-center gap-10 pb-10 border-b border-gray-100 mb-6">
             {attributes
-              .filter(a => a.type === 'reference' || a.slug === 'governorate' || a.slug === 'city')
+              .filter(a => (a.type === 'reference' || a.slug === 'governorate' || a.slug === 'city') && shouldShowField(a))
               .sort((a, b) => a.order - b.order)
               .map((attr) => {
                 const slug = (attr.slug || "").toLowerCase();
@@ -284,7 +318,8 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
                 s !== 'مدينة' &&
                 a.type !== 'multi_select' && 
                 a.type !== 'boolean' && 
-                !isDateLike(a)
+                !isDateLike(a) &&
+                shouldShowField(a)
               );
             })
             .sort((a, b) => a.order - b.order)
@@ -417,7 +452,7 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
           
           {/* Render Repeating Groups (Matrix UI) */}
           {attributes
-            .filter(a => a.type?.toLowerCase() === 'repeating_group')
+            .filter(a => a.type?.toLowerCase() === 'repeating_group' && shouldShowField(a))
             .sort((a, b) => a.order - b.order)
             .map((attr) => (
               <div key={attr.id} className="col-span-1 md:col-span-2 lg:col-span-4 mt-4">
@@ -433,7 +468,7 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
           
           {/* Render Date Fields (Calendar) */}
           {attributes
-            .filter(a => isDateLike(a))
+            .filter(a => isDateLike(a) && shouldShowField(a))
             .sort((a, b) => a.order - b.order)
             .map((attr) => (
               <div key={attr.id} className="space-y-4">
@@ -486,12 +521,12 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
         </div>
 
         {/* Feature Groups (Image 2 Design Restoration) */}
-        {attributes.some(a => a.type === 'multi_select' || a.type === 'boolean') && (
+        {attributes.some(a => (a.type === 'multi_select' || a.type === 'boolean') && shouldShowField(a)) && (
           <div className="mt-8">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {/* 1. Each multi_select attribute gets its own Card */}
               {attributes
-                .filter(a => a.type === 'multi_select')
+                .filter(a => a.type === 'multi_select' && shouldShowField(a))
                 .sort((a, b) => a.order - b.order)
                 .map((attr) => {
                   const options = Array.isArray(attr.options) ? attr.options : [];
@@ -559,7 +594,7 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
 
               {/* 2. Boolean attributes grouped together */}
               {(() => {
-                const booleans = attributes.filter(a => a.type === 'boolean');
+                const booleans = attributes.filter(a => a.type === 'boolean' && shouldShowField(a));
                 if (booleans.length === 0) return null;
                 
                 // Group booleans by referenceGroup or section name
