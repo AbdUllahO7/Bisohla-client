@@ -34,7 +34,7 @@ export default function NewsGrid({
   onPageChange,
   translations,
 }: NewsGridProps) {
-  const { adsData, isLoadingAds } = useAdSlot('news-page-ads-section');
+  const { adsData, isLoadingAds, allowPlaceholders, dismissable, rotationStrategy } = useAdSlot('news-page-ads-section');
 
   if (isLoading) {
     return (
@@ -77,7 +77,8 @@ export default function NewsGrid({
               const items: any[] = [];
               let adIndexCounter = 0;
               const actualAdsLength = adsData?.length || 0;
-              const totalAdsTarget = Math.max(actualAdsLength, 1);
+              const showPlaceholder = allowPlaceholders !== true;
+              const totalAdsTarget = (actualAdsLength === 0 && !showPlaceholder) ? 0 : Math.max(actualAdsLength, 1);
               let lastAdIndex = -10;
               
               articles.forEach((article: SelectNewsArticleDto, index: number) => {
@@ -120,22 +121,21 @@ export default function NewsGrid({
                   );
                 } else {
                   return (
-                    <div
+                    <AdSpace
                       key={`ad-slot-${item.adIndex}-${i}`}
-                      className="animate-fadeIn w-full h-full min-h-[380px]"
+                      name="news-page-ads-section"
+                      className="w-full h-full"
+                      wrapperClassName="animate-fadeIn w-full h-full min-h-[380px]"
+                      fallbackContent={<CardAds isRent={false} />}
+                      isClosable={false}
+                      adsData={adsData}
+                      isLoadingAds={isLoadingAds}
+                      adIndex={item.adIndex}
+                      allowPlaceholders={allowPlaceholders}
+                      dismissable={dismissable}
+                      rotationStrategy={rotationStrategy}
                       style={{ animationDelay: `${i * 0.1}s` }}
-                    >
-                      <AdSpace
-                        name="news-page-ads-section"
-                        className="w-full h-full"
-                        wrapperClassName="w-full h-full min-h-[380px]"
-                        fallbackContent={<CardAds isRent={false} />}
-                        isClosable={false}
-                        adsData={adsData}
-                        isLoadingAds={isLoadingAds}
-                        adIndex={item.adIndex}
-                      />
-                    </div>
+                    />
                   );
                 }
               });

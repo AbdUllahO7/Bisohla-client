@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { Link } from '@/i18n/routing';
 import AdSpace from '@/components/ads/AdSpace';
 import { AdContentDto } from '@/core/entities/models/ads/ads.dto';
+import { useAdSlot } from '@/hooks/use-ad-slot';
 
 const StaticAdsSectionProduct = () => {
   const t = useTranslations('homePage');
@@ -96,14 +97,29 @@ const StaticAdsSectionProduct = () => {
 const AdsSectionProduct = ({ 
   name = 'sale-page-ads-section',
   adIndex,
-  adsData,
-  isLoadingAds
+  adsData: externalAdsData,
+  isLoadingAds: externalIsLoadingAds,
+  allowPlaceholders: externalAllowPlaceholders,
+  dismissable: externalDismissable,
+  rotationStrategy: externalRotationStrategy,
 }: { 
   name?: string;
   adIndex?: number;
   adsData?: AdContentDto[];
   isLoadingAds?: boolean;
+  allowPlaceholders?: boolean;
+  dismissable?: boolean;
+  rotationStrategy?: 'priority' | 'round_robin' | 'random';
 }) => {
+  // Use the hook internally when no external data is provided
+  const hookResult = useAdSlot(externalAdsData !== undefined ? '' : name);
+
+  const adsData = externalAdsData !== undefined ? externalAdsData : hookResult.adsData;
+  const isLoadingAds = externalIsLoadingAds !== undefined ? externalIsLoadingAds : hookResult.isLoadingAds;
+  const allowPlaceholders = externalAllowPlaceholders !== undefined ? externalAllowPlaceholders : hookResult.allowPlaceholders;
+  const dismissable = externalDismissable !== undefined ? externalDismissable : hookResult.dismissable;
+  const rotationStrategy = externalRotationStrategy !== undefined ? externalRotationStrategy : hookResult.rotationStrategy;
+
   return (
     <AdSpace
       name={name}
@@ -113,8 +129,12 @@ const AdsSectionProduct = ({
       adIndex={adIndex}
       adsData={adsData}
       isLoadingAds={isLoadingAds}
+      allowPlaceholders={allowPlaceholders}
+      dismissable={dismissable}
+      rotationStrategy={rotationStrategy}
     />
   );
 };
 
 export default AdsSectionProduct;
+

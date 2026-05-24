@@ -2,11 +2,9 @@
 import React from 'react';
 import Box from '@/components/ui/box';
 import { motion } from 'framer-motion';
-import Text from '@/components/ui/text';
 import { useTranslations } from 'next-intl';
 import { RentProductCard } from '../design/RentProductCard';
 import SectionHeader from '@/components/shared/SectionHeader';
-import { ListingDto } from '@/core/entities/models/listings/listings.dto';
 import { SelectCarListingDto } from '@/core/entities/models/cars/cars.dto';
 import { TrendingUp, Star, CarFrontIcon } from 'lucide-react';
 import AdSpace from '@/components/ads/AdSpace';
@@ -36,7 +34,7 @@ const DynamicListingSection: React.FC<DynamicListingSectionProps> = ({
 }) => {
   const t = useTranslations('homePage');
   const Icon = iconMap[iconName] || CarFrontIcon;
-  const { adsData, isLoadingAds } = useAdSlot(adSlotName || '');
+  const { adsData, isLoadingAds, allowPlaceholders, dismissable, rotationStrategy } = useAdSlot(adSlotName || '');
 
   if (!listings || listings.length === 0) {
     return null;
@@ -115,20 +113,22 @@ const DynamicListingSection: React.FC<DynamicListingSectionProps> = ({
               const items: any[] = [];
               let adIndexCounter = 0;
               const displayLimit = 10; // 9 products + 1 ad = 10 slots
+              const showPlaceholder = allowPlaceholders !== true;
+              const hasAd = adSlotName && (adsData.length > 0 || showPlaceholder);
 
               listings.slice(0, 9).forEach((listing, index) => {
                 items.push({ type: 'product', data: listing });
 
-                // Inject ad at index 3 (4th position) if adSlotName is provided
-                if (adSlotName && index === 3) {
+                // Inject ad at index 3 (4th position) if we should show ads
+                if (hasAd && index === 3) {
                   items.push({ type: 'ad', baseAdIndex: adIndexCounter });
                   adIndexCounter++;
                 }
               });
 
               // Ensure at least one ad is shown if requested and we have items but didn't reach index 3
-              if (adSlotName && items.length > 0 && items.length < 4) {
-                 items.push({ type: 'ad', baseAdIndex: adIndexCounter });
+              if (hasAd && items.length > 0 && items.length < 4) {
+                items.push({ type: 'ad', baseAdIndex: adIndexCounter });
               }
 
               return items.slice(0, displayLimit).map((item, i) => {
@@ -146,8 +146,12 @@ const DynamicListingSection: React.FC<DynamicListingSectionProps> = ({
                   return (
                     <motion.div
                       key={`ad-slot-${i}`}
-                      className="w-full h-[370px] rounded-lg shadow-sm overflow-hidden relative"
+                      className="w-full h-full flex flex-col rounded-lg relative"
                       variants={itemVariants}
+                      whileHover={{
+                        y: -10,
+                        transition: { duration: 0.3, ease: 'easeOut' }
+                      }}
                     >
                       <AdSpace
                         name={adSlotName!}
@@ -157,6 +161,9 @@ const DynamicListingSection: React.FC<DynamicListingSectionProps> = ({
                         adsData={adsData}
                         isLoadingAds={isLoadingAds}
                         adIndex={currentAdIndex}
+                        allowPlaceholders={allowPlaceholders}
+                        dismissable={dismissable}
+                        rotationStrategy={rotationStrategy}
                       />
                     </motion.div>
                   );

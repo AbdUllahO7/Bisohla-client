@@ -243,7 +243,7 @@ const WebPage = async () => {
     }
   }
 
-  
+
 
   return (
     <AnimatedPageWrapper>
@@ -270,7 +270,7 @@ const WebPage = async () => {
 
         {/* Trending Section */}
         <DynamicListingSection
-          listings={trendingListings} 
+          listings={trendingListings}
           title={t('trendingListings')}
           iconName="trending"
         />
