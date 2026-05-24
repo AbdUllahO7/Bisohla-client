@@ -18,12 +18,18 @@ import {
   LifeBuoy,
   MapPin,
   Calendar,
+  Bed,
+  Bath,
+  Home,
+  Ruler,
 } from 'lucide-react';
+import { resolveAttributeValue } from '@/utils/listing-normalization';
+
 import { Button } from '@/components/ui/button';
 import { Link } from '@/i18n/routing';
 import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions';
 import { toggleListingFavorite } from '@/core/infrastructure-adapters/actions/users/listing.user.actions';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import {
   getFuelTypeOptions,
   getTransmissionOptions,
@@ -64,6 +70,7 @@ export const RentProductListCard: React.FC<RentProductListCardProps> = ({
   const [favoriteStatus, setFavoriteStatus] = useState(isMarkedFavorite);
   const [isProcessing, setIsProcessing] = useState(false);
   const direction = useDirection();
+  const locale = useLocale();
   // Get translators for different namespaces
   const productT = useTranslations('product');
   const bodyTypeT = useTranslations('addProduct.enteredData.stepTwo');
@@ -140,6 +147,92 @@ export const RentProductListCard: React.FC<RentProductListCardProps> = ({
     }
     return defaultIcon;
   };
+
+  const footerDetails = useMemo(() => {
+    const rawAttrValues = (car as any).rawListing?.attributeValues || [];
+
+    if (rawAttrValues.length > 0) {
+      return rawAttrValues
+        .map((av: any) => {
+          let value = resolveAttributeValue(av, locale);
+          const iconUrl = av.attribute?.iconUrl;
+          const slug = av.attribute?.slug;
+
+          // Translate slug values if they exist in the stepTwo translation namespace
+          if (slug === 'fuel_type' || slug === 'transmission' || slug === 'body_type' || slug === 'condition') {
+            try {
+              const translationKey = slug === 'fuel_type' 
+                ? `fuelType.${value}` 
+                : slug === 'transmission' 
+                ? `transmission.${value}` 
+                : slug === 'body_type' 
+                ? `bodyType.${value}` 
+                : `vehicleCondition.${value}`;
+              value = bodyTypeT(translationKey);
+            } catch (e) {
+              // Fall back to resolved value
+            }
+          }
+
+          let defaultIcon = <Home className="h-3 w-3 text-gray-500" />;
+          if (slug === 'fuel_type') defaultIcon = <Fuel className="h-3 w-3 text-gray-500" />;
+          else if (slug === 'transmission') defaultIcon = <LifeBuoy className="h-3 w-3 text-gray-500" />;
+          else if (slug === 'year') defaultIcon = <Calendar className="h-3 w-3 text-gray-500" />;
+          else if (slug === 'rooms_count' || slug === 'rooms' || slug === 'bedrooms') defaultIcon = <Bed className="h-3 w-3 text-gray-500" />;
+          else if (slug === 'area' || slug === 'square_meters') defaultIcon = <Ruler className="h-3 w-3 text-gray-500" />;
+          else if (slug === 'bathrooms') defaultIcon = <Bath className="h-3 w-3 text-gray-500" />;
+
+          const icon = iconUrl ? (
+            <img
+              src={iconUrl}
+              alt={slug}
+              className="h-3 w-3 object-contain"
+            />
+          ) : (
+            defaultIcon
+          );
+
+          return {
+            slug,
+            icon,
+            value,
+          };
+        })
+        .filter((item: any) => {
+          return (
+            item.value &&
+            item.slug !== 'make' &&
+            item.slug !== 'model' &&
+            item.slug !== 'trim' &&
+            !item.slug.startsWith('features_')
+          );
+        });
+    }
+
+    const fallback = [];
+    if (translatedFuelType) {
+      fallback.push({
+        slug: 'fuel_type',
+        icon: <Fuel className="h-3 w-3 text-gray-500" />,
+        value: translatedFuelType,
+      });
+    }
+    if (translatedTransmission) {
+      fallback.push({
+        slug: 'transmission',
+        icon: <LifeBuoy className="h-3 w-3 text-gray-500" />,
+        value: translatedTransmission,
+      });
+    }
+    if (details?.year) {
+      fallback.push({
+        slug: 'year',
+        icon: <Calendar className="h-3 w-3 text-gray-500" />,
+        value: details.year.toString(),
+      });
+    }
+    return fallback;
+  }, [car, translatedFuelType, translatedTransmission, details, locale, bodyTypeT]);
 
   // Update internal state when the prop changes
   useEffect(() => {
@@ -268,31 +361,15 @@ export const RentProductListCard: React.FC<RentProductListCardProps> = ({
             </div>
 
             {/* Details Section */}
-            <div className="flex items-center gap-3 my-2">
-              {translatedFuelType && (
-                <div className="flex items-center gap-1">
-                  {getAttrIcon('fuel_type', <Fuel className="h-3 w-3 text-gray-500" />)}
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 my-2 overflow-hidden max-w-full">
+              {footerDetails.map((detail, idx) => (
+                <div key={idx} className="flex items-center gap-1">
+                  {detail.icon}
                   <span className="text-xs text-gray-600">
-                    {translatedFuelType}
+                    {detail.value}
                   </span>
                 </div>
-              )}
-
-              {translatedTransmission && (
-                <div className="flex items-center gap-1">
-                  {getAttrIcon('transmission', <LifeBuoy className="h-3 w-3 text-gray-500" />)}
-                  <span className="text-xs text-gray-600">
-                    {translatedTransmission}
-                  </span>
-                </div>
-              )}
-
-              {details?.year && (
-                <div className="flex items-center gap-1">
-                  {getAttrIcon('year', <Calendar className="h-3 w-3 text-gray-500" />)}
-                  <span className="text-xs text-gray-600">{details.year}</span>
-                </div>
-              )}
+              ))}
             </div>
 
             {/* Price and Arrow Section */}

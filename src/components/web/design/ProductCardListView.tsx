@@ -27,7 +27,10 @@ import {
   BarChart3,
   TrendingUp,
   Share2,
+  Home,
 } from 'lucide-react';
+import { resolveAttributeValue } from '@/utils/listing-normalization';
+
 import { useLocale, useTranslations } from 'next-intl';
 import clsx from 'clsx';
 import { formatDistanceToNow } from 'date-fns';
@@ -94,6 +97,7 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
   const locale = useLocale();
   const direction = locale === 'ar' ? 'rtl' : 'ltr';
   const t = useTranslations('common');
+  const bodyTypeT = useTranslations('addProduct.enteredData.stepTwo');
   const { toast } = useToast();
 
   const getAttrIcon = (slug: string, defaultIcon: React.ReactNode) => {
@@ -112,6 +116,105 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
     }
     return defaultIcon;
   };
+
+  const footerDetails = useMemo(() => {
+    const rawAttrValues = (carListing as any).rawListing?.attributeValues || [];
+
+    if (rawAttrValues.length > 0) {
+      return rawAttrValues
+        .map((av: any) => {
+          let value = resolveAttributeValue(av, locale);
+          const iconUrl = av.attribute?.iconUrl;
+          const slug = av.attribute?.slug;
+
+          // Translate slug values if they exist in the stepTwo translation namespace
+          if (slug === 'fuel_type' || slug === 'transmission' || slug === 'body_type' || slug === 'condition') {
+            try {
+              const translationKey = slug === 'fuel_type' 
+                ? `fuelType.${value}` 
+                : slug === 'transmission' 
+                ? `transmission.${value}` 
+                : slug === 'body_type' 
+                ? `bodyType.${value}` 
+                : `vehicleCondition.${value}`;
+              value = bodyTypeT(translationKey);
+            } catch (e) {
+              // Fall back to resolved value
+            }
+          }
+
+          let defaultIcon = <Home size={14} />;
+          if (slug === 'fuel_type') defaultIcon = <Fuel size={14} />;
+          else if (slug === 'transmission') defaultIcon = <Car size={14} />;
+          else if (slug === 'year') defaultIcon = <Calendar size={14} />;
+          else if (slug === 'mileage') defaultIcon = <Gauge size={14} />;
+          else if (slug === 'rooms_count' || slug === 'rooms' || slug === 'bedrooms') defaultIcon = <Home size={14} />;
+          else if (slug === 'area' || slug === 'square_meters') defaultIcon = <Home size={14} />;
+
+          const icon = iconUrl ? (
+            <img
+              src={iconUrl}
+              alt={slug}
+              className="h-3.5 w-3.5 object-contain"
+            />
+          ) : (
+            defaultIcon
+          );
+
+          let displayValue = value;
+          if (slug === 'mileage' && value) {
+            const num = parseFloat(value);
+            displayValue = `${isNaN(num) ? value : num.toLocaleString()} ${t('km')}`;
+          }
+
+          return {
+            slug,
+            icon,
+            value: displayValue,
+          };
+        })
+        .filter((item: any) => {
+          return (
+            item.value &&
+            item.slug !== 'make' &&
+            item.slug !== 'model' &&
+            item.slug !== 'trim' &&
+            !item.slug.startsWith('features_')
+          );
+        });
+    }
+
+    const fallback = [];
+    if (carListing.details?.year) {
+      fallback.push({
+        slug: 'year',
+        icon: <Calendar size={14} />,
+        value: carListing.details.year.toString(),
+      });
+    }
+    if (carListing.details?.mileage) {
+      fallback.push({
+        slug: 'mileage',
+        icon: <Gauge size={14} />,
+        value: `${carListing.details.mileage.toLocaleString()} ${t('km')}`,
+      });
+    }
+    if (carListing.details?.fuelType) {
+      fallback.push({
+        slug: 'fuel_type',
+        icon: <Fuel size={14} />,
+        value: carListing.details.fuelType,
+      });
+    }
+    if (carListing.details?.transmission) {
+      fallback.push({
+        slug: 'transmission',
+        icon: <Car size={14} />,
+        value: carListing.details.transmission,
+      });
+    }
+    return fallback;
+  }, [carListing, locale, t, bodyTypeT]);
 
   // State management
   const [isAuthenticated, setIsAuthenticated] = useState(
@@ -838,37 +941,14 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
                 )}
 
                  {/* Vehicle Details */}
-                {(carListing.listingTypeId === 1 || carListing.listingTypeId === undefined) && (
+                {footerDetails.length > 0 && (
                   <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-4 text-sm">
-                    {carListing.details?.year && (
-                      <div className="flex items-center gap-2 text-gray-600">
-                        {getAttrIcon('year', <Calendar size={14} />)}
-                        <span>{carListing.details.year}</span>
+                    {footerDetails.map((detail, idx) => (
+                      <div key={idx} className="flex items-center gap-2 text-gray-600">
+                        {detail.icon}
+                        <span>{detail.value}</span>
                       </div>
-                    )}
-
-                    {carListing.details?.mileage && (
-                      <div className="flex items-center gap-2 text-gray-600">
-                        {getAttrIcon('mileage', <Gauge size={14} />)}
-                        <span>
-                          {carListing.details.mileage.toLocaleString()} {t('km')}
-                        </span>
-                      </div>
-                    )}
-
-                    {carListing.details?.fuelType && (
-                      <div className="flex items-center gap-2 text-gray-600">
-                        {getAttrIcon('fuel_type', <Fuel size={14} />)}
-                        <span>{carListing.details.fuelType}</span>
-                      </div>
-                    )}
-
-                    {carListing.details?.transmission && (
-                      <div className="flex items-center gap-2 text-gray-600">
-                        {getAttrIcon('transmission', <Car size={14} />)}
-                        <span>{carListing.details.transmission}</span>
-                      </div>
-                    )}
+                    ))}
                   </div>
                 )}
 
