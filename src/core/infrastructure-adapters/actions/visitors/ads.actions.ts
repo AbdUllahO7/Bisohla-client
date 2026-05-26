@@ -58,10 +58,8 @@ export const resolveBySlotKeyAction = async (
     slotKey: string,
     platform: string = 'Web',
 ): Promise<ApiResponse<Record<string, AdSlotConfigDto>>> => {
-    console.log(" [SERVER ACTION] resolveBySlotKeyAction CALLED with slotKey:", slotKey, "platform:", platform);
     try {
         const res = await adRepo.resolveBySlotKey(slotKey, platform);
-        console.log(" [SERVER ACTION] resolveBySlotKeyAction COMPLETED for:", slotKey, "success:", res?.success);
         return res;
     } catch (error: any) {
         console.error(" [SERVER ACTION] resolveBySlotKeyAction ERROR for:", slotKey, error);

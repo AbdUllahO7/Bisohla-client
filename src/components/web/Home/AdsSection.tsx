@@ -6,7 +6,6 @@ import StaticAdsDesign from './StaticAdsDesign';
 import { useAdSlot } from '@/hooks/use-ad-slot';
 
 const AdsSection = () => {
-    console.log("AdsSection");
     const { adsData, isLoadingAds, allowPlaceholders, dismissable, rotationStrategy } = useAdSlot('home-page-ads-section-full-width');
 
     return (

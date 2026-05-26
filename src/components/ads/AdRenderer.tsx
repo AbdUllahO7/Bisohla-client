@@ -45,7 +45,6 @@ const AdMedia = ({
         return null;
     }
 
-    console.log("ad", ad)
 
     // --- FALLBACK LOGIC ---
     // If translation media is missing, try root ad properties
