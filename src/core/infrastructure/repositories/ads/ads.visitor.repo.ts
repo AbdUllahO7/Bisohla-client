@@ -16,13 +16,11 @@ export class AdVisitorRepository implements IAdVisitorRepository {
     }
 
     async resolveBySlotKey(slotKey: string, platform: string): Promise<ApiResponse<Record<string, AdSlotConfigDto>>> {
-        console.log(" [REPO] AdVisitorRepository.resolveBySlotKey started for slotKey:", slotKey, "platform:", platform);
         const encodedSlotKeys = slotKey.split(',').map(encodeURIComponent).join(',');
         try {
             const res = await getReq({
                 url: `/visitor/ad-spaces/v2/resolve-by-slot-key?slotKeys=${encodedSlotKeys}&platform=${platform}`,
             });
-            console.log(" [REPO] AdVisitorRepository.resolveBySlotKey getReq response for slotKey:", slotKey, "success:", res?.success);
             return res as ApiResponse<Record<string, AdSlotConfigDto>>;
         } catch (error) {
             console.error(" [REPO] AdVisitorRepository.resolveBySlotKey getReq error for slotKey:", slotKey, error);

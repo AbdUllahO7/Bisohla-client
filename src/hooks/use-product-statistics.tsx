@@ -298,7 +298,6 @@ export const useProductStatistics = ({
     globalState.contact = true; // Mark immediately to prevent race conditions
 
     logger.log(`📊 ${logPrefix} Tracking contact count for car ID: ${carId}`);
-    console.log(`${logPrefix} Tracking contact count for car ID: ${carId}`);
     incrementContactCount.mutate(
       { listingId: carId, userId: userId },
       {

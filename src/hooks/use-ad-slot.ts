@@ -19,7 +19,6 @@ export const useAdSlot = (slotKey: string, platform: string = 'web') => {
     }
 
     let isMounted = true;
-    console.log(`[useAdSlot] 🟡 STARTING fetch for "${slotKey}"`);
 
     // Safety timeout: if fetch takes more than 15 seconds, force-resolve loading
     timeoutRef.current = setTimeout(() => {
@@ -32,9 +31,7 @@ export const useAdSlot = (slotKey: string, platform: string = 'web') => {
     const fetchAds = async () => {
       setIsLoadingAds(true);
       try {
-        console.log(`[useAdSlot] 📡 Calling resolveBySlotKeyAction("${slotKey}", "${platform}")...`);
         const response = await resolveBySlotKeyAction(slotKey, platform);
-        console.log(`[useAdSlot] ✅ Got response for "${slotKey}":`, JSON.stringify(response).substring(0, 300));
 
         if (isMounted) {
           if (response.success && response.data) {
@@ -72,7 +69,6 @@ export const useAdSlot = (slotKey: string, platform: string = 'web') => {
             setAllowPlaceholders(parsedAllowPlaceholders);
             setDismissable(parsedDismissable);
             setRotationStrategy(parsedRotationStrategy);
-            console.log(`[useAdSlot] 🟢 Parsed for "${slotKey}": ads=${extractedAds.length}, allowPlaceholders=${parsedAllowPlaceholders}, dismissable=${parsedDismissable}`);
           } else {
             console.warn(`[useAdSlot] 🔴 Response not successful for "${slotKey}":`, response.message);
             setError(response.message || 'No ads returned');
@@ -85,7 +81,6 @@ export const useAdSlot = (slotKey: string, platform: string = 'web') => {
         if (isMounted) setError('An error occurred during fetch');
       } finally {
         if (isMounted) {
-          console.log(`[useAdSlot] 🏁 FINALLY for "${slotKey}" — setting isLoadingAds=false`);
           setIsLoadingAds(false);
         }
         if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -95,7 +90,6 @@ export const useAdSlot = (slotKey: string, platform: string = 'web') => {
     fetchAds();
 
     return () => {
-      console.log(`[useAdSlot] 🧹 CLEANUP for "${slotKey}" — setting isMounted=false`);
       isMounted = false;
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };

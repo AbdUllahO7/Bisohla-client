@@ -71,7 +71,6 @@ const AdSpace: React.FC<AdSpaceProps> = ({
             setIsFetching(true);
             try {
                 const response = await resolveBySlotKeyAction(name, platform);
-                console.log("AdSpace fetchAds response for slot key:", name, "response:", response);
 
                 if (isMounted) {
                     if (response.success && response.data) {
@@ -160,13 +159,11 @@ const AdSpace: React.FC<AdSpaceProps> = ({
         return ads;
     }, [ads, finalRotationStrategy, rrOffset]);
 
-    console.log("AdSpace name:", name, "isLoading:", isLoading, "error:", error, "finalAllowPlaceholders:", finalAllowPlaceholders, "orderedAdsLength:", orderedAds.length, "hasFallback:", !!fallbackContent, "isDismissed:", isDismissed);
 
     if (isDismissed) return null;
 
     // ── Loading state ──────────────────────────────────────────────────────
     if (isLoading) {
-        console.log(`[AdSpace] ⏳ "${name}" → rendering SKELETON (isLoading=true)`);
         return (
             <>
                 {wrapperClassName ? (
@@ -184,20 +181,17 @@ const AdSpace: React.FC<AdSpaceProps> = ({
     if (error || orderedAds.length === 0) {
         // If allowPlaceholders is true, hide the default ads. If false, show them!
         if (finalAllowPlaceholders === true) {
-            console.log(`[AdSpace] 🚫 "${name}" → returning NULL (allowPlaceholders=true)`);
             return null;
         }
 
         // Always show fallback if provided
         if (fallbackContent) {
-            console.log(`[AdSpace] ✅ "${name}" → rendering FALLBACK content`);
             return wrapperClassName
                 ? <div className={`w-full ${wrapperClassName}`} style={style}>{fallbackContent}</div>
                 : <div className={`w-full ${className}`} style={style}>{fallbackContent}</div>;
         }
         // Dev-only debug label for slots with no fallback configured
         if (process.env.NODE_ENV === 'development') {
-            console.log(`[AdSpace] 🔧 "${name}" → rendering DEV debug label`);
             const content = (
                 <div className={`text-[10px] text-gray-300 border border-dashed border-gray-200 p-2 text-center rounded ${className}`}>
                     {error ? `⚠️ Ad Error (${name}): ${error}` : `ℹ️ No Active Ads (${name})`}
