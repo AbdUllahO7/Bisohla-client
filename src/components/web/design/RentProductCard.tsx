@@ -430,9 +430,8 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
 
                 {/* Rent/Sale Badge inside image container */}
                 <span className={`absolute bottom-3 ${isRTL ? 'right-3' : 'left-3'} z-30 px-2.5 py-1 text-[12px] font-bold font-cairo rounded-md shadow-md backdrop-blur-sm transition-all duration-300 ${
-                  isRent
-                    ? 'bg-emerald-600/95 text-white border border-emerald-500/20'
-                    : 'bg-blue-600/95 text-white border border-blue-500/20'
+                  'bg-emerald-600/95 text-white border border-emerald-500/20'
+                   
                 }`}>
                   {badgeText}
                 </span>
