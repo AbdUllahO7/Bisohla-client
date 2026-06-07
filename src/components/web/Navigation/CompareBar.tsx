@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 
 const CompareBar = () => {
   const t = useTranslations('compare');
-  const { compareIds, removeFromCompare, clearCompare } = useCompare();
+  const { compareIds, removeFromCompare, clearCompare, maxCompare } = useCompare();
 
   const { data, isLoading } = useCarListings({
     id: compareIds.length > 0 ? compareIds : [-1],
@@ -46,7 +46,7 @@ const CompareBar = () => {
             <div className="hidden sm:flex items-center gap-2 text-emerald-700 bg-emerald-50 px-3 py-2 rounded-xl mr-2">
               <Scale size={20} />
               <span className="font-bold whitespace-nowrap">
-                {compareIds.length} / 3
+                {compareIds.length} / {maxCompare}
               </span>
             </div>
 

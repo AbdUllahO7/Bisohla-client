@@ -6,6 +6,7 @@ import {
   SEOSettings,
   AppSettings,
   PageSEOData,
+  SettingsData,
 } from '@/core/entities/models/settings/settings.dto';
 import { APP_URL } from '@/core/lib/web/constants';
 
@@ -132,7 +133,7 @@ function getFallback(
  * Extract SEO data from settings with fallbacks
  */
 function extractSEOData(
-  settings: any,
+  settings: SettingsData | null | undefined,
   pageType: WebPageType,
   locale: string,
 ): {
@@ -166,7 +167,7 @@ function extractSEOData(
   };
 
   const seoPageKey = seoPageMap[pageType];
-  const pageSEO = seoSettings[seoPageKey] || {};
+  const pageSEO = (seoSettings as Record<string, PageSEOData | undefined>)[seoPageKey] || {};
   const globalSEO = seoSettings.global_seo || {};
 
   // Extract site info with fallbacks
@@ -203,7 +204,7 @@ export async function generateSettingsBasedMetadata(
   const locale = await getLocale();
   const settings = await fetchSettingsData(locale);
 
-  const { general, seo, app, pageSEO, globalSEO, siteInfo } = extractSEOData(
+  const { pageSEO, globalSEO, siteInfo } = extractSEOData(
     settings,
     pageType,
     locale,
@@ -280,7 +281,7 @@ export async function generateSettingsBasedMetadata(
 
     // Twitter Card
     twitter: {
-      card: (globalSEO.twitter_card_type as any) || 'summary_large_image',
+      card: (globalSEO.twitter_card_type as 'summary' | 'summary_large_image' | 'app' | 'player') || 'summary_large_image',
       title: pageSEO.twitter_title || pageTitle,
       description: pageSEO.twitter_description || pageDescription,
       images: [twitterImage],
@@ -388,12 +389,12 @@ export async function generateSettingsBasedMetadata(
  */
 export async function generateSettingsBasedStructuredData(
   pageType: WebPageType = 'home',
-  customData?: Record<string, any>,
+  customData?: Record<string, unknown> | Array<Record<string, unknown>>,
 ) {
   const locale = await getLocale();
   const settings = await fetchSettingsData(locale);
 
-  const { general, seo, app, pageSEO, globalSEO, siteInfo } = extractSEOData(
+  const { general, globalSEO, siteInfo } = extractSEOData(
     settings,
     pageType,
     locale,
@@ -404,7 +405,10 @@ export async function generateSettingsBasedStructuredData(
   const contactEmail = general.contact_info?.email || DEFAULT_FALLBACKS.email;
   const contactPhone = general.contact_info?.phone || DEFAULT_FALLBACKS.phone;
 
-  const structuredData = {
+  const structuredData: {
+    '@context': string;
+    '@graph': unknown[];
+  } = {
     '@context': 'https://schema.org',
     '@graph': [
       {
@@ -459,9 +463,13 @@ export async function generateSettingsBasedStructuredData(
   };
 
   // Add custom structured data if provided
-  // if (customData) {
-  //   structuredData['@graph'].push(customData);
-  // }
+  if (customData) {
+    if (Array.isArray(customData)) {
+      structuredData['@graph'].push(...customData);
+    } else {
+      structuredData['@graph'].push(customData);
+    }
+  }
 
   return structuredData;
 }
@@ -500,7 +508,7 @@ export async function generateProductMetadata(
   const locale = await getLocale();
   const settings = await fetchSettingsData(locale);
 
-  const { general, seo, app, pageSEO, globalSEO, siteInfo } = extractSEOData(
+  const { globalSEO, siteInfo } = extractSEOData(
     settings,
     'product_detail',
     locale,
@@ -560,7 +568,7 @@ export async function generateProductMetadata(
 
     // Twitter Card - use product data
     twitter: {
-      card: (globalSEO.twitter_card_type as any) || 'summary_large_image',
+      card: (globalSEO.twitter_card_type as 'summary' | 'summary_large_image' | 'app' | 'player') || 'summary_large_image',
       title: pageTitle, // Use product title directly
       description: pageDescription, // Use product description directly
       images: [twitterImage],
@@ -675,7 +683,7 @@ export async function generateNewsMetadata(
   const locale = await getLocale();
   const settings = await fetchSettingsData(locale);
 
-  const { general, seo, app, pageSEO, globalSEO, siteInfo } = extractSEOData(
+  const { globalSEO, siteInfo } = extractSEOData(
     settings,
     'news_detail',
     locale,
@@ -739,7 +747,7 @@ export async function generateNewsMetadata(
 
     // Twitter Card - use article data
     twitter: {
-      card: (globalSEO.twitter_card_type as any) || 'summary_large_image',
+      card: (globalSEO.twitter_card_type as 'summary' | 'summary_large_image' | 'app' | 'player') || 'summary_large_image',
       title: pageTitle,
       description: pageDescription,
       images: [twitterImage],
@@ -853,7 +861,7 @@ export async function generateProfileMetadata(
   const locale = await getLocale();
   const settings = await fetchSettingsData(locale);
 
-  const { general, seo, app, pageSEO, globalSEO, siteInfo } = extractSEOData(
+  const { globalSEO, siteInfo } = extractSEOData(
     settings,
     'user_profile',
     locale,

@@ -1,13 +1,10 @@
 'use client';
 
 import { ApiResponse } from '@/core/entities/api/success.response';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocale } from 'next-intl';
 import { getPublicSettings } from '../../actions/settings/settings.actions';
 import {
   Settings,
-  SettingsVersion,
-  PageSEOData,
 } from '@/core/entities/models/settings/settings.dto';
 import { useLocaleQuery } from '../common/use-locale-query';
 
@@ -19,7 +16,6 @@ const SETTINGS_CACHE_TIME = 60 * 60 * 1000;
  */
 export const usePublicSettings = () => {
   const locale = useLocale();
-  const queryClient = useQueryClient();
 
   return useLocaleQuery<ApiResponse<Settings>, Error>({
     queryKey: ['settings', 'public', locale],
@@ -42,16 +38,28 @@ export const usePublicSettings = () => {
 /**
  * Simple hook to get any setting by path
  */
-export const useSetting = (path: string, defaultValue: any = null) => {
+export const useSetting = (path: string, defaultValue: unknown = null): unknown => {
   const { data: settingsResponse } = usePublicSettings();
+  const locale = useLocale();
 
   if (!settingsResponse?.success || !settingsResponse.data) {
     return defaultValue;
   }
 
+  const localeSettings = settingsResponse.data[locale];
+  if (!localeSettings) {
+    return defaultValue;
+  }
+
   const value = path
     .split('.')
-    .reduce((obj: any, key: string) => obj?.[key], settingsResponse.data);
+    .reduce((obj: unknown, key: string) => {
+      if (obj && typeof obj === 'object') {
+        return (obj as Record<string, unknown>)[key];
+      }
+      return undefined;
+    }, localeSettings);
 
   return value !== undefined ? value : defaultValue;
 };
+

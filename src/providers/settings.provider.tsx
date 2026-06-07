@@ -14,6 +14,7 @@ import {
   SettingsSubKey,
   SettingsField,
   SettingsFieldValue,
+  ListingsSettings,
 } from '@/core/entities/models/settings/settings.dto';
 
 interface SettingsContextType {
@@ -39,6 +40,7 @@ interface SettingsContextType {
   getAppSettings: () => AppSettings | undefined;
   getSEOSettings: () => SEOSettings | undefined;
   getThirdPartyIntegrations: () => ThirdPartyIntegrations | undefined;
+  getListingsSettings: () => ListingsSettings | undefined;
 
   // Specific commonly-used settings
   getLogo: () => string;
@@ -96,6 +98,7 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
   const getAppSettings = () => settings.app_settings;
   const getSEOSettings = () => settings.seo_settings;
   const getThirdPartyIntegrations = () => settings.third_party_integrations;
+  const getListingsSettings = () => settings.listings_settings;
 
   // Specific getters
   const getSocialLinks = () => settings.general?.social_links;
@@ -131,6 +134,7 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
     getAppSettings,
     getSEOSettings,
     getThirdPartyIntegrations,
+    getListingsSettings,
     getLogo,
     getCopyrightMessage,
     getSocialLinks,

@@ -4,6 +4,7 @@ import Text from "@/components/ui/text";
 import ImageUploader from "@/components/image-uploader/image-uploader";
 import { CarPhotosSectionProps } from "./types";
 import { useLocale } from "next-intl";
+import { useSettings } from "@/providers/settings.provider";
 import { 
   Camera, 
   Sun, 
@@ -33,6 +34,13 @@ const CarPhotosSection: React.FC<CarPhotosSectionProps> = ({
   const locale = useLocale();
   const isRTL = locale === "ar";
   const [showTips, setShowTips] = useState(true);
+
+  const { getListingsSettings } = useSettings();
+  const listingsSettings = getListingsSettings();
+
+  const minImages = listingsSettings?.images?.min_images_per_listing ?? 5;
+  const maxImages = listingsSettings?.images?.max_images_per_listing ?? 15;
+  const maxImageSizeMb = listingsSettings?.images?.max_image_size_mb ?? 10;
 
   const photoTips = {
     en: {
@@ -257,7 +265,10 @@ const CarPhotosSection: React.FC<CarPhotosSectionProps> = ({
           "text-sm text-gray-500 mb-3",
           isRTL && "text-right"
         )}>
-          {labels.oneImage}
+          {isRTL
+            ? `يرجى تحميل ما بين ${minImages} و ${maxImages} صور (الحد الأقصى للحجم: ${maxImageSizeMb} ميجابايت لكل صورة)`
+            : `Please upload between ${minImages} and ${maxImages} images (max size: ${maxImageSizeMb}MB per image)`
+          }
         </Text>
         
         {/* Quick Tips Below Uploader */}
@@ -276,7 +287,8 @@ const CarPhotosSection: React.FC<CarPhotosSectionProps> = ({
 
         <ImageUploader
           ref={coverImageRef}
-          maxImages={20}
+          maxImages={maxImages}
+          maxSizeInMB={maxImageSizeMb}
           onChange={onCoverImageChange}
           setDisableForm={setIsFormDisabled}
           value={coverImage}

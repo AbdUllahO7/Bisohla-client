@@ -15,7 +15,7 @@ interface CompareTableProps {
 const CompareTable: React.FC<CompareTableProps> = ({ cars }) => {
   const t = useTranslations('compare');
   const tHome = useTranslations('homePage');
-  const { removeFromCompare } = useCompare();
+  const { removeFromCompare, maxCompare } = useCompare();
 
   const specRows = [
     { key: 'price', label: t('price'), getValue: (car: any) => `${car.price} ${car.currency}` },
@@ -59,8 +59,8 @@ const CompareTable: React.FC<CompareTableProps> = ({ cars }) => {
                 </Link>
               </th>
             ))}
-            {/* Empty slots if less than 3 cars */}
-            {Array.from({ length: Math.max(0, 3 - cars.length) }).map((_, i) => (
+            {/* Empty slots if less than maxCompare cars */}
+            {Array.from({ length: Math.max(0, maxCompare - cars.length) }).map((_, i) => (
               <th key={`empty-${i}`} className="p-6 w-1/4">
                 <div className="aspect-[4/3] rounded-2xl bg-gray-50 border-2 border-dashed border-gray-200 flex flex-col items-center justify-center text-gray-400 gap-2">
                   <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm">
@@ -90,7 +90,7 @@ const CompareTable: React.FC<CompareTableProps> = ({ cars }) => {
                   )}
                 </td>
               ))}
-              {Array.from({ length: Math.max(0, 3 - cars.length) }).map((_, i) => (
+              {Array.from({ length: Math.max(0, maxCompare - cars.length) }).map((_, i) => (
                 <td key={`empty-cell-${i}`} className="p-6"></td>
               ))}
             </tr>
