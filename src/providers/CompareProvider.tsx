@@ -3,9 +3,11 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { toast } from '@/hooks/use-toast';
 import { useTranslations } from 'next-intl';
+import { useSettings } from '@/providers/settings.provider';
 
 interface CompareContextType {
   compareIds: number[];
+  maxCompare: number;
   addToCompare: (id: number | string) => void;
   removeFromCompare: (id: number | string) => void;
   clearCompare: () => void;
@@ -14,13 +16,15 @@ interface CompareContextType {
 
 const CompareContext = createContext<CompareContextType | undefined>(undefined);
 
-const MAX_COMPARE = 3;
 const STORAGE_KEY = 'bishola-compare-ids';
 
 export const CompareProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [compareIds, setCompareIds] = useState<number[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const t = useTranslations('compare');
+  const { getListingsSettings } = useSettings();
+  const listingsSettings = getListingsSettings();
+  const maxCompare = listingsSettings?.display?.compare_max_count ?? 3;
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -46,17 +50,17 @@ export const CompareProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const numericId = Number(id);
     setCompareIds((prev) => {
       if (prev.includes(numericId)) return prev;
-      if (prev.length >= MAX_COMPARE) {
+      if (prev.length >= maxCompare) {
         toast({
           title: t('limitReachedTitle'),
-          description: t('limitReachedDesc', { max: MAX_COMPARE }),
+          description: t('limitReachedDesc', { max: maxCompare }),
           variant: 'destructive',
         });
         return prev;
       }
       return [...prev, numericId];
     });
-  }, [t]);
+  }, [t, maxCompare]);
 
   const removeFromCompare = useCallback((id: number | string) => {
     const numericId = Number(id);
@@ -75,6 +79,7 @@ export const CompareProvider: React.FC<{ children: React.ReactNode }> = ({ child
     <CompareContext.Provider
       value={{
         compareIds,
+        maxCompare,
         addToCompare,
         removeFromCompare,
         clearCompare,

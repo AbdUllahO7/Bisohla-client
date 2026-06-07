@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Tabs } from "@/components/ui/tabs";
 import { useLocale } from 'next-intl';
+import { useSettings } from '@/providers/settings.provider';
 
 // Import components
 import { getRequiredFieldsMessage, getErrorDialogTexts } from './utils';
@@ -31,6 +32,10 @@ const Steps: React.FC<StepsProps> = ({ isEditMode = false, carId, initialData })
   const locale = useLocale();
   const direction = locale === 'ar' ? 'rtl' : 'ltr';
   const isArabic = direction === 'rtl';
+
+  const { getListingsSettings } = useSettings();
+  const listingsSettings = getListingsSettings();
+  const minImages = listingsSettings?.images?.min_images_per_listing ?? 5;
   
   // Add state for step four validation
   const [stepFourIsValid, setStepFourIsValid] = useState(false);
@@ -103,7 +108,7 @@ const Steps: React.FC<StepsProps> = ({ isEditMode = false, carId, initialData })
     if (isEditMode && initialData?.images) {
       const imageUrls = initialData.images.map((img: any) => typeof img === 'string' ? img : img.url);
       setPhotos(imageUrls);
-      updateStepValidation('carPhotos', imageUrls.length > 0);
+      updateStepValidation('carPhotos', imageUrls.length >= minImages);
     } else {
       const storageKey = getStorageKey('STEP_THREE', isEditMode);
       const savedPhotos = localStorage.getItem(storageKey); // Photos were step 3 in old design
@@ -112,14 +117,14 @@ const Steps: React.FC<StepsProps> = ({ isEditMode = false, carId, initialData })
           const parsed = JSON.parse(savedPhotos);
           if (Array.isArray(parsed.coverImage)) {
             setPhotos(parsed.coverImage);
-            updateStepValidation('carPhotos', parsed.coverImage.length > 0);
+            updateStepValidation('carPhotos', parsed.coverImage.length >= minImages);
           }
         } catch (e) {
           console.error("Failed to parse saved photos", e);
         }
       }
     }
-  }, [isEditMode, initialData, updateStepValidation]);
+  }, [isEditMode, initialData, updateStepValidation, minImages]);
 
   // Save photos to localStorage whenever they change
   useEffect(() => {
@@ -374,13 +379,13 @@ const Steps: React.FC<StepsProps> = ({ isEditMode = false, carId, initialData })
                   handleNext={handleNext} 
                   direction={direction} 
                   step="carPhotos"
-                  isNextDisabled={photos.length === 0 || isSubmitting}
+                  isNextDisabled={photos.length < minImages || isSubmitting}
                   requiredFieldsMessage={requiredFieldsMessage}
                 >
                   <CarPhotosSection 
                     labels={{
                       coverImage: isArabic ? "صور الإعلان" : "Photos",
-                      oneImage: isArabic ? "يمكنك إدخال 20 صور" : "You can enter 20 images",
+                      oneImage: isArabic ? `يمكنك إدخال ${minImages} صور` : `You can enter ${minImages} images`,
                       tenImages: "",
                       tenFiles: ""
                     }}
@@ -388,7 +393,7 @@ const Steps: React.FC<StepsProps> = ({ isEditMode = false, carId, initialData })
                     coverImage={photos}
                     onCoverImageChange={(newPhotos) => {
                       setPhotos(newPhotos);
-                      const isValid = newPhotos.length > 0;
+                      const isValid = newPhotos.length >= minImages;
                       setPhotoValidation(isValid);
                       updateStepValidation('carPhotos', isValid);
                     }}
