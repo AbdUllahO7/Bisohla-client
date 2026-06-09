@@ -15,6 +15,7 @@ import {
   Hash,
   ChevronDown,
   ChevronUp,
+  Palette,
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
@@ -82,6 +83,21 @@ const CarDetailsContent: React.FC<CarDetailsContentProps> = ({
       label: t('enginePower'),
       value: data?.details?.enginePower || '-',
       icon: <Settings className="w-4 h-4" />,
+    },
+    {
+      label: t('doors'),
+      value: data?.details?.doors || '-',
+      icon: <Hash className="w-4 h-4" />,
+    },
+    {
+      label: t('colorExterior'),
+      value: data?.details?.colorExterior || '-',
+      icon: <Palette className="w-4 h-4" />,
+    },
+    {
+      label: t('colorInterior'),
+      value: data?.details?.colorInterior || '-',
+      icon: <Palette className="w-4 h-4" />,
     },
     {
       label: t('plateNumber'),

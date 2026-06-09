@@ -83,7 +83,7 @@ export const useDynamicForm = (
       if (editValue !== undefined && editValue !== null) {
         initial[attr.slug] = editValue;
       } else {
-        initial[attr.slug] = attr.type === 'repeating_group' ? [] : '';
+        initial[attr.slug] = (attr.type === 'repeating_group' || attr.type === 'color_multi_selection') ? [] : '';
       }
     });
 

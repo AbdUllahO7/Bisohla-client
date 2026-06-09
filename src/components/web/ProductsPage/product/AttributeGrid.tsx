@@ -14,6 +14,7 @@ import {
   List,
   BookOpen,
   Tag,
+  Palette,
 } from 'lucide-react';
 
 interface AttributeGridProps {
@@ -30,11 +31,16 @@ const getAttributeIcon = (type: string) => {
     case 'boolean':
       return <ToggleLeft className="w-4 h-4" />;
     case 'date':
+    case 'year':
       return <Calendar className="w-4 h-4" />;
     case 'select':
       return <List className="w-4 h-4" />;
     case 'reference':
       return <BookOpen className="w-4 h-4" />;
+    case 'color_picker':
+    case 'color_selection':
+    case 'color_multi_selection':
+      return <Palette className="w-4 h-4" />;
     case 'text':
     default:
       return <Type className="w-4 h-4" />;

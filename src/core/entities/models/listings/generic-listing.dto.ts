@@ -22,7 +22,7 @@ export interface GenericAttributeReferenceItem {
 export interface GenericAttributeMeta {
   id: number;
   slug: string;
-  type: 'text' | 'number' | 'boolean' | 'date' | 'select' | 'reference';
+  type: 'text' | 'number' | 'boolean' | 'date' | 'select' | 'reference' | 'year' | 'color_picker' | 'color_selection' | 'color_multi_selection';
   name: string;
   hint?: string | null;
   options?: GenericAttributeOption[] | null;
