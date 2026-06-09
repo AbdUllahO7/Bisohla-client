@@ -1,5 +1,13 @@
 import { SelectCarListingDto } from '@/core/entities/models/cars/cars.dto';
 import { GenericAttributeValue } from '@/core/entities/models/listings/generic-listing.dto';
+import arMessages from '@/messages/ar.json';
+import enMessages from '@/messages/en.json';
+
+const getColorLabel = (colorKey: string, locale: string): string => {
+  const messages = locale === 'ar' ? arMessages : enMessages;
+  const options = (messages as any).addProduct?.enteredData?.stepTwo?.color?.options || {};
+  return options[colorKey] || colorKey;
+};
 
 /**
  * Resolves a raw GenericAttributeValue into a human-readable display string.
@@ -15,11 +23,46 @@ export const resolveAttributeValue = (
     case 'reference':
       return referenceItem?.name || '';
 
-    case 'select': {
+    case 'select':
+    case 'color_selection': {
       if (!valueText) return '';
       const option = attribute.options?.find((o) => o.id === valueText);
       if (option) return option.label[locale as 'ar' | 'en'] || option.label.en || valueText;
+      if (attribute.type === 'color_selection') {
+        return getColorLabel(valueText, locale);
+      }
       return valueText;
+    }
+
+    case 'color_picker':
+      return valueText || '';
+
+    case 'color_multi_selection': {
+      let ids: string[] = [];
+      if (Array.isArray(valueJson)) {
+        ids = valueJson;
+      } else if (typeof valueText === 'string') {
+        try {
+          const parsed = JSON.parse(valueText);
+          if (Array.isArray(parsed)) ids = parsed;
+          else ids = [valueText];
+        } catch {
+          ids = valueText.split(',').map(s => s.trim());
+        }
+      }
+      if (ids.length === 0) return '';
+      const labels = ids.map(id => {
+        const option = attribute.options?.find((o) => o.id === id);
+        if (option) return option.label[locale as 'ar' | 'en'] || option.label.en || id;
+        return getColorLabel(id, locale);
+      });
+      return labels.join(', ');
+    }
+
+    case 'year': {
+      if (valueNumber !== null && valueNumber !== undefined) return valueNumber.toString();
+      if (valueText) return valueText;
+      return '';
     }
 
     case 'number': {
@@ -50,7 +93,7 @@ export const resolveAttributeValue = (
           year: 'numeric',
           month: 'short',
           day: 'numeric',
-        });
+          });
       } catch {
         return rawValue;
       }
@@ -208,7 +251,8 @@ export const normalizeListingToCarDto = (listing: any, locale: string = 'en'): S
       enginePower: enginePowerAttr?.valueNumber ? Number(enginePowerAttr.valueNumber) : null,
       bodyType: normalizeValue(bodyTypeAttr?.valueText),
       doors: doorsAttr?.valueNumber ? doorsAttr.valueNumber.toString() : null,
-      colorExterior: normalizeValue(colorExteriorAttr?.valueText),
+      colorExterior: colorExteriorAttr ? resolveAttributeValue(colorExteriorAttr, locale) : null,
+      colorInterior: colorInteriorAttr ? resolveAttributeValue(colorInteriorAttr, locale) : null,
       vin: vinAttr?.valueText,
       plateNumber: plateNumberAttr?.valueText,
       condition: listing.condition,

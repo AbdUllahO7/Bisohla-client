@@ -41,7 +41,7 @@ const buildAttributeValue = (
   }
 
   // Numbers → valueNumber
-  if (type === 'number' || type === 'integer') {
+  if (type === 'number' || type === 'integer' || type === 'year') {
     const num = Number(rawValue);
     if (isNaN(num)) return { ...base, valueText: String(rawValue) };
     return { ...base, valueNumber: num };

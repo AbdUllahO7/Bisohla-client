@@ -722,6 +722,8 @@
       "plateNumber": "plate Number",
       "mileage": "mile Age",
       "doors": "Doors",
+      "colorExterior": "Exterior Color",
+      "colorInterior": "Interior Color",
       "vin": "vin"
     }
   },

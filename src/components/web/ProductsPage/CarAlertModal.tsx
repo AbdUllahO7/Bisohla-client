@@ -196,7 +196,7 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
             if (value !== undefined && value !== null && value !== '') {
               // Convert to number if it's a reference or a number type
               const type = attr.type.toLowerCase();
-              if (type === 'reference' || type === 'number') {
+              if (type === 'reference' || type === 'number' || type === 'year') {
                 payload.attributeFilters[attr.slug] = Number(value);
               } else {
                 payload.attributeFilters[attr.slug] = value;
@@ -299,7 +299,61 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
       );
     }
 
-    if (type === 'select' || type === 'dropdown') {
+    if (type === 'year') {
+      const minYear = attr.validationRules?.min || 1950;
+      const maxYear = attr.validationRules?.max || new Date().getFullYear() + 1;
+      const yearOptions = [];
+      for (let y = maxYear; y >= minYear; y--) {
+        yearOptions.push({ value: y.toString(), label: y.toString() });
+      }
+      return (
+        <div key={attr.id} className="space-y-1">
+          {labelElement}
+          <Select
+            value={formData[attr.slug]?.toString() || ''}
+            onValueChange={(val) => handleChange(attr.slug, val)}
+          >
+            <SelectTrigger className="h-10 border-slate-200 rounded-lg focus:ring-primary/20">
+              <SelectValue placeholder={isArabic ? `اختر ${label}` : `Select ${label}`} />
+            </SelectTrigger>
+            <SelectContent className="bg-white">
+              {yearOptions.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      );
+    }
+
+    if (type === 'color_picker') {
+      const val = formData[attr.slug] || '';
+      return (
+        <div key={attr.id} className="space-y-1">
+          {labelElement}
+          <div className="flex items-center gap-2">
+            <input
+              type="color"
+              value={val || '#000000'}
+              onChange={(e) => handleChange(attr.slug, e.target.value)}
+              className="w-10 h-10 border border-slate-200 rounded-lg cursor-pointer p-0.5 bg-white shadow-sm"
+            />
+            <Input
+              type="text"
+              placeholder="#000000"
+              value={val}
+              onChange={(e) => handleChange(attr.slug, e.target.value)}
+              className="h-10 border-slate-200 rounded-lg focus:ring-primary/20 font-mono"
+              dir="ltr"
+            />
+          </div>
+        </div>
+      );
+    }
+
+    if (type === 'select' || type === 'dropdown' || type === 'color_selection' || type === 'color_multi_selection') {
       const options = Array.isArray(attr.options) ? attr.options : [];
       return (
         <div key={attr.id} className="space-y-1">
@@ -314,7 +368,7 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
             <SelectContent className="bg-white">
               {options.map((opt: any) => (
                 <SelectItem key={opt.id || opt.value || opt} value={(opt.id || opt.value || opt).toString()}>
-                  {getTranslation(opt.name || opt.label || opt)}
+                  {getTranslation(opt.label || opt.name || opt)}
                 </SelectItem>
               ))}
             </SelectContent>

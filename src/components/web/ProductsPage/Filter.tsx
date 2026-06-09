@@ -48,6 +48,7 @@ import { useToast } from '@/hooks/use-toast';
 import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions';
 import CarAlertModal from './CarAlertModal';
 import { getCityOptions } from './addProducts/StepOne/utils';
+import { cn } from '@/lib/utils';
 
 // Types for components
 interface FilterOptionDropdownProps {
@@ -638,20 +639,77 @@ const FilterContent = React.memo(
                           const attrName = attr.translations.find((t: any) => t.locale === locale)?.name || attr.name;
 
                           // Handle different attribute types
-                          if (attr.type === 'select') {
+                          if (attr.type === 'select' || attr.type === 'color_selection' || attr.type === 'color_multi_selection') {
+                            const options = Array.isArray(attr.options) ? attr.options : [];
                             return (
                               <FilterOptionDropdown
                                 key={attr.id}
                                 title={attrName}
-                                options={attr.options.map((opt: any) => ({
+                                options={options.map((opt: any) => ({
                                   value: opt.id,
-                                  label: opt.label[locale] || opt.label['en'] || opt.id
+                                  label: (opt.label ? (opt.label[locale] || opt.label['en']) : null) || opt.name || opt.id
                                 }))}
                                 placeholder={attrName}
                                 onChange={(name, value) => updateAttribute(attr.slug, value)}
                                 value={filters.attributes[attr.slug]}
                                 name={attr.slug}
                               />
+                            );
+                          }
+
+                          if (attr.type === 'year') {
+                            const minYear = attr.validationRules?.min || 1950;
+                            const maxYear = attr.validationRules?.max || new Date().getFullYear() + 1;
+                            const yearOptions = [];
+                            for (let y = maxYear; y >= minYear; y--) {
+                              yearOptions.push({ value: y.toString(), label: y.toString() });
+                            }
+                            return (
+                              <FilterOptionDropdown
+                                key={attr.id}
+                                title={attrName}
+                                options={yearOptions}
+                                placeholder={attrName}
+                                onChange={(name, value) => updateAttribute(attr.slug, value)}
+                                value={filters.attributes[attr.slug]}
+                                name={attr.slug}
+                              />
+                            );
+                          }
+
+                          if (attr.type === 'color_picker') {
+                            const value = filters.attributes[attr.slug] || '';
+                            return (
+                              <div key={attr.id} className="mb-4">
+                                <Label className="text-sm font-medium text-slate-700 mb-2 block">
+                                  {attrName}
+                                </Label>
+                                <div className="flex items-center gap-2">
+                                  <input
+                                    type="color"
+                                    value={value || '#000000'}
+                                    onChange={(e) => updateAttribute(attr.slug, e.target.value)}
+                                    className="w-10 h-10 border border-slate-200 rounded-lg cursor-pointer p-0.5 bg-white shadow-sm"
+                                  />
+                                  <input
+                                    type="text"
+                                    className="flex h-10 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all font-mono"
+                                    placeholder="#000000"
+                                    value={value}
+                                    onChange={(e) => updateAttribute(attr.slug, e.target.value)}
+                                    dir="ltr"
+                                  />
+                                  {value && (
+                                    <button
+                                      type="button"
+                                      onClick={() => updateAttribute(attr.slug, '')}
+                                      className="p-2 text-slate-400 hover:text-slate-600"
+                                    >
+                                      <X size={16} />
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
                             );
                           }
 

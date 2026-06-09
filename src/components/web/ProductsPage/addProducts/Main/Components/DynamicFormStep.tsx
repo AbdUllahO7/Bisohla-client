@@ -206,11 +206,12 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
 
   // Helper to detect if a field should be rendered as a calendar
   const isDateLike = (attr: any) => {
+    if (attr.type === 'year') return false;
     if (attr.type === 'date') return true;
     const name = (getTranslation(attr.name) || "").toLowerCase();
     const slug = (attr.slug || "").toLowerCase();
     const dateNames = ['date', 'year', 'سنة', 'تاريخ'];
-    return dateNames.some(d => name.includes(d) || slug.includes(d));
+    return dateNames.some(d => name.includes(d) || slug.includes(d)) && attr.type !== 'number';
   };
 
   const shouldShowField = (attr: any) => {
@@ -366,17 +367,66 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
 
                   {/* Field Rendering */}
                   {(() => {
+                    if (type === 'color_picker') {
+                      return (
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="color"
+                            value={formData[attr.slug] || '#000000'}
+                            onChange={(e) => handleFieldChange(attr.slug, e.target.value)}
+                            className="w-12 h-11 border border-gray-300 rounded-xl cursor-pointer p-1 bg-white shadow-sm"
+                          />
+                          <Input
+                            type="text"
+                            placeholder="#000000"
+                            value={formData[attr.slug] || ''}
+                            onChange={(e) => handleFieldChange(attr.slug, e.target.value)}
+                            className={cn("h-11 border-gray-300 focus:border-[#198341] transition-all font-mono", isArabic && "text-right")}
+                            dir="ltr"
+                          />
+                        </div>
+                      );
+                    }
+
+                    if (type === 'year') {
+                      const minYear = attr.validationRules?.min || 1950;
+                      const maxYear = attr.validationRules?.max || new Date().getFullYear() + 1;
+                      const yearOptions = [];
+                      for (let y = maxYear; y >= minYear; y--) {
+                        yearOptions.push({ value: y.toString(), label: y.toString() });
+                      }
+                      return (
+                        <SelectFieldWithSearch
+                          name={attr.slug}
+                          options={yearOptions}
+                          value={formData[attr.slug]?.toString() || ""}
+                          onChange={(name, val) => handleFieldChange(name, val)}
+                          placeholder={getTranslation(attr.hint || attr.name)}
+                          searchPlaceholder={isArabic ? `بحث في ${getTranslation(attr.name)}...` : `Search ${getTranslation(attr.name)}...`}
+                          emptyMessage={isArabic ? "لا توجد نتائج" : "No results found"}
+                          isRtl={isArabic}
+                          SelectTriggerStyle="h-11 border-gray-300 focus:border-[#198341]"
+                        />
+                      );
+                    }
+
                     // Force color fields to be SelectFieldWithSearch even if API type is 'text'
-                    if (isColorField || type === 'select' || type === 'dropdown') {
+                    if ((isColorField && type !== 'color_picker') || type === 'select' || type === 'dropdown' || type === 'color_selection' || type === 'color_multi_selection') {
+                      const fixedOptions = Array.isArray(attr.options) ? attr.options : [];
+                      const fetchedOptions = referenceOptions[attr.id] || [];
                       let combinedOptions: any[] = [];
-                      if (isColorField) {
+
+                      if (isColorField && fixedOptions.length === 0 && fetchedOptions.length === 0) {
+                        combinedOptions = getColorOptions(t).map(opt => ({
+                          value: opt.value,
+                          label: opt.label
+                        }));
+                      } else if (isColorField && type !== 'color_selection' && type !== 'color_multi_selection') {
                         combinedOptions = getColorOptions(t).map(opt => ({
                           value: opt.value,
                           label: opt.label
                         }));
                       } else {
-                        const fixedOptions = Array.isArray(attr.options) ? attr.options : [];
-                        const fetchedOptions = referenceOptions[attr.id] || [];
                         combinedOptions = [
                           ...fixedOptions.map((opt: any) => ({
                             value: (opt.id || opt.value || opt).toString(),
@@ -389,17 +439,23 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
                         ];
                       }
 
+                      const isMulti = type === 'color_multi_selection';
+
                       return (
                         <SelectFieldWithSearch
                           name={attr.slug}
                           options={combinedOptions}
-                          value={formData[attr.slug]?.toString() || ""}
+                          value={isMulti
+                            ? (Array.isArray(formData[attr.slug]) ? formData[attr.slug] : (formData[attr.slug] ? [formData[attr.slug].toString()] : []))
+                            : (formData[attr.slug]?.toString() || "")
+                          }
                           onChange={(name, val) => handleFieldChange(name, val)}
                           placeholder={getTranslation(attr.hint || attr.name)}
                           searchPlaceholder={isArabic ? `بحث في ${getTranslation(attr.name)}...` : `Search ${getTranslation(attr.name)}...`}
                           emptyMessage={isArabic ? "لا توجد نتائج" : "No results found"}
                           isRtl={isArabic}
                           SelectTriggerStyle="h-11 border-gray-300 focus:border-[#198341]"
+                          isMulti={isMulti}
                         />
                       );
                     }
@@ -529,8 +585,23 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
                 .filter(a => a.type === 'multi_select' && shouldShowField(a))
                 .sort((a, b) => a.order - b.order)
                 .map((attr) => {
-                  const options = Array.isArray(attr.options) ? attr.options : [];
+                  const fixedOptions = Array.isArray(attr.options) ? attr.options : [];
+                  const fetchedOptions = referenceOptions[attr.id] || [];
+                  let options = [
+                    ...fixedOptions,
+                    ...fetchedOptions
+                  ];
                   const selectedValues = Array.isArray(formData[attr.slug]) ? formData[attr.slug] : [];
+
+                  const isColorField = (attr.slug || "").toLowerCase().includes('color') || (attr.slug || "").toLowerCase().includes('لون');
+                  if (isColorField && options.length === 0) {
+                    options = getColorOptions(t).map(opt => ({
+                      id: opt.value,
+                      name: opt.label,
+                      color: opt.hex
+                    }));
+                  }
+                  
                   const progress = options.length > 0 ? (selectedValues.length / options.length) * 100 : 0;
                   
                   return (
@@ -557,6 +628,21 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
                           const optionId = (option.id || option.value || option).toString();
                           const isChecked = selectedValues.includes(optionId);
                           
+                          let colorVal = option.color;
+                          if (!colorVal && option.metadata) {
+                            if (typeof option.metadata === 'object') {
+                              colorVal = option.metadata.color;
+                            } else if (typeof option.metadata === 'string') {
+                              try {
+                                const parsed = JSON.parse(option.metadata);
+                                colorVal = parsed?.color;
+                              } catch (e) {
+                                // ignore
+                              }
+                            }
+                          }
+                          const hasColor = !!colorVal;
+                          
                           return (
                             <div 
                               key={optionId} 
@@ -577,7 +663,13 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
                                   }}
                                   className="data-[state=checked]:bg-[#198341] data-[state=checked]:border-[#198341] w-5 h-5 rounded"
                                 />
-                                <Label htmlFor={`attr-${attr.id}-${optionId}`} className="text-sm font-medium text-gray-600 cursor-pointer">
+                                <Label htmlFor={`attr-${attr.id}-${optionId}`} className="text-sm font-medium text-gray-600 cursor-pointer flex items-center gap-2">
+                                  {hasColor && (
+                                    <span 
+                                      className="w-3.5 h-3.5 rounded-full border border-gray-300 shadow-sm"
+                                      style={{ backgroundColor: colorVal }}
+                                    />
+                                  )}
                                   {getTranslation(option.name || option.label || option)}
                                 </Label>
                               </div>

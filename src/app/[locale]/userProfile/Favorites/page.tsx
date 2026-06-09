@@ -507,7 +507,7 @@ const UserFavoritesEnhanced = () => {
                               <SelectTrigger className="w-full">
                                 <SelectValue placeholder={attrName} />
                               </SelectTrigger>
-                              <SelectContent>
+                              <SelectContent className="bg-white">
                                 <SelectItem value="all">{t('filters.all') || 'All'}</SelectItem>
                                 {attr.options.map((opt: any) => (
                                   <SelectItem key={String(opt.id)} value={String(opt.id)}>
@@ -516,6 +516,96 @@ const UserFavoritesEnhanced = () => {
                                 ))}
                               </SelectContent>
                             </Select>
+                          </div>
+                        );
+                      }
+
+                      if (attr.type === 'year') {
+                        const minYear = attr.validationRules?.min || 1950;
+                        const maxYear = attr.validationRules?.max || new Date().getFullYear() + 1;
+                        const yearOptions = [];
+                        for (let y = maxYear; y >= minYear; y--) {
+                          yearOptions.push(y.toString());
+                        }
+                        return (
+                          <div key={attr.id} className="space-y-2">
+                            <label className="text-sm font-medium text-muted-foreground">{attrName}</label>
+                            <Select
+                              value={dynamicAttributes[attr.slug] ? String(dynamicAttributes[attr.slug]) : "all"}
+                              onValueChange={(value) => updateAttribute(attr.slug, value === "all" ? undefined : value)}
+                            >
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder={attrName} />
+                              </SelectTrigger>
+                              <SelectContent className="bg-white">
+                                <SelectItem value="all">{t('filters.all') || 'All'}</SelectItem>
+                                {yearOptions.map((y) => (
+                                  <SelectItem key={y} value={y}>
+                                    {y}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        );
+                      }
+
+                      if (attr.type === 'color_selection' || attr.type === 'color_multi_selection') {
+                        const options = attr.options || [];
+                        return (
+                          <div key={attr.id} className="space-y-2">
+                            <label className="text-sm font-medium text-muted-foreground">{attrName}</label>
+                            <Select
+                              value={dynamicAttributes[attr.slug] ? String(dynamicAttributes[attr.slug]) : "all"}
+                              onValueChange={(value) => updateAttribute(attr.slug, value === "all" ? undefined : value)}
+                            >
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder={attrName} />
+                              </SelectTrigger>
+                              <SelectContent className="bg-white">
+                                <SelectItem value="all">{t('filters.all') || 'All'}</SelectItem>
+                                {options.map((opt: any) => (
+                                  <SelectItem key={String(opt.id)} value={String(opt.id)}>
+                                    <div className="flex items-center gap-2">
+                                      {opt.color ? (
+                                        <span 
+                                          className="w-3.5 h-3.5 rounded-full border border-slate-200"
+                                          style={{ backgroundColor: opt.color }}
+                                        />
+                                      ) : (
+                                        <span className="w-3.5 h-3.5 rounded-full border border-slate-200 bg-gradient-to-r from-red-500 via-green-500 to-blue-500" />
+                                      )}
+                                      <span>{opt.label[localeValue] || opt.label['en'] || opt.id}</span>
+                                    </div>
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        );
+                      }
+
+                      if (attr.type === 'color_picker') {
+                        const val = dynamicAttributes[attr.slug] || '';
+                        return (
+                          <div key={attr.id} className="space-y-2">
+                            <label className="text-sm font-medium text-muted-foreground">{attrName}</label>
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="color"
+                                value={val || '#000000'}
+                                onChange={(e) => updateAttribute(attr.slug, e.target.value)}
+                                className="w-10 h-10 border border-slate-200 rounded-lg cursor-pointer p-0.5 bg-white shadow-sm"
+                              />
+                              <Input
+                                type="text"
+                                placeholder="#000000"
+                                value={val}
+                                onChange={(e) => updateAttribute(attr.slug, e.target.value)}
+                                className="font-mono"
+                                dir="ltr"
+                              />
+                            </div>
                           </div>
                         );
                       }

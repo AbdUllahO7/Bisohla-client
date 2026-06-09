@@ -10,9 +10,9 @@ import { Input } from "@/components/ui/input"
 
 interface SelectFieldWithSearchProps {
   options: Array<{ value: string; label: string }>
-  value: string
-  onChange: (field: string, value: string) => void
-  onBlur?: (field: string, value: string) => void
+  value: string | string[]
+  onChange: (field: string, value: any) => void
+  onBlur?: (field: string, value: any) => void
   name: string
   placeholder: string
   label?: string
@@ -24,6 +24,7 @@ interface SelectFieldWithSearchProps {
   emptyMessage?: string
   isRtl?: boolean
   disabled?: boolean
+  isMulti?: boolean
 }
 
 const SelectFieldWithSearch: React.FC<SelectFieldWithSearchProps> = ({
@@ -42,6 +43,7 @@ const SelectFieldWithSearch: React.FC<SelectFieldWithSearchProps> = ({
   emptyMessage = "No results found",
   isRtl = false,
   disabled = false,
+  isMulti = false,
 }) => {
   const [open, setOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
@@ -54,15 +56,34 @@ const SelectFieldWithSearch: React.FC<SelectFieldWithSearchProps> = ({
     )
   }, [options, searchTerm])
 
-  // Find the selected option label
-  const selectedOption = options.find((option) => option.value === value)
+  // Find the selected option label or joined labels for multi-select
+  const selectedOptionLabel = useMemo(() => {
+    if (isMulti) {
+      const vals = Array.isArray(value) ? value : (value ? [value] : []);
+      return options
+        .filter((option) => vals.includes(option.value))
+        .map((option) => option.label)
+        .join(", ");
+    }
+    const selected = options.find((option) => option.value === value);
+    return selected ? selected.label : "";
+  }, [options, value, isMulti]);
 
   // Handle selection
   const handleSelect = (selectedValue: string) => {
-    onChange(name, selectedValue)
-    if (onBlur) onBlur(name, selectedValue)
-    setOpen(false)
-    setSearchTerm("")
+    if (isMulti) {
+      const currentValues = Array.isArray(value) ? value : (value ? [value] : []);
+      const newValues = currentValues.includes(selectedValue)
+        ? currentValues.filter((v) => v !== selectedValue)
+        : [...currentValues, selectedValue];
+      onChange(name, newValues);
+      if (onBlur) onBlur(name, newValues);
+    } else {
+      onChange(name, selectedValue)
+      if (onBlur) onBlur(name, selectedValue)
+      setOpen(false)
+      setSearchTerm("")
+    }
   }
 
   // Handle blur event
@@ -105,7 +126,7 @@ const SelectFieldWithSearch: React.FC<SelectFieldWithSearchProps> = ({
               SelectTriggerStyle
             )}
           >
-            <span className="truncate">{selectedOption ? selectedOption.label : placeholder}</span>
+            <span className="truncate">{selectedOptionLabel || placeholder}</span>
             <ChevronDown className={cn("h-4 w-4 shrink-0 opacity-50 text-[#198341]", isRtl ? "mr-2" : "ml-2")} />
           </Button>
         </PopoverTrigger>
@@ -146,7 +167,9 @@ const SelectFieldWithSearch: React.FC<SelectFieldWithSearchProps> = ({
               </CommandEmpty>
               <CommandGroup className="p-0">
                 {filteredOptions.map((option) => {
-                  const isSelected = value === option.value;
+                  const isSelected = isMulti
+                    ? (Array.isArray(value) ? value : (value ? [value] : [])).includes(option.value)
+                    : value === option.value;
                   return (
                     <CommandItem
                       key={option.value}
@@ -162,13 +185,17 @@ const SelectFieldWithSearch: React.FC<SelectFieldWithSearchProps> = ({
                       <div className="flex items-center gap-3 overflow-hidden">
                         <span className="font-semibold text-sm truncate">{option.label}</span>
                       </div>
-                      <ChevronRight 
-                        className={cn(
-                          "h-4 w-4 transition-all duration-300", 
-                          isSelected ? "text-white" : "text-gray-300 group-hover:text-[#198341] group-hover:translate-x-1",
-                          isRtl && "rotate-180 group-hover:-translate-x-1"
-                        )} 
-                      />
+                      {isSelected ? (
+                        <Check className="h-4 w-4 text-white" />
+                      ) : (
+                        <ChevronRight 
+                          className={cn(
+                            "h-4 w-4 transition-all duration-300", 
+                            "text-gray-300 group-hover:text-[#198341] group-hover:translate-x-1",
+                            isRtl && "rotate-180 group-hover:-translate-x-1"
+                          )} 
+                        />
+                      )}
                     </CommandItem>
                   );
                 })}
