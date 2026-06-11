@@ -792,38 +792,132 @@ export default function PrivacyPolicyPage() {
           line-height: 1.8 !important;
         }
 
-        .rich-text-content .ql-align-right {
+        .rich-text-content :global(.ql-align-right) {
           text-align: right;
         }
         
-        .rich-text-content .ql-direction-rtl {
+        .rich-text-content :global(.ql-direction-rtl) {
           direction: rtl;
         }
 
-        .rich-text-content .ql-direction-rtl ol,
-        .rich-text-content .ql-direction-rtl ul {
+        .rich-text-content :global(.ql-direction-rtl) :global(ol),
+        .rich-text-content :global(.ql-direction-rtl) :global(ul) {
           padding-left: 0;
           padding-right: 2em;
         }
 
-        .rtl .privacy-content ol,
-        .rtl .privacy-content ul {
+        :global(.rtl) .privacy-content :global(ol),
+        :global(.rtl) .privacy-content :global(ul) {
           padding-left: 0 !important;
-          padding-right: 2em !important;
+          padding-right: 0 !important;
+        }
+
+        :global(.rtl) .privacy-content :global(li) {
+          padding-left: 0 !important;
+          padding-right: 1.5em !important;
+        }
+
+        :global(.rtl) .privacy-content :global(li::before) {
+          margin-left: 0.3em !important;
+          margin-right: -1.5em !important;
+          direction: rtl !important;
+          text-align: right !important;
+        }
+
+        :global(.rtl) .privacy-content :global(li.ql-indent-1) {
+          padding-left: 0 !important;
+          padding-right: 3em !important;
+        }
+        :global(.rtl) .privacy-content :global(li.ql-indent-1::before) {
+          margin-right: -3em !important;
+          margin-left: 0.3em !important;
+        }
+        :global(.rtl) .privacy-content :global(li.ql-indent-2) {
+          padding-left: 0 !important;
+          padding-right: 4.5em !important;
+        }
+        :global(.rtl) .privacy-content :global(li.ql-indent-2::before) {
+          margin-right: -4.5em !important;
+          margin-left: 0.3em !important;
+        }
+        :global(.rtl) .privacy-content :global(li.ql-indent-3) {
+          padding-left: 0 !important;
+          padding-right: 6em !important;
+        }
+        :global(.rtl) .privacy-content :global(li.ql-indent-3::before) {
+          margin-right: -6em !important;
+          margin-left: 0.3em !important;
+        }
+        :global(.rtl) .privacy-content :global(li.ql-indent-4) {
+          padding-left: 0 !important;
+          padding-right: 7.5em !important;
+        }
+        :global(.rtl) .privacy-content :global(li.ql-indent-4::before) {
+          margin-right: -7.5em !important;
+          margin-left: 0.3em !important;
+        }
+        :global(.rtl) .privacy-content :global(li.ql-indent-5) {
+          padding-left: 0 !important;
+          padding-right: 9em !important;
+        }
+        :global(.rtl) .privacy-content :global(li.ql-indent-5::before) {
+          margin-right: -9em !important;
+          margin-left: 0.3em !important;
+        }
+        :global(.rtl) .privacy-content :global(li.ql-indent-6) {
+          padding-left: 0 !important;
+          padding-right: 10.5em !important;
+        }
+        :global(.rtl) .privacy-content :global(li.ql-indent-6::before) {
+          margin-right: -10.5em !important;
+          margin-left: 0.3em !important;
+        }
+        :global(.rtl) .privacy-content :global(li.ql-indent-7) {
+          padding-left: 0 !important;
+          padding-right: 12em !important;
+        }
+        :global(.rtl) .privacy-content :global(li.ql-indent-7::before) {
+          margin-right: -12em !important;
+          margin-left: 0.3em !important;
+        }
+        :global(.rtl) .privacy-content :global(li.ql-indent-8) {
+          padding-left: 0 !important;
+          padding-right: 13.5em !important;
+        }
+        :global(.rtl) .privacy-content :global(li.ql-indent-8::before) {
+          margin-right: -13.5em !important;
+          margin-left: 0.3em !important;
+        }
+
+        :global(.rtl) .privacy-content,
+        :global(.rtl) .privacy-content :global(p),
+        :global(.rtl) .privacy-content :global(h1),
+        :global(.rtl) .privacy-content :global(h2),
+        :global(.rtl) .privacy-content :global(h3),
+        :global(.rtl) .privacy-content :global(h4),
+        :global(.rtl) .privacy-content :global(h5),
+        :global(.rtl) .privacy-content :global(h6),
+        :global(.rtl) .privacy-content :global(ol),
+        :global(.rtl) .privacy-content :global(ul),
+        :global(.rtl) .privacy-content :global(li),
+        :global(.rtl) .privacy-content :global(span),
+        :global(.rtl) .privacy-content :global(div),
+        :global(.rtl) .privacy-content :global(strong) {
+          direction: rtl !important;
+          text-align: right !important;
         }
 
         /* Override Quill inline background-colors */
-        .privacy-content * {
+        .privacy-content :global(*) {
           background-color: transparent !important;
         }
         
-        .privacy-content pre,
-        .privacy-content pre * {
+        .privacy-content :global(pre),
+        .privacy-content :global(pre) :global(*) {
           background-color: #F3F4F6 !important;
         }
 
-        .privacy-content h1,
-        .privacy-content.ql-editor h1 {
+        .privacy-content :global(h1) {
           font-size: 2.25rem !important;
           font-weight: 800 !important;
           color: #2C3C39 !important;
@@ -833,8 +927,7 @@ export default function PrivacyPolicyPage() {
           padding-bottom: 0.5rem !important;
         }
 
-        .privacy-content h2,
-        .privacy-content.ql-editor h2 {
+        .privacy-content :global(h2) {
           font-size: 1.75rem !important;
           font-weight: 700 !important;
           color: #2C3C39 !important;
@@ -842,8 +935,7 @@ export default function PrivacyPolicyPage() {
           margin-bottom: 1rem !important;
         }
 
-        .privacy-content h3,
-        .privacy-content.ql-editor h3 {
+        .privacy-content :global(h3) {
           font-size: 1.35rem !important;
           font-weight: 700 !important;
           color: #198341 !important;
@@ -851,30 +943,25 @@ export default function PrivacyPolicyPage() {
           margin-bottom: 0.75rem !important;
         }
 
-        .privacy-content p,
-        .privacy-content.ql-editor p {
+        .privacy-content :global(p) {
           margin-bottom: 1.25rem !important;
         }
 
-        .privacy-content strong,
-        .privacy-content.ql-editor strong {
+        .privacy-content :global(strong) {
           font-weight: 700 !important;
         }
 
-        .privacy-content a,
-        .privacy-content.ql-editor a {
+        .privacy-content :global(a) {
           color: #198341 !important;
           text-decoration: underline !important;
           transition: color 0.2s ease;
         }
 
-        .privacy-content a:hover,
-        .privacy-content.ql-editor a:hover {
+        .privacy-content :global(a:hover) {
           color: #2C3C39 !important;
         }
 
-        .privacy-content blockquote,
-        .privacy-content.ql-editor blockquote {
+        .privacy-content :global(blockquote) {
           border-inline-start: 4px solid #ABDE3B;
           padding-inline-start: 1rem;
           color: #6B7280;
@@ -882,8 +969,7 @@ export default function PrivacyPolicyPage() {
           margin: 1.5rem 0;
         }
 
-        .privacy-content pre,
-        .privacy-content.ql-editor pre {
+        .privacy-content :global(pre) {
           background-color: #F3F4F6;
           padding: 1rem;
           border-radius: 0.5rem;
