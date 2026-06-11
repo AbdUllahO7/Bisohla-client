@@ -10,6 +10,10 @@ export interface GeneralSettings {
     site_description?: string;
     copyright_message?: string;
   };
+  content?: {
+    about_html?: string;
+    privacy_html?: string;
+  };
   contact_info?: {
     email?: string;
     phone?: string;
