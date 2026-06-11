@@ -158,6 +158,12 @@ export const RentProductListCard: React.FC<RentProductListCardProps> = ({
           const iconUrl = av.attribute?.iconUrl;
           const slug = av.attribute?.slug;
 
+          if (!value) {
+            if (slug === 'make' && car.make?.name) value = car.make.name;
+            else if (slug === 'model' && car.model?.name) value = car.model.name;
+            else if (slug === 'trim' && car.trim?.name) value = car.trim.name;
+          }
+
           // Translate slug values if they exist in the stepTwo translation namespace
           if (slug === 'fuel_type' || slug === 'transmission' || slug === 'body_type' || slug === 'condition') {
             try {
@@ -201,9 +207,6 @@ export const RentProductListCard: React.FC<RentProductListCardProps> = ({
         .filter((item: any) => {
           return (
             item.value &&
-            item.slug !== 'make' &&
-            item.slug !== 'model' &&
-            item.slug !== 'trim' &&
             !item.slug.startsWith('features_')
           );
         });
@@ -233,6 +236,10 @@ export const RentProductListCard: React.FC<RentProductListCardProps> = ({
     }
     return fallback;
   }, [car, translatedFuelType, translatedTransmission, details, locale, bodyTypeT]);
+
+  const maxVisibleAttributes = 5;
+  const visibleDetails = footerDetails.slice(0, maxVisibleAttributes);
+  const remainingCount = footerDetails.length - maxVisibleAttributes;
 
   // Update internal state when the prop changes
   useEffect(() => {
@@ -355,14 +362,14 @@ export const RentProductListCard: React.FC<RentProductListCardProps> = ({
                   {title}
                 </Text>
                 <Text variant="small" className="text-gray-600 text-xs">
-                  {make?.name || ''}
+                  {make?.name ? `${make.name} ${car.model?.name || ''}`.trim() : ''}
                 </Text>
               </div>
             </div>
 
             {/* Details Section */}
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 my-2 overflow-hidden max-w-full">
-              {footerDetails.map((detail, idx) => (
+              {visibleDetails.map((detail, idx) => (
                 <div key={idx} className="flex items-center gap-1">
                   {detail.icon}
                   <span className="text-xs text-gray-600">
@@ -370,6 +377,11 @@ export const RentProductListCard: React.FC<RentProductListCardProps> = ({
                   </span>
                 </div>
               ))}
+              {remainingCount > 0 && (
+                <div className="flex items-center text-xs font-bold text-emerald-700">
+                  {locale === 'ar' ? `المزيد +${remainingCount}` : `more +${remainingCount}`}
+                </div>
+              )}
             </div>
 
             {/* Price and Arrow Section */}

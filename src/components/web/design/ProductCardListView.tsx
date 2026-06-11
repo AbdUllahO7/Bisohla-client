@@ -127,6 +127,12 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
           const iconUrl = av.attribute?.iconUrl;
           const slug = av.attribute?.slug;
 
+          if (!value) {
+            if (slug === 'make' && carListing.make?.name) value = carListing.make.name;
+            else if (slug === 'model' && carListing.model?.name) value = carListing.model.name;
+            else if (slug === 'trim' && carListing.trim?.name) value = carListing.trim.name;
+          }
+
           // Translate slug values if they exist in the stepTwo translation namespace
           if (slug === 'fuel_type' || slug === 'transmission' || slug === 'body_type' || slug === 'condition') {
             try {
@@ -176,9 +182,6 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
         .filter((item: any) => {
           return (
             item.value &&
-            item.slug !== 'make' &&
-            item.slug !== 'model' &&
-            item.slug !== 'trim' &&
             !item.slug.startsWith('features_')
           );
         });
@@ -777,6 +780,10 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
   };
 
   // CSS classes
+  const maxVisibleAttributes = 5;
+  const visibleDetails = footerDetails.slice(0, maxVisibleAttributes);
+  const remainingCount = footerDetails.length - maxVisibleAttributes;
+
   const cardClass = clsx(
     'group hover:shadow-lg transition-all duration-300 border border-gray-200 overflow-hidden',
     direction === 'rtl' ? 'text-right' : 'text-left',
@@ -922,7 +929,7 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
                       {carListing.title}
                     </h3>
                     <p className="text-sm text-gray-600 mt-1">
-                      {carListing.listingTypeId === 1 || carListing.listingTypeId === undefined 
+                      {carListing.listingTypeId === 1 || carListing.listingTypeId === 3 || carListing.listingTypeId === undefined 
                         ? (carListing.make?.name && carListing.make?.name !== 'Unknown' ? `${carListing.make.name} ${carListing.model?.name || ''}` : '')
                         : (`${carListing.city}, ${carListing.governorate}`)
                       }
@@ -941,14 +948,19 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
                 )}
 
                  {/* Vehicle Details */}
-                {footerDetails.length > 0 && (
+                {visibleDetails.length > 0 && (
                   <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-4 text-sm">
-                    {footerDetails.map((detail, idx) => (
+                    {visibleDetails.map((detail, idx) => (
                       <div key={idx} className="flex items-center gap-2 text-gray-600">
                         {detail.icon}
                         <span>{detail.value}</span>
                       </div>
                     ))}
+                    {remainingCount > 0 && (
+                      <div className="flex items-center gap-1.5 text-emerald-700 font-bold col-span-1">
+                        <span>{locale === 'ar' ? `المزيد +${remainingCount}` : `more +${remainingCount}`}</span>
+                      </div>
+                    )}
                   </div>
                 )}
 
