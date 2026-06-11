@@ -1,9 +1,11 @@
 'use client';
 
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { ChevronRight, Shield, Eye, Users, Lock, Bell, FileText, HelpCircle, Sparkles, ArrowRight } from 'lucide-react'
 import { useLocale } from "next-intl"
 import Image from "next/image"
+import 'quill/dist/quill.snow.css';
 import { usePublicSettings } from "@/core/infrastructure-adapters/use-actions/settings/settings.use-actions"
 import { Skeleton } from "@/components/ui/skeleton"
 
@@ -303,7 +305,33 @@ export default function PrivacyPolicyPage() {
 
   // Fetch dynamic settings containing privacy policy content
   const { data: settingsResponse, isLoading } = usePublicSettings();
-  const privacyHtml = settingsResponse?.data?.[locale]?.general?.content?.privacy_html;
+  const content = settingsResponse?.data?.[locale]?.general?.content;
+  const privacyHtml = content?.privacy_html;
+  const aboutHtml = content?.about_html;
+
+  const [activeTab, setActiveTab] = useState<'privacy' | 'about'>('privacy');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const tab = params.get('tab');
+      if (tab === 'about' || tab === 'privacy') {
+        setActiveTab(tab);
+      }
+    }
+  }, []);
+
+  const activeHtml = activeTab === 'privacy' ? privacyHtml : aboutHtml;
+
+  const pageTitle = activeTab === 'privacy' 
+    ? t.hero.title 
+    : (isArabic ? 'عن بسهولة' : 'About Us');
+
+  const pageSubtitle = activeTab === 'privacy' 
+    ? t.hero.subtitle 
+    : (isArabic 
+        ? 'سوق إلكتروني يجعل البيع والشراء والإيجار أمراً سهلاً' 
+        : 'An online marketplace making buying, selling, and renting easy');
 
   return (
     <div className={`w-full ${isArabic ? "rtl" : "ltr"}`} dir={isArabic ? "rtl" : "ltr"}>
@@ -333,18 +361,26 @@ export default function PrivacyPolicyPage() {
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-sm"
                    style={{ backgroundColor: 'rgba(171, 222, 59, 0.2)' }}>
                 <Sparkles className="w-4 h-4" style={{ color: '#ABDE3B' }} />
-                <span className="text-sm font-medium" style={{ color: '#ABDE3B' }}>Your Privacy Matters</span>
+                <span className="text-sm font-medium" style={{ color: '#ABDE3B' }}>
+                  {activeTab === 'privacy' 
+                    ? (isArabic ? 'خصوصيتك تهمنا' : 'Your Privacy Matters') 
+                    : (isArabic ? 'من نحن' : 'Who We Are')}
+                </span>
               </div>
 
               <h1 className="text-5xl md:text-6xl font-bold leading-tight">
-                {t.hero.title}
+                {pageTitle}
               </h1>
               <p className="text-xl text-white/90">
-                {t.hero.subtitle}
+                {pageSubtitle}
               </p>
               <div className="flex items-center gap-3 text-sm">
                 <div className="h-1 w-12 rounded-full" style={{ backgroundColor: '#ABDE3B' }}></div>
-                <span className="text-white/80">{t.hero.lastUpdated}</span>
+                <span className="text-white/80">
+                  {activeTab === 'privacy' 
+                    ? t.hero.lastUpdated 
+                    : (isArabic ? 'منصة بسهولة للتجارة الإلكترونية' : 'Bishola E-commerce Platform')}
+                </span>
               </div>
             </div>
 
@@ -366,6 +402,48 @@ export default function PrivacyPolicyPage() {
       {/* Main Content */}
       <div className="relative bg-gradient-to-b from-gray-50 to-white py-20">
         <div className="container max-w-6xl mx-auto px-4 md:px-6 space-y-8">
+          {/* Tab Switcher */}
+          {!isLoading && (privacyHtml || aboutHtml) && (
+            <div className="flex justify-center mb-8">
+              <div className="inline-flex p-1.5 rounded-2xl bg-gray-100/80 backdrop-blur-md border border-gray-200 shadow-sm">
+                <button
+                  onClick={() => {
+                    setActiveTab('privacy');
+                    if (typeof window !== 'undefined') {
+                      const newUrl = new URL(window.location.href);
+                      newUrl.searchParams.set('tab', 'privacy');
+                      window.history.pushState({}, '', newUrl.toString());
+                    }
+                  }}
+                  className={`px-6 py-2.5 rounded-xl font-bold text-sm transition-all duration-300 ${
+                    activeTab === 'privacy'
+                      ? 'bg-white text-emerald-800 shadow-sm transform scale-102'
+                      : 'text-gray-600 hover:text-emerald-700'
+                  }`}
+                >
+                  {isArabic ? 'سياسة الخصوصية' : 'Privacy Policy'}
+                </button>
+                <button
+                  onClick={() => {
+                    setActiveTab('about');
+                    if (typeof window !== 'undefined') {
+                      const newUrl = new URL(window.location.href);
+                      newUrl.searchParams.set('tab', 'about');
+                      window.history.pushState({}, '', newUrl.toString());
+                    }
+                  }}
+                  className={`px-6 py-2.5 rounded-xl font-bold text-sm transition-all duration-300 ${
+                    activeTab === 'about'
+                      ? 'bg-white text-emerald-800 shadow-sm transform scale-102'
+                      : 'text-gray-600 hover:text-emerald-700'
+                  }`}
+                >
+                  {isArabic ? 'عن بسهولة' : 'About Us'}
+                </button>
+              </div>
+            </div>
+          )}
+
           {isLoading ? (
             <div className="space-y-6 bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100">
               <div className="flex items-center gap-4 mb-8">
@@ -387,12 +465,20 @@ export default function PrivacyPolicyPage() {
                 <Skeleton className="h-4 w-9/12 bg-gray-200 animate-pulse" />
               </div>
             </div>
-          ) : privacyHtml ? (
-            <div className="group animate-fadeIn">
+          ) : activeHtml ? (
+            <div className="group animate-fadeIn ql-snow" key={activeTab}>
               <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                    style={{ background: 'linear-gradient(135deg, #ABDE3B 0%, #198341 100%)', filter: 'blur(40px)' }}></div>
               <div className="relative bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100 hover:shadow-2xl transition-all duration-500">
-                <div className="privacy-content" dangerouslySetInnerHTML={{ __html: privacyHtml }} />
+                <div className="rich-text-content ql-editor privacy-content" style={{ overflowY: 'visible' }} dangerouslySetInnerHTML={{ __html: activeHtml }} />
+              </div>
+            </div>
+          ) : activeTab === 'about' ? (
+            <div className="group animate-fadeIn">
+              <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                   style={{ background: 'linear-gradient(135deg, #ABDE3B 0%, #198341 100%)', filter: 'blur(40px)' }}></div>
+              <div className="relative bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100 hover:shadow-2xl transition-all duration-500 text-center py-16 text-gray-500">
+                {isArabic ? 'لا يوجد محتوى متوفر حالياً.' : 'No content available currently.'}
               </div>
             </div>
           ) : (
@@ -697,89 +783,108 @@ export default function PrivacyPolicyPage() {
           animation: pulse 6s ease-in-out infinite;
         }
 
-        .privacy-content {
-          font-family: inherit;
-          color: #374151; /* gray-700 */
-          font-size: 1.125rem;
-          line-height: 1.8;
+        .rich-text-content.ql-editor {
+          border: none !important;
+          padding: 0 !important;
+          font-family: inherit !important;
+          color: #374151 !important;
+          font-size: 1.125rem !important;
+          line-height: 1.8 !important;
         }
 
-        .privacy-content h1 {
-          font-size: 2.25rem;
-          font-weight: 800;
-          color: #2C3C39;
-          margin-top: 0;
-          margin-bottom: 1.5rem;
-          border-bottom: 2px solid rgba(171, 222, 59, 0.3);
-          padding-bottom: 0.5rem;
+        .rich-text-content .ql-align-right {
+          text-align: right;
+        }
+        
+        .rich-text-content .ql-direction-rtl {
+          direction: rtl;
         }
 
-        .privacy-content h2 {
-          font-size: 1.75rem;
-          font-weight: 700;
-          color: #2C3C39;
-          margin-top: 2.5rem;
-          margin-bottom: 1rem;
+        .rich-text-content .ql-direction-rtl ol,
+        .rich-text-content .ql-direction-rtl ul {
+          padding-left: 0;
+          padding-right: 2em;
         }
 
-        .privacy-content h3 {
-          font-size: 1.35rem;
-          font-weight: 700;
-          color: #198341;
-          margin-top: 2rem;
-          margin-bottom: 0.75rem;
+        .rtl .privacy-content ol,
+        .rtl .privacy-content ul {
+          padding-left: 0 !important;
+          padding-right: 2em !important;
         }
 
-        .privacy-content p {
-          margin-bottom: 1.25rem;
+        /* Override Quill inline background-colors */
+        .privacy-content * {
+          background-color: transparent !important;
+        }
+        
+        .privacy-content pre,
+        .privacy-content pre * {
+          background-color: #F3F4F6 !important;
         }
 
-        .privacy-content strong {
-          font-weight: 700;
-          color: #111827; /* gray-900 */
+        .privacy-content h1,
+        .privacy-content.ql-editor h1 {
+          font-size: 2.25rem !important;
+          font-weight: 800 !important;
+          color: #2C3C39 !important;
+          margin-top: 0 !important;
+          margin-bottom: 1.5rem !important;
+          border-bottom: 2px solid rgba(171, 222, 59, 0.3) !important;
+          padding-bottom: 0.5rem !important;
         }
 
-        .privacy-content a {
-          color: #198341;
-          text-decoration: underline;
+        .privacy-content h2,
+        .privacy-content.ql-editor h2 {
+          font-size: 1.75rem !important;
+          font-weight: 700 !important;
+          color: #2C3C39 !important;
+          margin-top: 2.5rem !important;
+          margin-bottom: 1rem !important;
+        }
+
+        .privacy-content h3,
+        .privacy-content.ql-editor h3 {
+          font-size: 1.35rem !important;
+          font-weight: 700 !important;
+          color: #198341 !important;
+          margin-top: 2rem !important;
+          margin-bottom: 0.75rem !important;
+        }
+
+        .privacy-content p,
+        .privacy-content.ql-editor p {
+          margin-bottom: 1.25rem !important;
+        }
+
+        .privacy-content strong,
+        .privacy-content.ql-editor strong {
+          font-weight: 700 !important;
+        }
+
+        .privacy-content a,
+        .privacy-content.ql-editor a {
+          color: #198341 !important;
+          text-decoration: underline !important;
           transition: color 0.2s ease;
         }
 
-        .privacy-content a:hover {
-          color: #2C3C39;
+        .privacy-content a:hover,
+        .privacy-content.ql-editor a:hover {
+          color: #2C3C39 !important;
         }
 
-        .privacy-content ol {
-          list-style-type: decimal;
-          padding-inline-start: 1.5rem;
-          margin-bottom: 1.25rem;
-        }
-
-        .privacy-content ul {
-          list-style-type: disc;
-          padding-inline-start: 1.5rem;
-          margin-bottom: 1.25rem;
-        }
-
-        .privacy-content li {
-          margin-bottom: 0.5rem;
-          list-style: inherit;
-        }
-
-        .privacy-content .ql-ui {
-          display: none;
-        }
-
-        .privacy-content blockquote {
+        .privacy-content blockquote,
+        .privacy-content.ql-editor blockquote {
           border-inline-start: 4px solid #ABDE3B;
           padding-inline-start: 1rem;
-          color: #6B7280; /* gray-500 */
+          color: #6B7280;
           font-style: italic;
           margin: 1.5rem 0;
         }
 
-        .privacy-content pre {
-          background-color: #F3F4F6; /* gray-100 */
+        .privacy-content pre,
+        .privacy-content.ql-editor pre {
+          background-color: #F3F4F6;
           padding: 1rem;
           border-radius: 0.5rem;
           overflow-x: auto;
