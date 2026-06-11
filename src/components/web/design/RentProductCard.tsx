@@ -45,6 +45,7 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
   enableViewTracking = true,
   priceWord,
 }) => {
+
   const cardRef = useRef<HTMLDivElement>(null);
   const session = useSession();
   const locale = useLocale();
@@ -119,12 +120,14 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
   const categoryName = (car as any).rawListing?.listingType?.name || (car as any).rawListing?.listingType?.translations?.find((t: any) => t.locale === locale)?.name;
 
   const subTitle = useMemo(() => {
-    if (car.listingTypeId === 1 || !car.listingTypeId) {
-      return car.make?.name && car.make?.name !== 'Unknown' ? car.make?.name : 'Car';
+    if (car.listingTypeId === 1 || car.listingTypeId === 3 || !car.listingTypeId) {
+      return car.make?.name && car.make?.name !== 'Unknown' 
+        ? `${car.make.name} ${car.model?.name || ''}`.trim() 
+        : 'Car';
     }
     const locationStr = [car.governorate, car.city].filter(Boolean).join(', ');
     return locationStr || categoryName || 'Real Estate';
-  }, [car.listingTypeId, car.make?.name, car.governorate, car.city, categoryName]);
+  }, [car.listingTypeId, car.make?.name, car.model?.name, car.governorate, car.city, categoryName]);
 
   const footerDetails = useMemo(() => {
     const getAttrIcon = (slug: string, defaultIcon: React.ReactNode) => {
@@ -152,6 +155,12 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
           let value = resolveAttributeValue(av, locale);
           const iconUrl = av.attribute?.iconUrl;
           const slug = av.attribute?.slug;
+
+          if (!value) {
+            if (slug === 'make' && car.make?.name) value = car.make.name;
+            else if (slug === 'model' && car.model?.name) value = car.model.name;
+            else if (slug === 'trim' && car.trim?.name) value = car.trim.name;
+          }
 
           // Translate slug values if they exist in the stepTwo translation namespace
           if (slug === 'fuel_type' || slug === 'transmission' || slug === 'body_type' || slug === 'condition') {
@@ -196,15 +205,12 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
         .filter((item: any) => {
           return (
             item.value &&
-            item.slug !== 'make' &&
-            item.slug !== 'model' &&
-            item.slug !== 'trim' &&
             !item.slug.startsWith('features_')
           );
         });
     }
 
-    if (car.listingTypeId === 1 || !car.listingTypeId) {
+    if (car.listingTypeId === 1 || car.listingTypeId === 3 || !car.listingTypeId) {
       return [
         {
           icon: getAttrIcon('fuel_type', <Fuel className="h-4 w-4" />),
@@ -309,7 +315,7 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
 
   const isSold = car.saveStatus === SaveStatus.SOLD || car.publicationStatus === 'sold';
   
-  const maxVisibleAttributes = 4;
+  const maxVisibleAttributes = 5;
   const visibleDetails = footerDetails.slice(0, maxVisibleAttributes);
   const remainingCount = footerDetails.length - maxVisibleAttributes;
 
@@ -483,7 +489,7 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
             ))}
             {remainingCount > 0 && (
               <div className="flex items-center bg-emerald-50 border border-emerald-100 rounded-full px-2.5 py-1 text-[11px] font-bold text-emerald-700">
-                +{remainingCount}
+                {locale === 'ar' ? `المزيد +${remainingCount}` : `more +${remainingCount}`}
               </div>
             )}
           </div>

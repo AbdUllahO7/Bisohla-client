@@ -155,6 +155,8 @@ const WebPage = async () => {
     normalizeListingToCarDto(item, locale),
   );
 
+
+
   // Fetch featured listings (global)
   const featuredRes = await listingsVisitorRepo.getFeaturedListings(undefined, {
     pageSize: 10,

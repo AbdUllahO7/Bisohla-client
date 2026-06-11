@@ -9,6 +9,14 @@ const getColorLabel = (colorKey: string, locale: string): string => {
   return options[colorKey] || colorKey;
 };
 
+const getLocalizedValue = (val: any, locale: string): string => {
+  if (typeof val === 'string') return val;
+  if (val && typeof val === 'object') {
+    return val[locale] || Object.values(val)[0] || '';
+  }
+  return '';
+};
+
 /**
  * Resolves a raw GenericAttributeValue into a human-readable display string.
  * Handles: reference, select, number, boolean, date, text.
@@ -19,95 +27,104 @@ export const resolveAttributeValue = (
 ): string => {
   const { attribute, referenceItem, valueText, valueNumber, valueBoolean, valueDate, valueJson } = av;
 
-  switch (attribute.type) {
-    case 'reference':
-      return referenceItem?.name || '';
+  const getVal = () => {
+    switch (attribute.type) {
+      case 'reference':
+        return referenceItem ? getLocalizedValue(referenceItem.name, locale) : '';
 
-    case 'select':
-    case 'color_selection': {
-      if (!valueText) return '';
-      const option = attribute.options?.find((o) => o.id === valueText);
-      if (option) return option.label[locale as 'ar' | 'en'] || option.label.en || valueText;
-      if (attribute.type === 'color_selection') {
-        return getColorLabel(valueText, locale);
+      case 'select':
+      case 'color_selection': {
+        if (!valueText) return '';
+        const option = attribute.options?.find((o) => o.id === valueText);
+        if (option) return option.label[locale as 'ar' | 'en'] || option.label.en || valueText;
+        if (attribute.type === 'color_selection') {
+          return getColorLabel(valueText, locale);
+        }
+        return valueText;
       }
-      return valueText;
-    }
 
-    case 'color_picker':
-      return valueText || '';
+      case 'color_picker':
+        return valueText || '';
 
-    case 'color_multi_selection': {
-      let ids: string[] = [];
-      if (Array.isArray(valueJson)) {
-        ids = valueJson;
-      } else if (typeof valueText === 'string') {
+      case 'color_multi_selection': {
+        let ids: string[] = [];
+        if (Array.isArray(valueJson)) {
+          ids = valueJson;
+        } else if (typeof valueText === 'string') {
+          try {
+            const parsed = JSON.parse(valueText);
+            if (Array.isArray(parsed)) ids = parsed;
+            else ids = [valueText];
+          } catch {
+            ids = valueText.split(',').map(s => s.trim());
+          }
+        }
+        if (ids.length === 0) return '';
+        const labels = ids.map(id => {
+          const option = attribute.options?.find((o) => o.id === id);
+          if (option) return option.label[locale as 'ar' | 'en'] || option.label.en || id;
+          return getColorLabel(id, locale);
+        });
+        return labels.join(', ');
+      }
+
+      case 'year': {
+        if (valueNumber !== null && valueNumber !== undefined) return valueNumber.toString();
+        if (valueText) return valueText;
+        return '';
+      }
+
+      case 'number': {
+        if (valueNumber === null || valueNumber === undefined) return '';
+        // Strip unnecessary trailing zeros
+        const num = parseFloat(valueNumber);
+        return isNaN(num) ? valueNumber : num.toString();
+      }
+
+      case 'boolean':
+        if (valueBoolean === null || valueBoolean === undefined) return '';
+        return locale === 'ar' ? (valueBoolean ? 'نعم' : 'لا') : (valueBoolean ? 'Yes' : 'No');
+
+      case 'date': {
+        const rawValue = valueDate || valueText;
+        if (!rawValue) return '';
         try {
-          const parsed = JSON.parse(valueText);
-          if (Array.isArray(parsed)) ids = parsed;
-          else ids = [valueText];
+          const date = new Date(rawValue);
+          if (isNaN(date.getTime())) return rawValue;
+          
+          // If slug is "year", just show the year
+          if (attribute.slug === 'year') {
+            return date.getFullYear().toString();
+          }
+          
+          // Otherwise return formatted local date
+          return date.toLocaleDateString(locale === 'ar' ? 'ar-EG' : 'en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            });
         } catch {
-          ids = valueText.split(',').map(s => s.trim());
+          return rawValue;
         }
       }
-      if (ids.length === 0) return '';
-      const labels = ids.map(id => {
-        const option = attribute.options?.find((o) => o.id === id);
-        if (option) return option.label[locale as 'ar' | 'en'] || option.label.en || id;
-        return getColorLabel(id, locale);
-      });
-      return labels.join(', ');
-    }
 
-    case 'year': {
-      if (valueNumber !== null && valueNumber !== undefined) return valueNumber.toString();
-      if (valueText) return valueText;
-      return '';
-    }
-
-    case 'number': {
-      if (valueNumber === null || valueNumber === undefined) return '';
-      // Strip unnecessary trailing zeros
-      const num = parseFloat(valueNumber);
-      return isNaN(num) ? valueNumber : num.toString();
-    }
-
-    case 'boolean':
-      if (valueBoolean === null || valueBoolean === undefined) return '';
-      return locale === 'ar' ? (valueBoolean ? 'نعم' : 'لا') : (valueBoolean ? 'Yes' : 'No');
-
-    case 'date': {
-      const rawValue = valueDate || valueText;
-      if (!rawValue) return '';
-      try {
-        const date = new Date(rawValue);
-        if (isNaN(date.getTime())) return rawValue;
-        
-        // If slug is "year", just show the year
-        if (attribute.slug === 'year') {
-          return date.getFullYear().toString();
+      case 'text':
+      default:
+        if (valueText) return valueText;
+        if (valueJson !== null && valueJson !== undefined) {
+          return typeof valueJson === 'string' ? valueJson : JSON.stringify(valueJson);
         }
-        
-        // Otherwise return formatted local date
-        return date.toLocaleDateString(locale === 'ar' ? 'ar-EG' : 'en-US', {
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric',
-          });
-      } catch {
-        return rawValue;
-      }
+        return '';
     }
+  };
 
-    case 'text':
-    default:
-      if (valueText) return valueText;
-      if (valueJson !== null && valueJson !== undefined) {
-        return typeof valueJson === 'string' ? valueJson : JSON.stringify(valueJson);
-      }
-      return '';
+  const resolved = getVal();
+  if (!resolved && referenceItem?.name) {
+    return getLocalizedValue(referenceItem.name, locale);
   }
+  return resolved;
 };
+
 
 /**
  * Normalizes a generic listing response from the API into the structured SelectCarListingDto
@@ -281,14 +298,14 @@ export const normalizeListingToCarDto = (listing: any, locale: string = 'en'): S
           deletedAt: null
         }] : []),
 
-    make: makeAttr?.referenceItem ? {
-      id: makeAttr.referenceItem.id,
-      name: getLocalizedValue(makeAttr.referenceItem.name),
-      logoUrl: makeAttr.referenceItem.logoUrl,
+    make: (makeAttr?.referenceItem || listing.make) ? {
+      id: makeAttr?.referenceItem?.id || listing.make?.id || makeAttr?.referenceItemId || 0,
+      name: getLocalizedValue(makeAttr?.referenceItem?.name || listing.make?.name || ''),
+      logoUrl: makeAttr?.referenceItem?.logoUrl || listing.make?.logoUrl || null,
       description: null,
-      isCarTrimRequired: makeAttr.referenceItem.metadata?.isCarTrimRequired || false,
-      createdAt: makeAttr.referenceItem.createdAt,
-      updatedAt: makeAttr.referenceItem.updatedAt,
+      isCarTrimRequired: makeAttr?.referenceItem?.metadata?.isCarTrimRequired || listing.make?.metadata?.isCarTrimRequired || false,
+      createdAt: makeAttr?.referenceItem?.createdAt || listing.make?.createdAt || '',
+      updatedAt: makeAttr?.referenceItem?.updatedAt || listing.make?.updatedAt || '',
       deletedAt: null
     } : {
       id: makeAttr?.referenceItemId || 0,
@@ -300,15 +317,15 @@ export const normalizeListingToCarDto = (listing: any, locale: string = 'en'): S
       updatedAt: '',
       deletedAt: null
     },
-    model: modelAttr?.referenceItem ? {
-      id: modelAttr.referenceItem.id,
-      makeId: makeAttr?.referenceItemId || 0,
-      name: getLocalizedValue(modelAttr.referenceItem.name),
+    model: (modelAttr?.referenceItem || listing.model) ? {
+      id: modelAttr?.referenceItem?.id || listing.model?.id || modelAttr?.referenceItemId || 0,
+      makeId: makeAttr?.referenceItemId || listing.model?.makeId || 0,
+      name: getLocalizedValue(modelAttr?.referenceItem?.name || listing.model?.name || ''),
       yearStart: null,
       yearEnd: null,
       description: null,
-      createdAt: modelAttr.referenceItem.createdAt,
-      updatedAt: modelAttr.referenceItem.updatedAt,
+      createdAt: modelAttr?.referenceItem?.createdAt || listing.model?.createdAt || '',
+      updatedAt: modelAttr?.referenceItem?.updatedAt || listing.model?.updatedAt || '',
       deletedAt: null
     } : {
       id: modelAttr?.referenceItemId || 0,
@@ -321,13 +338,13 @@ export const normalizeListingToCarDto = (listing: any, locale: string = 'en'): S
       updatedAt: '',
       deletedAt: null
     },
-    trim: trimAttr?.referenceItem ? {
-      id: trimAttr.referenceItem.id,
-      modelId: modelAttr?.referenceItemId || 0,
-      name: getLocalizedValue(trimAttr.referenceItem.name),
+    trim: (trimAttr?.referenceItem || listing.trim) ? {
+      id: trimAttr?.referenceItem?.id || listing.trim?.id || trimAttr?.referenceItemId || 0,
+      modelId: modelAttr?.referenceItemId || listing.trim?.modelId || 0,
+      name: getLocalizedValue(trimAttr?.referenceItem?.name || listing.trim?.name || ''),
       description: null,
-      createdAt: trimAttr.referenceItem.createdAt,
-      updatedAt: trimAttr.referenceItem.updatedAt,
+      createdAt: trimAttr?.referenceItem?.createdAt || listing.trim?.createdAt || '',
+      updatedAt: trimAttr?.referenceItem?.updatedAt || listing.trim?.updatedAt || '',
       deletedAt: null
     } : undefined,
     statics: {
