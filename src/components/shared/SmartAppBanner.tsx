@@ -2,14 +2,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { usePathname } from 'next/navigation';
 import { useTranslations, useLocale } from 'next-intl';
 import { useSettings } from '@/providers/settings.provider';
 import Image from 'next/image';
 import { mapWebUrlToDeepLink } from '@/lib/utils/link-to-deep-link';
 
 export default function SmartAppBanner() {
-  const pathname = usePathname();
   const t = useTranslations('smartAppBanner');
   const locale = useLocale();
   const direction = locale === 'ar' ? 'rtl' : 'ltr';
@@ -64,10 +62,12 @@ export default function SmartAppBanner() {
 
     document.addEventListener('visibilitychange', visibilityHandler);
 
-    // Try to open the app with deep link using iframe
+    // Try to open the app with deep link using iframe. The mapper always
+    // returns a bishola:// URL (it falls back to the app home on parse error),
+    // so `appUrl` is effectively never null — `bishola://` is just a safety net.
     const iframe = document.createElement('iframe');
     iframe.style.display = 'none';
-    iframe.src = appUrl || `bishola://(screens)/BuyScreen`;
+    iframe.src = appUrl || 'bishola://';
     document.body.appendChild(iframe);
 
     // If app doesn't open, redirect to store by simulating a link click
