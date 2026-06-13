@@ -5,22 +5,6 @@
       {
         "appID": "Q3UK9FAQ24.com.bishola.app",
         "paths": [
-          "/LoginScreen",
-          "/SignupScreen",
-          "/ResetPasswordScreen",
-          "/Explore",
-          "/Search",
-          "/News",
-          "/Profile",
-          "/BuyScreen",
-          "/RentScreen",
-          "/CarDetailsScreen*",
-          "/MyCarsScreen",
-          "/MyFavoriteScreen",
-          "/ContactUs",
-          "/auth/*",
-          "/products/*",
-          "/userProfile/*",
           "/en/*",
           "/ar/*"
         ]
