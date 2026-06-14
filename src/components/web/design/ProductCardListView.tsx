@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -950,7 +950,7 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
                  {/* Vehicle Details */}
                 {visibleDetails.length > 0 && (
                   <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-4 text-sm">
-                    {visibleDetails.map((detail, idx) => (
+                    {visibleDetails.map((detail: { icon: React.ReactNode; value: string }, idx: number) => (
                       <div key={idx} className="flex items-center gap-2 text-gray-600">
                         {detail.icon}
                         <span>{detail.value}</span>

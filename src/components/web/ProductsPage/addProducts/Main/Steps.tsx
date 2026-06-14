@@ -202,7 +202,7 @@ const Steps: React.FC<StepsProps> = ({ isEditMode = false, carId, initialData })
             isArabic 
               ? "🔄 تم استعادة مسودتك المحفوظة تلقائياً!" 
               : "🔄 Your saved draft has been automatically restored!",
-            "success"
+            "info"
           );
         }, 1200);
         return () => clearTimeout(timer);
