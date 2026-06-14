@@ -472,7 +472,7 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
 
         <CardFooter className="flex justify-between items-center p-4 pt-0 gap-4 mt-auto">
           <div className="flex flex-wrap gap-1.5 max-w-full overflow-hidden">
-            {visibleDetails.map((detail, idx) => (
+            {visibleDetails.map((detail: { icon: React.ReactNode; value: string }, idx: number) => (
               <div
                 key={idx}
                 className={`flex items-center gap-1 bg-[#F9FAFB] border border-[#F3F4F6] rounded-full px-2.5 py-1 text-[11px] font-medium text-[#4B5563] transition-all duration-300 ${

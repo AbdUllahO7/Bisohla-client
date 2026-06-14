@@ -369,7 +369,7 @@ export const RentProductListCard: React.FC<RentProductListCardProps> = ({
 
             {/* Details Section */}
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 my-2 overflow-hidden max-w-full">
-              {visibleDetails.map((detail, idx) => (
+              {visibleDetails.map((detail: { icon: React.ReactNode; value: string }, idx: number) => (
                 <div key={idx} className="flex items-center gap-1">
                   {detail.icon}
                   <span className="text-xs text-gray-600">
