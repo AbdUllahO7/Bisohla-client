@@ -31,6 +31,7 @@ import {
   TrendingUp,
   Gauge,
   Calendar,
+  MapPin,
 } from 'lucide-react';
 import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions';
 import { toggleListingFavorite } from '@/core/infrastructure-adapters/actions/users/listing.user.actions';
@@ -80,6 +81,11 @@ interface ExtendedCarCardItemPropsProfile extends CarCardItemPropsProfile {
   isFeatured?: boolean;
   saveStatus?: string;
   onStatusChange?: (productId: number, newStatus: string) => void;
+  currency?: string;
+  governorate?: string;
+  city?: string;
+  contactNumber?: string | null;
+  rejectionReason?: string | null;
 }
 
 // Enhanced CardItem Component
@@ -103,6 +109,11 @@ export const EnhancedProductCardItem: React.FC<ExtendedCarCardItemPropsProfile> 
   isFeatured = false,
   saveStatus,
   onStatusChange,
+  currency,
+  governorate,
+  city,
+  contactNumber,
+  rejectionReason,
 }) => {
   // State management
   const [isAuthenticated, setIsAuthenticated] = useState(
@@ -427,7 +438,7 @@ export const EnhancedProductCardItem: React.FC<ExtendedCarCardItemPropsProfile> 
   );
 
   const typeTagClass = clsx(
-    'absolute bottom-[170px] bg-white px-2 py-1 rounded-lg shadow-md text-primary text-sm font-medium',
+    'absolute bottom-[190px] bg-white px-2 py-1 rounded-lg shadow-md text-primary text-sm font-medium',
     locale === 'ar' ? 'right-2' : 'left-2',
   );
 
@@ -745,9 +756,46 @@ export const EnhancedProductCardItem: React.FC<ExtendedCarCardItemPropsProfile> 
               >
                 {title}
               </Text>
-              <Text variant="mid" className="text-gray-600 font-medium">
-                {marka}
-              </Text>
+              
+              <div className="flex justify-between items-center mb-2">
+                <Text variant="mid" className="text-gray-600 font-medium">
+                  {marka}
+                </Text>
+                {price !== undefined && price !== null && (
+                  <span className="text-primary font-bold text-sm">
+                    {price.toLocaleString()} {currency || 'USD'}
+                  </span>
+                )}
+              </div>
+
+              {/* Location info */}
+              {(governorate || city) && (
+                <div className="flex items-center gap-1 text-xs text-gray-500 mb-1.5">
+                  <MapPin size={12} className="flex-shrink-0" />
+                  <span className="truncate">
+                    {city ? `${city}, ` : ''}{governorate}
+                  </span>
+                </div>
+              )}
+
+              {/* Contact number */}
+              {isMine && contactNumber && (
+                <div className="flex items-center gap-1 text-xs text-gray-500 mb-1.5">
+                  <Phone size={12} className="flex-shrink-0" />
+                  <span>{contactNumber}</span>
+                </div>
+              )}
+
+              {/* Rejection Reason display if rejected */}
+              {isMine && carStatus?.toLowerCase() === 'rejected' && rejectionReason && (
+                <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded text-red-800 text-xs flex items-start gap-1">
+                  <AlertTriangle className="text-red-500 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <span className="font-semibold">{locale === 'ar' ? 'سبب الرفض: ' : 'Rejection Reason: '}</span>
+                    {rejectionReason}
+                  </div>
+                </div>
+              )}
             </CardDescription>
           </CardHeader>
         </Link>

@@ -947,6 +947,17 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
                   <div className="mb-3 sm:hidden">{getSaveStatusBadge()}</div>
                 )}
 
+                {/* Rejection Reason display if rejected */}
+                {isMine && carListing.status?.toLowerCase() === 'rejected' && carListing.rejectionReason && (
+                  <div className="mb-3 p-2 bg-red-50 border border-red-200 rounded text-red-800 text-xs flex items-start gap-1.5 max-w-xl">
+                    <AlertTriangle className="text-red-500 flex-shrink-0 mt-0.5" size={14} />
+                    <div>
+                      <span className="font-semibold">{locale === 'ar' ? 'سبب الرفض: ' : 'Rejection Reason: '}</span>
+                      {carListing.rejectionReason}
+                    </div>
+                  </div>
+                )}
+
                  {/* Vehicle Details */}
                 {visibleDetails.length > 0 && (
                   <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-4 text-sm">
@@ -978,6 +989,13 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
                     <Calendar size={14} />
                     <span>{formatDate(carListing.createdAt)}</span>
                   </div>
+
+                  {isMine && carListing.contactNumber && (
+                    <div className="flex items-center gap-1">
+                      <Phone size={14} />
+                      <span>{carListing.contactNumber}</span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Description */}

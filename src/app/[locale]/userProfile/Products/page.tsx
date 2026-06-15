@@ -4,7 +4,6 @@ import { useLocale, useTranslations } from 'next-intl';
 import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { useMyListings } from '@/core/infrastructure-adapters/use-actions/users/listing.user.use-actions';
 import ProductSkeleton from '@/components/web/design/ProductSkeletonItem';
-import { useSession } from '@/hooks/auth/use-session';
 import type { QueryParams } from '@/core/entities/api/api';
 import Pagination from '@/components/shared/Pagination';
 import { Card, CardContent } from '@/components/ui/card';
@@ -82,6 +81,8 @@ const UserProductPage = () => {
 
   // Fetch user's listings using the generic hook
   const { data, isLoading, error, refetch } = useMyListings(combinedQueryParams);
+
+  console.log("data",data)
 
   // Force refetch when query params change to ensure real-time updates
   useEffect(() => {
@@ -331,6 +332,11 @@ const UserProductPage = () => {
                 title={item.title}
                 marka={item.make?.name || ''}
                 price={item.price || 0}
+                currency={item.currency}
+                governorate={item.governorate}
+                city={item.city}
+                contactNumber={item.contactNumber}
+                rejectionReason={item.rejectionReason}
                 type={item.listingType}
                 carStatus={item.status}
                 saveStatus={item.saveStatus as SaveStatus}
@@ -350,7 +356,6 @@ const UserProductPage = () => {
                 onDelete={handleDelete}
                 profile={true}
                 isMine={true}
-
               />
             );
           })}
