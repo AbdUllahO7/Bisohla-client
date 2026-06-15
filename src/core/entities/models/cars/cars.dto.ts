@@ -152,6 +152,7 @@ export interface SelectCarListingDto {
   listingOfferType?: string | null;
   publicationStatus?: string | null;
   moderationStatus?: string | null;
+  rejectionReason?: string | null;
   rentType?: RentType | string | null;
   contactNumber?: string | null;
 
