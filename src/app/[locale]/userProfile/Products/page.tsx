@@ -1,19 +1,15 @@
 'use client';
-import Box from '@/components/ui/box';
-import { ProductCardItem } from '@/components/web/design/ProductCardItem';
 import { ProductCardListView } from '@/components/web/design/ProductCardListView';
 import { useLocale, useTranslations } from 'next-intl';
 import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { useMyListings } from '@/core/infrastructure-adapters/use-actions/users/listing.user.use-actions';
 import ProductSkeleton from '@/components/web/design/ProductSkeletonItem';
-import { useSession } from '@/hooks/auth/use-session';
 import type { QueryParams } from '@/core/entities/api/api';
 import Pagination from '@/components/shared/Pagination';
 import { Card, CardContent } from '@/components/ui/card';
-import { Car, Plus, Sun, Moon } from 'lucide-react';
+import { Car, Plus} from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import { useTheme } from 'next-themes';
-import { motion } from 'framer-motion';
 import MyProductsFilter from '@/components/dashboard/Products/MyProductsFilter';
 import { EnhancedProductCardItem } from '@/components/web/design/ProductCardItemEnhanced';
 import { SaveStatus } from '../../../../core/entities/enums/cars.enums';
@@ -27,7 +23,6 @@ const UserProductPage = () => {
   const t = useTranslations('homePage');
   const locale = useLocale();
   const direction = locale === 'ar' ? 'rtl' : 'ltr';
-  const session = useSession();
 
   // State management
   const [favoriteStatuses, setFavoriteStatuses] = useState<
@@ -86,6 +81,8 @@ const UserProductPage = () => {
 
   // Fetch user's listings using the generic hook
   const { data, isLoading, error, refetch } = useMyListings(combinedQueryParams);
+
+  console.log("data",data)
 
   // Force refetch when query params change to ensure real-time updates
   useEffect(() => {
@@ -335,6 +332,11 @@ const UserProductPage = () => {
                 title={item.title}
                 marka={item.make?.name || ''}
                 price={item.price || 0}
+                currency={item.currency}
+                governorate={item.governorate}
+                city={item.city}
+                contactNumber={item.contactNumber}
+                rejectionReason={item.rejectionReason}
                 type={item.listingType}
                 carStatus={item.status}
                 saveStatus={item.saveStatus as SaveStatus}
@@ -354,7 +356,6 @@ const UserProductPage = () => {
                 onDelete={handleDelete}
                 profile={true}
                 isMine={true}
-
               />
             );
           })}

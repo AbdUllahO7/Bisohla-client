@@ -25,6 +25,7 @@ import {
   Key,
   Save,
   Trash2,
+  LogOut,
 } from 'lucide-react';
 import {
   useGetMyProfile,
@@ -185,6 +186,17 @@ const UserInfoPage = () => {
     }
   };
 
+  // Handle logout
+  const handleLogout = async () => {
+    try {
+      await deleteSession();
+      router.push('/');
+      router.refresh();
+    } catch (error) {
+      console.error('Failed to logout:', error);
+    }
+  };
+
   // Get initials for avatar fallback
   const getInitials = (name: string) => {
     if (!name) return 'U';
@@ -247,11 +259,26 @@ const UserInfoPage = () => {
       variants={containerVariants}
     >
       <motion.div
-        className="flex items-center mb-6 gap-2"
+        className="flex items-center justify-between mb-6 gap-2 w-full"
         variants={itemVariants}
       >
-        <User className="h-5 w-5 text-primary" />
-        <h1 className="text-2xl font-bold">{t('YourProfile')}</h1>
+        <div className="flex items-center gap-2">
+          <User className="h-5 w-5 text-primary" />
+          <h1 className="text-2xl font-bold">{t('YourProfile')}</h1>
+        </div>
+        <motion.div
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+        >
+          <Button
+            onClick={handleLogout}
+            variant="outline"
+            className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 flex items-center gap-2 rounded-md transition-all duration-300"
+          >
+            <LogOut className="h-4 w-4" />
+            {locale === 'en' ? 'Logout' : 'تسجيل الخروج'}
+          </Button>
+        </motion.div>
       </motion.div>
 
       {isLoading ? (
