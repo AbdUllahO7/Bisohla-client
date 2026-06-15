@@ -1,14 +1,14 @@
 {
   "compare": {
-    "title": "Compare Cars",
+    "title": "Compare Items",
     "addToCompare": "Add to compare",
     "removeFromCompare": "Remove from compare",
     "limitReachedTitle": "Comparison Limit",
-    "limitReachedDesc": "You can compare up to {max} cars at a time.",
+    "limitReachedDesc": "You can compare up to {max} items at a time.",
     "clearAll": "Clear All",
     "compareNow": "Compare Now",
-    "noCarsTitle": "No cars to compare",
-    "noCarsDesc": "Add cars from the listings to see them here side-by-side.",
+    "noCarsTitle": "No items to compare",
+    "noCarsDesc": "Add items from the listings to see them here side-by-side.",
     "specLabel": "Feature",
     "price": "Price",
     "make": "Make",
@@ -20,18 +20,20 @@
     "backToList": "Back to listings"
   },
   "homePage": {
+    "featuredListings": "Featured Listings",
+    "trendingListings": "Trending Listings",
     "lang": "en",
     "bodyType":"Body Type",
     "metadata": {
-      "title": "Bishola - Car Rental & Car Sales Platform",
-      "description": "Rent or buy your perfect car with Bishola. Premium car rental services and quality used cars for sale. Find the best deals on vehicles in Syria."
+      "title": "Bishola - Rental & Sales Platform",
+      "description": "Rent or buy your perfect item with Bishola. Premium rental services and quality used items for sale. Find the best deals on listings in Syria."
     },
     "Rating": "Rating",
     "Support": "Support",
-    "CarsAvailable": "Available Cars",
+    "CarsAvailable": "Available Listings",
     "FORSALE": "For Sale",
     "FORRENT": "For Rent",
-    "PremiumCarServices": "Premium Car Services",
+    "PremiumCarServices": "Premium Services",
     "headerOne": {
       "adsButton": "create Ads",
       "loginButton": "Login / SignUp",
@@ -63,6 +65,8 @@
     "filter": {
       "Buy": "Buy",
       "Hire": "Hire",
+      "listingType": "Category",
+      "listingTypeSelect": "Select Category",
       "productType": "product Type",
       "selectproductType": "Select product Type",
       "state": "State",
@@ -385,17 +389,17 @@
     },
     "spaceAds": {
       "box1": {
-        "title": "Add your car for free and sell it",
+        "title": "Add your item for free and sell it",
         "bishola": "Bishola"
       },
       "box2": {
-        "title": "Add your car for free and make it a rental",
+        "title": "Add your item for free and make it a rental",
         "bishola": "Bishola"
       }
     },
     "ads": {
       "advertiseTitle": "Advertise With Us!",
-      "advertiseSubtitle": "Reach thousands of car buyers and renters daily.",
+      "advertiseSubtitle": "Reach thousands of buyers and renters daily.",
       "advertiseButton": "Contact Us"
     },
     "faq": {
@@ -403,24 +407,24 @@
       "showMore": "Show all",
       "questions": {
         "question1": {
-          "question": "How do I list my car on the website?",
-          "answer": "Listing your car is super easy! Create a free account, click 'Add Listing', and fill in your car details like model, year, and condition. Upload clear photos from different angles, set your price or daily rental rate, and choose whether you want to sell or rent it. Your listing goes live immediately and reaches thousands of interested users."
+          "question": "How do I create a listing on the website?",
+          "answer": "Creating a listing is super easy! Create a free account, click 'Add Listing', and fill in the details like category, title, and condition. Upload clear photos from different angles, set your price or daily rental rate, and choose whether you want to sell or rent it. Your listing goes live immediately and reaches thousands of interested users."
         },
         "question2": {
           "question": "How much does it cost to list on the platform?",
-          "answer": "Listing on our website is completely free! You can post your car for sale or rent without any charges. Our goal is to connect you with the largest number of potential buyers or renters as quickly as possible, without any extra costs."
+          "answer": "Listing on our website is completely free! You can post your items for sale or rent without any charges. Our goal is to connect you with the largest number of potential buyers or renters as quickly as possible, without any extra costs."
         },
         "question3": {
-          "question": "How will interested people contact me?",
+          "question": "How will interested users contact me?",
           "answer": "Once your listing is live, interested users can contact you directly via phone or through the website's messaging system. All details and agreements are made directly between you and the buyer or renter. We simply provide the platform that makes it easy for you to connect."
         },
         "question4": {
           "question": "Is the website responsible for the sale or rental process?",
-          "answer": "Our website is just a connecting platform - we link sellers with buyers, or car owners with renters. All transactions and financial agreements happen directly between you. We always recommend verifying the other party's identity, thoroughly inspecting the vehicle before any agreement, and documenting everything officially."
+          "answer": "Our website is just a connecting platform - we link sellers with buyers, or owners with renters. All transactions and financial agreements happen directly between you. We always recommend verifying the other party's identity, thoroughly inspecting the item before any agreement, and documenting everything officially."
         },
         "question5": {
           "question": "How long does my listing stay active?",
-          "answer": "Your listing stays active for 30 days from the posting date. You can renew it for free anytime, or delete it once you've sold or rented your car. You can also edit listing details or photos whenever you want from your dashboard."
+          "answer": "Your listing stays active for 30 days from the posting date. You can renew it for free anytime, or delete it once you've sold or rented your item. You can also edit listing details or photos whenever you want from your dashboard."
         }
       }
     }
@@ -448,7 +452,7 @@
       "listingTypeSelect": "select listing type",
       "activeFilters": "{count} active filter",
       "activeFilters_other": "{count} active filters",
-      "mobileDescription": "Filter cars by your preferences",
+      "mobileDescription": "Filter listings by your preferences",
       "filtersApplied": "{count} filter applied",
       "filtersApplied_other": "{count} filters applied",
       "noFiltersApplied": "No filters applied",
@@ -538,20 +542,24 @@
       }
     },
     "allCars": {
-      "title": "All Cars",
-      "loading": "Loading cars...",
-      "error": "Failed to load car listings",
-      "noResults": "No cars found",
+      "title": "All Listings",
+      "loading": "Loading...",
+      "error": "Failed to load listings",
+      "noResults": "No items found",
       "noResultsMessage": "Try adjusting your search criteria or filters",
-      "totalFound": "cars found",
-      "loadingMore": "Loading more cars...",
-      "failedToGet": "Failed to load car listings",
+      "totalFound": "listings found",
+      "loadingMore": "Loading more...",
+      "failedToGet": "Failed to load listings",
       "createAlert": "Notify Me",
       "creatingAlert": "Saving...",
       "alertCreated": "Success",
       "alertCreatedDesc": "Alert created successfully!",
       "alertCreateError": "Error",
       "alertCreateErrorDesc": "Failed to create alert",
+      "alertFailed": "Failed",
+      "alertFailedDesc": "Failed to create alert. Please try again.",
+      "alertError": "Error",
+      "alertErrorDesc": "An unexpected error occurred.",
       "loginToCreateAlert": "Login Required",
       "loginToCreateAlertDesc": "Please login to create an alert",
       "selectBrandForAlert": "Brand Required",
@@ -566,7 +574,7 @@
       "cat_name_six": "Economy",
       "title": "Browse by Category",
       "loading": "Loading categories...",
-      "carCount": "cars available"
+      "carCount": "listings available"
     }
   },
   "product": {
@@ -589,23 +597,23 @@
     },
     "BasicInfo": {
       "price": "Price",
-      "carType": "Car Type",
+      "carType": "Category Type",
       "model": "Model",
       "controlType": "Control Type",
-      "distance": "Distance",
-      "modelYear": "Model Year",
+      "distance": "Distance / Age",
+      "modelYear": "Year",
       "adsNumber": "Ads Number",
       "dateOfAds": "Date Of Ads",
-      "gaz": "Gaz",
-      "bodyType": "Body Type"
+      "gaz": "Energy Source",
+      "bodyType": "Type"
     },
     "tabs": {
       "adsInfo": "Ads Info",
       "location": "Location",
-      "productInfo": "Car Info",
+      "productInfo": "Information",
       "productDetails": "Details",
       "productFeatures": "Features",
-      "productDamages": "Car Damages",
+      "productDamages": "Condition Details",
       "contactLocationInfo": "Contact & Location Information",
       "descriptionStory": "Description & Story",
       "features": {
@@ -714,6 +722,8 @@
       "plateNumber": "plate Number",
       "mileage": "mile Age",
       "doors": "Doors",
+      "colorExterior": "Exterior Color",
+      "colorInterior": "Interior Color",
       "vin": "vin"
     }
   },
@@ -793,7 +803,7 @@
     "tabs": {
       "adsInfo": "Ads Info",
       "location": "Location",
-      "productInfo": "Car Info",
+      "productInfo": "Information",
       "productDetails": "Details",
       "productFeatures": "Features"
     },
@@ -814,16 +824,20 @@
   },
   "addProduct": {
     "steps": {
-      "carType": "Car Type",
-      "carInfo": "Car Information",
-      "carImages": "Car Images",
+      "carType": "Category",
+      "carInfo": "Information",
+      "carImages": "Images",
       "adsDetails": "Ad Details"
+    },
+    "typeSelection": {
+      "title": "Select Category",
+      "description": "What kind of ad would you like to post?"
     },
     "enteredData": {
       "stepOne": {
         "branda": {
-          "title": "Car Brand",
-          "description": "Add Car Brand Not Found",
+          "title": "Brand",
+          "description": "Add Brand Not Found",
           "options": {
             "productMarka": {
               "toyota": "Toyota",
@@ -838,8 +852,8 @@
           }
         },
         "trims": {
-          "title": "Car Trims",
-          "description": "Add Car Trims Not Found",
+          "title": "Trim/Level",
+          "description": "Add Trim Not Found",
           "options": {}
         },
         "madeYear": {
@@ -854,8 +868,8 @@
           }
         },
         "model": {
-          "title": "Car Model",
-          "description": "Add Car Model Missing",
+          "title": "Model",
+          "description": "Add Model Missing",
           "options": {
             "sedan": "Sedan",
             "suv": "Truck",
@@ -864,7 +878,7 @@
           }
         }
       },
-      "stepTow": {
+      "stepTwo": {
         "price": {
           "options": {
             "usd": "US Dollar",
@@ -1046,9 +1060,9 @@
         }
       },
       "stepThree": {
-        "carInfo": "Car Condition",
-        "carPhotos": "Car Photos",
-        "carSectionName": "Car Section Name",
+        "carInfo": "Condition",
+        "carPhotos": "Photos",
+        "carSectionName": "Section Name",
         "conditionTypes": {
           "Paint": "Paint",
           "Replacement": "Replacement",
@@ -1083,7 +1097,7 @@
         "images": {
           "coverImage": "Cover image",
           "oneImage": "You can enter up to 20 images",
-          "carImages": "Car Images",
+          "carImages": "Images",
           "tenImages": "You can enter up to 20 images",
           "documents": "Documents",
           "tenFiles": "You can enter up to 10 files"
@@ -1094,6 +1108,7 @@
         "usd": "US Dollar",
         "eur": "Euro"
       },
+      "pickDate": "Pick a date",
       "stepFour": {
         "title": "Ad Details",
         "adTitle": "Ad Title",
@@ -1128,7 +1143,7 @@
   "UserProfile": {
     "favorites": {
       "title": "My Favorites",
-      "description": "Manage your saved car listings",
+      "description": "Manage your saved listings",
       "itemsCount": "Items",
       "searchPlaceholder": "Search favorites...",
       "filters": {
@@ -1138,13 +1153,13 @@
       },
       "error": {
         "title": "Error Loading Favorites",
-        "message": "Failed to load your favorite cars",
+        "message": "Failed to load your favorites",
         "retry": "Try Again"
       },
       "empty": {
         "title": "No Favorites Yet",
-        "message": "You haven't added any cars to your favorites yet. Start browsing to find cars you love!",
-        "browseButton": "Browse Cars"
+        "message": "You haven't added any items to your favorites yet. Start browsing to find items you love!",
+        "browseButton": "Browse Listings"
       },
       "pagination": {
         "showing": "Showing",
@@ -1155,10 +1170,11 @@
         "next": "Next"
       },
       "refreshing": "Refreshing...",
-      "priceLabel": "Price"
+      "priceLabel": "Price",
+      "advancedFilters": "Advanced Filters"
     },
     "products": {
-      "searchPlaceholder": "Search my cars...",
+      "searchPlaceholder": "Search my listings...",
       "allTypes": "All Types",
       "forSale": "For Sale",
       "forRent": "For Rent",
@@ -1173,14 +1189,14 @@
       "titleAsc": "Title (A-Z)",
       "titleDesc": "Title (Z-A)",
       "reset": "Reset",
-      "cars": "cars",
-      "myCars": "My Cars",
-      "failedToLoad": "Failed to Load Cars",
-      "failedToLoadMessage": "We couldn't load your car listings. Please try again.",
+      "cars": "items",
+      "myCars": "My Listings",
+      "failedToLoad": "Failed to Load Listings",
+      "failedToLoadMessage": "We couldn't load your listings. Please try again.",
       "tryAgain": "Try Again",
-      "noCarsYet": "No Cars Yet",
-      "noCarsMessage": "You haven't created any car listings yet. Add your first car to get started!",
-      "addNewCar": "Add New Car"
+      "noCarsYet": "No Listings Yet",
+      "noCarsMessage": "You haven't created any listings yet. Add your first item to get started!",
+      "addNewCar": "Add New Listing"
     },
     "SideBar": {
       "home": "Home",
@@ -1216,12 +1232,12 @@
     },
     "home": {
       "welcome": "Welcome",
-      "overview": "Here's an overview of your car listings and activity",
+      "overview": "Here's an overview of your listings and activity",
       "memberSince": "Member since",
       "lastUpdated": "Last updated",
-      "carsForSale": "Cars For Sale",
+      "carsForSale": "For Sale",
       "activeListings": "Active listings",
-      "carsForRent": "Cars For Rent",
+      "carsForRent": "For Rent",
       "favorites": "Favorites",
       "savedListings": "Saved listings",
       "activitySummary": "Activity Summary",
@@ -1232,10 +1248,10 @@
       "months": "Months",
       "engagement": "Engagement",
       "favoritesRatio": "Favorites ratio",
-      "listCarSale": "List a Car for Sale",
-      "createSaleListing": "Create a new listing to sell your vehicle and reach potential buyers.",
+      "listCarSale": "List an Item for Sale",
+      "createSaleListing": "Create a new listing to sell your item and reach potential buyers.",
       "createSaleButton": "Create Sale Listing",
-      "listCarRent": "List a Car for Rent",
+      "listCarRent": "List an Item for Rent",
       "createRentListing": "Create a new rental listing and start earning passive income.",
       "createRentButton": "Create Rental Listing",
       "errorLoading": "Error Loading Profile",
@@ -1267,8 +1283,8 @@
   },
   "saleProduct": {
     "hero": {
-      "title": "Cars For Sale",
-      "subtitle": "Find your perfect car from our extensive collection of quality vehicles"
+      "title": "Products For Sale",
+      "subtitle": "Find your perfect item from our extensive collection"
     },
     "search": {
       "placeholder": "Search by make, model, or keywords..."
@@ -1287,8 +1303,8 @@
       "apply": "Apply Filters"
     },
     "results": {
-      "title": "Cars For Sale",
-      "found": "vehicles found"
+      "title": "Items For Sale",
+      "found": "listings found"
     },
     "sort": {
       "label": "Sort by:",
@@ -1298,14 +1314,14 @@
       "priceHigh": "Price: High to Low"
     },
     "error": {
-      "title": "Failed to load car listings",
-      "message": "There was a problem loading the car listings. Please try again later.",
+      "title": "Failed to load listings",
+      "message": "There was a problem loading the listings. Please try again later.",
       "retry": "Try Again"
     },
     "empty": {
-      "title": "No cars found",
-      "message": "There are currently no car listings available. Please check back later.",
-      "searchMessage": "No cars match your search criteria. Try different keywords or clear your filters.",
+      "title": "No items found",
+      "message": "There are currently no listings available. Please check back later.",
+      "searchMessage": "No items match your search criteria. Try different keywords or clear your filters.",
       "clearSearch": "Clear Search"
     },
     "pagination": {
@@ -1320,8 +1336,8 @@
   },
   "rentProduct": {
     "hero": {
-      "title": "Cars For Rent",
-      "subtitle": "Find your perfect car from our extensive collection of quality vehicles"
+      "title": "Products For Rent",
+      "subtitle": "Find your perfect item from our extensive collection"
     },
     "search": {
       "placeholder": "Search by make, model, or keywords..."
@@ -1340,8 +1356,8 @@
       "apply": "Apply Filters"
     },
     "results": {
-      "title": "Cars For Rent",
-      "found": "vehicles found"
+      "title": "Items For Rent",
+      "found": "listings found"
     },
     "sort": {
       "label": "Sort by:",
@@ -1351,14 +1367,14 @@
       "priceHigh": "Price: High to Low"
     },
     "error": {
-      "title": "Failed to load car listings",
-      "message": "There was a problem loading the car listings. Please try again later.",
+      "title": "Failed to load listings",
+      "message": "There was a problem loading the listings. Please try again later.",
       "retry": "Try Again"
     },
     "empty": {
-      "title": "No cars found",
-      "message": "There are currently no car listings available. Please check back later.",
-      "searchMessage": "No cars match your search criteria. Try different keywords or clear your filters.",
+      "title": "No items found",
+      "message": "There are currently no listings available. Please check back later.",
+      "searchMessage": "No items match your search criteria. Try different keywords or clear your filters.",
       "clearSearch": "Clear Search"
     },
     "pagination": {
@@ -1542,14 +1558,14 @@
   "SoldCard": {
     "soldOut": "SOLD OUT",
     "sold": "SOLD",
-    "desc": "THIS VEHICLE HAS BEEN SOLD"
+    "desc": "THIS ITEM HAS BEEN SOLD"
   },
   "productHeader": {
-    "share": "Share this car",
+    "share": "Share this listing",
     "linkCopied": "Link Copied!",
     "copyLink": "Copy Link",
     "moreOptions": "More Options",
-    "shareCar": "Share this car",
+    "shareCar": "Share this listing",
     "facebook": "Facebook",
     "instagram": "Instagram",
     "linkedin": "LinkedIn",
@@ -1626,28 +1642,29 @@
     "email": "Email",
     "phone": "Phone",
     "noData": "No profile data available",
+    "share": "Share this profile",
     "stats": {
       "totalListings": "Total Listings",
-      "forSale": "Cars for Sale",
-      "forRent": "Cars for Rent",
+      "forSale": "For Sale",
+      "forRent": "For Rent",
       "totalViews": "Total Views"
     },
     "listings": {
-      "title": "Car Listings",
-      "noListings": "No car listings available",
+      "title": "Listings",
+      "noListings": "No listings available",
       "showing": "Showing",
       "of": "of",
       "listings": "listings",
       "rent": "Rent",
       "sale": "Sale",
       "sold": "SOLD",
-      "soldDesc": "This car has been sold",
+      "soldDesc": "THIS ITEM HAS BEEN SOLD",
       "noImage": "No image available",
       "km": "km"
     },
     "filters": {
-      "totalCars": "cars",
-      "searchPlaceholder": "Search cars...",
+      "totalCars": "items",
+      "searchPlaceholder": "Search items...",
       "allTypes": "All Types",
       "forSale": "For Sale",
       "forRent": "For Rent",
@@ -1657,19 +1674,19 @@
       "priceLow": "Price (Low)",
       "titleAsc": "Title (A-Z)",
       "titleDesc": "Title (Z-A)",
-      "carFilters": "Car Filters",
-      "advancedFilters": "Advanced Filters",
+      "carFilters": "Listing Details",
+      "advancedFilters": "More Filters",
       "reset": "Reset",
-      "carMake": "Car Make",
+      "carMake": "Make",
       "selectMake": "Select make...",
       "searchMakes": "Search makes...",
-      "carModel": "Car Model",
+      "carModel": "Model",
       "selectModel": "Select model...",
       "searchModels": "Search models...",
-      "carTrim": "Car Trim",
+      "carTrim": "Trim",
       "selectTrim": "Select trim...",
       "searchTrims": "Search trims...",
-      "activeFilters": "Active Car Filters:",
+      "activeFilters": "Active Filters:",
       "makeSelected": "Make Selected",
       "modelSelected": "Model Selected",
       "trimSelected": "Trim Selected",
@@ -1682,29 +1699,29 @@
     "title": "My Alerts",
     "breadcrumb": "My Alerts",
     "createNew": "Create New Alert",
-    "getStarted": "Explore Cars & Create Alert",
+    "getStarted": "Explore items and create alert",
     "noAlerts": "No Alerts Yet",
-    "noAlertsDesc": "Create a car alert to get notified when new listings matching your criteria appear.",
-    "anyVehicle": "Any Vehicle",
-    "allTrims": "All trims",
-    "anyPrice": "Any price",
-    "anyLocation": "Any location",
+    "noAlertsDesc": "Create an alert to get notified when new listings matching your criteria appear.",
+    "anyVehicle": "Any Item",
+    "allTrims": "All Trims",
+    "anyPrice": "Any Price",
+    "anyLocation": "Any Location",
     "any": "Any",
     "activeStatus": "Active",
     "pausedStatus": "Paused",
     "enabled": "Alert Enabled",
-    "disabled": "Alert Disabled",
-    "toggleSuccess": "Your alert status has been updated.",
+    "disabled": "Alert Paused",
+    "toggleSuccess": "Alert status updated.",
     "toggleError": "Failed to update alert status.",
     "deleted": "Alert Deleted",
-    "deleteSuccess": "The alert has been removed.",
+    "deleteSuccess": "Alert removed successfully.",
     "deleteError": "Failed to delete alert.",
-    "deleteAlert": "Delete alert",
+    "deleteAlert": "Delete Alert",
     "confirmDeleteTitle": "Delete this alert?",
     "confirmDeleteDescription": "You'll stop receiving notifications for",
     "cannotUndo": "This action cannot be undone.",
-    "thisVehicle": "this vehicle",
-    "clickToDisable": "Click to pause notifications",
+    "thisVehicle": "this item",
+    "clickToDisable": "Click to disable notifications",
     "clickToEnable": "Click to enable notifications",
     "cancel": "Cancel",
     "delete": "Delete",
@@ -1718,17 +1735,17 @@
     "editAlert": "Edit Alert",
     "notifyMe": "Notify Me",
     "updateCriteria": "Update your alert criteria",
-    "beFirst": "Be first to know about new cars",
+    "beFirst": "Be the first to know about new listings",
     "minPriceSyp": "Min Price (SYP)",
     "maxPriceSyp": "Max Price (SYP)",
     "fillOneField": "Please fill at least one field",
-    "priceRangeError": "Minimum price must be less than or equal to maximum price",
+    "priceRangeError": "Min price must be less than or equal to max price",
     "saveChanges": "Save Changes",
     "activateAlert": "Activate Alert",
     "alertUpdated": "Alert Updated",
     "changesSaved": "Changes saved successfully",
     "alertCreated": "Alert Created",
-    "willNotify": "We will notify you when matching cars are available",
+    "willNotify": "We will notify you when matching items are available",
     "updateError": "Update Error",
     "creationError": "Creation Error",
     "failedUpdate": "Failed to update alert",

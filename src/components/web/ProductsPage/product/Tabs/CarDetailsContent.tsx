@@ -15,6 +15,7 @@ import {
   Hash,
   ChevronDown,
   ChevronUp,
+  Palette,
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
@@ -82,6 +83,21 @@ const CarDetailsContent: React.FC<CarDetailsContentProps> = ({
       label: t('enginePower'),
       value: data?.details?.enginePower || '-',
       icon: <Settings className="w-4 h-4" />,
+    },
+    {
+      label: t('doors'),
+      value: data?.details?.doors || '-',
+      icon: <Hash className="w-4 h-4" />,
+    },
+    {
+      label: t('colorExterior'),
+      value: data?.details?.colorExterior || '-',
+      icon: <Palette className="w-4 h-4" />,
+    },
+    {
+      label: t('colorInterior'),
+      value: data?.details?.colorInterior || '-',
+      icon: <Palette className="w-4 h-4" />,
     },
     {
       label: t('plateNumber'),
@@ -254,7 +270,7 @@ const CarDetailsContent: React.FC<CarDetailsContentProps> = ({
         </div>
         <div className="pl-11 relative z-10">
           <p className="text-base font-bold text-[#2C3C39] group-hover:text-[#198341] transition-colors duration-300">
-            {detail.value}
+            {typeof detail.value === 'object' ? JSON.stringify(detail.value) : detail.value}
           </p>
         </div>
       </div>
@@ -267,10 +283,11 @@ const CarDetailsContent: React.FC<CarDetailsContentProps> = ({
     const maxLength = 200;
     const shouldTruncate = detail.value.length > maxLength;
 
+    const valueStr = typeof detail.value === 'string' ? detail.value : JSON.stringify(detail.value) || '';
     const displayValue =
       shouldTruncate && !isExpanded
-        ? `${detail.value.substring(0, maxLength)}...`
-        : detail.value;
+        ? `${valueStr.substring(0, maxLength)}...`
+        : valueStr;
 
     return (
       <div

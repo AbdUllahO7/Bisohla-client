@@ -5,17 +5,19 @@ import { generateWebMetadata } from '../../../MetaData';
 import { generateProductMetadata } from '@/utils/settings-metadata.utils';
 import { ApiResponse } from '@/core/entities/api/success.response';
 import { SelectCarListingDto } from '@/core/entities/models/cars/cars.dto';
+import { GenericListingDto } from '@/core/entities/models/listings/generic-listing.dto';
 import { getMyCarById } from '@/core/infrastructure-adapters/actions/users/car.user.actions';
-import { QueryParams } from '@/core/entities/api/api';
+import { getListingById as getMyListingById } from '@/core/infrastructure-adapters/actions/users/listing.user.actions';
 import { getCarListingById } from '@/core/infrastructure-adapters/actions/visitors/car.visitor.actions';
+import { getListingBySlug, getListingById } from '@/core/infrastructure-adapters/actions/visitors/listing.visitor.actions';
 import { getSession } from '@/core/lib/web/session';
+import { normalizeListingToCarDto } from '@/utils/listing-normalization';
 import ProductClient from './product-client';
 import MobileProductClient from './mobile-product-client';
 import { APP_URL } from '@/core/lib/web/constants';
 import SimilarAds from '@/components/web/ProductsPage/product/SimilarAds';
 import SimilarCarAlertBanner from '@/components/web/ProductsPage/product/SimilarCarAlertBanner';
 import AdsSectionProduct from '@/components/web/ProductsPage/product/AdsSectionProduct';
-import { logger } from '@/lib/logger';
 
 interface ProductPageProps {
   params: Promise<{
@@ -26,58 +28,123 @@ interface ProductPageProps {
   }>;
 }
 
+interface FetchListingResult {
+  carResponse: ApiResponse<SelectCarListingDto>;
+  rawListing: GenericListingDto | null;
+}
+
 async function fetchCarData(
-  id: number,
+  idOrSlug: string,
   isProfileView: boolean,
+  locale: string,
   userId?: number,
-): Promise<ApiResponse<SelectCarListingDto>> {
+): Promise<FetchListingResult> {
+
   if (isProfileView) {
-    logger.log('Fetching my car by ID:', id);
-    return await getMyCarById(id);
-  } else {
-    logger.log('Fetching public car listing by ID:', id);
-    const params: QueryParams = {
-      id,
-      userId,
-    };
-    return await getCarListingById(params);
+    let id = Number(idOrSlug);
+    if (isNaN(id)) {
+      // It's a slug! Let's get the listing by slug first to extract its numeric id.
+      const slugRes = await getListingBySlug(idOrSlug);
+      if (slugRes.success && slugRes.data) {
+        id = slugRes.data.id;
+      }
+    }
+
+    if (!isNaN(id)) {
+      const myListingRes = await getMyListingById(id);
+      if (myListingRes.success && myListingRes.data) {
+        return {
+          carResponse: {
+            ...myListingRes,
+            data: normalizeListingToCarDto(myListingRes.data, locale),
+          } as ApiResponse<SelectCarListingDto>,
+          rawListing: myListingRes.data as unknown as GenericListingDto,
+        };
+      }
+
+      const myCarRes = await getMyCarById(id);
+      if (myCarRes.success && myCarRes.data) {
+        return {
+          carResponse: {
+            ...myCarRes,
+            data: normalizeListingToCarDto(myCarRes.data, locale),
+          } as ApiResponse<SelectCarListingDto>,
+          rawListing: myCarRes.data as unknown as GenericListingDto,
+        };
+      }
+    }
   }
+
+  // Attempt 1: Fetch by Slug (New generic endpoint)
+  const params = userId ? { userId } : undefined;
+  
+  const slugRes = await getListingBySlug(idOrSlug, params);
+  if (slugRes.success && slugRes.data) {
+    return {
+      carResponse: {
+        ...slugRes,
+        data: normalizeListingToCarDto(slugRes.data, locale),
+      } as ApiResponse<SelectCarListingDto>,
+      rawListing: slugRes.data as GenericListingDto,
+    };
+  }
+
+  // Attempt 2: Fetch by ID if numeric (New generic endpoint)
+  const id = Number(idOrSlug);
+  if (!isNaN(id) && idOrSlug.trim() !== '') {
+    const idRes = await getListingById(id, params);
+    if (idRes.success && idRes.data) {
+      return {
+        carResponse: {
+          ...idRes,
+          data: normalizeListingToCarDto(idRes.data, locale),
+        } as ApiResponse<SelectCarListingDto>,
+        rawListing: idRes.data as GenericListingDto,
+      };
+    }
+
+    // Attempt 3: Legacy car endpoint fallback
+    const legacyRes = await getCarListingById({ id, userId });
+    if (legacyRes.success && legacyRes.data) {
+      return { carResponse: legacyRes, rawListing: null };
+    }
+  }
+
+  console.warn(`[ProductPage] all attempts failed for ${idOrSlug}`);
+  return { carResponse: slugRes as ApiResponse<SelectCarListingDto>, rawListing: null };
 }
 
 export async function generateMetadata({
   params,
   searchParams,
 }: ProductPageProps): Promise<Metadata> {
-  logger.log('WHYYY');
   const { id } = await params;
   const isProfileView = (await searchParams).profile === 'true';
 
   try {
-    // Get session for user ID
     const session = await getSession();
-    const userId = session?.user?.id;
-
-    // Fetch car data
-    const carResponse = await fetchCarData(Number(id), isProfileView, userId);
+    const locale = await getLocale();
+    const { carResponse } = await fetchCarData(id, isProfileView, locale, session?.user?.id);
 
     if (!carResponse.success || !carResponse.data) {
-      // Fallback to settings-based metadata for car-detail page
       return generateWebMetadata('car-detail');
     }
 
-    const locale = await getLocale();
     const car = carResponse.data;
-    const carTitle = `${car.make?.name || ''} ${car.model?.name || ''} ${car.details?.year || ''
-      }`.trim();
-    const carDescription = `${carTitle} - ${car.details?.fuelType || ''} - ${car.details?.transmission || ''
-      } - Price: ${car.price || 'N/A'}`;
+    const makeModel = `${car.make?.name || ''} ${car.model?.name || ''}`.trim();
+    const baseTitle = makeModel || car.title || 'Car Details';
+    const yearStr = car.details?.year && car.details.year > 0 ? car.details.year.toString() : '';
+    const carTitle = yearStr && !baseTitle.includes(yearStr) ? `${baseTitle} ${yearStr}`.trim() : baseTitle;
+    const carDescription = [
+      carTitle,
+      car.details?.fuelType,
+      car.details?.transmission,
+      car.price ? `Price: ${car.price}` : null
+    ].filter(Boolean).join(' - ');
 
-    // Build absolute canonical URL for social media
     const baseUrl = APP_URL;
-    const canonicalPath = `${baseUrl}/${locale}/products/product/${id}${isProfileView ? '?profile=true' : ''
-      }`;
+    const canonicalPath = `${baseUrl}/${locale}/products/product/${id}${isProfileView ? '?profile=true' : ''}`;
 
-    // Use product-specific metadata with settings as fallback for global config
     return await generateProductMetadata({
       title: carTitle || 'Car Details',
       description: carDescription,
@@ -106,33 +173,23 @@ const ProductPage = async ({ params, searchParams }: ProductPageProps) => {
   const isProfileView = (await searchParams).profile === 'true';
 
   try {
-    // Get session and check auth
     const session = await getSession();
-    const userId = session?.user?.id;
+    const isAuthenticated = !!(session?.accessToken || session?.user);
+    const locale = await getLocale();
 
-    // Check authentication status
-    const authResponse = await getSession();
-    const isAuthenticated =
-      authResponse?.accessToken || authResponse?.user ? true : false;
-
-    // Fetch car data (this will be cached/deduplicated with metadata generation)
-    const carResponse = await fetchCarData(Number(id), isProfileView, userId);
-
-    logger.log('Car Response:', carResponse);
+    const { carResponse, rawListing } = await fetchCarData(id, isProfileView, locale, session?.user?.id);
 
     if (!carResponse.success || !carResponse.data) {
       notFound();
     }
 
-    const locale = await getLocale();
-
-    // Pass the fetched data to the client component
     return (
       <>
         {/* Desktop Version */}
         <div className="hidden md:block">
           <ProductClient
             carDataRes={carResponse}
+            rawListing={rawListing}
             isAuthenticated={isAuthenticated}
             locale={locale}
             isProfileView={isProfileView}
@@ -143,13 +200,14 @@ const ProductPage = async ({ params, searchParams }: ProductPageProps) => {
         <div className="block md:hidden">
           <MobileProductClient
             carDataRes={carResponse}
+            rawListing={rawListing}
             isAuthenticated={isAuthenticated}
             locale={locale}
             isProfileView={isProfileView}
           />
         </div>
 
-        {/* Ad Section — between product content and Similar Ads */}
+        {/* Ad Section */}
         <div className="container">
           <AdsSectionProduct />
         </div>
@@ -164,7 +222,7 @@ const ProductPage = async ({ params, searchParams }: ProductPageProps) => {
           />
         </div>
 
-        {/* Similar Car Alert Banner — one-time floating prompt */}
+        {/* Similar Car Alert Banner */}
         <SimilarCarAlertBanner
           car={carResponse.data}
           isAuthenticated={isAuthenticated}
@@ -179,3 +237,4 @@ const ProductPage = async ({ params, searchParams }: ProductPageProps) => {
 };
 
 export default ProductPage;
+

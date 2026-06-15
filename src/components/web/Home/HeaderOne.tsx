@@ -1,9 +1,9 @@
 'use client';
 
 import Image from 'next/image';
-import { Button } from '../../ui/button';
-import Box from '../../box/box';
-import LocaleSwitcher from '../../local/LocalSwitcher';
+import { Button } from '@/components/ui/button';
+import Box from '@/components/ui/box';
+import LocaleSwitcher from '@/components/locale/LocaleSwitcher';
 import { Link } from '@/i18n/routing';
 import { UserCheck2Icon, LogOut, Plus, Menu, X } from 'lucide-react';
 import NotificationDropdown from './NotificationDropdown';
@@ -13,7 +13,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { useEffect, useState, useRef } from 'react';
 import { deleteSession } from '@/core/lib/web/session';
 import { logoutAction } from '@/app/[locale]/auth/actions';
-import Logo from '@/components/logo';
+import Logo from '@/components/shared/logo';
 
 const HeaderOne = () => {
   const t = useTranslations('homePage');

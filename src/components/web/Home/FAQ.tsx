@@ -1,11 +1,11 @@
 "use client"
 
-import Box from "@/components/box/box"
-import Text from "@/components/text/text"
+import Box from "@/components/ui/box"
+import Text from "@/components/ui/text"
 import { useTranslations } from "next-intl"
 import { PlusIcon, MinusIcon, HelpCircle } from "lucide-react"
 import { useState } from "react"
-import SectionHeader from "@/components/SectionHeader"
+import SectionHeader from "@/components/shared/SectionHeader"
 
 const FAQ = () => {
     const t = useTranslations("homePage")

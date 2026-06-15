@@ -1,15 +1,15 @@
 "use client"
 
 import { useMemo } from "react"
-import Box from "@/components/box/box"
-import Text from "@/components/text/text"
+import Box from "@/components/ui/box"
+import Text from "@/components/ui/text"
 import { useRouter } from "next/navigation"
 import { useTranslations, useLocale } from "next-intl"
 import CarouselComponent from "../design/CarouselComponent"
 import { useProductStepOne } from "@/components/web/ProductsPage/addProducts/StepOne/hooks"
 import { useGetCityCounts } from "@/core/infrastructure-adapters/use-actions/visitors/car.visitor.use-actions"
-import SectionHeader from "@/components/SectionHeader"
-import { ClipboardTypeIcon, SearchCodeIcon, SearchSlashIcon } from "lucide-react"
+import SectionHeader from "@/components/shared/SectionHeader"
+import {  SearchCodeIcon } from "lucide-react"
 
 interface CityData {
   governorate: string
@@ -111,11 +111,11 @@ const WorldOfProduct = () => {
             cityTitle = cityData.governorate
           }
 
-          // Format car count with proper pluralization
+          // Format ad count with proper pluralization
           const carCount =
             locale === "ar"
-              ? `${cityData.count} ${cityData.count <= 1 ? "سيارة" : "سيارات"}`
-              : `${cityData.count} ${cityData.count <= 1 ? "Car" : "Cars"}`
+              ? `${cityData.count} ${cityData.count <= 1 ? "إعلان" : "إعلانات"}`
+              : `${cityData.count} ${cityData.count <= 1 ? "Ad" : "Ads"}`
 
           return {
             title: cityTitle,

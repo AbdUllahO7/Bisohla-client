@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import Box from '@/components/box/box';
+import Box from '@/components/ui/box';
 import { Search, Filter, X } from 'lucide-react';
 import { SelectNewsCategoryDto } from '@/core/entities/models/news/news.dto';
 
@@ -35,7 +35,7 @@ export default function NewsActiveFilters({
           <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-primary-light/20 rounded-2xl blur-xl" />
           <span className="relative inline-flex items-center gap-3 px-5 py-3 bg-gradient-to-r from-primary/10 to-primary-light/10 border-2 border-primary/20 text-primary rounded-2xl font-semibold">
             <Search className="w-4 h-4" />
-            {translations.searchingFor}: "{searchTerm}"
+            {translations.searchingFor}: &quot;{searchTerm}&quot;
             <button
               title="Clear search"
               onClick={onClearSearch}

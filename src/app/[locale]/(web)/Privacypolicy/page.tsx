@@ -1,9 +1,13 @@
 'use client';
 
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { ChevronRight, Shield, Eye, Users, Lock, Bell, FileText, HelpCircle, Sparkles, ArrowRight } from 'lucide-react'
 import { useLocale } from "next-intl"
 import Image from "next/image"
+import 'quill/dist/quill.snow.css';
+import { usePublicSettings } from "@/core/infrastructure-adapters/use-actions/settings/settings.use-actions"
+import { Skeleton } from "@/components/ui/skeleton"
 
 // Dictionary for translations
 const translations = {
@@ -299,6 +303,36 @@ export default function PrivacyPolicyPage() {
   const isArabic = locale === 'ar';
   const t = translations[isArabic ? 'ar' : 'en'];
 
+  // Fetch dynamic settings containing privacy policy content
+  const { data: settingsResponse, isLoading } = usePublicSettings();
+  const content = settingsResponse?.data?.[locale]?.general?.content;
+  const privacyHtml = content?.privacy_html;
+  const aboutHtml = content?.about_html;
+
+  const [activeTab, setActiveTab] = useState<'privacy' | 'about'>('privacy');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const tab = params.get('tab');
+      if (tab === 'about' || tab === 'privacy') {
+        setActiveTab(tab);
+      }
+    }
+  }, []);
+
+  const activeHtml = activeTab === 'privacy' ? privacyHtml : aboutHtml;
+
+  const pageTitle = activeTab === 'privacy' 
+    ? t.hero.title 
+    : (isArabic ? 'عن بسهولة' : 'About Us');
+
+  const pageSubtitle = activeTab === 'privacy' 
+    ? t.hero.subtitle 
+    : (isArabic 
+        ? 'سوق إلكتروني يجعل البيع والشراء والإيجار أمراً سهلاً' 
+        : 'An online marketplace making buying, selling, and renting easy');
+
   return (
     <div className={`w-full ${isArabic ? "rtl" : "ltr"}`} dir={isArabic ? "rtl" : "ltr"}>
       {/* Animated Background */}
@@ -327,18 +361,26 @@ export default function PrivacyPolicyPage() {
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-sm"
                    style={{ backgroundColor: 'rgba(171, 222, 59, 0.2)' }}>
                 <Sparkles className="w-4 h-4" style={{ color: '#ABDE3B' }} />
-                <span className="text-sm font-medium" style={{ color: '#ABDE3B' }}>Your Privacy Matters</span>
+                <span className="text-sm font-medium" style={{ color: '#ABDE3B' }}>
+                  {activeTab === 'privacy' 
+                    ? (isArabic ? 'خصوصيتك تهمنا' : 'Your Privacy Matters') 
+                    : (isArabic ? 'من نحن' : 'Who We Are')}
+                </span>
               </div>
 
               <h1 className="text-5xl md:text-6xl font-bold leading-tight">
-                {t.hero.title}
+                {pageTitle}
               </h1>
               <p className="text-xl text-white/90">
-                {t.hero.subtitle}
+                {pageSubtitle}
               </p>
               <div className="flex items-center gap-3 text-sm">
                 <div className="h-1 w-12 rounded-full" style={{ backgroundColor: '#ABDE3B' }}></div>
-                <span className="text-white/80">{t.hero.lastUpdated}</span>
+                <span className="text-white/80">
+                  {activeTab === 'privacy' 
+                    ? t.hero.lastUpdated 
+                    : (isArabic ? 'منصة بسهولة للتجارة الإلكترونية' : 'Bishola E-commerce Platform')}
+                </span>
               </div>
             </div>
 
@@ -360,257 +402,339 @@ export default function PrivacyPolicyPage() {
       {/* Main Content */}
       <div className="relative bg-gradient-to-b from-gray-50 to-white py-20">
         <div className="container max-w-6xl mx-auto px-4 md:px-6 space-y-8">
-
-          {/* Introduction */}
-          <div className="group animate-fadeIn" style={{ animationDelay: '0.1s' }}>
-            <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                 style={{ background: 'linear-gradient(135deg, #ABDE3B 0%, #198341 100%)', filter: 'blur(40px)' }}></div>
-            <div className="relative bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100 hover:shadow-2xl transition-all duration-500">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="p-4 rounded-2xl" style={{ background: 'linear-gradient(135deg, #198341 0%, #2C3C39 100%)' }}>
-                  <Shield size={32} className="text-white" />
-                </div>
-                <h2 className="text-3xl md:text-4xl font-bold" style={{ color: '#2C3C39' }}>
-                  {t.sections.introduction.title}
-                </h2>
-              </div>
-              <div className="space-y-4 text-gray-700 text-lg leading-relaxed">
-                {t.sections.introduction.content.map((paragraph, index) => (
-                  <p key={index}>{paragraph}</p>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Information We Collect */}
-          <div className="group animate-fadeIn" style={{ animationDelay: '0.2s' }}>
-            <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                 style={{ background: 'linear-gradient(135deg, #ABDE3B 0%, #198341 100%)', filter: 'blur(40px)' }}></div>
-            <div className="relative bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100 hover:shadow-2xl transition-all duration-500">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="p-4 rounded-2xl" style={{ background: 'linear-gradient(135deg, #198341 0%, #2C3C39 100%)' }}>
-                  <Eye size={32} className="text-white" />
-                </div>
-                <h2 className="text-3xl md:text-4xl font-bold" style={{ color: '#2C3C39' }}>
-                  {t.sections.informationCollect.title}
-                </h2>
-              </div>
-              <p className="text-gray-700 text-lg mb-6">{t.sections.informationCollect.intro}</p>
-              <div className="grid gap-4">
-                {t.sections.informationCollect.items.map((item, index) => (
-                  <div key={index}
-                       className="group/item relative bg-gradient-to-br from-gray-50 to-white p-6 rounded-2xl border-2 border-transparent hover:border-opacity-50 transition-all duration-300 hover:shadow-lg"
-                       style={{ borderColor: '#ABDE3B' }}>
-                    <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-12 rounded-r-full transition-all duration-300 group-hover/item:h-16"
-                         style={{ backgroundColor: '#ABDE3B' }}></div>
-                    <h3 className="font-bold text-lg mb-2 ml-6" style={{ color: '#198341' }}>
-                      {item.title}
-                    </h3>
-                    <p className="text-gray-700 ml-6">{item.description}</p>
-                  </div>
-                ))}
+          {/* Tab Switcher */}
+          {!isLoading && (privacyHtml || aboutHtml) && (
+            <div className="flex justify-center mb-8">
+              <div className="inline-flex p-1.5 rounded-2xl bg-gray-100/80 backdrop-blur-md border border-gray-200 shadow-sm">
+                <button
+                  onClick={() => {
+                    setActiveTab('privacy');
+                    if (typeof window !== 'undefined') {
+                      const newUrl = new URL(window.location.href);
+                      newUrl.searchParams.set('tab', 'privacy');
+                      window.history.pushState({}, '', newUrl.toString());
+                    }
+                  }}
+                  className={`px-6 py-2.5 rounded-xl font-bold text-sm transition-all duration-300 ${
+                    activeTab === 'privacy'
+                      ? 'bg-white text-emerald-800 shadow-sm transform scale-102'
+                      : 'text-gray-600 hover:text-emerald-700'
+                  }`}
+                >
+                  {isArabic ? 'سياسة الخصوصية' : 'Privacy Policy'}
+                </button>
+                <button
+                  onClick={() => {
+                    setActiveTab('about');
+                    if (typeof window !== 'undefined') {
+                      const newUrl = new URL(window.location.href);
+                      newUrl.searchParams.set('tab', 'about');
+                      window.history.pushState({}, '', newUrl.toString());
+                    }
+                  }}
+                  className={`px-6 py-2.5 rounded-xl font-bold text-sm transition-all duration-300 ${
+                    activeTab === 'about'
+                      ? 'bg-white text-emerald-800 shadow-sm transform scale-102'
+                      : 'text-gray-600 hover:text-emerald-700'
+                  }`}
+                >
+                  {isArabic ? 'عن بسهولة' : 'About Us'}
+                </button>
               </div>
             </div>
-          </div>
+          )}
 
-          {/* How We Use Your Information */}
-          <div className="group animate-fadeIn" style={{ animationDelay: '0.3s' }}>
-            <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                 style={{ background: 'linear-gradient(135deg, #ABDE3B 0%, #198341 100%)', filter: 'blur(40px)' }}></div>
-            <div className="relative bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100 hover:shadow-2xl transition-all duration-500">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="p-4 rounded-2xl" style={{ background: 'linear-gradient(135deg, #198341 0%, #2C3C39 100%)' }}>
-                  <FileText size={32} className="text-white" />
+          {isLoading ? (
+            <div className="space-y-6 bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100">
+              <div className="flex items-center gap-4 mb-8">
+                <Skeleton className="w-16 h-16 rounded-2xl bg-gray-200" />
+                <div className="space-y-2">
+                  <Skeleton className="h-8 w-48 bg-gray-200" />
+                  <Skeleton className="h-4 w-32 bg-gray-200" />
                 </div>
-                <h2 className="text-3xl md:text-4xl font-bold" style={{ color: '#2C3C39' }}>
-                  {t.sections.informationUse.title}
-                </h2>
               </div>
-              <p className="text-gray-700 text-lg mb-6">{t.sections.informationUse.intro}</p>
-              <div className="grid md:grid-cols-2 gap-4">
-                {t.sections.informationUse.items.map((item, index) => (
-                  <div key={index}
-                       className="flex items-start gap-3 p-4 rounded-xl bg-gradient-to-br from-gray-50 to-white hover:shadow-md transition-all duration-300 group/item">
-                    <div className="flex-shrink-0 mt-1">
-                      <ChevronRight size={20} className="transition-transform duration-300 group-hover/item:translate-x-1"
-                                    style={{ color: '#ABDE3B' }} />
-                    </div>
-                    <p className="text-gray-700">{item}</p>
-                  </div>
-                ))}
+              <div className="space-y-4">
+                <Skeleton className="h-4 w-full bg-gray-200 animate-pulse" />
+                <Skeleton className="h-4 w-5/6 bg-gray-200 animate-pulse" />
+                <Skeleton className="h-4 w-4/5 bg-gray-200 animate-pulse" />
+                <Skeleton className="h-4 w-full bg-gray-200 animate-pulse" />
+              </div>
+              <div className="space-y-4 pt-6">
+                <Skeleton className="h-6 w-36 bg-gray-200 animate-pulse" />
+                <Skeleton className="h-4 w-11/12 bg-gray-200 animate-pulse" />
+                <Skeleton className="h-4 w-9/12 bg-gray-200 animate-pulse" />
               </div>
             </div>
-          </div>
-
-          {/* Information Sharing */}
-          <div className="group animate-fadeIn" style={{ animationDelay: '0.4s' }}>
-            <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                 style={{ background: 'linear-gradient(135deg, #ABDE3B 0%, #198341 100%)', filter: 'blur(40px)' }}></div>
-            <div className="relative bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100 hover:shadow-2xl transition-all duration-500">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="p-4 rounded-2xl" style={{ background: 'linear-gradient(135deg, #198341 0%, #2C3C39 100%)' }}>
-                  <Users size={32} className="text-white" />
-                </div>
-                <h2 className="text-3xl md:text-4xl font-bold" style={{ color: '#2C3C39' }}>
-                  {t.sections.informationSharing.title}
-                </h2>
-              </div>
-              <p className="text-gray-700 text-lg mb-6">{t.sections.informationSharing.intro}</p>
-              <div className="grid md:grid-cols-2 gap-6 mb-6">
-                {t.sections.informationSharing.items.map((item, index) => (
-                  <div key={index}
-                       className="relative group/card bg-gradient-to-br from-gray-50 to-white p-6 rounded-2xl hover:shadow-xl transition-all duration-300 border-2 border-transparent hover:border-opacity-30"
-                       style={{ borderColor: '#198341' }}>
-                    <div className="absolute top-0 right-0 w-20 h-20 rounded-full opacity-5 group-hover/card:opacity-10 transition-opacity"
-                         style={{ backgroundColor: '#ABDE3B', transform: 'translate(30%, -30%)' }}></div>
-                    <h3 className="font-bold text-xl mb-3" style={{ color: '#198341' }}>
-                      {item.title}
-                    </h3>
-                    <p className="text-gray-700">{item.description}</p>
-                  </div>
-                ))}
-              </div>
-              <div className="p-6 rounded-2xl border-2 border-dashed" style={{ borderColor: '#ABDE3B', backgroundColor: 'rgba(171, 222, 59, 0.05)' }}>
-                <p className="text-gray-700 text-center font-medium">{t.sections.informationSharing.footer}</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Cookies & Data Security - Side by Side */}
-          <div className="grid md:grid-cols-2 gap-8">
-            <div className="group animate-fadeIn" style={{ animationDelay: '0.5s' }}>
+          ) : activeHtml ? (
+            <div className="group animate-fadeIn ql-snow" key={activeTab}>
               <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                    style={{ background: 'linear-gradient(135deg, #ABDE3B 0%, #198341 100%)', filter: 'blur(40px)' }}></div>
-              <div className="relative h-full bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 border border-gray-100 hover:shadow-2xl transition-all duration-500">
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="p-3 rounded-xl" style={{ background: 'linear-gradient(135deg, #198341 0%, #2C3C39 100%)' }}>
-                    <Bell size={24} className="text-white" />
-                  </div>
-                  <h2 className="text-2xl font-bold" style={{ color: '#2C3C39' }}>
-                    {t.sections.cookies.title}
-                  </h2>
-                </div>
-                <div className="space-y-4 text-gray-700">
-                  {t.sections.cookies.content.map((paragraph, index) => (
-                    <p key={index}>{paragraph}</p>
-                  ))}
-                </div>
+              <div className="relative bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100 hover:shadow-2xl transition-all duration-500">
+                <div className="rich-text-content ql-editor privacy-content" style={{ overflowY: 'visible' }} dangerouslySetInnerHTML={{ __html: activeHtml }} />
               </div>
             </div>
-
-            <div className="group animate-fadeIn" style={{ animationDelay: '0.6s' }}>
+          ) : activeTab === 'about' ? (
+            <div className="group animate-fadeIn">
               <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                    style={{ background: 'linear-gradient(135deg, #ABDE3B 0%, #198341 100%)', filter: 'blur(40px)' }}></div>
-              <div className="relative h-full bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 border border-gray-100 hover:shadow-2xl transition-all duration-500">
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="p-3 rounded-xl" style={{ background: 'linear-gradient(135deg, #198341 0%, #2C3C39 100%)' }}>
-                    <Lock size={24} className="text-white" />
-                  </div>
-                  <h2 className="text-2xl font-bold" style={{ color: '#2C3C39' }}>
-                    {t.sections.dataSecurity.title}
-                  </h2>
-                </div>
-                <div className="space-y-4 text-gray-700">
-                  {t.sections.dataSecurity.content.map((paragraph, index) => (
-                    <p key={index}>{paragraph}</p>
-                  ))}
-                </div>
+              <div className="relative bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100 hover:shadow-2xl transition-all duration-500 text-center py-16 text-gray-500">
+                {isArabic ? 'لا يوجد محتوى متوفر حالياً.' : 'No content available currently.'}
               </div>
             </div>
-          </div>
-
-          {/* Your Rights */}
-          <div className="group animate-fadeIn" style={{ animationDelay: '0.7s' }}>
-            <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                 style={{ background: 'linear-gradient(135deg, #ABDE3B 0%, #198341 100%)', filter: 'blur(40px)' }}></div>
-            <div className="relative bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100 hover:shadow-2xl transition-all duration-500">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="p-4 rounded-2xl" style={{ background: 'linear-gradient(135deg, #198341 0%, #2C3C39 100%)' }}>
-                  <HelpCircle size={32} className="text-white" />
-                </div>
-                <h2 className="text-3xl md:text-4xl font-bold" style={{ color: '#2C3C39' }}>
-                  {t.sections.rights.title}
-                </h2>
-              </div>
-              <p className="text-gray-700 text-lg mb-6">{t.sections.rights.intro}</p>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-                {t.sections.rights.items.map((item, index) => (
-                  <div key={index}
-                       className="group/right flex items-center gap-3 p-4 rounded-xl bg-gradient-to-br from-gray-50 to-white hover:shadow-lg transition-all duration-300 border border-transparent hover:border-opacity-50"
-                       style={{ borderColor: '#ABDE3B' }}>
-                    <div className="flex-shrink-0">
-                      <ChevronRight size={18} className="transition-transform duration-300 group-hover/right:translate-x-1"
-                                    style={{ color: '#ABDE3B' }} />
+          ) : (
+            <>
+              {/* Introduction */}
+              <div className="group animate-fadeIn" style={{ animationDelay: '0.1s' }}>
+                <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                     style={{ background: 'linear-gradient(135deg, #ABDE3B 0%, #198341 100%)', filter: 'blur(40px)' }}></div>
+                <div className="relative bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100 hover:shadow-2xl transition-all duration-500">
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="p-4 rounded-2xl" style={{ background: 'linear-gradient(135deg, #198341 0%, #2C3C39 100%)' }}>
+                      <Shield size={32} className="text-white" />
                     </div>
-                    <p className="text-sm text-gray-700">{item}</p>
+                    <h2 className="text-3xl md:text-4xl font-bold" style={{ color: '#2C3C39' }}>
+                      {t.sections.introduction.title}
+                    </h2>
                   </div>
-                ))}
-              </div>
-              <div className="p-6 rounded-2xl" style={{ backgroundColor: 'rgba(25, 131, 65, 0.05)', border: '2px solid rgba(25, 131, 65, 0.1)' }}>
-                <p className="text-gray-700">{t.sections.rights.footer}</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Additional Information */}
-          <div className="group animate-fadeIn" style={{ animationDelay: '0.8s' }}>
-            <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                 style={{ background: 'linear-gradient(135deg, #ABDE3B 0%, #198341 100%)', filter: 'blur(40px)' }}></div>
-            <div className="relative bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100 hover:shadow-2xl transition-all duration-500">
-              <h2 className="text-3xl md:text-4xl font-bold mb-8" style={{ color: '#2C3C39' }}>
-                {t.sections.additional.title}
-              </h2>
-              <div className="space-y-6">
-                <div className="p-6 rounded-2xl bg-gradient-to-r from-gray-50 to-white border-l-4 hover:shadow-lg transition-all duration-300"
-                     style={{ borderColor: '#ABDE3B' }}>
-                  <h3 className="font-bold text-xl mb-3" style={{ color: '#198341' }}>
-                    {t.sections.additional.children.title}
-                  </h3>
-                  <p className="text-gray-700">{t.sections.additional.children.content}</p>
-                </div>
-
-                <div className="p-6 rounded-2xl bg-gradient-to-r from-gray-50 to-white border-l-4 hover:shadow-lg transition-all duration-300"
-                     style={{ borderColor: '#ABDE3B' }}>
-                  <h3 className="font-bold text-xl mb-3" style={{ color: '#198341' }}>
-                    {t.sections.additional.changes.title}
-                  </h3>
-                  <p className="text-gray-700">{t.sections.additional.changes.content}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Contact Section */}
-          <div className="group animate-fadeIn" style={{ animationDelay: '0.9s' }}>
-            <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                 style={{ background: 'linear-gradient(135deg, #ABDE3B 0%, #198341 100%)', filter: 'blur(40px)' }}></div>
-            <div className="relative overflow-hidden rounded-3xl shadow-2xl">
-              <div className="absolute inset-0"
-                   style={{ background: 'linear-gradient(135deg, #2C3C39 0%, #198341 100%)' }}></div>
-              <div className="absolute top-0 right-0 w-96 h-96 rounded-full opacity-10"
-                   style={{ backgroundColor: '#ABDE3B', transform: 'translate(30%, -30%)' }}></div>
-
-              <div className="relative p-8 md:p-12 text-white">
-                <h2 className="text-3xl md:text-4xl font-bold mb-6" style={{ color: '#ABDE3B' }}>
-                  {t.sections.contact.title}
-                </h2>
-                <p className="text-white/90 text-lg mb-8">{t.sections.contact.intro}</p>
-                <div className="bg-white/10 backdrop-blur-lg p-8 rounded-2xl border border-white/20">
-                  <p className="font-bold text-2xl mb-6" style={{ color: '#ABDE3B' }}>
-                    {t.sections.contact.company}
-                  </p>
-                  <div className="space-y-3 text-white/90">
-                    <p className="flex items-center gap-3">
-                      <span className="font-medium">{t.sections.contact.email}</span>
-                    </p>
-                    <p className="flex items-center gap-3">
-                      <span className="font-medium">{t.sections.contact.phone}</span>
-                    </p>
+                  <div className="space-y-4 text-gray-700 text-lg leading-relaxed">
+                    {t.sections.introduction.content.map((paragraph, index) => (
+                      <p key={index}>{paragraph}</p>
+                    ))}
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
+
+              {/* Information We Collect */}
+              <div className="group animate-fadeIn" style={{ animationDelay: '0.2s' }}>
+                <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                     style={{ background: 'linear-gradient(135deg, #ABDE3B 0%, #198341 100%)', filter: 'blur(40px)' }}></div>
+                <div className="relative bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100 hover:shadow-2xl transition-all duration-500">
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="p-4 rounded-2xl" style={{ background: 'linear-gradient(135deg, #198341 0%, #2C3C39 100%)' }}>
+                      <Eye size={32} className="text-white" />
+                    </div>
+                    <h2 className="text-3xl md:text-4xl font-bold" style={{ color: '#2C3C39' }}>
+                      {t.sections.informationCollect.title}
+                    </h2>
+                  </div>
+                  <p className="text-gray-700 text-lg mb-6">{t.sections.informationCollect.intro}</p>
+                  <div className="grid gap-4">
+                    {t.sections.informationCollect.items.map((item, index) => (
+                      <div key={index}
+                           className="group/item relative bg-gradient-to-br from-gray-50 to-white p-6 rounded-2xl border-2 border-transparent hover:border-opacity-50 transition-all duration-300 hover:shadow-lg"
+                           style={{ borderColor: '#ABDE3B' }}>
+                        <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-12 rounded-r-full transition-all duration-300 group-hover/item:h-16"
+                             style={{ backgroundColor: '#ABDE3B' }}></div>
+                        <h3 className="font-bold text-lg mb-2 ml-6" style={{ color: '#198341' }}>
+                          {item.title}
+                        </h3>
+                        <p className="text-gray-700 ml-6">{item.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* How We Use Your Information */}
+              <div className="group animate-fadeIn" style={{ animationDelay: '0.3s' }}>
+                <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                     style={{ background: 'linear-gradient(135deg, #ABDE3B 0%, #198341 100%)', filter: 'blur(40px)' }}></div>
+                <div className="relative bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100 hover:shadow-2xl transition-all duration-500">
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="p-4 rounded-2xl" style={{ background: 'linear-gradient(135deg, #198341 0%, #2C3C39 100%)' }}>
+                      <FileText size={32} className="text-white" />
+                    </div>
+                    <h2 className="text-3xl md:text-4xl font-bold" style={{ color: '#2C3C39' }}>
+                      {t.sections.informationUse.title}
+                    </h2>
+                  </div>
+                  <p className="text-gray-700 text-lg mb-6">{t.sections.informationUse.intro}</p>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    {t.sections.informationUse.items.map((item, index) => (
+                      <div key={index}
+                           className="flex items-start gap-3 p-4 rounded-xl bg-gradient-to-br from-gray-50 to-white hover:shadow-md transition-all duration-300 group/item">
+                        <div className="flex-shrink-0 mt-1">
+                          <ChevronRight size={20} className="transition-transform duration-300 group-hover/item:translate-x-1"
+                                        style={{ color: '#ABDE3B' }} />
+                        </div>
+                        <p className="text-gray-700">{item}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Information Sharing */}
+              <div className="group animate-fadeIn" style={{ animationDelay: '0.4s' }}>
+                <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                     style={{ background: 'linear-gradient(135deg, #ABDE3B 0%, #198341 100%)', filter: 'blur(40px)' }}></div>
+                <div className="relative bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100 hover:shadow-2xl transition-all duration-500">
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="p-4 rounded-2xl" style={{ background: 'linear-gradient(135deg, #198341 0%, #2C3C39 100%)' }}>
+                      <Users size={32} className="text-white" />
+                    </div>
+                    <h2 className="text-3xl md:text-4xl font-bold" style={{ color: '#2C3C39' }}>
+                      {t.sections.informationSharing.title}
+                    </h2>
+                  </div>
+                  <p className="text-gray-700 text-lg mb-6">{t.sections.informationSharing.intro}</p>
+                  <div className="grid md:grid-cols-2 gap-6 mb-6">
+                    {t.sections.informationSharing.items.map((item, index) => (
+                      <div key={index}
+                           className="relative group/card bg-gradient-to-br from-gray-50 to-white p-6 rounded-2xl hover:shadow-xl transition-all duration-300 border-2 border-transparent hover:border-opacity-30"
+                           style={{ borderColor: '#198341' }}>
+                        <div className="absolute top-0 right-0 w-20 h-20 rounded-full opacity-5 group-hover/card:opacity-10 transition-opacity"
+                             style={{ backgroundColor: '#ABDE3B', transform: 'translate(30%, -30%)' }}></div>
+                        <h3 className="font-bold text-xl mb-3" style={{ color: '#198341' }}>
+                          {item.title}
+                        </h3>
+                        <p className="text-gray-700">{item.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="p-6 rounded-2xl border-2 border-dashed" style={{ borderColor: '#ABDE3B', backgroundColor: 'rgba(171, 222, 59, 0.05)' }}>
+                    <p className="text-gray-700 text-center font-medium">{t.sections.informationSharing.footer}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Cookies & Data Security - Side by Side */}
+              <div className="grid md:grid-cols-2 gap-8">
+                <div className="group animate-fadeIn" style={{ animationDelay: '0.5s' }}>
+                  <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                       style={{ background: 'linear-gradient(135deg, #ABDE3B 0%, #198341 100%)', filter: 'blur(40px)' }}></div>
+                  <div className="relative h-full bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 border border-gray-100 hover:shadow-2xl transition-all duration-500">
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className="p-3 rounded-xl" style={{ background: 'linear-gradient(135deg, #198341 0%, #2C3C39 100%)' }}>
+                        <Bell size={24} className="text-white" />
+                      </div>
+                      <h2 className="text-2xl font-bold" style={{ color: '#2C3C39' }}>
+                        {t.sections.cookies.title}
+                      </h2>
+                    </div>
+                    <div className="space-y-4 text-gray-700">
+                      {t.sections.cookies.content.map((paragraph, index) => (
+                        <p key={index}>{paragraph}</p>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="group animate-fadeIn" style={{ animationDelay: '0.6s' }}>
+                  <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                       style={{ background: 'linear-gradient(135deg, #ABDE3B 0%, #198341 100%)', filter: 'blur(40px)' }}></div>
+                  <div className="relative h-full bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 border border-gray-100 hover:shadow-2xl transition-all duration-500">
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className="p-3 rounded-xl" style={{ background: 'linear-gradient(135deg, #198341 0%, #2C3C39 100%)' }}>
+                        <Lock size={24} className="text-white" />
+                      </div>
+                      <h2 className="text-2xl font-bold" style={{ color: '#2C3C39' }}>
+                        {t.sections.dataSecurity.title}
+                      </h2>
+                    </div>
+                    <div className="space-y-4 text-gray-700">
+                      {t.sections.dataSecurity.content.map((paragraph, index) => (
+                        <p key={index}>{paragraph}</p>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Your Rights */}
+              <div className="group animate-fadeIn" style={{ animationDelay: '0.7s' }}>
+                <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                     style={{ background: 'linear-gradient(135deg, #ABDE3B 0%, #198341 100%)', filter: 'blur(40px)' }}></div>
+                <div className="relative bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100 hover:shadow-2xl transition-all duration-500">
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="p-4 rounded-2xl" style={{ background: 'linear-gradient(135deg, #198341 0%, #2C3C39 100%)' }}>
+                      <HelpCircle size={32} className="text-white" />
+                    </div>
+                    <h2 className="text-3xl md:text-4xl font-bold" style={{ color: '#2C3C39' }}>
+                      {t.sections.rights.title}
+                    </h2>
+                  </div>
+                  <p className="text-gray-700 text-lg mb-6">{t.sections.rights.intro}</p>
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                    {t.sections.rights.items.map((item, index) => (
+                      <div key={index}
+                           className="group/right flex items-center gap-3 p-4 rounded-xl bg-gradient-to-br from-gray-50 to-white hover:shadow-lg transition-all duration-300 border border-transparent hover:border-opacity-50"
+                           style={{ borderColor: '#ABDE3B' }}>
+                        <div className="flex-shrink-0">
+                          <ChevronRight size={18} className="transition-transform duration-300 group-hover/right:translate-x-1"
+                                        style={{ color: '#ABDE3B' }} />
+                        </div>
+                        <p className="text-sm text-gray-700">{item}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="p-6 rounded-2xl" style={{ backgroundColor: 'rgba(25, 131, 65, 0.05)', border: '2px solid rgba(25, 131, 65, 0.1)' }}>
+                    <p className="text-gray-700">{t.sections.rights.footer}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Additional Information */}
+              <div className="group animate-fadeIn" style={{ animationDelay: '0.8s' }}>
+                <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                     style={{ background: 'linear-gradient(135deg, #ABDE3B 0%, #198341 100%)', filter: 'blur(40px)' }}></div>
+                <div className="relative bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100 hover:shadow-2xl transition-all duration-500">
+                  <h2 className="text-3xl md:text-4xl font-bold mb-8" style={{ color: '#2C3C39' }}>
+                    {t.sections.additional.title}
+                  </h2>
+                  <div className="space-y-6">
+                    <div className="p-6 rounded-2xl bg-gradient-to-r from-gray-50 to-white border-l-4 hover:shadow-lg transition-all duration-300"
+                         style={{ borderColor: '#ABDE3B' }}>
+                      <h3 className="font-bold text-xl mb-3" style={{ color: '#198341' }}>
+                        {t.sections.additional.children.title}
+                      </h3>
+                      <p className="text-gray-700">{t.sections.additional.children.content}</p>
+                    </div>
+
+                    <div className="p-6 rounded-2xl bg-gradient-to-r from-gray-50 to-white border-l-4 hover:shadow-lg transition-all duration-300"
+                         style={{ borderColor: '#ABDE3B' }}>
+                      <h3 className="font-bold text-xl mb-3" style={{ color: '#198341' }}>
+                        {t.sections.additional.changes.title}
+                      </h3>
+                      <p className="text-gray-700">{t.sections.additional.changes.content}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Contact Section */}
+              <div className="group animate-fadeIn" style={{ animationDelay: '0.9s' }}>
+                <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                     style={{ background: 'linear-gradient(135deg, #ABDE3B 0%, #198341 100%)', filter: 'blur(40px)' }}></div>
+                <div className="relative overflow-hidden rounded-3xl shadow-2xl">
+                  <div className="absolute inset-0"
+                       style={{ background: 'linear-gradient(135deg, #2C3C39 0%, #198341 100%)' }}></div>
+                  <div className="absolute top-0 right-0 w-96 h-96 rounded-full opacity-10"
+                       style={{ backgroundColor: '#ABDE3B', transform: 'translate(30%, -30%)' }}></div>
+
+                  <div className="relative p-8 md:p-12 text-white">
+                    <h2 className="text-3xl md:text-4xl font-bold mb-6" style={{ color: '#ABDE3B' }}>
+                      {t.sections.contact.title}
+                    </h2>
+                    <p className="text-white/90 text-lg mb-8">{t.sections.contact.intro}</p>
+                    <div className="bg-white/10 backdrop-blur-lg p-8 rounded-2xl border border-white/20">
+                      <p className="font-bold text-2xl mb-6" style={{ color: '#ABDE3B' }}>
+                        {t.sections.contact.company}
+                      </p>
+                      <div className="space-y-3 text-white/90">
+                        <p className="flex items-center gap-3">
+                          <span className="font-medium">{t.sections.contact.email}</span>
+                        </p>
+                        <p className="flex items-center gap-3">
+                          <span className="font-medium">{t.sections.contact.phone}</span>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
 
           {/* Back to Home Button */}
           <div className="flex justify-center pt-8 animate-fadeIn" style={{ animationDelay: '1s' }}>
@@ -657,6 +781,200 @@ export default function PrivacyPolicyPage() {
 
         .animate-pulse {
           animation: pulse 6s ease-in-out infinite;
+        }
+
+        .rich-text-content.ql-editor {
+          border: none !important;
+          padding: 0 !important;
+          font-family: inherit !important;
+          color: #374151 !important;
+          font-size: 1.125rem !important;
+          line-height: 1.8 !important;
+        }
+
+        .rich-text-content :global(.ql-align-right) {
+          text-align: right;
+        }
+        
+        .rich-text-content :global(.ql-direction-rtl) {
+          direction: rtl;
+        }
+
+        .rich-text-content :global(.ql-direction-rtl) :global(ol),
+        .rich-text-content :global(.ql-direction-rtl) :global(ul) {
+          padding-left: 0;
+          padding-right: 2em;
+        }
+
+        :global(.rtl) .privacy-content :global(ol),
+        :global(.rtl) .privacy-content :global(ul) {
+          padding-left: 0 !important;
+          padding-right: 0 !important;
+        }
+
+        :global(.rtl) .privacy-content :global(li) {
+          padding-left: 0 !important;
+          padding-right: 1.5em !important;
+        }
+
+        :global(.rtl) .privacy-content :global(li::before) {
+          margin-left: 0.3em !important;
+          margin-right: -1.5em !important;
+          direction: rtl !important;
+          text-align: right !important;
+        }
+
+        :global(.rtl) .privacy-content :global(li.ql-indent-1) {
+          padding-left: 0 !important;
+          padding-right: 3em !important;
+        }
+        :global(.rtl) .privacy-content :global(li.ql-indent-1::before) {
+          margin-right: -3em !important;
+          margin-left: 0.3em !important;
+        }
+        :global(.rtl) .privacy-content :global(li.ql-indent-2) {
+          padding-left: 0 !important;
+          padding-right: 4.5em !important;
+        }
+        :global(.rtl) .privacy-content :global(li.ql-indent-2::before) {
+          margin-right: -4.5em !important;
+          margin-left: 0.3em !important;
+        }
+        :global(.rtl) .privacy-content :global(li.ql-indent-3) {
+          padding-left: 0 !important;
+          padding-right: 6em !important;
+        }
+        :global(.rtl) .privacy-content :global(li.ql-indent-3::before) {
+          margin-right: -6em !important;
+          margin-left: 0.3em !important;
+        }
+        :global(.rtl) .privacy-content :global(li.ql-indent-4) {
+          padding-left: 0 !important;
+          padding-right: 7.5em !important;
+        }
+        :global(.rtl) .privacy-content :global(li.ql-indent-4::before) {
+          margin-right: -7.5em !important;
+          margin-left: 0.3em !important;
+        }
+        :global(.rtl) .privacy-content :global(li.ql-indent-5) {
+          padding-left: 0 !important;
+          padding-right: 9em !important;
+        }
+        :global(.rtl) .privacy-content :global(li.ql-indent-5::before) {
+          margin-right: -9em !important;
+          margin-left: 0.3em !important;
+        }
+        :global(.rtl) .privacy-content :global(li.ql-indent-6) {
+          padding-left: 0 !important;
+          padding-right: 10.5em !important;
+        }
+        :global(.rtl) .privacy-content :global(li.ql-indent-6::before) {
+          margin-right: -10.5em !important;
+          margin-left: 0.3em !important;
+        }
+        :global(.rtl) .privacy-content :global(li.ql-indent-7) {
+          padding-left: 0 !important;
+          padding-right: 12em !important;
+        }
+        :global(.rtl) .privacy-content :global(li.ql-indent-7::before) {
+          margin-right: -12em !important;
+          margin-left: 0.3em !important;
+        }
+        :global(.rtl) .privacy-content :global(li.ql-indent-8) {
+          padding-left: 0 !important;
+          padding-right: 13.5em !important;
+        }
+        :global(.rtl) .privacy-content :global(li.ql-indent-8::before) {
+          margin-right: -13.5em !important;
+          margin-left: 0.3em !important;
+        }
+
+        :global(.rtl) .privacy-content,
+        :global(.rtl) .privacy-content :global(p),
+        :global(.rtl) .privacy-content :global(h1),
+        :global(.rtl) .privacy-content :global(h2),
+        :global(.rtl) .privacy-content :global(h3),
+        :global(.rtl) .privacy-content :global(h4),
+        :global(.rtl) .privacy-content :global(h5),
+        :global(.rtl) .privacy-content :global(h6),
+        :global(.rtl) .privacy-content :global(ol),
+        :global(.rtl) .privacy-content :global(ul),
+        :global(.rtl) .privacy-content :global(li),
+        :global(.rtl) .privacy-content :global(span),
+        :global(.rtl) .privacy-content :global(div),
+        :global(.rtl) .privacy-content :global(strong) {
+          direction: rtl !important;
+          text-align: right !important;
+        }
+
+        /* Override Quill inline background-colors */
+        .privacy-content :global(*) {
+          background-color: transparent !important;
+        }
+        
+        .privacy-content :global(pre),
+        .privacy-content :global(pre) :global(*) {
+          background-color: #F3F4F6 !important;
+        }
+
+        .privacy-content :global(h1) {
+          font-size: 2.25rem !important;
+          font-weight: 800 !important;
+          color: #2C3C39 !important;
+          margin-top: 0 !important;
+          margin-bottom: 1.5rem !important;
+          border-bottom: 2px solid rgba(171, 222, 59, 0.3) !important;
+          padding-bottom: 0.5rem !important;
+        }
+
+        .privacy-content :global(h2) {
+          font-size: 1.75rem !important;
+          font-weight: 700 !important;
+          color: #2C3C39 !important;
+          margin-top: 2.5rem !important;
+          margin-bottom: 1rem !important;
+        }
+
+        .privacy-content :global(h3) {
+          font-size: 1.35rem !important;
+          font-weight: 700 !important;
+          color: #198341 !important;
+          margin-top: 2rem !important;
+          margin-bottom: 0.75rem !important;
+        }
+
+        .privacy-content :global(p) {
+          margin-bottom: 1.25rem !important;
+        }
+
+        .privacy-content :global(strong) {
+          font-weight: 700 !important;
+        }
+
+        .privacy-content :global(a) {
+          color: #198341 !important;
+          text-decoration: underline !important;
+          transition: color 0.2s ease;
+        }
+
+        .privacy-content :global(a:hover) {
+          color: #2C3C39 !important;
+        }
+
+        .privacy-content :global(blockquote) {
+          border-inline-start: 4px solid #ABDE3B;
+          padding-inline-start: 1rem;
+          color: #6B7280;
+          font-style: italic;
+          margin: 1.5rem 0;
+        }
+
+        .privacy-content :global(pre) {
+          background-color: #F3F4F6;
+          padding: 1rem;
+          border-radius: 0.5rem;
+          overflow-x: auto;
+          margin: 1.5rem 0;
         }
       `}</style>
     </div>

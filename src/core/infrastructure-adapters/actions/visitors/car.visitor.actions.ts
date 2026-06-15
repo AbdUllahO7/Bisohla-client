@@ -30,15 +30,15 @@ export const getCarListings = async (
   return res;
 };
 
-export const getBodyTypeCategoryCounts = async (): Promise<
-  ApiResponse<BodyTypeCategoryCount[]>
+export const getBodyTypeCategoryCounts = async (listingTypeId: number = 1): Promise<
+  ApiResponse<any>
 > => {
   try {
     const res = await getReq({
-      url: '/car-listings-visitor/body-type-category-counts',
+      url: `/listings-visitor/${listingTypeId}/category-counts`,
     });
 
-    return res as ApiResponse<BodyTypeCategoryCount[]>;
+    return res as ApiResponse<any>;
   } catch (error) {
     return catchClientRequest(error);
   }

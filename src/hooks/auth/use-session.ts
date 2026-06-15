@@ -138,7 +138,7 @@ export const useSession = (): SessionReturnType => {
     hasRole,
     hasPermission,
     hasAnyPermission,
-    refetchSession: () => refetchSession(),
+    refetchSession,
     invalidateSession,
   };
 };

@@ -6,7 +6,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import { Calendar, Eye, Newspaper } from 'lucide-react';
-import Text from '@/components/text/text'; // Assuming you have this
+import Text from '@/components/ui/text'; // Assuming you have this
 import type { SelectNewsArticleDto } from '@/core/entities/models/news/news.dto';
 import { cn } from '@/lib/utils';
 

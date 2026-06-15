@@ -1,14 +1,14 @@
 'use client';
 
-import DetailedInput from '@/components/detailed-input';
-import FormStateMessage from '@/components/form-state-message';
-import SubmitButton from '@/components/submit-button';
+import DetailedInput from '@/components/forms/detailed-input';
+import FormStateMessage from '@/components/forms/form-state-message';
+import SubmitButton from '@/components/forms/submit-button';
 import { allRoutes } from '@/constants/routes.constant';
 import { Link } from '@/i18n/routing';
 import {
   ApiResponse,
   defaultActionState,
-} from '@/interfaces/api-response.interface';
+} from '@/core/entities/interfaces/api-response.interface';
 import { useActionState } from 'react';
 import { sendVerificationEmailAction } from '../actions';
 import { SuccessResponseWithNoContent } from '@/core/entities/api/success.response';
@@ -16,7 +16,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Car, Mail, CheckCircle, ArrowRight, UserPlus, LogIn } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import LocaleSwitcher from '@/components/local/LocalSwitcher';
+import LocaleSwitcher from '@/components/locale/LocaleSwitcher';
 import Image from 'next/image';
 
 const VerifyEmailPage = () => {

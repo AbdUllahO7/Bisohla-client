@@ -63,14 +63,20 @@ const SimilarCarAlertBanner: React.FC<SimilarCarAlertBannerProps> = ({
         setIsSubmitting(true);
 
         try {
+            const attributeFilters: Record<string, any> = {};
+            
+            // Only add filters that have valid values (not null, undefined, or 0)
+            if (car.makeId && car.makeId !== 0) attributeFilters.make = car.makeId;
+            if (car.modelId && car.modelId !== 0) attributeFilters.model = car.modelId;
+            if (car.trimId && car.trimId !== 0) attributeFilters.trim = car.trimId;
+
             const res = await createCarAlert({
-                makeId: car.makeId || null,
-                modelId: car.modelId || null,
-                trimId: car.trimId ?? null,
+                listingTypeId: car.listingTypeId || 1,
                 minPrice: null,
                 maxPrice: null,
                 governorate: null,
                 city: null,
+                attributeFilters
             });
 
             if (res.success) {
@@ -82,8 +88,8 @@ const SimilarCarAlertBanner: React.FC<SimilarCarAlertBannerProps> = ({
                 toast({
                     title: isArabic ? '✅ تم تفعيل التنبيه' : '✅ Alert Activated',
                     description: isArabic
-                        ? 'سيصلك تنبيه عند توفّر سيارات مشابهة'
-                        : 'You will be notified when similar cars are listed',
+                        ? 'سيصلك تنبيه عند توفّر منتجات مشابهة'
+                        : 'You will be notified when similar products are listed',
                 });
             } else {
                 toast({
@@ -126,13 +132,13 @@ const SimilarCarAlertBanner: React.FC<SimilarCarAlertBannerProps> = ({
                         <div className="flex-1 min-w-0">
                             <p className="font-bold text-[#2C3C39] text-base">
                                 {isArabic
-                                    ? 'هل تريد تنبيهات بسيارات مشابهة؟'
-                                    : 'Get alerts for similar cars?'}
+                                    ? 'هل تريد تنبيهات بمنتجات مشابهة؟'
+                                    : 'Get alerts for similar products?'}
                             </p>
                             <p className="text-sm text-gray-500 mt-0.5 leading-relaxed">
                                 {isArabic
-                                    ? 'إذا أردت أن يصلك تنبيه بالسيارات المشابهة لهذه السيارة، قم بتفعيل التنبيه.'
-                                    : 'Activate to get notified when similar cars matching this listing are available.'}
+                                    ? 'إذا أردت أن يصلك تنبيه بالمنتجات المشابهة، قم بتفعيل التنبيه.'
+                                    : 'Activate to get notified when similar products matching this listing are available.'}
                             </p>
 
                             {/* Action buttons */}

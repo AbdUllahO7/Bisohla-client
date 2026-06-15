@@ -1,10 +1,10 @@
 'use client';
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import Box from '@/components/box/box';
-import Text from '@/components/text/text';
+import Box from '@/components/ui/box';
+import Text from '@/components/ui/text';
 import { useLocale, useTranslations } from 'next-intl';
-import { useCarListings } from '@/core/infrastructure-adapters/use-actions/visitors/car.visitor.use-actions';
-import Pagination from '@/components/Pagination';
+import { useListings } from '@/core/infrastructure-adapters/use-actions/visitors/listing.visitor.use-actions';
+import Pagination from '@/components/shared/Pagination';
 import { QueryParams } from '@/core/entities/api/api';
 import AdsSectionProduct from '@/components/web/ProductsPage/product/AdsSectionProduct';
 import AllCarListingsSkeleton from '@/components/web/design/AllCarListingsSkeleton';
@@ -12,7 +12,6 @@ import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.acti
 import { useSession } from '@/hooks/auth/use-session';
 import { RentProductCard } from '@/components/web/design/RentProductCard';
 import { RentProductListCard } from '@/components/web/design/rent-product-list-product';
-import { logger } from '@/lib/logger';
 import { useFilters } from '@/providers/filters.provider';
 import { useToast } from '@/hooks/use-toast';
 import CarAlertModal from '@/components/web/ProductsPage/CarAlertModal';
@@ -20,6 +19,7 @@ import { Button } from '@/components/ui/button';
 import { Bell } from 'lucide-react';
 import { getGovernorateOptions, getCityOptions } from '@/components/web/ProductsPage/addProducts/StepOne/utils';
 import { useAdSlot } from '@/hooks/use-ad-slot';
+import { normalizeListingToCarDto } from '@/utils/listing-normalization';
 
 interface AllCarListingsProps {
   pageSize?: number;
@@ -46,9 +46,14 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
   const [isMobile, setIsMobile] = useState(false);
   const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
   const session = useSession();
-  const { filters } = useFilters();
+  const { filters, listingTypes } = useFilters();
+  const currentListingType = useMemo(() => 
+    listingTypes.find(t => t.id === filters.listingTypeId),
+  [listingTypes, filters.listingTypeId]);
+  const categoryName = currentListingType?.name || 'Products';
+  const categoryIcon = currentListingType?.iconUrl || '🛍️';
   const { toast } = useToast();
-  const { adsData, isLoadingAds } = useAdSlot('all-car-listining-space');
+  const { adsData, isLoadingAds, allowPlaceholders, dismissable, rotationStrategy } = useAdSlot('all-car-listining-space');
 
   // Check for mobile screen size
   useEffect(() => {
@@ -68,6 +73,7 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
       pageSize,
       sortBy: 'createdAt',
       sortDirection: 'desc',
+      include: 'attributeValues.attribute,images,user,listingType,listingTypeVersion',
       ...externalQueryParams, // This will override defaults with provider values
       page: currentPage,
     }),
@@ -95,12 +101,13 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
       setCurrentPage(1);
     }
   }, [
-    externalQueryParams?.filterGroups,
-    externalQueryParams?.where,
+    JSON.stringify(externalQueryParams?.filterGroups),
+    JSON.stringify(externalQueryParams?.where),
     externalQueryParams?.searchTerm,
     externalQueryParams?.sortBy,
     externalQueryParams?.sortDirection,
   ]);
+
 
   // Handle favorite status update from child component
   const handleFavoriteToggle = useCallback(
@@ -113,44 +120,68 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
     [],
   );
 
-  // Fetch all car listings with pagination and filters
-  const { data, isLoading, error } = useCarListings(queryParams);
-  logger.log('Car Listings Data:', data);
+  // Fetch listings with pagination and filters
+  const { data, isLoading, error } = useListings(filters.listingTypeId, queryParams);
   // Extract car listings array safely
   const carListings = useMemo(() => {
     const apiData = data as any;
+    if (!apiData) return [];
 
     let listings: Array<any> = [];
-    if (Array.isArray(apiData?.data)) {
-      listings = apiData.data;
-    } else if (
-      apiData?.data &&
-      'data' in apiData.data &&
-      Array.isArray(apiData.data.data)
-    ) {
+    
+    // The response structure from handleResponse (src/core/lib/api.ts) 
+    // puts the actual API result in the 'data' field.
+    // Based on the provided example, apiData.data contains { data: [], currentPage: 1, ... }
+    if (apiData.data && Array.isArray(apiData.data.data)) {
       listings = apiData.data.data;
+    } else if (Array.isArray(apiData.data)) {
+      listings = apiData.data;
+    } else if (Array.isArray(apiData)) {
+      listings = apiData;
     }
 
-    // Initialize favorite statuses from backend data if not already set
-    const newFavoriteStatuses: Record<number, boolean> = {};
-    listings.forEach((item) => {
-      if (item.id && favoriteStatuses[item.id] === undefined) {
-        newFavoriteStatuses[item.id] = !!item.isFavorite;
-      }
-    });
+    // Normalize each listing to ensure consistent DTO structure
+    return listings.map(item => normalizeListingToCarDto(item, locale));
+  }, [data, locale]);
 
-    if (Object.keys(newFavoriteStatuses).length > 0) {
-      setFavoriteStatuses((prev) => ({ ...prev, ...newFavoriteStatuses }));
+  // Sync favorite statuses from backend data when it changes
+  useEffect(() => {
+    if (carListings.length > 0) {
+      setFavoriteStatuses((prev) => {
+        const newStatuses = { ...prev };
+        let changed = false;
+        
+        carListings.forEach((item) => {
+          if (item.id && prev[item.id] === undefined) {
+            newStatuses[item.id] = !!item.isFavorite;
+            changed = true;
+          }
+        });
+        
+        return changed ? newStatuses : prev;
+      });
     }
-
-    return listings;
-  }, [data, favoriteStatuses]);
+  }, [carListings]);
 
   // Get pagination information
   const paginationInfo = useMemo(() => {
     const apiData = data as any;
+    if (!apiData) return { currentPage: 1, totalPages: 1, hasNextPage: false, hasPreviousPage: false, totalItems: 0 };
 
-    if (apiData?.currentPage !== undefined) {
+    // Structure 1: apiData.data = { currentPage, totalPages, data: [] }
+    if (apiData.data && typeof apiData.data === 'object' && 'currentPage' in apiData.data) {
+      const p = apiData.data;
+      return {
+        currentPage: p.currentPage || 1,
+        totalPages: p.totalPages || 1,
+        hasNextPage: p.hasNextPage || false,
+        hasPreviousPage: p.hasPreviousPage || false,
+        totalItems: p.totalItems || 0,
+      };
+    }
+
+    // Structure 2: apiData = { currentPage, totalPages, data: [] }
+    if (apiData.currentPage !== undefined) {
       return {
         currentPage: apiData.currentPage,
         totalPages: apiData.totalPages || 1,
@@ -158,31 +189,9 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
         hasPreviousPage: apiData.hasPreviousPage || false,
         totalItems: apiData.totalItems || 0,
       };
-    } else if (
-      apiData?.data &&
-      typeof apiData.data === 'object' &&
-      !Array.isArray(apiData.data) &&
-      'currentPage' in apiData.data
-    ) {
-      const nestedData = apiData.data;
-      return {
-        currentPage: nestedData.currentPage,
-        totalPages: nestedData.totalPages || 1,
-        hasNextPage: nestedData.hasNextPage || false,
-        hasPreviousPage: nestedData.hasPreviousPage || false,
-        totalItems: nestedData.totalItems || 0,
-      };
-    } else if (apiData?.meta) {
-      return {
-        currentPage: apiData.meta.currentPage || 1,
-        totalPages: apiData.meta.totalPages || 1,
-        hasNextPage:
-          (apiData.meta.currentPage || 1) < (apiData.meta.totalPages || 1),
-        hasPreviousPage: (apiData.meta.currentPage || 1) > 1,
-        totalItems: apiData.meta.total || 0,
-      };
     }
 
+    // Fallback
     return {
       currentPage: currentPage,
       totalPages: 1,
@@ -191,6 +200,7 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
       totalItems: carListings.length,
     };
   }, [data, carListings.length, currentPage]);
+
 
   // Update total items for parent component
   useEffect(() => {
@@ -247,7 +257,7 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
         <Box className="w-full flex justify-between items-center mb-4">
           {showTitle ? (
             <Text variant="h3" className="font-bold text-[20px] font-cairo">
-              {t('allCars.title', { defaultValue: 'All Cars' })}
+              {t('allCars.title', { defaultValue: `All ${categoryName}` })}
             </Text>
           ) : <div />}
 
@@ -279,7 +289,15 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
             <div className="flex flex-col items-center space-y-6 max-w-md mx-auto">
               {/* Empty state illustration */}
               <div className="relative">
-                <div className="text-7xl opacity-30">🚗</div>
+                <div className="text-7xl opacity-30">
+                  {categoryName.toLowerCase().includes('car') ? (
+                    '🚗'
+                  ) : categoryIcon.startsWith('http') ? (
+                    <img src={categoryIcon} alt={categoryName} className="w-20 h-20 object-contain mx-auto opacity-50" />
+                  ) : (
+                    categoryIcon
+                  )}
+                </div>
                 <div className="absolute -top-1 -right-1 w-8 h-8 bg-primary-light rounded-full flex items-center justify-center shadow-lg animate-bounce">
                   <Bell className="h-4 w-4 text-white" />
                 </div>
@@ -298,20 +316,20 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
                 <div className="bg-gradient-to-br from-[#198341]/5 to-[#ABDE3B]/10 border border-[#198341]/20 rounded-2xl p-6 w-full space-y-3">
                   <p className="text-sm font-semibold text-[#198341]">
                     {isArabic
-                      ? '🔔 هل تريد أن تُعلَم عندما تتوفر سيارة مطابقة؟'
-                      : '🔔 Want to be notified when a matching car is listed?'}
+                      ? `🔔 هل تريد أن تُعلَم عندما تتوفر ${categoryName} مطابقة؟`
+                      : `🔔 Want to be notified when matching ${categoryName.toLowerCase()} items are listed?`}
                   </p>
                   <p className="text-xs text-gray-500">
                     {isArabic
-                      ? 'سنُرسل لك تنبيهاً فور توفّر سيارة تناسب بحثك'
-                      : "We'll notify you as soon as a car matching your search is available"}
+                      ? `سنُرسل لك تنبيهاً فور توفّر إعلانات تناسب بحثك`
+                      : `We'll notify you as soon as items matching your search are available`}
                   </p>
                   <Button
                     onClick={() => setIsAlertModalOpen(true)}
                     className="w-full h-12 text-base font-bold rounded-xl bg-gradient-to-r from-[#198341] to-[#ABDE3B] hover:opacity-90 text-white shadow-md hover:shadow-lg transition-all"
                   >
                     <Bell className="h-5 w-5 mr-2" />
-                    {isArabic ? 'خبرني عند توفّر السيارة' : 'Notify Me'}
+                    {isArabic ? 'أخبرني عند التوفر' : 'Notify Me'}
                   </Button>
                 </div>
               )}
@@ -330,12 +348,19 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
                     {/* Insert Ad after every 8 listings */}
                     {(index + 1) % 8 === 0 && (() => {
                       const currentAdIndex = (adsData && adsData.length > 0) ? (currentPage - 1) % adsData.length : 0;
+                      const showPlaceholder = allowPlaceholders !== true;
+                      if (adsData.length === 0 && !showPlaceholder) {
+                        return null;
+                      }
 
                       return (
                         <AdsSectionProduct
                           adIndex={currentAdIndex}
                           adsData={adsData}
                           isLoadingAds={isLoadingAds}
+                          allowPlaceholders={allowPlaceholders}
+                          dismissable={dismissable}
+                          rotationStrategy={rotationStrategy}
                         />
                       );
                     })()}
@@ -354,6 +379,10 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
                     {/* Insert Ad after every 8 listings */}
                     {(index + 1) % 8 === 0 && (() => {
                       const currentAdIndex = (adsData && adsData.length > 0) ? (currentPage - 1) % adsData.length : 0;
+                      const showPlaceholder = allowPlaceholders !== true;
+                      if (adsData.length === 0 && !showPlaceholder) {
+                        return null;
+                      }
 
                       return (
                         <div className="col-span-full">
@@ -361,6 +390,9 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
                             adIndex={currentAdIndex}
                             adsData={adsData}
                             isLoadingAds={isLoadingAds}
+                            allowPlaceholders={allowPlaceholders}
+                            dismissable={dismissable}
+                            rotationStrategy={rotationStrategy}
                           />
                         </div>
                       );
@@ -391,6 +423,7 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
       <CarAlertModal
         open={isAlertModalOpen}
         onOpenChange={setIsAlertModalOpen}
+        listingTypeId={filters.listingTypeId}
         initialData={{
           makeId: filters.selectedBrands[0] ? Number(filters.selectedBrands[0]) : 0,
           modelId: filters.model ? Number(filters.model) : 0,

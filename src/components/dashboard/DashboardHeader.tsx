@@ -4,7 +4,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import LocaleSwitcher from '@/components/local/LocalSwitcher';
+import LocaleSwitcher from '@/components/locale/LocaleSwitcher';
 import { Link } from '@/i18n/routing';
 import {
   LogOut,
@@ -389,7 +389,7 @@ export function DashboardHeader({
             >
               <Plus className="h-4 w-4 sm:mr-2 rtl:sm:mr-0 rtl:sm:ml-2" />
               <span className="hidden sm:inline">
-                {direction === 'ltr' ? 'Add Car' : 'إضافة سيارة'}
+                {direction === 'ltr' ? 'Add Listing' : 'إضافة إعلان'}
               </span>
             </Button>
           </Link>

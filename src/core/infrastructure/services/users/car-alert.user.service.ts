@@ -24,7 +24,7 @@ export class CarAlertUserService implements ICarAlertUserService {
         params: QueryParams,
     ): Promise<PaginatedResponse<SelectCarAlertDto>> {
         const res = await getAuthReq<Record<string, unknown>, SelectCarAlertDto>({
-            url: '/car-alerts',
+            url: '/listing-alerts',
             params: params,
         });
         return res;
@@ -32,7 +32,7 @@ export class CarAlertUserService implements ICarAlertUserService {
 
     async getCarAlertById(id: number): Promise<ApiResponse<SelectCarAlertDto>> {
         const res = await getAuthReq<Record<string, unknown>, SelectCarAlertDto>({
-            url: '/car-alerts/' + id,
+            url: '/listing-alerts/' + id,
         });
         return res;
     }
@@ -41,7 +41,7 @@ export class CarAlertUserService implements ICarAlertUserService {
         dto: CreateCarAlertDto,
     ): Promise<ApiResponse<SelectCarAlertDto>> {
         const res = await postAuthReq<CreateCarAlertDto, SelectCarAlertDto>({
-            url: '/car-alerts',
+            url: '/listing-alerts',
             body: dto,
         });
         return res;
@@ -52,7 +52,7 @@ export class CarAlertUserService implements ICarAlertUserService {
         dto: UpdateCarAlertDto,
     ): Promise<ApiResponse<SelectCarAlertDto>> {
         const res = await patchAuthReq<UpdateCarAlertDto, SelectCarAlertDto>({
-            url: '/car-alerts/' + id,
+            url: '/listing-alerts/' + id,
             body: dto,
         });
         return res;
@@ -62,7 +62,7 @@ export class CarAlertUserService implements ICarAlertUserService {
         id: number,
     ): Promise<ApiResponse<SuccessResponseWithNoContent>> {
         const res = await deleteAuthReq({
-            url: '/car-alerts/' + id,
+            url: '/listing-alerts/' + id,
         });
         return res;
     }
@@ -72,7 +72,7 @@ export class CarAlertUserService implements ICarAlertUserService {
         dto: ToggleCarAlertStatusDto,
     ): Promise<ApiResponse<SelectCarAlertDto>> {
         const res = await patchAuthReq<ToggleCarAlertStatusDto, SelectCarAlertDto>({
-            url: '/car-alerts/' + id + '/toggle-status',
+            url: '/listing-alerts/' + id + '/toggle-status',
             body: dto,
         });
         return res;

@@ -1,6 +1,6 @@
 "use client"
-import SelectDropdown from "@/components/SelectDropdown"
-import Text from "@/components/text/text"
+import SelectDropdown from "@/components/forms/SelectDropdown"
+import Text from "@/components/ui/text"
 import { useTranslations } from "next-intl"
 import type React from "react"
 

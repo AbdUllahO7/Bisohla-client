@@ -5,8 +5,8 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import 'quill/dist/quill.snow.css';
-import Box from '@/components/box/box';
-import Text from '@/components/text/text';
+import Box from '@/components/ui/box';
+import Text from '@/components/ui/text';
 import {
   Calendar,
   Eye,
@@ -29,6 +29,7 @@ import { useDirection } from '@/hooks/use-direction';
 import AdSpace from '@/components/ads/AdSpace';
 import AdsSectionProduct from '@/components/web/ProductsPage/product/AdsSectionProduct';
 import CardAds from '@/components/web/design/CardAds';
+import { useAdSlot } from '@/hooks/use-ad-slot';
 
 // Extended type for article with relations
 type ArticleWithRelations = SelectNewsArticleDto & {
@@ -58,6 +59,7 @@ export const NewsDetailClient: React.FC<NewsDetailClientProps> = ({
   const locale = useLocale();
   const t = useTranslations('newsDetails');
   const direction = useDirection();
+  const { adsData, isLoadingAds, allowPlaceholders, dismissable, rotationStrategy } = useAdSlot('details-news-page-ad-space-card');
 
   // Data is now passed as props, no need for isLoading or data-fetching hooks
 
@@ -490,6 +492,11 @@ export const NewsDetailClient: React.FC<NewsDetailClientProps> = ({
                       wrapperClassName="w-full h-full min-h-[380px]"
                       fallbackContent={<CardAds isRent={false} />}
                       isClosable={false}
+                      adsData={adsData}
+                      isLoadingAds={isLoadingAds}
+                      allowPlaceholders={allowPlaceholders}
+                      dismissable={dismissable}
+                      rotationStrategy={rotationStrategy}
                     />
                   </div>
                   {/* --- END MODIFICATION --- */}

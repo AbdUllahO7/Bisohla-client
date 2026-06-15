@@ -9,9 +9,12 @@ import { useTranslations } from 'next-intl';
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { UserFavoriteCarListing } from '@/core/entities/models/cars/users-favorites-cars.zod.dto';
 import { ListingType } from '@/core/entities/enums/cars.enums';
-import { CarDetails } from '@/core/entities/models/cars/cars.dto';
 import { useSession } from '@/hooks/auth/use-session';
 import { useDirection } from '@/hooks/use-direction';
+import { getInjection } from '@/di/container';
+import { ListingTypeFilterSchemaDto } from '@/core/entities/models/listing-types/listing-types.dto';
+import { CarDetails } from '@/core/entities/models/cars/cars.dto';
+import { useLocale } from 'next-intl';
 import {
   Heart,
   Car,
@@ -32,10 +35,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useGetCarFavorites } from '@/core/infrastructure-adapters/use-actions/users/car.user.use-actions';
+import { useGetListingFavorites } from '@/core/infrastructure-adapters/use-actions/users/listing.user.use-actions';
 import { QueryParams } from '@/core/entities/api/api';
 import ProductSkeleton from '@/components/web/design/ProductSkeletonItem';
 import { ProductCardListView } from '@/components/web/design/ProductCardListView';
+import { Link } from '@/i18n/routing';
 
 // Define a type for the transformed favorite listings
 interface FavoriteListing {
@@ -43,9 +47,10 @@ interface FavoriteListing {
   title: string;
   marka: string;
   price: number;
-  type: ListingType;
+  type: string;
   imageSrc: string;
   details: CarDetails;
+  slug?: string;
 }
 
 // View mode type
@@ -73,6 +78,7 @@ const useDebounce = (value: string, delay: number) => {
 
 const UserFavoritesEnhanced = () => {
   const t = useTranslations('UserProfile.favorites');
+  const locale = useLocale();
   const direction = useDirection();
   const session = useSession();
 
@@ -81,9 +87,57 @@ const UserFavoritesEnhanced = () => {
   const [filterType, setFilterType] = useState<FilterType>('all');
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [currentPage, setCurrentPage] = useState(1);
-  const [favoriteStatuses, setFavoriteStatuses] = useState<
-    Record<number, boolean>
-  >({});
+  const [favoriteStatuses, setFavoriteStatuses] = useState<Record<number, boolean>>({});
+
+  // Dynamic filter states
+  const [listingTypeId, setListingTypeId] = useState<number | undefined>(1);
+  const [listingTypes, setListingTypes] = useState<any[]>([]);
+  const [filterSchema, setFilterSchema] = useState<ListingTypeFilterSchemaDto | null>(null);
+  const [dynamicAttributes, setDynamicAttributes] = useState<Record<string, any>>({});
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+
+  // Fetch listing types for selection
+  useEffect(() => {
+    const fetchTypes = async () => {
+      try {
+        const controller = getInjection('IListingTypesRepoController');
+        const response = await controller.getListingTypes(1, 100);
+        if (response.success && response.data) {
+          setListingTypes(response.data.data.filter((t: any) => t.isActive));
+        }
+      } catch (error) {
+        console.error("Failed to fetch listing types", error);
+      }
+    };
+    fetchTypes();
+  }, []);
+
+  // Fetch filter schema when listing type is selected
+  useEffect(() => {
+    const fetchSchema = async () => {
+      if (!listingTypeId) {
+        setFilterSchema(null);
+        setDynamicAttributes({});
+        setShowAdvancedFilters(false);
+        return;
+      }
+      try {
+        const controller = getInjection('IListingTypesRepoController');
+        const res = await controller.getFilterSchema(listingTypeId);
+        if (res.success && res.data) {
+          setFilterSchema(res.data);
+          setDynamicAttributes({}); // reset attributes when schema changes
+        }
+      } catch (error) {
+        console.error('Failed to fetch filter schema:', error);
+      }
+    };
+    fetchSchema();
+  }, [listingTypeId]);
+
+  const updateAttribute = (slug: string, value: any) => {
+    setDynamicAttributes((prev) => ({ ...prev, [slug]: value }));
+  };
 
   const pageSize = 12; // Items per page
 
@@ -108,12 +162,12 @@ const UserFavoritesEnhanced = () => {
           operator: 'or',
           filters: [
             {
-              field: 'carListing.title',
+              field: 'title',
               operator: 'like',
               value: `%${debouncedSearchQuery.trim()}%`,
             },
             {
-              field: 'carListing.make.name',
+              field: 'make.name',
               operator: 'like',
               value: `%${debouncedSearchQuery.trim()}%`,
             },
@@ -122,42 +176,70 @@ const UserFavoritesEnhanced = () => {
       ];
     }
 
-    // Add filter for listing type
+    // Add filter for listing type ID if selected
+    if (listingTypeId) {
+      const typeIdFilter = {
+        field: 'listingTypeId',
+        operator: 'eq' as const,
+        value: listingTypeId,
+      };
+
+      if (!params.where) params.where = [];
+      params.where.push(typeIdFilter);
+
+      // Add as top-level param too as we did on Products/page.tsx
+      (params as any).listingTypeId = listingTypeId;
+    }
+
+    // Add filter for listing offer type (Sale/Rent)
     if (filterType !== 'all') {
       const typeFilter = {
-        field: 'carListing.listingType',
+        field: 'listingOfferType',
         operator: 'eq' as const,
         value: filterType,
       };
 
-      if (params.filterGroups) {
-        // If we already have search filters, add type filter with AND
-        params.filterGroups.push({
-          operator: 'and',
-          filters: [typeFilter],
-        });
-      } else {
-        // If no search, just add type filter
-        params.where = [typeFilter];
+      if (!params.where) params.where = [];
+      params.where.push(typeFilter);
+    }
+
+    // Add dynamic attribute filters
+    if (Object.keys(dynamicAttributes).length > 0) {
+      const dynamicFilters: any[] = [];
+      Object.entries(dynamicAttributes).forEach(([slug, value]) => {
+        if (value !== undefined && value !== '' && (Array.isArray(value) ? value.length > 0 : true)) {
+          if (Array.isArray(value)) {
+            dynamicFilters.push({ field: `attrs.${slug}`, operator: 'in', value });
+          } else {
+            dynamicFilters.push({ field: `attrs.${slug}`, operator: 'eq', value });
+          }
+        }
+      });
+      if (dynamicFilters.length > 0) {
+        if (params.filterGroups) {
+          params.filterGroups.push({ operator: 'and', filters: dynamicFilters });
+        } else {
+          params.filterGroups = [{ operator: 'and', filters: dynamicFilters }];
+        }
       }
     }
 
     return params;
-  }, [session?.user?.id, debouncedSearchQuery, filterType, currentPage]);
+  }, [session?.user?.id, debouncedSearchQuery, filterType, dynamicAttributes, currentPage, listingTypeId]);
 
   // Use the query hook with proper dependency tracking
   const { data, isLoading, error, refetch, isRefetching } =
-    useGetCarFavorites(queryParams);
+    useGetListingFavorites(queryParams);
 
   // Force refetch when search or filter changes (additional safeguard)
   useEffect(() => {
     refetch();
-  }, [debouncedSearchQuery, filterType, refetch]);
+  }, [debouncedSearchQuery, filterType, listingTypeId, dynamicAttributes, refetch]);
 
   // Reset to page 1 when search or filter changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [debouncedSearchQuery, filterType]);
+  }, [debouncedSearchQuery, filterType, listingTypeId]);
 
   // Function to safely check if an image is primary
   const isPrimaryImage = (
@@ -179,15 +261,19 @@ const UserFavoritesEnhanced = () => {
     if (!data?.data?.data) return [];
 
     const transformedListings = data.data.data
-      .map((favorite) => {
-        const listing = favorite.carListing;
-        if (!listing) return null;
+      .map((item: any) => {
+        // The API now returns the listing directly in the array
+        const listing = item.listing || item;
+        if (!listing || !listing.id) return null;
 
         // Safely find primary image or first image
         let imageSrc = '/placeholder-car.jpg';
-        if (listing.images && Array.isArray(listing.images)) {
+        
+        if (listing.primaryImage) {
+          imageSrc = listing.primaryImage;
+        } else if (listing.images && Array.isArray(listing.images)) {
           const primaryImage = listing.images.find(
-            (img) => isPrimaryImage(img) && img.isPrimary,
+            (img: any) => isPrimaryImage(img) && img.isPrimary,
           );
           if (primaryImage && 'url' in primaryImage) {
             imageSrc = primaryImage.url;
@@ -200,10 +286,11 @@ const UserFavoritesEnhanced = () => {
           id: listing.id,
           title: listing.title,
           marka: listing.make?.name || '',
-          price: listing.price || 0,
-          type: listing.listingType as ListingType,
+          price: Number(listing.price) || 0,
+          type: listing.listingOfferType || 'for_sale',
           imageSrc,
-          details: listing.details || ({} as CarDetails),
+          details: (listing as any).details || ({} as CarDetails),
+          slug: listing.slug
         } as FavoriteListing;
       })
       .filter(isValidFavoriteListing);
@@ -312,7 +399,26 @@ const UserFavoritesEnhanced = () => {
                 />
               </div>
 
-              {/* Filter */}
+              {/* Category Filter */}
+              <Select
+                value={listingTypeId ? String(listingTypeId) : "all"}
+                onValueChange={(value) => setListingTypeId(value === "all" ? undefined : Number(value))}
+              >
+                <SelectTrigger className="w-full sm:w-[180px]">
+                  <Filter className="h-4 w-4 mr-2 rtl:mr-0 rtl:ml-2" />
+                  <SelectValue placeholder={locale === 'ar' ? 'الفئة' : 'Category'} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t('filters.all')}</SelectItem>
+                  {listingTypes.map((type) => (
+                    <SelectItem key={type.id} value={String(type.id)}>
+                      {type.translations?.find((tr: any) => tr.locale === locale)?.name || type.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {/* Offer Type Filter */}
               <Select
                 value={filterType}
                 onValueChange={(value: FilterType) => setFilterType(value)}
@@ -332,12 +438,26 @@ const UserFavoritesEnhanced = () => {
                 </SelectContent>
               </Select>
 
+              {/* Advanced Filters Button */}
+              {filterSchema && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+                  className="h-10"
+                >
+                  <Filter className="h-4 w-4 mr-2 rtl:mr-0 rtl:ml-2" />
+                  {t('advancedFilters') || 'Advanced Filters'}
+                </Button>
+              )}
+
               {/* View Mode Toggle */}
               <div className="flex gap-2">
                 <Button
                   variant={viewMode === 'grid' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setViewMode('grid')}
+                  className="h-10"
                 >
                   <Grid className="h-4 w-4" />
                 </Button>
@@ -345,6 +465,7 @@ const UserFavoritesEnhanced = () => {
                   variant={viewMode === 'list' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setViewMode('list')}
+                  className="h-10"
                 >
                   <List className="h-4 w-4" />
                 </Button>
@@ -356,12 +477,159 @@ const UserFavoritesEnhanced = () => {
                 size="sm"
                 onClick={handleRefresh}
                 disabled={isRefetching}
+                className="h-10"
               >
                 <RefreshCw
                   className={`h-4 w-4 ${isRefetching ? 'animate-spin' : ''}`}
                 />
               </Button>
             </div>
+            
+            {/* Advanced Filters Content */}
+            {showAdvancedFilters && filterSchema && (
+              <div className="mt-4 pt-4 border-t grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {filterSchema.sections.map((section) => (
+                  <React.Fragment key={section.id}>
+                    {section.attributes.map((attr) => {
+                      if (!attr.isFilterable || !attr.isActive) return null;
+                      
+                      const localeValue = locale === 'ar' ? 'ar' : 'en';
+                      const attrName = attr.translations.find((tr: any) => tr.locale === localeValue)?.name || attr.name;
+                      
+                      if (attr.type === 'select') {
+                        return (
+                          <div key={attr.id} className="space-y-2">
+                            <label className="text-sm font-medium text-muted-foreground">{attrName}</label>
+                            <Select
+                              value={dynamicAttributes[attr.slug] ? String(dynamicAttributes[attr.slug]) : "all"}
+                              onValueChange={(value) => updateAttribute(attr.slug, value === "all" ? undefined : value)}
+                            >
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder={attrName} />
+                              </SelectTrigger>
+                              <SelectContent className="bg-white">
+                                <SelectItem value="all">{t('filters.all') || 'All'}</SelectItem>
+                                {attr.options.map((opt: any) => (
+                                  <SelectItem key={String(opt.id)} value={String(opt.id)}>
+                                    {opt.label[localeValue] || opt.label['en'] || opt.id}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        );
+                      }
+
+                      if (attr.type === 'year') {
+                        const minYear = attr.validationRules?.min || 1950;
+                        const maxYear = attr.validationRules?.max || new Date().getFullYear() + 1;
+                        const yearOptions = [];
+                        for (let y = maxYear; y >= minYear; y--) {
+                          yearOptions.push(y.toString());
+                        }
+                        return (
+                          <div key={attr.id} className="space-y-2">
+                            <label className="text-sm font-medium text-muted-foreground">{attrName}</label>
+                            <Select
+                              value={dynamicAttributes[attr.slug] ? String(dynamicAttributes[attr.slug]) : "all"}
+                              onValueChange={(value) => updateAttribute(attr.slug, value === "all" ? undefined : value)}
+                            >
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder={attrName} />
+                              </SelectTrigger>
+                              <SelectContent className="bg-white">
+                                <SelectItem value="all">{t('filters.all') || 'All'}</SelectItem>
+                                {yearOptions.map((y) => (
+                                  <SelectItem key={y} value={y}>
+                                    {y}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        );
+                      }
+
+                      if (attr.type === 'color_selection' || attr.type === 'color_multi_selection') {
+                        const options = attr.options || [];
+                        return (
+                          <div key={attr.id} className="space-y-2">
+                            <label className="text-sm font-medium text-muted-foreground">{attrName}</label>
+                            <Select
+                              value={dynamicAttributes[attr.slug] ? String(dynamicAttributes[attr.slug]) : "all"}
+                              onValueChange={(value) => updateAttribute(attr.slug, value === "all" ? undefined : value)}
+                            >
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder={attrName} />
+                              </SelectTrigger>
+                              <SelectContent className="bg-white">
+                                <SelectItem value="all">{t('filters.all') || 'All'}</SelectItem>
+                                {options.map((opt: any) => (
+                                  <SelectItem key={String(opt.id)} value={String(opt.id)}>
+                                    <div className="flex items-center gap-2">
+                                      {opt.color ? (
+                                        <span 
+                                          className="w-3.5 h-3.5 rounded-full border border-slate-200"
+                                          style={{ backgroundColor: opt.color }}
+                                        />
+                                      ) : (
+                                        <span className="w-3.5 h-3.5 rounded-full border border-slate-200 bg-gradient-to-r from-red-500 via-green-500 to-blue-500" />
+                                      )}
+                                      <span>{opt.label[localeValue] || opt.label['en'] || opt.id}</span>
+                                    </div>
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        );
+                      }
+
+                      if (attr.type === 'color_picker') {
+                        const val = dynamicAttributes[attr.slug] || '';
+                        return (
+                          <div key={attr.id} className="space-y-2">
+                            <label className="text-sm font-medium text-muted-foreground">{attrName}</label>
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="color"
+                                value={val || '#000000'}
+                                onChange={(e) => updateAttribute(attr.slug, e.target.value)}
+                                className="w-10 h-10 border border-slate-200 rounded-lg cursor-pointer p-0.5 bg-white shadow-sm"
+                              />
+                              <Input
+                                type="text"
+                                placeholder="#000000"
+                                value={val}
+                                onChange={(e) => updateAttribute(attr.slug, e.target.value)}
+                                className="font-mono"
+                                dir="ltr"
+                              />
+                            </div>
+                          </div>
+                        );
+                      }
+
+                      if (attr.type === 'number') {
+                        return (
+                          <div key={attr.id} className="space-y-2">
+                            <label className="text-sm font-medium text-muted-foreground">{attrName}</label>
+                            <Input
+                              type="number"
+                              placeholder={attrName}
+                              value={dynamicAttributes[attr.slug] || ''}
+                              onChange={(e) => updateAttribute(attr.slug, e.target.value)}
+                            />
+                          </div>
+                        );
+                      }
+
+                      return null;
+                    })}
+                  </React.Fragment>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -396,10 +664,10 @@ const UserFavoritesEnhanced = () => {
               {t('empty.message')}
             </p>
             <Button asChild>
-              <a href="/products">
+              <Link href="/products">
                 <Car className="h-4 w-4 mr-2 rtl:mr-0 rtl:ml-2" />
                 {t('empty.browseButton')}
-              </a>
+              </Link>
             </Button>
           </CardContent>
         </Card>
@@ -477,6 +745,7 @@ const UserFavoritesEnhanced = () => {
                   type={card.type}
                   imageSrc={card.imageSrc}
                   ProductId={card.id}
+                  slug={card.slug}
                   priceWord={t('priceLabel')}
                   isFavorites={true}
                   isMarkedFavorite={isFavorite}

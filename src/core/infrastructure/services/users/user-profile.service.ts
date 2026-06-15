@@ -14,7 +14,7 @@ export class UserProfileService implements IUserProfileService {
       Record<string, unknown>,
       ApiResponse<GetUserProfile>
     >({
-      url: this.path,
+      url: '/profile/v2',
     });
     return res;
   }

@@ -2,14 +2,14 @@
 
 import type React from 'react';
 
-import Box from '@/components/box/box';
-import Text from '@/components/text/text';
+import Box from '@/components/ui/box';
+import Text from '@/components/ui/text';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Heart, MessageCircle, PhoneCall, LogIn } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import { useState } from 'react';
-import { toggleCarListingFavorite } from '@/core/infrastructure-adapters/actions/users/car.user.actions';
+import { toggleListingFavorite } from '@/core/infrastructure-adapters/actions/users/listing.user.actions';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { SaveStatus } from '@/core/entities/enums/cars.enums';
@@ -148,8 +148,8 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
       }
 
       // Make API call in background
-      const response = await toggleCarListingFavorite({
-        carListingId: Number(productId),
+      const response = await toggleListingFavorite({
+        listingId: Number(productId),
       });
 
       // Handle API response
@@ -161,10 +161,16 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
           actualStatus = response.data;
         } else if (
           response.data &&
-          typeof response.data === 'object' &&
-          'isFavorite' in response.data
+          typeof response.data === 'object'
         ) {
-          actualStatus = response.data.isFavorite as boolean;
+          const data = response.data as any;
+          if ('isFavorited' in data) {
+            actualStatus = data.isFavorited as boolean;
+          } else if ('isFavorite' in data) {
+            actualStatus = data.isFavorite as boolean;
+          } else {
+            actualStatus = newState;
+          }
         } else {
           // If response format is unexpected, keep optimistic update
           actualStatus = newState;

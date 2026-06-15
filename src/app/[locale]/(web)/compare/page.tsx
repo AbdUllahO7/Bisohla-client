@@ -4,8 +4,8 @@ import React from 'react';
 import { useCompare } from '@/providers/CompareProvider';
 import { useTranslations } from 'next-intl';
 import { useCarListings } from '@/core/infrastructure-adapters/use-actions/visitors/car.visitor.use-actions';
-import Box from '@/components/box/box';
-import Text from '@/components/text/text';
+import Box from '@/components/ui/box';
+import Text from '@/components/ui/text';
 import CompareTable from '@/components/web/Compare/CompareTable';
 import { Button } from '@/components/ui/button';
 import { Link } from '@/i18n/routing';
@@ -14,7 +14,7 @@ import ProductSkeleton from '@/components/web/design/ProductSkeletonItem';
 
 const ComparePage = () => {
   const t = useTranslations('compare');
-  const { compareIds } = useCompare();
+  const { compareIds, maxCompare } = useCompare();
 
   const { data, isLoading } = useCarListings({
     id: compareIds.length > 0 ? compareIds : [-1],
@@ -52,7 +52,7 @@ const ComparePage = () => {
                 <div className="flex items-center gap-2 mt-1">
                   <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
                   <Text className="text-emerald-700 font-medium text-sm">
-                    {compareIds.length} / 3 {t('title').toLowerCase()}
+                    {compareIds.length} / {maxCompare} {t('title').toLowerCase()}
                   </Text>
                 </div>
               </div>
@@ -62,7 +62,7 @@ const ComparePage = () => {
           {/* Loading State */}
           {isLoading && compareIds.length > 0 && (
             <div className="bg-white p-8 rounded-3xl shadow-xl mt-4">
-              <ProductSkeleton count={3} showTitle={false} />
+              <ProductSkeleton count={maxCompare} showTitle={false} />
             </div>
           )}
 

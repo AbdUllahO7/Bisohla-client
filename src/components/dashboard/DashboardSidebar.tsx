@@ -76,7 +76,7 @@ export function DashboardSidebar() {
     {
       href: '/userProfile/Products',
       icon: Home,
-      label: direction === 'ltr' ? 'My Cars' : 'سياراتي',
+      label: direction === 'ltr' ? 'My Products' : 'منتجاتي',
     },
     {
       href: '/userProfile/Favorites',

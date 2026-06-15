@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useState, useMemo, useRef } from 'react';
-import Text from '@/components/text/text';
+import Text from '@/components/ui/text';
 import {
   Card,
   CardDescription,
@@ -10,11 +10,13 @@ import {
 } from '@/components/ui/card';
 import Image from 'next/image';
 import { SelectCarListingDto } from '@/core/entities/models/cars/cars.dto';
-import Box from '@/components/box/box';
-import { ArrowRight, Eye, Fuel, HeartIcon, LifeBuoy } from 'lucide-react';
+import Box from '@/components/ui/box';
+import { ArrowRight, Eye, Fuel, HeartIcon, LifeBuoy, Bed, Bath, Home, Ruler, Calendar } from 'lucide-react';
+import { resolveAttributeValue } from '@/utils/listing-normalization';
+
 import { Button } from '@/components/ui/button';
 import { Link } from '@/i18n/routing';
-import { toggleCarListingFavorite } from '@/core/infrastructure-adapters/actions/users/car.user.actions';
+import { toggleListingFavorite } from '@/core/infrastructure-adapters/actions/users/listing.user.actions';
 import { useTranslations } from 'next-intl';
 import {
   getFuelTypeOptions,
@@ -43,6 +45,7 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
   enableViewTracking = true,
   priceWord,
 }) => {
+
   const cardRef = useRef<HTMLDivElement>(null);
   const session = useSession();
   const locale = useLocale();
@@ -56,7 +59,7 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
 
   // Get translators for different namespaces
   const t = useTranslations('SoldCard');
-  const bodyTypeT = useTranslations('addProduct.enteredData.stepTow');
+  const bodyTypeT = useTranslations('addProduct.enteredData.stepTwo');
 
   // Use the custom card view tracking hook with owner protection
   const { hasTrackedView } = useCardViewTracking({
@@ -100,8 +103,158 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
     ? getTranslatedLabel(car.details.transmission, transmissionOptions)
     : '';
 
+  // Extract attributes from rawListing if available
+  const rawAttributes = useMemo(() => {
+    return (car as any).rawListing?.attributeValues?.map((av: any) => ({
+      slug: av.attribute?.slug,
+      name: av.attribute?.name,
+      value: av.valueText || av.valueNumber || ''
+    })) || [];
+  }, [car]);
+
+  const getAttrValue = (slug: string) => {
+    const attr = rawAttributes.find((a: any) => a.slug === slug);
+    return attr ? attr.value : null;
+  };
+
+  const categoryName = (car as any).rawListing?.listingType?.name || (car as any).rawListing?.listingType?.translations?.find((t: any) => t.locale === locale)?.name;
+
+  const subTitle = useMemo(() => {
+    if (car.listingTypeId === 1 || car.listingTypeId === 3 || !car.listingTypeId) {
+      return car.make?.name && car.make?.name !== 'Unknown' 
+        ? `${car.make.name} ${car.model?.name || ''}`.trim() 
+        : 'Car';
+    }
+    const locationStr = [car.governorate, car.city].filter(Boolean).join(', ');
+    return locationStr || categoryName || 'Real Estate';
+  }, [car.listingTypeId, car.make?.name, car.model?.name, car.governorate, car.city, categoryName]);
+
+  const footerDetails = useMemo(() => {
+    const getAttrIcon = (slug: string, defaultIcon: React.ReactNode) => {
+      const av = (car as any).rawListing?.attributeValues?.find(
+        (av: any) => av.attribute?.slug === slug
+      );
+      const iconUrl = av?.attribute?.iconUrl;
+      if (iconUrl) {
+        return (
+          <img
+            src={iconUrl}
+            alt={slug}
+            className="h-4 w-4 object-contain"
+          />
+        );
+      }
+      return defaultIcon;
+    };
+
+    const rawAttrValues = (car as any).rawListing?.attributeValues || [];
+
+    if (rawAttrValues.length > 0) {
+      return rawAttrValues
+        .map((av: any) => {
+          let value = resolveAttributeValue(av, locale);
+          const iconUrl = av.attribute?.iconUrl;
+          const slug = av.attribute?.slug;
+
+          if (!value) {
+            if (slug === 'make' && car.make?.name) value = car.make.name;
+            else if (slug === 'model' && car.model?.name) value = car.model.name;
+            else if (slug === 'trim' && car.trim?.name) value = car.trim.name;
+          }
+
+          // Translate slug values if they exist in the stepTwo translation namespace
+          if (slug === 'fuel_type' || slug === 'transmission' || slug === 'body_type' || slug === 'condition') {
+            try {
+              const translationKey = slug === 'fuel_type' 
+                ? `fuelType.${value}` 
+                : slug === 'transmission' 
+                ? `transmission.${value}` 
+                : slug === 'body_type' 
+                ? `bodyType.${value}` 
+                : `vehicleCondition.${value}`;
+              value = bodyTypeT(translationKey);
+            } catch (e) {
+              // Fall back to resolved value
+            }
+          }
+
+          let defaultIcon = <Home className="h-4 w-4" />;
+          if (slug === 'fuel_type') defaultIcon = <Fuel className="h-4 w-4" />;
+          else if (slug === 'transmission') defaultIcon = <LifeBuoy className="h-4 w-4" />;
+          else if (slug === 'year') defaultIcon = <Calendar className="h-4 w-4" />;
+          else if (slug === 'rooms_count' || slug === 'rooms' || slug === 'bedrooms') defaultIcon = <Bed className="h-4 w-4" />;
+          else if (slug === 'area' || slug === 'square_meters') defaultIcon = <Ruler className="h-4 w-4" />;
+          else if (slug === 'bathrooms') defaultIcon = <Bath className="h-4 w-4" />;
+
+          const icon = iconUrl ? (
+            <img
+              src={iconUrl}
+              alt={slug}
+              className="h-4 w-4 object-contain"
+            />
+          ) : (
+            defaultIcon
+          );
+
+          return {
+            slug,
+            icon,
+            value,
+          };
+        })
+        .filter((item: any) => {
+          return (
+            item.value &&
+            !item.slug.startsWith('features_')
+          );
+        });
+    }
+
+    if (car.listingTypeId === 1 || car.listingTypeId === 3 || !car.listingTypeId) {
+      return [
+        {
+          icon: getAttrIcon('fuel_type', <Fuel className="h-4 w-4" />),
+          value: translatedFuelType
+        },
+        {
+          icon: getAttrIcon('transmission', <LifeBuoy className="h-4 w-4" />),
+          value: translatedTransmission
+        }
+      ].filter(item => item.value);
+    }
+
+    const rooms = getAttrValue('rooms_count') || getAttrValue('rooms') || getAttrValue('bedrooms');
+    const area = getAttrValue('area') || getAttrValue('square_meters');
+    const bathrooms = getAttrValue('bathrooms');
+
+    const details = [];
+    if (rooms) {
+      const roomsSlug = getAttrValue('rooms_count') ? 'rooms_count' : (getAttrValue('rooms') ? 'rooms' : 'bedrooms');
+      details.push({
+        icon: getAttrIcon(roomsSlug, <Bed className="h-4 w-4" />),
+        value: `${rooms} ${locale === 'ar' ? 'غرف' : 'Rooms'}`
+      });
+    }
+    if (area) {
+      const areaSlug = getAttrValue('area') ? 'area' : 'square_meters';
+      details.push({
+        icon: getAttrIcon(areaSlug, <Ruler className="h-4 w-4" />),
+        value: `${area} m²`
+      });
+    }
+    if (bathrooms) {
+      details.push({
+        icon: getAttrIcon('bathrooms', <Bath className="h-4 w-4" />),
+        value: `${bathrooms} ${locale === 'ar' ? 'حمامات' : 'Baths'}`
+      });
+    }
+
+    return details;
+  }, [car.listingTypeId, translatedFuelType, translatedTransmission, rawAttributes, locale, car, bodyTypeT]);
+
   // Get primary image or first available image
   const imageSrc =
+    car.primaryImage ||
     car.images?.find((img) => img.isPrimary)?.url ||
     car.images?.[0]?.url ||
     '/placeholder-car.jpg';
@@ -128,8 +281,8 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
     onFavoriteToggle?.(car.id, optimisticState);
 
     try {
-      const response = await toggleCarListingFavorite({
-        carListingId: car.id,
+      const response = await toggleListingFavorite({
+        listingId: car.id,
       });
 
       // Handle successful response
@@ -160,23 +313,31 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
     }
   };
 
-  const isSold = car.saveStatus === SaveStatus.SOLD;
+  const isSold = car.saveStatus === SaveStatus.SOLD || car.publicationStatus === 'sold';
+  
+  const maxVisibleAttributes = 5;
+  const visibleDetails = footerDetails.slice(0, maxVisibleAttributes);
+  const remainingCount = footerDetails.length - maxVisibleAttributes;
+
+  const isRent = (car.listingType || car.listingOfferType) === 'for_rent';
+  const badgeText = isRent
+    ? (locale === 'ar' ? 'إيجار' : 'Rent')
+    : (locale === 'ar' ? 'بيع' : 'Sale');
 
   return (
-    <motion.div 
-      ref={cardRef} 
-      className="w-full"
-      whileHover={!isSold ? { 
-        y: -10, 
-        transition: { duration: 0.3, ease: 'easeOut' } 
+    <motion.div
+      ref={cardRef}
+      className="w-full h-full"
+      whileHover={!isSold ? {
+        y: -10,
+        transition: { duration: 0.3, ease: 'easeOut' }
       } : {}}
     >
       <Card
-        className={`border-none h-[370px] bg-white relative group transition-all duration-500 ease-out overflow-hidden shadow-md ${
-          isSold
+        className={`border-none min-h-[395px] h-full flex flex-col justify-between bg-white relative group transition-all duration-500 ease-out overflow-hidden shadow-md ${isSold
             ? 'opacity-90 cursor-pointer shadow-lg'
             : 'hover:shadow-2xl hover:shadow-emerald-500/15'
-        }`}
+          }`}
       >
 
         {/* Heart Icon with favorite status */}
@@ -188,13 +349,12 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
           >
             <HeartIcon
               size={24}
-              className={`transition-colors duration-200 ${
-                !isAuthenticated || isSold || isOwner
+              className={`transition-colors duration-200 ${!isAuthenticated || isSold || isOwner
                   ? 'text-gray-400'
                   : favoriteStatus
-                  ? 'text-red-500'
-                  : 'text-gray-600'
-              }`}
+                    ? 'text-red-500'
+                    : 'text-gray-600'
+                }`}
               fill={favoriteStatus ? 'currentColor' : 'none'}
             />
           </Button>
@@ -216,9 +376,8 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
         >
           <Scale
             size={20}
-            className={`transition-colors duration-200 ${
-              isCompared ? 'text-emerald-600' : 'text-gray-500 hover:text-emerald-500'
-            }`}
+            className={`transition-colors duration-200 ${isCompared ? 'text-emerald-600' : 'text-gray-500 hover:text-emerald-500'
+              }`}
           />
         </Button>
 
@@ -241,118 +400,102 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
           </>
         )}
 
-        <Text className="absolute bottom-32 z-20 left-2 bg-primary-light px-2 py-1 rounded-lg shadow-md text-secondary text-sm">
-          {car.listingType === 'for_rent' ? 'Rent' : 'Sale'}
-        </Text>
-
-        <Box
-          className={`flex z-40 justify-between p-[8px] rounded-t-[10px] duration-500 ${
-            isSold ? 'bg-gray-400' : 'bg-primary-light group-hover:bg-primary'
-          }`}
-        >
-          <Text
-            className={`mid font-cairo text-[500] text-[14px] ${
-              isSold ? 'text-gray-200' : 'text-[#EFEFEF]'
-            }`}
+        <div className="flex-1 flex flex-col justify-start">
+          <Box
+            className={`flex z-40 justify-between p-[8px] rounded-t-[10px] duration-500 ${isSold ? 'bg-gray-400' : 'bg-primary-light group-hover:bg-primary'
+              }`}
           >
-            {priceWord || 'Price'}
-          </Text>
-          <Text
-            className={`mid font-cairo font-bold ${
-              isSold ? 'text-gray-200 line-through' : 'text-white'
-            }`}
-          >
-            {car.price
-              ? `${car.price} ${car.currency}`
-              : CAR_DEFAULTS.PRICE_FALLBACK}
-          </Text>
-        </Box>
-
-        <Link href={`/products/product/${car.id}`} className="block">
-          <CardHeader className="p-0">
-            <CardTitle className="w-full relative h-48 overflow-hidden">
-              <Image
-                src={imageSrc}
-                alt={car.title}
-                fill
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                className={`object-cover transition-all duration-500 ${
-                  isSold ? 'grayscale' : ''
+            <Text
+              className={`mid font-cairo text-[500] text-[14px] ${isSold ? 'text-gray-200' : 'text-[#EFEFEF]'
                 }`}
-                priority={false}
-              />
-              {!isSold && (
-                <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
-                  <div className="bg-white/90 backdrop-blur-sm rounded-full p-3 transform scale-75 group-hover:scale-100 transition-transform duration-300">
-                    <Eye className="h-6 w-6 text-emerald-600" />
+            >
+              {priceWord || 'Price'}
+            </Text>
+            <Text
+              className={`mid font-cairo font-bold ${isSold ? 'text-gray-200 line-through' : 'text-white'
+                }`}
+            >
+              {car.price
+                ? `${car.price} ${car.currency}`
+                : CAR_DEFAULTS.PRICE_FALLBACK}
+            </Text>
+          </Box>
+
+          <Link href={`/products/product/${car.slug || car.id}`} className="block">
+            <CardHeader className="p-0">
+              <CardTitle className="w-full relative h-48 overflow-hidden">
+                <Image
+                  src={imageSrc}
+                  alt={car.title}
+                  fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  className={`object-cover transition-all duration-500 ${isSold ? 'grayscale' : ''
+                    }`}
+                  priority={false}
+                />
+
+                {/* Rent/Sale Badge inside image container */}
+                <span className={`absolute bottom-3 ${isRTL ? 'right-3' : 'left-3'} z-30 px-2.5 py-1 text-[12px] font-bold font-cairo rounded-md shadow-md backdrop-blur-sm transition-all duration-300 ${
+                  'bg-emerald-600/95 text-white border border-emerald-500/20'
+                   
+                }`}>
+                  {badgeText}
+                </span>
+
+                {!isSold && (
+                  <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
+                    <div className="bg-white/90 backdrop-blur-sm rounded-full p-3 transform scale-75 group-hover:scale-100 transition-transform duration-300">
+                      <Eye className="h-6 w-6 text-emerald-600" />
+                    </div>
                   </div>
+                )}
+              </CardTitle>
+              <CardDescription className="p-[8px]">
+                <Text
+                  variant="h4"
+                  className={`pr-2 pl-2 line-clamp-1 ${isSold ? 'text-gray-500' : 'text-primary'
+                    }`}
+                >
+                  {car.title}
+                </Text>
+                <Text
+                  variant="mid"
+                  className={`pr-2 pl-2 ${isSold ? 'text-gray-400' : 'text-primary'
+                    }`}
+                >
+                  {subTitle}
+                </Text>
+              </CardDescription>
+            </CardHeader>
+          </Link>
+        </div>
+
+        <CardFooter className="flex justify-between items-center p-4 pt-0 gap-4 mt-auto">
+          <div className="flex flex-wrap gap-1.5 max-w-full overflow-hidden">
+            {visibleDetails.map((detail: { icon: React.ReactNode; value: string }, idx: number) => (
+              <div
+                key={idx}
+                className={`flex items-center gap-1 bg-[#F9FAFB] border border-[#F3F4F6] rounded-full px-2.5 py-1 text-[11px] font-medium text-[#4B5563] transition-all duration-300 ${
+                  isSold
+                    ? 'opacity-70'
+                    : 'hover:bg-emerald-50 hover:border-emerald-200 hover:text-emerald-700'
+                }`}
+              >
+                <div className="text-gray-500 group-hover:text-emerald-600 transition-colors flex items-center justify-center">
+                  {detail.icon}
                 </div>
-              )}
-            </CardTitle>
-            <CardDescription className="p-[8px]">
-              <Text
-                variant="h4"
-                className={`pr-2 pl-2 line-clamp-1 ${
-                  isSold ? 'text-gray-500' : 'text-primary'
-                }`}
-              >
-                {car.title}
-              </Text>
-              <Text
-                variant="mid"
-                className={`pr-2 pl-2 ${
-                  isSold ? 'text-gray-400' : 'text-primary'
-                }`}
-              >
-                {car.make?.name}
-              </Text>
-            </CardDescription>
-          </CardHeader>
-        </Link>
-
-        <CardFooter className="flex justify-between items-center p-4 pt-0 gap-4">
-          <div className="flex gap-4">
-            <div
-              className={`flex items-center gap-2 text-sm transition-colors duration-300 ${
-                isSold
-                  ? 'text-gray-400'
-                  : 'text-gray-600 group-hover:text-emerald-600'
-              }`}
-            >
-              <div
-                className={`p-1.5 rounded-lg transition-colors duration-300 ${
-                  isSold
-                    ? 'bg-gray-200'
-                    : 'bg-gray-100 group-hover:bg-emerald-100'
-                }`}
-              >
-                <Fuel className="h-4 w-4" />
+                <span className="font-semibold">{detail.value}</span>
               </div>
-              <span className="font-medium">{translatedFuelType}</span>
-            </div>
-
-            <div
-              className={`flex items-center gap-2 text-sm transition-colors duration-300 ${
-                isSold
-                  ? 'text-gray-400'
-                  : 'text-gray-600 group-hover:text-emerald-600'
-              }`}
-            >
-              <div
-                className={`p-1.5 rounded-lg transition-colors duration-300 ${
-                  isSold
-                    ? 'bg-gray-200'
-                    : 'bg-gray-100 group-hover:bg-emerald-100'
-                }`}
-              >
-                <LifeBuoy className="h-4 w-4" />
+            ))}
+            {remainingCount > 0 && (
+              <div className="flex items-center bg-emerald-50 border border-emerald-100 rounded-full px-2.5 py-1 text-[11px] font-bold text-emerald-700">
+                {locale === 'ar' ? `المزيد +${remainingCount}` : `more +${remainingCount}`}
               </div>
-              <span className="font-medium">{translatedTransmission}</span>
-            </div>
+            )}
           </div>
 
           {!isSold && (
-            <div className="opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
+            <div className="opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0 flex-shrink-0">
               <ArrowRight className="h-5 w-5 text-emerald-600" />
             </div>
           )}

@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useState, useRef } from 'react';
-import Text from '@/components/text/text';
+import Text from '@/components/ui/text';
 import {
   Card,
   CardDescription,
@@ -11,10 +11,10 @@ import {
 import Image from 'next/image';
 import { Link } from '@/i18n/routing';
 import { Button } from '@/components/ui/button';
-import { CarCardItemPropsProfile } from '@/types/homePageTypes';
+import { CarCardItemPropsProfile } from '@/core/entities/types/homePageTypes';
 import { AlertTriangle, Edit, HeartIcon, Trash2 } from 'lucide-react';
 import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions';
-import { toggleCarListingFavorite } from '@/core/infrastructure-adapters/actions/users/car.user.actions';
+import { toggleListingFavorite } from '@/core/infrastructure-adapters/actions/users/listing.user.actions';
 import { useDeleteCarListing } from '@/core/infrastructure-adapters/use-actions/users/car.user.use-actions';
 import {
   AlertDialog,
@@ -45,6 +45,7 @@ export const ProductCardItem: React.FC<ExtendedCarCardItemPropsProfile> = ({
   marka,
   imageSrc,
   ProductId,
+  slug,
   isFavorites,
   priceWord,
   price,
@@ -137,8 +138,8 @@ export const ProductCardItem: React.FC<ExtendedCarCardItemPropsProfile> = ({
         }
 
         // Call API
-        const response = await toggleCarListingFavorite({
-          carListingId: Number(ProductId),
+        const response = await toggleListingFavorite({
+          listingId: Number(ProductId),
         });
 
         // Handle API response
@@ -272,7 +273,7 @@ export const ProductCardItem: React.FC<ExtendedCarCardItemPropsProfile> = ({
 
         {/* Make the card content clickable */}
         <Link
-          href={`/products/product/${ProductId}${
+          href={`/products/product/${slug || ProductId}${
             profile ? '?profile=true' : ''
           }`}
           className="block"
@@ -303,7 +304,7 @@ export const ProductCardItem: React.FC<ExtendedCarCardItemPropsProfile> = ({
         {/* Conditional Footer based on auth state */}
         {isFavorites ? (
           <Link
-            href={`/products/product/${ProductId}${
+            href={`/products/product/${slug || ProductId}${
               profile ? '?profile=true' : ''
             }`}
           >

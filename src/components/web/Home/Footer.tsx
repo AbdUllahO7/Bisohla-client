@@ -1,13 +1,13 @@
 'use client';
-import Box from '@/components/box/box';
-import Text from '@/components/text/text';
+import Box from '@/components/ui/box';
+import Text from '@/components/ui/text';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useLocale } from 'next-intl';
 import Image from 'next/image';
 import { Link } from '@/i18n/routing';
 import React from 'react';
-import Logo from '@/components/logo';
+import Logo from '@/components/shared/logo';
 import { useSettings } from '@/providers/settings.provider';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -40,11 +40,11 @@ const Footer = ({ isUserProfile }: { isUserProfile?: boolean }) => {
           </Text>
           <Link href="/products/AddProducts" className="text-primary">
             {locale === 'ar'
-              ? 'إنشىء إعلان تأجير سيارة'
-              : 'Create a car rental ad'}
+              ? 'إنشىء إعلان تأجير'
+              : 'Create a rental ad'}
           </Link>
           <Link href="/products/AddProducts" className="text-primary">
-            {locale === 'ar' ? 'أنشىء إعلان بيع سيارة' : 'Create a car sale ad'}
+            {locale === 'ar' ? 'أنشىء إعلان بيع' : 'Create a sale ad'}
           </Link>
           <Link href="/auth/sign-in" className="text-primary">
             {locale === 'ar' ? 'أنشىء حساب' : 'Create Account'}
@@ -81,10 +81,10 @@ const Footer = ({ isUserProfile }: { isUserProfile?: boolean }) => {
           <Link href="/" className="text-primary">
             {locale === 'ar' ? 'الصفحة الرئيسية' : 'Home Page'}
           </Link>
-          <Link href="/products?listingType=for_rent" className="text-primary">
+          <Link href="/products?listingOfferType=for_rent" className="text-primary">
             {locale === 'ar' ? 'الاستئجار' : 'Rent'}
           </Link>
-          <Link href="/products?listingType=for_sale" className="text-primary">
+          <Link href="/products?listingOfferType=for_sale" className="text-primary">
             {locale === 'ar' ? ' البيع' : 'Sale'}
           </Link>
         </Box>

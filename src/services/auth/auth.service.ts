@@ -1,10 +1,10 @@
 'use server';
 
-import { ApiResponse } from '@/interfaces/api-response.interface';
+import { ApiResponse } from '@/core/entities/interfaces/api-response.interface';
 import {
   RegisterFormSchema,
   RegisterFormValues,
-} from '../../zod-schemas/auth/register-form-schema';
+} from '@/core/entities/models/auth/register-form-schema';
 import { redirect } from 'next/navigation';
 import { deleteSession, updateTokens } from '@/core/lib/web/session';
 import { allRoutes } from '@/constants/routes.constant';

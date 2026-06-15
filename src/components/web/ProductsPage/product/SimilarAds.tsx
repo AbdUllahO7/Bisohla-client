@@ -1,12 +1,12 @@
 'use client';
 import React from 'react';
-import Box from '@/components/box/box';
-import Text from '@/components/text/text';
+import Box from '@/components/ui/box';
+import Text from '@/components/ui/text';
 import { useTranslations } from 'next-intl';
-import { LatestOffersProps } from '@/types/homePageTypes';
+import { LatestOffersProps } from '@/core/entities/types/homePageTypes';
 import { useCarListings } from '@/core/infrastructure-adapters/use-actions/visitors/car.visitor.use-actions';
 import { useSession } from '@/hooks/auth/use-session';
-import SectionHeader from '@/components/SectionHeader';
+import SectionHeader from '@/components/shared/SectionHeader';
 import { CarFrontIcon } from 'lucide-react';
 import { SelectCarListingDto } from '@/core/entities/models/cars/cars.dto';
 import ProductSkeleton from '../../design/ProductSkeletonItem';
@@ -33,7 +33,7 @@ const SimilarAds: React.FC<SimilarAdsProps> = ({
 }) => {
   const t = useTranslations('homePage');
   const session = useSession();
-  const { adsData, isLoadingAds } = useAdSlot('sale-page-ads-section');
+  const { adsData, isLoadingAds, allowPlaceholders, dismissable, rotationStrategy } = useAdSlot('sale-page-ads-section');
 
   // Fetch car listings data with filter for listingType = 'for_sale'
   const { data, isLoading, error } = useCarListings({
@@ -51,7 +51,7 @@ const SimilarAds: React.FC<SimilarAdsProps> = ({
           {
             field: 'listingType',
             operator: 'eq',
-            value: car.listingType,
+            value: (car.listingType || car.listingOfferType || '') as string,
           },
         ],
       },
@@ -211,6 +211,7 @@ const SimilarAds: React.FC<SimilarAdsProps> = ({
               {(() => {
                 const items: any[] = [];
                 let adIndexCounter = 0;
+                const showPlaceholder = allowPlaceholders !== true;
                 
                 carListings.forEach((card: any, index: number) => {
                   items.push({ type: 'product', data: card, originalIndex: index });
@@ -219,7 +220,7 @@ const SimilarAds: React.FC<SimilarAdsProps> = ({
                   let baseAdIndex = -1;
 
                   if (adsData.length === 0) {
-                      if (index === 1) { showAd = true; baseAdIndex = 0; }
+                      if (showPlaceholder && index === 1) { showAd = true; baseAdIndex = 0; }
                   } else if (adsData.length === 1) {
                       if (index === 3) { showAd = true; baseAdIndex = 0; }
                   } else {
@@ -235,9 +236,12 @@ const SimilarAds: React.FC<SimilarAdsProps> = ({
                   }
                 });
 
-                while (adIndexCounter < adsData.length) {
-                  items.push({ type: 'ad', baseAdIndex: adIndexCounter });
-                  adIndexCounter++;
+                if (showPlaceholder || adsData.length > 0) {
+                  const targetAdsLimit = Math.max(adsData.length, showPlaceholder ? 1 : 0);
+                  while (adIndexCounter < targetAdsLimit) {
+                    items.push({ type: 'ad', baseAdIndex: adIndexCounter });
+                    adIndexCounter++;
+                  }
                 }
 
                 return items.map((item, i) => {
@@ -262,25 +266,23 @@ const SimilarAds: React.FC<SimilarAdsProps> = ({
                   } else {
                     const currentAdIndex = (item.baseAdIndex >= 0 && adsData.length > 0) ? item.baseAdIndex % adsData.length : item.baseAdIndex;
                     return (
-                      <React.Fragment key={`ad-slot-${item.baseAdIndex}-${i}`}>
-                        <Box
-                          variant="center"
-                          className="justify-center items-center animate-fadeInUp"
-                          style={{
-                            animationDelay: `${i * 0.1}s`,
-                            animationFillMode: 'both',
-                          }}
-                        >
-                          <AdSpace 
-                            name="sale-page-ads-section" 
-                            isClosable={false}
-                            fallbackContent={<CardAds isRent={false} />}
-                            adsData={adsData}
-                            isLoadingAds={isLoadingAds}
-                            adIndex={currentAdIndex}
-                          />
-                        </Box>
-                      </React.Fragment>
+                      <AdSpace 
+                        key={`ad-slot-${item.baseAdIndex}-${i}`}
+                        name="sale-page-ads-section" 
+                        isClosable={false}
+                        fallbackContent={<CardAds isRent={false} />}
+                        adsData={adsData}
+                        isLoadingAds={isLoadingAds}
+                        adIndex={currentAdIndex}
+                        allowPlaceholders={allowPlaceholders}
+                        dismissable={dismissable}
+                        rotationStrategy={rotationStrategy}
+                        wrapperClassName="justify-center items-center animate-fadeInUp flex w-full h-full"
+                        style={{
+                          animationDelay: `${i * 0.1}s`,
+                          animationFillMode: 'both',
+                        }}
+                      />
                     );
                   }
                 });

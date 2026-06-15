@@ -1,13 +1,13 @@
 // HeaderTwo.tsx - Improved centering and RTL support
 'use client';
 import { useSession } from '@/hooks/auth/use-session';
-import type { HeaderTowProps } from '@/types/homePageTypes';
+import type { HeaderTowProps } from '@/core/entities/types/homePageTypes';
 import { MenuIcon, ChevronDown } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import type React from 'react';
 import { useState } from 'react';
 import { useLocale } from 'next-intl';
-import { Button } from '../../ui/button';
+import { Button } from '@/components/ui/button';
 
 const HeaderTwo: React.FC<HeaderTowProps> = ({ translations }) => {
   const [showMobileNav, setShowMobileNav] = useState(false);
@@ -17,12 +17,12 @@ const HeaderTwo: React.FC<HeaderTowProps> = ({ translations }) => {
 
   const navItems = [
     { href: '/', label: translations.home },
-    { href: '/products?listingType=for_rent', label: translations.rent },
-    { href: '/products?listingType=for_sale', label: translations.sale },
+    { href: '/products?listingOfferType=for_rent', label: translations.rent },
+    { href: '/products?listingOfferType=for_sale', label: translations.sale },
     { href: '/products', label: translations.BrowseAll },
-    // { href: '/Privacypolicy', label: translations.Privacypolicy },
-    { href: '/ContactUs', label: translations.ContactUs },
     { href: '/news', label: translations.News },
+        { href: '/ContactUs', label: translations.ContactUs },
+     { href: '/Privacypolicy', label: translations.Privacypolicy },
   ];
 
   return (

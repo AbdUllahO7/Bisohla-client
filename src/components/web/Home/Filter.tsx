@@ -1,29 +1,22 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import Box from "@/components/box/box"
+import { useState, useEffect, useMemo } from "react"
+import Box from "@/components/ui/box"
 import { Button } from "@/components/ui/button"
 import { SearchIcon, ListRestart, Bell } from "lucide-react"
 import { useLocale, useTranslations } from "next-intl"
 import { useRouter, useSearchParams } from "next/navigation"
-import { getPriceRanges } from "@/constants/filterData"
-import { useAddProductStepTwo } from "../ProductsPage/addProducts/stepTow/hooks"
-import { useProductStepOne } from "../ProductsPage/addProducts/StepOne/hooks"
-import Text from "@/components/text/text"
+import Text from "@/components/ui/text"
 import { Input } from "@/components/ui/input"
-import SelectDropdown from "@/components/SelectDropdown"
-import CarAlertModal from "../ProductsPage/CarAlertModal"
+import SelectDropdown from "@/components/forms/SelectDropdown"
 import { getGovernorateOptions, getCityOptions } from "../ProductsPage/addProducts/StepOne/utils"
+import CarAlertModal from "../ProductsPage/CarAlertModal"
 import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions'
+import { getInjection } from "@/di/container"
+import { useFilters } from "@/providers/filters.provider"
 
 // Types for filtering
 interface FilterState {
-  productType?: string
-  state?: string
-  controltype?: string
-  minPrice?: string
-  maxPrice?: string
-  currency?: string
   [key: string]: string | undefined
 }
 
@@ -36,12 +29,223 @@ const Filter = () => {
   const searchParams = useSearchParams()
 
   const [activeButton, setActiveButton] = useState<"buy" | "hire">("buy")
-  const [filterState, setFilterState] = useState<FilterState>({})
-  const [minPrice, setMinPrice] = useState<string>("")
-  const [maxPrice, setMaxPrice] = useState<string>("")
-  const [currency, setCurrency] = useState<string>("")
   const [isAlertModalOpen, setIsAlertModalOpen] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+
+  // Use global filters context
+  const { 
+    filters, 
+    updateFilter, 
+    updateAttribute, 
+    resetFilters: resetGlobalFilters, 
+    toggleBrand,
+    filterSchema, 
+    listingTypes,
+    dynamicOptions 
+  } = useFilters();
+
+  const listingTypeId = String(filters.listingTypeId || "1");
+  const minPrice = filters.minPrice;
+  const maxPrice = filters.maxPrice;
+  const currency = filters.currency;
+
+  // Helper to check if attribute exists in current schema
+  const hasAttribute = (slug: string) => {
+    if (!filterSchema) return true;
+    const normalizedSlug = slug.toLowerCase().replace(/_/g, '');
+    return filterSchema.compiledSchema.attributes && Object.keys(filterSchema.compiledSchema.attributes).some(s =>
+      s.toLowerCase().replace(/_/g, '') === normalizedSlug
+    );
+  };
+
+  // Helper to get translated attribute name from schema
+  const getAttributeName = (slug: string, defaultName: string) => {
+    if (!filterSchema) return defaultName;
+    const normalizedSlug = slug.toLowerCase().replace(/_/g, '');
+    for (const section of filterSchema.sections) {
+      const attr = section.attributes.find((a: any) => a.slug.toLowerCase().replace(/_/g, '') === normalizedSlug);
+      if (attr) {
+        return attr.translations?.find((tr: any) => tr.locale === locale)?.name || attr.name || defaultName;
+      }
+    }
+    return defaultName;
+  };
+
+  // Helper to get options for an attribute
+  const getOptionsForAttribute = (attr: any) => {
+    const slug = attr.slug.toLowerCase().replace(/_/g, '');
+    
+    // Check dynamic options first (for reference types)
+    if (dynamicOptions[attr.slug]) return dynamicOptions[attr.slug];
+
+    // Governorate options (constant for all categories)
+    if (slug === 'governorate' || slug === 'state') return governorateOptions;
+
+    // Default options for common fields if not in dynamicOptions
+    if (slug === 'transmission' || slug === 'controltype') {
+      return [
+        { value: 'automatic', label: isArabic ? 'أوتوماتيك' : 'Automatic' },
+        { value: 'manual', label: isArabic ? 'يدوي' : 'Manual' }
+      ];
+    }
+    
+    if (slug === 'fuel_type') {
+      return [
+        { value: 'gasoline', label: isArabic ? 'بنزين' : 'Gasoline' },
+        { value: 'diesel', label: isArabic ? 'ديزل' : 'Diesel' }
+      ];
+    }
+    
+    // Dynamic select options from schema
+    if (attr.options && Array.isArray(attr.options)) {
+      return attr.options.map((opt: any) => ({
+        value: String(opt.id),
+        label: typeof opt.label === 'object' 
+          ? (opt.label[locale] || opt.label['en'] || opt.label['ar'] || String(opt.id)) 
+          : (opt.label || String(opt.id))
+      }));
+    }
+
+    // Default options for number types (e.g. rooms count)
+    if (attr.type === 'number') {
+      const min = attr.validationRules?.min || 1;
+      const max = attr.validationRules?.max || 10;
+      return Array.from({ length: max - min + 1 }, (_, i) => ({
+        value: String(min + i),
+        label: String(min + i)
+      }));
+    }
+    
+    return [];
+  };
+
+  const dynamicFilterAttributes = useMemo(() => {
+    if (!filterSchema) return [];
+    // Flatten attributes from all sections and filter for filterable ones
+    const all = filterSchema.sections
+      .flatMap((s: any) => s.attributes)
+      .filter((a: any) => a.isFilterable && a.isActive)
+      // Exclude attributes that are handled elsewhere (like price, and NOW governorate which is constant)
+      .filter((a: any) => !['price', 'minPrice', 'maxPrice', 'currency', 'governorate', 'state'].includes(a.slug.toLowerCase()));
+    
+    // Prioritize Make and Model for the hero row
+    return all.sort((a: any, b: any) => {
+      const slugA = a.slug.toLowerCase();
+      const slugB = b.slug.toLowerCase();
+      const priority = (slug: string) => {
+        if (slug === 'make' || slug === 'marka') return 1;
+        if (slug === 'model') return 2;
+        return 99;
+      };
+      return priority(slugA) - priority(slugB);
+    }).slice(0, 2); // Take top 2 (usually Make + Model)
+  }, [filterSchema]);
+
+  // Listing types are handled by FiltersProvider now
+  useEffect(() => {
+    // Sync active button with listingType from context
+    if (filters.listingType === "for_rent") {
+      setActiveButton("hire")
+    } else {
+      setActiveButton("buy")
+    }
+  }, [filters.listingType]);
+
+  // Get governorate options
+  const governorateOptions = useMemo(() => getGovernorateOptions(locale === 'ar'), [locale]);
+
+  // Handle button click to toggle active state
+  const handleButtonClick = (button: "buy" | "hire") => {
+    setActiveButton(button)
+    updateFilter("listingType", button === "hire" ? "for_rent" : "for_sale")
+  }
+
+  // Handle filter change
+  const handleFilterChange = (name: string, value: string) => {
+    if (name === "listingTypeId") {
+      updateFilter("listingTypeId", Number(value))
+      return
+    }
+
+    if (name === "state") {
+      updateFilter("governorate", value)
+      return
+    }
+
+    // Special handling for Make/Marka to support single-selection and dependency reset
+    if (name === "make" || name === "marka") {
+      // For Hero dropdown, we want to REPLACE the brand, not toggle it
+      updateFilter("selectedBrands", [value]);
+      updateFilter("marka", value);
+      updateFilter("model", "");
+      updateFilter("trim", "");
+      return;
+    }
+
+    // Check if it's a dynamic attribute or core filter
+    const coreFilters = ["minPrice", "maxPrice", "currency", "transmission", "bodyType", "fuelType", "model", "trim"];
+    if (coreFilters.includes(name)) {
+      updateFilter(name as any, value);
+    } else {
+      updateAttribute(name, value);
+    }
+  }
+
+  // Handle price change
+  const handlePriceChange = (type: "min" | "max", value: string) => {
+    updateFilter(type === "min" ? "minPrice" : "maxPrice", value);
+  }
+
+  // Handle currency change
+  const handleCurrencyChange = (name: string, value: string) => {
+    updateFilter("currency", value)
+  }
+
+  // Build query params for navigation
+
+
+  // Apply filters and navigate to products page
+  const applyFilters = () => {
+    const params = new URLSearchParams();
+    
+    // Core search params
+    if (filters.listingTypeId) params.set('listingTypeId', String(filters.listingTypeId));
+    if (filters.listingType) params.set('listingOfferType', filters.listingType);
+    
+    // Brand/Make
+    if (filters.selectedBrands.length > 0) {
+      if (filters.selectedBrands.length === 1) {
+        params.set('make', filters.selectedBrands[0]);
+      } else {
+        filters.selectedBrands.forEach(b => params.append('makes', b));
+      }
+    }
+    
+    // Model/Trim
+    if (filters.model) params.set('model', filters.model);
+    if (filters.trim) params.set('trim', filters.trim);
+    
+    // Location
+    if (filters.governorate) params.set('governorate', filters.governorate);
+    if (filters.city) params.set('city', filters.city);
+    
+    // Price
+    if (filters.minPrice) params.set('minPrice', filters.minPrice);
+    if (filters.maxPrice) params.set('maxPrice', filters.maxPrice);
+    if (filters.currency) params.set('currency', filters.currency);
+
+    // Dynamic Attributes
+    Object.entries(filters.attributes).forEach(([key, value]) => {
+      if (value) params.set(key, String(value));
+    });
+
+    router.push(`/products?${params.toString()}`);
+  }
+
+  // Reset filters
+  const resetFilters = () => {
+    resetGlobalFilters();
+  }
 
   // Check authentication
   useEffect(() => {
@@ -55,161 +259,6 @@ const Filter = () => {
     };
     checkUserAuth();
   }, []);
-
-  const priceRanges = getPriceRanges
-  const handleValidationChangeStepOne = (isValid: boolean) => { }
-  const handleValidationChangeStepTwo = (isValid: boolean) => { }
-
-  // Hooks data for filter options
-  const {
-    governorateOptions,
-    carModel,
-    madeYear,
-    handleSelectChange: handleStepOneSelectChange,
-    titles: stepOneTitles,
-  } = useProductStepOne(handleValidationChangeStepOne)
-
-  const {
-    carInfo,
-    options: stepTwoOptions,
-    labels: stepTwoLabels,
-    handleSelectChange: handleStepTwoSelectChange,
-  } = useAddProductStepTwo(handleValidationChangeStepTwo)
-
-  // Initialize filter from URL parameters
-  useEffect(() => {
-    if (searchParams) {
-      const productType = searchParams.get("productType")
-      const state = searchParams.get("state")
-      const controltype = searchParams.get("controltype")
-      const minPrice = searchParams.get("minPrice")
-      const maxPrice = searchParams.get("maxPrice")
-      const currency = searchParams.get("currency")
-      const listingType = searchParams.get("listingType")
-
-      // Set state based on URL parameters
-      const initialState: FilterState = {}
-      if (productType) initialState.productType = productType
-      if (state) initialState.state = state
-      if (controltype) initialState.controltype = controltype
-      if (minPrice) initialState.minPrice = minPrice
-      if (maxPrice) initialState.maxPrice = maxPrice
-      if (currency) initialState.currency = currency
-
-      setFilterState(initialState)
-      if (minPrice) setMinPrice(minPrice)
-      if (maxPrice) setMaxPrice(maxPrice)
-      if (currency) setCurrency(currency)
-
-      // Set active button based on listingType in URL
-      if (listingType === "for_rent") {
-        setActiveButton("hire")
-      } else if (listingType === "for_sale") {
-        setActiveButton("buy")
-      }
-    }
-  }, [searchParams])
-
-  // Handle button click to toggle active state
-  const handleButtonClick = (button: "buy" | "hire") => {
-    setActiveButton(button)
-  }
-
-  // Handle filter change
-  const handleFilterChange = (name: string, value: string) => {
-    const newFilterState = { ...filterState, [name]: value }
-    setFilterState(newFilterState)
-
-    // Sync with the appropriate hook if needed
-    if (name === "state") {
-      handleStepOneSelectChange("governorate", value)
-    } else if (name === "productType") {
-      handleStepTwoSelectChange("bodyType", value)
-    } else if (name === "controltype") {
-      handleStepTwoSelectChange("transmission", value)
-    }
-  }
-
-  // Handle price change
-  const handlePriceChange = (type: "min" | "max", value: string) => {
-    if (type === "min") {
-      setMinPrice(value)
-      setFilterState((prev) => ({ ...prev, minPrice: value }))
-    } else {
-      setMaxPrice(value)
-      setFilterState((prev) => ({ ...prev, maxPrice: value }))
-    }
-  }
-
-  // Handle currency change
-  const handleCurrencyChange = (name: string, value: string) => {
-    setCurrency(value)
-    setFilterState((prev) => ({ ...prev, currency: value }))
-    handleStepTwoSelectChange("currency", value)
-  }
-
-  // Build query params for navigation
-  const buildQueryParams = () => {
-    // Check if max price is less than min price, if so, swap them
-    let finalMinPrice = minPrice
-    let finalMaxPrice = maxPrice
-
-    if (minPrice && maxPrice && Number.parseInt(minPrice) > Number.parseInt(maxPrice)) {
-      finalMinPrice = maxPrice
-      finalMaxPrice = minPrice
-      setMinPrice(finalMinPrice)
-      setMaxPrice(finalMaxPrice)
-      setFilterState((prev) => ({
-        ...prev,
-        minPrice: finalMinPrice,
-        maxPrice: finalMaxPrice,
-      }))
-    }
-
-    // Create URL search params
-    const params = new URLSearchParams()
-
-    // Set listing type based on active button
-    const listingType = activeButton === "hire" ? "for_rent" : "for_sale"
-    params.set("listingType", listingType)
-
-    // Add filter parameters
-    if (filterState.productType) params.set("bodyType", filterState.productType)
-    if (filterState.state) params.set("governorate", filterState.state)
-    if (filterState.controltype) params.set("transmission", filterState.controltype)
-    if (finalMinPrice) params.set("minPrice", finalMinPrice)
-    if (finalMaxPrice) params.set("maxPrice", finalMaxPrice)
-    if (currency) params.set("currency", currency)
-
-    return params
-  }
-
-  // Apply filters and navigate to products page
-  const applyFilters = () => {
-    const params = buildQueryParams()
-
-    // Navigate to products page with the filter parameters
-    router.push(`/products?${params.toString()}`)
-  }
-
-  // Reset filters
-  const resetFilters = () => {
-    // Reset all state variables
-    setFilterState({})
-    setMinPrice("")
-    setMaxPrice("")
-    setCurrency("")
-
-    // Reset hook state to ensure dropdowns reset properly
-    handleStepOneSelectChange("governorate", "")
-    handleStepTwoSelectChange("bodyType", "")
-    handleStepTwoSelectChange("transmission", "")
-    handleStepTwoSelectChange("currency", "")
-
-    // Reset URL - force removal of all query parameters
-    const currentPath = window.location.pathname
-    router.push(currentPath)
-  }
 
   return (
     <Box
@@ -239,43 +288,65 @@ const Filter = () => {
         className="pb-10 w-full bg-background pt-10 shadow-2xl rounded-b-md flex 2xs:flex-wrap sm:flex-wrap lg:flex-nowrap mx-auto"
       >
         {/* Filter Fields */}
-        <Box className="grid gap-5 pl-5 pr-5 md:grid-cols-1 lg:grid-cols-3 w-full">
-          {/* Body Type */}
+        <Box className="grid gap-5 pl-5 pr-5 md:grid-cols-1 lg:grid-cols-4 w-full">
+          {/* Listing Type (Category) */}
           <Box className="w-full">
             <SelectDropdown
-              label={t("filter.productType")}
-              options={stepTwoOptions.bodyType}
-              placeholder={stepTwoLabels.selectBodyType}
+              label={t("filter.listingType") || "Category"}
+              options={listingTypes.map(t => ({
+                value: String(t.id),
+                label: t.translations?.find((tr: any) => tr.locale === locale)?.name || t.name || String(t.id)
+              }))}
+              placeholder={t("filter.listingTypeSelect") || "Select Category"}
               SelectTriggerStyle="border-0 outline-none shadow-none"
-              onChange={(name, value) => handleFilterChange("productType", value)}
-              value={filterState.productType || ""}
-              name="productType"
+              onChange={(name, value) => handleFilterChange("listingTypeId", value)}
+              value={listingTypeId}
+              name="listingTypeId"
               disabled={false}
             />
           </Box>
-          {/* Governorate */}
+          
+          {/* Dynamic Filter Fields from Schema */}
+          {dynamicFilterAttributes.map((attr: any) => {
+            const attrName = attr.translations?.find((tr: any) => tr.locale === locale)?.name || attr.name;
+            const options = getOptionsForAttribute(attr);
+            
+            return (
+              <Box key={attr.id} className="w-full">
+                <SelectDropdown
+                  label={attrName}
+                  options={options}
+                  placeholder={attrName}
+                  SelectTriggerStyle="border-0 outline-none shadow-none"
+                  onChange={(name, value) => handleFilterChange(attr.slug, value)}
+                  value={
+                    filters.attributes[attr.slug] || 
+                    ((attr.slug === 'make' || attr.slug === 'marka') ? (filters.marka || filters.selectedBrands[0] || "") : "") ||
+                    (attr.slug === 'model' ? (filters.model || "") : "") ||
+                    ""
+                  }
+                  name={attr.slug}
+                  disabled={options.length === 0}
+                />
+              </Box>
+            );
+          })}
+          
+          {/* Fallback empty boxes to maintain grid layout if less than 2 dynamic attributes */}
+          {Array.from({ length: Math.max(0, 2 - dynamicFilterAttributes.length) }).map((_, i) => (
+            <Box key={`empty-${i}`} className="hidden lg:block w-full" />
+          ))}
+
+          {/* Governorate (Constant) - Column 4 */}
           <Box className="w-full">
             <SelectDropdown
               label={t("filter.state")}
               options={governorateOptions}
-              placeholder={stepOneTitles.governorate}
+              placeholder={t("filter.state") || "Select Governorate"}
               SelectTriggerStyle="border-0 outline-none shadow-none"
               onChange={(name, value) => handleFilterChange("state", value)}
-              value={filterState.state || ""}
+              value={filters.governorate || ""}
               name="state"
-              disabled={false}
-            />
-          </Box>
-          {/* Transmission Type */}
-          <Box className="w-full">
-            <SelectDropdown
-              label={t("filter.controltype")}
-              options={stepTwoOptions.transmission}
-              placeholder={stepTwoLabels.selectTransmission}
-              SelectTriggerStyle="border-0 outline-none shadow-none"
-              onChange={(name, value) => handleFilterChange("controltype", value)}
-              value={filterState.controltype || ""}
-              name="controltype"
               disabled={false}
             />
           </Box>
@@ -338,13 +409,13 @@ const Filter = () => {
         open={isAlertModalOpen}
         onOpenChange={setIsAlertModalOpen}
         initialData={{
-          makeId: 0,
-          modelId: 0,
-          trimId: 0,
-          minPrice: 0,
-          maxPrice: 0,
-          governorate: '',
-          city: '',
+          makeId: filters.selectedBrands[0] ? Number(filters.selectedBrands[0]) : 0,
+          modelId: filters.model ? Number(filters.model) : 0,
+          trimId: filters.trim ? Number(filters.trim) : 0,
+          minPrice: filters.minPrice ? Number(filters.minPrice) : 0,
+          maxPrice: filters.maxPrice ? Number(filters.maxPrice) : 0,
+          governorate: filters.governorate || '',
+          city: filters.city || '',
         }}
         governorateOptions={getGovernorateOptions(isArabic)}
         getCityOptions={(gov) => getCityOptions(gov, isArabic)}

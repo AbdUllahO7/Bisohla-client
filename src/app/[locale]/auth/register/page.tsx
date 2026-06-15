@@ -1,18 +1,18 @@
 'use client';
-import DetailedInput from '@/components/detailed-input';
-import FormStateMessage from '@/components/form-state-message';
-import SubmitButton from '@/components/submit-button';
+import DetailedInput from '@/components/forms/detailed-input';
+import FormStateMessage from '@/components/forms/form-state-message';
+import SubmitButton from '@/components/forms/submit-button';
 import { allRoutes } from '@/constants/routes.constant';
 import {
   type ApiResponse,
   defaultActionState,
-} from '@/interfaces/api-response.interface';
+} from '@/core/entities/interfaces/api-response.interface';
 import { handleRegister } from '@/services/auth/auth.service';
-import type { RegisterFormValues } from '@/zod-schemas/auth/register-form-schema';
+import type { RegisterFormValues } from '@/core/entities/models/auth/register-form-schema';
 import { Link } from '@/i18n/routing';
 import { useActionState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import LocaleSwitcher from '@/components/local/LocalSwitcher';
+import LocaleSwitcher from '@/components/locale/LocaleSwitcher';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import {
   Car,
@@ -118,7 +118,7 @@ const RegisterPage = () => {
                   </>
                 ) : (
                   <>
-                    We've sent a verification link to
+                    {"We've sent a verification link to"}
                     <br />
                     <span className="font-semibold text-emerald-600">
                       {state.data.email}
@@ -159,8 +159,7 @@ const RegisterPage = () => {
                     </>
                   ) : (
                     <>
-                      <strong>Note:</strong> If you don't see the email, please
-                      check your spam or junk folder.
+                      <strong>Note:</strong> {"If you don't see the email, please check your spam or junk folder."}
                     </>
                   )}
                 </p>

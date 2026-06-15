@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Box from '@/components/box/box';
-import Text from '@/components/text/text';
+import Box from '@/components/ui/box';
+import Text from '@/components/ui/text';
 import { useTranslations } from 'next-intl';
-import SmartBreadcrumb from '@/components/smart-breadcrumbs';
+import SmartBreadcrumb from '@/components/shared/smart-breadcrumbs';
 import { useCarAlerts } from '@/core/infrastructure-adapters/use-actions/users/car-alert.user.use-actions';
 import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions';
 import { useRouter } from '@/i18n/routing';

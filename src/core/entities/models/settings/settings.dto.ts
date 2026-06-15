@@ -10,6 +10,10 @@ export interface GeneralSettings {
     site_description?: string;
     copyright_message?: string;
   };
+  content?: {
+    about_html?: string;
+    privacy_html?: string;
+  };
   contact_info?: {
     email?: string;
     phone?: string;
@@ -146,6 +150,20 @@ export interface ThirdPartyIntegrations {
   };
 }
 
+export interface ListingsSettings {
+  images?: {
+    min_images_per_listing?: number;
+    max_images_per_listing?: number;
+    max_image_size_mb?: number;
+    upload_folder?: string;
+  };
+  display?: {
+    results_per_page?: number;
+    compare_max_count?: number;
+    featured_listings_limit?: number;
+  };
+}
+
 // Main settings structure combining all sections
 export interface SettingsData {
   general?: GeneralSettings;
@@ -153,6 +171,7 @@ export interface SettingsData {
   seo_settings?: SEOSettings;
   app_settings?: AppSettings;
   third_party_integrations?: ThirdPartyIntegrations;
+  listings_settings?: ListingsSettings;
 }
 
 export interface Settings {

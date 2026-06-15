@@ -46,11 +46,13 @@ import { getCityOptions, getGovernorateOptions } from '@/components/web/Products
 interface CarAlertItemProps {
     alert: SelectCarAlertDto;
     onUpdate?: () => void;
+    listingTypes?: any[];
 }
 
 export const CarAlertItem: React.FC<CarAlertItemProps> = ({
     alert,
     onUpdate,
+    listingTypes = [],
 }) => {
     const t = useTranslations('carAlerts');
     const tModal = useTranslations('carAlertModal');
@@ -147,9 +149,12 @@ export const CarAlertItem: React.FC<CarAlertItemProps> = ({
         }).format(price);
     };
 
-    const carName = [alert.make?.name, alert.model?.name]
+    const typeName = listingTypes.find(t => t.id === alert.listingTypeId)?.name;
+    const listingTitle = [alert.make?.name, alert.model?.name]
         .filter(Boolean)
-        .join(' ');
+        .join(' ') || (typeName ? (isRtl ? `تنبيه ${typeName}` : `${typeName} Alert`) : null) || t('anyListing', {
+            defaultValue: 'Any Item',
+        });
     const hasLocation = alert.governorate || alert.city;
     const hasPriceRange = alert.minPrice || alert.maxPrice;
 
@@ -215,10 +220,7 @@ export const CarAlertItem: React.FC<CarAlertItemProps> = ({
                             <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2 mb-1">
                                     <h3 className="font-semibold text-[#2C3C39] text-lg truncate">
-                                        {carName ||
-                                            t('anyVehicle', {
-                                                defaultValue: 'Any Vehicle',
-                                            })}
+                                        {listingTitle}
                                     </h3>
                                 </div>
 
@@ -418,11 +420,7 @@ export const CarAlertItem: React.FC<CarAlertItemProps> = ({
                                                     "You'll stop receiving notifications for",
                                             })}{' '}
                                             <span className="font-semibold text-[#2C3C39]">
-                                                {carName ||
-                                                    t('thisVehicle', {
-                                                        defaultValue:
-                                                            'this vehicle',
-                                                    })}
+                                                {listingTitle}
                                             </span>
                                             .{' '}
                                             {t('cannotUndo', {
@@ -470,7 +468,9 @@ export const CarAlertItem: React.FC<CarAlertItemProps> = ({
                     maxPrice: alert.maxPrice || 0,
                     governorate: alert.governorate || '',
                     city: alert.city || '',
+                    attributeFilters: alert.attributeFilters,
                 }}
+                listingTypeId={alert.listingTypeId}
                 governorateOptions={getGovernorateOptions(isRtl)}
                 getCityOptions={(gov) => getCityOptions(gov, isRtl)}
                 isArabic={isRtl}

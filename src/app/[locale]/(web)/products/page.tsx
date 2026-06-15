@@ -1,11 +1,11 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import Box from '@/components/box/box';
+import Box from '@/components/ui/box';
 import Categories from '@/components/web/ProductsPage/Categories';
 import Header from '@/components/web/ProductsPage/Header';
 import AllCarListings from './AllCarListings';
-import SmartBreadcrumb from '@/components/smart-breadcrumbs';
+import SmartBreadcrumb from '@/components/shared/smart-breadcrumbs';
 
 // Import the filter provider
 
@@ -13,10 +13,11 @@ import SmartBreadcrumb from '@/components/smart-breadcrumbs';
 import type { QueryParams } from '@/core/entities/api/api';
 import { FilterProvider, useFilters } from '@/providers/filters.provider';
 import ProductsFilter from '@/components/web/ProductsPage/Filter';
+import AddProductTypeSelection from '@/components/web/ProductsPage/addProducts/TypeSelection/AddProductTypeSelection';
 
 // Inner component that uses the filter context
 const ProductsContent = () => {
-  const { queryParams } = useFilters();
+  const { queryParams, filters, updateFilter, listingTypes } = useFilters();
   const [totalItems, setTotalItems] = useState<number>(0);
   const [currentSort, setCurrentSort] = useState({
     sortBy: 'publishedAt',
@@ -43,6 +44,17 @@ const ProductsContent = () => {
     sortDirection: currentSort.sortDirection,
   };
 
+  if (filters.listingTypeId === 0) {
+    return (
+      <Box variant="container" className="py-12">
+        <AddProductTypeSelection 
+          onSelect={(type) => updateFilter('listingTypeId', type.id)}
+          selectedTypeId={0}
+        />
+      </Box>
+    );
+  }
+
   return (
     <Box
       variant="row"
@@ -53,8 +65,8 @@ const ProductsContent = () => {
         <SmartBreadcrumb
           items={[
             {
-              label: 'Cars',
-              arLabel: 'السيارات',
+              label: listingTypes.find(t => t.id === filters.listingTypeId)?.name || 'Products',
+              arLabel: listingTypes.find(t => t.id === filters.listingTypeId)?.name || 'المنتجات',
               // No href since this is the current page
             },
           ]}
@@ -111,7 +123,7 @@ const ProductsContent = () => {
 // Main Products component with provider wrapper
 const Products = () => {
   return (
-    <FilterProvider>
+    <FilterProvider initialListingTypeId={0}>
       <ProductsContent />
     </FilterProvider>
   );

@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useState, useRef } from 'react';
-import Text from '@/components/text/text';
+import Text from '@/components/ui/text';
 import {
   Card,
   CardDescription,
@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import { Link } from '@/i18n/routing';
 import { Button } from '@/components/ui/button';
-import { CarCardItemPropsProfile } from '@/types/homePageTypes';
+import { CarCardItemPropsProfile } from '@/core/entities/types/homePageTypes';
 import {
   AlertTriangle,
   Edit,
@@ -33,12 +33,11 @@ import {
   Calendar,
 } from 'lucide-react';
 import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions';
-import { toggleCarListingFavorite } from '@/core/infrastructure-adapters/actions/users/car.user.actions';
+import { toggleListingFavorite } from '@/core/infrastructure-adapters/actions/users/listing.user.actions';
 import { 
-  useDeleteCarListing, 
   useUpdateSaveStatus,
-  useMyCarById 
 } from '@/core/infrastructure-adapters/use-actions/users/car.user.use-actions';
+import { useDeleteListing, useGetListingStatistics } from '@/core/infrastructure-adapters/use-actions/users/listing.user.use-actions';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -89,6 +88,7 @@ export const EnhancedProductCardItem: React.FC<ExtendedCarCardItemPropsProfile> 
   marka,
   imageSrc,
   ProductId,
+  slug,
   isFavorites,
   priceWord,
   price,
@@ -118,7 +118,7 @@ export const EnhancedProductCardItem: React.FC<ExtendedCarCardItemPropsProfile> 
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   
   const updateSaveStatusMutation = useUpdateSaveStatus();
-  const deleteCarListingMutation = useDeleteCarListing();
+  const deleteListingMutation = useDeleteListing();
   const { toast } = useToast();
 
   // Get locale and direction
@@ -127,7 +127,7 @@ export const EnhancedProductCardItem: React.FC<ExtendedCarCardItemPropsProfile> 
   const t = useTranslations('common');
 
   // Fetch car statistics when modal is open
-  const { data: carStatistics, isLoading: isLoadingStatistics, refetch: refetchStatistics } = useMyCarById(
+  const { data: carStatistics, isLoading: isLoadingStatistics, refetch: refetchStatistics } = useGetListingStatistics(
     Number(ProductId)
   );
 
@@ -184,9 +184,9 @@ export const EnhancedProductCardItem: React.FC<ExtendedCarCardItemPropsProfile> 
 
   // Format statistics for display
   const formatStatistics = () => {
-    if (!carStatistics?.data?.statics) return null;
+    if (!carStatistics?.data) return null;
     
-    const stats = carStatistics.data.statics;
+    const stats = carStatistics.data.statics || carStatistics.data;
     const formatDateValue = (dateString: string | null) => {
       if (!dateString) return locale === 'ar' ? 'غير متوفر' : 'N/A';
       try {
@@ -335,8 +335,8 @@ export const EnhancedProductCardItem: React.FC<ExtendedCarCardItemPropsProfile> 
           onFavoriteToggle(Number(ProductId), newStatus);
         }
 
-        const response = await toggleCarListingFavorite({
-          carListingId: Number(ProductId),
+        const response = await toggleListingFavorite({
+          listingId: Number(ProductId),
         });
 
         if (response.success) {
@@ -346,10 +346,16 @@ export const EnhancedProductCardItem: React.FC<ExtendedCarCardItemPropsProfile> 
             responseStatus = response.data;
           } else if (
             response.data &&
-            typeof response.data === 'object' &&
-            'isFavorite' in response.data
+            typeof response.data === 'object'
           ) {
-            responseStatus = response.data.isFavorite as boolean;
+            const data = response.data as any;
+            if ('isFavorited' in data) {
+              responseStatus = data.isFavorited as boolean;
+            } else if ('isFavorite' in data) {
+              responseStatus = data.isFavorite as boolean;
+            } else {
+              responseStatus = newStatus;
+            }
           } else {
             responseStatus = newStatus;
           }
@@ -391,7 +397,7 @@ export const EnhancedProductCardItem: React.FC<ExtendedCarCardItemPropsProfile> 
 
     try {
       setIsDeleting(true);
-      await deleteCarListingMutation.mutateAsync({ id: Number(ProductId) });
+      await deleteListingMutation.mutateAsync({ id: Number(ProductId) });
       setShowDeleteDialog(false);
 
       if (onDelete) {
@@ -714,7 +720,7 @@ export const EnhancedProductCardItem: React.FC<ExtendedCarCardItemPropsProfile> 
 
         {/* Make the card content clickable */}
         <Link
-          href={`/products/product/${ProductId}${
+          href={`/products/product/${slug || ProductId}${
             profile ? '?profile=true' : ''
           }`}
           className="block"
@@ -749,7 +755,7 @@ export const EnhancedProductCardItem: React.FC<ExtendedCarCardItemPropsProfile> 
         {/* Conditional Footer based on auth state */}
         {isFavorites ? (
           <Link
-            href={`/products/product/${ProductId}${
+            href={`/products/product/${slug || ProductId}${
               profile ? '?profile=true' : ''
             }`}
           >
@@ -954,104 +960,113 @@ export const EnhancedProductCardItem: React.FC<ExtendedCarCardItemPropsProfile> 
                   {locale === 'ar' ? 'جاري تحميل الإحصائيات...' : 'Loading statistics...'}
                 </p>
               </div>
-            ) : carStatistics?.data?.statics ? (
-              <div className="space-y-6">
-                {/* Car Info Header */}
-                <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 rounded-xl p-5 border-2 border-primary/20">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <h3 className="font-bold text-xl text-gray-900 mb-2">
-                        {title}
-                      </h3>
-                      <p className="text-sm text-gray-600">{marka}</p>
-                      <div className="flex items-center gap-2 mt-3">
-                        <Badge className="bg-primary text-white">
-                          ID: {ProductId}
-                        </Badge>
-                        {getStatusBadge()}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Statistics Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {formatStatistics()?.map((stat, index) => {
-                    const IconComponent = stat.icon;
-                    return (
-                      <div
-                        key={index}
-                        className={clsx(
-                          'rounded-xl p-5 border-2 transition-all duration-200 hover:shadow-md hover:scale-[1.02]',
-                          stat.bgColor,
-                          stat.borderColor,
-                          stat.fullWidth && 'md:col-span-2'
-                        )}
-                      >
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-3">
-                              <div className={clsx('p-2 rounded-lg bg-white/80 shadow-sm', stat.color)}>
-                                <IconComponent size={20} strokeWidth={2.5} />
-                              </div>
-                              <p className="text-sm font-medium text-gray-700">
-                                {stat.label}
-                              </p>
-                            </div>
-                            <p className={clsx('text-3xl font-bold', stat.color)}>
-                              {stat.value}
-                            </p>
+            ) : (carStatistics?.data?.statics || carStatistics?.data) ? (
+              (() => {
+                const statsObj = carStatistics.data.statics || carStatistics.data;
+                return (
+                  <div className="space-y-6">
+                    {/* Car Info Header */}
+                    <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 rounded-xl p-5 border-2 border-primary/20">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <h3 className="font-bold text-xl text-gray-900 mb-2">
+                            {title}
+                          </h3>
+                          <p className="text-sm text-gray-600">{marka}</p>
+                          <div className="flex items-center gap-2 mt-3">
+                            <Badge className="bg-primary text-white">
+                              ID: {ProductId}
+                            </Badge>
+                            {getStatusBadge()}
                           </div>
                         </div>
                       </div>
-                    );
-                  })}
-                </div>
-
-                {/* Additional Info Section */}
-                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-5 border border-gray-200">
-                  <div className="flex items-center gap-2 mb-4">
-                    <Clock className="text-gray-600" size={20} />
-                    <h4 className="font-semibold text-gray-900">
-                      {locale === 'ar' ? 'معلومات إضافية' : 'Additional Information'}
-                    </h4>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-                    <div className="flex items-center justify-between bg-white rounded-lg p-3">
-                      <span className="text-gray-600">
-                        {locale === 'ar' ? 'تاريخ الإنشاء:' : 'Created:'}
-                      </span>
-                      <span className="font-medium text-gray-900">
-                        {new Date(carStatistics.data.statics.createdAt).toLocaleDateString(
-                          locale === 'ar' ? 'ar-SA' : 'en-US'
-                        )}
-                      </span>
                     </div>
-                    <div className="flex items-center justify-between bg-white rounded-lg p-3">
-                      <span className="text-gray-600">
-                        {locale === 'ar' ? 'آخر تحديث:' : 'Last Updated:'}
-                      </span>
-                      <span className="font-medium text-gray-900">
-                        {new Date(carStatistics.data.statics.updatedAt).toLocaleDateString(
-                          locale === 'ar' ? 'ar-SA' : 'en-US'
+
+                    {/* Statistics Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {formatStatistics()?.map((stat, index) => {
+                        const IconComponent = stat.icon;
+                        return (
+                          <div
+                            key={index}
+                            className={clsx(
+                              'rounded-xl p-5 border-2 transition-all duration-200 hover:shadow-md hover:scale-[1.02]',
+                              stat.bgColor,
+                              stat.borderColor,
+                              stat.fullWidth && 'md:col-span-2'
+                            )}
+                          >
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-3 mb-3">
+                                  <div className={clsx('p-2 rounded-lg bg-white/80 shadow-sm', stat.color)}>
+                                    <IconComponent size={20} strokeWidth={2.5} />
+                                  </div>
+                                  <p className="text-sm font-medium text-gray-700">
+                                    {stat.label}
+                                  </p>
+                                </div>
+                                <p className={clsx('text-3xl font-bold', stat.color)}>
+                                  {stat.value}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Additional Info Section */}
+                    <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-5 border border-gray-200">
+                      <div className="flex items-center gap-2 mb-4">
+                        <Clock className="text-gray-600" size={20} />
+                        <h4 className="font-semibold text-gray-900">
+                          {locale === 'ar' ? 'معلومات إضافية' : 'Additional Information'}
+                        </h4>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                        {statsObj.createdAt && (
+                          <div className="flex items-center justify-between bg-white rounded-lg p-3">
+                            <span className="text-gray-600">
+                              {locale === 'ar' ? 'تاريخ الإنشاء:' : 'Created:'}
+                            </span>
+                            <span className="font-medium text-gray-900">
+                              {new Date(statsObj.createdAt).toLocaleDateString(
+                                locale === 'ar' ? 'ar-SA' : 'en-US'
+                              )}
+                            </span>
+                          </div>
                         )}
-                      </span>
+                        {statsObj.updatedAt && (
+                          <div className="flex items-center justify-between bg-white rounded-lg p-3">
+                            <span className="text-gray-600">
+                              {locale === 'ar' ? 'آخر تحديث:' : 'Last Updated:'}
+                            </span>
+                            <span className="font-medium text-gray-900">
+                              {new Date(statsObj.updatedAt).toLocaleDateString(
+                                locale === 'ar' ? 'ar-SA' : 'en-US'
+                              )}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Footer Note */}
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <p className="text-sm text-blue-800 flex items-start gap-2">
+                        <TrendingUp size={16} className="flex-shrink-0 mt-0.5" />
+                        <span>
+                          {locale === 'ar'
+                            ? 'يتم تحديث الإحصائيات بشكل دوري. قد يستغرق ظهور البيانات الجديدة بعض الوقت.'
+                            : 'Statistics are updated periodically. New data may take some time to appear.'}
+                        </span>
+                      </p>
                     </div>
                   </div>
-                </div>
-
-                {/* Footer Note */}
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <p className="text-sm text-blue-800 flex items-start gap-2">
-                    <TrendingUp size={16} className="flex-shrink-0 mt-0.5" />
-                    <span>
-                      {locale === 'ar'
-                        ? 'يتم تحديث الإحصائيات بشكل دوري. قد يستغرق ظهور البيانات الجديدة بعض الوقت.'
-                        : 'Statistics are updated periodically. New data may take some time to appear.'}
-                    </span>
-                  </p>
-                </div>
-              </div>
+                );
+              })()
             ) : (
               <div className="flex flex-col items-center justify-center py-16">
                 <AlertTriangle className="text-gray-400 mb-4" size={48} />

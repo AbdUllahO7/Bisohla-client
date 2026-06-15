@@ -1,27 +1,42 @@
 'use client';
 
-import Box from '@/components/box/box';
+import Box from '@/components/ui/box';
 import { useLocale, useTranslations } from 'next-intl';
 import React, { useMemo } from 'react';
 import CategoryCarousel from '../design/CategoryCarousel';
-import { getBodyTypeOptions } from '@/core/entities/enums/cars.enums';
+import { getBodyTypeOptions, SelectOption } from '@/core/entities/enums/cars.enums';
 import { useGetBodyTypeCategoryCounts } from '@/core/infrastructure-adapters/use-actions/visitors/car.visitor.use-actions';
 import { useFilters } from '@/providers/filters.provider';
 
 const Categories = () => {
-  const t = useTranslations('addProduct.enteredData.stepTow');
+  const t = useTranslations('addProduct.enteredData.stepTwo');
   const locale = useLocale();
   const direction = locale === 'ar' ? 'rtl' : 'ltr';
 
   // Use filter context to apply category filters
-  const { updateFilter } = useFilters();
+  const { updateFilter, filterSchema, filters } = useFilters();
+
 
   // Fetch body type category counts from backend
   const { data: bodyTypeCategoryCounts, isLoading } =
-    useGetBodyTypeCategoryCounts();
+    useGetBodyTypeCategoryCounts(filters.listingTypeId ?? 1);
 
-  // Get body type options with translations
-  const bodyTypeOptions = getBodyTypeOptions(t);
+  // Get body type options with translations from schema or fallback to enums
+  const bodyTypeOptions = useMemo(() => {
+    if (filterSchema) {
+      const attribute = filterSchema.sections
+        .flatMap(s => s.attributes)
+        .find(a => a.slug === 'body_type');
+        
+      if (attribute && attribute.options) {
+        return attribute.options.map((opt: any) => ({
+          value: opt.id,
+          label: opt.label[locale] || opt.label['en'] || opt.id
+        }));
+      }
+    }
+    return getBodyTypeOptions(t);
+  }, [filterSchema, t, locale]);
 
   // Process the backend data to match the frontend format
   const categoriesWithCounts = useMemo(() => {
@@ -29,14 +44,21 @@ const Categories = () => {
       return [];
     }
 
+    // The new API returns an array of attributes. Find the one for 'body_type'
+    const bodyTypeData = bodyTypeCategoryCounts.data.find(
+      (attr: any) => attr.attributeSlug === 'body_type'
+    );
+
     // Create a map from backend data for quick lookup
     const countsMap = new Map<string, number>();
-    bodyTypeCategoryCounts.data.forEach((item: any) => {
-      countsMap.set(item.bodyType, item.count);
-    });
+    if (bodyTypeData?.counts) {
+      bodyTypeData.counts.forEach((item: any) => {
+        countsMap.set(item.value, item.count);
+      });
+    }
 
     // Map body type options with their counts
-    return bodyTypeOptions.map((option) => {
+    return bodyTypeOptions.map((option: SelectOption) => {
       const count = countsMap.get(option.value) || 0;
 
       return {
@@ -71,6 +93,11 @@ const Categories = () => {
 
     // Return specific image if available, otherwise use default
     return imageMap[bodyType] || '/assets/icons/001-car.png';
+  }
+
+  // Only show for Cars (listingTypeId 1)
+  if (filters.listingTypeId !== 1) {
+    return null;
   }
 
   return (

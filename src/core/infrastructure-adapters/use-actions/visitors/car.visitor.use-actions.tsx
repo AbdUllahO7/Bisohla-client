@@ -38,12 +38,13 @@ export const useCarListings = (params: QueryParams) =>
     refetchOnWindowFocus: false,
   });
 
-export const useGetBodyTypeCategoryCounts = () =>
-  useLocaleQuery<ApiResponse<BodyTypeCategoryCount[]>>({
-    queryKey: ['body-type-category-counts'],
-    queryFn: async () => await getBodyTypeCategoryCounts(),
+export const useGetBodyTypeCategoryCounts = (listingTypeId: number = 1) =>
+  useLocaleQuery<ApiResponse<any>>({
+    queryKey: ['body-type-category-counts', listingTypeId],
+    queryFn: async () => await getBodyTypeCategoryCounts(listingTypeId),
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
+    enabled: !!listingTypeId,
   });
 
 export const useGetCityCounts = () =>

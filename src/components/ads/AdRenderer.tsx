@@ -29,14 +29,14 @@ const AdMedia = ({
     videoUrl,
     title,
     adType,
-    ad, // Added root ad object
+    ad,
     className = 'w-full h-full object-cover',
 }: {
     imageUrl?: string;
     videoUrl?: string;
     title?: string;
     adType: string;
-    ad?: AdContentDto; // Added root ad object
+    ad?: AdContentDto;
     className?: string;
 }) => {
     const rawType = (adType || '').toLowerCase().replace(/_/g, ' ');
@@ -44,6 +44,7 @@ const AdMedia = ({
     if (rawType === 'text only' || rawType === 'text_only' || rawType === 'text') {
         return null;
     }
+
 
     // --- FALLBACK LOGIC ---
     // If translation media is missing, try root ad properties
@@ -460,7 +461,7 @@ const FloatingButtonAd = ({ ad, translation, onClose, isClosable }: any) => (
             </button>
         )}
         <div className="flex items-center gap-2 bg-primary text-white px-5 py-3 rounded-full shadow-xl hover:shadow-2xl hover:bg-green-700 transition-all cursor-pointer max-w-[220px]">
-            { (translation?.imageUrl || ad.imageUrl) && (
+            {(translation?.imageUrl || ad.imageUrl) && (
                 <div className="relative w-8 h-8 flex-shrink-0 rounded-full overflow-hidden bg-white/20">
                     <Image src={translation?.imageUrl || ad.imageUrl!} alt="" fill className="object-cover" />
                 </div>
@@ -476,7 +477,7 @@ const FloatingButtonAd = ({ ad, translation, onClose, isClosable }: any) => (
 const VideoPlayerAd = ({ ad, translation }: any) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [isPlaying, setIsPlaying] = useState(false);
-    
+
     // --- FALLBACK LOGIC ---
     const effectiveImageUrl = translation?.imageUrl || ad.imageUrl;
     const effectiveVideoUrl = translation?.videoUrl || ad.videoUrl;
@@ -632,7 +633,7 @@ const AdRenderer: React.FC<AdRendererProps> = ({ ad, isClosable }) => {
         if (ad.targetUrl) {
             const isExternal = ad.targetUrl.startsWith('http');
             if (isExternal) {
-                 return <a href={ad.targetUrl} onClick={handleClick} target="_blank" rel="noopener noreferrer" className="block w-full h-full">{content}</a>;
+                return <a href={ad.targetUrl} onClick={handleClick} target="_blank" rel="noopener noreferrer" className="block w-full h-full">{content}</a>;
             }
             return (
                 <Link href={ad.targetUrl as any} onClick={handleClick} className="block w-full h-full">
@@ -647,7 +648,7 @@ const AdRenderer: React.FC<AdRendererProps> = ({ ad, isClosable }) => {
     const isOverlayTemplate = ['popup_modal', 'popup', 'interstitial', 'floating_button'].includes(
         ad.displayTemplate,
     );
-    
+
     // An ad is treated as an overlay ONLY if it has an overlay template AND is intended to be closable/transient.
     // If isClosable is explicitly false, it is a persistent section ad and MUST be rendered inline.
     const isOverlay = isOverlayTemplate && isClosable !== false;
@@ -657,7 +658,7 @@ const AdRenderer: React.FC<AdRendererProps> = ({ ad, isClosable }) => {
         // regardless of section-level isClosable={false} setting, as per user requirement.
         // However, if we reached here, isClosable is either true or undefined.
         const effectiveIsClosable = isClosable === undefined ? true : isClosable;
-        
+
         // Force closable for popups/interstitials if they are overlays
         const forceClosableAlways = ['popup_modal', 'popup', 'interstitial'].includes(ad.displayTemplate);
         const finalIsClosable = forceClosableAlways ? true : effectiveIsClosable;

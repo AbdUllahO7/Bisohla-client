@@ -2,14 +2,14 @@
 
 import React from 'react';
 import Link from 'next/link';
-import Box from '@/components/box/box';
-import Text from '@/components/text/text';
+import Box from '@/components/ui/box';
+import Text from '@/components/ui/text';
 import NewsCard from './NewsCard';
 import { useLocale, useTranslations } from 'next-intl';
 import { Newspaper } from 'lucide-react'; // Removed ArrowRight, ArrowLeft
 import { useGetNewsArticles } from '@/hooks/use-news';
 import { SelectNewsArticleDto } from '@/core/entities/models/news/news.dto';
-import SectionHeader from '@/components/SectionHeader'; // Added import
+import SectionHeader from '@/components/shared/SectionHeader'; // Added import
 import { logger } from '@/lib/logger';
 import AdSpace from '@/components/ads/AdSpace';
 import AdsSectionProduct from '@/components/web/ProductsPage/product/AdsSectionProduct';
@@ -27,7 +27,7 @@ const NewsSection: React.FC<NewsSectionProps> = ({
 }) => {
   const locale = useLocale();
   const t = useTranslations('news');
-  const { adsData, isLoadingAds } = useAdSlot('web-home-page-news-section-ad');
+  const { adsData, isLoadingAds, allowPlaceholders, dismissable, rotationStrategy } = useAdSlot('web-home-page-news-section-ad');
 
   const { data, isLoading, error } = useGetNewsArticles({
     page: 1,
@@ -180,21 +180,22 @@ const NewsSection: React.FC<NewsSectionProps> = ({
                   const items: any[] = [];
                   let adIndexCounter = 0;
                   const actualAdsLength = adsData?.length || 0;
-                   // Use exactly 1 fallback ad if no real ads
-                  const totalAdsTarget = Math.max(actualAdsLength, 1);
+                  const showPlaceholder = allowPlaceholders !== true;
+                  // Use exactly 1 fallback ad if no real ads and placeholders are allowed
+                  const totalAdsTarget = (actualAdsLength === 0 && !showPlaceholder) ? 0 : Math.max(actualAdsLength, 1);
                   let lastAdIndex = -10;
-                  
+
                   articles.forEach((article: SelectNewsArticleDto, index: number) => {
                     items.push({ type: 'article', data: article, originalIndex: index });
-                    
+
                     const remainingArticles = articles.length - 1 - index;
                     const remainingAds = totalAdsTarget - adIndexCounter;
-                    
+
                     if (remainingAds > 0) {
                       // Aggressively place if we are running out of articles
                       const mustPlace = remainingAds > remainingArticles;
                       const hasSpacing = (items.length - lastAdIndex) > 1; // at least 1 article between ads
-                      
+
                       const seedStr = article.title || String(article.id);
                       const hash = seedStr.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
                       const randomPlace = (hash + index) % 3 === 0;
@@ -228,33 +229,30 @@ const NewsSection: React.FC<NewsSectionProps> = ({
                       );
                     } else {
                       return (
-                        <div
+                        <AdSpace
                           key={`ad-slot-${item.adIndex}-${i}`}
-                          className="animate-fadeInUp h-full"
+                          name="web-home-page-news-section-ad"
+                          className="w-full h-full"
+                          wrapperClassName="w-full h-full min-h-[380px] animate-fadeInUp"
+                          fallbackContent={<CardAds isRent={false} />}
+                          isClosable={false}
+                          adsData={adsData}
+                          isLoadingAds={isLoadingAds}
+                          adIndex={item.adIndex}
+                          allowPlaceholders={allowPlaceholders}
+                          dismissable={dismissable}
+                          rotationStrategy={rotationStrategy}
                           style={{
                             animationDelay: `${i * 0.1}s`,
                             animationFillMode: 'both',
                           }}
-                        >
-                          <AdSpace
-                            name="web-home-page-news-section-ad"
-                            className="w-full h-full"
-                            wrapperClassName="w-full h-full min-h-[380px]"
-                            fallbackContent={<CardAds isRent={false} />}
-                            isClosable={false}
-                            adsData={adsData}
-                            isLoadingAds={isLoadingAds}
-                            adIndex={item.adIndex}
-                          />
-                        </div>
+                        />
                       );
                     }
                   });
                 })()}
               </Box>
 
-              {/* News Section Ad */}
-              <AdsSectionProduct />
             </>
           )}
         </Box>

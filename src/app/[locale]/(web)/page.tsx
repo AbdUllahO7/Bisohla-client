@@ -1,19 +1,20 @@
-import Box from '@/components/box/box';
+import Box from '@/components/ui/box';
 import AdsSection from '@/components/web/Home/AdsSection';
 import FAQ from '@/components/web/Home/FAQ';
 
 import Hero from '@/components/web/Home/Hero';
-import LatestOffers from '@/components/web/Home/LatestOffers';
 import SpaceAds from '@/components/web/Home/SpaceAds';
 import WorldOfCar from '@/components/web/Home/WorldOfProduct';
 import { Locale } from '@/i18n/routing';
 import { generateSettingsBasedMetadata } from '@/utils/settings-metadata.utils';
 import { Metadata } from 'next';
-import { getLocale } from 'next-intl/server';
-import AnimatedPageWrapper from '@/components/AnimatedPageWrapper';
+import { getLocale, getTranslations } from 'next-intl/server';
+import AnimatedPageWrapper from '@/components/shared/AnimatedPageWrapper';
 import NewsSection from '@/components/web/Home/NewsSection';
-import RentProduct from '@/components/web/Home/RentProduct';
 import RecentlyViewed from '@/components/web/Home/RecentlyViewed';
+import { getInjection } from '@/di/container';
+import DynamicListingSection from '@/components/web/Home/DynamicListingSection';
+import { normalizeListingToCarDto } from '@/utils/listing-normalization';
 
 // Generate metadata based on locale and settings
 export async function generateMetadata(): Promise<Metadata> {
@@ -129,14 +130,155 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 const WebPage = async () => {
+  const listingTypesRepo = getInjection('IListingTypesRepo');
+  const listingsVisitorRepo = getInjection('IListingsVisitorRepo');
+
+  // Fetch listing types
+  const listingTypesRes = await listingTypesRepo.getListingTypes();
+  const listingTypes = (listingTypesRes.data?.data || []).sort((a: any, b: any) => {
+    const orderA = !a.order ? Infinity : Number(a.order);
+    const orderB = !b.order ? Infinity : Number(b.order);
+    if (orderA === orderB) return 0;
+    return orderA - orderB;
+  });
+
+  const locale = await getLocale();
+  const t = await getTranslations('homePage');
+
+  // Fetch trending listings
+  const trendingRes = await listingsVisitorRepo.getTrendingListings({
+    pageSize: 10,
+    include:
+      'attributeValues.attribute,images,user,listingType,listingTypeVersion',
+  });
+  const trendingListings = (trendingRes.data?.data || []).map((item) =>
+    normalizeListingToCarDto(item, locale),
+  );
+
+
+
+  // Fetch featured listings (global)
+  const featuredRes = await listingsVisitorRepo.getFeaturedListings(undefined, {
+    pageSize: 10,
+    include:
+      'attributeValues.attribute,images,user,listingType,listingTypeVersion',
+  });
+  const featuredListings = (featuredRes.data?.data || []).map((item) =>
+    normalizeListingToCarDto(item, locale),
+  );
+
+  // Fetch featured listings per type
+  const typeFeaturedListings: {
+    type: any;
+    listings: any[];
+    title: string;
+    adSlotName?: string;
+    listingOfferType?: string;
+  }[] = [];
+
+  for (const type of listingTypes) {
+    if (type.slug === 'cars') {
+      // Fetch for_sale
+      const saleRes = await listingsVisitorRepo.searchListings(type.id, {
+        pageSize: 10,
+        sortBy: 'createdAt',
+        sortDirection: 'desc',
+        where: [
+          {
+            field: 'listingOfferType',
+            operator: 'eq',
+            value: 'for_sale',
+          },
+        ],
+        include:
+          'attributeValues.attribute,images,user,listingType,listingTypeVersion',
+      });
+      typeFeaturedListings.push({
+        type,
+        title: `${type.name} - ${locale === 'ar' ? 'للبيع' : 'For Sale'}`,
+        listings: (saleRes.data?.data || []).map((item) =>
+          normalizeListingToCarDto(item, locale),
+        ),
+        adSlotName: 'lateset-offers-card',
+        listingOfferType: 'for_sale',
+      });
+
+      // Fetch for_rent
+      const rentRes = await listingsVisitorRepo.searchListings(type.id, {
+        pageSize: 10,
+        sortBy: 'createdAt',
+        sortDirection: 'desc',
+        where: [
+          {
+            field: 'listingOfferType',
+            operator: 'eq',
+            value: 'for_rent',
+          },
+        ],
+        include:
+          'attributeValues.attribute,images,user,listingType,listingTypeVersion',
+      });
+      typeFeaturedListings.push({
+        type,
+        title: `${type.name} - ${locale === 'ar' ? 'للإيجار' : 'For Rent'}`,
+        listings: (rentRes.data?.data || []).map((item) =>
+          normalizeListingToCarDto(item, locale),
+        ),
+        adSlotName: 'rent-page-ad-section',
+        listingOfferType: 'for_rent',
+      });
+    } else {
+      const res = await listingsVisitorRepo.searchListings(type.id, {
+        pageSize: 10,
+        sortBy: 'createdAt',
+        sortDirection: 'desc',
+        include:
+          'attributeValues.attribute,images,user,listingType,listingTypeVersion',
+      });
+      typeFeaturedListings.push({
+        type,
+        title: type.name,
+        listings: (res.data?.data || []).map((item) =>
+          normalizeListingToCarDto(item, locale),
+        ),
+      });
+    }
+  }
+
+
+
   return (
     <AnimatedPageWrapper>
       <Box variant="column" className="gap-10 w-full bg-background">
         <Hero />
-        <LatestOffers />
+
+        {/* Global Featured Section */}
+        <DynamicListingSection
+          listings={featuredListings}
+          title={t('featuredListings')}
+          iconName="star"
+        />
+
+        {/* Dynamic Sections per Listing Type */}
+        {typeFeaturedListings.map(({ type, listings, title, adSlotName, listingOfferType }, index) => (
+          <DynamicListingSection
+            key={`${type.id}-${index}`}
+            listings={listings}
+            title={title}
+            showMoreLink={`/products?listingTypeId=${type.id}${listingOfferType ? `&listingOfferType=${listingOfferType}` : ''}`}
+            adSlotName={adSlotName}
+          />
+        ))}
+
+        {/* Trending Section */}
+        <DynamicListingSection
+          listings={trendingListings}
+          title={t('trendingListings')}
+          iconName="trending"
+        />
+
         <AdsSection />
         <WorldOfCar />
-        <RentProduct />
         <SpaceAds />
         <NewsSection />
         <RecentlyViewed />

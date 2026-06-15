@@ -1,8 +1,8 @@
 'use client';
 
 import type React from 'react';
-import Box from '@/components/box/box';
-import Text from '@/components/text/text';
+import Box from '@/components/ui/box';
+import Text from '@/components/ui/text';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslations } from 'next-intl';
@@ -32,14 +32,14 @@ const ProfileStats: React.FC<ProfileStatsProps> = ({
     {
       key: 'forSale',
       label: t('forSale'),
-      value: profile.totalForSellCarListings,
+      value: profile.totalForSaleListings,
       icon: <ShoppingCart className="h-6 w-6 text-primary-light" />,
       gradient: 'from-primary to-primary-light',
     },
     {
       key: 'forRent',
       label: t('forRent'),
-      value: profile.totalForRentCarListings,
+      value: profile.totalForRentListings,
       icon: <Car className="h-6 w-6 text-primary-light" />,
       gradient: 'from-primary to-primary-light',
     },

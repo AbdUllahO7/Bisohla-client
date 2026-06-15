@@ -100,6 +100,450 @@ interface SimplifiedNestedCarFilterProps {
 // MAIN COMPONENT
 // =============================================================================
 
+
+// =============================================================================
+// SUB-COMPONENTS & TYPES
+// =============================================================================
+
+interface TrimItemProps {
+  trim: CarTrim;
+  isRTL: boolean;
+  onTrimSelect: (trimId: string) => void;
+}
+
+const TrimItem: React.FC<TrimItemProps> = React.memo(({ trim, isRTL, onTrimSelect }) => (
+  <div
+    className={`rounded border transition-all duration-200 ${trim.isSelected
+        ? 'bg-white border-primary/30 shadow-sm'
+        : 'bg-white/50 border-slate-200 hover:bg-white'
+      }`}
+  >
+    <div className="p-2">
+      <div
+        className={`flex items-center w-full ${isRTL ? 'text-right' : 'text-left'
+          }`}
+      >
+        <Checkbox
+          id={`trim-${trim.value}`}
+          checked={trim.isSelected}
+          onCheckedChange={() => onTrimSelect(trim.value)}
+          className="border-slate-300 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+        />
+        <Label
+          htmlFor={`trim-${trim.value}`}
+          className={`text-sm cursor-pointer flex items-center ${trim.isSelected ? 'text-primary font-medium' : 'text-slate-500'
+            } ${isRTL ? 'pr-2' : 'pl-2'}`}
+        >
+          {trim.isSelected && (
+            <Star
+              className={`w-3 h-3 text-primary fill-current ${isRTL ? 'ml-1' : 'mr-1'
+                }`}
+            />
+          )}
+          <span className="truncate">{trim.label}</span>
+        </Label>
+      </div>
+    </div>
+  </div>
+));
+TrimItem.displayName = 'TrimItem';
+
+interface ModelItemProps {
+  model: CarModel;
+  isCarTrimRequired: boolean;
+  locale: string;
+  isRTL: boolean;
+  expandedModels: Set<string>;
+  setExpandedModels: React.Dispatch<React.SetStateAction<Set<string>>>;
+  carTrimsConfig: {
+    queryKey: string[];
+    fetchFn: (params: any) => Promise<any>;
+    labelField: string;
+    valueField: string;
+  };
+  selectedTrim: string;
+  onTrimSelect: (trimId: string) => void;
+  onModelSelect: (modelId: string) => void;
+}
+
+const ModelItem: React.FC<ModelItemProps> = React.memo(({
+  model,
+  isCarTrimRequired,
+  locale,
+  isRTL,
+  expandedModels,
+  setExpandedModels,
+  carTrimsConfig,
+  selectedTrim,
+  onTrimSelect,
+  onModelSelect,
+}) => {
+  const isExpanded = expandedModels.has(model.value);
+  const trimsQuery = useInfiniteQuery({
+    queryKey: [...carTrimsConfig.queryKey, model.value, locale],
+    queryFn: async ({ pageParam = 1 }) => {
+      const response = await carTrimsConfig.fetchFn({
+        page: Number(pageParam),
+        pageSize: 100,
+        where: [{ field: 'modelId', operator: 'eq', value: model.value }],
+      });
+
+      if (!response.success) {
+        throw new Error(response.message || 'Failed to fetch car trims');
+      }
+
+      return response;
+    },
+    getNextPageParam: (lastPage) => {
+      if (!lastPage.data) return undefined;
+      return lastPage.data.hasNextPage
+        ? Number(lastPage.data.currentPage) + 1
+        : undefined;
+    },
+    initialPageParam: 1,
+    enabled: !!model.value && expandedModels.has(model.value),
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+
+  const trims = useMemo(() => {
+    if (!trimsQuery.data?.pages) return [];
+
+    return trimsQuery.data.pages
+      .flatMap((page) => page.data?.data || [])
+      .map((item: any) => ({
+        value: String(item[carTrimsConfig.valueField]),
+        label: String(item[carTrimsConfig.labelField]),
+        modelId: String(item.modelId),
+        isSelected: selectedTrim === String(item[carTrimsConfig.valueField]),
+      }))
+      .sort((a, b) => {
+        if (a.isSelected && !b.isSelected) return -1;
+        if (!a.isSelected && b.isSelected) return 1;
+        return a.label.localeCompare(b.label, locale, {
+          numeric: true,
+          sensitivity: 'base',
+        });
+      });
+  }, [trimsQuery.data?.pages, carTrimsConfig, selectedTrim, locale]);
+
+  return (
+    <div className="mb-1">
+      <div
+        className={`rounded-md border transition-all duration-200 ${model.isSelected
+            ? 'bg-white border-primary/30 shadow-sm'
+            : 'bg-white/70 border-slate-200 hover:bg-white'
+          }`}
+      >
+        <div className="p-2">
+          <div
+            className={`flex items-center w-full ${isRTL ? 'text-right' : 'text-left'
+              }`}
+          >
+            <div
+              className={`flex items-center flex-1 ${isRTL ? 'flex-row' : 'justify-start'
+                }`}
+            >
+              <Checkbox
+                id={`model-${model.value}`}
+                checked={model.isSelected}
+                onCheckedChange={() => onModelSelect(model.value)}
+                className="border-slate-300 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+              />
+              <Label
+                htmlFor={`model-${model.value}`}
+                className={`text-sm cursor-pointer flex items-center ${model.isSelected
+                    ? 'text-primary font-medium'
+                    : 'text-slate-600'
+                  } ${isRTL ? 'pr-2' : 'pl-2'}`}
+              >
+                {model.isSelected && (
+                  <Star
+                    className={`w-3 h-3 text-primary fill-current ${isRTL ? 'ml-1' : 'mr-1'
+                      }`}
+                  />
+                )}
+                <span className="truncate">{model.label}</span>
+              </Label>
+            </div>
+
+            {model.isSelected && isCarTrimRequired && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setExpandedModels((prev) => {
+                    const newSet = new Set(prev);
+                    if (newSet.has(model.value)) {
+                      newSet.delete(model.value);
+                    } else {
+                      newSet.add(model.value);
+                    }
+                    return newSet;
+                  });
+                }}
+                className="p-1 hover:bg-primary/20 rounded transition-colors border border-primary/20"
+              >
+                {isExpanded ? (
+                  <ChevronDown className="w-3 h-3 text-primary" />
+                ) : (
+                  <ChevronRight
+                    className={`w-3 h-3 text-primary ${isRTL ? 'rotate-180' : ''
+                      }`}
+                  />
+                )}
+              </button>
+            )}
+          </div>
+        </div>
+
+        {model.isSelected && isExpanded && isCarTrimRequired && (
+          <div className="border-t border-primary/20 bg-primary/5 p-2 space-y-1">
+            {trimsQuery.isLoading ? (
+              <div className="flex items-center p-2 text-sm text-slate-500">
+                <Loader2
+                  className={`w-4 h-4 animate-spin ${isRTL ? 'ml-2' : 'mr-2'
+                    }`}
+                />
+                {isRTL ? 'التحميل...' : 'Loading trims...'}
+              </div>
+            ) : (
+              trims.map((trim) => (
+                <TrimItem
+                  key={trim.value}
+                  trim={trim}
+                  isRTL={isRTL}
+                  onTrimSelect={onTrimSelect}
+                />
+              ))
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+});
+ModelItem.displayName = 'ModelItem';
+
+interface BrandItemProps {
+  brand: CarMake;
+  locale: string;
+  isRTL: boolean;
+  selectedBrands: string[];
+  expandedBrands: Set<string>;
+  setExpandedBrands: React.Dispatch<React.SetStateAction<Set<string>>>;
+  carModelsConfig: {
+    queryKey: string[];
+    fetchFn: (params: any) => Promise<any>;
+    labelField: string;
+    valueField: string;
+    logoField?: string;
+  };
+  selectedModel: string;
+  onBrandToggle: (brandId: string) => void;
+  expandedModels: Set<string>;
+  setExpandedModels: React.Dispatch<React.SetStateAction<Set<string>>>;
+  carTrimsConfig: {
+    queryKey: string[];
+    fetchFn: (params: any) => Promise<any>;
+    labelField: string;
+    valueField: string;
+  };
+  selectedTrim: string;
+  onTrimSelect: (trimId: string) => void;
+  onModelSelect: (modelId: string) => void;
+  handleBrandToggle: (brandId: string) => void;
+}
+
+const BrandItem: React.FC<BrandItemProps> = React.memo(({
+  brand,
+  locale,
+  isRTL,
+  selectedBrands,
+  expandedBrands,
+  setExpandedBrands,
+  carModelsConfig,
+  selectedModel,
+  onBrandToggle,
+  expandedModels,
+  setExpandedModels,
+  carTrimsConfig,
+  selectedTrim,
+  onTrimSelect,
+  onModelSelect,
+  handleBrandToggle,
+}) => {
+  const isExpanded = expandedBrands.has(brand.value);
+  const modelsQuery = useInfiniteQuery({
+    queryKey: [...carModelsConfig.queryKey, brand.value, locale],
+    queryFn: async ({ pageParam = 1 }) => {
+      const response = await carModelsConfig.fetchFn({
+        page: Number(pageParam),
+        pageSize: 100,
+        where: [{ field: 'makeId', operator: 'eq', value: brand.value }],
+      });
+
+      if (!response.success) {
+        throw new Error(response.message || 'Failed to fetch car models');
+      }
+
+      return response;
+    },
+    getNextPageParam: (lastPage) => {
+      if (!lastPage.data) return undefined;
+      return lastPage.data.hasNextPage
+        ? Number(lastPage.data.currentPage) + 1
+        : undefined;
+    },
+    initialPageParam: 1,
+    enabled: selectedBrands.includes(brand.value) && expandedBrands.has(brand.value),
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+
+  const models = useMemo(() => {
+    if (!modelsQuery.data?.pages) return [];
+
+    return modelsQuery.data.pages
+      .flatMap((page) => page.data?.data || [])
+      .map((item: any) => ({
+        value: String(item[carModelsConfig.valueField]),
+        label: String(item[carModelsConfig.labelField]),
+        makeId: String(item.makeId),
+        isSelected:
+          selectedModel === String(item[carModelsConfig.valueField]),
+      }))
+      .sort((a, b) => {
+        if (a.isSelected && !b.isSelected) return -1;
+        if (!a.isSelected && b.isSelected) return 1;
+        return a.label.localeCompare(b.label, locale, {
+          numeric: true,
+          sensitivity: 'base',
+        });
+      });
+  }, [modelsQuery.data?.pages, carModelsConfig, selectedModel, locale]);
+
+  return (
+    <div className="mb-2">
+      <div
+        className={`rounded-lg border transition-all duration-200 ${brand.isSelected
+            ? 'bg-primary/10 border-primary/30 shadow-sm'
+            : 'bg-white border-slate-200 hover:border-slate-300'
+          }`}
+      >
+        <div className="p-3">
+          <div
+            className={`flex items-center w-full ${isRTL ? 'text-right' : 'text-left'
+              }`}
+          >
+            <div
+              className={`flex items-center flex-1 ${isRTL ? 'flex-row' : 'justify-start'
+                }`}
+            >
+              <Checkbox
+                id={`brand-${brand.value}`}
+                checked={brand.isSelected}
+                onCheckedChange={() => handleBrandToggle(brand.value)}
+                className="border-slate-300 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+              />
+              <Label
+                htmlFor={`brand-${brand.value}`}
+                className={`text-sm font-medium cursor-pointer flex items-center ${brand.isSelected ? 'text-primary' : 'text-slate-700'
+                  } ${isRTL ? 'pr-3' : 'pl-3'}`}
+              >
+                {brand.isSelected && (
+                  <Star
+                    className={`w-3 h-3 text-primary fill-current ${isRTL ? 'ml-2' : 'mr-2'
+                      }`}
+                  />
+                )}
+                {brand.logoUrl && (
+                  <div
+                    className={`relative w-6 h-6 flex-shrink-0 ${isRTL ? 'ml-2' : 'mr-2'
+                      }`}
+                  >
+                    <Image
+                      src={brand.logoUrl}
+                      alt={brand.label}
+                      fill
+                      className="object-contain rounded"
+                      sizes="24px"
+                    />
+                  </div>
+                )}
+                <span className="truncate">{brand.label}</span>
+              </Label>
+            </div>
+
+            {brand.isSelected && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setExpandedBrands((prev) => {
+                    const newSet = new Set(prev);
+                    if (newSet.has(brand.value)) {
+                      newSet.delete(brand.value);
+                    } else {
+                      newSet.add(brand.value);
+                    }
+                    return newSet;
+                  });
+                }}
+                className="p-1.5 hover:bg-primary/20 rounded-md transition-colors border border-primary/20"
+              >
+                {isExpanded ? (
+                  <ChevronDown className="w-4 h-4 text-primary" />
+                ) : (
+                  <ChevronRight
+                    className={`w-4 h-4 text-primary ${isRTL ? 'rotate-180' : ''
+                      }`}
+                  />
+                )}
+              </button>
+            )}
+          </div>
+        </div>
+
+        {brand.isSelected && isExpanded && (
+          <div className="border-t border-primary/20 bg-primary/5 p-3 space-y-2">
+            {modelsQuery.isLoading ? (
+              <div className="flex items-center p-2 text-sm text-slate-500">
+                <Loader2
+                  className={`w-4 h-4 animate-spin ${isRTL ? 'ml-2' : 'mr-2'
+                    }`}
+                />
+                {isRTL ? 'التحميل...' : 'Loading models...'}
+              </div>
+            ) : models.length === 0 ? (
+              <div className="p-2 text-sm text-slate-500">
+                {isRTL ? 'لم يتم العثور على موديلات' : 'No models found'}
+              </div>
+            ) : (
+              models.map((model) => (
+                <ModelItem
+                  key={model.value}
+                  model={model}
+                  isCarTrimRequired={brand.isCarTrimRequired}
+                  locale={locale}
+                  isRTL={isRTL}
+                  expandedModels={expandedModels}
+                  setExpandedModels={setExpandedModels}
+                  carTrimsConfig={carTrimsConfig}
+                  selectedTrim={selectedTrim}
+                  onTrimSelect={onTrimSelect}
+                  onModelSelect={onModelSelect}
+                />
+              ))
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+});
+BrandItem.displayName = 'BrandItem';
+
 const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
   carMakesConfig,
   carModelsConfig,
@@ -241,74 +685,6 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
     });
   }, [makesData?.pages, selectedBrands, carMakesConfig, locale]);
 
-  // =============================================================================
-  // HOOKS FOR MODELS AND TRIMS
-  // =============================================================================
-
-  const useModelsForBrand = useCallback(
-    (brandId: string) => {
-      return useInfiniteQuery({
-        queryKey: [...carModelsConfig.queryKey, brandId, locale],
-        queryFn: async ({ pageParam = 1 }) => {
-          const response = await carModelsConfig.fetchFn({
-            page: Number(pageParam),
-            pageSize: 100,
-            where: [{ field: 'makeId', operator: 'eq', value: brandId }],
-          });
-
-          if (!response.success) {
-            throw new Error(response.message || 'Failed to fetch car models');
-          }
-
-          return response;
-        },
-        getNextPageParam: (lastPage) => {
-          if (!lastPage.data) return undefined;
-          return lastPage.data.hasNextPage
-            ? Number(lastPage.data.currentPage) + 1
-            : undefined;
-        },
-        initialPageParam: 1,
-        enabled:
-          selectedBrands.includes(brandId) && expandedBrands.has(brandId),
-        staleTime: 5 * 60 * 1000,
-        refetchOnWindowFocus: false,
-      });
-    },
-    [carModelsConfig, selectedBrands, expandedBrands],
-  );
-
-  const useTrimsForModel = useCallback(
-    (modelId: string) => {
-      return useInfiniteQuery({
-        queryKey: [...carTrimsConfig.queryKey, modelId, locale],
-        queryFn: async ({ pageParam = 1 }) => {
-          const response = await carTrimsConfig.fetchFn({
-            page: Number(pageParam),
-            pageSize: 100,
-            where: [{ field: 'modelId', operator: 'eq', value: modelId }],
-          });
-
-          if (!response.success) {
-            throw new Error(response.message || 'Failed to fetch car trims');
-          }
-
-          return response;
-        },
-        getNextPageParam: (lastPage) => {
-          if (!lastPage.data) return undefined;
-          return lastPage.data.hasNextPage
-            ? Number(lastPage.data.currentPage) + 1
-            : undefined;
-        },
-        initialPageParam: 1,
-        enabled: !!modelId && expandedModels.has(modelId),
-        staleTime: 5 * 60 * 1000,
-        refetchOnWindowFocus: false,
-      });
-    },
-    [carTrimsConfig, expandedModels],
-  );
 
   // =============================================================================
   // EFFECTS
@@ -380,306 +756,7 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
     [onModelSelect],
   );
 
-  // =============================================================================
-  // RENDER COMPONENTS
-  // =============================================================================
-
-  const BrandItem: React.FC<{ brand: CarMake }> = React.memo(({ brand }) => {
-    const isExpanded = expandedBrands.has(brand.value);
-    const modelsQuery = useModelsForBrand(brand.value);
-
-    const models = useMemo(() => {
-      if (!modelsQuery.data?.pages) return [];
-
-      return modelsQuery.data.pages
-        .flatMap((page) => page.data?.data || [])
-        .map((item) => ({
-          value: String(item[carModelsConfig.valueField]),
-          label: String(item[carModelsConfig.labelField]),
-          makeId: String(item.makeId),
-          isSelected:
-            selectedModel === String(item[carModelsConfig.valueField]),
-        }))
-        .sort((a, b) => {
-          if (a.isSelected && !b.isSelected) return -1;
-          if (!a.isSelected && b.isSelected) return 1;
-          return a.label.localeCompare(b.label, locale, {
-            numeric: true,
-            sensitivity: 'base',
-          });
-        });
-    }, [modelsQuery.data?.pages]);
-
-    return (
-      <div className="mb-2">
-        <div
-          className={`rounded-lg border transition-all duration-200 ${brand.isSelected
-              ? 'bg-primary/10 border-primary/30 shadow-sm'
-              : 'bg-white border-slate-200 hover:border-slate-300'
-            }`}
-        >
-          <div className="p-3">
-            <div
-              className={`flex items-center w-full ${isRTL ? 'text-right' : 'text-left'
-                }`}
-            >
-              <div
-                className={`flex items-center flex-1 ${isRTL ? 'flex-row' : 'justify-start'
-                  }`}
-              >
-                <Checkbox
-                  id={`brand-${brand.value}`}
-                  checked={brand.isSelected}
-                  onCheckedChange={() => handleBrandToggle(brand.value)}
-                  className="border-slate-300 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                />
-                <Label
-                  htmlFor={`brand-${brand.value}`}
-                  className={`text-sm font-medium cursor-pointer flex items-center ${brand.isSelected ? 'text-primary' : 'text-slate-700'
-                    } ${isRTL ? 'pr-3' : 'pl-3'}`}
-                >
-                  {brand.isSelected && (
-                    <Star
-                      className={`w-3 h-3 text-primary fill-current ${isRTL ? 'ml-2' : 'mr-2'
-                        }`}
-                    />
-                  )}
-                  {brand.logoUrl && (
-                    <div
-                      className={`relative w-6 h-6 flex-shrink-0 ${isRTL ? 'ml-2' : 'mr-2'
-                        }`}
-                    >
-                      <Image
-                        src={brand.logoUrl}
-                        alt={brand.label}
-                        fill
-                        className="object-contain rounded"
-                        sizes="24px"
-                      />
-                    </div>
-                  )}
-                  <span className="truncate">{brand.label}</span>
-                </Label>
-              </div>
-
-              {brand.isSelected && (
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setExpandedBrands((prev) => {
-                      const newSet = new Set(prev);
-                      if (newSet.has(brand.value)) {
-                        newSet.delete(brand.value);
-                      } else {
-                        newSet.add(brand.value);
-                      }
-                      return newSet;
-                    });
-                  }}
-                  className="p-1.5 hover:bg-primary/20 rounded-md transition-colors border border-primary/20"
-                >
-                  {isExpanded ? (
-                    <ChevronDown className="w-4 h-4 text-primary" />
-                  ) : (
-                    <ChevronRight
-                      className={`w-4 h-4 text-primary ${isRTL ? 'rotate-180' : ''
-                        }`}
-                    />
-                  )}
-                </button>
-              )}
-            </div>
-          </div>
-
-          {brand.isSelected && isExpanded && (
-            <div className="border-t border-primary/20 bg-primary/5 p-3 space-y-2">
-              {modelsQuery.isLoading ? (
-                <div className="flex items-center p-2 text-sm text-slate-500">
-                  <Loader2
-                    className={`w-4 h-4 animate-spin ${isRTL ? 'ml-2' : 'mr-2'
-                      }`}
-                  />
-                  {isRTL ? 'جارٍ تحميل الموديلات...' : 'Loading models...'}
-                </div>
-              ) : models.length === 0 ? (
-                <div className="p-2 text-sm text-slate-500">
-                  {isRTL ? 'لم يتم العثور على موديلات' : 'No models found'}
-                </div>
-              ) : (
-                models.map((model) => (
-                  <ModelItem
-                    key={model.value}
-                    model={model}
-                    isCarTrimRequired={brand.isCarTrimRequired}
-                  />
-                ))
-              )}
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  });
-
-  const ModelItem: React.FC<{
-    model: CarModel;
-    isCarTrimRequired: boolean;
-  }> = React.memo(({ model, isCarTrimRequired }) => {
-    const isExpanded = expandedModels.has(model.value);
-    const trimsQuery = useTrimsForModel(model.value);
-
-    const trims = useMemo(() => {
-      if (!trimsQuery.data?.pages) return [];
-
-      return trimsQuery.data.pages
-        .flatMap((page) => page.data?.data || [])
-        .map((item) => ({
-          value: String(item[carTrimsConfig.valueField]),
-          label: String(item[carTrimsConfig.labelField]),
-          modelId: String(item.modelId),
-          isSelected: selectedTrim === String(item[carTrimsConfig.valueField]),
-        }))
-        .sort((a, b) => {
-          if (a.isSelected && !b.isSelected) return -1;
-          if (!a.isSelected && b.isSelected) return 1;
-          return a.label.localeCompare(b.label, locale, {
-            numeric: true,
-            sensitivity: 'base',
-          });
-        });
-    }, [trimsQuery.data?.pages]);
-
-    return (
-      <div className="mb-1">
-        <div
-          className={`rounded-md border transition-all duration-200 ${model.isSelected
-              ? 'bg-white border-primary/30 shadow-sm'
-              : 'bg-white/70 border-slate-200 hover:bg-white'
-            }`}
-        >
-          <div className="p-2">
-            <div
-              className={`flex items-center w-full ${isRTL ? 'text-right' : 'text-left'
-                }`}
-            >
-              <div
-                className={`flex items-center flex-1 ${isRTL ? 'flex-row' : 'justify-start'
-                  }`}
-              >
-                <Checkbox
-                  id={`model-${model.value}`}
-                  checked={model.isSelected}
-                  onCheckedChange={() => handleModelSelect(model.value)}
-                  className="border-slate-300 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                />
-                <Label
-                  htmlFor={`model-${model.value}`}
-                  className={`text-sm cursor-pointer flex items-center ${model.isSelected
-                      ? 'text-primary font-medium'
-                      : 'text-slate-600'
-                    } ${isRTL ? 'pr-2' : 'pl-2'}`}
-                >
-                  {model.isSelected && (
-                    <Star
-                      className={`w-3 h-3 text-primary fill-current ${isRTL ? 'ml-1' : 'mr-1'
-                        }`}
-                    />
-                  )}
-                  <span className="truncate">{model.label}</span>
-                </Label>
-              </div>
-
-              {model.isSelected && isCarTrimRequired && (
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setExpandedModels((prev) => {
-                      const newSet = new Set(prev);
-                      if (newSet.has(model.value)) {
-                        newSet.delete(model.value);
-                      } else {
-                        newSet.add(model.value);
-                      }
-                      return newSet;
-                    });
-                  }}
-                  className="p-1 hover:bg-primary/20 rounded transition-colors border border-primary/20"
-                >
-                  {isExpanded ? (
-                    <ChevronDown className="w-3 h-3 text-primary" />
-                  ) : (
-                    <ChevronRight
-                      className={`w-3 h-3 text-primary ${isRTL ? 'rotate-180' : ''
-                        }`}
-                    />
-                  )}
-                </button>
-              )}
-            </div>
-          </div>
-
-          {model.isSelected && isExpanded && isCarTrimRequired && (
-            <div className="border-t border-primary/20 bg-primary/5 p-2 space-y-1">
-              {trimsQuery.isLoading ? (
-                <div className="flex items-center p-2 text-sm text-slate-500">
-                  <Loader2
-                    className={`w-4 h-4 animate-spin ${isRTL ? 'ml-2' : 'mr-2'
-                      }`}
-                  />
-                  {isRTL ? 'جارٍ تحميل الفئات...' : 'Loading trims...'}
-                </div>
-              ) : (
-                trims.map((trim) => <TrimItem key={trim.value} trim={trim} />)
-              )}
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  });
-
-  const TrimItem: React.FC<{ trim: CarTrim }> = React.memo(({ trim }) => (
-    <div
-      className={`rounded border transition-all duration-200 ${trim.isSelected
-          ? 'bg-white border-primary/30 shadow-sm'
-          : 'bg-white/50 border-slate-200 hover:bg-white'
-        }`}
-    >
-      <div className="p-2">
-        <div
-          className={`flex items-center w-full ${isRTL ? 'text-right' : 'text-left'
-            }`}
-        >
-          <Checkbox
-            id={`trim-${trim.value}`}
-            checked={trim.isSelected}
-            onCheckedChange={() => onTrimSelect(trim.value)}
-            className="border-slate-300 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-          />
-          <Label
-            htmlFor={`trim-${trim.value}`}
-            className={`text-sm cursor-pointer flex items-center ${trim.isSelected ? 'text-primary font-medium' : 'text-slate-500'
-              } ${isRTL ? 'pr-2' : 'pl-2'}`}
-          >
-            {trim.isSelected && (
-              <Star
-                className={`w-3 h-3 text-primary fill-current ${isRTL ? 'ml-1' : 'mr-1'
-                  }`}
-              />
-            )}
-            <span className="truncate">{trim.label}</span>
-          </Label>
-        </div>
-      </div>
-    </div>
-  ));
-
-  // Add display names
-  BrandItem.displayName = 'BrandItem';
-  ModelItem.displayName = 'ModelItem';
-  TrimItem.displayName = 'TrimItem';
+  // Render components moved outside to resolve Rules of Hooks violations
 
   // =============================================================================
   // MAIN RENDER
@@ -742,7 +819,25 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
             <>
               <div className="space-y-2">
                 {makes.map((brand) => (
-                  <BrandItem key={brand.value} brand={brand} />
+                  <BrandItem
+                    key={brand.value}
+                    brand={brand}
+                    locale={locale}
+                    isRTL={isRTL}
+                    selectedBrands={selectedBrands}
+                    expandedBrands={expandedBrands}
+                    setExpandedBrands={setExpandedBrands}
+                    carModelsConfig={carModelsConfig}
+                    selectedModel={selectedModel}
+                    onBrandToggle={onBrandToggle}
+                    expandedModels={expandedModels}
+                    setExpandedModels={setExpandedModels}
+                    carTrimsConfig={carTrimsConfig}
+                    selectedTrim={selectedTrim}
+                    onTrimSelect={onTrimSelect}
+                    onModelSelect={handleModelSelect}
+                    handleBrandToggle={handleBrandToggle}
+                  />
                 ))}
               </div>
 

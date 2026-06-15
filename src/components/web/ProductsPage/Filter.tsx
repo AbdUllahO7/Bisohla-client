@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import React from 'react';
 
 import {
@@ -17,7 +17,7 @@ import { useLocale, useTranslations } from 'next-intl';
 // UI Components
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import SelectDropdown from '@/components/SelectDropdown';
+import SelectDropdown from '@/components/forms/SelectDropdown';
 import {
   Accordion,
   AccordionContent,
@@ -34,11 +34,11 @@ import {
 } from '@/components/ui/sheet';
 
 // Custom Components
-import OptimizedSearchInput from '@/components/optimized-search-input';
+import OptimizedSearchInput from '@/components/forms/optimized-search-input';
 
 // Hooks and Data
 import { useProductStepOne } from './addProducts/StepOne/hooksv2';
-import { useAddProductStepTwo } from './addProducts/stepTow/hooks';
+import { useAddProductStepTwo } from './addProducts/StepTwo/hooks';
 import { getPriceRanges, getMileageRanges } from '@/constants/filterData';
 import { getCurrencyOptions } from '@/core/entities/enums/currency.enum';
 import { useFilters } from '@/providers/filters.provider';
@@ -48,6 +48,7 @@ import { useToast } from '@/hooks/use-toast';
 import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions';
 import CarAlertModal from './CarAlertModal';
 import { getCityOptions } from './addProducts/StepOne/utils';
+import { cn } from '@/lib/utils';
 
 // Types for components
 interface FilterOptionDropdownProps {
@@ -132,11 +133,19 @@ AccordionHeader.displayName = 'AccordionHeader';
 // Active filters summary component
 const ActiveFiltersSummary = React.memo(({ filters, onClearAll }: any) => {
   const t = useTranslations('productsPage');
-  const activeFiltersCount = Object.entries(filters).filter(([key, value]) => {
-    if (key === 'selectedBrands')
-      return Array.isArray(value) && value.length > 0;
-    return value && value !== '';
-  }).length;
+  const activeFiltersCount = useMemo(() => {
+    let count = 0;
+    Object.entries(filters).forEach(([key, value]) => {
+      if (key === 'selectedBrands' && Array.isArray(value)) {
+        if (value.length > 0) count += 1;
+      } else if (key === 'attributes' && typeof value === 'object' && value !== null) {
+        count += Object.values(value).filter(v => v !== undefined && v !== '').length;
+      } else if (value && value !== '' && !['listingTypeId', 'attributes', 'selectedBrands'].includes(key)) {
+        count += 1;
+      }
+    });
+    return count;
+  }, [filters]);
 
   if (activeFiltersCount === 0) return null;
 
@@ -222,9 +231,24 @@ const FilterContent = React.memo(
     t,
     handleCreateAlert,
     isCreatingAlert,
+    dynamicOptions,
     isMobile = false,
+    listingTypes = [],
+    updateAttribute,
+    filterSchema,
   }: any) => {
+    const locale = useLocale();
     const trans = useTranslations('addProduct.enteredData');
+
+    const hasAttribute = (slug: string) => {
+      if (!filters.listingTypeId) return true;
+      if (!dynamicOptions.filterSchema) return true;
+      
+      const normalizedSlug = slug.toLowerCase().replace(/_/g, '');
+      return dynamicOptions.filterSchema.sections.some((s: any) => 
+        s.attributes.some((a: any) => a.slug.toLowerCase().replace(/_/g, '') === normalizedSlug)
+      );
+    };
 
 
 
@@ -269,9 +293,22 @@ const FilterContent = React.memo(
                 <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50">
                   <div className="space-y-3">
                     <FilterOptionDropdown
+                      options={listingTypes.map((t: any) => ({
+                        value: String(t.id),
+                        label: t.name,
+                        logoUrl: t.iconUrl
+                      }))}
+                      placeholder={t('filter.listingTypeSelect', {
+                        defaultValue: 'Select category',
+                      })}
+                      onChange={(name, value) => handleFilterChange('listingTypeId', value)}
+                      value={String(filters.listingTypeId)}
+                      name="listingTypeId"
+                    />
+                    <FilterOptionDropdown
                       options={getListingTypeOptions(trans)}
                       placeholder={t('filter.listingTypeSelect', {
-                        defaultValue: 'Select listing type',
+                        defaultValue: 'Select offer type',
                       })}
                       onChange={handleFilterChange}
                       value={filters.listingType}
@@ -321,78 +358,80 @@ const FilterContent = React.memo(
               </AccordionItem>
 
               {/* Car Brand/Model/Trim Filter */}
-              <AccordionItem
-                value="car-marka"
-                className="border border-slate-200 rounded-lg overflow-hidden bg-white hover:shadow-sm transition-shadow"
-              >
-                <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 transition-colors duration-200">
-                  <AccordionHeader
-                    title={t(
-                      'filter.filterOptions.productMarka.filterOptionsTitle',
-                    )}
-                    hasActiveFilters={getActiveFiltersCount('car-marka') > 0}
-                    activeCount={getActiveFiltersCount('car-marka')}
-                  />
-                </AccordionTrigger>
-                <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50">
-                  <NestedCarFilter
-                    carMakesConfig={carMakesConfig}
-                    carModelsConfig={carModelsConfig}
-                    carTrimsConfig={carTrimsConfig}
-                    selectedBrands={filters.selectedBrands}
-                    selectedModel={filters.model}
-                    selectedTrim={filters.trim}
-                    onBrandToggle={handleBrandToggle}
-                    onModelSelect={handleModelSelect}
-                    onTrimSelect={handleTrimSelect}
-                    searchPlaceholder={t('filter.search.brands', {
-                      defaultValue: 'Search brands...',
-                    })}
-                    noOptionsMessage={t('filter.noBrands', {
-                      defaultValue: 'No brands found',
-                    })}
-                    className="w-full"
-                  />
-                </AccordionContent>
-              </AccordionItem>
+              {hasAttribute('make') && (
+                <AccordionItem
+                  value="car-marka"
+                  className="border border-slate-200 rounded-lg overflow-hidden bg-white hover:shadow-sm transition-shadow"
+                >
+                  <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 transition-colors duration-200">
+                    <AccordionHeader
+                      title={stepOneTitles.brand}
+                      hasActiveFilters={getActiveFiltersCount('car-marka') > 0}
+                      activeCount={getActiveFiltersCount('car-marka')}
+                    />
+                  </AccordionTrigger>
+                  <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50">
+                    <NestedCarFilter
+                      carMakesConfig={carMakesConfig}
+                      carModelsConfig={carModelsConfig}
+                      carTrimsConfig={carTrimsConfig}
+                      selectedBrands={filters.selectedBrands}
+                      selectedModel={filters.model}
+                      selectedTrim={filters.trim}
+                      onBrandToggle={handleBrandToggle}
+                      onModelSelect={handleModelSelect}
+                      onTrimSelect={handleTrimSelect}
+                      searchPlaceholder={t('filter.search.brands', {
+                        defaultValue: `Search ${stepOneTitles.brand.toLowerCase()}...`,
+                      })}
+                      noOptionsMessage={t('filter.noBrands', {
+                        defaultValue: `No ${stepOneTitles.brand.toLowerCase()} found`,
+                      })}
+                      className="w-full"
+                    />
+                  </AccordionContent>
+                </AccordionItem>
+              )}
 
               {/* Car Year Range */}
-              <AccordionItem
-                value="car-year"
-                className="border border-slate-200 rounded-lg overflow-hidden bg-white hover:shadow-sm transition-shadow"
-              >
-                <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 transition-colors duration-200">
-                  <AccordionHeader
-                    title={stepOneTitles.year}
-                    hasActiveFilters={getActiveFiltersCount('car-year') > 0}
-                    activeCount={getActiveFiltersCount('car-year')}
-                  />
-                </AccordionTrigger>
-                <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50">
-                  <div className="grid grid-cols-2 gap-3">
-                    <FilterOptionDropdown
-                      options={madeYear}
-                      placeholder={t(
-                        'filter.filterOptions.productModels.minYear',
-                        { defaultValue: 'Min Year' },
-                      )}
-                      onChange={(name, value) => handleYearChange('min', value)}
-                      value={filters.minYear}
-                      name="minYear"
+              {hasAttribute('year') && (
+                <AccordionItem
+                  value="car-year"
+                  className="border border-slate-200 rounded-lg overflow-hidden bg-white hover:shadow-sm transition-shadow"
+                >
+                  <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 transition-colors duration-200">
+                    <AccordionHeader
+                      title={stepOneTitles.year}
+                      hasActiveFilters={getActiveFiltersCount('car-year') > 0}
+                      activeCount={getActiveFiltersCount('car-year')}
                     />
-                    <FilterOptionDropdown
-                      options={madeYear}
-                      placeholder={t(
-                        'filter.filterOptions.productModels.maxYear',
-                        { defaultValue: 'Max Year' },
-                      )}
-                      onChange={(name, value) => handleYearChange('max', value)}
-                      value={filters.maxYear}
-                      name="maxYear"
-                    />
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
+                  </AccordionTrigger>
+                  <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50">
+                    <div className="grid grid-cols-2 gap-3">
+                      <FilterOptionDropdown
+                        options={madeYear}
+                        placeholder={t(
+                          'filter.filterOptions.productModels.minYear',
+                          { defaultValue: 'Min Year' },
+                        )}
+                        onChange={(name, value) => handleYearChange('min', value)}
+                        value={filters.minYear}
+                        name="minYear"
+                      />
+                      <FilterOptionDropdown
+                        options={madeYear}
+                        placeholder={t(
+                          'filter.filterOptions.productModels.maxYear',
+                          { defaultValue: 'Max Year' },
+                        )}
+                        onChange={(name, value) => handleYearChange('max', value)}
+                        value={filters.maxYear}
+                        name="maxYear"
+                      />
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              )}
 
               {/* Price Range */}
               <AccordionItem
@@ -443,120 +482,269 @@ const FilterContent = React.memo(
                 </AccordionContent>
               </AccordionItem>
 
-              {/* Mileage Range */}
-              <AccordionItem
-                value="mileage-range"
-                className="border border-slate-200 rounded-lg overflow-hidden bg-white hover:shadow-sm transition-shadow"
-              >
-                <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 transition-colors duration-200">
-                  <AccordionHeader
-                    title={t('filter.filterOptions.mileage.title', {
-                      defaultValue: 'Mileage Range',
-                    })}
-                    hasActiveFilters={
-                      getActiveFiltersCount('mileage-range') > 0
-                    }
-                    activeCount={getActiveFiltersCount('mileage-range')}
-                  />
-                </AccordionTrigger>
-                <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50">
-                  <div className="grid grid-cols-2 gap-3">
-                    <FilterOptionDropdown
-                      options={mileageRanges}
-                      placeholder={t(
-                        'filter.filterOptions.mileage.minMileage',
-                        { defaultValue: 'Min Mileage' },
-                      )}
-                      onChange={(name, value) =>
-                        handleMileageChange('min', value)
+              {/* Mileage Range - CONDITIONAL */}
+              {hasAttribute('mileage') && (
+                <AccordionItem
+                  value="mileage-range"
+                  className="border border-slate-200 rounded-lg overflow-hidden bg-white hover:shadow-sm transition-shadow"
+                >
+                  <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 transition-colors duration-200">
+                    <AccordionHeader
+                      title={t('filter.filterOptions.mileage.title', {
+                        defaultValue: 'Mileage Range',
+                      })}
+                      hasActiveFilters={
+                        getActiveFiltersCount('mileage-range') > 0
                       }
-                      value={filters.minMileage}
-                      name="minMileage"
+                      activeCount={getActiveFiltersCount('mileage-range')}
                     />
+                  </AccordionTrigger>
+                  <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50">
+                    <div className="grid grid-cols-2 gap-3">
+                      <FilterOptionDropdown
+                        options={mileageRanges}
+                        placeholder={t(
+                          'filter.filterOptions.mileage.minMileage',
+                          { defaultValue: 'Min Mileage' },
+                        )}
+                        onChange={(name, value) =>
+                          handleMileageChange('min', value)
+                        }
+                        value={filters.minMileage}
+                        name="minMileage"
+                      />
+                      <FilterOptionDropdown
+                        options={mileageRanges}
+                        placeholder={t(
+                          'filter.filterOptions.mileage.maxMileage',
+                          { defaultValue: 'Max Mileage' },
+                        )}
+                        onChange={(name, value) =>
+                          handleMileageChange('max', value)
+                        }
+                        value={filters.maxMileage}
+                        name="maxMileage"
+                      />
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              )}
+
+              {/* Control Type - CONDITIONAL */}
+              {hasAttribute('transmission') && (
+                <AccordionItem
+                  value="control-type"
+                  className="border border-slate-200 rounded-lg overflow-hidden bg-white hover:shadow-sm transition-shadow"
+                >
+                  <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 transition-colors duration-200">
+                    <AccordionHeader
+                      title={t('filter.filterOptions.ControlType.title')}
+                      hasActiveFilters={getActiveFiltersCount('control-type') > 0}
+                      activeCount={getActiveFiltersCount('control-type')}
+                    />
+                  </AccordionTrigger>
+                  <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50">
                     <FilterOptionDropdown
-                      options={mileageRanges}
-                      placeholder={t(
-                        'filter.filterOptions.mileage.maxMileage',
-                        { defaultValue: 'Max Mileage' },
-                      )}
-                      onChange={(name, value) =>
-                        handleMileageChange('max', value)
-                      }
-                      value={filters.maxMileage}
-                      name="maxMileage"
+                      options={dynamicOptions?.transmission?.length > 0 ? dynamicOptions.transmission : stepTwoOptions.transmission}
+                      placeholder={stepTwoLabels.selectTransmission}
+                      onChange={handleTransmissionChange}
+                      value={filters.transmission}
+                      name="transmission"
                     />
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
+                  </AccordionContent>
+                </AccordionItem>
+              )}
 
-              {/* Control Type */}
-              <AccordionItem
-                value="control-type"
-                className="border border-slate-200 rounded-lg overflow-hidden bg-white hover:shadow-sm transition-shadow"
-              >
-                <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 transition-colors duration-200">
-                  <AccordionHeader
-                    title={t('filter.filterOptions.ControlType.title')}
-                    hasActiveFilters={getActiveFiltersCount('control-type') > 0}
-                    activeCount={getActiveFiltersCount('control-type')}
-                  />
-                </AccordionTrigger>
-                <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50">
-                  <FilterOptionDropdown
-                    options={stepTwoOptions.transmission}
-                    placeholder={stepTwoLabels.selectTransmission}
-                    onChange={handleTransmissionChange}
-                    value={filters.transmission}
-                    name="transmission"
-                  />
-                </AccordionContent>
-              </AccordionItem>
+              {/* Fuel Type - CONDITIONAL */}
+              {hasAttribute('fuel_type') && (
+                <AccordionItem
+                  value="fuel-type"
+                  className="border border-slate-200 rounded-lg overflow-hidden bg-white hover:shadow-sm transition-shadow"
+                >
+                  <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 transition-colors duration-200">
+                    <AccordionHeader
+                      title={t('filter.filterOptions.FuelType.title')}
+                      hasActiveFilters={getActiveFiltersCount('fuel-type') > 0}
+                      activeCount={getActiveFiltersCount('fuel-type')}
+                    />
+                  </AccordionTrigger>
+                  <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50">
+                    <FilterOptionDropdown
+                      options={dynamicOptions?.fuelType?.length > 0 ? dynamicOptions.fuelType : stepTwoOptions.fuelType}
+                      placeholder={stepTwoLabels.selectFuelType}
+                      onChange={handleTransmissionChange}
+                      value={filters.fuelType}
+                      name="fuelType"
+                    />
+                  </AccordionContent>
+                </AccordionItem>
+              )}
 
-              {/* Fuel Type */}
-              <AccordionItem
-                value="fuel-type"
-                className="border border-slate-200 rounded-lg overflow-hidden bg-white hover:shadow-sm transition-shadow"
-              >
-                <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 transition-colors duration-200">
-                  <AccordionHeader
-                    title={t('filter.filterOptions.FuelType.title')}
-                    hasActiveFilters={getActiveFiltersCount('fuel-type') > 0}
-                    activeCount={getActiveFiltersCount('fuel-type')}
-                  />
-                </AccordionTrigger>
-                <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50">
-                  <FilterOptionDropdown
-                    options={stepTwoOptions.fuelType}
-                    placeholder={stepTwoLabels.selectFuelType}
-                    onChange={handleTransmissionChange}
-                    value={filters.fuelType}
-                    name="fuelType"
-                  />
-                </AccordionContent>
-              </AccordionItem>
+              {/* Body Type - CONDITIONAL */}
+              {hasAttribute('body_type') && (
+                <AccordionItem
+                  value="body-type"
+                  className="border border-slate-200 rounded-lg overflow-hidden bg-white hover:shadow-sm transition-shadow"
+                >
+                  <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 transition-colors duration-200">
+                    <AccordionHeader
+                      title={stepTwoLabels.bodyType}
+                      hasActiveFilters={getActiveFiltersCount('body-type') > 0}
+                      activeCount={getActiveFiltersCount('body-type')}
+                    />
+                  </AccordionTrigger>
+                  <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50">
+                    <FilterOptionDropdown
+                      options={dynamicOptions?.bodyType?.length > 0 ? dynamicOptions.bodyType : stepTwoOptions.bodyType}
+                      placeholder={stepTwoLabels.selectBodyType}
+                      onChange={handleTransmissionChange}
+                      value={filters.bodyType}
+                      name="bodyType"
+                    />
+                  </AccordionContent>
+                </AccordionItem>
+              )}
 
-              {/* Body Type */}
-              <AccordionItem
-                value="body-type"
-                className="border border-slate-200 rounded-lg overflow-hidden bg-white hover:shadow-sm transition-shadow"
-              >
-                <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 transition-colors duration-200">
-                  <AccordionHeader
-                    title={stepTwoLabels.bodyType}
-                    hasActiveFilters={getActiveFiltersCount('body-type') > 0}
-                    activeCount={getActiveFiltersCount('body-type')}
-                  />
-                </AccordionTrigger>
-                <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50">
-                  <FilterOptionDropdown
-                    options={stepTwoOptions.bodyType}
-                    placeholder={stepTwoLabels.selectBodyType}
-                    onChange={handleTransmissionChange}
-                    value={filters.bodyType}
-                    name="bodyType"
-                  />
-                </AccordionContent>
-              </AccordionItem>
+              {/* Dynamic Filter Sections from Schema */}
+              {filterSchema?.sections.map((section: any) => {
+                if (!section.isActive) return null;
+
+                // Skip if it only contains car-specific attributes we already handled
+                const hasOnlyCommonAttributes = section.attributes.every((attr: any) =>
+                  ['make', 'model', 'trim', 'year', 'mileage', 'transmission', 'fuel_type', 'body_type'].includes(attr.slug)
+                );
+                if (hasOnlyCommonAttributes && filters.listingTypeId === 1) return null;
+
+                const sectionName = section.translations.find((t: any) => t.locale === locale)?.name || section.name;
+                const sectionActiveCount = section.attributes.filter((attr: any) => filters.attributes[attr.slug]).length;
+
+                return (
+                  <AccordionItem
+                    key={section.id}
+                    value={`dynamic-section-${section.id}`}
+                    className="border border-slate-200 rounded-lg overflow-hidden bg-white hover:shadow-sm transition-shadow"
+                  >
+                    <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 transition-colors duration-200">
+                      <AccordionHeader
+                        title={sectionName}
+                        hasActiveFilters={sectionActiveCount > 0}
+                        activeCount={sectionActiveCount}
+                      />
+                    </AccordionTrigger>
+                    <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50">
+                      <div className="space-y-3">
+                        {section.attributes.map((attr: any) => {
+                          if (!attr.isFilterable || !attr.isActive) return null;
+
+                          const attrName = attr.translations.find((t: any) => t.locale === locale)?.name || attr.name;
+
+                          // Handle different attribute types
+                          if (attr.type === 'select' || attr.type === 'color_selection' || attr.type === 'color_multi_selection') {
+                            const options = Array.isArray(attr.options) ? attr.options : [];
+                            return (
+                              <FilterOptionDropdown
+                                key={attr.id}
+                                title={attrName}
+                                options={options.map((opt: any) => ({
+                                  value: opt.id,
+                                  label: (opt.label ? (opt.label[locale] || opt.label['en']) : null) || opt.name || opt.id
+                                }))}
+                                placeholder={attrName}
+                                onChange={(name, value) => updateAttribute(attr.slug, value)}
+                                value={filters.attributes[attr.slug]}
+                                name={attr.slug}
+                              />
+                            );
+                          }
+
+                          if (attr.type === 'year') {
+                            const minYear = attr.validationRules?.min || 1950;
+                            const maxYear = attr.validationRules?.max || new Date().getFullYear() + 1;
+                            const yearOptions = [];
+                            for (let y = maxYear; y >= minYear; y--) {
+                              yearOptions.push({ value: y.toString(), label: y.toString() });
+                            }
+                            return (
+                              <FilterOptionDropdown
+                                key={attr.id}
+                                title={attrName}
+                                options={yearOptions}
+                                placeholder={attrName}
+                                onChange={(name, value) => updateAttribute(attr.slug, value)}
+                                value={filters.attributes[attr.slug]}
+                                name={attr.slug}
+                              />
+                            );
+                          }
+
+                          if (attr.type === 'color_picker') {
+                            const value = filters.attributes[attr.slug] || '';
+                            return (
+                              <div key={attr.id} className="mb-4">
+                                <Label className="text-sm font-medium text-slate-700 mb-2 block">
+                                  {attrName}
+                                </Label>
+                                <div className="flex items-center gap-2">
+                                  <input
+                                    type="color"
+                                    value={value || '#000000'}
+                                    onChange={(e) => updateAttribute(attr.slug, e.target.value)}
+                                    className="w-10 h-10 border border-slate-200 rounded-lg cursor-pointer p-0.5 bg-white shadow-sm"
+                                  />
+                                  <input
+                                    type="text"
+                                    className="flex h-10 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all font-mono"
+                                    placeholder="#000000"
+                                    value={value}
+                                    onChange={(e) => updateAttribute(attr.slug, e.target.value)}
+                                    dir="ltr"
+                                  />
+                                  {value && (
+                                    <button
+                                      type="button"
+                                      onClick={() => updateAttribute(attr.slug, '')}
+                                      className="p-2 text-slate-400 hover:text-slate-600"
+                                    >
+                                      <X size={16} />
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          }
+
+                          if (attr.type === 'number') {
+                            return (
+                              <div key={attr.id} className="mb-4">
+                                <Label className="text-sm font-medium text-slate-700 mb-2 block">
+                                  {attrName}
+                                </Label>
+                                <input
+                                  type="number"
+                                  className="flex h-10 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-200"
+                                  placeholder={attrName}
+                                  value={filters.attributes[attr.slug] || ''}
+                                  onChange={(e) => updateAttribute(attr.slug, e.target.value)}
+                                />
+                              </div>
+                            );
+                          }
+
+                          if (attr.type === 'reference') {
+                            return (
+                              <div key={attr.id} className="text-xs text-slate-400 p-2 border border-dashed border-slate-200 rounded">
+                                {attrName} (Reference selection)
+                              </div>
+                            );
+                          }
+
+                          return null;
+                        })}
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                );
+              })}
             </Accordion>
           </div>
           {/* </ScrollArea> */}
@@ -609,23 +797,23 @@ const ProductsFilter: React.FC = React.memo(() => {
   const [openAccordions, setOpenAccordions] = useState<string[]>([]);
 
   // Use filter context
-  const { filters, updateFilter, resetFilters, toggleBrand } = useFilters();
+  const { filters, updateFilter, updateAttribute, resetFilters, toggleBrand, filterSchema, listingTypes } = useFilters();
 
 
   // Get data from hooks
   const handleValidationChangeStepOne = (isValid: boolean) => { };
   const handleValidationChangeStepTwo = (isValid: boolean) => { };
 
-  const {
-    governorateOptions,
-    cityOptions,
-    carMakesConfig,
-    carModelsConfig,
-    carTrimsConfig,
-    madeYear,
-    handleSelectChange: handleStepOneSelectChange,
-    titles: stepOneTitles,
-  } = useProductStepOne(handleValidationChangeStepOne);
+    const {
+      governorateOptions,
+      cityOptions,
+      carMakesConfig,
+      carModelsConfig,
+      carTrimsConfig,
+      madeYear,
+      handleSelectChange: handleStepOneSelectChange,
+      titles: stepOneTitles,
+    } = useProductStepOne(handleValidationChangeStepOne, filters.listingTypeId);
 
 
   const {
@@ -638,6 +826,30 @@ const ProductsFilter: React.FC = React.memo(() => {
   const currencyOptions = getCurrencyOptions(t);
   const priceRanges = getPriceRanges;
   const mileageRanges = getMileageRanges;
+
+
+  // Map schema attributes to dropdown options
+  const getDynamicOptions = (attributeSlug: string) => {
+    if (!filterSchema) return [];
+    
+    const attribute = filterSchema.sections
+      .flatMap(section => section.attributes)
+      .find(attr => attr.slug === attributeSlug);
+      
+    if (!attribute || !attribute.options) return [];
+    
+    return attribute.options.map((opt: any) => ({
+      value: opt.id,
+      label: opt.label[locale] || opt.label['en'] || opt.id
+    }));
+  };
+
+  const dynamicOptions = {
+    transmission: getDynamicOptions('transmission'),
+    fuelType: getDynamicOptions('fuel_type'),
+    bodyType: getDynamicOptions('body_type'),
+    filterSchema: filterSchema
+  };
 
   // FIXED: Auto-manage accordion states based on active filters including listing type
   useEffect(() => {
@@ -703,11 +915,19 @@ const ProductsFilter: React.FC = React.memo(() => {
   }, [filters, handleStepOneSelectChange, handleStepTwoSelectChange]);
 
   // Calculate active filters count
-  const activeFiltersCount = Object.entries(filters).filter(([key, value]) => {
-    if (key === 'selectedBrands')
-      return Array.isArray(value) && value.length > 0;
-    return value && value !== '';
-  }).length;
+  const activeFiltersCount = useMemo(() => {
+    let count = 0;
+    Object.entries(filters).forEach(([key, value]) => {
+      if (key === 'selectedBrands' && Array.isArray(value)) {
+        if (value.length > 0) count += 1;
+      } else if (key === 'attributes' && typeof value === 'object' && value !== null) {
+        count += Object.values(value).filter(v => v !== undefined && v !== '').length;
+      } else if (value && value !== '' && !['listingTypeId', 'attributes', 'selectedBrands'].includes(key)) {
+        count += 1;
+      }
+    });
+    return count;
+  }, [filters]);
 
   // Enhanced filter change handlers
   const handleFilterChange = (name: string, value: string) => {
@@ -859,6 +1079,10 @@ const ProductsFilter: React.FC = React.memo(() => {
     t,
     handleCreateAlert,
     isCreatingAlert,
+    dynamicOptions,
+    listingTypes,
+    updateAttribute,
+    filterSchema,
   };
 
   return (
@@ -981,6 +1205,7 @@ const ProductsFilter: React.FC = React.memo(() => {
           governorate: filters.governorate,
           city: filters.city,
         }}
+        listingTypeId={filters.listingTypeId}
         governorateOptions={governorateOptions}
         getCityOptions={(gov) => getCityOptions(gov, isArabic)}
         isArabic={isArabic}

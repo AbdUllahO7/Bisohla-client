@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import Box from '@/components/box/box';
+import Box from '@/components/ui/box';
 import { ProductSkeletonItem } from '@/components/web/design/ProductSkeletonItem'; // Reusing the provided ProductSkeletonItem
 
 interface AllCarListingsSkeletonProps {

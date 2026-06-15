@@ -1,11 +1,9 @@
-// hooks.ts
+// hooksv2.ts
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import {
-  getCarMakes,
-  getCarModels,
-  getCarTrims,
-} from '@/core/infrastructure-adapters/actions/visitors/car.visitor.actions';
+import { getInjection } from '@/di/container';
+import { SchemaAttributeDto } from '@/core/entities/models/listing-types/listing-types.dto';
+import { ListingTypeRefItemDto } from '@/core/entities/models/listing-type-refs/listing-type-refs.dto';
 import { Filter, QueryParams } from '@/core/entities/api/api';
 import { SelectedOptions } from './types';
 import {
@@ -15,13 +13,21 @@ import {
   validateForm,
 } from './utils';
 import { loadSelections, saveSelections } from './StorageUtils';
-import { getListingTypeOptions } from '@/core/entities/enums/cars.enums';
+import { STORAGE_KEYS } from '../Main/hooks/useLocalStorage';
+
+// Translation helper for ref items
+const translateName = (item: ListingTypeRefItemDto, locale: string) => {
+  if (!item.name) return "";
+  if (typeof item.name === 'string') return item.name;
+  return item.name[locale] || item.name['en'] || item.name['ar'] || "";
+};
 
 /**
  * Custom hook for managing the product step one form with infinite scroll support
  */
 export const useProductStepOne = (
   onValidationChange: (isValid: boolean) => void,
+  externalListingTypeId?: number | string
 ) => {
   const t = useTranslations('addProduct');
   const locale = useLocale();
@@ -34,6 +40,10 @@ export const useProductStepOne = (
   );
   const [isClient, setIsClient] = useState(false);
   const [prevValidationState, setPrevValidationState] = useState(false);
+
+  // Dynamic schema state
+  const [groupIds, setGroupIds] = useState({ make: 0, model: 0, trim: 0 });
+  const [isTrimInSchema, setIsTrimInSchema] = useState(false);
 
   // Create refs to track user interactions vs. initial load
   const isInitialLoad = useRef(true);
@@ -80,6 +90,54 @@ export const useProductStepOne = (
     [onValidationChange],
   );
 
+  // 1. Get Listing Type ID from external prop, else localStorage, else default to 1 (Cars)
+  const listingTypeId = useMemo(() => {
+    if (externalListingTypeId) return Number(externalListingTypeId);
+    if (typeof window === 'undefined') return 1;
+    const stored = localStorage.getItem(STORAGE_KEYS.STEP_ONE);
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        return parsed.id || 1;
+      } catch (e) {
+        return 1;
+      }
+    }
+    return 1;
+  }, [externalListingTypeId]);
+
+  // 2. Fetch Schema to get Reference Group IDs
+  useEffect(() => {
+    const fetchSchema = async () => {
+      try {
+        const controller = getInjection('IListingTypesRepoController');
+        const res = await controller.getActiveSchema(listingTypeId);
+        if (res.success && res.data) {
+          const attrs: Record<string, SchemaAttributeDto> = res.data.attributes;
+          const newGroupIds = { make: 0, model: 0, trim: 0 };
+          let trimFound = false;
+
+          for (const [slug, attr] of Object.entries(attrs)) {
+            const lowSlug = slug.toLowerCase();
+            if (lowSlug === 'make' || lowSlug === 'branda') {
+              newGroupIds.make = attr.referenceGroupId || 0;
+            } else if (lowSlug === 'model') {
+              newGroupIds.model = attr.referenceGroupId || 0;
+            } else if (lowSlug === 'trim') {
+              newGroupIds.trim = attr.referenceGroupId || 0;
+              trimFound = true;
+            }
+          }
+          setGroupIds(newGroupIds);
+          setIsTrimInSchema(trimFound);
+        }
+      } catch (err) {
+        console.error("Failed to fetch schema in hooksv2", err);
+      }
+    };
+    fetchSchema();
+  }, [listingTypeId]);
+
   // Extract IDs only when needed for infinite scroll dropdowns
   const makeId = selectedOptions.marka
     ? Number.parseInt(selectedOptions.marka)
@@ -98,30 +156,94 @@ export const useProductStepOne = (
 
   // Create fetch functions for infinite scroll dropdowns
   const fetchCarMakes = useCallback(
-    async (params: QueryParams & { selectedCarMakes?: number[] }) => {
-      return await getCarMakes(params);
+    async (params: QueryParams) => {
+      if (!groupIds.make) return { success: true, data: { data: [], total: 0, page: 1, pageSize: params.pageSize || 10 } };
+      const controller = getInjection('IListingTypeRefsRepoController');
+      const res = await controller.getItemsByGroupId(
+        groupIds.make,
+        undefined,
+        params.pageSize,
+        params.searchTerm as string,
+        params.page,
+        locale,
+        params.searchKey,
+      );
+      if (res.success && res.data) {
+        // Map names for the UI
+        res.data.data = res.data.data.map(item => ({
+          ...item,
+          name: translateName(item, locale)
+        } as any));
+      }
+      return res;
     },
-    [],
+    [groupIds.make, locale],
   );
 
   const fetchCarModels = useCallback(
     async (params: any) => {
-      return await getCarModels({
-        ...params,
-        where: makeFilter,
-      });
+      // NestedCarFilter passes brandId via params.where[0].value
+      // Fall back to hook's internal makeId if where is not provided
+      const resolvedMakeId =
+        params?.where?.find((f: any) => f.field === 'makeId')?.value ??
+        makeId;
+
+      if (!groupIds.model || !resolvedMakeId)
+        return { success: true, data: { data: [], total: 0, page: 1, pageSize: params.pageSize || 10 } };
+
+      const controller = getInjection('IListingTypeRefsRepoController');
+      const res = await controller.getItemsByGroupId(
+        groupIds.model,
+        Number(resolvedMakeId),
+        params.pageSize,
+        params.searchTerm as string,
+        params.page,
+        locale,
+        params.searchKey,
+      );
+      if (res.success && res.data) {
+        res.data.data = res.data.data.map((item) => ({
+          ...item,
+          name: translateName(item, locale),
+          // NestedCarFilter reads 'makeId' off each item — attach it
+          makeId: resolvedMakeId,
+        } as any));
+      }
+      return res;
     },
-    [makeFilter],
+    [groupIds.model, makeId, locale],
   );
 
   const fetchCarTrims = useCallback(
     async (params: any) => {
-      return await getCarTrims({
-        ...params,
-        where: modelFilter,
-      });
+      // NestedCarFilter passes modelId via params.where[0].value
+      const resolvedModelId =
+        params?.where?.find((f: any) => f.field === 'modelId')?.value ??
+        modelId;
+
+      if (!groupIds.trim || !resolvedModelId)
+        return { success: true, data: { data: [], total: 0, page: 1, pageSize: params.pageSize || 10 } };
+
+      const controller = getInjection('IListingTypeRefsRepoController');
+      const res = await controller.getItemsByGroupId(
+        groupIds.trim,
+        Number(resolvedModelId),
+        params.pageSize,
+        params.searchTerm as string,
+        params.page,
+        locale,
+        params.searchKey,
+      );
+      if (res.success && res.data) {
+        res.data.data = res.data.data.map((item) => ({
+          ...item,
+          name: translateName(item, locale),
+          modelId: resolvedModelId,
+        } as any));
+      }
+      return res;
     },
-    [modelFilter],
+    [groupIds.trim, modelId, locale],
   );
 
   // Location options (these are static, so keep them as regular arrays)
@@ -214,13 +336,13 @@ export const useProductStepOne = (
 
   // Validate and notify parent component
   useEffect(() => {
-    const isValid = validateForm(selectedOptions);
+    const isValid = validateForm(selectedOptions, isTrimInSchema);
 
     if (isValid !== prevValidationState && onValidationChange) {
       onValidationChange(isValid);
       setPrevValidationState(isValid);
     }
-  }, [selectedOptions, onValidationChange, prevValidationState]);
+  }, [selectedOptions, onValidationChange, prevValidationState, isTrimInSchema]);
 
   // Translated titles
   const titles = useMemo(
@@ -235,7 +357,7 @@ export const useProductStepOne = (
       addressPlaceholder: isArabic
         ? 'أدخل العنوان التفصيلي هنا'
         : 'Enter detailed address here',
-      story: isArabic ? 'قصة السيارة' : 'Story of car',
+      story: isArabic ? 'وصف المنتج' : 'Product description',
       placeholder: isArabic ? 'اكتب رسالتك هنا' : 'Write your message here',
       error: isArabic
         ? 'حدث خطأ أثناء تحميل بعض البيانات. الرجاء المحاولة مرة أخرى لاحقًا.'
@@ -251,7 +373,7 @@ export const useProductStepOne = (
 
     // Infinite scroll configurations for checkbox lists (brands)
     carMakesConfig: {
-      queryKey: ['car-makes'],
+      queryKey: ['ref-group-makes', groupIds.make],
       fetchFn: fetchCarMakes,
       labelField: 'name' as const,
       valueField: 'id' as const,
@@ -260,14 +382,14 @@ export const useProductStepOne = (
 
     // Infinite scroll configurations for dropdown selects (models/trims)
     carModelsConfig: {
-      queryKey: ['car-models', selectedOptions.marka],
+      queryKey: ['ref-group-models', groupIds.model, selectedOptions.marka],
       fetchFn: fetchCarModels,
       labelField: 'name' as const,
       valueField: 'id' as const,
       additionalFilters: makeFilter || [],
     },
     carTrimsConfig: {
-      queryKey: ['car-trims', selectedOptions.marka, selectedOptions.model],
+      queryKey: ['ref-group-trims', groupIds.trim, selectedOptions.model],
       fetchFn: fetchCarTrims,
       labelField: 'name' as const,
       valueField: 'id' as const,
@@ -285,5 +407,7 @@ export const useProductStepOne = (
     handleAddressChange,
     handleStoryChange,
     setInitialEditData,
+    isTrimRequired: isTrimInSchema,
   };
 };
+
