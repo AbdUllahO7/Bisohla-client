@@ -1,6 +1,4 @@
 'use client';
-import Box from '@/components/ui/box';
-import { ProductCardItem } from '@/components/web/design/ProductCardItem';
 import { ProductCardListView } from '@/components/web/design/ProductCardListView';
 import { useLocale, useTranslations } from 'next-intl';
 import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
@@ -13,7 +11,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Car, Plus, Sun, Moon } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import { useTheme } from 'next-themes';
-import { motion } from 'framer-motion';
 import MyProductsFilter from '@/components/dashboard/Products/MyProductsFilter';
 import { EnhancedProductCardItem } from '@/components/web/design/ProductCardItemEnhanced';
 import { SaveStatus } from '../../../../core/entities/enums/cars.enums';

@@ -37,7 +37,6 @@ const ProfileClient = ({
 }: ProfileClientProps) => {
   const profileData = profileDataRes.data;
   const t = useTranslations('publicProfile');
-  const breadcrumbT = useTranslations('breadcrumb');
 
   // State management
   const [currentPage, setCurrentPage] = useState(1);
