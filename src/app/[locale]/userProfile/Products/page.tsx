@@ -8,7 +8,7 @@ import { useSession } from '@/hooks/auth/use-session';
 import type { QueryParams } from '@/core/entities/api/api';
 import Pagination from '@/components/shared/Pagination';
 import { Card, CardContent } from '@/components/ui/card';
-import { Car, Plus, Sun, Moon } from 'lucide-react';
+import { Car, Plus} from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import { useTheme } from 'next-themes';
 import MyProductsFilter from '@/components/dashboard/Products/MyProductsFilter';
@@ -24,7 +24,6 @@ const UserProductPage = () => {
   const t = useTranslations('homePage');
   const locale = useLocale();
   const direction = locale === 'ar' ? 'rtl' : 'ltr';
-  const session = useSession();
 
   // State management
   const [favoriteStatuses, setFavoriteStatuses] = useState<
