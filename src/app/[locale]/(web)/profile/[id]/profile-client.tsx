@@ -11,9 +11,7 @@ import { PublicProfileData } from '@/core/entities/models/public-profile/public-
 import { useGetPublicUserCarListings } from '@/core/infrastructure-adapters/use-actions/visitors/public-profile.use-actions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent } from '@/components/ui/card';
-import Image from 'next/image';
 import { useTranslations } from 'next-intl';
-import { Link } from '@/i18n/routing';
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { ProductCardListView } from '@/components/web/design/ProductCardListView';
 import { getInjection } from '@/di/container';
@@ -21,7 +19,6 @@ import type { QueryParams } from '@/core/entities/api/api';
 import type { ViewMode } from '@/core/entities/models/cars/filter-types';
 import Pagination from '@/components/shared/Pagination';
 import { RentProductCard } from '@/components/web/design/RentProductCard';
-import AdsSectionProduct from '@/components/web/ProductsPage/product/AdsSectionProduct';
 import FloatingProfileShareButton from './FloatingProfileShareButton';
 
 interface ProfileClientProps {
