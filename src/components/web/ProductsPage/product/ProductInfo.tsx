@@ -147,7 +147,39 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
       {/* Enhanced Mobile Layout */}
       <div className="md:hidden w-full relative">
         {/* Outer glow effect */}
-    
+        <div className="absolute -inset-1 bg-gradient-to-r from-[#198341] via-[#198341] to-[#198341] rounded-2xl opacity-10 blur-lg"></div>
+        
+        <Box
+          className="relative w-full bg-white rounded-2xl overflow-hidden border border-[#198341]/20 shadow-md"
+          variant="column"
+        >
+          {/* Header */}
+          <div className="w-full bg-[#198341] p-4 border-b border-gray-100 relative overflow-hidden z-10">
+            <Text className="font-bold font-cairo text-white text-base tracking-wide relative z-10 flex items-center gap-2">
+              <span className="w-1 h-5 bg-[#ABDE3B] rounded-full"></span>
+              {locale === 'ar' ? 'معلومات المنتج' : 'Product Info'}
+            </Text>
+          </div>
+
+          {/* Details list */}
+          <div className="w-full divide-y divide-gray-100">
+            {productDetails.map((detail, index) => (
+              <Box
+                key={index}
+                variant="rowBetween"
+                dir={locale === 'ar' ? 'rtl' : 'ltr'}
+                className="w-full px-5 py-3.5 flex justify-between items-center bg-white"
+              >
+                <Text className="font-cairo font-medium text-sm text-gray-500">
+                  {detail.label}
+                </Text>
+                <Text className="font-cairo font-semibold text-sm text-[#2C3C39]">
+                  {detail.value || 'N/A'}
+                </Text>
+              </Box>
+            ))}
+          </div>
+        </Box>
       </div>
 
       {/* Enhanced Desktop Layout */}

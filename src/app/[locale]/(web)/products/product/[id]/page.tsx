@@ -51,7 +51,9 @@ async function fetchCarData(
     }
 
     if (!isNaN(id)) {
-      const myListingRes = await getMyListingById(id);
+      const myListingRes = await getMyListingById(id, {
+        include: 'attributeValues.attribute,images,user,listingType,listingTypeVersion',
+      });
       if (myListingRes.success && myListingRes.data) {
         return {
           carResponse: {

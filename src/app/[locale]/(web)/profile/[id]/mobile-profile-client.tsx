@@ -267,7 +267,7 @@ const MobileProfileClient = ({
                       carListing={car}
                       isMarkedFavorite={!!car.isFavorite}
                       onFavoriteToggle={() => {}}
-                      showFavorites={false}
+                      showFavorites={!isOwnProfile}
                       profile={true}
                       isAuthenticated={isAuthenticated}
                       isMine={isOwnProfile}

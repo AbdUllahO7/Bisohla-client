@@ -7,6 +7,11 @@ import { X, Check, Minus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCompare } from '@/providers/CompareProvider';
 import { Link } from '@/i18n/routing';
+import {
+  getBodyTypeOptions,
+  getFuelTypeOptions,
+  getTransmissionOptions,
+} from '@/core/entities/enums/cars.enums';
 
 interface CompareTableProps {
   cars: any[];
@@ -15,17 +20,28 @@ interface CompareTableProps {
 const CompareTable: React.FC<CompareTableProps> = ({ cars }) => {
   const t = useTranslations('compare');
   const tHome = useTranslations('homePage');
+  const bodyTypeT = useTranslations('addProduct.enteredData.stepTwo');
   const { removeFromCompare, maxCompare } = useCompare();
+
+  const bodyTypeOptions = React.useMemo(() => getBodyTypeOptions(bodyTypeT), [bodyTypeT]);
+  const transmissionOptions = React.useMemo(() => getTransmissionOptions(bodyTypeT), [bodyTypeT]);
+  const fuelTypeOptions = React.useMemo(() => getFuelTypeOptions(bodyTypeT), [bodyTypeT]);
+
+  const getTranslatedLabel = (value: string | undefined | null, options: Array<{ value: string; label: string }>) => {
+    if (!value) return '';
+    const option = options.find((opt) => opt.value.toLowerCase() === value.toLowerCase());
+    return option ? option.label : value;
+  };
 
   const specRows = [
     { key: 'price', label: t('price'), getValue: (car: any) => `${car.price} ${car.currency}` },
     { key: 'make', label: t('make'), getValue: (car: any) => car.make?.name },
     { key: 'model', label: t('model'), getValue: (car: any) => car.model?.name },
     { key: 'year', label: t('year'), getValue: (car: any) => car.details?.year },
-    { key: 'fuel', label: t('fuel'), getValue: (car: any) => car.details?.fuelType },
-    { key: 'transmission', label: t('transmission'), getValue: (car: any) => car.details?.transmission },
+    { key: 'fuel', label: t('fuel'), getValue: (car: any) => getTranslatedLabel(car.details?.fuelType, fuelTypeOptions) },
+    { key: 'transmission', label: t('transmission'), getValue: (car: any) => getTranslatedLabel(car.details?.transmission, transmissionOptions) },
     { key: 'mileage', label: t('mileage'), getValue: (car: any) => `${car.details?.mileage} km` },
-    { key: 'bodyType', label: tHome('bodyType'), getValue: (car: any) => car.details?.bodyType },
+    { key: 'bodyType', label: tHome('bodyType'), getValue: (car: any) => getTranslatedLabel(car.details?.bodyType, bodyTypeOptions) },
   ];
 
   return (

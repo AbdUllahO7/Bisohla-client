@@ -52,9 +52,11 @@ export const getMyListings = async (
  */
 export const getListingById = async (
   id: number,
+  params?: QueryParams,
 ): Promise<ApiResponse<ListingDto>> => {
-  const res = await getAuthReq<Record<string, unknown>, ListingDto>({
+  const res = await getAuthReq<QueryParams, ListingDto>({
     url: `/my-listings/${id}`,
+    params,
   });
   return res;
 };
