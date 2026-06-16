@@ -82,7 +82,6 @@ const UserProductPage = () => {
   // Fetch user's listings using the generic hook
   const { data, isLoading, error, refetch } = useMyListings(combinedQueryParams);
 
-  console.log("data",data)
 
   // Force refetch when query params change to ensure real-time updates
   useEffect(() => {
