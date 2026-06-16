@@ -35,6 +35,15 @@ async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
+  // Early return for the /app store-redirect link so next-intl does not
+  // localize it (`/app` → `/ar/app`); the route handler owns the response.
+  if (
+    req.nextUrl.pathname === '/app' ||
+    req.nextUrl.pathname.startsWith('/app/')
+  ) {
+    return NextResponse.next();
+  }
+
   // Apply intl middleware first to handle localization
   const response = await intlMiddleware(req);
 
