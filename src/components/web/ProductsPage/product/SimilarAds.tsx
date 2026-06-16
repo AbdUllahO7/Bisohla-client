@@ -2,9 +2,8 @@
 import React from 'react';
 import Box from '@/components/ui/box';
 import Text from '@/components/ui/text';
-import { useTranslations } from 'next-intl';
-import { LatestOffersProps } from '@/core/entities/types/homePageTypes';
-import { useCarListings } from '@/core/infrastructure-adapters/use-actions/visitors/car.visitor.use-actions';
+import { useLocale, useTranslations } from 'next-intl';
+import { useListings } from '@/core/infrastructure-adapters/use-actions/visitors/listing.visitor.use-actions';
 import { useSession } from '@/hooks/auth/use-session';
 import SectionHeader from '@/components/shared/SectionHeader';
 import { CarFrontIcon } from 'lucide-react';
@@ -15,6 +14,7 @@ import CardAds from '../../design/CardAds';
 import { logger } from '@/lib/logger';
 import AdSpace from '@/components/ads/AdSpace';
 import { useAdSlot } from '@/hooks/use-ad-slot';
+import { normalizeListingToCarDto } from '@/utils/listing-normalization';
 
 export interface SimilarAdsProps {
   count?: number; // Optional count of cards to display
@@ -32,14 +32,12 @@ const SimilarAds: React.FC<SimilarAdsProps> = ({
   car,
 }) => {
   const t = useTranslations('homePage');
+  const locale = useLocale();
   const session = useSession();
   const { adsData, isLoadingAds, allowPlaceholders, dismissable, rotationStrategy } = useAdSlot('sale-page-ads-section');
 
-  // Fetch car listings data with filter for listingType = 'for_sale'
-  const { data, isLoading, error } = useCarListings({
-    page: 1,
-    userId: session.user.id,
-    filterGroups: [
+  const filterGroups = React.useMemo(() => {
+    const groups: any[] = [
       {
         operator: 'and',
         filters: [
@@ -49,38 +47,61 @@ const SimilarAds: React.FC<SimilarAdsProps> = ({
             value: car.id,
           },
           {
-            field: 'listingType',
+            field: 'listingOfferType',
             operator: 'eq',
-            value: (car.listingType || car.listingOfferType || '') as string,
+            value: (car.listingType || car.listingOfferType || 'for_sale') as string,
           },
         ],
       },
-      {
-        operator: 'or',
+    ];
+
+    const makeId = Number(car.makeId || car.make?.id || 0);
+    if (makeId > 0) {
+      groups.push({
+        operator: 'and',
         filters: [
           {
-            field: 'makeId',
+            field: 'attrs.make',
             operator: 'eq',
-            value: car.makeId,
+            value: makeId,
           },
         ],
-      },
-    ],
+      });
+    }
+
+    return groups;
+  }, [car]);
+
+  // Fetch listings data dynamically based on the listing type (e.g. Cars, etc.)
+  const { data, isLoading, error } = useListings(car.listingTypeId || 1, {
+    page: 1,
+    pageSize: count || 9,
+    userId: session?.user?.id,
+    include: 'attributeValues.attribute,images,user,listingType,listingTypeVersion',
+    filterGroups,
   });
 
-  logger.log('LatestOffers car listings data:', data);
+  logger.log('SimilarAds generic listings data:', data);
 
   // Extract and limit car listings (no side effects in useMemo)
   const carListings = React.useMemo(() => {
-    const listings = Array.isArray(data?.data)
-      ? data.data
-      : Array.isArray(data?.data?.data)
-        ? data.data.data
-        : [];
+    const apiData = data as any;
+    if (!apiData) return [];
 
+    let listings: any[] = [];
+    if (apiData.data && Array.isArray(apiData.data.data)) {
+      listings = apiData.data.data;
+    } else if (Array.isArray(apiData.data)) {
+      listings = apiData.data;
+    } else if (Array.isArray(apiData)) {
+      listings = apiData;
+    }
+
+    // Normalize each listing to ensure consistent DTO structure for RentProductCard
+    const normalized = listings.map((item: any) => normalizeListingToCarDto(item, locale));
     const limit = count || 9;
-    return listings.slice(0, limit);
-  }, [data, count]);
+    return normalized.slice(0, limit);
+  }, [data, count, locale]);
 
   return (
     <div className="relative overflow-hidden py-16 w-full">
