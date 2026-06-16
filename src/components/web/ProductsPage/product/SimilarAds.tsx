@@ -271,7 +271,7 @@ const SimilarAds: React.FC<SimilarAdsProps> = ({
                       <React.Fragment key={`product-${item.data.id || item.originalIndex}`}>
                         {/* Card with Fade-in Animation */}
                         <div
-                          className="animate-fadeInUp"
+                          className="animate-fadeInUp h-full w-full flex flex-col"
                           style={{
                             animationDelay: `${item.originalIndex * 0.1}s`,
                             animationFillMode: 'both',
