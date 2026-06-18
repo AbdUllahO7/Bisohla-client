@@ -14,6 +14,7 @@ import { useEffect, useState, useRef } from 'react';
 import { deleteSession } from '@/core/lib/web/session';
 import { logoutAction } from '@/app/[locale]/auth/actions';
 import Logo from '@/components/shared/logo';
+import ThemeToggle from '@/components/shared/ThemeToggle';
 
 const HeaderOne = () => {
   const t = useTranslations('homePage');
@@ -105,28 +106,28 @@ const HeaderOne = () => {
   // Show loading state during hydration, session loading, or auth changing
   if (!isClient || isLoading || isAuthChanging) {
     return (
-      <Box className="flex justify-between items-center py-3  w-full px-4 ≈ß border-b border-gray-100 bg-white">
+      <Box className="flex justify-between items-center py-3  w-full px-4 border-b border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-950">
         {/* Logo Skeleton */}
         <div className="flex items-center">
-          <div className="h-5 w-24 bg-gray-200 rounded animate-pulse sm:h-6 sm:w-28"></div>
+          <div className="h-5 w-24 bg-gray-200 dark:bg-zinc-800 rounded animate-pulse sm:h-6 sm:w-28"></div>
         </div>
 
         {/* Right side skeleton */}
         <div className="flex items-center gap-2  justify-start w-full container">
           {/* Desktop skeleton */}
           <div className="hidden md:flex items-center gap-3 justify-end  w-full">
-            <div className="h-9 w-32 bg-gray-200 rounded-full animate-pulse"></div>
-            <div className="h-9 w-24 bg-gray-200 rounded-full animate-pulse"></div>
-            <div className="h-9 w-9 bg-gray-200 rounded-full animate-pulse"></div>
-            <div className="h-9 w-16 bg-gray-200 rounded-full animate-pulse"></div>
+            <div className="h-9 w-32 bg-gray-200 dark:bg-zinc-800 rounded-full animate-pulse"></div>
+            <div className="h-9 w-24 bg-gray-200 dark:bg-zinc-800 rounded-full animate-pulse"></div>
+            <div className="h-9 w-9 bg-gray-200 dark:bg-zinc-800 rounded-full animate-pulse"></div>
+            <div className="h-9 w-16 bg-gray-200 dark:bg-zinc-800 rounded-full animate-pulse"></div>
           </div>
 
           {/* Mobile skeleton */}
           <div className="flex md:hidden items-center gap-2 justify-start container  w-full">
-            <div className="h-9 w-9 bg-gray-200 rounded-full animate-pulse"></div>
-            <div className="h-9 w-9 bg-gray-200 rounded-full animate-pulse"></div>
-            <div className="h-9 w-16 bg-gray-200 rounded-full animate-pulse"></div>
-            <div className="h-9 w-9 bg-gray-200 rounded-lg animate-pulse"></div>
+            <div className="h-9 w-9 bg-gray-200 dark:bg-zinc-800 rounded-full animate-pulse"></div>
+            <div className="h-9 w-9 bg-gray-200 dark:bg-zinc-800 rounded-full animate-pulse"></div>
+            <div className="h-9 w-16 bg-gray-200 dark:bg-zinc-800 rounded-full animate-pulse"></div>
+            <div className="h-9 w-9 bg-gray-200 dark:bg-zinc-800 rounded-lg animate-pulse"></div>
           </div>
         </div>
       </Box>
@@ -135,9 +136,9 @@ const HeaderOne = () => {
 
   return (
     <>
-      <Box className="flex justify-between items-center py-1 w-full px-4 container border-b border-gray-100 bg-white">
+      <Box className="flex justify-between items-center py-1 w-full px-4 container border-b border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-950">
         {/* Logo */}
-        <Logo />
+        <Logo className="dark:brightness-200 dark:invert" />
 
         {/* Desktop Actions - Hidden on mobile */}
         <div className="hidden md:flex items-center gap-3">
@@ -160,7 +161,7 @@ const HeaderOne = () => {
             <Link href="/auth/sign-in">
               <Button
                 variant="outline"
-                className="text-emerald-600 bg-transparent rounded-full h-9 px-4 border border-emerald-600 text-sm font-medium flex items-center gap-2 hover:bg-primary-light"
+                className="text-emerald-600 bg-transparent rounded-full h-9 px-4 border border-emerald-600 text-sm font-medium flex items-center gap-2 hover:bg-primary-light dark:text-emerald-400 dark:border-emerald-400 dark:hover:bg-zinc-850"
                 size="sm"
               >
                 <span className="whitespace-nowrap">
@@ -171,7 +172,7 @@ const HeaderOne = () => {
                   alt="User Icon"
                   width={16}
                   height={16}
-                  className="w-4 h-4"
+                  className="w-4 h-4 dark:brightness-200 dark:invert"
                 />
               </Button>
             </Link>
@@ -180,7 +181,7 @@ const HeaderOne = () => {
               <Link href="/userProfile">
                 <Button
                   variant="outline"
-                  className="text-primarybg-transparent rounded-full h-9 px-4 border border-primary text-sm font-medium flex items-center gap-2 hover:bg-primary-light"
+                  className="text-primary bg-transparent rounded-full h-9 px-4 border border-primary text-sm font-medium flex items-center gap-2 hover:bg-primary-light dark:hover:bg-zinc-850"
                   size="sm"
                 >
                   <span className="whitespace-nowrap truncate max-w-[120px]">
@@ -191,7 +192,7 @@ const HeaderOne = () => {
               </Link>
               <Button
                 variant="outline"
-                className="text-red-600 bg-transparent rounded-full h-9 px-4 border border-red-300 text-sm font-medium flex items-center gap-2 hover:bg-red-900"
+                className="text-red-600 bg-transparent rounded-full h-9 px-4 border border-red-300 text-sm font-medium flex items-center gap-2 hover:bg-red-900 dark:text-red-400 dark:border-red-950 dark:hover:bg-red-950"
                 size="sm"
                 onClick={handleLogout}
               >
@@ -209,6 +210,11 @@ const HeaderOne = () => {
               <NotificationDropdown />
             </div>
           )}
+
+          {/* Theme Toggle */}
+          <div className="flex-shrink-0">
+            <ThemeToggle />
+          </div>
 
           {/* Language Switcher */}
           <div className="flex-shrink-0">
@@ -234,6 +240,11 @@ const HeaderOne = () => {
             </Button>
           </Link>
 
+          {/* Theme Toggle */}
+          <div className="flex-shrink-0">
+            <ThemeToggle />
+          </div>
+
           {/* Language Switcher - Minimal */}
           <div className="flex-shrink-0">
             <LocaleSwitcher />
@@ -242,7 +253,7 @@ const HeaderOne = () => {
           {/* Mobile Menu Toggle */}
           <Button
             variant="ghost"
-            className="h-9 w-9 p-0 rounded-lg text-gray-600"
+            className="h-9 w-9 p-0 rounded-lg text-gray-600 dark:text-zinc-400"
             size="sm"
             onClick={() => setShowMobileMenu(!showMobileMenu)}
           >
@@ -267,16 +278,16 @@ const HeaderOne = () => {
           {/* Menu Panel */}
           <div
             className={`fixed top-0 ${isRTL ? 'left-0' : 'right-0'
-              } h-full w-80 max-w-[85vw] bg-white shadow-xl z-[60] md:hidden transform transition-transform duration-300`}
+              } h-full w-80 max-w-[85vw] bg-white dark:bg-zinc-950 shadow-xl z-[60] md:hidden transform transition-transform duration-300`}
           >
             {/* Menu Header */}
-            <div className="flex items-center justify-between p-4 border-b border-gray-200">
-              <h2 className="text-lg font-semibold text-gray-900">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-zinc-800">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-zinc-100">
                 {t('headerOne.menuTitle') || 'القائمة'}
               </h2>
               <Button
                 variant="ghost"
-                className="h-8 w-8 p-0 rounded-full"
+                className="h-8 w-8 p-0 rounded-full text-gray-500 dark:text-zinc-400"
                 onClick={() => setShowMobileMenu(false)}
               >
                 <X className="w-5 h-5" />
@@ -308,14 +319,14 @@ const HeaderOne = () => {
                   >
                     <Button
                       variant="outline"
-                      className="w-full text-emerald-600 bg-transparent rounded-lg h-12 border border-emerald-600 text-base font-medium flex items-center justify-center gap-3 hover:bg-emerald-50"
+                      className="w-full text-emerald-600 dark:text-emerald-400 bg-transparent rounded-lg h-12 border border-emerald-600 dark:border-emerald-500 text-base font-medium flex items-center justify-center gap-3 hover:bg-emerald-50 dark:hover:bg-zinc-900"
                     >
                       <Image
                         src="/assets/icons/user.png"
                         alt="User Icon"
                         width={20}
                         height={20}
-                        className="w-5 h-5"
+                        className="w-5 h-5 dark:brightness-200 dark:invert"
                       />
                       <span>{t('headerOne.loginButton')}</span>
                     </Button>
@@ -323,13 +334,13 @@ const HeaderOne = () => {
                 ) : (
                   <div className="space-y-3">
                     {/* User Info */}
-                    <div className="bg-gray-50 rounded-lg p-3">
+                    <div className="bg-gray-50 dark:bg-zinc-900 rounded-lg p-3">
                       <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 bg-emerald-100 rounded-full flex items-center justify-center">
-                          <UserCheck2Icon className="w-5 h-5 text-emerald-600" />
+                        <div className="h-10 w-10 bg-emerald-100 dark:bg-emerald-950 rounded-full flex items-center justify-center">
+                          <UserCheck2Icon className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-900 truncate">
+                          <p className="text-sm font-medium text-gray-900 dark:text-zinc-100 truncate">
                             {user?.name || t('headerOne.profileButton')}
                           </p>
                         </div>
@@ -343,7 +354,7 @@ const HeaderOne = () => {
                     >
                       <Button
                         variant="outline"
-                        className="w-full text-emerald-600 bg-transparent rounded-lg h-11 border border-emerald-600 text-base font-medium flex items-center justify-center gap-3 hover:bg-emerald-50"
+                        className="w-full text-emerald-600 dark:text-emerald-400 bg-transparent rounded-lg h-11 border border-emerald-600 dark:border-emerald-500 text-base font-medium flex items-center justify-center gap-3 hover:bg-emerald-50 dark:hover:bg-zinc-900"
                       >
                         <UserCheck2Icon className="w-5 h-5" />
                         <span>{t('headerOne.profileButton')}</span>
@@ -353,7 +364,7 @@ const HeaderOne = () => {
                     {/* Logout Button */}
                     <Button
                       variant="outline"
-                      className="w-full text-red-600 bg-transparent rounded-lg h-11 border border-red-300 text-base font-medium flex items-center justify-center gap-3 hover:bg-red-50"
+                      className="w-full text-red-600 bg-transparent rounded-lg h-11 border border-red-300 dark:border-red-950 text-base font-medium flex items-center justify-center gap-3 hover:bg-red-50 dark:hover:bg-red-950"
                       onClick={() => {
                         setShowMobileMenu(false);
                         handleLogout();
