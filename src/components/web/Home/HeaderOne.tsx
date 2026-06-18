@@ -161,7 +161,7 @@ const HeaderOne = () => {
             <Link href="/auth/sign-in">
               <Button
                 variant="outline"
-                className="text-emerald-600 bg-transparent rounded-full h-9 px-4 border border-emerald-600 text-sm font-medium flex items-center gap-2 hover:bg-primary-light dark:text-emerald-400 dark:border-emerald-400 dark:hover:bg-zinc-850"
+                className="text-emerald-600 bg-transparent rounded-full h-9 px-4 border border-emerald-600 text-sm font-medium flex items-center gap-2 hover:bg-primary-light dark:text-emerald-400 dark:border-emerald-400 dark:hover:bg-zinc-800"
                 size="sm"
               >
                 <span className="whitespace-nowrap">
@@ -181,7 +181,7 @@ const HeaderOne = () => {
               <Link href="/userProfile">
                 <Button
                   variant="outline"
-                  className="text-primary bg-transparent rounded-full h-9 px-4 border border-primary text-sm font-medium flex items-center gap-2 hover:bg-primary-light dark:hover:bg-zinc-850"
+                  className="text-primary bg-transparent rounded-full h-9 px-4 border border-primary text-sm font-medium flex items-center gap-2 hover:bg-primary-light dark:hover:bg-zinc-800"
                   size="sm"
                 >
                   <span className="whitespace-nowrap truncate max-w-[120px]">

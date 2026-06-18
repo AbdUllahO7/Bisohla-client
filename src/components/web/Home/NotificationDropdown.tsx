@@ -245,7 +245,7 @@ const NotificationDropdown = () => {
                 {unreadCount} {t.unread.toLowerCase()}
               </span>
             ) : (
-              <BellOffIcon className="h-3.5 w-3.5 text-gray-400 dark:text-zinc-550" />
+              <BellOffIcon className="h-3.5 w-3.5 text-gray-400 dark:text-zinc-500" />
             )}
           </div>
 
@@ -264,7 +264,7 @@ const NotificationDropdown = () => {
             </div>
           ) : notificationsResponse?.data?.data?.length === 0 ? (
             <div className="p-6 sm:p-8 text-center text-gray-500 dark:text-zinc-400">
-              <BellOffIcon className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2 text-gray-400 dark:text-zinc-550" />
+              <BellOffIcon className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2 text-gray-400 dark:text-zinc-500" />
               <p className="text-xs sm:text-sm">{t.noUnreadNotifications}</p>
             </div>
           ) : (
@@ -303,7 +303,7 @@ const NotificationDropdown = () => {
                         </p>
 
                         <div className="flex items-center justify-between mt-2 gap-2">
-                          <span className="text-[10px] sm:text-xs text-gray-500 dark:text-zinc-450 flex-shrink-0">
+                          <span className="text-[10px] sm:text-xs text-gray-500 dark:text-zinc-400 flex-shrink-0">
                             {formatDistanceToNow(
                               new Date(notification.createdAt),
                               {
@@ -332,7 +332,7 @@ const NotificationDropdown = () => {
               <div className="p-3 sm:p-4 border-t border-gray-100 dark:border-zinc-800 text-center sticky bottom-0 bg-white dark:bg-zinc-950">
                 <Link
                   href="/userProfile/Notification"
-                  className="text-xs sm:text-sm text-[#2C3C39] dark:text-zinc-350 font-medium hover:text-[#ABDE3B] dark:hover:text-emerald-400 transition-colors inline-block py-1"
+                  className="text-xs sm:text-sm text-[#2C3C39] dark:text-zinc-300 font-medium hover:text-[#ABDE3B] dark:hover:text-emerald-400 transition-colors inline-block py-1"
                   onClick={() => setIsOpen(false)}
                 >
                   {t.viewAll}
