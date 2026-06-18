@@ -35,7 +35,7 @@ const NewsCard: React.FC<NewsCardProps> = ({
 
   // Common card styling
   const cardClasses =
-    'relative bg-white rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden';
+    'relative bg-white dark:bg-zinc-900 border border-transparent dark:border-zinc-800 rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden';
   const imageContainerClasses = 'relative overflow-hidden';
   const contentClasses = 'p-4 flex flex-col justify-between';
 
@@ -81,8 +81,8 @@ const NewsCard: React.FC<NewsCardProps> = ({
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
-              <Newspaper className="w-16 h-16 text-gray-400" />
+            <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-zinc-850 dark:to-zinc-900 flex items-center justify-center">
+              <Newspaper className="w-16 h-16 text-gray-400 dark:text-zinc-600" />
             </div>
           )}
         </div>
@@ -94,7 +94,7 @@ const NewsCard: React.FC<NewsCardProps> = ({
           }`}
         >
           <Text
-            className={`font-semibold text-gray-800 line-clamp-2 ${
+            className={`font-semibold text-gray-800 dark:text-zinc-100 line-clamp-2 ${
               variant === 'horizontal' ? 'text-base' : 'text-lg'
             } mb-2`}
           >
@@ -103,7 +103,7 @@ const NewsCard: React.FC<NewsCardProps> = ({
           {article.excerpt && ( // Only show excerpt for vertical variant
             <Text
               className={cn(
-                'text-gray-600 text-sm mb-3',
+                'text-gray-600 dark:text-zinc-400 text-sm mb-3',
                 variant === 'vertical' ? 'line-clamp-3' : 'line-clamp-2',
               )}
             >
@@ -111,7 +111,7 @@ const NewsCard: React.FC<NewsCardProps> = ({
             </Text>
           )}
 
-          <div className="flex items-center justify-between text-gray-500 text-sm mt-auto pt-2 border-t border-gray-100">
+          <div className="flex items-center justify-between text-gray-500 dark:text-zinc-400 text-sm mt-auto pt-2 border-t border-gray-100 dark:border-zinc-800">
             <div className="flex items-center gap-1">
               <Calendar className="w-4 h-4" />
               <span>
