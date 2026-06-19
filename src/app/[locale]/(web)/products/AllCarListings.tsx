@@ -304,22 +304,22 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
               </div>
 
               <div className="space-y-2">
-                <Text className="text-xl font-bold text-gray-700">
+                <Text className="text-xl font-bold text-gray-700 dark:text-zinc-200">
                   {t('allCars.noResults')}
                 </Text>
-                <Text className="text-gray-500 text-sm leading-relaxed">
+                <Text className="text-gray-500 dark:text-zinc-400 text-sm leading-relaxed">
                   {t('allCars.noResultsMessage')}
                 </Text>
               </div>
 
               {isAuthenticated && (
-                <div className="bg-gradient-to-br from-[#198341]/5 to-[#ABDE3B]/10 border border-[#198341]/20 rounded-2xl p-6 w-full space-y-3">
-                  <p className="text-sm font-semibold text-[#198341]">
+                <div className="bg-gradient-to-br from-[#198341]/5 to-[#ABDE3B]/10 dark:from-[#198341]/10 dark:to-[#ABDE3B]/15 border border-[#198341]/20 dark:border-[#198341]/40 rounded-2xl p-6 w-full space-y-3">
+                  <p className="text-sm font-semibold text-[#198341] dark:text-[#ABDE3B]">
                     {isArabic
                       ? `🔔 هل تريد أن تُعلَم عندما تتوفر ${categoryName} مطابقة؟`
                       : `🔔 Want to be notified when matching ${categoryName.toLowerCase()} items are listed?`}
                   </p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-500 dark:text-zinc-400">
                     {isArabic
                       ? `سنُرسل لك تنبيهاً فور توفّر إعلانات تناسب بحثك`
                       : `We'll notify you as soon as items matching your search are available`}
