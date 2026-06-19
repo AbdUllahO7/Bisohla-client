@@ -62,7 +62,7 @@ const SmartBreadcrumb: React.FC<SmartBreadcrumbProps> = ({
             <div className="absolute inset-0 bg-[#ABDE3B] blur-md opacity-0 group-hover/sep:opacity-30 transition-opacity duration-300"></div>
             
             <ChevronRight
-              className={`relative h-4 w-4 text-gray-400 group-hover/sep:text-[#198341] transition-colors duration-300 ${isRTL ? 'rotate-180' : ''}`}
+              className={`relative h-4 w-4 text-gray-400 group-hover/sep:text-[#198341] dark:group-hover/sep:text-[#ABDE3B] transition-colors duration-300 ${isRTL ? 'rotate-180' : ''}`}
             />
           </div>
         </BreadcrumbSeparator>
@@ -71,7 +71,7 @@ const SmartBreadcrumb: React.FC<SmartBreadcrumbProps> = ({
     if (separator === 'slash') {
       return (
         <BreadcrumbSeparator>
-          <span className="text-gray-400 mx-2 group-hover:text-[#198341] transition-colors duration-300">/</span>
+          <span className="text-gray-400 mx-2 group-hover:text-[#198341] dark:group-hover:text-[#ABDE3B] transition-colors duration-300">/</span>
         </BreadcrumbSeparator>
       );
     }
@@ -79,7 +79,7 @@ const SmartBreadcrumb: React.FC<SmartBreadcrumbProps> = ({
       <BreadcrumbSeparator>
         <div className="relative group/sep">
           <div className="absolute inset-0 bg-[#ABDE3B] blur-md opacity-0 group-hover/sep:opacity-30 transition-opacity duration-300"></div>
-          <span className="relative text-gray-400 group-hover/sep:text-[#198341] transition-colors duration-300">/</span>
+          <span className="relative text-gray-400 group-hover/sep:text-[#198341] dark:group-hover/sep:text-[#ABDE3B] transition-colors duration-300">/</span>
         </div>
       </BreadcrumbSeparator>
     );
@@ -91,20 +91,20 @@ const SmartBreadcrumb: React.FC<SmartBreadcrumbProps> = ({
       case 'minimal':
         return {
           container: 'bg-transparent',
-          link: 'text-gray-600 hover:text-[#198341] text-sm',
-          active: 'text-[#2C3C39] font-medium',
+          link: 'text-gray-600 dark:text-zinc-400 hover:text-[#198341] dark:hover:text-[#ABDE3B] text-sm',
+          active: 'text-[#2C3C39] dark:text-zinc-200 font-medium',
         };
       case 'modern':
         return {
-          container: 'bg-gradient-to-r from-white via-[#ABDE3B]/5 to-white rounded-lg px-4 py-2 border border-slate-200',
-          link: 'text-gray-700 hover:text-[#198341] text-sm font-medium',
-          active: 'text-[#198341] font-semibold',
+          container: 'bg-gradient-to-r from-white via-[#ABDE3B]/5 to-white dark:from-zinc-900 dark:via-[#ABDE3B]/5 dark:to-zinc-900 rounded-lg px-4 py-2 border border-slate-200 dark:border-zinc-800',
+          link: 'text-gray-700 dark:text-zinc-300 hover:text-[#198341] dark:hover:text-[#ABDE3B] text-sm font-medium',
+          active: 'text-[#198341] dark:text-[#ABDE3B] font-semibold',
         };
       default:
         return {
           container: '',
-          link: 'hover:text-[#198341] text-[#2C3C39]',
-          active: 'text-[#198341] hover:text-[#2C3C39]',
+          link: 'hover:text-[#198341] dark:hover:text-[#ABDE3B] text-[#2C3C39] dark:text-zinc-300',
+          active: 'text-[#198341] dark:text-[#ABDE3B] hover:text-[#2C3C39] dark:hover:text-zinc-300',
         };
     }
   };

@@ -817,7 +817,7 @@ export const EnhancedProductCardItem: React.FC<ExtendedCarCardItemPropsProfile> 
             </CardFooter>
           </Link>
         ) : (
-          <CardFooter className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-zinc-900 dark:to-zinc-950 w-full flex flex-wrap gap-2 justify-between p-4 rounded-b-xl dark:border-t dark:border-zinc-805">
+          <CardFooter className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-zinc-900 dark:to-zinc-950 w-full flex flex-wrap gap-2 justify-between p-4 rounded-b-xl dark:border-t dark:border-zinc-800">
             {/* Statistics Button - Only for owner in profile view */}
             {profile && isMine && (
               <Button
