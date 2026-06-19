@@ -41,8 +41,8 @@ export default function NewsGrid({
       <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
         {[...Array(12)].map((_, i) => (
           <div key={i} className="animate-pulse">
-            <div className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-3xl h-[450px] relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent animate-shimmer" />
+            <div className="bg-gradient-to-br from-gray-100 to-gray-200 dark:from-zinc-800 dark:to-zinc-900 rounded-3xl h-[450px] relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 dark:via-zinc-700/50 to-transparent animate-shimmer" />
             </div>
           </div>
         ))}
@@ -62,8 +62,8 @@ export default function NewsGrid({
           className="justify-between items-center mb-8 animate-fadeIn"
         >
           <div className="flex items-center gap-3">
-            <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-            <Text className="text-gray-600 font-medium">
+            <div className="w-2 h-2 bg-primary dark:bg-[#ABDE3B] rounded-full animate-pulse" />
+            <Text className="text-gray-600 dark:text-zinc-400 font-medium">
               {translations.showingResults.replace(
                 '{count}',
                 String(paginationMeta.totalItems)

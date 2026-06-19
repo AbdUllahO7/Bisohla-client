@@ -55,7 +55,7 @@ const FAQ = () => {
                                 {/* Glow Effect on Hover */}
                                 
 
-                                <div className={`bg-white/90 backdrop-blur-sm p-6 rounded-2xl w-full transition-all duration-300 border-2 ${
+                                <div className={`bg-white/90 dark:bg-zinc-900/90 backdrop-blur-sm p-6 rounded-2xl w-full transition-all duration-300 border-2 ${
                                     isOpen 
                                         ? 'shadow-2xl border-opacity-100' 
                                         : 'shadow-lg border-transparent group-hover:shadow-xl'
@@ -71,21 +71,21 @@ const FAQ = () => {
                                         <span className="flex items-center gap-3 flex-1">
                                             {/* Number Badge */}
                                             <span className={`flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-lg font-bold text-sm transition-all duration-300 ${
-                                                isOpen ? 'scale-110' : 'scale-100'
+                                                isOpen ? 'scale-110 text-white' : 'scale-100 text-[#198341] dark:text-[#ABDE3B]'
                                             }`}
                                             style={{
                                                 background: isOpen 
                                                     ? 'linear-gradient(135deg, #198341 0%, #ABDE3B 100%)' 
                                                     : 'rgba(25, 131, 65, 0.1)',
-                                                color: isOpen ? '#fff' : '#198341'
                                             }}>
                                                 {index + 1}
                                             </span>
                                             
                                             <span className={`text-start text-lg transition-all duration-300 ${
-                                                isOpen ? 'font-bold' : 'font-semibold'
-                                            }`}
-                                            style={{ color: isOpen ? '#198341' : '#2C3C39' }}>
+                                                isOpen 
+                                                    ? 'font-bold text-[#198341] dark:text-[#ABDE3B]' 
+                                                    : 'font-semibold text-[#2C3C39] dark:text-zinc-100'
+                                            }`}>
                                                 {item.question}
                                             </span>
                                         </span>
@@ -100,11 +100,9 @@ const FAQ = () => {
                                                 : 'rgba(171, 222, 59, 0.2)'
                                         }}>
                                             {isOpen ? (
-                                                <MinusIcon className="h-5 w-5 transition-colors duration-300" 
-                                                          style={{ color: '#fff' }} />
+                                                <MinusIcon className="h-5 w-5 transition-colors duration-300 text-white" />
                                             ) : (
-                                                <PlusIcon className="h-5 w-5 transition-colors duration-300" 
-                                                         style={{ color: '#198341' }} />
+                                                <PlusIcon className="h-5 w-5 transition-colors duration-300 text-[#198341] dark:text-[#ABDE3B]" />
                                             )}
                                         </span>
                                     </button>
@@ -119,11 +117,10 @@ const FAQ = () => {
                                             opacity: isOpen ? 1 : 0
                                         }}
                                     >
-                                        <div className={`font-cairo text-[16px] leading-relaxed p-4 rounded-xl transition-all duration-300 ${
+                                        <div className={`font-cairo text-[16px] leading-relaxed p-4 rounded-xl transition-all duration-300 text-[#4a5568] dark:text-zinc-300 ${
                                             isOpen ? 'translate-y-0' : '-translate-y-2'
                                         }`}
                                         style={{ 
-                                            color: '#4a5568',
                                             background: 'linear-gradient(135deg, rgba(171, 222, 59, 0.05) 0%, rgba(25, 131, 65, 0.05) 100%)',
                                             borderLeft: '3px solid #ABDE3B'
                                         }}>

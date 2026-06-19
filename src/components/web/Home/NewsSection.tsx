@@ -112,7 +112,7 @@ const NewsSection: React.FC<NewsSectionProps> = ({
               showMoreText={t('viewAllNews')}
             />
 
-            <Text className="text-lg text-gray-600 max-w-2xl mx-auto text-center mt-4">
+            <Text className="text-lg text-gray-600 dark:text-zinc-400 max-w-2xl mx-auto text-center mt-4">
               {t('latestNewsDescription')}
             </Text>
           </div>
@@ -161,8 +161,8 @@ const NewsSection: React.FC<NewsSectionProps> = ({
                   className="w-16 h-16 mx-auto mb-4 opacity-30"
                   style={{ color: '#198341' }}
                 />
-                <Text className="text-gray-500 text-lg">{t('noNews')}</Text>
-                <Text className="text-gray-500 text-sm mt-1">
+                <Text className="text-gray-500 dark:text-zinc-400 text-lg">{t('noNews')}</Text>
+                <Text className="text-gray-500 dark:text-zinc-400 text-sm mt-1">
                   {t('noNewsDescription')}
                 </Text>
               </div>

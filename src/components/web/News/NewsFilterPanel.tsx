@@ -46,7 +46,7 @@ export default function NewsFilterPanel({
       <div
         className={`fixed top-0 ${
           locale === 'ar' ? 'left-0' : 'right-0'
-        } z-50 flex h-full w-full max-w-md flex-col bg-white shadow-2xl transition-transform duration-300 ease-in-out
+        } z-50 flex h-full w-full max-w-md flex-col bg-white dark:bg-zinc-900 shadow-2xl transition-transform duration-300 ease-in-out
           ${
             isOpen
               ? 'translate-x-0'
@@ -56,17 +56,17 @@ export default function NewsFilterPanel({
           }`}
       >
         {/* Panel Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-zinc-800">
           <div className="flex items-center gap-3">
-            <Filter className="w-6 h-6 text-primary" />
-            <h3 className="text-2xl font-bold text-gray-900">
+            <Filter className="w-6 h-6 text-primary dark:text-[#ABDE3B]" />
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-zinc-100">
               {translations.filters}
             </h3>
           </div>
           <button
             title="Close filters"
             onClick={onClose}
-            className="p-2 text-gray-400 rounded-lg hover:bg-gray-100 hover:text-gray-600"
+            className="p-2 text-gray-400 dark:text-zinc-500 rounded-lg hover:bg-gray-100 dark:hover:bg-zinc-800 hover:text-gray-600 dark:hover:text-zinc-300"
           >
             <X className="w-6 h-6" />
           </button>
@@ -77,7 +77,7 @@ export default function NewsFilterPanel({
           {/* Category Filter */}
           <div className="space-y-5">
             <div className="flex items-center justify-between">
-              <Text className="text-lg font-bold text-gray-900">
+              <Text className="text-lg font-bold text-gray-900 dark:text-zinc-100">
                 {translations.filterByCategory}
               </Text>
               {selectedCategory !== null && (
@@ -97,8 +97,8 @@ export default function NewsFilterPanel({
                 onClick={() => onCategoryChange(null)}
                 className={`group/cat relative px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 ${
                   selectedCategory === null
-                    ? 'bg-gradient-to-r from-primary to-primary-light text-white shadow-lg'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? 'bg-gradient-to-r from-primary to-primary-light dark:from-[#198341] dark:to-[#ABDE3B] text-white dark:text-zinc-950 shadow-lg'
+                    : 'bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-zinc-300 hover:bg-gray-200 dark:hover:bg-zinc-700'
                 }`}
               >
                 {selectedCategory === null && (
@@ -114,8 +114,8 @@ export default function NewsFilterPanel({
                   onClick={() => onCategoryChange(category.id)}
                   className={`group/cat relative px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 ${
                     selectedCategory === category.id
-                      ? 'bg-gradient-to-r from-primary to-primary-light text-white shadow-lg'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? 'bg-gradient-to-r from-primary to-primary-light dark:from-[#198341] dark:to-[#ABDE3B] text-white dark:text-zinc-950 shadow-lg'
+                      : 'bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-zinc-300 hover:bg-gray-200 dark:hover:bg-zinc-700'
                   }`}
                 >
                   {selectedCategory === category.id && (
@@ -129,10 +129,10 @@ export default function NewsFilterPanel({
         </div>
 
         {/* Panel Footer */}
-        <div className="p-6 border-t border-gray-200 bg-gray-50">
+        <div className="p-6 border-t border-gray-200 dark:border-zinc-800 bg-gray-50 dark:bg-zinc-950/50">
           <button
             onClick={onClose}
-            className="w-full px-8 py-4 bg-gradient-to-r from-primary to-primary-light text-white rounded-2xl font-bold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-2xl"
+            className="w-full px-8 py-4 bg-gradient-to-r from-primary to-primary-light dark:from-[#198341] dark:to-[#ABDE3B] text-white dark:text-zinc-950 rounded-2xl font-bold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-2xl"
           >
             {translations.showResults}
           </button>

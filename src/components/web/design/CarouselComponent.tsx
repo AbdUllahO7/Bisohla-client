@@ -61,7 +61,7 @@ const CarouselComponent: React.FC<ExtendedCarouselComponentProps> = ({ data, dir
             onClick={() => handleCityClick(item as CarouselItemData)}
           >
             <Box className="overflow-hidden w-full h-full">
-              <Card className="relative flex justify-center items-center bg-white border-none p-0 m-0 group cursor-pointer overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:scale-[1.02] w-[250px] h-[350px]">
+              <Card className="relative flex justify-center items-center bg-white dark:bg-zinc-900 border-none p-0 m-0 group cursor-pointer overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:scale-[1.02] w-[250px] h-[350px]">
                 <CardContent className="flex items-center justify-center p-0 relative w-full h-full">
                   <div className="relative w-full h-full overflow-hidden rounded-2xl">
                     <Image
@@ -94,28 +94,28 @@ const CarouselComponent: React.FC<ExtendedCarouselComponentProps> = ({ data, dir
                   dir={direction}
                   className={`
                     w-[190px] justify-between items-center absolute bottom-4 left-1/2 transform -translate-x-1/2
-                    bg-white/95 backdrop-blur-md rounded-2xl p-3 shadow-lg
+                    bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md rounded-2xl p-3 shadow-lg
                     transition-all duration-500 group-hover:bg-gradient-to-r group-hover:from-[#198341] group-hover:to-[#2C3C39]
-                    border border-white/20 group-hover:border-white/30
+                    border border-white/20 group-hover:border-white/30 dark:border-zinc-800
                     group-hover:scale-105 group-hover:shadow-xl
                   `}
                 >
                   <Box variant="column" className="text-start gap-1 justify-start items-start flex-1">
                     <Box className="flex items-center gap-2 mb-1">
-                      <Building2 className="w-4 h-4 text-[#198341] group-hover:text-white transition-colors duration-500" />
+                      <Building2 className="w-4 h-4 text-[#198341] dark:text-emerald-400 group-hover:text-white transition-colors duration-500" />
                       <Text
                         variant="h5"
-                        className="font-bold text-[#2C3C39] font-cairo transition-colors duration-500 group-hover:text-white text-sm leading-tight"
+                        className="font-bold text-[#2C3C39] dark:text-zinc-100 font-cairo transition-colors duration-500 group-hover:text-white text-sm leading-tight"
                       >
                         {item.title}
                       </Text>
                     </Box>
 
                     <Box className="flex items-center gap-1">
-                      <Car className="w-3 h-3 text-[#2C3C39]/70 group-hover:text-white/80 transition-colors duration-500" />
+                      <Car className="w-3 h-3 text-[#2C3C39]/70 dark:text-zinc-400 group-hover:text-white/80 transition-colors duration-500" />
                       <Text
                         variant="small"
-                        className="text-[#2C3C39]/80 transition-colors duration-500 group-hover:text-white/90 text-xs font-medium"
+                        className="text-[#2C3C39]/80 dark:text-zinc-400 transition-colors duration-500 group-hover:text-white/90 text-xs font-medium"
                       >
                         {item.carCount}
                       </Text>

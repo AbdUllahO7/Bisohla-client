@@ -180,13 +180,13 @@ export const RentProductListCard: React.FC<RentProductListCardProps> = ({
             }
           }
 
-          let defaultIcon = <Home className="h-3 w-3 text-gray-500" />;
-          if (slug === 'fuel_type') defaultIcon = <Fuel className="h-3 w-3 text-gray-500" />;
-          else if (slug === 'transmission') defaultIcon = <LifeBuoy className="h-3 w-3 text-gray-500" />;
-          else if (slug === 'year') defaultIcon = <Calendar className="h-3 w-3 text-gray-500" />;
-          else if (slug === 'rooms_count' || slug === 'rooms' || slug === 'bedrooms') defaultIcon = <Bed className="h-3 w-3 text-gray-500" />;
-          else if (slug === 'area' || slug === 'square_meters') defaultIcon = <Ruler className="h-3 w-3 text-gray-500" />;
-          else if (slug === 'bathrooms') defaultIcon = <Bath className="h-3 w-3 text-gray-500" />;
+          let defaultIcon = <Home className="h-3 w-3 text-gray-500 dark:text-zinc-400" />;
+          if (slug === 'fuel_type') defaultIcon = <Fuel className="h-3 w-3 text-gray-500 dark:text-zinc-400" />;
+          else if (slug === 'transmission') defaultIcon = <LifeBuoy className="h-3 w-3 text-gray-500 dark:text-zinc-400" />;
+          else if (slug === 'year') defaultIcon = <Calendar className="h-3 w-3 text-gray-500 dark:text-zinc-400" />;
+          else if (slug === 'rooms_count' || slug === 'rooms' || slug === 'bedrooms') defaultIcon = <Bed className="h-3 w-3 text-gray-500 dark:text-zinc-400" />;
+          else if (slug === 'area' || slug === 'square_meters') defaultIcon = <Ruler className="h-3 w-3 text-gray-500 dark:text-zinc-400" />;
+          else if (slug === 'bathrooms') defaultIcon = <Bath className="h-3 w-3 text-gray-500 dark:text-zinc-400" />;
 
           const icon = iconUrl ? (
             <img
@@ -216,21 +216,21 @@ export const RentProductListCard: React.FC<RentProductListCardProps> = ({
     if (translatedFuelType) {
       fallback.push({
         slug: 'fuel_type',
-        icon: <Fuel className="h-3 w-3 text-gray-500" />,
+        icon: <Fuel className="h-3 w-3 text-gray-500 dark:text-zinc-400" />,
         value: translatedFuelType,
       });
     }
     if (translatedTransmission) {
       fallback.push({
         slug: 'transmission',
-        icon: <LifeBuoy className="h-3 w-3 text-gray-500" />,
+        icon: <LifeBuoy className="h-3 w-3 text-gray-500 dark:text-zinc-400" />,
         value: translatedTransmission,
       });
     }
     if (details?.year) {
       fallback.push({
         slug: 'year',
-        icon: <Calendar className="h-3 w-3 text-gray-500" />,
+        icon: <Calendar className="h-3 w-3 text-gray-500 dark:text-zinc-400" />,
         value: details.year.toString(),
       });
     }
@@ -307,7 +307,7 @@ export const RentProductListCard: React.FC<RentProductListCardProps> = ({
 
   return (
     <Card
-      className={`w-full relative border border-gray-200 bg-white transition-all duration-300 ease-out overflow-hidden mb-4 ${
+      className={`w-full relative border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 transition-all duration-300 ease-out overflow-hidden mb-4 ${
         isSold ? 'opacity-75 cursor-default' : 'hover:shadow-lg'
       }`}
       ref={cardRef}
@@ -335,7 +335,7 @@ export const RentProductListCard: React.FC<RentProductListCardProps> = ({
 
             {/* Type Badge */}
             <div className="absolute top-2 left-2 z-10">
-              <span className="bg-primary text-white px-2 py-1 rounded text-xs font-medium">
+              <span className="bg-emerald-600/95 text-white px-2 py-1 rounded text-xs font-medium border border-emerald-500/20">
                 {listingType === 'for_rent' ? 'Rent' : 'Sale'}
               </span>
             </div>
@@ -357,11 +357,11 @@ export const RentProductListCard: React.FC<RentProductListCardProps> = ({
               <div className="flex-1 min-w-0">
                 <Text
                   variant="h4"
-                  className="text-primary font-semibold text-sm line-clamp-1 mb-1"
+                  className="text-primary dark:text-zinc-100 font-semibold text-sm line-clamp-1 mb-1"
                 >
                   {title}
                 </Text>
-                <Text variant="small" className="text-gray-600 text-xs">
+                <Text variant="small" className="text-gray-600 dark:text-zinc-400 text-xs">
                   {make?.name ? `${make.name} ${car.model?.name || ''}`.trim() : ''}
                 </Text>
               </div>
@@ -372,13 +372,13 @@ export const RentProductListCard: React.FC<RentProductListCardProps> = ({
               {visibleDetails.map((detail: { icon: React.ReactNode; value: string }, idx: number) => (
                 <div key={idx} className="flex items-center gap-1">
                   {detail.icon}
-                  <span className="text-xs text-gray-600">
+                  <span className="text-xs text-gray-600 dark:text-zinc-400">
                     {detail.value}
                   </span>
                 </div>
               ))}
               {remainingCount > 0 && (
-                <div className="flex items-center text-xs font-bold text-emerald-700">
+                <div className="flex items-center text-xs font-bold text-emerald-700 dark:text-emerald-400">
                   {locale === 'ar' ? `المزيد +${remainingCount}` : `more +${remainingCount}`}
                 </div>
               )}
@@ -387,15 +387,15 @@ export const RentProductListCard: React.FC<RentProductListCardProps> = ({
             {/* Price and Arrow Section */}
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-2">
-                <Text className="text-xs text-gray-500">{priceWord}</Text>
-                <Text className="text-sm font-bold text-primary">
+                <Text className="text-xs text-gray-500 dark:text-zinc-400">{priceWord}</Text>
+                <Text className="text-sm font-bold text-primary dark:text-[#ABDE3B]">
                   {price
                     ? `${price} ${currency || ''}`
                     : CAR_DEFAULTS.PRICE_FALLBACK}
                 </Text>
               </div>
 
-              {!isSold && <ArrowRight className="h-4 w-4 text-emerald-600" />}
+              {!isSold && <ArrowRight className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />}
             </div>
           </div>
         </div>
@@ -404,7 +404,7 @@ export const RentProductListCard: React.FC<RentProductListCardProps> = ({
       {!isOwner && (
         <Button
           className={cn(
-            'absolute top-2 p-1 h-8 w-8 bg-transparent hover:bg-gray-100 rounded-full',
+            'absolute top-2 p-1 h-8 w-8 bg-transparent hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-full',
             direction === 'ltr' ? 'right-2' : 'left-2',
           )}
           onClick={handleFavoriteClick}
@@ -419,7 +419,7 @@ export const RentProductListCard: React.FC<RentProductListCardProps> = ({
                 ? 'text-gray-400'
                 : favoriteStatus
                 ? 'text-red-500'
-                : 'text-gray-600'
+                : 'text-gray-600 dark:text-zinc-400'
             }
             fill={favoriteStatus ? 'currentColor' : 'none'}
           />

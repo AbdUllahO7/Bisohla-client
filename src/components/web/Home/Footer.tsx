@@ -35,18 +35,18 @@ const Footer = ({ isUserProfile }: { isUserProfile?: boolean }) => {
           variant="column"
           className="items-start justify-start gap-8 md:w-[300px] sm:w-[400px] xs:w-[400px] lg:mt-0 lg:items-start xs:items-center xs:mt-5"
         >
-          <Text variant="h4" className="text-primary">
+          <Text variant="h4" className="text-primary dark:text-[#ABDE3B] font-bold">
             {locale === 'ar' ? 'أنشىء اعلان' : 'Create Ad'}
           </Text>
-          <Link href="/products/AddProducts" className="text-primary">
+          <Link href="/products/AddProducts" className="text-primary dark:text-zinc-300 hover:text-primary-light dark:hover:text-[#ABDE3B] transition-colors">
             {locale === 'ar'
               ? 'إنشىء إعلان تأجير'
               : 'Create a rental ad'}
           </Link>
-          <Link href="/products/AddProducts" className="text-primary">
+          <Link href="/products/AddProducts" className="text-primary dark:text-zinc-300 hover:text-primary-light dark:hover:text-[#ABDE3B] transition-colors">
             {locale === 'ar' ? 'أنشىء إعلان بيع' : 'Create a sale ad'}
           </Link>
-          <Link href="/auth/sign-in" className="text-primary">
+          <Link href="/auth/sign-in" className="text-primary dark:text-zinc-300 hover:text-primary-light dark:hover:text-[#ABDE3B] transition-colors">
             {locale === 'ar' ? 'أنشىء حساب' : 'Create Account'}
           </Link>
         </Box>
@@ -54,18 +54,18 @@ const Footer = ({ isUserProfile }: { isUserProfile?: boolean }) => {
           variant="column"
           className="items-start justify-start gap-8 md:w-[300px] sm:w-[400px] lg:mt-0 xs:w-[400px] lg:items-start xs:items-center xs:mt-5"
         >
-          <Text variant="h4" className="text-primary">
+          <Text variant="h4" className="text-primary dark:text-[#ABDE3B] font-bold">
             {locale === 'ar' ? 'بسهولة' : 'Bishola'}
           </Text>
-          <Link href="/Privacypolicy" className="text-primary">
+          <Link href="/Privacypolicy" className="text-primary dark:text-zinc-300 hover:text-primary-light dark:hover:text-[#ABDE3B] transition-colors">
             {locale === 'ar' ? 'سياسة الخصوصية' : 'Privacy policy'}
           </Link>
-          <Link href="/Privacypolicy" className="text-primary">
+          <Link href="/Privacypolicy" className="text-primary dark:text-zinc-300 hover:text-primary-light dark:hover:text-[#ABDE3B] transition-colors">
             {locale === 'ar'
               ? 'سياسة انشاء الاعلان'
               : 'Advertisement creation policy'}
           </Link>
-          <Link href="/Privacypolicy" className="text-primary">
+          <Link href="/Privacypolicy" className="text-primary dark:text-zinc-300 hover:text-primary-light dark:hover:text-[#ABDE3B] transition-colors">
             {locale === 'ar'
               ? 'سياسية حماية البيانات'
               : 'Data Protection Policy'}
@@ -75,16 +75,16 @@ const Footer = ({ isUserProfile }: { isUserProfile?: boolean }) => {
           variant="column"
           className="items-start justify-start gap-8 md:w-[300px] sm:w-[400px] lg:mt-0 xs:w-[400px] lg:items-start xs:items-center xs:mt-5"
         >
-          <Text variant="h4" className="text-primary">
+          <Text variant="h4" className="text-primary dark:text-[#ABDE3B] font-bold">
             {locale === 'ar' ? 'العنوان الرئيسي' : 'Main Title'}
           </Text>
-          <Link href="/" className="text-primary">
+          <Link href="/" className="text-primary dark:text-zinc-300 hover:text-primary-light dark:hover:text-[#ABDE3B] transition-colors">
             {locale === 'ar' ? 'الصفحة الرئيسية' : 'Home Page'}
           </Link>
-          <Link href="/products?listingOfferType=for_rent" className="text-primary">
+          <Link href="/products?listingOfferType=for_rent" className="text-primary dark:text-zinc-300 hover:text-primary-light dark:hover:text-[#ABDE3B] transition-colors">
             {locale === 'ar' ? 'الاستئجار' : 'Rent'}
           </Link>
-          <Link href="/products?listingOfferType=for_sale" className="text-primary">
+          <Link href="/products?listingOfferType=for_sale" className="text-primary dark:text-zinc-300 hover:text-primary-light dark:hover:text-[#ABDE3B] transition-colors">
             {locale === 'ar' ? ' البيع' : 'Sale'}
           </Link>
         </Box>
@@ -94,12 +94,12 @@ const Footer = ({ isUserProfile }: { isUserProfile?: boolean }) => {
           variant="column"
           className="justify-start items-start  md:w-[300px] sm:w-[400px] lg:mt-0 xs:w-[400px] "
         >
-          <Text variant="lead" className="text-[600] ">
+          <Text variant="lead" className="text-[600] text-primary dark:text-zinc-100 font-semibold">
             {locale === 'ar'
               ? 'اشترك في النشرة الإخبارية لدينا'
               : 'Subscribe to our newsletter'}
           </Text>
-          <Text variant="mid" className="w-full">
+          <Text variant="mid" className="w-full text-secondary-text dark:text-zinc-400">
             {locale === 'ar'
               ? 'ابق على اطلاع على آخر الأخبار والعروض الحصرية والتحديثات المثيرة'
               : 'Stay up to date with the latest news, exclusive offers and exciting updates.'}
@@ -108,7 +108,7 @@ const Footer = ({ isUserProfile }: { isUserProfile?: boolean }) => {
             <Input
               type="email"
               placeholder={locale === 'ar' ? 'البريد الالكتروني' : 'Email'}
-              className="rounded-2xl  border-secondary-text"
+              className="rounded-2xl border-secondary-text dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100"
             />
             <Button
               type="submit"
@@ -127,12 +127,12 @@ const Footer = ({ isUserProfile }: { isUserProfile?: boolean }) => {
               <>
                 {appStoreUrl ? (
                   <Link href={appStoreUrl} target="_blank">
-                    <Button className="bg-white shadow-none border border-primary-light h-full ">
+                    <Button className="bg-white dark:bg-zinc-900 shadow-none border border-primary-light dark:border-zinc-800 h-full ">
                       <Box variant="column" className="gap-0 h-full">
-                        <Text variant="small" className="text-primary-light">
+                        <Text variant="small" className="text-primary-light dark:text-zinc-300">
                           Available on the{' '}
                         </Text>
-                        <Text variant="mid" className="text-primary-light">
+                        <Text variant="mid" className="text-primary-light dark:text-zinc-100">
                           App Store{' '}
                         </Text>
                       </Box>
@@ -141,16 +141,17 @@ const Footer = ({ isUserProfile }: { isUserProfile?: boolean }) => {
                         alt="apple"
                         width={20}
                         height={20}
+                        className="dark:invert"
                       />
                     </Button>
                   </Link>
                 ) : (
-                  <Button className="bg-white shadow-none border border-primary-light h-full ">
+                  <Button className="bg-white dark:bg-zinc-900 shadow-none border border-primary-light dark:border-zinc-800 h-full ">
                     <Box variant="column" className="gap-0 h-full">
-                      <Text variant="small" className="text-primary-light">
+                      <Text variant="small" className="text-primary-light dark:text-zinc-300">
                         Available on the{' '}
                       </Text>
-                      <Text variant="mid" className="text-primary-light">
+                      <Text variant="mid" className="text-primary-light dark:text-zinc-100">
                         App Store{' '}
                       </Text>
                     </Box>
@@ -159,18 +160,19 @@ const Footer = ({ isUserProfile }: { isUserProfile?: boolean }) => {
                       alt="apple"
                       width={20}
                       height={20}
+                      className="dark:invert"
                     />
                   </Button>
                 )}
 
                 {playStoreUrl ? (
                   <Link href={playStoreUrl} target="_blank">
-                    <Button className="bg-white shadow-none border border-primary-light h-full ">
+                    <Button className="bg-white dark:bg-zinc-900 shadow-none border border-primary-light dark:border-zinc-800 h-full ">
                       <Box variant="column" className=" gap-0 h-full">
-                        <Text variant="small" className="text-primary-light">
+                        <Text variant="small" className="text-primary-light dark:text-zinc-300">
                           Available on the{' '}
                         </Text>
-                        <Text variant="mid" className="text-primary-light">
+                        <Text variant="mid" className="text-primary-light dark:text-zinc-100">
                           Google Play
                         </Text>
                       </Box>
@@ -183,12 +185,12 @@ const Footer = ({ isUserProfile }: { isUserProfile?: boolean }) => {
                     </Button>
                   </Link>
                 ) : (
-                  <Button className="bg-white shadow-none border border-primary-light h-full ">
+                  <Button className="bg-white dark:bg-zinc-900 shadow-none border border-primary-light dark:border-zinc-800 h-full ">
                     <Box variant="column" className=" gap-0 h-full">
-                      <Text variant="small" className="text-primary-light">
+                      <Text variant="small" className="text-primary-light dark:text-zinc-300">
                         Available on the{' '}
                       </Text>
-                      <Text variant="mid" className="text-primary-light">
+                      <Text variant="mid" className="text-primary-light dark:text-zinc-100">
                         Google Play
                       </Text>
                     </Box>
@@ -211,7 +213,7 @@ const Footer = ({ isUserProfile }: { isUserProfile?: boolean }) => {
         className="justify-between container w-full mt-10"
       >
         <Box className="">
-          <Logo width={153} height={33} />
+          <Logo width={153} height={33} className="dark:brightness-200 dark:invert" />
         </Box>
 
         {/* social */}
@@ -313,10 +315,10 @@ const Footer = ({ isUserProfile }: { isUserProfile?: boolean }) => {
       {/* Copyright */}
       <Box
         variant="center"
-        className="container w-full mt-8 pt-8 border-t border-gray-200"
+        className="container w-full mt-8 pt-8 border-t border-gray-200 dark:border-zinc-800"
       >
         {!isLoading ? (
-          <Text variant="small" className="text-primary-light text-center">
+          <Text variant="small" className="text-primary-light dark:text-zinc-400 text-center">
             {getCopyrightMessage()}
           </Text>
         ) : (

@@ -400,12 +400,12 @@ export default function PrivacyPolicyPage() {
       </div>
 
       {/* Main Content */}
-      <div className="relative bg-gradient-to-b from-gray-50 to-white py-20">
+      <div className="relative bg-gradient-to-b from-gray-50 to-white dark:from-zinc-950 dark:to-zinc-900 py-20">
         <div className="container max-w-6xl mx-auto px-4 md:px-6 space-y-8">
           {/* Tab Switcher */}
           {!isLoading && (privacyHtml || aboutHtml) && (
             <div className="flex justify-center mb-8">
-              <div className="inline-flex p-1.5 rounded-2xl bg-gray-100/80 backdrop-blur-md border border-gray-200 shadow-sm">
+              <div className="inline-flex p-1.5 rounded-2xl bg-gray-100/80 dark:bg-zinc-800/80 backdrop-blur-md border border-gray-200 dark:border-zinc-700 shadow-sm">
                 <button
                   onClick={() => {
                     setActiveTab('privacy');
@@ -417,8 +417,8 @@ export default function PrivacyPolicyPage() {
                   }}
                   className={`px-6 py-2.5 rounded-xl font-bold text-sm transition-all duration-300 ${
                     activeTab === 'privacy'
-                      ? 'bg-white text-emerald-800 shadow-sm transform scale-102'
-                      : 'text-gray-600 hover:text-emerald-700'
+                      ? 'bg-white dark:bg-zinc-900 text-emerald-800 dark:text-[#ABDE3B] shadow-sm transform scale-102'
+                      : 'text-gray-600 dark:text-zinc-400 hover:text-emerald-700 dark:hover:text-[#ABDE3B]'
                   }`}
                 >
                   {isArabic ? 'سياسة الخصوصية' : 'Privacy Policy'}
@@ -434,8 +434,8 @@ export default function PrivacyPolicyPage() {
                   }}
                   className={`px-6 py-2.5 rounded-xl font-bold text-sm transition-all duration-300 ${
                     activeTab === 'about'
-                      ? 'bg-white text-emerald-800 shadow-sm transform scale-102'
-                      : 'text-gray-600 hover:text-emerald-700'
+                      ? 'bg-white dark:bg-zinc-900 text-emerald-800 dark:text-[#ABDE3B] shadow-sm transform scale-102'
+                      : 'text-gray-600 dark:text-zinc-400 hover:text-emerald-700 dark:hover:text-[#ABDE3B]'
                   }`}
                 >
                   {isArabic ? 'عن بسهولة' : 'About Us'}
@@ -445,31 +445,31 @@ export default function PrivacyPolicyPage() {
           )}
 
           {isLoading ? (
-            <div className="space-y-6 bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100">
+            <div className="space-y-6 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100 dark:border-zinc-800">
               <div className="flex items-center gap-4 mb-8">
-                <Skeleton className="w-16 h-16 rounded-2xl bg-gray-200" />
+                <Skeleton className="w-16 h-16 rounded-2xl bg-gray-200 dark:bg-zinc-800" />
                 <div className="space-y-2">
-                  <Skeleton className="h-8 w-48 bg-gray-200" />
-                  <Skeleton className="h-4 w-32 bg-gray-200" />
+                  <Skeleton className="h-8 w-48 bg-gray-200 dark:bg-zinc-800" />
+                  <Skeleton className="h-4 w-32 bg-gray-200 dark:bg-zinc-800" />
                 </div>
               </div>
               <div className="space-y-4">
-                <Skeleton className="h-4 w-full bg-gray-200 animate-pulse" />
-                <Skeleton className="h-4 w-5/6 bg-gray-200 animate-pulse" />
-                <Skeleton className="h-4 w-4/5 bg-gray-200 animate-pulse" />
-                <Skeleton className="h-4 w-full bg-gray-200 animate-pulse" />
+                <Skeleton className="h-4 w-full bg-gray-200 dark:bg-zinc-800 animate-pulse" />
+                <Skeleton className="h-4 w-5/6 bg-gray-200 dark:bg-zinc-800 animate-pulse" />
+                <Skeleton className="h-4 w-4/5 bg-gray-200 dark:bg-zinc-800 animate-pulse" />
+                <Skeleton className="h-4 w-full bg-gray-200 dark:bg-zinc-800 animate-pulse" />
               </div>
               <div className="space-y-4 pt-6">
-                <Skeleton className="h-6 w-36 bg-gray-200 animate-pulse" />
-                <Skeleton className="h-4 w-11/12 bg-gray-200 animate-pulse" />
-                <Skeleton className="h-4 w-9/12 bg-gray-200 animate-pulse" />
+                <Skeleton className="h-6 w-36 bg-gray-200 dark:bg-zinc-800 animate-pulse" />
+                <Skeleton className="h-4 w-11/12 bg-gray-200 dark:bg-zinc-800 animate-pulse" />
+                <Skeleton className="h-4 w-9/12 bg-gray-200 dark:bg-zinc-800 animate-pulse" />
               </div>
             </div>
           ) : activeHtml ? (
             <div className="group animate-fadeIn ql-snow" key={activeTab}>
               <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                    style={{ background: 'linear-gradient(135deg, #ABDE3B 0%, #198341 100%)', filter: 'blur(40px)' }}></div>
-              <div className="relative bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100 hover:shadow-2xl transition-all duration-500">
+              <div className="relative bg-white/80 dark:bg-zinc-900/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100 dark:border-zinc-800 hover:shadow-2xl transition-all duration-500">
                 <div className="rich-text-content ql-editor privacy-content" style={{ overflowY: 'visible' }} dangerouslySetInnerHTML={{ __html: activeHtml }} />
               </div>
             </div>
@@ -477,7 +477,7 @@ export default function PrivacyPolicyPage() {
             <div className="group animate-fadeIn">
               <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                    style={{ background: 'linear-gradient(135deg, #ABDE3B 0%, #198341 100%)', filter: 'blur(40px)' }}></div>
-              <div className="relative bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100 hover:shadow-2xl transition-all duration-500 text-center py-16 text-gray-500">
+              <div className="relative bg-white/80 dark:bg-zinc-900/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100 dark:border-zinc-800 hover:shadow-2xl transition-all duration-500 text-center py-16 text-gray-500 dark:text-zinc-400">
                 {isArabic ? 'لا يوجد محتوى متوفر حالياً.' : 'No content available currently.'}
               </div>
             </div>
@@ -487,16 +487,16 @@ export default function PrivacyPolicyPage() {
               <div className="group animate-fadeIn" style={{ animationDelay: '0.1s' }}>
                 <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                      style={{ background: 'linear-gradient(135deg, #ABDE3B 0%, #198341 100%)', filter: 'blur(40px)' }}></div>
-                <div className="relative bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100 hover:shadow-2xl transition-all duration-500">
+                <div className="relative bg-white/80 dark:bg-zinc-900/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100 dark:border-zinc-800 hover:shadow-2xl transition-all duration-500">
                   <div className="flex items-center gap-4 mb-6">
                     <div className="p-4 rounded-2xl" style={{ background: 'linear-gradient(135deg, #198341 0%, #2C3C39 100%)' }}>
                       <Shield size={32} className="text-white" />
                     </div>
-                    <h2 className="text-3xl md:text-4xl font-bold" style={{ color: '#2C3C39' }}>
+                    <h2 className="text-3xl md:text-4xl font-bold text-[#2C3C39] dark:text-zinc-100">
                       {t.sections.introduction.title}
                     </h2>
                   </div>
-                  <div className="space-y-4 text-gray-700 text-lg leading-relaxed">
+                  <div className="space-y-4 text-gray-700 dark:text-zinc-300 text-lg leading-relaxed">
                     {t.sections.introduction.content.map((paragraph, index) => (
                       <p key={index}>{paragraph}</p>
                     ))}
@@ -508,27 +508,27 @@ export default function PrivacyPolicyPage() {
               <div className="group animate-fadeIn" style={{ animationDelay: '0.2s' }}>
                 <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                      style={{ background: 'linear-gradient(135deg, #ABDE3B 0%, #198341 100%)', filter: 'blur(40px)' }}></div>
-                <div className="relative bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100 hover:shadow-2xl transition-all duration-500">
+                <div className="relative bg-white/80 dark:bg-zinc-900/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100 dark:border-zinc-800 hover:shadow-2xl transition-all duration-500">
                   <div className="flex items-center gap-4 mb-6">
                     <div className="p-4 rounded-2xl" style={{ background: 'linear-gradient(135deg, #198341 0%, #2C3C39 100%)' }}>
                       <Eye size={32} className="text-white" />
                     </div>
-                    <h2 className="text-3xl md:text-4xl font-bold" style={{ color: '#2C3C39' }}>
+                    <h2 className="text-3xl md:text-4xl font-bold text-[#2C3C39] dark:text-zinc-100">
                       {t.sections.informationCollect.title}
                     </h2>
                   </div>
-                  <p className="text-gray-700 text-lg mb-6">{t.sections.informationCollect.intro}</p>
+                  <p className="text-gray-700 dark:text-zinc-300 text-lg mb-6">{t.sections.informationCollect.intro}</p>
                   <div className="grid gap-4">
                     {t.sections.informationCollect.items.map((item, index) => (
                       <div key={index}
-                           className="group/item relative bg-gradient-to-br from-gray-50 to-white p-6 rounded-2xl border-2 border-transparent hover:border-opacity-50 transition-all duration-300 hover:shadow-lg"
+                           className="group/item relative bg-gradient-to-br from-gray-50 to-white dark:from-zinc-900/50 dark:to-zinc-900/10 p-6 rounded-2xl border-2 border-transparent hover:border-opacity-50 transition-all duration-300 hover:shadow-lg"
                            style={{ borderColor: '#ABDE3B' }}>
                         <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-12 rounded-r-full transition-all duration-300 group-hover/item:h-16"
                              style={{ backgroundColor: '#ABDE3B' }}></div>
-                        <h3 className="font-bold text-lg mb-2 ml-6" style={{ color: '#198341' }}>
+                        <h3 className="font-bold text-lg mb-2 ml-6 text-[#198341] dark:text-[#ABDE3B]">
                           {item.title}
                         </h3>
-                        <p className="text-gray-700 ml-6">{item.description}</p>
+                        <p className="text-gray-700 dark:text-zinc-300 ml-6">{item.description}</p>
                       </div>
                     ))}
                   </div>
@@ -539,25 +539,25 @@ export default function PrivacyPolicyPage() {
               <div className="group animate-fadeIn" style={{ animationDelay: '0.3s' }}>
                 <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                      style={{ background: 'linear-gradient(135deg, #ABDE3B 0%, #198341 100%)', filter: 'blur(40px)' }}></div>
-                <div className="relative bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100 hover:shadow-2xl transition-all duration-500">
+                <div className="relative bg-white/80 dark:bg-zinc-900/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100 dark:border-zinc-800 hover:shadow-2xl transition-all duration-500">
                   <div className="flex items-center gap-4 mb-6">
                     <div className="p-4 rounded-2xl" style={{ background: 'linear-gradient(135deg, #198341 0%, #2C3C39 100%)' }}>
                       <FileText size={32} className="text-white" />
                     </div>
-                    <h2 className="text-3xl md:text-4xl font-bold" style={{ color: '#2C3C39' }}>
+                    <h2 className="text-3xl md:text-4xl font-bold text-[#2C3C39] dark:text-zinc-100">
                       {t.sections.informationUse.title}
                     </h2>
                   </div>
-                  <p className="text-gray-700 text-lg mb-6">{t.sections.informationUse.intro}</p>
+                  <p className="text-gray-700 dark:text-zinc-300 text-lg mb-6">{t.sections.informationUse.intro}</p>
                   <div className="grid md:grid-cols-2 gap-4">
                     {t.sections.informationUse.items.map((item, index) => (
                       <div key={index}
-                           className="flex items-start gap-3 p-4 rounded-xl bg-gradient-to-br from-gray-50 to-white hover:shadow-md transition-all duration-300 group/item">
+                           className="flex items-start gap-3 p-4 rounded-xl bg-gradient-to-br from-gray-50 to-white dark:from-zinc-900/50 dark:to-zinc-900/10 hover:shadow-md transition-all duration-300 group/item">
                         <div className="flex-shrink-0 mt-1">
                           <ChevronRight size={20} className="transition-transform duration-300 group-hover/item:translate-x-1"
                                         style={{ color: '#ABDE3B' }} />
                         </div>
-                        <p className="text-gray-700">{item}</p>
+                        <p className="text-gray-700 dark:text-zinc-300">{item}</p>
                       </div>
                     ))}
                   </div>
@@ -568,32 +568,32 @@ export default function PrivacyPolicyPage() {
               <div className="group animate-fadeIn" style={{ animationDelay: '0.4s' }}>
                 <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                      style={{ background: 'linear-gradient(135deg, #ABDE3B 0%, #198341 100%)', filter: 'blur(40px)' }}></div>
-                <div className="relative bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100 hover:shadow-2xl transition-all duration-500">
+                <div className="relative bg-white/80 dark:bg-zinc-900/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100 dark:border-zinc-800 hover:shadow-2xl transition-all duration-500">
                   <div className="flex items-center gap-4 mb-6">
                     <div className="p-4 rounded-2xl" style={{ background: 'linear-gradient(135deg, #198341 0%, #2C3C39 100%)' }}>
                       <Users size={32} className="text-white" />
                     </div>
-                    <h2 className="text-3xl md:text-4xl font-bold" style={{ color: '#2C3C39' }}>
+                    <h2 className="text-3xl md:text-4xl font-bold text-[#2C3C39] dark:text-zinc-100">
                       {t.sections.informationSharing.title}
                     </h2>
                   </div>
-                  <p className="text-gray-700 text-lg mb-6">{t.sections.informationSharing.intro}</p>
+                  <p className="text-gray-700 dark:text-zinc-300 text-lg mb-6">{t.sections.informationSharing.intro}</p>
                   <div className="grid md:grid-cols-2 gap-6 mb-6">
                     {t.sections.informationSharing.items.map((item, index) => (
                       <div key={index}
-                           className="relative group/card bg-gradient-to-br from-gray-50 to-white p-6 rounded-2xl hover:shadow-xl transition-all duration-300 border-2 border-transparent hover:border-opacity-30"
+                           className="relative group/card bg-gradient-to-br from-gray-50 to-white dark:from-zinc-900/50 dark:to-zinc-900/10 p-6 rounded-2xl hover:shadow-xl transition-all duration-300 border-2 border-transparent hover:border-opacity-30"
                            style={{ borderColor: '#198341' }}>
                         <div className="absolute top-0 right-0 w-20 h-20 rounded-full opacity-5 group-hover/card:opacity-10 transition-opacity"
                              style={{ backgroundColor: '#ABDE3B', transform: 'translate(30%, -30%)' }}></div>
-                        <h3 className="font-bold text-xl mb-3" style={{ color: '#198341' }}>
+                        <h3 className="font-bold text-xl mb-3 text-[#198341] dark:text-[#ABDE3B]">
                           {item.title}
                         </h3>
-                        <p className="text-gray-700">{item.description}</p>
+                        <p className="text-gray-700 dark:text-zinc-300">{item.description}</p>
                       </div>
                     ))}
                   </div>
                   <div className="p-6 rounded-2xl border-2 border-dashed" style={{ borderColor: '#ABDE3B', backgroundColor: 'rgba(171, 222, 59, 0.05)' }}>
-                    <p className="text-gray-700 text-center font-medium">{t.sections.informationSharing.footer}</p>
+                    <p className="text-gray-700 dark:text-zinc-300 text-center font-medium">{t.sections.informationSharing.footer}</p>
                   </div>
                 </div>
               </div>
@@ -603,16 +603,16 @@ export default function PrivacyPolicyPage() {
                 <div className="group animate-fadeIn" style={{ animationDelay: '0.5s' }}>
                   <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                        style={{ background: 'linear-gradient(135deg, #ABDE3B 0%, #198341 100%)', filter: 'blur(40px)' }}></div>
-                  <div className="relative h-full bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 border border-gray-100 hover:shadow-2xl transition-all duration-500">
+                  <div className="relative h-full bg-white/80 dark:bg-zinc-900/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 border border-gray-100 dark:border-zinc-800 hover:shadow-2xl transition-all duration-500">
                     <div className="flex items-center gap-4 mb-6">
                       <div className="p-3 rounded-xl" style={{ background: 'linear-gradient(135deg, #198341 0%, #2C3C39 100%)' }}>
                         <Bell size={24} className="text-white" />
                       </div>
-                      <h2 className="text-2xl font-bold" style={{ color: '#2C3C39' }}>
+                      <h2 className="text-2xl font-bold text-[#2C3C39] dark:text-zinc-100">
                         {t.sections.cookies.title}
                       </h2>
                     </div>
-                    <div className="space-y-4 text-gray-700">
+                    <div className="space-y-4 text-gray-700 dark:text-zinc-300">
                       {t.sections.cookies.content.map((paragraph, index) => (
                         <p key={index}>{paragraph}</p>
                       ))}
@@ -623,16 +623,16 @@ export default function PrivacyPolicyPage() {
                 <div className="group animate-fadeIn" style={{ animationDelay: '0.6s' }}>
                   <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                        style={{ background: 'linear-gradient(135deg, #ABDE3B 0%, #198341 100%)', filter: 'blur(40px)' }}></div>
-                  <div className="relative h-full bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 border border-gray-100 hover:shadow-2xl transition-all duration-500">
+                  <div className="relative h-full bg-white/80 dark:bg-zinc-900/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 border border-gray-100 dark:border-zinc-800 hover:shadow-2xl transition-all duration-500">
                     <div className="flex items-center gap-4 mb-6">
                       <div className="p-3 rounded-xl" style={{ background: 'linear-gradient(135deg, #198341 0%, #2C3C39 100%)' }}>
                         <Lock size={24} className="text-white" />
                       </div>
-                      <h2 className="text-2xl font-bold" style={{ color: '#2C3C39' }}>
+                      <h2 className="text-2xl font-bold text-[#2C3C39] dark:text-zinc-100">
                         {t.sections.dataSecurity.title}
                       </h2>
                     </div>
-                    <div className="space-y-4 text-gray-700">
+                    <div className="space-y-4 text-gray-700 dark:text-zinc-300">
                       {t.sections.dataSecurity.content.map((paragraph, index) => (
                         <p key={index}>{paragraph}</p>
                       ))}
@@ -645,31 +645,31 @@ export default function PrivacyPolicyPage() {
               <div className="group animate-fadeIn" style={{ animationDelay: '0.7s' }}>
                 <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                      style={{ background: 'linear-gradient(135deg, #ABDE3B 0%, #198341 100%)', filter: 'blur(40px)' }}></div>
-                <div className="relative bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100 hover:shadow-2xl transition-all duration-500">
+                <div className="relative bg-white/80 dark:bg-zinc-900/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100 dark:border-zinc-800 hover:shadow-2xl transition-all duration-500">
                   <div className="flex items-center gap-4 mb-6">
                     <div className="p-4 rounded-2xl" style={{ background: 'linear-gradient(135deg, #198341 0%, #2C3C39 100%)' }}>
                       <HelpCircle size={32} className="text-white" />
                     </div>
-                    <h2 className="text-3xl md:text-4xl font-bold" style={{ color: '#2C3C39' }}>
+                    <h2 className="text-3xl md:text-4xl font-bold text-[#2C3C39] dark:text-zinc-100">
                       {t.sections.rights.title}
                     </h2>
                   </div>
-                  <p className="text-gray-700 text-lg mb-6">{t.sections.rights.intro}</p>
+                  <p className="text-gray-700 dark:text-zinc-300 text-lg mb-6">{t.sections.rights.intro}</p>
                   <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
                     {t.sections.rights.items.map((item, index) => (
                       <div key={index}
-                           className="group/right flex items-center gap-3 p-4 rounded-xl bg-gradient-to-br from-gray-50 to-white hover:shadow-lg transition-all duration-300 border border-transparent hover:border-opacity-50"
+                           className="group/right flex items-center gap-3 p-4 rounded-xl bg-gradient-to-br from-gray-50 to-white dark:from-zinc-900/50 dark:to-zinc-900/10 hover:shadow-lg transition-all duration-300 border border-transparent hover:border-opacity-50"
                            style={{ borderColor: '#ABDE3B' }}>
                         <div className="flex-shrink-0">
                           <ChevronRight size={18} className="transition-transform duration-300 group-hover/right:translate-x-1"
                                         style={{ color: '#ABDE3B' }} />
                         </div>
-                        <p className="text-sm text-gray-700">{item}</p>
+                        <p className="text-sm text-gray-700 dark:text-zinc-300">{item}</p>
                       </div>
                     ))}
                   </div>
-                  <div className="p-6 rounded-2xl" style={{ backgroundColor: 'rgba(25, 131, 65, 0.05)', border: '2px solid rgba(25, 131, 65, 0.1)' }}>
-                    <p className="text-gray-700">{t.sections.rights.footer}</p>
+                  <div className="p-6 rounded-2xl border" style={{ backgroundColor: 'rgba(25, 131, 65, 0.05)', borderColor: 'rgba(25, 131, 65, 0.1)' }}>
+                    <p className="text-gray-700 dark:text-zinc-300">{t.sections.rights.footer}</p>
                   </div>
                 </div>
               </div>
@@ -678,25 +678,25 @@ export default function PrivacyPolicyPage() {
               <div className="group animate-fadeIn" style={{ animationDelay: '0.8s' }}>
                 <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                      style={{ background: 'linear-gradient(135deg, #ABDE3B 0%, #198341 100%)', filter: 'blur(40px)' }}></div>
-                <div className="relative bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100 hover:shadow-2xl transition-all duration-500">
-                  <h2 className="text-3xl md:text-4xl font-bold mb-8" style={{ color: '#2C3C39' }}>
+                <div className="relative bg-white/80 dark:bg-zinc-900/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100 dark:border-zinc-800 hover:shadow-2xl transition-all duration-500">
+                  <h2 className="text-3xl md:text-4xl font-bold mb-8 text-[#2C3C39] dark:text-zinc-100">
                     {t.sections.additional.title}
                   </h2>
                   <div className="space-y-6">
-                    <div className="p-6 rounded-2xl bg-gradient-to-r from-gray-50 to-white border-l-4 hover:shadow-lg transition-all duration-300"
+                    <div className="p-6 rounded-2xl bg-gradient-to-r from-gray-50 to-white dark:from-zinc-900/50 dark:to-zinc-900/10 border-l-4 hover:shadow-lg transition-all duration-300"
                          style={{ borderColor: '#ABDE3B' }}>
-                      <h3 className="font-bold text-xl mb-3" style={{ color: '#198341' }}>
+                      <h3 className="font-bold text-xl mb-3 text-[#198341] dark:text-[#ABDE3B]">
                         {t.sections.additional.children.title}
                       </h3>
-                      <p className="text-gray-700">{t.sections.additional.children.content}</p>
+                      <p className="text-gray-700 dark:text-zinc-300">{t.sections.additional.children.content}</p>
                     </div>
 
-                    <div className="p-6 rounded-2xl bg-gradient-to-r from-gray-50 to-white border-l-4 hover:shadow-lg transition-all duration-300"
+                    <div className="p-6 rounded-2xl bg-gradient-to-r from-gray-50 to-white dark:from-zinc-900/50 dark:to-zinc-900/10 border-l-4 hover:shadow-lg transition-all duration-300"
                          style={{ borderColor: '#ABDE3B' }}>
-                      <h3 className="font-bold text-xl mb-3" style={{ color: '#198341' }}>
+                      <h3 className="font-bold text-xl mb-3 text-[#198341] dark:text-[#ABDE3B]">
                         {t.sections.additional.changes.title}
                       </h3>
-                      <p className="text-gray-700">{t.sections.additional.changes.content}</p>
+                      <p className="text-gray-700 dark:text-zinc-300">{t.sections.additional.changes.content}</p>
                     </div>
                   </div>
                 </div>
@@ -713,12 +713,12 @@ export default function PrivacyPolicyPage() {
                        style={{ backgroundColor: '#ABDE3B', transform: 'translate(30%, -30%)' }}></div>
 
                   <div className="relative p-8 md:p-12 text-white">
-                    <h2 className="text-3xl md:text-4xl font-bold mb-6" style={{ color: '#ABDE3B' }}>
+                    <h2 className="text-3xl md:text-4xl font-bold mb-6 text-[#ABDE3B] dark:text-[#ABDE3B]">
                       {t.sections.contact.title}
                     </h2>
                     <p className="text-white/90 text-lg mb-8">{t.sections.contact.intro}</p>
-                    <div className="bg-white/10 backdrop-blur-lg p-8 rounded-2xl border border-white/20">
-                      <p className="font-bold text-2xl mb-6" style={{ color: '#ABDE3B' }}>
+                    <div className="bg-white/10 dark:bg-zinc-950/30 backdrop-blur-lg p-8 rounded-2xl border border-white/20 dark:border-zinc-800/50">
+                      <p className="font-bold text-2xl mb-6 text-[#ABDE3B] dark:text-[#ABDE3B]">
                         {t.sections.contact.company}
                       </p>
                       <div className="space-y-3 text-white/90">
@@ -790,6 +790,10 @@ export default function PrivacyPolicyPage() {
           color: #374151 !important;
           font-size: 1.125rem !important;
           line-height: 1.8 !important;
+        }
+
+        :global(.dark) .rich-text-content.ql-editor {
+          color: #E4E4E7 !important;
         }
 
         .rich-text-content :global(.ql-align-right) {
@@ -917,6 +921,12 @@ export default function PrivacyPolicyPage() {
           background-color: #F3F4F6 !important;
         }
 
+        :global(.dark) .privacy-content :global(pre),
+        :global(.dark) .privacy-content :global(pre) :global(*) {
+          background-color: #18181B !important;
+          color: #E4E4E7 !important;
+        }
+
         .privacy-content :global(h1) {
           font-size: 2.25rem !important;
           font-weight: 800 !important;
@@ -927,6 +937,11 @@ export default function PrivacyPolicyPage() {
           padding-bottom: 0.5rem !important;
         }
 
+        :global(.dark) .privacy-content :global(h1) {
+          color: #F4F4F5 !important;
+          border-bottom-color: rgba(171, 222, 59, 0.5) !important;
+        }
+
         .privacy-content :global(h2) {
           font-size: 1.75rem !important;
           font-weight: 700 !important;
@@ -935,12 +950,20 @@ export default function PrivacyPolicyPage() {
           margin-bottom: 1rem !important;
         }
 
+        :global(.dark) .privacy-content :global(h2) {
+          color: #F4F4F5 !important;
+        }
+
         .privacy-content :global(h3) {
           font-size: 1.35rem !important;
           font-weight: 700 !important;
           color: #198341 !important;
           margin-top: 2rem !important;
           margin-bottom: 0.75rem !important;
+        }
+
+        :global(.dark) .privacy-content :global(h3) {
+          color: #ABDE3B !important;
         }
 
         .privacy-content :global(p) {
@@ -957,8 +980,16 @@ export default function PrivacyPolicyPage() {
           transition: color 0.2s ease;
         }
 
+        :global(.dark) .privacy-content :global(a) {
+          color: #ABDE3B !important;
+        }
+
         .privacy-content :global(a:hover) {
           color: #2C3C39 !important;
+        }
+
+        :global(.dark) .privacy-content :global(a:hover) {
+          color: #F4F4F5 !important;
         }
 
         .privacy-content :global(blockquote) {
@@ -969,12 +1000,21 @@ export default function PrivacyPolicyPage() {
           margin: 1.5rem 0;
         }
 
+        :global(.dark) .privacy-content :global(blockquote) {
+          color: #A1A1AA !important;
+        }
+
         .privacy-content :global(pre) {
           background-color: #F3F4F6;
           padding: 1rem;
           border-radius: 0.5rem;
           overflow-x: auto;
           margin: 1.5rem 0;
+        }
+
+        :global(.dark) .privacy-content :global(pre) {
+          background-color: #18181B !important;
+          color: #E4E4E7 !important;
         }
       `}</style>
     </div>
