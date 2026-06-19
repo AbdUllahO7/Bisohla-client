@@ -55,10 +55,10 @@ const SelectDropdown: React.FC<SelectDropdownProps> = ({
         >
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
-        <SelectContent className="bg-white shadow-2xl text-primary border-none absolute z-[99]" dir={`${t("lang") === "ar" ? "rtl" : "ltr"}`}>
+        <SelectContent className="bg-white dark:bg-zinc-900 shadow-2xl text-slate-800 dark:text-zinc-100 border border-slate-100 dark:border-zinc-800 absolute z-[99]" dir={`${t("lang") === "ar" ? "rtl" : "ltr"}`}>
           {options.map((option) => (
             <SelectItem
-              className="focus:bg-primary-light focus:text-white transition-all duration-200 font-cairo font-[700]"
+              className="focus:bg-primary-light dark:focus:bg-[#ABDE3B]/10 focus:text-white dark:focus:text-[#ABDE3B] transition-all duration-200 font-cairo font-[700]"
               key={option.value}
               value={option.value}
             >

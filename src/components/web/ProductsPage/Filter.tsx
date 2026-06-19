@@ -693,7 +693,7 @@ const FilterContent = React.memo(
                                   />
                                   <input
                                     type="text"
-                                    className="flex h-10 w-full rounded-lg border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all font-mono text-slate-800 dark:text-zinc-100"
+                                    className="flex h-10 w-full rounded-lg border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:focus-visible:ring-[#ABDE3B] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all font-mono text-slate-800 dark:text-zinc-100"
                                     placeholder="#000000"
                                     value={value}
                                     onChange={(e) => updateAttribute(attr.slug, e.target.value)}
@@ -721,7 +721,7 @@ const FilterContent = React.memo(
                                 </Label>
                                 <input
                                   type="number"
-                                  className="flex h-10 w-full rounded-lg border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-200 text-slate-800 dark:text-zinc-100"
+                                  className="flex h-10 w-full rounded-lg border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-500 dark:placeholder:text-zinc-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:focus-visible:ring-[#ABDE3B] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-200 text-slate-800 dark:text-zinc-100"
                                   placeholder={attrName}
                                   value={filters.attributes[attr.slug] || ''}
                                   onChange={(e) => updateAttribute(attr.slug, e.target.value)}

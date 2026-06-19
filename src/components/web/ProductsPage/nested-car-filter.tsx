@@ -127,7 +127,7 @@ const TrimItem: React.FC<TrimItemProps> = React.memo(({ trim, isRTL, onTrimSelec
           id={`trim-${trim.value}`}
           checked={trim.isSelected}
           onCheckedChange={() => onTrimSelect(trim.value)}
-          className="border-slate-300 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+          className="border-slate-300 dark:border-zinc-700 data-[state=checked]:bg-primary dark:data-[state=checked]:bg-[#ABDE3B] data-[state=checked]:border-primary dark:data-[state=checked]:border-[#ABDE3B] data-[state=checked]:text-white dark:data-[state=checked]:text-zinc-950"
         />
         <Label
           htmlFor={`trim-${trim.value}`}
@@ -136,7 +136,7 @@ const TrimItem: React.FC<TrimItemProps> = React.memo(({ trim, isRTL, onTrimSelec
         >
           {trim.isSelected && (
             <Star
-              className={`w-3 h-3 text-primary fill-current ${isRTL ? 'ml-1' : 'mr-1'
+              className={`w-3 h-3 text-primary dark:text-[#ABDE3B] fill-current ${isRTL ? 'ml-1' : 'mr-1'
                 }`}
             />
           )}
@@ -248,7 +248,7 @@ const ModelItem: React.FC<ModelItemProps> = React.memo(({
                 id={`model-${model.value}`}
                 checked={model.isSelected}
                 onCheckedChange={() => onModelSelect(model.value)}
-                className="border-slate-300 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                className="border-slate-300 dark:border-zinc-700 data-[state=checked]:bg-primary dark:data-[state=checked]:bg-[#ABDE3B] data-[state=checked]:border-primary dark:data-[state=checked]:border-[#ABDE3B] data-[state=checked]:text-white dark:data-[state=checked]:text-zinc-950"
               />
               <Label
                 htmlFor={`model-${model.value}`}
@@ -259,7 +259,7 @@ const ModelItem: React.FC<ModelItemProps> = React.memo(({
               >
                 {model.isSelected && (
                   <Star
-                    className={`w-3 h-3 text-primary fill-current ${isRTL ? 'ml-1' : 'mr-1'
+                    className={`w-3 h-3 text-primary dark:text-[#ABDE3B] fill-current ${isRTL ? 'ml-1' : 'mr-1'
                       }`}
                   />
                 )}
@@ -282,13 +282,13 @@ const ModelItem: React.FC<ModelItemProps> = React.memo(({
                     return newSet;
                   });
                 }}
-                className="p-1 hover:bg-primary/20 rounded transition-colors border border-primary/20"
+                className="p-1 hover:bg-primary/20 dark:hover:bg-[#ABDE3B]/20 rounded transition-colors border border-primary/20 dark:border-[#ABDE3B]/20"
               >
                 {isExpanded ? (
-                  <ChevronDown className="w-3 h-3 text-primary" />
+                  <ChevronDown className="w-3 h-3 text-primary dark:text-[#ABDE3B]" />
                 ) : (
                   <ChevronRight
-                    className={`w-3 h-3 text-primary ${isRTL ? 'rotate-180' : ''
+                    className={`w-3 h-3 text-primary dark:text-[#ABDE3B] ${isRTL ? 'rotate-180' : ''
                       }`}
                   />
                 )}
@@ -444,7 +444,7 @@ const BrandItem: React.FC<BrandItemProps> = React.memo(({
                 id={`brand-${brand.value}`}
                 checked={brand.isSelected}
                 onCheckedChange={() => handleBrandToggle(brand.value)}
-                className="border-slate-300 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                className="border-slate-300 dark:border-zinc-700 data-[state=checked]:bg-primary dark:data-[state=checked]:bg-[#ABDE3B] data-[state=checked]:border-primary dark:data-[state=checked]:border-[#ABDE3B] data-[state=checked]:text-white dark:data-[state=checked]:text-zinc-950"
               />
               <Label
                 htmlFor={`brand-${brand.value}`}
@@ -453,7 +453,7 @@ const BrandItem: React.FC<BrandItemProps> = React.memo(({
               >
                 {brand.isSelected && (
                   <Star
-                    className={`w-3 h-3 text-primary fill-current ${isRTL ? 'ml-2' : 'mr-2'
+                    className={`w-3 h-3 text-primary dark:text-[#ABDE3B] fill-current ${isRTL ? 'ml-2' : 'mr-2'
                       }`}
                   />
                 )}
@@ -490,13 +490,13 @@ const BrandItem: React.FC<BrandItemProps> = React.memo(({
                     return newSet;
                   });
                 }}
-                className="p-1.5 hover:bg-primary/20 rounded-md transition-colors border border-primary/20"
+                className="p-1.5 hover:bg-primary/20 dark:hover:bg-[#ABDE3B]/20 rounded-md transition-colors border border-primary/20 dark:border-[#ABDE3B]/20"
               >
                 {isExpanded ? (
-                  <ChevronDown className="w-4 h-4 text-primary" />
+                  <ChevronDown className="w-4 h-4 text-primary dark:text-[#ABDE3B]" />
                 ) : (
                   <ChevronRight
-                    className={`w-4 h-4 text-primary ${isRTL ? 'rotate-180' : ''
+                    className={`w-4 h-4 text-primary dark:text-[#ABDE3B] ${isRTL ? 'rotate-180' : ''
                       }`}
                   />
                 )}
@@ -781,7 +781,7 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
             onKeyDown={(e) => e.key === 'Escape' && setSearchTerm('')}
             placeholder={searchPlaceholder}
             className={`w-full border border-slate-200 dark:border-zinc-800 bg-[#EFEFEF] dark:bg-zinc-950 text-slate-800 dark:text-zinc-100 transition-all duration-200 ${isRTL ? 'pr-9 pl-8 text-right' : 'pl-9 pr-8 text-left'
-              } h-10 rounded-lg text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 hover:border-slate-300 dark:hover:border-zinc-700 ${isFocused ? 'bg-white dark:bg-zinc-900 shadow-sm' : ''
+              } h-10 rounded-lg text-sm focus:outline-none focus:border-primary dark:focus:border-[#ABDE3B] focus:ring-1 focus:ring-primary/30 dark:focus:ring-[#ABDE3B]/30 hover:border-slate-300 dark:hover:border-zinc-700 ${isFocused ? 'bg-white dark:bg-zinc-900 shadow-sm' : ''
               }`}
           />
           {searchTerm && (
