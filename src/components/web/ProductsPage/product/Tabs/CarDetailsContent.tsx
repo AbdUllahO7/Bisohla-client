@@ -206,7 +206,7 @@ const CarDetailsContent: React.FC<CarDetailsContentProps> = ({
         {skeletonCount.regular > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {Array.from({ length: skeletonCount.regular }).map((_, index) => (
-              <div key={`skeleton-${index}`} className="p-4 bg-white rounded-xl border border-gray-100 shadow-sm space-y-3">
+              <div key={`skeleton-${index}`} className="p-4 bg-white dark:bg-zinc-900 rounded-xl border border-gray-100 dark:border-zinc-800 shadow-sm space-y-3">
                 <div className="flex items-center gap-2">
                   <Skeleton className="h-4 w-4 rounded" />
                   <Skeleton className="h-4 w-24 rounded-lg" />
@@ -223,7 +223,7 @@ const CarDetailsContent: React.FC<CarDetailsContentProps> = ({
         {skeletonCount.long > 0 && (
           <div className="space-y-6">
             {Array.from({ length: skeletonCount.long }).map((_, index) => (
-              <div key={`long-skeleton-${index}`} className="p-6 bg-white rounded-xl border border-gray-100 shadow-sm space-y-4">
+              <div key={`long-skeleton-${index}`} className="p-6 bg-white dark:bg-zinc-900 rounded-xl border border-gray-100 dark:border-zinc-800 shadow-sm space-y-4">
                 <div className="flex items-center gap-2">
                   <Skeleton className="h-4 w-4 rounded" />
                   <Skeleton className="h-4 w-28 rounded-lg" />
@@ -245,7 +245,7 @@ const CarDetailsContent: React.FC<CarDetailsContentProps> = ({
       {/* Outer glow effect */}
       <div className="absolute -inset-0.5 bg-gradient-to-r from-[#198341] to-[#ABDE3B] rounded-xl opacity-0 group-hover:opacity-20 blur transition-opacity duration-300"></div>
 
-      <div className="relative p-4 bg-white rounded-xl border-2 border-slate-200 shadow-sm hover:shadow-lg hover:border-[#198341] transition-all duration-300 space-y-3 overflow-hidden">
+      <div className="relative p-4 bg-white dark:bg-zinc-900 rounded-xl border-2 border-slate-200 dark:border-zinc-800 shadow-sm hover:shadow-lg hover:border-[#198341] dark:hover:border-[#ABDE3B] transition-all duration-300 space-y-3 overflow-hidden">
         {/* Top accent line */}
         <div className="absolute top-0 left-0 w-0 group-hover:w-full h-0.5 bg-gradient-to-r from-[#198341] to-[#ABDE3B] transition-all duration-300"></div>
 
@@ -253,7 +253,7 @@ const CarDetailsContent: React.FC<CarDetailsContentProps> = ({
         <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-0 group-hover:h-16 bg-gradient-to-b from-[#198341] to-[#ABDE3B] transition-all duration-300 rounded-r-full"></div>
 
         {/* Background gradient on hover */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#198341]/5 to-[#ABDE3B]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-[#198341]/5 to-[#ABDE3B]/5 dark:from-[#ABDE3B]/5 dark:to-[#ABDE3B]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
         <div className="flex items-center gap-3 relative z-10">
           <div className="relative group/icon">
@@ -264,12 +264,12 @@ const CarDetailsContent: React.FC<CarDetailsContentProps> = ({
               {detail.icon}
             </div>
           </div>
-          <label className="text-sm font-semibold text-[#2C3C39] uppercase tracking-wide group-hover:text-[#198341] transition-colors duration-300">
+          <label className="text-sm font-semibold text-[#2C3C39] dark:text-zinc-300 uppercase tracking-wide group-hover:text-[#198341] dark:group-hover:text-[#ABDE3B] transition-colors duration-300">
             {detail.label}
           </label>
         </div>
         <div className="pl-11 relative z-10">
-          <p className="text-base font-bold text-[#2C3C39] group-hover:text-[#198341] transition-colors duration-300">
+          <p className="text-base font-bold text-[#2C3C39] dark:text-zinc-200 group-hover:text-[#198341] dark:group-hover:text-[#ABDE3B] transition-colors duration-300">
             {typeof detail.value === 'object' ? JSON.stringify(detail.value) : detail.value}
           </p>
         </div>
@@ -297,7 +297,7 @@ const CarDetailsContent: React.FC<CarDetailsContentProps> = ({
         {/* Outer glow effect */}
         <div className="absolute -inset-1 bg-gradient-to-r from-[#198341] via-[#ABDE3B] to-[#198341] rounded-xl opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500"></div>
 
-        <div className="relative p-6 bg-white rounded-xl border-2 border-slate-200 shadow-sm hover:shadow-xl transition-all duration-500 space-y-4 overflow-hidden">
+        <div className="relative p-6 bg-white dark:bg-zinc-900 rounded-xl border-2 border-slate-200 dark:border-zinc-800 shadow-sm hover:shadow-xl transition-all duration-500 space-y-4 overflow-hidden">
           {/* Decorative corner accents */}
           <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-[#ABDE3B]/10 to-transparent rounded-bl-full pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
           <div className="absolute bottom-0 left-0 w-20 h-20 bg-gradient-to-tr from-[#198341]/10 to-transparent rounded-tr-full pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -320,14 +320,14 @@ const CarDetailsContent: React.FC<CarDetailsContentProps> = ({
                 {detail.icon}
               </div>
             </div>
-            <label className="text-sm font-semibold text-[#2C3C39] uppercase tracking-wide group-hover:text-[#198341] transition-colors duration-300">
+            <label className="text-sm font-semibold text-[#2C3C39] dark:text-zinc-300 uppercase tracking-wide group-hover:text-[#198341] dark:group-hover:text-[#ABDE3B] transition-colors duration-300">
               {detail.label}
             </label>
           </div>
 
           <div className="pl-11 space-y-3 relative z-10">
             <div className="prose prose-sm max-w-none">
-              <p className="text-gray-700 leading-relaxed whitespace-pre-wrap m-0 group-hover:text-[#2C3C39] transition-colors duration-300">
+              <p className="text-gray-700 dark:text-zinc-300 leading-relaxed whitespace-pre-wrap m-0 group-hover:text-[#2C3C39] dark:group-hover:text-zinc-200 transition-colors duration-300">
                 {displayValue}
               </p>
             </div>
@@ -341,7 +341,7 @@ const CarDetailsContent: React.FC<CarDetailsContentProps> = ({
                   variant="ghost"
                   size="sm"
                   onClick={() => toggleExpand(detail.key)}
-                  className="relative text-[#198341] hover:text-white hover:bg-gradient-to-r hover:from-[#198341] hover:to-[#ABDE3B] px-4 py-2 h-auto font-semibold rounded-lg transition-all duration-300 border-2 border-[#198341] hover:border-[#198341] overflow-hidden group/btn"
+                  className="relative text-[#198341] dark:text-[#ABDE3B] hover:text-white hover:bg-gradient-to-r hover:from-[#198341] hover:to-[#ABDE3B] px-4 py-2 h-auto font-semibold rounded-lg transition-all duration-300 border-2 border-[#198341] dark:border-[#ABDE3B] hover:border-[#198341] dark:hover:border-[#ABDE3B] overflow-hidden group/btn"
                 >
                   {/* Animated shine effect */}
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700"></div>

@@ -192,17 +192,17 @@ export default function NotificationsPage() {
         dir={isRtl ? 'rtl' : 'ltr'}
       >
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-[#2C3C39]">
+          <h1 className="text-3xl font-bold text-[#2C3C39] dark:text-white">
             {t.notifications}
           </h1>
-          <div className="flex rounded-xl overflow-hidden shadow-md">
-            <button className="px-4 py-2 text-sm bg-[#2C3C39] text-[#ABDE3B] font-medium">
+          <div className="flex rounded-xl overflow-hidden shadow-md dark:border dark:border-zinc-800">
+            <button className="px-4 py-2 text-sm bg-[#2C3C39] text-[#ABDE3B] dark:bg-emerald-600 dark:text-white font-medium">
               {t.all}
             </button>
-            <button className="px-4 py-2 text-sm bg-white text-[#2C3C39] font-medium hover:bg-gray-50">
+            <button className="px-4 py-2 text-sm bg-white text-[#2C3C39] dark:bg-zinc-900 dark:text-zinc-300 font-medium hover:bg-gray-50 dark:hover:bg-zinc-800">
               {t.unread}
             </button>
-            <button className="px-4 py-2 text-sm bg-white text-[#2C3C39] font-medium hover:bg-gray-50">
+            <button className="px-4 py-2 text-sm bg-white text-[#2C3C39] dark:bg-zinc-900 dark:text-zinc-300 font-medium hover:bg-gray-50 dark:hover:bg-zinc-800">
               {t.read}
             </button>
           </div>
@@ -211,16 +211,16 @@ export default function NotificationsPage() {
           {[1, 2, 3].map((i) => (
             <div
               key={i}
-              className="bg-white rounded-xl border border-gray-100 shadow-md overflow-hidden animate-pulse"
+              className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-100 dark:border-zinc-800 shadow-md overflow-hidden animate-pulse"
             >
               <div className="h-1 bg-gradient-to-r from-[#ABDE3B] to-[#198341] w-full"></div>
               <div className="p-4">
                 <div className="flex gap-3">
-                  <div className="h-10 w-10 rounded-full bg-gray-200"></div>
+                  <div className="h-10 w-10 rounded-full bg-gray-200 dark:bg-zinc-800"></div>
                   <div className="flex-1">
-                    <div className="h-4 bg-gray-200 rounded w-1/3 mb-2"></div>
-                    <div className="h-3 bg-gray-200 rounded w-full mb-2"></div>
-                    <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-zinc-800 rounded w-1/3 mb-2"></div>
+                    <div className="h-3 bg-gray-200 dark:bg-zinc-800 rounded w-full mb-2"></div>
+                    <div className="h-3 bg-gray-200 dark:bg-zinc-800 rounded w-2/3"></div>
                   </div>
                 </div>
               </div>
@@ -242,16 +242,16 @@ export default function NotificationsPage() {
         dir={isRtl ? 'rtl' : 'ltr'}
       >
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-[#2C3C39]">
+          <h1 className="text-3xl font-bold text-[#2C3C39] dark:text-white">
             {t.notifications}
           </h1>
-          <div className="flex rounded-xl overflow-hidden shadow-md">
+          <div className="flex rounded-xl overflow-hidden shadow-md dark:border dark:border-zinc-800">
             <button
               onClick={() => handleFilterChange(undefined)}
               className={`px-4 py-2 text-sm font-medium transition-all ${
                 filterOptions.isRead === undefined
-                  ? 'bg-[#2C3C39] text-[#ABDE3B]'
-                  : 'bg-white text-[#2C3C39] hover:bg-gray-50'
+                  ? 'bg-[#2C3C39] text-[#ABDE3B] dark:bg-emerald-600 dark:text-white'
+                  : 'bg-white text-[#2C3C39] dark:bg-zinc-900 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-800'
               }`}
             >
               {t.all}
@@ -260,8 +260,8 @@ export default function NotificationsPage() {
               onClick={() => handleFilterChange(false)}
               className={`px-4 py-2 text-sm font-medium transition-all ${
                 filterOptions.isRead === false
-                  ? 'bg-[#2C3C39] text-[#ABDE3B]'
-                  : 'bg-white text-[#2C3C39] hover:bg-gray-50'
+                  ? 'bg-[#2C3C39] text-[#ABDE3B] dark:bg-emerald-600 dark:text-white'
+                  : 'bg-white text-[#2C3C39] dark:bg-zinc-900 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-800'
               }`}
             >
               {t.unread}
@@ -270,23 +270,23 @@ export default function NotificationsPage() {
               onClick={() => handleFilterChange(true)}
               className={`px-4 py-2 text-sm font-medium transition-all ${
                 filterOptions.isRead === true
-                  ? 'bg-[#2C3C39] text-[#ABDE3B]'
-                  : 'bg-white text-[#2C3C39] hover:bg-gray-50'
+                  ? 'bg-[#2C3C39] text-[#ABDE3B] dark:bg-emerald-600 dark:text-white'
+                  : 'bg-white text-[#2C3C39] dark:bg-zinc-900 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-800'
               }`}
             >
               {t.read}
             </button>
           </div>
         </div>
-        <div className="bg-white rounded-xl border border-gray-100 shadow-md overflow-hidden">
+        <div className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-100 dark:border-zinc-800 shadow-md overflow-hidden">
           <div className="h-2 bg-gradient-to-r from-[#ABDE3B] to-[#198341] w-full"></div>
           <div className="p-6 text-center">
             <div className="flex flex-col items-center">
               <span className="text-4xl mb-3">📭</span>
-              <h3 className="text-xl font-bold text-[#2C3C39] mb-1">
+              <h3 className="text-xl font-bold text-[#2C3C39] dark:text-white mb-1">
                 {t.noNotifications}
               </h3>
-              <p className="text-gray-500 text-base">
+              <p className="text-gray-500 dark:text-zinc-400 text-base">
                 Your notifications will appear here
               </p>
             </div>
@@ -303,16 +303,16 @@ export default function NotificationsPage() {
       dir={isRtl ? 'rtl' : 'ltr'}
     >
       <div className="flex flex-col md:flex-row justify-between items-center gap-3 mb-4">
-        <h1 className="text-2xl font-bold text-[#2C3C39]">{t.notifications}</h1>
+        <h1 className="text-2xl font-bold text-[#2C3C39] dark:text-white">{t.notifications}</h1>
 
         {/* Filter tabs */}
-        <div className="flex rounded-xl overflow-hidden shadow-md w-full md:w-auto">
+        <div className="flex rounded-xl overflow-hidden shadow-md dark:border dark:border-zinc-800 w-full md:w-auto">
           <button
             onClick={() => handleFilterChange(undefined)}
             className={`px-4 py-2 text-sm font-medium transition-all flex-1 md:flex-auto ${
               filterOptions.isRead === undefined
-                ? 'bg-[#2C3C39] text-[#ABDE3B]'
-                : 'bg-white text-[#2C3C39] hover:bg-gray-50'
+                ? 'bg-[#2C3C39] text-[#ABDE3B] dark:bg-emerald-600 dark:text-white'
+                : 'bg-white text-[#2C3C39] dark:bg-zinc-900 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-800'
             }`}
           >
             {t.all}
@@ -321,8 +321,8 @@ export default function NotificationsPage() {
             onClick={() => handleFilterChange(false)}
             className={`px-4 py-2 text-sm font-medium transition-all flex-1 md:flex-auto ${
               filterOptions.isRead === false
-                ? 'bg-[#2C3C39] text-[#ABDE3B]'
-                : 'bg-white text-[#2C3C39] hover:bg-gray-50'
+                ? 'bg-[#2C3C39] text-[#ABDE3B] dark:bg-emerald-600 dark:text-white'
+                : 'bg-white text-[#2C3C39] dark:bg-zinc-900 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-800'
             }`}
           >
             {t.unread}
@@ -331,8 +331,8 @@ export default function NotificationsPage() {
             onClick={() => handleFilterChange(true)}
             className={`px-4 py-2 text-sm font-medium transition-all flex-1 md:flex-auto ${
               filterOptions.isRead === true
-                ? 'bg-[#2C3C39] text-[#ABDE3B]'
-                : 'bg-white text-[#2C3C39] hover:bg-gray-50'
+                ? 'bg-[#2C3C39] text-[#ABDE3B] dark:bg-emerald-600 dark:text-white'
+                : 'bg-white text-[#2C3C39] dark:bg-zinc-900 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-800'
             }`}
           >
             {t.read}
@@ -349,14 +349,14 @@ export default function NotificationsPage() {
             return (
               <div
                 key={`${notification.id}-${index}`}
-                className="bg-white rounded-xl border border-gray-100 shadow-md overflow-hidden transition-all hover:shadow-lg"
+                className="bg-white dark:bg-zinc-900 rounded-xl border border-gray-100 dark:border-zinc-800 shadow-md overflow-hidden transition-all hover:shadow-lg"
               >
                 {/* Colored top bar based on read status */}
                 <div
                   className={`h-2 ${
                     isUnread
                       ? 'bg-gradient-to-r from-[#ABDE3B] to-[#198341]'
-                      : 'bg-gray-200'
+                      : 'bg-gray-200 dark:bg-zinc-800'
                   } w-full`}
                 ></div>
 
@@ -364,7 +364,7 @@ export default function NotificationsPage() {
                   <div className="flex flex-col md:flex-row gap-2">
                     {/* Left side with icon */}
                     <div className="flex-shrink-0">
-                      <div className="w-10 h-10 rounded-full bg-[#2C3C39] text-white flex items-center justify-center text-xl">
+                      <div className="w-10 h-10 rounded-full bg-[#2C3C39] dark:bg-zinc-800 text-white flex items-center justify-center text-xl">
                         {notification.iconUrl ? (
                           <img
                             src={notification.iconUrl || '/placeholder.svg'}
@@ -381,7 +381,7 @@ export default function NotificationsPage() {
                     <div className="flex-1">
                       <div className="flex flex-col md:flex-row md:items-start justify-between gap-2">
                         <div className="flex-1">
-                          <h3 className="font-bold text-base text-[#2C3C39] mb-1">
+                          <h3 className="font-bold text-base text-[#2C3C39] dark:text-white mb-1">
                             {notification.title}
                           </h3>
 
@@ -396,7 +396,7 @@ export default function NotificationsPage() {
                                     : 'opacity-100 max-h-20 overflow-hidden'
                                 }`}
                               >
-                                <p className="notification-preview">
+                                <p className="notification-preview dark:text-zinc-300">
                                   {notification.content.replace(/<[^>]*>/g, '')}
                                 </p>
                               </div>
@@ -411,14 +411,14 @@ export default function NotificationsPage() {
                               >
                                 <div className="notification-content-wrapper ql-snow">
                                   <div
-                                    className="notification-content ql-editor"
+                                    className="notification-content ql-editor dark:text-zinc-200"
                                     dir={isRtl ? 'rtl' : 'ltr'}
                                     dangerouslySetInnerHTML={{
                                       __html: notification.content,
                                     }}
                                   />
                                   {notification.data?.messageContent && (
-                                    <p className="text-gray-700 mt-2">
+                                    <p className="text-gray-700 dark:text-zinc-300 mt-2">
                                       {notification.data.messageContent}
                                     </p>
                                   )}
@@ -429,14 +429,14 @@ export default function NotificationsPage() {
                             // If content is short, show it directly without collapse/expand
                             <div className="notification-content-wrapper ql-snow">
                               <div
-                                className="notification-content ql-editor"
+                                className="notification-content ql-editor dark:text-zinc-200"
                                 dir={isRtl ? 'rtl' : 'ltr'}
                                 dangerouslySetInnerHTML={{
                                   __html: notification.content,
                                 }}
                               />
                               {notification.data?.messageContent && (
-                                <p className="text-gray-700 mt-2">
+                                <p className="text-gray-700 dark:text-zinc-300 mt-2">
                                   {notification.data.messageContent}
                                 </p>
                               )}
@@ -459,7 +459,7 @@ export default function NotificationsPage() {
                       {/* Optional image - only show when expanded */}
                       {expandedNotifications.has(notification.id) &&
                         notification.imageUrl && (
-                          <div className="mt-4 rounded-lg overflow-hidden border border-gray-100">
+                          <div className="mt-4 rounded-lg overflow-hidden border border-gray-100 dark:border-zinc-800">
                             <img
                               src={notification.imageUrl || '/placeholder.svg'}
                               alt=""
@@ -469,7 +469,7 @@ export default function NotificationsPage() {
                         )}
 
                       <div className="flex flex-wrap items-center gap-3 mt-4">
-                        <span className="text-sm text-gray-500 font-medium">
+                        <span className="text-sm text-gray-500 dark:text-zinc-400 font-medium">
                           {formatDistanceToNow(
                             new Date(notification.createdAt),
                             { addSuffix: true },
@@ -495,7 +495,7 @@ export default function NotificationsPage() {
                         {needsExpansion(notification.content) && (
                           <button
                             onClick={() => toggleExpanded(notification.id)}
-                            className="text-sm font-medium text-[#198341] hover:text-[#ABDE3B] transition-colors flex items-center gap-1 ml-auto"
+                            className="text-sm font-medium text-[#198341] dark:text-[#ABDE3B] hover:text-[#ABDE3B] dark:hover:text-[#ABDE3B]/80 transition-colors flex items-center gap-1 ml-auto"
                           >
                             {expandedNotifications.has(notification.id) ? (
                               <>
@@ -527,12 +527,12 @@ export default function NotificationsPage() {
             <button
               onClick={() => handlePageChange((filterOptions.page ?? 1) - 1)}
               disabled={!notificationsResponse.data.hasPreviousPage}
-              className="px-4 py-2 text-sm rounded-lg border-2 border-[#2C3C39] text-[#2C3C39] font-medium hover:bg-[#2C3C39]/5 disabled:opacity-50 disabled:hover:bg-transparent transition-colors"
+              className="px-4 py-2 text-sm rounded-lg border-2 border-[#2C3C39] dark:border-zinc-800 text-[#2C3C39] dark:text-zinc-300 font-medium hover:bg-[#2C3C39]/5 dark:hover:bg-zinc-800 disabled:opacity-50 disabled:hover:bg-transparent transition-colors"
             >
               {t.previous}
             </button>
 
-            <span className="px-6 py-3 text-[#2C3C39] font-medium">
+            <span className="px-6 py-3 text-[#2C3C39] dark:text-zinc-300 font-medium">
               {t.page} {notificationsResponse.data.currentPage} {t.of}{' '}
               {notificationsResponse.data.totalPages || 1}
             </span>
@@ -540,7 +540,7 @@ export default function NotificationsPage() {
             <button
               onClick={() => handlePageChange((filterOptions.page ?? 1) + 1)}
               disabled={!notificationsResponse.data.hasNextPage}
-              className="px-4 py-2 text-sm rounded-lg border-2 border-[#2C3C39] text-[#2C3C39] font-medium hover:bg-[#2C3C39]/5 disabled:opacity-50 disabled:hover:bg-transparent transition-colors"
+              className="px-4 py-2 text-sm rounded-lg border-2 border-[#2C3C39] dark:border-zinc-800 text-[#2C3C39] dark:text-zinc-300 font-medium hover:bg-[#2C3C39]/5 dark:hover:bg-zinc-800 disabled:opacity-50 disabled:hover:bg-transparent transition-colors"
             >
               {t.next}
             </button>

@@ -46,10 +46,10 @@ const ResetPasswordForm = ({ token }: { token: string }) => {
                   />
               </div>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
             {t('pageTitle')}
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-white">
             {t('pageSubtitle')}
           </p>
         </div>
@@ -62,7 +62,7 @@ const ResetPasswordForm = ({ token }: { token: string }) => {
         </div>
 
         {/* Reset Password Form Card */}
-        <Card className="shadow-xl border-0 bg-white/90 backdrop-blur-sm">
+        <Card className="shadow-xl border-0 dark:border dark:border-zinc-800 bg-white/90 dark:bg-zinc-900/95 backdrop-blur-sm">
           <CardHeader className="space-y-1 pb-4">
             <FormStateMessage state={state} />
 
@@ -83,7 +83,7 @@ const ResetPasswordForm = ({ token }: { token: string }) => {
                 name="password"
                 error={state?.errors?.password}
                 caption={t('newPasswordLabel')}
-                icon={<Lock className="h-5 w-5 text-gray-400" />}
+                icon={<Lock className="h-5 w-5 text-gray-400 dark:text-zinc-400" />}
               />
 
               {/* Password Confirmation Input */}
@@ -93,7 +93,7 @@ const ResetPasswordForm = ({ token }: { token: string }) => {
                 type="password"
                 error={state.errors?.passwordConfirmation}
                 caption={t('confirmPasswordLabel')}
-                icon={<Lock className="h-5 w-5 text-gray-400" />}
+                icon={<Lock className="h-5 w-5 text-gray-400 dark:text-zinc-400" />}
               />
 
              
@@ -111,20 +111,20 @@ const ResetPasswordForm = ({ token }: { token: string }) => {
 
         {/* Footer Links */}
         <div className="mt-3 space-y-4 text-center">
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-gray-600 dark:text-white">
             {t('footer.passwordReset')}{' '}
             <Link
               href={allRoutes.auth.children.signIn.path}
-              className="font-semibold text-emerald-600 hover:text-emerald-700 transition-colors inline-flex items-center gap-1"
+              className="font-semibold text-emerald-600 hover:text-emerald-700 dark:text-[#ABDE3B] dark:hover:text-[#ABDE3B]/90 transition-colors inline-flex items-center gap-1"
             >
               {t('footer.signInNow')}
               <LogIn className="h-3 w-3" />
             </Link>
           </div>
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-gray-600 dark:text-white">
             <Link
               href="/"
-              className="font-medium text-gray-700 hover:text-emerald-600 transition-colors inline-flex items-center gap-1"
+              className="font-medium text-gray-700 dark:text-white hover:text-emerald-600 dark:hover:text-[#ABDE3B] transition-colors inline-flex items-center gap-1"
             >
               {t('footer.backToHome')}
               <ArrowRight className={`h-3 w-3 ${isRTL ? 'rotate-180' : ''}`} />

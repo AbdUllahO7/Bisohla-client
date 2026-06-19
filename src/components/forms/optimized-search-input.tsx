@@ -63,15 +63,15 @@ const OptimizedSearchInput: React.FC = React.memo(() => {
   );
 
   return (
-    <div className="p-4 border-b border-slate-100">
+    <div className="p-4 border-b border-slate-100 dark:border-zinc-800">
       <div className="relative group">
         <Search
           className={`absolute ${
             isRTL ? 'right-3' : 'left-3'
           } top-1/2 transform -translate-y-1/2 transition-colors duration-200 h-4 w-4 ${
             isFocused || localSearchText
-              ? 'text-primary'
-              : 'text-slate-400 group-hover:text-slate-500'
+              ? 'text-primary dark:text-[#ABDE3B]'
+              : 'text-slate-400 group-hover:text-slate-500 dark:text-zinc-500 dark:group-hover:text-zinc-400'
           }`}
         />
         <Input
@@ -83,10 +83,10 @@ const OptimizedSearchInput: React.FC = React.memo(() => {
           onFocus={handleFocus}
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
-          className={`border border-slate-200 bg-[#EFEFEF] transition-all duration-200 ${
+          className={`border border-slate-200 dark:border-zinc-800 bg-[#EFEFEF] dark:bg-zinc-950 text-slate-800 dark:text-zinc-100 transition-all duration-200 ${
             isRTL ? 'pr-9 pl-10' : 'pl-9 pr-10'
-          } h-10 rounded-xl focus-visible:ring-primary/30 focus-visible:border-primary hover:border-slate-300 ${
-            isFocused ? 'bg-white shadow-sm' : ''
+          } h-10 rounded-xl focus-visible:ring-primary/30 dark:focus-visible:ring-[#ABDE3B]/30 focus-visible:border-primary dark:focus-visible:border-[#ABDE3B] hover:border-slate-300 dark:hover:border-zinc-700 ${
+            isFocused ? 'bg-white dark:bg-zinc-900 shadow-sm' : ''
           }`}
         />
         {localSearchText && (
@@ -95,7 +95,7 @@ const OptimizedSearchInput: React.FC = React.memo(() => {
             onClick={handleClearSearch}
             className={`absolute ${
               isRTL ? 'left-3' : 'right-3'
-            } top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors duration-200 opacity-0 group-hover:opacity-100 ${
+            } top-1/2 transform -translate-y-1/2 text-slate-400 dark:text-zinc-500 hover:text-slate-600 dark:hover:text-zinc-350 transition-colors duration-200 opacity-0 group-hover:opacity-100 ${
               isFocused || localSearchText ? 'opacity-100' : ''
             }`}
             title="Clear search"

@@ -137,7 +137,7 @@ const DetailedInput = (props: DetailedInputProps) => {
     <div className="space-y-2">
       <Text 
         className={cn(
-          "text-sm font-medium text-gray-700 block",
+          "text-sm font-medium text-gray-700 dark:text-white block",
           isRTL ? "text-right" : "text-left"
         )}
       >
@@ -158,9 +158,9 @@ const DetailedInput = (props: DetailedInputProps) => {
           type={type}
           placeholder={placeholder}
           className={cn(
-            "w-full h-12 rounded-xl border-2 border-gray-200 bg-white/50 backdrop-blur-sm transition-all duration-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:bg-white",
+            "w-full h-12 rounded-xl border-2 border-gray-200 dark:border-zinc-800 bg-white/50 dark:bg-zinc-950/50 backdrop-blur-sm transition-all duration-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:bg-white dark:focus:bg-zinc-900",
             icon ? (isRTL ? "pr-11 pl-4" : "pl-11 pr-4") : "px-4",
-            "text-gray-900 placeholder:text-gray-400",
+            "text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-zinc-500",
             error ? "border-red-400 focus:border-red-500 focus:ring-red-500/10" : "",
             isRTL ? "text-right" : "text-left",
             className,

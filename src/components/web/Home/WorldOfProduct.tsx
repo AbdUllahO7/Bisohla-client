@@ -161,14 +161,14 @@ const WorldOfProduct = () => {
     return (
       <Box variant="column" className="w-full">
         <Box variant="column" className="">
-          <Text variant="h3" className="font-bold text-[20px] font-cairo mb-5">
+          <Text variant="h3" className="font-bold text-[20px] font-cairo mb-5 text-gray-900 dark:text-zinc-100">
             {t("worldOfProducts.title")}
           </Text>
         </Box>
         <Box className="w-full overflow-hidden">
           <div className="flex space-x-4 animate-pulse">
             {[...Array(6)].map((_, index) => (
-              <div key={index} className="flex-shrink-0 w-64 h-40 bg-gray-200 rounded-lg" />
+              <div key={index} className="flex-shrink-0 w-64 h-40 bg-gray-200 dark:bg-zinc-800 rounded-lg" />
             ))}
           </div>
         </Box>
@@ -181,7 +181,7 @@ const WorldOfProduct = () => {
     return (
       <Box variant="column" className="w-full">
         <Box variant="column" className="">
-          <Text variant="h3" className="font-bold text-[20px] font-cairo mb-5">
+          <Text variant="h3" className="font-bold text-[20px] font-cairo mb-5 text-gray-900 dark:text-zinc-100">
             {t("worldOfProducts.title")}
           </Text>
         </Box>
@@ -199,13 +199,13 @@ const WorldOfProduct = () => {
     return (
       <Box variant="column" className="w-full">
         <Box variant="column" className="">
-          <Text variant="h3" className="font-bold text-[20px] font-cairo mb-5">
+          <Text variant="h3" className="font-bold text-[20px] font-cairo mb-5 text-gray-900 dark:text-zinc-100">
             {t("worldOfProducts.title")}
           </Text>
         </Box>
        
         <Box className="w-full overflow-hidden p-4">
-          <Text className="text-gray-500">{locale === "ar" ? "لا توجد بيانات متاحة" : "No data available"}</Text>
+          <Text className="text-gray-500 dark:text-zinc-400">{locale === "ar" ? "لا توجد بيانات متاحة" : "No data available"}</Text>
         </Box>
       </Box>
     )

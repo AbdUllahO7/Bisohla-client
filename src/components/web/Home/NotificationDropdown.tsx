@@ -199,14 +199,14 @@ const NotificationDropdown = () => {
       <button
         ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-1.5 bg-gray-100 rounded-full hover:bg-gray-200 flex items-center justify-center transition-colors"
+        className="relative p-1.5 bg-gray-100 dark:bg-zinc-800 hover:bg-gray-200 dark:hover:bg-zinc-700 flex items-center justify-center transition-colors"
         aria-label={`${unreadCount} unread notifications`}
       >
-        <BellIcon className="h-4 w-4 text-[#2C3C39]" />
+        <BellIcon className="h-4 w-4 text-[#2C3C39] dark:text-zinc-300" />
 
         {/* Unread badge */}
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 bg-[#ABDE3B] text-[#2C3C39] text-[10px] font-medium px-1.5 py-0.5 rounded-full min-w-[16px] flex items-center justify-center">
+          <span className="absolute -top-1 -right-1 bg-[#ABDE3B] dark:bg-primary-foreground text-[#2C3C39] dark:text-primary-default text-[10px] font-medium px-1.5 py-0.5 rounded-full min-w-[16px] flex items-center justify-center">
             {unreadCount > 99 ? '99+' : unreadCount}
           </span>
         )}
@@ -220,7 +220,7 @@ const NotificationDropdown = () => {
             max-w-[min(90vw,320px)]
             max-h-80 sm:max-h-96
             overflow-y-auto
-            bg-white rounded-lg shadow-lg border border-gray-100
+            bg-white dark:bg-zinc-950 rounded-lg shadow-lg border border-gray-100 dark:border-zinc-800
             ${
               dropdownPosition === 'left'
                 ? isRTL
@@ -236,16 +236,16 @@ const NotificationDropdown = () => {
           }}
         >
           {/* Header */}
-          <div className="p-3 sm:p-4 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white z-10">
-            <h3 className="font-semibold text-[#2C3C39] text-sm sm:text-base">
+          <div className="p-3 sm:p-4 border-b border-gray-100 dark:border-zinc-800 flex items-center justify-between sticky top-0 bg-white dark:bg-zinc-950 z-10">
+            <h3 className="font-semibold text-[#2C3C39] dark:text-zinc-100 text-sm sm:text-base">
               {t.notifications}
             </h3>
             {unreadCount > 0 ? (
-              <span className="bg-[#ABDE3B]/20 text-[#198341] text-xs px-2 py-0.5 rounded-full whitespace-nowrap">
+              <span className="bg-[#ABDE3B]/20 dark:bg-emerald-950/40 text-[#198341] dark:text-emerald-400 text-xs px-2 py-0.5 rounded-full whitespace-nowrap">
                 {unreadCount} {t.unread.toLowerCase()}
               </span>
             ) : (
-              <BellOffIcon className="h-3.5 w-3.5 text-gray-400" />
+              <BellOffIcon className="h-3.5 w-3.5 text-gray-400 dark:text-zinc-500" />
             )}
           </div>
 
@@ -255,31 +255,31 @@ const NotificationDropdown = () => {
               {[1, 2, 3].map((i) => (
                 <div
                   key={`loading-${i}`}
-                  className="bg-gray-50 p-2 sm:p-3 rounded-lg animate-pulse"
+                  className="bg-gray-50 dark:bg-zinc-900 p-2 sm:p-3 rounded-lg animate-pulse"
                 >
-                  <div className="h-3 bg-gray-200 rounded w-3/4 mb-2"></div>
-                  <div className="h-2 bg-gray-200 rounded w-1/2"></div>
+                  <div className="h-3 bg-gray-200 dark:bg-zinc-800 rounded w-3/4 mb-2"></div>
+                  <div className="h-2 bg-gray-200 dark:bg-zinc-800 rounded w-1/2"></div>
                 </div>
               ))}
             </div>
           ) : notificationsResponse?.data?.data?.length === 0 ? (
-            <div className="p-6 sm:p-8 text-center text-gray-500">
-              <BellOffIcon className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2 text-gray-400" />
+            <div className="p-6 sm:p-8 text-center text-gray-500 dark:text-zinc-400">
+              <BellOffIcon className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2 text-gray-400 dark:text-zinc-500" />
               <p className="text-xs sm:text-sm">{t.noUnreadNotifications}</p>
             </div>
           ) : (
             <>
-              <div className="divide-y divide-gray-100">
+              <div className="divide-y divide-gray-100 dark:divide-zinc-800">
                 {notificationsResponse?.data?.data?.map((notification) => (
                   <Link
                     key={notification.id}
                     href="/userProfile/Notification"
-                    className="block p-3 sm:p-4 hover:bg-gray-50 cursor-pointer transition-colors"
+                    className="block p-3 sm:p-4 hover:bg-gray-50 dark:hover:bg-zinc-900 cursor-pointer transition-colors"
                     onClick={() => setIsOpen(false)}
                   >
                     <div className="flex gap-2 sm:gap-3">
                       {/* Icon */}
-                      <div className="flex-shrink-0 h-8 w-8 sm:h-10 sm:w-10 bg-[#2C3C39]/5 rounded-full flex items-center justify-center text-sm">
+                      <div className="flex-shrink-0 h-8 w-8 sm:h-10 sm:w-10 bg-[#2C3C39]/5 dark:bg-zinc-800 rounded-full flex items-center justify-center text-sm">
                         {notification.iconUrl ? (
                           <img
                             src={notification.iconUrl || '/placeholder.svg'}
@@ -295,15 +295,15 @@ const NotificationDropdown = () => {
 
                       {/* Content */}
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs sm:text-sm font-medium text-[#2C3C39] truncate">
+                        <p className="text-xs sm:text-sm font-medium text-[#2C3C39] dark:text-zinc-100 truncate">
                           {notification.title}
                         </p>
-                        <p className="text-[10px] sm:text-xs text-gray-600 line-clamp-2 mt-0.5 leading-relaxed">
+                        <p className="text-[10px] sm:text-xs text-gray-600 dark:text-zinc-400 line-clamp-2 mt-0.5 leading-relaxed">
                           {getPlainText(notification.content, 100)}
                         </p>
 
                         <div className="flex items-center justify-between mt-2 gap-2">
-                          <span className="text-[10px] sm:text-xs text-gray-500 flex-shrink-0">
+                          <span className="text-[10px] sm:text-xs text-gray-500 dark:text-zinc-400 flex-shrink-0">
                             {formatDistanceToNow(
                               new Date(notification.createdAt),
                               {
@@ -317,7 +317,7 @@ const NotificationDropdown = () => {
                             onClick={(e) =>
                               handleMarkAsRead(notification.id, e)
                             }
-                            className="text-[10px] sm:text-xs px-2 py-1 rounded-md bg-[#2C3C39] text-[#ABDE3B] hover:bg-[#2C3C39]/90 transition-colors whitespace-nowrap flex-shrink-0"
+                            className="text-[10px] sm:text-xs px-2 py-1 rounded-md bg-[#2C3C39] dark:bg-emerald-600 text-[#ABDE3B] dark:text-zinc-100 hover:bg-[#2C3C39]/90 dark:hover:bg-emerald-700 transition-colors whitespace-nowrap flex-shrink-0"
                           >
                             {t.markAsRead}
                           </button>
@@ -329,10 +329,10 @@ const NotificationDropdown = () => {
               </div>
 
               {/* Footer */}
-              <div className="p-3 sm:p-4 border-t border-gray-100 text-center sticky bottom-0 bg-white">
+              <div className="p-3 sm:p-4 border-t border-gray-100 dark:border-zinc-800 text-center sticky bottom-0 bg-white dark:bg-zinc-950">
                 <Link
                   href="/userProfile/Notification"
-                  className="text-xs sm:text-sm text-[#2C3C39] font-medium hover:text-[#ABDE3B] transition-colors inline-block py-1"
+                  className="text-xs sm:text-sm text-[#2C3C39] dark:text-zinc-300 font-medium hover:text-[#ABDE3B] dark:hover:text-emerald-400 transition-colors inline-block py-1"
                   onClick={() => setIsOpen(false)}
                 >
                   {t.viewAll}

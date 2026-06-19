@@ -12,32 +12,32 @@ import {
 export const ProductSkeletonItem = () => {
   return (
     <Card
-      className="border-none rounded-lg bg-white w-full shadow-md relative overflow-hidden"
+      className="border-none rounded-lg bg-white dark:bg-zinc-900 w-full shadow-md relative overflow-hidden"
       aria-busy="true"
     >
       {/* Skeleton for the favorite button */}
-      <div className="absolute top-3 left-3 bg-slate-200 p-2 rounded-full h-9 w-9 animate-pulse" />
+      <div className="absolute top-3 left-3 bg-slate-200 dark:bg-zinc-800 p-2 rounded-full h-9 w-9 animate-pulse" />
 
       {/* Skeleton for the type label */}
-      <div className="absolute bottom-44 left-3 bg-slate-200 w-20 h-5 rounded-full animate-pulse" />
+      <div className="absolute bottom-44 left-3 bg-slate-200 dark:bg-zinc-800 w-20 h-5 rounded-full animate-pulse" />
 
       <CardHeader className="p-0">
         {/* Skeleton for image */}
-        <div className="w-full aspect-[4/3] bg-slate-200 rounded-t-lg animate-pulse" />
+        <div className="w-full aspect-[4/3] bg-slate-200 dark:bg-zinc-800 rounded-t-lg animate-pulse" />
 
         <CardDescription className="p-4">
           {/* Skeleton for title */}
-          <div className="h-5 bg-slate-200 rounded-md w-4/5 mb-3 animate-pulse" />
+          <div className="h-5 bg-slate-200 dark:bg-zinc-800 rounded-md w-4/5 mb-3 animate-pulse" />
 
           {/* Skeleton for brand/marka */}
-          <div className="h-4 bg-slate-200 rounded-md w-3/5 animate-pulse" />
+          <div className="h-4 bg-slate-200 dark:bg-zinc-800 rounded-md w-3/5 animate-pulse" />
         </CardDescription>
       </CardHeader>
 
       {/* Skeleton Footer */}
-      <CardFooter className="bg-slate-50 flex justify-between p-4 rounded-b-lg">
-        <div className="h-4 bg-slate-200 rounded-md w-1/3 animate-pulse" />
-        <div className="h-4 bg-slate-200 rounded-md w-1/4 animate-pulse" />
+      <CardFooter className="bg-slate-50 dark:bg-zinc-950/50 flex justify-between p-4 rounded-b-lg">
+        <div className="h-4 bg-slate-200 dark:bg-zinc-800 rounded-md w-1/3 animate-pulse" />
+        <div className="h-4 bg-slate-200 dark:bg-zinc-800 rounded-md w-1/4 animate-pulse" />
       </CardFooter>
     </Card>
   );
@@ -50,8 +50,8 @@ const ProductSkeleton = ({ count = 8, showTitle = true }) => {
       {/* Skeleton for title area if showTitle is true */}
       {showTitle && (
         <Box variant="column" className="mb-6">
-          <div className="h-7 bg-slate-200 rounded-md w-1/4 mb-3 animate-pulse" />
-          <div className="h-5 bg-slate-200 rounded-md w-1/6 animate-pulse" />
+          <div className="h-7 bg-slate-200 dark:bg-zinc-800 rounded-md w-1/4 mb-3 animate-pulse" />
+          <div className="h-5 bg-slate-200 dark:bg-zinc-800 rounded-md w-1/6 animate-pulse" />
         </Box>
       )}
 

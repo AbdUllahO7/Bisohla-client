@@ -7,6 +7,7 @@ import scrollbarHide from 'tailwind-scrollbar-hide';
 // import animate from 'tailwindcss-animate'
 
 const config: Config = {
+  darkMode: 'class',
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
@@ -49,12 +50,12 @@ const config: Config = {
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
-        background: '#EFEFEF',
+        background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         primary: {
-          DEFAULT: '#2C3C39',
-          light: '#198341',
-          foreground: '#ABDE3B',
+          DEFAULT: 'hsl(var(--primary-default))',
+          light: 'hsl(var(--primary-light))',
+          foreground: 'hsl(var(--primary-foreground))',
         },
         secondary: {
           DEFAULT: 'hsl(var(--secondary))',

@@ -163,8 +163,8 @@ export const CarAlertItem: React.FC<CarAlertItemProps> = ({
             <div
                 dir={isRtl ? 'rtl' : 'ltr'}
                 className={cn(
-                    'group relative overflow-hidden rounded-2xl bg-white transition-all duration-300',
-                    'border border-gray-100 hover:border-[#198341]/20',
+                    'group relative overflow-hidden rounded-2xl bg-white dark:bg-zinc-900 transition-all duration-300',
+                    'border border-gray-100 dark:border-zinc-800 hover:border-[#198341]/20',
                     'shadow-sm hover:shadow-lg hover:shadow-[#198341]/5',
                     !alert.isActive && 'opacity-75'
                 )}
@@ -177,7 +177,7 @@ export const CarAlertItem: React.FC<CarAlertItemProps> = ({
                         'absolute top-0 left-0 right-0 h-1 transition-all duration-300',
                         alert.isActive
                             ? 'bg-gradient-to-r from-[#198341] via-[#22a352] to-[#ABDE3B]'
-                            : 'bg-gray-200'
+                            : 'bg-gray-200 dark:bg-zinc-800'
                     )}
                 />
 
@@ -193,7 +193,7 @@ export const CarAlertItem: React.FC<CarAlertItemProps> = ({
                                     'relative flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300',
                                     alert.isActive
                                         ? 'bg-gradient-to-br from-[#198341]/10 to-[#ABDE3B]/10'
-                                        : 'bg-gray-100'
+                                        : 'bg-gray-100 dark:bg-zinc-800'
                                 )}
                             >
                                 {alert.isActive ? (
@@ -204,7 +204,7 @@ export const CarAlertItem: React.FC<CarAlertItemProps> = ({
                                         )}
                                     />
                                 ) : (
-                                    <BellOff className="w-5 h-5 text-gray-400" />
+                                    <BellOff className="w-5 h-5 text-gray-400 dark:text-zinc-500" />
                                 )}
 
                                 {/* Active pulse indicator */}
@@ -219,7 +219,7 @@ export const CarAlertItem: React.FC<CarAlertItemProps> = ({
                             {/* Title and subtitle */}
                             <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2 mb-1">
-                                    <h3 className="font-semibold text-[#2C3C39] text-lg truncate">
+                                    <h3 className="font-semibold text-[#2C3C39] dark:text-white text-lg truncate">
                                         {listingTitle}
                                     </h3>
                                 </div>
@@ -281,21 +281,21 @@ export const CarAlertItem: React.FC<CarAlertItemProps> = ({
                         )}
 
                         {!hasPriceRange && (
-                            <Badge
-                                variant="secondary"
-                                className="bg-gray-50 text-gray-500 border-gray-100 px-3 py-1.5 rounded-lg font-medium"
-                            >
-                                <Tag className="w-3.5 h-3.5 mr-1.5" />
-                                {t('anyPrice', { defaultValue: 'Any price' })}
-                            </Badge>
-                        )}
+                              <Badge
+                                  variant="secondary"
+                                  className="bg-gray-50 dark:bg-zinc-800 text-gray-500 dark:text-zinc-400 border-gray-100 dark:border-zinc-800 px-3 py-1.5 rounded-lg font-medium"
+                              >
+                                  <Tag className="w-3.5 h-3.5 mr-1.5" />
+                                  {t('anyPrice', { defaultValue: 'Any price' })}
+                              </Badge>
+                          )}
 
                         {/* Location badge */}
                         {hasLocation && (
-                            <Badge
-                                variant="secondary"
-                                className="bg-blue-50 text-blue-600 border-blue-100 hover:bg-blue-100 px-3 py-1.5 rounded-lg font-medium"
-                            >
+                              <Badge
+                                  variant="secondary"
+                                  className="bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 border-blue-100 dark:border-blue-900/50 hover:bg-blue-100 dark:hover:bg-blue-900/30 px-3 py-1.5 rounded-lg font-medium"
+                              >
                                 <MapPin className="w-3.5 h-3.5 mr-1.5" />
                                 {[alert.governorate, alert.city]
                                     .filter(Boolean)
@@ -304,20 +304,20 @@ export const CarAlertItem: React.FC<CarAlertItemProps> = ({
                         )}
 
                         {!hasLocation && (
-                            <Badge
-                                variant="secondary"
-                                className="bg-gray-50 text-gray-500 border-gray-100 px-3 py-1.5 rounded-lg font-medium"
-                            >
+                              <Badge
+                                  variant="secondary"
+                                  className="bg-gray-50 dark:bg-zinc-800 text-gray-500 dark:text-zinc-400 border-gray-100 dark:border-zinc-800 px-3 py-1.5 rounded-lg font-medium"
+                              >
                                 <MapPin className="w-3.5 h-3.5 mr-1.5" />
                                 {t('anyLocation', {
-                                    defaultValue: 'Any location',
-                                })}
-                            </Badge>
-                        )}
+                                      defaultValue: 'Any location',
+                                  })}
+                              </Badge>
+                          )}
                     </div>
 
                     {/* Footer with status and actions */}
-                    <div className="flex items-center justify-between pt-4 border-t border-gray-50">
+                    <div className="flex items-center justify-between pt-4 border-t border-gray-50 dark:border-zinc-800">
                         {/* Status badge */}
                         <div className="flex items-center gap-2">
                             <div
@@ -325,7 +325,7 @@ export const CarAlertItem: React.FC<CarAlertItemProps> = ({
                                     'w-2 h-2 rounded-full',
                                     alert.isActive
                                         ? 'bg-[#198341]'
-                                        : 'bg-gray-300'
+                                        : 'bg-gray-300 dark:bg-zinc-700'
                                 )}
                             />
                             <span
@@ -333,7 +333,7 @@ export const CarAlertItem: React.FC<CarAlertItemProps> = ({
                                     'text-sm font-medium',
                                     alert.isActive
                                         ? 'text-[#198341]'
-                                        : 'text-gray-400'
+                                        : 'text-gray-400 dark:text-zinc-500'
                                 )}
                             >
                                 {alert.isActive
@@ -357,7 +357,7 @@ export const CarAlertItem: React.FC<CarAlertItemProps> = ({
                                         onClick={() => setIsEditModalOpen(true)}
                                         className={cn(
                                             'h-9 w-9 p-0 rounded-lg transition-all duration-200',
-                                            'text-gray-400 hover:text-blue-500 hover:bg-blue-50',
+                                            'text-gray-400 dark:text-zinc-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-950/30',
                                             'opacity-0 group-hover:opacity-100'
                                         )}
                                     >
@@ -382,7 +382,7 @@ export const CarAlertItem: React.FC<CarAlertItemProps> = ({
                                                 disabled={isDeleting}
                                                 className={cn(
                                                     'h-9 w-9 p-0 rounded-lg transition-all duration-200',
-                                                    'text-gray-400 hover:text-red-500 hover:bg-red-50',
+                                                    'text-gray-400 dark:text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30',
                                                     'opacity-0 group-hover:opacity-100'
                                                 )}
                                             >
@@ -403,9 +403,9 @@ export const CarAlertItem: React.FC<CarAlertItemProps> = ({
                                     </TooltipContent>
                                 </Tooltip>
 
-                                <AlertDialogContent className="sm:max-w-[425px]">
+                                <AlertDialogContent className="sm:max-w-[425px] bg-white dark:bg-zinc-900 dark:border-zinc-800">
                                     <AlertDialogHeader>
-                                        <div className="mx-auto w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mb-4">
+                                        <div className="mx-auto w-12 h-12 rounded-full bg-red-100 dark:bg-red-950/30 flex items-center justify-center mb-4">
                                             <Trash2 className="w-6 h-6 text-red-600" />
                                         </div>
                                         <AlertDialogTitle className="text-center">
@@ -419,7 +419,7 @@ export const CarAlertItem: React.FC<CarAlertItemProps> = ({
                                                 defaultValue:
                                                     "You'll stop receiving notifications for",
                                             })}{' '}
-                                            <span className="font-semibold text-[#2C3C39]">
+                                            <span className="font-semibold text-[#2C3C39] dark:text-white">
                                                 {listingTitle}
                                             </span>
                                             .{' '}

@@ -59,17 +59,17 @@ const TabsSection: React.FC<TabsSectionProps> = ({
            - Cars: show CarDetailsContent (engine size, plate, vin, condition)
            - Other types: show AttributeGrid with raw attributeValues */}
       {isCarListing ? (
-        <div className="shadow-xl bg-white p-2 rounded-lg w-full mb-4">
-          <div className="font-cairo font-bold text-primary">
+        <div className="shadow-xl bg-white dark:bg-zinc-900 border dark:border-zinc-800 p-2 rounded-lg w-full mb-4">
+          <div className="font-cairo font-bold text-primary dark:text-[#ABDE3B]">
             {isLoading ? (
               <SectionHeaderSkeleton />
             ) : (
-              <span className="border-b-2 pb-1 border-primary-light">
+              <span className="border-b-2 pb-1 border-primary-light dark:border-[#ABDE3B]">
                 {t('accordionDetails.details.adsDetails.question')}
               </span>
             )}
           </div>
-          <div className="font-cairo text-[400] text-secondary-text mt-8">
+          <div className="font-cairo text-[400] text-secondary-text dark:text-zinc-300 mt-8">
             <CarDetailsContent
               data={data?.data}
               type="ads"
@@ -78,12 +78,12 @@ const TabsSection: React.FC<TabsSectionProps> = ({
           </div>
         </div>
       ) : attributeValues.length > 0 ? (
-        <div className="shadow-xl bg-white p-4 rounded-lg w-full mb-4">
-          <div className="font-cairo font-bold text-primary mb-6">
+        <div className="shadow-xl bg-white dark:bg-zinc-900 border dark:border-zinc-800 p-4 rounded-lg w-full mb-4">
+          <div className="font-cairo font-bold text-primary dark:text-[#ABDE3B] mb-6">
             {isLoading ? (
               <SectionHeaderSkeleton />
             ) : (
-              <span className="border-b-2 pb-1 border-primary-light">
+              <span className="border-b-2 pb-1 border-primary-light dark:border-[#ABDE3B]">
                 {resolvedLocale === 'ar' ? 'السمات' : 'Attributes'}
               </span>
             )}
@@ -98,17 +98,17 @@ const TabsSection: React.FC<TabsSectionProps> = ({
 
       {/* Car Technical Details Section — only for car listings */}
       {isCarListing && (
-        <div className="shadow-xl bg-white p-2 rounded-lg w-full mb-4">
-          <div className="font-cairo font-bold text-primary">
+        <div className="shadow-xl bg-white dark:bg-zinc-900 border dark:border-zinc-800 p-2 rounded-lg w-full mb-4">
+          <div className="font-cairo font-bold text-primary dark:text-[#ABDE3B]">
             {isLoading ? (
               <SectionHeaderSkeleton />
             ) : (
-              <span className="border-b-2 pb-1 border-primary-light">
+              <span className="border-b-2 pb-1 border-primary-light dark:border-[#ABDE3B]">
                 {t('accordionDetails.details.carDetails.question')}
               </span>
             )}
           </div>
-          <div className="font-cairo text-[400] text-secondary-text  mt-8">
+          <div className="font-cairo text-[400] text-secondary-text dark:text-zinc-300 mt-8">
             <CarDetailsContent
               data={data?.data}
               type="car"
@@ -119,17 +119,17 @@ const TabsSection: React.FC<TabsSectionProps> = ({
       )}
 
       {/* Contact & Location Information Section */}
-      <div className="shadow-xl bg-white p-2 rounded-lg w-full mb-4">
-        <div className="font-cairo font-bold text-primary">
+      <div className="shadow-xl bg-white dark:bg-zinc-900 border dark:border-zinc-800 p-2 rounded-lg w-full mb-4">
+        <div className="font-cairo font-bold text-primary dark:text-[#ABDE3B]">
           {isLoading ? (
             <SectionHeaderSkeleton />
           ) : (
-            <span className="border-b-2 pb-1 border-primary-light">
+            <span className="border-b-2 pb-1 border-primary-light dark:border-[#ABDE3B]">
               {t('tabs.contactLocationInfo')}
             </span>
           )}
         </div>
-        <div className="font-cairo text-[400] text-secondary-text  mt-8">
+        <div className="font-cairo text-[400] text-secondary-text dark:text-zinc-300 mt-8">
           <CarDetailsContent
             data={data?.data}
             type="contact"
@@ -140,17 +140,17 @@ const TabsSection: React.FC<TabsSectionProps> = ({
 
       {/* Description & Story Section — only when at least one field has content */}
       {(isLoading || data?.data?.description || data?.data?.story) && (
-        <div className="shadow-xl bg-white p-2 rounded-lg w-full mb-4">
-          <div className="font-cairo font-bold text-primary">
+        <div className="shadow-xl bg-white dark:bg-zinc-900 border dark:border-zinc-800 p-2 rounded-lg w-full mb-4">
+          <div className="font-cairo font-bold text-primary dark:text-[#ABDE3B]">
             {isLoading ? (
               <SectionHeaderSkeleton />
             ) : (
-              <span className="border-b-2 pb-1 border-primary-light">
+              <span className="border-b-2 pb-1 border-primary-light dark:border-[#ABDE3B]">
                 {t('tabs.descriptionStory')}
               </span>
             )}
           </div>
-          <div className="font-cairo text-[400] text-secondary-text mt-8">
+          <div className="font-cairo text-[400] text-secondary-text dark:text-zinc-300 mt-8">
             <CarDetailsContent
               data={data?.data}
               type="description"
@@ -162,18 +162,18 @@ const TabsSection: React.FC<TabsSectionProps> = ({
 
       {/* Product Damages Section — car listings only */}
       {isCarListing && (
-        <div className="shadow-xl bg-white p-2 rounded-lg w-full mb-4">
-          <div className="font-cairo font-bold text-primary">
+        <div className="shadow-xl bg-white dark:bg-zinc-900 border dark:border-zinc-800 p-2 rounded-lg w-full mb-4">
+          <div className="font-cairo font-bold text-primary dark:text-[#ABDE3B]">
             {isLoading ? (
               <SectionHeaderSkeleton />
             ) : (
-              <span className="border-b-2 pb-1 border-primary-light">
+              <span className="border-b-2 pb-1 border-primary-light dark:border-[#ABDE3B]">
                 {t('tabs.productDamages')}
               </span>
             )}
           </div>
           {/* <CarDamagesTabContent isLoading={isLoading} carListing={data?.data} /> */}
-          <div className="font-cairo text-[400] text-secondary-text mt-8">
+          <div className="font-cairo text-[400] text-secondary-text dark:text-zinc-300 mt-8">
             {isLoading ? (
               <div className="space-y-4">
                 {Array.from({ length: 3 }).map((_, index) => (
@@ -192,17 +192,17 @@ const TabsSection: React.FC<TabsSectionProps> = ({
 
       {/* Product Features Section — car listings only */}
       {isCarListing && (
-        <div className="shadow-xl bg-white p-2 rounded-lg w-full mb-4">
-          <div className="font-cairo font-bold text-primary">
+        <div className="shadow-xl bg-white dark:bg-zinc-900 border dark:border-zinc-800 p-2 rounded-lg w-full mb-4">
+          <div className="font-cairo font-bold text-primary dark:text-[#ABDE3B]">
             {isLoading ? (
               <SectionHeaderSkeleton />
             ) : (
-              <span className="border-b-2 pb-1 border-primary-light">
+              <span className="border-b-2 pb-1 border-primary-light dark:border-[#ABDE3B]">
                 {t('tabs.productFeatures')}
               </span>
             )}
           </div>
-          <div className="font-cairo text-[400] text-secondary-text mt-8">
+          <div className="font-cairo text-[400] text-secondary-text dark:text-zinc-300 mt-8">
             {isLoading ? (
               <div className="space-y-4">
                 {Array.from({ length: 3 }).map((_, index) => (

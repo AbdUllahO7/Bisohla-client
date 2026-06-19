@@ -32,12 +32,11 @@ const SectionHeader = ({
         
         {/* Title Section */}
         <div className="flex-1 min-w-[200px]">
-          <Text variant="h3" className="font-bold text-[28px] font-cairo"
-                style={{ color: '#2C3C39' }}>
+          <Text variant="h3" className="font-bold text-[28px] font-cairo text-[#2C3C39] dark:text-zinc-100">
             {title}
           </Text>
           {subtitle && (
-            <Text variant="p" className="text-[14px] font-cairo mt-1 text-gray-600">
+            <Text variant="p" className="text-[14px] font-cairo mt-1 text-gray-600 dark:text-zinc-400">
               {subtitle}
             </Text>
           )}
@@ -49,8 +48,8 @@ const SectionHeader = ({
             <div className="group relative px-6 py-3 rounded-full transition-all duration-300 hover:shadow-lg"
                  style={{ background: 'linear-gradient(135deg, rgba(25, 131, 65, 0.1) 0%, rgba(171, 222, 59, 0.1) 100%)' }}>
               <Text variant="mid" 
-                    className="text-[16px] font-cairo font-semibold flex items-center gap-2 transition-colors duration-300"
-                    style={{ color: '#198341' }}>
+                    className="text-[16px] font-cairo font-semibold flex items-center gap-2 transition-colors duration-300 text-[#198341] dark:text-emerald-400"
+              >
                 {showMoreText}
                 <Sparkles className="w-4 h-4 transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110" />
               </Text>

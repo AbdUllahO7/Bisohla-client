@@ -106,12 +106,12 @@ export const NewsDetailClient: React.FC<NewsDetailClientProps> = ({
   // Not found state is handled by the server component, but as a fallback:
   if (!article) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-zinc-950 dark:to-zinc-900 flex items-center justify-center">
         <Box variant="column" className="items-center text-center p-12">
-          <div className="w-32 h-32 rounded-full bg-gray-100 flex items-center justify-center mb-6">
-            <Newspaper className="w-16 h-16 text-gray-400" />
+          <div className="w-32 h-32 rounded-full bg-gray-100 dark:bg-zinc-800 flex items-center justify-center mb-6">
+            <Newspaper className="w-16 h-16 text-gray-400 dark:text-zinc-650" />
           </div>
-          <Text className="text-3xl font-bold text-gray-700 mb-4">
+          <Text className="text-3xl font-bold text-gray-700 dark:text-zinc-300 mb-4">
             {t('articleNotFound')}
           </Text>
           <Link href={`/${locale}/news`}>
@@ -125,7 +125,7 @@ export const NewsDetailClient: React.FC<NewsDetailClientProps> = ({
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white dark:bg-zinc-950">
       {/* Hero Section with Cover Image */}
       <div className="relative h-[60vh] md:h-[70vh] overflow-hidden">
         {/* Cover Image */}
@@ -277,7 +277,7 @@ export const NewsDetailClient: React.FC<NewsDetailClientProps> = ({
       </div>
 
       {/* Main Content */}
-      <div className="relative bg-gradient-to-b from-white via-gray-50 to-white py-16">
+      <div className="relative bg-gradient-to-b from-white via-gray-50 to-white dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950 py-16">
         {/* // -------------------------------------------------------------------
         // LAYOUT CHANGE: Widen container and apply grid
         // -------------------------------------------------------------------
@@ -288,8 +288,8 @@ export const NewsDetailClient: React.FC<NewsDetailClientProps> = ({
             <div className="lg:col-span-8">
               {/* Share Buttons - Sticky */}
               <div className="hidden lg:block fixed left-8 top-1/2 transform -translate-y-1/2 z-20">
-                <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl p-4 space-y-4 border border-gray-100">
-                  <Text className="text-xs font-semibold text-gray-600 text-center mb-2">
+                <div className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-lg rounded-2xl shadow-xl p-4 space-y-4 border border-gray-100 dark:border-zinc-800">
+                  <Text className="text-xs font-semibold text-gray-600 dark:text-zinc-400 text-center mb-2">
                     {t('share')}
                   </Text>
                   <button
@@ -320,7 +320,7 @@ export const NewsDetailClient: React.FC<NewsDetailClientProps> = ({
               <div className="group relative mb-12 animate-fadeIn ql-snow">
                 {' '}
                 {/* <-- أضف ql-snow هنا */}
-                <div className="relative bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100">
+                <div className="relative bg-white/80 dark:bg-zinc-900/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100 dark:border-zinc-800">
                   {/* Excerpt */}
                   {article.excerpt && (
                     <div
@@ -329,14 +329,14 @@ export const NewsDetailClient: React.FC<NewsDetailClientProps> = ({
                         direction === 'rtl' ? 'border-r-4' : 'border-l-4',
                       )}
                     >
-                      <Text className="text-lg text-gray-700  leading-relaxed">
+                      <Text className="text-lg text-gray-700 dark:text-zinc-300 leading-relaxed">
                         {article.excerpt}
                       </Text>
                     </div>
                   )}
 
                   <div
-                    className="rich-text-content ql-editor overflwo-y-visible"
+                    className="rich-text-content ql-editor overflwo-y-visible dark:text-zinc-200"
                     style={{
                       overflowY: 'visible',
                     }}
@@ -345,10 +345,10 @@ export const NewsDetailClient: React.FC<NewsDetailClientProps> = ({
 
                   {/* Tags */}
                   {article.tags && article.tags.length > 0 && (
-                    <div className="mt-12 pt-8 border-t-2 border-gray-100">
+                    <div className="mt-12 pt-8 border-t-2 border-gray-100 dark:border-zinc-800">
                       <div className="flex items-center gap-3 mb-4">
                         <Tag className="w-5 h-5 text-primary" />
-                        <Text className="font-bold text-gray-900">
+                        <Text className="font-bold text-gray-900 dark:text-zinc-100">
                           {t('tags')}
                         </Text>
                       </div>
@@ -369,8 +369,8 @@ export const NewsDetailClient: React.FC<NewsDetailClientProps> = ({
 
               {/* Mobile Share Buttons */}
               <div className="lg:hidden mb-12 animate-fadeIn">
-                <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl p-6 border border-gray-100">
-                  <Text className="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <div className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-lg rounded-2xl shadow-xl p-6 border border-gray-100 dark:border-zinc-800">
+                  <Text className="font-bold text-gray-900 dark:text-zinc-100 mb-4 flex items-center gap-2">
                     <Share2 className="w-5 h-5 text-primary" />
                     {t('shareArticle')}
                   </Text>
@@ -407,8 +407,8 @@ export const NewsDetailClient: React.FC<NewsDetailClientProps> = ({
                   style={{ animationDelay: '0.1s' }}
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-primary-light/20 rounded-3xl blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                  <div className="relative bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 border border-gray-100">
-                    <Text className="font-bold text-2xl text-gray-900 mb-6 flex items-center gap-3">
+                  <div className="relative bg-white/80 dark:bg-zinc-900/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 border border-gray-100 dark:border-zinc-800">
+                    <Text className="font-bold text-2xl text-gray-900 dark:text-zinc-100 mb-6 flex items-center gap-3">
                       <div className="w-1 h-8 bg-gradient-to-b from-primary to-primary-light rounded-full"></div>
                       {t('aboutAuthor')}
                     </Text>
@@ -419,19 +419,19 @@ export const NewsDetailClient: React.FC<NewsDetailClientProps> = ({
                           alt={authorInfo.name}
                           width={80}
                           height={80}
-                          className="rounded-2xl border-4 border-white shadow-lg"
+                          className="rounded-2xl border-4 border-white dark:border-zinc-800 shadow-lg"
                         />
                       ) : (
-                        <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-primary-light flex items-center justify-center border-4 border-white shadow-lg">
+                        <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-primary-light flex items-center justify-center border-4 border-white dark:border-zinc-800 shadow-lg">
                           <User className="w-10 h-10 text-white" />
                         </div>
                       )}
                       <div className="flex-1">
-                        <Text className="text-2xl font-bold text-gray-900 mb-2">
+                        <Text className="text-2xl font-bold text-gray-900 dark:text-zinc-100 mb-2">
                           {authorInfo.name}
                         </Text>
                         {authorInfo.email && (
-                          <Text className="text-gray-600">
+                          <Text className="text-gray-600 dark:text-zinc-400">
                             {authorInfo.email}
                           </Text>
                         )}
@@ -465,7 +465,7 @@ export const NewsDetailClient: React.FC<NewsDetailClientProps> = ({
                   <div className="flex gap-2 justify-center lg:justify-start">
                     <div className="w-1 h-10 bg-gradient-to-b from-primary to-primary-light rounded-full"></div>
 
-                    <Text className="font-bold text-3xl text-gray-900 mb-8 flex items-center gap-3">
+                    <Text className="font-bold text-3xl text-gray-900 dark:text-zinc-100 mb-8 flex items-center gap-3">
                       {t('relatedArticles')}
                     </Text>
                   </div>
@@ -509,7 +509,7 @@ export const NewsDetailClient: React.FC<NewsDetailClientProps> = ({
         {/* --- End Container --- */}
 
         {/* Full-width bottom ad */}
-        <div className="mt-16 border-t container border-gray-100 pt-16">
+        <div className="mt-16 border-t container border-gray-100 dark:border-zinc-800 pt-16">
           <AdsSectionProduct name='news-details-page-bottom-full-width-ad' />
         </div>
       </div>

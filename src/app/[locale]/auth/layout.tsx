@@ -34,11 +34,11 @@ const AuthLayout = async ({
 
       {/* Main Layout - Fixed height without scrolling */}
       <div
-        className={`w-full h-screen overflow-hidden flex `}
+        className={`w-full h-screen overflow-hidden flex bg-white dark:bg-zinc-950`}
         dir={isRTL ? 'rtl' : 'ltr'}
       >
         {/* Left Section - Auth Content */}
-        <div className="w-full md:w-3/5 lg:w-1/2 xl:w-2/5 2xl:w-1/3 flex flex-col bg-white relative z-10">
+        <div className="w-full md:w-3/5 lg:w-1/2 xl:w-2/5 2xl:w-1/3 flex flex-col bg-white dark:bg-zinc-950 relative z-10">
           <div className="flex-1 flex flex-col justify-center items-center p-4 sm:p-6 md:p-8 lg:p-10 overflow-y-auto">
             {/* Auth Form Content - Centered */}
             <div className="w-full max-w-md mx-auto my-auto">
@@ -46,7 +46,7 @@ const AuthLayout = async ({
                 fallback={
                   <div className="w-full h-64 flex flex-col items-center justify-center">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
-                    <Text className="mt-4 text-gray-500">
+                    <Text className="mt-4 text-gray-500 dark:text-zinc-400">
                       {locale === 'ar' ? 'جاري التحميل...' : 'Loading...'}
                     </Text>
                   </div>
@@ -58,7 +58,7 @@ const AuthLayout = async ({
 
             {/* Footer - Always at bottom */}
             <div className="w-full text-center mt-auto pt-4">
-              <Text className="text-xs text-gray-400">
+              <Text className="text-xs text-gray-400 dark:text-zinc-500">
                 {locale === 'ar'
                   ? '© 2024 بسهولة. جميع الحقوق محفوظة.'
                   : '© 2024 Bishola. All rights reserved.'}

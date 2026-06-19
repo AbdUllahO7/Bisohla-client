@@ -79,13 +79,16 @@ const Header: React.FC<HeaderProps> = ({
 
             {/* Counter with Background Effect */}
             <div className="relative">
-              {/* Glow Background */}
-              <div className="absolute inset-0 bg-[#ABDE3B]/10 blur-xl rounded-full"></div>
-
               {/* Text Content */}
-              <Text variant="mid" className="relative text-center overflow-hidden font-bold text-[#2C3C39] text-xl">
-                {totalItems} {t("header.adCounter")}
-              </Text>
+              <div className="relative">
+                {/* Glow Background */}
+                <div className="absolute inset-0 bg-[#ABDE3B]/10 blur-xl rounded-full"></div>
+
+                {/* Text Content */}
+                <Text variant="mid" className="relative text-center overflow-hidden font-bold text-[#2C3C39] dark:text-zinc-100 text-xl">
+                  {totalItems} {t("header.adCounter")}
+                </Text>
+              </div>
             </div>
           </div>
 
@@ -93,7 +96,7 @@ const Header: React.FC<HeaderProps> = ({
           <div className="flex items-center gap-3 flex-shrink-1">
             {/* Label with Underline Effect */}
             <div className="relative">
-              <Text className="whitespace-nowrap text-[#2C3C39] font-semibold">
+              <Text className="whitespace-nowrap text-[#2C3C39] dark:text-zinc-200 font-semibold">
                 {t("header.orderBy")}
               </Text>
             </div>
@@ -110,7 +113,7 @@ const Header: React.FC<HeaderProps> = ({
                 <SelectDropdown
                   options={sortOptions}
                   placeholder={t("header.selectPrice")}
-                  SelectTriggerStyle="shadow-none pl-6 pr-3 py-2.5  hover:border-[#198341] focus:border-[#198341] transition-all duration-300 bg-white font-medium text-[#2C3C39]"
+                  SelectTriggerStyle="shadow-none pl-6 pr-3 py-2.5 hover:border-[#198341] focus:border-[#198341] transition-all duration-300 bg-white dark:bg-zinc-900 font-medium text-[#2C3C39] dark:text-zinc-100 dark:border-zinc-800"
                   className="w-[150px] xs:w-[120px]"
                   disabled={false}
                   onChange={handleSortChange}

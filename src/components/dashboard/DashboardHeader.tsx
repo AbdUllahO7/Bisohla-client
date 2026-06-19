@@ -7,12 +7,9 @@ import { Input } from '@/components/ui/input';
 import LocaleSwitcher from '@/components/locale/LocaleSwitcher';
 import { Link } from '@/i18n/routing';
 import {
-  LogOut,
   Plus,
   Search,
   Menu,
-  Home,
-  User,
   PanelLeftClose,
   PanelLeftOpen,
   Loader2,
@@ -25,18 +22,12 @@ import { useTranslations } from 'next-intl';
 import { deleteSession } from '@/core/lib/web/session';
 import { logoutAction } from '@/app/[locale]/auth/actions';
 import { useDirection } from '@/hooks/use-direction';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+
 import { useSidebar } from '@/components/ui/sidebar';
 import { useProfileContext } from '@/providers/profile.provider';
 import Image from 'next/image';
+import ThemeToggle from '@/components/shared/ThemeToggle';
+
 
 interface DashboardHeaderImprovedProps {
   translations: {
@@ -240,16 +231,16 @@ export function DashboardHeader({
         <div className="flex h-16 items-center px-4 gap-4">
           {/* Left side skeleton */}
           <div className="flex items-center gap-4">
-            <div className="h-8 w-8 bg-gray-200 rounded animate-pulse"></div>
-            <div className="h-6 w-32 bg-gray-200 rounded animate-pulse"></div>
+            <div className="h-8 w-8 bg-gray-200 dark:bg-zinc-800 rounded animate-pulse"></div>
+            <div className="h-6 w-32 bg-gray-200 dark:bg-zinc-800 rounded animate-pulse"></div>
           </div>
 
           {/* Right side skeleton */}
           <div className="flex items-center gap-3 ml-auto">
-            <div className="h-9 w-64 bg-gray-200 rounded-md animate-pulse hidden sm:block"></div>
-            <div className="h-9 w-9 bg-gray-200 rounded-full animate-pulse"></div>
-            <div className="h-9 w-9 bg-gray-200 rounded-full animate-pulse"></div>
-            <div className="h-8 w-8 bg-gray-200 rounded-full animate-pulse"></div>
+            <div className="h-9 w-64 bg-gray-200 dark:bg-zinc-800 rounded-md animate-pulse hidden sm:block"></div>
+            <div className="h-9 w-9 bg-gray-200 dark:bg-zinc-800 rounded-full animate-pulse"></div>
+            <div className="h-9 w-9 bg-gray-200 dark:bg-zinc-800 rounded-full animate-pulse"></div>
+            <div className="h-8 w-8 bg-gray-200 dark:bg-zinc-800 rounded-full animate-pulse"></div>
           </div>
         </div>
       </header>
@@ -317,7 +308,7 @@ export function DashboardHeader({
                 value={searchQuery}
                 onChange={handleSearchInputChange}
                 disabled={isSearching}
-                className={`pl-9 rtl:pl-3 rtl:pr-9 bg-muted/50 w-full pr-9 rtl:pr-3 rtl:pl-9 transition-all duration-200 ${
+                className={`pl-9 rtl:pl-3 rtl:pr-9 bg-muted/50 dark:bg-zinc-900/50 w-full pr-9 rtl:pr-3 rtl:pl-9 transition-all duration-200 dark:text-white dark:border-zinc-800 dark:placeholder:text-zinc-500 ${
                   isSearching ? 'opacity-75' : ''
                 } ${showSuggestions ? 'rounded-b-none border-b-0' : ''}`}
                 onFocus={() => {
@@ -330,9 +321,9 @@ export function DashboardHeader({
               {/* Search Icon or Loading Spinner */}
               <div className="absolute right-8 rtl:right-auto rtl:left-8 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground">
                 {isSearching ? (
-                  <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                  <Loader2 className="h-4 w-4 animate-spin text-primary dark:text-[#ABDE3B]" />
                 ) : (
-                  <Search className="h-4 w-4" />
+                  <Search className="h-4 w-4 dark:text-zinc-400" />
                 )}
               </div>
 
@@ -342,18 +333,18 @@ export function DashboardHeader({
                   type="button"
                   variant="ghost"
                   size="icon"
-                  className="absolute right-1 rtl:right-auto rtl:left-1 top-1/2 h-6 w-6 -translate-y-1/2 hover:bg-muted"
+                  className="absolute right-1 rtl:right-auto rtl:left-1 top-1/2 h-6 w-6 -translate-y-1/2 hover:bg-muted dark:hover:bg-zinc-800"
                   onClick={handleClearSearch}
                 >
-                  <X className="h-3 w-3" />
+                  <X className="h-3 w-3 dark:text-zinc-400" />
                 </Button>
               )}
             </div>
 
             {/* Search Progress Bar */}
             {isSearching && (
-              <div className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-muted rounded-full overflow-hidden">
-                <div className="h-full bg-primary animate-pulse"></div>
+              <div className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-muted dark:bg-zinc-800 rounded-full overflow-hidden">
+                <div className="h-full bg-primary dark:bg-emerald-600 animate-pulse"></div>
               </div>
             )}
 
@@ -361,15 +352,15 @@ export function DashboardHeader({
             {showSuggestions &&
               searchSuggestions.length > 0 &&
               !isSearching && (
-                <div className="absolute top-full left-0 right-0 bg-background border border-border border-t-0 rounded-b-md shadow-lg z-50 max-h-48 overflow-y-auto">
+                <div className="absolute top-full left-0 right-0 bg-background dark:bg-zinc-900 border border-border dark:border-zinc-800 border-t-0 rounded-b-md shadow-lg z-50 max-h-48 overflow-y-auto">
                   {searchSuggestions.map((suggestion, index) => (
                     <button
                       key={index}
                       type="button"
-                      className="w-full px-3 py-2 text-left hover:bg-muted text-sm transition-colors duration-150 flex items-center gap-2"
+                      className="w-full px-3 py-2 text-left hover:bg-muted dark:hover:bg-zinc-850 text-sm transition-colors duration-150 flex items-center gap-2 dark:text-zinc-200"
                       onClick={() => handleSuggestionClick(suggestion)}
                     >
-                      <Search className="h-3 w-3 text-muted-foreground" />
+                      <Search className="h-3 w-3 text-muted-foreground dark:text-zinc-400" />
                       <span>{suggestion}</span>
                     </button>
                   ))}
@@ -396,6 +387,9 @@ export function DashboardHeader({
 
           {/* Notifications */}
           {isAuthenticated && <NotificationDropdown />}
+
+          {/* Theme Toggle */}
+          <ThemeToggle />
 
           {/* Language Switcher */}
           <LocaleSwitcher />

@@ -256,7 +256,7 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
 
     const labelElement = (
       <div className="flex items-center gap-1.5 mb-2">
-        <Label className="text-sm font-semibold text-slate-700">
+        <Label className="text-sm font-semibold text-slate-700 dark:text-zinc-300">
           {label}
           {attr.isRequired && <span className="text-red-500 ml-0.5">*</span>}
         </Label>
@@ -293,7 +293,7 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
             value={formData[attr.slug] ? Number(formData[attr.slug]) : undefined}
             onChange={(val) => handleChange(attr.slug, val)}
             disabled={!!attr.dependsOnAttributeId && !parentValue}
-            className="h-10 border-slate-200 rounded-lg focus:ring-primary/20"
+            className="h-10 border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-slate-800 dark:text-zinc-100 focus:ring-primary/20 dark:focus:ring-[#ABDE3B]/20 rounded-lg"
           />
         </div>
       );
@@ -313,10 +313,10 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
             value={formData[attr.slug]?.toString() || ''}
             onValueChange={(val) => handleChange(attr.slug, val)}
           >
-            <SelectTrigger className="h-10 border-slate-200 rounded-lg focus:ring-primary/20">
+            <SelectTrigger className="h-10 border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-slate-800 dark:text-zinc-100 focus:ring-primary/20 dark:focus:ring-[#ABDE3B]/20 rounded-lg">
               <SelectValue placeholder={isArabic ? `اختر ${label}` : `Select ${label}`} />
             </SelectTrigger>
-            <SelectContent className="bg-white">
+            <SelectContent className="bg-white dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800 text-slate-800 dark:text-zinc-100">
               {yearOptions.map((opt) => (
                 <SelectItem key={opt.value} value={opt.value}>
                   {opt.label}
@@ -338,14 +338,14 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
               type="color"
               value={val || '#000000'}
               onChange={(e) => handleChange(attr.slug, e.target.value)}
-              className="w-10 h-10 border border-slate-200 rounded-lg cursor-pointer p-0.5 bg-white shadow-sm"
+              className="w-10 h-10 border border-slate-200 dark:border-zinc-800 rounded-lg cursor-pointer p-0.5 bg-white dark:bg-zinc-900 shadow-sm"
             />
             <Input
               type="text"
               placeholder="#000000"
               value={val}
               onChange={(e) => handleChange(attr.slug, e.target.value)}
-              className="h-10 border-slate-200 rounded-lg focus:ring-primary/20 font-mono"
+              className="h-10 border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-slate-800 dark:text-zinc-100 focus:ring-primary/20 dark:focus:ring-[#ABDE3B]/20 rounded-lg font-mono"
               dir="ltr"
             />
           </div>
@@ -362,10 +362,10 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
             value={formData[attr.slug]?.toString() || ''}
             onValueChange={(val) => handleChange(attr.slug, val)}
           >
-            <SelectTrigger className="h-10 border-slate-200 rounded-lg focus:ring-primary/20">
+            <SelectTrigger className="h-10 border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-slate-800 dark:text-zinc-100 focus:ring-primary/20 dark:focus:ring-[#ABDE3B]/20 rounded-lg">
               <SelectValue placeholder={isArabic ? `اختر ${label}` : `Select ${label}`} />
             </SelectTrigger>
-            <SelectContent className="bg-white">
+            <SelectContent className="bg-white dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800 text-slate-800 dark:text-zinc-100">
               {options.map((opt: any) => (
                 <SelectItem key={opt.id || opt.value || opt} value={(opt.id || opt.value || opt).toString()}>
                   {getTranslation(opt.label || opt.name || opt)}
@@ -386,7 +386,7 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
             placeholder={hint || label}
             value={formData[attr.slug] || ''}
             onChange={(e) => handleChange(attr.slug, e.target.value)}
-            className="h-10 border-slate-200 rounded-lg focus:ring-primary/20"
+            className="h-10 border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-slate-800 dark:text-zinc-100 focus:ring-primary/20 dark:focus:ring-[#ABDE3B]/20 rounded-lg"
           />
         </div>
       );
@@ -397,18 +397,18 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] p-0 overflow-hidden bg-white rounded-3xl border-none shadow-2xl">
-        <div className="relative bg-primary px-8 py-8">
+      <DialogContent className="sm:max-w-[600px] p-0 overflow-hidden bg-white dark:bg-zinc-900 rounded-3xl border-none shadow-2xl">
+        <div className="relative bg-primary dark:bg-gradient-to-r dark:from-[#198341] dark:to-[#ABDE3B] px-8 py-8">
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
           <div className="relative flex items-center gap-4">
-            <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30">
-              <Bell className="h-8 w-8 text-white" />
+            <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-white/20 dark:bg-zinc-950/20 backdrop-blur-md border border-white/30 dark:border-zinc-950/30">
+              <Bell className="h-8 w-8 text-white dark:text-zinc-950" />
             </div>
             <div className='flex flex-col items-start'>
-              <DialogTitle className="text-3xl font-bold text-white m-0 mb-1">
+              <DialogTitle className="text-3xl font-bold text-white dark:text-zinc-950 m-0 mb-1">
                 {initialData?.id ? tModal('editAlert') : tModal('notifyMe')}
               </DialogTitle>
-              <p className="text-sm text-white/95">
+              <p className="text-sm text-white/95 dark:text-zinc-900">
                 {initialData?.id ? tModal('updateCriteria') : tModal('beFirst')}
               </p>
             </div>
@@ -419,8 +419,8 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
           <div className="px-8 py-8 max-h-[60vh] overflow-y-auto space-y-8 scrollbar-hide">
             {isLoadingSchema ? (
               <div className="flex flex-col items-center justify-center py-20 space-y-4">
-                <Loader2 className="h-10 w-10 text-primary animate-spin" />
-                <p className="text-slate-500 font-medium animate-pulse">
+                <Loader2 className="h-10 w-10 text-primary dark:text-[#ABDE3B] animate-spin" />
+                <p className="text-slate-500 dark:text-zinc-400 font-medium animate-pulse">
                   {isArabic ? 'جاري تحميل الخيارات...' : 'Loading options...'}
                 </p>
               </div>
@@ -430,11 +430,11 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
                 {schema?.sections.map((section) => (
                   <div key={section.id} className="space-y-6">
                     <div className="flex items-center gap-3">
-                      <div className="h-1.5 w-1.5 rounded-full bg-primary" />
-                      <h3 className="text-sm font-bold text-slate-400 tracking-wider uppercase">
+                      <div className="h-1.5 w-1.5 rounded-full bg-primary dark:bg-[#ABDE3B]" />
+                      <h3 className="text-sm font-bold text-slate-400 dark:text-zinc-500 tracking-wider uppercase">
                         {getTranslation(section.name)}
                       </h3>
-                      <div className="h-[1px] flex-1 bg-slate-100" />
+                      <div className="h-[1px] flex-1 bg-slate-100 dark:bg-zinc-800" />
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-6">
                       {section.attributes.sort((a, b) => a.order - b.order).map(renderAttribute)}
@@ -445,27 +445,27 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
                 {/* Fixed Location Fields (Requested to be preserved) */}
                 <div className="space-y-6">
                   <div className="flex items-center gap-3">
-                    <div className="h-1.5 w-1.5 rounded-full bg-primary" />
-                    <h3 className="text-sm font-bold text-slate-400 tracking-wider uppercase">
+                    <div className="h-1.5 w-1.5 rounded-full bg-primary dark:bg-[#ABDE3B]" />
+                    <h3 className="text-sm font-bold text-slate-400 dark:text-zinc-500 tracking-wider uppercase">
                       {isArabic ? 'الموقع' : 'Location'}
                     </h3>
-                    <div className="h-[1px] flex-1 bg-slate-100" />
+                    <div className="h-[1px] flex-1 bg-slate-100 dark:bg-zinc-800" />
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-6">
                     <div className="space-y-2">
-                      <Label className="text-sm font-semibold text-slate-700">
+                      <Label className="text-sm font-semibold text-slate-700 dark:text-zinc-300">
                         {isArabic ? 'المحافظة' : 'Governorate'}
                       </Label>
                       <Select
                         value={formData.governorate}
                         onValueChange={(val) => handleChange('governorate', val)}
                       >
-                        <SelectTrigger className="h-10 border-slate-200 rounded-lg focus:ring-primary/20">
+                        <SelectTrigger className="h-10 border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-slate-800 dark:text-zinc-100 focus:ring-primary/20 dark:focus:ring-[#ABDE3B]/20 rounded-lg">
                           <SelectValue
                             placeholder={isArabic ? 'اختر محافظة' : 'Select Governorate'}
                           />
                         </SelectTrigger>
-                        <SelectContent className="bg-white">
+                        <SelectContent className="bg-white dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800 text-slate-800 dark:text-zinc-100">
                           {governorateOptions.map((opt) => (
                             <SelectItem key={opt.value} value={opt.value}>
                               {opt.label}
@@ -476,7 +476,7 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-sm font-semibold text-slate-700">
+                      <Label className="text-sm font-semibold text-slate-700 dark:text-zinc-300">
                         {isArabic ? 'المدينة' : 'City'}
                       </Label>
                       <Select
@@ -484,7 +484,7 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
                         onValueChange={(val) => handleChange('city', val)}
                         disabled={!formData.governorate}
                       >
-                        <SelectTrigger className="h-10 border-slate-200 rounded-lg focus:ring-primary/20">
+                        <SelectTrigger className="h-10 border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-slate-800 dark:text-zinc-100 focus:ring-primary/20 dark:focus:ring-[#ABDE3B]/20 rounded-lg">
                           <SelectValue
                             placeholder={
                               !formData.governorate
@@ -497,7 +497,7 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
                             }
                           />
                         </SelectTrigger>
-                        <SelectContent className="bg-white">
+                        <SelectContent className="bg-white dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800 text-slate-800 dark:text-zinc-100">
                           {cityOptions.map((opt) => (
                             <SelectItem key={opt.value} value={opt.value}>
                               {opt.label}
@@ -512,15 +512,15 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
                 {/* Price Range Fields */}
                 <div className="space-y-6">
                   <div className="flex items-center gap-3">
-                    <div className="h-1.5 w-1.5 rounded-full bg-primary" />
-                    <h3 className="text-sm font-bold text-slate-400 tracking-wider uppercase">
+                    <div className="h-1.5 w-1.5 rounded-full bg-primary dark:bg-[#ABDE3B]" />
+                    <h3 className="text-sm font-bold text-slate-400 dark:text-zinc-500 tracking-wider uppercase">
                       {isArabic ? 'السعر' : 'Price'}
                     </h3>
-                    <div className="h-[1px] flex-1 bg-slate-100" />
+                    <div className="h-[1px] flex-1 bg-slate-100 dark:bg-zinc-800" />
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-6">
                     <div className="space-y-2">
-                      <Label className="text-sm font-semibold text-slate-700">
+                      <Label className="text-sm font-semibold text-slate-700 dark:text-zinc-300">
                         {isArabic ? 'السعر الأدنى' : 'Min Price'}
                       </Label>
                       <Input
@@ -528,11 +528,11 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
                         placeholder="0"
                         value={formData.minPrice}
                         onChange={(e) => handleChange('minPrice', e.target.value)}
-                        className="h-10 border-slate-200 rounded-lg focus:ring-primary/20"
+                        className="h-10 border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-slate-800 dark:text-zinc-100 focus:ring-primary/20 dark:focus:ring-[#ABDE3B]/20 rounded-lg"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-sm font-semibold text-slate-700">
+                      <Label className="text-sm font-semibold text-slate-700 dark:text-zinc-300">
                         {isArabic ? 'السعر الأعلى' : 'Max Price'}
                       </Label>
                       <Input
@@ -540,7 +540,7 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
                         placeholder={isArabic ? 'لا يوجد حد' : 'No limit'}
                         value={formData.maxPrice}
                         onChange={(e) => handleChange('maxPrice', e.target.value)}
-                        className="h-10 border-slate-200 rounded-lg focus:ring-primary/20"
+                        className="h-10 border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-slate-800 dark:text-zinc-100 focus:ring-primary/20 dark:focus:ring-[#ABDE3B]/20 rounded-lg"
                       />
                     </div>
                   </div>
@@ -549,23 +549,23 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
             )}
           </div>
 
-          <DialogFooter className="px-8 py-6 border-t border-slate-100 flex-row gap-4">
+          <DialogFooter className="px-8 py-6 border-t border-slate-100 dark:border-zinc-800 flex-row gap-4 bg-slate-50/50 dark:bg-zinc-950/20">
             <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
-              className="flex-1 h-14 text-base font-semibold rounded-2xl border-2 hover:bg-slate-50 transition-all"
+              className="flex-1 h-14 text-base font-semibold rounded-2xl border-2 border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-slate-700 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-800 transition-all"
             >
               {tModal('cancel')}
             </Button>
             <Button
               type="submit"
               disabled={isSubmitting || isLoadingSchema}
-              className="flex-1 h-14 text-base rounded-2xl bg-primary hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] text-white font-bold transition-all shadow-md"
+              className="flex-1 h-14 text-base rounded-2xl bg-primary dark:bg-gradient-to-r dark:from-[#198341] dark:to-[#ABDE3B] hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] text-white dark:text-zinc-950 font-bold transition-all shadow-md"
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin dark:text-zinc-950" />
                   {tModal('saving')}
                 </>
               ) : (

@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: 0 0% 93.7%; /* #EFEFEF */
     --foreground: 0 0% 3.9%;
     --card: 0 0% 100%;
     --card-foreground: 0 0% 3.9%;
@@ -33,6 +33,11 @@
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
+
+    /* Brand variables */
+    --primary-default: 168 15% 20%; /* #2C3C39 */
+    --primary-light: 142 68% 31%; /* #198341 */
+    --primary-foreground: 80 72% 55%; /* #ABDE3B */
 
     /* Action colors */
     --primary-hover: 222.2 47.4% 16%; /* Darker shade for hover */
@@ -69,6 +74,44 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 168 15% 8%; /* Premium deep brand green/slate-black background */
+    --foreground: 0 0% 98%;
+    --card: 168 15% 12%; /* Card background matching theme */
+    --card-foreground: 0 0% 98%;
+    --popover: 168 15% 10%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-dark: 339 99% 31%;
+    --primary-light: 142 68% 45%; /* slightly brighter green */
+    --primary-foreground: 168 15% 8%;
+    --secondary: 168 15% 15%;
+    --secondary-dark: 210 40% 25%;
+    --secondary-light: 210 40% 35%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 168 10% 16%;
+    --muted-foreground: 168 5% 65%;
+    --accent: 168 15% 15%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 168 10% 20%;
+    --input: 168 10% 20%;
+    --ring: 80 72% 55%;
+
+    /* Brand variables for dark mode - swap text-primary with yellow-green accent for readability */
+    --primary-default: 80 72% 55%; /* #ABDE3B brand yellow-green for dynamic accents */
+
+    --sidebar-background: 168 15% 10%;
+    --sidebar-foreground: 240 5% 85%;
+    --sidebar-primary: 80 72% 55%;
+    --sidebar-primary-foreground: 168 15% 8%;
+    --sidebar-accent: 168 15% 15%;
+    --sidebar-accent-foreground: 240 5% 95%;
+    --sidebar-border: 168 10% 20%;
+    --sidebar-ring: 80 72% 55%;
   }
 } /* Global styles in globals.css */
 

@@ -105,7 +105,7 @@ const ProductClient = ({ carDataRes, rawListing, isAuthenticated, locale }: Prod
       </Box>
 
       {/* Sticky Product Header */}
-      <div className="sticky top-[95px] z-50 w-full mb-3 bg-white shadow-md">
+      <div className="sticky top-[95px] z-50 w-full mb-3 bg-white dark:bg-zinc-950 shadow-md">
         <Box variant="container">
           <ProductHeader
             saveStatus={carData.saveStatus as any}

@@ -262,7 +262,7 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
           {productName && (
             <Text
               variant="h4"
-              className="font-bold text-center w-full text-[#2C3C39] line-clamp-3"
+              className="font-bold text-center w-full text-[#2C3C39] dark:text-zinc-100 line-clamp-3"
               as="h1"
             >
               {productName}
@@ -279,19 +279,19 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
           {/* Price - Enhanced with gradient background */}
           <Box variant="center" className="w-full relative">
             {/* Glow effect behind price */}
-            <div className="absolute inset-0 bg-[#ABDE3B]/20 blur-2xl rounded-full"></div>
+            <div className="absolute inset-0 bg-[#ABDE3B]/20 dark:bg-[#ABDE3B]/10 blur-2xl rounded-full"></div>
 
             <div
               className={`relative px-6 rounded-lg border-2 ${
                 isSold
-                  ? 'bg-gray-200 border-gray-400'
-                  : 'bg-gradient-to-r from-[#198341]/10 via-[#ABDE3B]/10 to-[#198341]/10 border-[#198341]/30'
+                  ? 'bg-gray-200 dark:bg-zinc-800 border-gray-400 dark:border-zinc-750'
+                  : 'bg-gradient-to-r from-[#198341]/10 via-[#ABDE3B]/10 to-[#198341]/10 dark:from-[#198341]/20 dark:via-[#ABDE3B]/20 dark:to-[#198341]/20 border-[#198341]/30 dark:border-[#ABDE3B]/30'
               }`}
             >
               <Text
                 variant="h3"
                 className={`font-bold text-center ${
-                  isSold ? 'text-gray-500 line-through' : 'text-[#198341]'
+                  isSold ? 'text-gray-500 dark:text-zinc-500 line-through' : 'text-[#198341]'
                 }`}
               >
                 {price} {currency}
@@ -312,10 +312,10 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
               <button
                 className={`relative p-3 rounded-full backdrop-blur-sm transition-all duration-300 border-2 shadow-lg ${
                   !isAuthenticated || isSold
-                    ? 'bg-white/90 border-gray-200 hover:bg-white hover:shadow-xl hover:border-[#198341]'
+                    ? 'bg-white/90 dark:bg-zinc-900/90 border-gray-200 dark:border-zinc-800 hover:bg-white dark:hover:bg-zinc-800 hover:shadow-xl hover:border-[#198341] dark:hover:border-[#ABDE3B]'
                     : isMarkedFavorite
-                    ? 'bg-red-50 border-red-200 hover:bg-red-100 hover:shadow-xl'
-                    : 'bg-white/90 border-gray-200 hover:bg-white hover:shadow-xl hover:border-[#198341]'
+                    ? 'bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-900 hover:bg-red-100 dark:hover:bg-red-950/60 hover:shadow-xl'
+                    : 'bg-white/90 dark:bg-zinc-900/90 border-gray-200 dark:border-zinc-800 hover:bg-white dark:hover:bg-zinc-800 hover:shadow-xl hover:border-[#198341] dark:hover:border-[#ABDE3B]'
                 }`}
                 onClick={handleFavoriteClick}
                 disabled={isProcessing || isSold || isOwner}
@@ -335,7 +335,7 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
                       ? 'text-gray-400'
                       : isMarkedFavorite
                       ? 'text-red-500 fill-red-500 scale-110'
-                      : 'text-gray-600 group-hover:text-red-500 group-hover:scale-110'
+                      : 'text-gray-600 dark:text-zinc-400 group-hover:text-red-500 group-hover:scale-110'
                   }`}
                 />
               </button>
@@ -405,10 +405,10 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
       {/* Desktop Layout (>= md) */}
       <div className="hidden md:block w-full">
         {/* Product Title Row - Standalone Above */}
-        <Box className="w-full py-3 border-b flex items-center">
+        <Box className="w-full py-3 border-b dark:border-zinc-800 flex items-center">
           <Text
             variant="h5"
-            className="font-bold text-start text-[#2C3C39]"
+            className="font-bold text-start text-[#2C3C39] dark:text-zinc-100"
             as="h1"
           >
             {productName}
@@ -438,10 +438,10 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
               <button
                 className={`relative p-2 sm:p-1.5 rounded-md transition-all duration-300 border-2 ${
                   !isAuthenticated || isSold
-                    ? 'bg-background hover:bg-white hover:shadow-md border-transparent hover:border-[#198341]'
+                    ? 'bg-background hover:bg-white dark:hover:bg-zinc-800 hover:shadow-md border-transparent hover:border-[#198341] dark:hover:border-[#ABDE3B]'
                     : isMarkedFavorite
-                    ? 'bg-red-50 hover:bg-red-100 border-red-200'
-                    : 'bg-background hover:bg-white hover:shadow-md border-transparent hover:border-[#198341]'
+                    ? 'bg-red-50 dark:bg-red-950/40 hover:bg-red-100 dark:hover:bg-red-950/60 border-red-200 dark:border-red-900'
+                    : 'bg-background hover:bg-white dark:hover:bg-zinc-800 hover:shadow-md border-transparent hover:border-[#198341] dark:hover:border-[#ABDE3B]'
                 }`}
                 onClick={handleFavoriteClick}
                 disabled={isProcessing || isSold || isOwner}
@@ -461,7 +461,7 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
                       ? 'text-gray-400'
                       : isMarkedFavorite
                       ? 'text-red-500 fill-red-500 scale-110'
-                      : 'text-gray-600 group-hover:text-red-500 group-hover:scale-110'
+                      : 'text-gray-600 dark:text-zinc-400 group-hover:text-red-500 group-hover:scale-110'
                   }`}
                 />
               </button>

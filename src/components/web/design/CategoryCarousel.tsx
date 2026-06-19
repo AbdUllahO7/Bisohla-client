@@ -139,14 +139,14 @@ const CategoryCarousel: React.FC<CarouselComponentProps> = ({
                     className="pl-2 md:pl-4 xs:basis-1/2 md:basis-1/4 lg:basis-1/6"
                   >
                     <div className="p-1">
-                      <Card className="bg-gradient-to-br from-gray-50 to-gray-100 border border-gray-200 rounded-xl shadow-sm">
+                      <Card className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-zinc-900 dark:to-zinc-800 border border-gray-200 dark:border-zinc-800 rounded-xl shadow-sm">
                         <CardContent className="flex flex-col items-center justify-center p-6 h-[160px]">
                           <div className="relative">
-                            <Skeleton className="w-16 h-16 rounded-full mb-4 bg-gradient-to-r from-gray-200 to-gray-300" />
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent animate-pulse rounded-full" />
+                            <Skeleton className="w-16 h-16 rounded-full mb-4 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-zinc-800 dark:to-zinc-700" />
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent dark:via-zinc-800 animate-pulse rounded-full" />
                           </div>
-                          <Skeleton className="h-4 w-20 mb-2 bg-gradient-to-r from-gray-200 to-gray-300" />
-                          <Skeleton className="h-3 w-16 bg-gradient-to-r from-gray-200 to-gray-300" />
+                          <Skeleton className="h-4 w-20 mb-2 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-zinc-800 dark:to-zinc-700" />
+                          <Skeleton className="h-3 w-16 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-zinc-800 dark:to-zinc-700" />
                         </CardContent>
                       </Card>
                     </div>
@@ -174,8 +174,8 @@ const CategoryCarousel: React.FC<CarouselComponentProps> = ({
                           border-2 group-hover:border-opacity-50
                           ${
                             isActive
-                              ? `border-primary-light bg-gradient-to-br from-blue-50 to-white shadow-lg  `
-                              : `border-gray-200 bg-white hover:border-gray-300`
+                              ? `border-primary-light bg-gradient-to-br from-blue-50 to-white dark:from-emerald-950/30 dark:to-zinc-900 shadow-lg`
+                              : `border-gray-200 bg-white hover:border-gray-300 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700`
                           }
                         `}
                       >
@@ -212,8 +212,8 @@ const CategoryCarousel: React.FC<CarouselComponentProps> = ({
                               transition-colors duration-300
                               ${
                                 isActive
-                                  ? 'text-primary'
-                                  : 'text-gray-800 group-hover:text-gray-900'
+                                  ? 'text-primary dark:text-[#ABDE3B]'
+                                  : 'text-gray-800 group-hover:text-gray-900 dark:text-zinc-300 dark:group-hover:text-zinc-100'
                               }
                             `}
                           >
@@ -226,8 +226,8 @@ const CategoryCarousel: React.FC<CarouselComponentProps> = ({
                             px-3 py-1 rounded-full text-xs font-medium transition-all duration-300
                             ${
                               isActive
-                                ? 'bg-blue-100 text-primary'
-                                : 'bg-gray-100 text-gray-600 group-hover:bg-gray-200'
+                                ? 'bg-blue-100 text-primary dark:bg-emerald-950 dark:text-[#ABDE3B]'
+                                : 'bg-gray-100 text-gray-600 group-hover:bg-gray-200 dark:bg-zinc-800 dark:text-zinc-400 dark:group-hover:bg-zinc-700'
                             }
                           `}
                           >
@@ -257,46 +257,46 @@ const CategoryCarousel: React.FC<CarouselComponentProps> = ({
           <>
             <CarouselPrevious
               className={`
-              left-2 bg-white/90 hover:bg-transparent hover:text-black  shadow-lg hover:shadow-xl
-              border border-gray-200 hover:border-gray-300 transition-all duration-300
+              left-2 bg-white/90 hover:bg-transparent hover:text-black dark:bg-zinc-900/90 dark:hover:bg-zinc-800 dark:text-zinc-300 shadow-lg hover:shadow-xl
+              border border-gray-200 hover:border-gray-300 dark:border-zinc-800 dark:hover:border-zinc-700 transition-all duration-300
               w-10 h-10 rounded-full backdrop-blur-sm
               hover:scale-110 active:scale-95
             `}
             >
-              <ChevronRight className="w-5 h-5 text-gray-600" />
+              <ChevronRight className="w-5 h-5 text-gray-600 dark:text-zinc-300" />
             </CarouselPrevious>
             <CarouselNext
               className={`
-              right-2 bg-white/90 hover:bg-transparent hover:text-black shadow-lg hover:shadow-xl
-              border border-gray-200 hover:border-gray-300 transition-all duration-300
+              right-2 bg-white/90 hover:bg-transparent hover:text-black dark:bg-zinc-900/90 dark:hover:bg-zinc-800 dark:text-zinc-300 shadow-lg hover:shadow-xl
+              border border-gray-200 hover:border-gray-300 dark:border-zinc-800 dark:hover:border-zinc-700 transition-all duration-300
               w-10 h-10 rounded-full backdrop-blur-sm
               hover:scale-110 active:scale-95
             `}
             >
-              <ChevronLeft className="w-5 h-5 text-gray-600" />
+              <ChevronLeft className="w-5 h-5 text-gray-600 dark:text-zinc-300" />
             </CarouselNext>
           </>
         ) : (
           <>
             <CarouselNext
               className={`
-              -right-2 bg-white/90 hover:bg-white shadow-lg hover:shadow-xl
-              border border-gray-200 hover:border-gray-300 transition-all duration-300
+              -right-2 bg-white/90 hover:bg-white dark:bg-zinc-900/90 dark:hover:bg-zinc-800 dark:text-zinc-300 shadow-lg hover:shadow-xl
+              border border-gray-200 hover:border-gray-300 dark:border-zinc-800 dark:hover:border-zinc-700 transition-all duration-300
               w-10 h-10 rounded-full backdrop-blur-sm
               hover:scale-110 active:scale-95
             `}
             >
-              <ChevronRight className="w-5 h-5 text-gray-600" />
+              <ChevronRight className="w-5 h-5 text-gray-600 dark:text-zinc-300" />
             </CarouselNext>
             <CarouselPrevious
               className={`
-              -left-2 bg-white/90 hover:bg-white shadow-lg hover:shadow-xl
-              border border-gray-200 hover:border-gray-300 transition-all duration-300
+              -left-2 bg-white/90 hover:bg-white dark:bg-zinc-900/90 dark:hover:bg-zinc-800 dark:text-zinc-300 shadow-lg hover:shadow-xl
+              border border-gray-200 hover:border-gray-300 dark:border-zinc-800 dark:hover:border-zinc-700 transition-all duration-300
               w-10 h-10 rounded-full backdrop-blur-sm
               hover:scale-110 active:scale-95
             `}
             >
-              <ChevronLeft className="w-5 h-5 text-gray-600" />
+              <ChevronLeft className="w-5 h-5 text-gray-600 dark:text-zinc-300" />
             </CarouselPrevious>
           </>
         )}

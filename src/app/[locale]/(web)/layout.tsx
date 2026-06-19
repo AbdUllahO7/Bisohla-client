@@ -69,7 +69,7 @@ const WebLayout = async ({
       <div className="flex flex-col min-h-screen relative overflow-x-hidden">
         <CompareProvider>
           {/* Fixed Header Container */}
-          <div className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm">
+          <div className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-zinc-950 shadow-sm">
             {/* Header One */}
             <HeaderOne />
 

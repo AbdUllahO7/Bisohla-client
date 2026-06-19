@@ -334,7 +334,7 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
       } : {}}
     >
       <Card
-        className={`border-none min-h-[395px] h-full flex flex-col justify-between bg-white relative group transition-all duration-500 ease-out overflow-hidden shadow-md ${isSold
+        className={`border-none min-h-[395px] h-full flex flex-col justify-between bg-white dark:bg-zinc-900 relative group transition-all duration-500 ease-out overflow-hidden shadow-md ${isSold
             ? 'opacity-90 cursor-pointer shadow-lg'
             : 'hover:shadow-2xl hover:shadow-emerald-500/15'
           }`}
@@ -343,7 +343,7 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
         {/* Heart Icon with favorite status */}
         {!isOwner && (
           <Button
-            className="absolute top-12 left-2 bg-white p-2 rounded-full shadow-md z-50 transition-transform duration-200 active:scale-90"
+            className="absolute top-12 left-2 bg-white dark:bg-zinc-800 p-2 rounded-full shadow-md z-50 transition-all duration-200 hover:bg-gray-100 dark:hover:bg-zinc-700 active:scale-90 text-gray-600 dark:text-zinc-300"
             onClick={handleFavoriteClick}
             disabled={!isAuthenticated || isSold || isOwner}
           >
@@ -353,7 +353,7 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
                   ? 'text-gray-400'
                   : favoriteStatus
                     ? 'text-red-500'
-                    : 'text-gray-600'
+                    : 'text-gray-600 dark:text-zinc-400'
                 }`}
               fill={favoriteStatus ? 'currentColor' : 'none'}
             />
@@ -362,7 +362,7 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
 
         {/* Compare Toggle */}
         <Button
-          className={`absolute top-12 right-2 bg-white p-2 rounded-full shadow-md z-50 transition-all duration-200 active:scale-90`}
+          className={`absolute top-12 right-2 bg-white dark:bg-zinc-800 p-2 rounded-full shadow-md z-50 transition-all duration-200 hover:bg-gray-100 dark:hover:bg-zinc-700 active:scale-90`}
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -376,7 +376,7 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
         >
           <Scale
             size={20}
-            className={`transition-colors duration-200 ${isCompared ? 'text-emerald-600' : 'text-gray-500 hover:text-emerald-500'
+            className={`transition-colors duration-200 ${isCompared ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-500 dark:text-zinc-400 hover:text-emerald-500'
               }`}
           />
         </Button>
@@ -402,7 +402,7 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
 
         <div className="flex-1 flex flex-col justify-start">
           <Box
-            className={`flex z-40 justify-between p-[8px] rounded-t-[10px] duration-500 ${isSold ? 'bg-gray-400' : 'bg-primary-light group-hover:bg-primary'
+            className={`flex z-40 justify-between p-[8px] rounded-t-[10px] duration-500 ${isSold ? 'bg-gray-400' : 'bg-primary-light group-hover:bg-primary dark:group-hover:bg-emerald-800'
               }`}
           >
             <Text
@@ -453,14 +453,14 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
               <CardDescription className="p-[8px]">
                 <Text
                   variant="h4"
-                  className={`pr-2 pl-2 line-clamp-1 ${isSold ? 'text-gray-500' : 'text-primary'
+                  className={`pr-2 pl-2 line-clamp-1 ${isSold ? 'text-gray-500' : 'text-primary dark:text-zinc-100'
                     }`}
                 >
                   {car.title}
                 </Text>
                 <Text
                   variant="mid"
-                  className={`pr-2 pl-2 ${isSold ? 'text-gray-400' : 'text-primary'
+                  className={`pr-2 pl-2 ${isSold ? 'text-gray-400' : 'text-primary dark:text-zinc-400'
                     }`}
                 >
                   {subTitle}
@@ -475,20 +475,20 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
             {visibleDetails.map((detail: { icon: React.ReactNode; value: string }, idx: number) => (
               <div
                 key={idx}
-                className={`flex items-center gap-1 bg-[#F9FAFB] border border-[#F3F4F6] rounded-full px-2.5 py-1 text-[11px] font-medium text-[#4B5563] transition-all duration-300 ${
+                className={`flex items-center gap-1 bg-[#F9FAFB] dark:bg-zinc-800 border border-[#F3F4F6] dark:border-zinc-700 rounded-full px-2.5 py-1 text-[11px] font-medium text-[#4B5563] dark:text-zinc-300 transition-all duration-300 ${
                   isSold
                     ? 'opacity-70'
-                    : 'hover:bg-emerald-50 hover:border-emerald-200 hover:text-emerald-700'
+                    : 'hover:bg-emerald-50 dark:hover:bg-emerald-950/40 hover:border-emerald-200 dark:hover:border-emerald-800 hover:text-emerald-700 dark:hover:text-emerald-400'
                 }`}
               >
-                <div className="text-gray-500 group-hover:text-emerald-600 transition-colors flex items-center justify-center">
+                <div className="text-gray-500 dark:text-zinc-400 group-hover:text-emerald-600 transition-colors flex items-center justify-center">
                   {detail.icon}
                 </div>
                 <span className="font-semibold">{detail.value}</span>
               </div>
             ))}
             {remainingCount > 0 && (
-              <div className="flex items-center bg-emerald-50 border border-emerald-100 rounded-full px-2.5 py-1 text-[11px] font-bold text-emerald-700">
+              <div className="flex items-center bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900 rounded-full px-2.5 py-1 text-[11px] font-bold text-emerald-700 dark:text-emerald-400">
                 {locale === 'ar' ? `المزيد +${remainingCount}` : `more +${remainingCount}`}
               </div>
             )}

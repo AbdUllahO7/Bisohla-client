@@ -16,15 +16,15 @@ const PaginationSkeleton = () => {
       aria-busy="true"
     >
       {/* Previous button */}
-      <div className="h-10 w-24 bg-slate-200 rounded-md animate-pulse" />
+      <div className="h-10 w-24 bg-slate-200 dark:bg-zinc-800 rounded-md animate-pulse" />
       {/* Page numbers */}
       <div className="flex space-x-2">
-        <div className="h-8 w-8 bg-slate-200 rounded-md animate-pulse" />
-        <div className="h-8 w-8 bg-slate-200 rounded-md animate-pulse" />
-        <div className="h-8 w-8 bg-slate-200 rounded-md animate-pulse" />
+        <div className="h-8 w-8 bg-slate-200 dark:bg-zinc-800 rounded-md animate-pulse" />
+        <div className="h-8 w-8 bg-slate-200 dark:bg-zinc-800 rounded-md animate-pulse" />
+        <div className="h-8 w-8 bg-slate-200 dark:bg-zinc-800 rounded-md animate-pulse" />
       </div>
       {/* Next button */}
-      <div className="h-10 w-24 bg-slate-200 rounded-md animate-pulse" />
+      <div className="h-10 w-24 bg-slate-200 dark:bg-zinc-800 rounded-md animate-pulse" />
     </div>
   );
 };
@@ -40,7 +40,7 @@ const AllCarListingsSkeleton: React.FC<AllCarListingsSkeletonProps> = ({
         {/* Title skeleton */}
         {showTitle && (
           <Box variant="column" className="mb-6 w-full">
-            <div className="h-7 w-1/4 bg-slate-200 rounded-md animate-pulse" />
+            <div className="h-7 w-1/4 bg-slate-200 dark:bg-zinc-800 rounded-md animate-pulse" />
           </Box>
         )}
 
