@@ -117,25 +117,25 @@ const SimilarCarAlertBanner: React.FC<SimilarCarAlertBannerProps> = ({
             `}
             dir={isArabic ? 'rtl' : 'ltr'}
         >
-            <div className="relative bg-white rounded-2xl shadow-2xl border border-[#198341]/15 overflow-hidden">
+            <div className="relative bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl border border-[#198341]/15 dark:border-zinc-800 overflow-hidden">
                 {/* Gradient top accent */}
                 <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#198341] via-[#22a352] to-[#ABDE3B]" />
 
                 <div className="p-5">
                     <div className="flex items-start gap-4">
                         {/* Bell icon */}
-                        <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-[#198341]/10 to-[#ABDE3B]/10 flex items-center justify-center border border-[#198341]/10">
-                            <Bell className="w-6 h-6 text-[#198341]" />
+                        <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-[#198341]/10 to-[#ABDE3B]/10 dark:from-[#ABDE3B]/10 dark:to-[#ABDE3B]/5 flex items-center justify-center border border-[#198341]/10 dark:border-[#ABDE3B]/20">
+                            <Bell className="w-6 h-6 text-[#198341] dark:text-[#ABDE3B]" />
                         </div>
 
                         {/* Content */}
                         <div className="flex-1 min-w-0">
-                            <p className="font-bold text-[#2C3C39] text-base">
+                            <p className="font-bold text-[#2C3C39] dark:text-zinc-150 text-base">
                                 {isArabic
                                     ? 'هل تريد تنبيهات بمنتجات مشابهة؟'
                                     : 'Get alerts for similar products?'}
                             </p>
-                            <p className="text-sm text-gray-500 mt-0.5 leading-relaxed">
+                            <p className="text-sm text-gray-500 dark:text-zinc-400 mt-0.5 leading-relaxed">
                                 {isArabic
                                     ? 'إذا أردت أن يصلك تنبيه بالمنتجات المشابهة، قم بتفعيل التنبيه.'
                                     : 'Activate to get notified when similar products matching this listing are available.'}
@@ -162,7 +162,7 @@ const SimilarCarAlertBanner: React.FC<SimilarCarAlertBannerProps> = ({
                                     size="sm"
                                     variant="ghost"
                                     onClick={handleDismiss}
-                                    className="h-9 px-3 text-sm text-gray-400 hover:text-gray-600 rounded-xl"
+                                    className="h-9 px-3 text-sm text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-300 rounded-xl"
                                 >
                                     {isArabic ? 'لا شكراً' : 'No thanks'}
                                 </Button>
@@ -172,7 +172,7 @@ const SimilarCarAlertBanner: React.FC<SimilarCarAlertBannerProps> = ({
                         {/* Close button */}
                         <button
                             onClick={handleDismiss}
-                            className="flex-shrink-0 p-1 text-gray-300 hover:text-gray-500 rounded-lg transition-colors"
+                            className="flex-shrink-0 p-1 text-gray-300 dark:text-zinc-600 hover:text-gray-500 dark:hover:text-zinc-400 rounded-lg transition-colors"
                         >
                             <X className="w-4 h-4" />
                         </button>

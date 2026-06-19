@@ -75,7 +75,7 @@ const AttributeGrid: React.FC<AttributeGridProps> = ({
             {Array.from({ length: 5 }).map((_, i) => (
               <Card
                 key={i}
-                className="bg-white border-none rounded-lg p-3 min-w-[140px] flex-shrink-0 shadow-sm"
+                className="bg-white dark:bg-zinc-900 border-none rounded-lg p-3 min-w-[140px] flex-shrink-0 shadow-sm"
               >
                 <CardContent className="flex flex-col h-full p-0 space-y-2">
                   <div className="flex items-center gap-2">
@@ -91,7 +91,7 @@ const AttributeGrid: React.FC<AttributeGridProps> = ({
         {/* Desktop skeleton */}
         <div className="hidden md:grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 w-full">
           {Array.from({ length: 5 }).map((_, i) => (
-            <Card key={i} className="bg-white border-none rounded-lg p-3 h-20">
+            <Card key={i} className="bg-white dark:bg-zinc-900 border-none rounded-lg p-3 h-20">
               <CardContent className="flex flex-col h-full p-0">
                 <div className="flex items-start gap-2 mb-1">
                   <Skeleton className="h-5 w-5 rounded-md" />
@@ -113,7 +113,7 @@ const AttributeGrid: React.FC<AttributeGridProps> = ({
       {/* Hover glow */}
       <div className="absolute -inset-0.5 bg-gradient-to-r from-[#198341] via-[#ABDE3B] to-[#198341] rounded-lg opacity-0 group-hover:opacity-20 blur transition-opacity duration-300" />
 
-      <Card className="relative bg-white border-2 border-slate-200 rounded-lg p-3 flex-shrink-0 shadow-sm hover:shadow-lg hover:border-[#198341] transition-all duration-300 overflow-hidden h-full">
+      <Card className="relative bg-white dark:bg-zinc-900 border-2 border-slate-200 dark:border-zinc-800 rounded-lg p-3 flex-shrink-0 shadow-sm hover:shadow-lg hover:border-[#198341] dark:hover:border-[#ABDE3B] transition-all duration-300 overflow-hidden h-full">
         {/* Top accent line */}
         <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#198341] via-[#ABDE3B] to-[#198341] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
 
@@ -128,13 +128,13 @@ const AttributeGrid: React.FC<AttributeGridProps> = ({
 
           {/* Label + Value */}
           <div className="flex flex-col gap-1 min-w-0">
-            <span className="text-[#2C3C39] group-hover:text-[#198341] font-cairo font-bold text-xs line-clamp-1 transition-colors duration-300">
+            <span className="text-[#2C3C39] dark:text-zinc-200 group-hover:text-[#198341] dark:group-hover:text-[#ABDE3B] font-cairo font-bold text-xs line-clamp-1 transition-colors duration-300">
               {item.label}
               {item.hint && (
-                <span className="font-normal text-gray-400 ms-1">({item.hint})</span>
+                <span className="font-normal text-gray-400 dark:text-zinc-500 ms-1">({item.hint})</span>
               )}
             </span>
-            <span className="text-secondary-text text-xs sm:text-sm font-cairo font-medium line-clamp-1">
+            <span className="text-secondary-text dark:text-zinc-400 text-xs sm:text-sm font-cairo font-medium line-clamp-1">
               {item.value || '—'}
             </span>
           </div>

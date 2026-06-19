@@ -103,13 +103,13 @@ const AccordionProductDetails: React.FC<AccordionProductDetailsProps> = ({
           return (
             <div
               key={index}
-              className="group relative overflow-hidden rounded-2xl bg-white transform hover:-translate-y-2 transition-all duration-500"
+              className="group relative overflow-hidden rounded-2xl bg-white dark:bg-zinc-900 transform hover:-translate-y-2 transition-all duration-500"
             >
               {/* Outer glow effect */}
               <div className="absolute -inset-1 bg-gradient-to-r from-[#198341] via-[#ABDE3B] to-[#198341] rounded-2xl opacity-0 group-hover:opacity-30 blur-xl transition-all duration-500"></div>
               
               {/* Border wrapper */}
-              <div className="relative rounded-2xl border-2 border-slate-200 group-hover:border-[#198341] transition-all duration-500 bg-white shadow-lg hover:shadow-2xl">
+              <div className="relative rounded-2xl border-2 border-slate-200 dark:border-zinc-800 group-hover:border-[#198341] dark:group-hover:border-[#ABDE3B] transition-all duration-500 bg-white dark:bg-zinc-900 shadow-lg hover:shadow-2xl">
                 {/* Decorative corner accents */}
                 <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-[#ABDE3B]/10 to-transparent rounded-bl-full pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 <div className="absolute bottom-0 left-0 w-20 h-20 bg-gradient-to-tr from-[#198341]/10 to-transparent rounded-tr-full pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -182,7 +182,7 @@ const AccordionProductDetails: React.FC<AccordionProductDetailsProps> = ({
                     <div className="space-y-3 relative z-10">
                       <div className="flex items-center gap-2 mb-4">
                         <div className="w-1 h-4 bg-gradient-to-b from-[#198341] to-[#ABDE3B] rounded-full"></div>
-                        <Text className="font-semibold text-sm text-[#2C3C39] uppercase tracking-wide">
+                        <Text className="font-semibold text-sm text-[#2C3C39] dark:text-zinc-300 uppercase tracking-wide">
                           {t('accordionDetails.details.affectedAreas', {
                             defaultValue: 'Affected Areas',
                           })}
@@ -193,7 +193,7 @@ const AccordionProductDetails: React.FC<AccordionProductDetailsProps> = ({
                         {damageZones.map((zone, idx) => (
                           <div
                             key={`damage-${idx}`}
-                            className="group/item relative flex items-center gap-3 p-3 bg-gradient-to-r from-gray-50 to-white rounded-xl hover:from-[#198341]/10 hover:to-[#ABDE3B]/10 transition-all duration-300 border border-transparent hover:border-[#198341]/30"
+                            className="group/item relative flex items-center gap-3 p-3 bg-gradient-to-r from-gray-50 to-white dark:from-zinc-950 dark:to-zinc-900 rounded-xl hover:from-[#198341]/10 hover:to-[#ABDE3B]/10 dark:hover:from-[#ABDE3B]/10 dark:hover:to-[#ABDE3B]/20 transition-all duration-300 border border-transparent hover:border-[#198341]/30 dark:hover:border-[#ABDE3B]/30"
                           >
                             {/* Hover indicator */}
                             <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-0 group-hover/item:h-8 bg-gradient-to-b from-[#198341] to-[#ABDE3B] transition-all duration-300 rounded-r-full"></div>
@@ -201,7 +201,7 @@ const AccordionProductDetails: React.FC<AccordionProductDetailsProps> = ({
                             <div className="flex-shrink-0 ml-1">
                               <div className="w-3 h-3 rounded-full bg-gradient-to-br from-red-500 to-red-600 group-hover/item:scale-125 transition-transform duration-300"></div>
                             </div>
-                            <Text className="text-sm font-medium text-[#2C3C39] group-hover/item:text-[#198341] group-hover/item:font-semibold transition-all duration-300">
+                            <Text className="text-sm font-medium text-[#2C3C39] dark:text-zinc-300 group-hover/item:text-[#198341] dark:group-hover/item:text-[#ABDE3B] group-hover/item:font-semibold transition-all duration-300">
                               {t(`accordionDetails.details.damageZone.${zone}`, {
                                 defaultValue: zone,
                               })}
@@ -224,10 +224,10 @@ const AccordionProductDetails: React.FC<AccordionProductDetailsProps> = ({
                         </div>
                       </div>
 
-                      <Text className="text-center text-[#2C3C39] font-bold mb-2 text-lg">
+                      <Text className="text-center text-[#2C3C39] dark:text-zinc-200 font-bold mb-2 text-lg">
                         {t('accordionDetails.details.excellentCondition')}
                       </Text>
-                      <Text className="text-sm text-gray-600 text-center leading-relaxed max-w-[200px]">
+                      <Text className="text-sm text-gray-600 dark:text-zinc-400 text-center leading-relaxed max-w-[200px]">
                         {t('accordionDetails.details.noDamage', {
                           defaultValue: `No ${box.damageType.toLowerCase()} damage found`,
                           type: box.damageType.toLowerCase(),

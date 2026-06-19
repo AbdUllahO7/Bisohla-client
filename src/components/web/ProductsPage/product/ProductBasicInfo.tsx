@@ -128,7 +128,7 @@ const ProductBasicInfo: React.FC<ProductBasicInfoProps> = ({
             {Array.from({ length: 7 }).map((_, index) => (
               <Card
                 key={`mobile-skeleton-${index}`}
-                className="bg-white border-none rounded-lg p-3 min-w-[140px] flex-shrink-0 shadow-sm"
+                className="bg-white dark:bg-zinc-900 border-none rounded-lg p-3 min-w-[140px] flex-shrink-0 shadow-sm"
               >
                 <CardContent className="flex flex-col h-full p-0 space-y-2">
                   <div className="flex items-center gap-2">
@@ -147,7 +147,7 @@ const ProductBasicInfo: React.FC<ProductBasicInfoProps> = ({
           {Array.from({ length: 7 }).map((_, index) => (
             <Card
               key={`skeleton-${index}`}
-              className="bg-white border-none rounded-lg p-2 sm:p-3 h-20 flex-shrink-0"
+              className="bg-white dark:bg-zinc-900 border-none rounded-lg p-2 sm:p-3 h-20 flex-shrink-0"
             >
               <CardContent className="flex flex-col h-full p-0">
                 <div className="flex items-start gap-2 mb-1">
@@ -174,7 +174,7 @@ const ProductBasicInfo: React.FC<ProductBasicInfoProps> = ({
               <div className="absolute -inset-0.5 bg-gradient-to-r from-[#198341] via-[#ABDE3B] to-[#198341] rounded-lg opacity-0 group-hover:opacity-20 blur transition-opacity duration-300"></div>
               
               <Card
-                className="relative bg-white border-2 border-slate-200 rounded-lg p-3 min-w-[140px] flex-shrink-0 shadow-sm hover:shadow-lg hover:border-[#198341] transition-all duration-300 overflow-hidden"
+                className="relative bg-white dark:bg-zinc-900 border-2 border-slate-200 dark:border-zinc-800 rounded-lg p-3 min-w-[140px] flex-shrink-0 shadow-sm hover:shadow-lg hover:border-[#198341] dark:hover:border-[#ABDE3B] transition-all duration-300 overflow-hidden"
               >
                 {/* Top accent line */}
                 <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#198341] via-[#ABDE3B] to-[#198341] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
@@ -197,14 +197,14 @@ const ProductBasicInfo: React.FC<ProductBasicInfoProps> = ({
                     </div>
                     <Text
                       variant="small"
-                      className="text-[#2C3C39] group-hover:text-[#198341] font-cairo font-bold text-xs line-clamp-1 flex-1 transition-colors duration-300"
+                      className="text-[#2C3C39] dark:text-zinc-200 group-hover:text-[#198341] dark:group-hover:text-[#ABDE3B] font-cairo font-bold text-xs line-clamp-1 flex-1 transition-colors duration-300"
                     >
                       {info.label}
                     </Text>
                   </div>
                   <Text
                     variant="small"
-                    className="text-gray-700 font-cairo font-medium text-sm line-clamp-2 min-h-[2.5rem] flex items-center"
+                    className="text-gray-700 dark:text-zinc-300 font-cairo font-medium text-sm line-clamp-2 min-h-[2.5rem] flex items-center"
                   >
                     {info.value || 'N/A'}
                   </Text>
@@ -240,7 +240,7 @@ const ProductBasicInfo: React.FC<ProductBasicInfoProps> = ({
             <div className="absolute -inset-0.5 bg-gradient-to-r from-[#198341] via-[#ABDE3B] to-[#198341] rounded-lg opacity-0 group-hover:opacity-20 blur transition-opacity duration-300"></div>
             
             <Card
-              className="relative bg-white border-2 border-slate-200 rounded-lg p-2 sm:p-3 h-20 flex-shrink-0 hover:shadow-xl hover:border-[#198341] transition-all duration-300 overflow-hidden"
+              className="relative bg-white dark:bg-zinc-900 border-2 border-slate-200 dark:border-zinc-800 rounded-lg p-2 sm:p-3 h-20 flex-shrink-0 hover:shadow-xl hover:border-[#198341] dark:hover:border-[#ABDE3B] transition-all duration-300 overflow-hidden"
             >
               {/* Top accent line */}
               <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#198341] via-[#ABDE3B] to-[#198341] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
@@ -266,13 +266,13 @@ const ProductBasicInfo: React.FC<ProductBasicInfoProps> = ({
                 <div className="flex flex-col gap-1 sm:gap-2">
                   <Text
                     variant="small"
-                    className="text-[#2C3C39] group-hover:text-[#198341] font-cairo font-bold text-xs sm:text-sm line-clamp-1 transition-colors duration-300"
+                    className="text-[#2C3C39] dark:text-zinc-200 group-hover:text-[#198341] dark:group-hover:text-[#ABDE3B] font-cairo font-bold text-xs sm:text-sm line-clamp-1 transition-colors duration-300"
                   >
                     {info.label}
                   </Text>
                   <Text
                     variant="small"
-                    className="text-secondary-text mt-auto pb-1 sm:pb-2 overflow-hidden text-ellipsis text-xs sm:text-sm line-clamp-1"
+                    className="text-secondary-text dark:text-zinc-400 mt-auto pb-1 sm:pb-2 overflow-hidden text-ellipsis text-xs sm:text-sm line-clamp-1"
                   >
                     {info.value}
                   </Text>

@@ -46,7 +46,7 @@ const AddProductTypeSelection: React.FC<AddProductTypeSelectionProps> = ({ onSel
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
         {[1, 2, 3].map((i) => (
-          <Card key={i} className="animate-pulse h-48 bg-gray-100 border-none" />
+          <Card key={i} className="animate-pulse h-48 bg-gray-100 dark:bg-zinc-800 border-none" />
         ))}
       </div>
     );
@@ -55,10 +55,10 @@ const AddProductTypeSelection: React.FC<AddProductTypeSelectionProps> = ({ onSel
   return (
     <div className="w-full max-w-7xl mx-auto p-4 sm:p-6 space-y-8">
       <div className="text-center space-y-2">
-        <Text className="text-2xl sm:text-3xl font-bold text-gray-900">
+        <Text className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-zinc-100">
           {t("typeSelection.title", { defaultValue: "Select Category" })}
         </Text>
-        <Text className="text-gray-500">
+        <Text className="text-gray-500 dark:text-zinc-400">
           {t("typeSelection.description", { defaultValue: "What kind of ad would you like to post?" })}
         </Text>
       </div>
@@ -70,8 +70,8 @@ const AddProductTypeSelection: React.FC<AddProductTypeSelectionProps> = ({ onSel
             className={cn(
               "group cursor-pointer transition-all duration-300 hover:shadow-xl border-2",
               selectedTypeId === type.id 
-                ? "border-emerald-500 bg-emerald-50/50" 
-                : "border-transparent hover:border-emerald-200 bg-white"
+                ? "border-emerald-500 dark:border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/20" 
+                : "border-transparent dark:border-zinc-800 hover:border-emerald-200 dark:hover:border-emerald-800 bg-white dark:bg-zinc-900"
             )}
             onClick={() => onSelect(type)}
           >
@@ -86,13 +86,13 @@ const AddProductTypeSelection: React.FC<AddProductTypeSelectionProps> = ({ onSel
                     className="object-contain"
                   />
                 ) : (
-                  <div className="w-16 h-16 bg-gray-100 rounded-full" />
+                  <div className="w-16 h-16 bg-gray-100 dark:bg-zinc-800 rounded-full" />
                 )}
               </div>
               <div className="space-y-1">
-                <Text className="text-xl font-bold text-gray-900">{type.name}</Text>
+                <Text className="text-xl font-bold text-gray-900 dark:text-zinc-100">{type.name}</Text>
                 {type.description && (
-                  <Text className="text-sm text-gray-500 line-clamp-2">{type.description}</Text>
+                  <Text className="text-sm text-gray-500 dark:text-zinc-400 line-clamp-2">{type.description}</Text>
                 )}
               </div>
             </CardContent>

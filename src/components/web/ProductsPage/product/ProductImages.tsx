@@ -281,7 +281,7 @@ const ProductImages: React.FC<ProductImagesProps> = ({
                     className={`w-2 h-2 rounded-full transition-colors ${
                       index === currentMainImageIndex
                         ? 'bg-primary-light'
-                        : 'bg-gray-300'
+                        : 'bg-gray-300 dark:bg-zinc-700'
                     }`}
                   />
                 ))}
