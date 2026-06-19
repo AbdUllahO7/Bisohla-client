@@ -114,8 +114,8 @@ interface TrimItemProps {
 const TrimItem: React.FC<TrimItemProps> = React.memo(({ trim, isRTL, onTrimSelect }) => (
   <div
     className={`rounded border transition-all duration-200 ${trim.isSelected
-        ? 'bg-white border-primary/30 shadow-sm'
-        : 'bg-white/50 border-slate-200 hover:bg-white'
+        ? 'bg-white dark:bg-zinc-900 border-primary/30 dark:border-[#ABDE3B]/30 shadow-sm'
+        : 'bg-white/50 dark:bg-zinc-900/50 border-slate-200 dark:border-zinc-800 hover:bg-white dark:hover:bg-zinc-900'
       }`}
   >
     <div className="p-2">
@@ -131,7 +131,7 @@ const TrimItem: React.FC<TrimItemProps> = React.memo(({ trim, isRTL, onTrimSelec
         />
         <Label
           htmlFor={`trim-${trim.value}`}
-          className={`text-sm cursor-pointer flex items-center ${trim.isSelected ? 'text-primary font-medium' : 'text-slate-500'
+          className={`text-sm cursor-pointer flex items-center ${trim.isSelected ? 'text-primary dark:text-[#ABDE3B] font-medium' : 'text-slate-500 dark:text-zinc-400'
             } ${isRTL ? 'pr-2' : 'pl-2'}`}
         >
           {trim.isSelected && (
@@ -231,8 +231,8 @@ const ModelItem: React.FC<ModelItemProps> = React.memo(({
     <div className="mb-1">
       <div
         className={`rounded-md border transition-all duration-200 ${model.isSelected
-            ? 'bg-white border-primary/30 shadow-sm'
-            : 'bg-white/70 border-slate-200 hover:bg-white'
+            ? 'bg-white dark:bg-zinc-900 border-primary/30 dark:border-[#ABDE3B]/30 shadow-sm'
+            : 'bg-white/70 dark:bg-zinc-900/70 border-slate-200 dark:border-zinc-800 hover:bg-white dark:hover:bg-zinc-900'
           }`}
       >
         <div className="p-2">
@@ -253,8 +253,8 @@ const ModelItem: React.FC<ModelItemProps> = React.memo(({
               <Label
                 htmlFor={`model-${model.value}`}
                 className={`text-sm cursor-pointer flex items-center ${model.isSelected
-                    ? 'text-primary font-medium'
-                    : 'text-slate-600'
+                    ? 'text-primary dark:text-[#ABDE3B] font-medium'
+                    : 'text-slate-600 dark:text-zinc-350'
                   } ${isRTL ? 'pr-2' : 'pl-2'}`}
               >
                 {model.isSelected && (
@@ -298,9 +298,9 @@ const ModelItem: React.FC<ModelItemProps> = React.memo(({
         </div>
 
         {model.isSelected && isExpanded && isCarTrimRequired && (
-          <div className="border-t border-primary/20 bg-primary/5 p-2 space-y-1">
+          <div className="border-t border-primary/20 dark:border-[#ABDE3B]/20 bg-primary/5 dark:bg-[#ABDE3B]/5 p-2 space-y-1">
             {trimsQuery.isLoading ? (
-              <div className="flex items-center p-2 text-sm text-slate-500">
+              <div className="flex items-center p-2 text-sm text-slate-500 dark:text-zinc-400">
                 <Loader2
                   className={`w-4 h-4 animate-spin ${isRTL ? 'ml-2' : 'mr-2'
                     }`}
@@ -427,8 +427,8 @@ const BrandItem: React.FC<BrandItemProps> = React.memo(({
     <div className="mb-2">
       <div
         className={`rounded-lg border transition-all duration-200 ${brand.isSelected
-            ? 'bg-primary/10 border-primary/30 shadow-sm'
-            : 'bg-white border-slate-200 hover:border-slate-300'
+            ? 'bg-primary/10 dark:bg-[#ABDE3B]/10 border-primary/30 dark:border-[#ABDE3B]/30 shadow-sm'
+            : 'bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 hover:border-slate-300 dark:hover:border-zinc-700'
           }`}
       >
         <div className="p-3">
@@ -448,7 +448,7 @@ const BrandItem: React.FC<BrandItemProps> = React.memo(({
               />
               <Label
                 htmlFor={`brand-${brand.value}`}
-                className={`text-sm font-medium cursor-pointer flex items-center ${brand.isSelected ? 'text-primary' : 'text-slate-700'
+                className={`text-sm font-medium cursor-pointer flex items-center ${brand.isSelected ? 'text-primary dark:text-[#ABDE3B]' : 'text-slate-700 dark:text-zinc-300'
                   } ${isRTL ? 'pr-3' : 'pl-3'}`}
               >
                 {brand.isSelected && (
@@ -506,9 +506,9 @@ const BrandItem: React.FC<BrandItemProps> = React.memo(({
         </div>
 
         {brand.isSelected && isExpanded && (
-          <div className="border-t border-primary/20 bg-primary/5 p-3 space-y-2">
+          <div className="border-t border-primary/20 dark:border-[#ABDE3B]/20 bg-primary/5 dark:bg-[#ABDE3B]/5 p-3 space-y-2">
             {modelsQuery.isLoading ? (
-              <div className="flex items-center p-2 text-sm text-slate-500">
+              <div className="flex items-center p-2 text-sm text-slate-500 dark:text-zinc-400">
                 <Loader2
                   className={`w-4 h-4 animate-spin ${isRTL ? 'ml-2' : 'mr-2'
                     }`}
@@ -516,7 +516,7 @@ const BrandItem: React.FC<BrandItemProps> = React.memo(({
                 {isRTL ? 'التحميل...' : 'Loading models...'}
               </div>
             ) : models.length === 0 ? (
-              <div className="p-2 text-sm text-slate-500">
+              <div className="p-2 text-sm text-slate-500 dark:text-zinc-400">
                 {isRTL ? 'لم يتم العثور على موديلات' : 'No models found'}
               </div>
             ) : (
@@ -769,7 +769,7 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
         <div className="relative group">
           <Search
             className={`absolute ${isRTL ? 'right-3' : 'left-3'
-              } top-1/2 transform -translate-y-1/2 h-4 w-4 ${isFocused || searchTerm ? 'text-primary' : 'text-slate-400'
+              } top-1/2 transform -translate-y-1/2 h-4 w-4 ${isFocused || searchTerm ? 'text-primary dark:text-[#ABDE3B]' : 'text-slate-400 dark:text-zinc-500'
               }`}
           />
           <input
@@ -780,8 +780,8 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
             onBlur={() => setIsFocused(false)}
             onKeyDown={(e) => e.key === 'Escape' && setSearchTerm('')}
             placeholder={searchPlaceholder}
-            className={`w-full border border-slate-200 bg-[#EFEFEF] transition-all duration-200 ${isRTL ? 'pr-9 pl-8 text-right' : 'pl-9 pr-8 text-left'
-              } h-10 rounded-lg text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 hover:border-slate-300 ${isFocused ? 'bg-white shadow-sm' : ''
+            className={`w-full border border-slate-200 dark:border-zinc-800 bg-[#EFEFEF] dark:bg-zinc-950 text-slate-800 dark:text-zinc-100 transition-all duration-200 ${isRTL ? 'pr-9 pl-8 text-right' : 'pl-9 pr-8 text-left'
+              } h-10 rounded-lg text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 hover:border-slate-300 dark:hover:border-zinc-700 ${isFocused ? 'bg-white dark:bg-zinc-900 shadow-sm' : ''
               }`}
           />
           {searchTerm && (
@@ -789,7 +789,7 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
               type="button"
               onClick={() => setSearchTerm('')}
               className={`absolute ${isRTL ? 'left-2' : 'right-2'
-                } top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600`}
+                } top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-zinc-350`}
             >
               <X className="h-4 w-4" />
             </button>
@@ -800,7 +800,7 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
       {/* Main Content */}
       <div
         ref={listRef}
-        className="overflow-y-auto rounded-lg border border-slate-200 bg-white shadow-sm"
+        className="overflow-y-auto rounded-lg border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm"
         style={{ maxHeight, scrollbarWidth: 'thin' }}
       >
         <div className="p-3">
@@ -812,8 +812,8 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
             </div>
           ) : makes.length === 0 && !isLoadingMakes ? (
             <div className="p-4 text-center">
-              <Search className="h-8 w-8 mx-auto opacity-50 mb-2" />
-              <div className="text-sm text-slate-500">{noOptionsMessage}</div>
+              <Search className="h-8 w-8 mx-auto opacity-50 mb-2 dark:text-zinc-400" />
+              <div className="text-sm text-slate-500 dark:text-zinc-400">{noOptionsMessage}</div>
             </div>
           ) : (
             <>
@@ -843,8 +843,8 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
 
               {(isLoadingMakes || isFetchingNextMakesPage) && (
                 <div className="flex justify-center items-center p-4">
-                  <Loader2 className="w-5 h-5 animate-spin text-primary mr-2" />
-                  <span className="text-sm text-slate-500">
+                  <Loader2 className="w-5 h-5 animate-spin text-primary dark:text-[#ABDE3B] mr-2" />
+                  <span className="text-sm text-slate-500 dark:text-zinc-400">
                     {isRTL ? 'جارٍ التحميل...' : 'Loading...'}
                   </span>
                 </div>
@@ -860,7 +860,7 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
 
       {/* FIXED: Selection Status with proper multi-brand display */}
       {(selectedBrands.length > 0 || selectedModel || selectedTrim) && (
-        <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg">
+        <div className="p-3 bg-primary/5 dark:bg-[#ABDE3B]/5 border border-primary/20 dark:border-[#ABDE3B]/20 rounded-lg">
           <div
             className={`flex items-center justify-between text-xs ${isRTL ? 'flex-row-reverse' : ''
               }`}
@@ -870,18 +870,18 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
                 {isRTL ? 'المحدد:' : 'Selected:'}
               </span>
               {selectedBrands.length > 0 && (
-                <span className="text-primary font-medium ml-1">
+                <span className="text-primary dark:text-[#ABDE3B] font-medium ml-1">
                   {selectedBrands.length} {isRTL ? 'علامة تجارية' : 'brand'}
                   {selectedBrands.length !== 1 && !isRTL ? 's' : ''}
                 </span>
               )}
               {selectedModel && (
-                <span className="text-primary font-medium ml-1">
+                <span className="text-primary dark:text-[#ABDE3B] font-medium ml-1">
                   {isRTL ? '• 1 موديل' : '• 1 model'}
                 </span>
               )}
               {selectedTrim && (
-                <span className="text-primary font-medium ml-1">
+                <span className="text-primary dark:text-[#ABDE3B] font-medium ml-1">
                   {isRTL ? '• 1 تريم' : '• 1 trim'}
                 </span>
               )}
@@ -898,7 +898,7 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
                 setExpandedBrands(new Set());
                 setExpandedModels(new Set());
               }}
-              className="h-auto p-1.5 text-xs text-slate-500 hover:text-red-600 hover:bg-red-50"
+              className="h-auto p-1.5 text-xs text-slate-500 dark:text-zinc-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30"
             >
               {isRTL ? 'مسح الكل' : 'Clear All'}
             </Button>

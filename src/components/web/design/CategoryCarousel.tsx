@@ -139,11 +139,11 @@ const CategoryCarousel: React.FC<CarouselComponentProps> = ({
                     className="pl-2 md:pl-4 xs:basis-1/2 md:basis-1/4 lg:basis-1/6"
                   >
                     <div className="p-1">
-                      <Card className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-zinc-900 dark:to-zinc-800 border border-gray-200 dark:border-zinc-850 rounded-xl shadow-sm">
+                      <Card className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-zinc-900 dark:to-zinc-800 border border-gray-200 dark:border-zinc-800 rounded-xl shadow-sm">
                         <CardContent className="flex flex-col items-center justify-center p-6 h-[160px]">
                           <div className="relative">
                             <Skeleton className="w-16 h-16 rounded-full mb-4 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-zinc-800 dark:to-zinc-700" />
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent dark:via-zinc-850 animate-pulse rounded-full" />
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent dark:via-zinc-800 animate-pulse rounded-full" />
                           </div>
                           <Skeleton className="h-4 w-20 mb-2 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-zinc-800 dark:to-zinc-700" />
                           <Skeleton className="h-3 w-16 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-zinc-800 dark:to-zinc-700" />

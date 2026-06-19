@@ -81,18 +81,18 @@ const FilterOptionDropdown = React.memo(
     return (
       <div className="mb-4 w-full">
         {title && (
-          <Label className="text-sm font-medium text-slate-700 mb-2 block">
+          <Label className="text-sm font-medium text-slate-700 dark:text-zinc-300 mb-2 block">
             {title}
           </Label>
         )}
         <SelectDropdown
           options={options}
           placeholder={placeholder}
-          SelectTriggerStyle={`border border-slate-200 rounded-lg p-3 shadow-sm ${disabled
-            ? 'bg-slate-50 text-slate-400 cursor-not-allowed'
-            : `bg-white hover:bg-slate-50 ${value ? 'border-primary/50 bg-primary/5' : ''
+          SelectTriggerStyle={`border border-slate-200 dark:border-zinc-800 rounded-lg p-3 shadow-sm ${disabled
+            ? 'bg-slate-50 dark:bg-zinc-950 text-slate-400 dark:text-zinc-600 cursor-not-allowed'
+            : `bg-white dark:bg-zinc-900 hover:bg-slate-50 dark:hover:bg-zinc-800/50 ${value ? 'border-primary/50 dark:border-[#ABDE3B]/30 bg-primary/5 dark:bg-[#ABDE3B]/5' : ''
             }`
-            } transition-all duration-200 w-full text-slate-800 text-sm font-medium`}
+            } transition-all duration-200 w-full text-slate-800 dark:text-zinc-100 text-sm font-medium`}
           className="w-full"
           onChange={onChange}
           value={value || ''}
@@ -112,13 +112,13 @@ const AccordionHeader = React.memo(
     <div className="flex items-center justify-between w-full py-1">
       <div className="flex items-center gap-3">
         <span
-          className={`text-slate-800 font-semibold text-sm ${hasActiveFilters ? 'text-primary' : ''
+          className={`text-slate-800 dark:text-zinc-200 font-semibold text-sm ${hasActiveFilters ? 'text-primary dark:text-[#ABDE3B]' : ''
             }`}
         >
           {title}
         </span>
         {hasActiveFilters && activeCount && (
-          <span className="bg-primary text-white text-xs px-2 py-0.5 rounded-full font-medium">
+          <span className="bg-primary dark:bg-[#ABDE3B] text-white dark:text-zinc-950 text-xs px-2 py-0.5 rounded-full font-medium">
             {activeCount}
           </span>
         )}
@@ -150,11 +150,11 @@ const ActiveFiltersSummary = React.memo(({ filters, onClearAll }: any) => {
   if (activeFiltersCount === 0) return null;
 
   return (
-    <div className="px-4 py-3 bg-primary/5 border-b border-primary/10">
+    <div className="px-4 py-3 bg-primary/5 dark:bg-[#ABDE3B]/5 border-b border-primary/10 dark:border-[#ABDE3B]/10">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <FilterIcon className="h-4 w-4 text-primary" />
-          <span className="text-sm font-medium text-primary">
+          <FilterIcon className="h-4 w-4 text-primary dark:text-[#ABDE3B]" />
+          <span className="text-sm font-medium text-primary dark:text-[#ABDE3B]">
             {activeFiltersCount}{' '}
             {t('filter.activeFilters', { count: activeFiltersCount })}
           </span>
@@ -163,7 +163,7 @@ const ActiveFiltersSummary = React.memo(({ filters, onClearAll }: any) => {
           variant="ghost"
           size="sm"
           onClick={onClearAll}
-          className="text-xs text-slate-600 hover:text-primary p-1 h-auto"
+          className="text-xs text-slate-600 dark:text-zinc-400 hover:text-primary dark:hover:text-[#ABDE3B] p-1 h-auto"
         >
           {t('filter.clearAll')}
         </Button>
@@ -279,9 +279,9 @@ const FilterContent = React.memo(
               {/* Listing Type Filter - FIXED: Changed value to "listing-type" */}
               <AccordionItem
                 value="listing-type"
-                className="border border-slate-200 rounded-lg overflow-hidden bg-white hover:shadow-sm transition-shadow"
+                className="border border-slate-200 dark:border-zinc-800 rounded-lg overflow-hidden bg-white dark:bg-zinc-900 hover:shadow-sm transition-shadow"
               >
-                <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 transition-colors duration-200">
+                <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors duration-200">
                   <AccordionHeader
                     title={t('filter.listingTypeSelect', {
                       defaultValue: 'Listing Type',
@@ -290,7 +290,7 @@ const FilterContent = React.memo(
                     activeCount={getActiveFiltersCount('listing-type')}
                   />
                 </AccordionTrigger>
-                <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50">
+                <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50 dark:bg-zinc-950/30">
                   <div className="space-y-3">
                     <FilterOptionDropdown
                       options={listingTypes.map((t: any) => ({
@@ -321,16 +321,16 @@ const FilterContent = React.memo(
               {/* Location Filter */}
               <AccordionItem
                 value="address"
-                className="border border-slate-200 rounded-lg overflow-hidden bg-white hover:shadow-sm transition-shadow"
+                className="border border-slate-200 dark:border-zinc-800 rounded-lg overflow-hidden bg-white dark:bg-zinc-900 hover:shadow-sm transition-shadow"
               >
-                <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 transition-colors duration-200">
+                <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors duration-200">
                   <AccordionHeader
                     title={t('filter.filterOptions.address.filterOptionsTitle')}
                     hasActiveFilters={getActiveFiltersCount('address') > 0}
                     activeCount={getActiveFiltersCount('address')}
                   />
                 </AccordionTrigger>
-                <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50">
+                <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50 dark:bg-zinc-950/30">
                   <div className="space-y-3">
                     <FilterOptionDropdown
                       options={governorateOptions}
@@ -361,16 +361,16 @@ const FilterContent = React.memo(
               {hasAttribute('make') && (
                 <AccordionItem
                   value="car-marka"
-                  className="border border-slate-200 rounded-lg overflow-hidden bg-white hover:shadow-sm transition-shadow"
+                  className="border border-slate-200 dark:border-zinc-800 rounded-lg overflow-hidden bg-white dark:bg-zinc-900 hover:shadow-sm transition-shadow"
                 >
-                  <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 transition-colors duration-200">
+                  <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors duration-200">
                     <AccordionHeader
                       title={stepOneTitles.brand}
                       hasActiveFilters={getActiveFiltersCount('car-marka') > 0}
                       activeCount={getActiveFiltersCount('car-marka')}
                     />
                   </AccordionTrigger>
-                  <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50">
+                  <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50 dark:bg-zinc-950/30">
                     <NestedCarFilter
                       carMakesConfig={carMakesConfig}
                       carModelsConfig={carModelsConfig}
@@ -397,16 +397,16 @@ const FilterContent = React.memo(
               {hasAttribute('year') && (
                 <AccordionItem
                   value="car-year"
-                  className="border border-slate-200 rounded-lg overflow-hidden bg-white hover:shadow-sm transition-shadow"
+                  className="border border-slate-200 dark:border-zinc-800 rounded-lg overflow-hidden bg-white dark:bg-zinc-900 hover:shadow-sm transition-shadow"
                 >
-                  <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 transition-colors duration-200">
+                  <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors duration-200">
                     <AccordionHeader
                       title={stepOneTitles.year}
                       hasActiveFilters={getActiveFiltersCount('car-year') > 0}
                       activeCount={getActiveFiltersCount('car-year')}
                     />
                   </AccordionTrigger>
-                  <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50">
+                  <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50 dark:bg-zinc-950/30">
                     <div className="grid grid-cols-2 gap-3">
                       <FilterOptionDropdown
                         options={madeYear}
@@ -436,16 +436,16 @@ const FilterContent = React.memo(
               {/* Price Range */}
               <AccordionItem
                 value="price-range"
-                className="border border-slate-200 rounded-lg overflow-hidden bg-white hover:shadow-sm transition-shadow"
+                className="border border-slate-200 dark:border-zinc-800 rounded-lg overflow-hidden bg-white dark:bg-zinc-900 hover:shadow-sm transition-shadow"
               >
-                <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 transition-colors duration-200">
+                <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors duration-200">
                   <AccordionHeader
                     title={t('filter.filterOptions.productPrice.title')}
                     hasActiveFilters={getActiveFiltersCount('price-range') > 0}
                     activeCount={getActiveFiltersCount('price-range')}
                   />
                 </AccordionTrigger>
-                <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50">
+                <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50 dark:bg-zinc-950/30">
                   <div className="space-y-3">
                     <div className="grid grid-cols-2 gap-3">
                       <FilterOptionDropdown
@@ -486,9 +486,9 @@ const FilterContent = React.memo(
               {hasAttribute('mileage') && (
                 <AccordionItem
                   value="mileage-range"
-                  className="border border-slate-200 rounded-lg overflow-hidden bg-white hover:shadow-sm transition-shadow"
+                  className="border border-slate-200 dark:border-zinc-800 rounded-lg overflow-hidden bg-white dark:bg-zinc-900 hover:shadow-sm transition-shadow"
                 >
-                  <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 transition-colors duration-200">
+                  <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors duration-200">
                     <AccordionHeader
                       title={t('filter.filterOptions.mileage.title', {
                         defaultValue: 'Mileage Range',
@@ -499,7 +499,7 @@ const FilterContent = React.memo(
                       activeCount={getActiveFiltersCount('mileage-range')}
                     />
                   </AccordionTrigger>
-                  <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50">
+                  <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50 dark:bg-zinc-950/30">
                     <div className="grid grid-cols-2 gap-3">
                       <FilterOptionDropdown
                         options={mileageRanges}
@@ -534,16 +534,16 @@ const FilterContent = React.memo(
               {hasAttribute('transmission') && (
                 <AccordionItem
                   value="control-type"
-                  className="border border-slate-200 rounded-lg overflow-hidden bg-white hover:shadow-sm transition-shadow"
+                  className="border border-slate-200 dark:border-zinc-800 rounded-lg overflow-hidden bg-white dark:bg-zinc-900 hover:shadow-sm transition-shadow"
                 >
-                  <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 transition-colors duration-200">
+                  <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors duration-200">
                     <AccordionHeader
                       title={t('filter.filterOptions.ControlType.title')}
                       hasActiveFilters={getActiveFiltersCount('control-type') > 0}
                       activeCount={getActiveFiltersCount('control-type')}
                     />
                   </AccordionTrigger>
-                  <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50">
+                  <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50 dark:bg-zinc-950/30">
                     <FilterOptionDropdown
                       options={dynamicOptions?.transmission?.length > 0 ? dynamicOptions.transmission : stepTwoOptions.transmission}
                       placeholder={stepTwoLabels.selectTransmission}
@@ -559,16 +559,16 @@ const FilterContent = React.memo(
               {hasAttribute('fuel_type') && (
                 <AccordionItem
                   value="fuel-type"
-                  className="border border-slate-200 rounded-lg overflow-hidden bg-white hover:shadow-sm transition-shadow"
+                  className="border border-slate-200 dark:border-zinc-800 rounded-lg overflow-hidden bg-white dark:bg-zinc-900 hover:shadow-sm transition-shadow"
                 >
-                  <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 transition-colors duration-200">
+                  <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors duration-200">
                     <AccordionHeader
                       title={t('filter.filterOptions.FuelType.title')}
                       hasActiveFilters={getActiveFiltersCount('fuel-type') > 0}
                       activeCount={getActiveFiltersCount('fuel-type')}
                     />
                   </AccordionTrigger>
-                  <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50">
+                  <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50 dark:bg-zinc-950/30">
                     <FilterOptionDropdown
                       options={dynamicOptions?.fuelType?.length > 0 ? dynamicOptions.fuelType : stepTwoOptions.fuelType}
                       placeholder={stepTwoLabels.selectFuelType}
@@ -584,16 +584,16 @@ const FilterContent = React.memo(
               {hasAttribute('body_type') && (
                 <AccordionItem
                   value="body-type"
-                  className="border border-slate-200 rounded-lg overflow-hidden bg-white hover:shadow-sm transition-shadow"
+                  className="border border-slate-200 dark:border-zinc-800 rounded-lg overflow-hidden bg-white dark:bg-zinc-900 hover:shadow-sm transition-shadow"
                 >
-                  <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 transition-colors duration-200">
+                  <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors duration-200">
                     <AccordionHeader
                       title={stepTwoLabels.bodyType}
                       hasActiveFilters={getActiveFiltersCount('body-type') > 0}
                       activeCount={getActiveFiltersCount('body-type')}
                     />
                   </AccordionTrigger>
-                  <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50">
+                  <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50 dark:bg-zinc-950/30">
                     <FilterOptionDropdown
                       options={dynamicOptions?.bodyType?.length > 0 ? dynamicOptions.bodyType : stepTwoOptions.bodyType}
                       placeholder={stepTwoLabels.selectBodyType}
@@ -622,16 +622,16 @@ const FilterContent = React.memo(
                   <AccordionItem
                     key={section.id}
                     value={`dynamic-section-${section.id}`}
-                    className="border border-slate-200 rounded-lg overflow-hidden bg-white hover:shadow-sm transition-shadow"
+                    className="border border-slate-200 dark:border-zinc-800 rounded-lg overflow-hidden bg-white dark:bg-zinc-900 hover:shadow-sm transition-shadow"
                   >
-                    <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 transition-colors duration-200">
+                    <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors duration-200">
                       <AccordionHeader
                         title={sectionName}
                         hasActiveFilters={sectionActiveCount > 0}
                         activeCount={sectionActiveCount}
                       />
                     </AccordionTrigger>
-                    <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50">
+                    <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50 dark:bg-zinc-950/30">
                       <div className="space-y-3">
                         {section.attributes.map((attr: any) => {
                           if (!attr.isFilterable || !attr.isActive) return null;
@@ -681,7 +681,7 @@ const FilterContent = React.memo(
                             const value = filters.attributes[attr.slug] || '';
                             return (
                               <div key={attr.id} className="mb-4">
-                                <Label className="text-sm font-medium text-slate-700 mb-2 block">
+                                <Label className="text-sm font-medium text-slate-700 dark:text-zinc-300 mb-2 block">
                                   {attrName}
                                 </Label>
                                 <div className="flex items-center gap-2">
@@ -689,11 +689,11 @@ const FilterContent = React.memo(
                                     type="color"
                                     value={value || '#000000'}
                                     onChange={(e) => updateAttribute(attr.slug, e.target.value)}
-                                    className="w-10 h-10 border border-slate-200 rounded-lg cursor-pointer p-0.5 bg-white shadow-sm"
+                                    className="w-10 h-10 border border-slate-200 dark:border-zinc-800 rounded-lg cursor-pointer p-0.5 bg-white dark:bg-zinc-900 shadow-sm"
                                   />
                                   <input
                                     type="text"
-                                    className="flex h-10 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all font-mono"
+                                    className="flex h-10 w-full rounded-lg border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all font-mono text-slate-800 dark:text-zinc-100"
                                     placeholder="#000000"
                                     value={value}
                                     onChange={(e) => updateAttribute(attr.slug, e.target.value)}
@@ -703,7 +703,7 @@ const FilterContent = React.memo(
                                     <button
                                       type="button"
                                       onClick={() => updateAttribute(attr.slug, '')}
-                                      className="p-2 text-slate-400 hover:text-slate-600"
+                                      className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-zinc-300"
                                     >
                                       <X size={16} />
                                     </button>
@@ -716,12 +716,12 @@ const FilterContent = React.memo(
                           if (attr.type === 'number') {
                             return (
                               <div key={attr.id} className="mb-4">
-                                <Label className="text-sm font-medium text-slate-700 mb-2 block">
+                                <Label className="text-sm font-medium text-slate-700 dark:text-zinc-300 mb-2 block">
                                   {attrName}
                                 </Label>
                                 <input
                                   type="number"
-                                  className="flex h-10 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-200"
+                                  className="flex h-10 w-full rounded-lg border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-200 text-slate-800 dark:text-zinc-100"
                                   placeholder={attrName}
                                   value={filters.attributes[attr.slug] || ''}
                                   onChange={(e) => updateAttribute(attr.slug, e.target.value)}
@@ -732,7 +732,7 @@ const FilterContent = React.memo(
 
                           if (attr.type === 'reference') {
                             return (
-                              <div key={attr.id} className="text-xs text-slate-400 p-2 border border-dashed border-slate-200 rounded">
+                              <div key={attr.id} className="text-xs text-slate-400 dark:text-zinc-500 p-2 border border-dashed border-slate-200 dark:border-zinc-800 rounded">
                                 {attrName} (Reference selection)
                               </div>
                             );
@@ -751,7 +751,7 @@ const FilterContent = React.memo(
         </div>
 
         {/* Action Buttons */}
-        <div className="p-4 border-t border-slate-200 bg-gradient-to-r from-slate-50 to-white flex flex-col gap-3">
+        <div className="p-4 border-t border-slate-200 dark:border-zinc-800 bg-gradient-to-r from-slate-50 to-white dark:from-zinc-950 dark:to-zinc-900 flex flex-col gap-3">
           <Button
             onClick={handleCreateAlert}
             disabled={isCreatingAlert}
@@ -765,7 +765,7 @@ const FilterContent = React.memo(
 
           <Button
             variant="outline"
-            className="w-full bg-white hover:bg-slate-50 hover:text-primary text-slate-700 border-slate-300 hover:border-primary font-medium transition-all duration-200 rounded-lg h-11 shadow-sm hover:shadow"
+            className="w-full bg-white dark:bg-zinc-900 hover:bg-slate-50 dark:hover:bg-zinc-800 hover:text-primary dark:hover:text-[#ABDE3B] text-slate-700 dark:text-zinc-300 border-slate-300 dark:border-zinc-700 hover:border-primary dark:hover:border-[#ABDE3B] font-medium transition-all duration-200 rounded-lg h-11 shadow-sm hover:shadow"
             onClick={resetFilters}
           >
             <ListRestart className="mr-2 h-4 w-4" />
@@ -1094,13 +1094,13 @@ const ProductsFilter: React.FC = React.memo(() => {
         style={{ top: `${headerHeight}px` }}
         dir={isRTL ? 'rtl' : 'ltr'}
       >
-        <div className="w-full bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
+        <div className="w-full bg-white dark:bg-zinc-900 rounded-xl shadow-lg border border-slate-200 dark:border-zinc-800 overflow-hidden">
           {/* Desktop Header */}
-          <div className="p-4 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white">
+          <div className="p-4 border-b border-slate-200 dark:border-zinc-800 bg-gradient-to-r from-slate-50 to-white dark:from-zinc-950 dark:to-zinc-900">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <FilterIcon className="h-5 w-5 text-primary" />
-                <h2 className="text-lg font-bold text-slate-800">
+                <FilterIcon className="h-5 w-5 text-primary dark:text-[#ABDE3B]" />
+                <h2 className="text-lg font-bold text-slate-800 dark:text-zinc-100">
                   {t('filter.title')}
                 </h2>
               </div>
@@ -1128,27 +1128,27 @@ const ProductsFilter: React.FC = React.memo(() => {
           style={{ zIndex: 10000 }}
         >
           {/* Mobile Header */}
-          <SheetHeader className="px-4 py-4 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white">
+          <SheetHeader className="px-4 py-4 border-b border-slate-200 dark:border-zinc-800 bg-gradient-to-r from-slate-50 to-white dark:from-zinc-950 dark:to-zinc-900">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <FilterIcon className="h-5 w-5 text-primary" />
-                <SheetTitle className="text-lg font-bold text-slate-800">
+                <FilterIcon className="h-5 w-5 text-primary dark:text-[#ABDE3B]" />
+                <SheetTitle className="text-lg font-bold text-slate-800 dark:text-zinc-100">
                   {t('filter.title')}
                 </SheetTitle>
               </div>
               <SheetClose asChild>
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-slate-500 dark:text-zinc-400">
                   <X className="h-4 w-4" />
                 </Button>
               </SheetClose>
             </div>
-            <SheetDescription className="text-left text-sm text-slate-600">
+            <SheetDescription className="text-left text-sm text-slate-600 dark:text-zinc-400">
               {t('filter.mobileDescription')}
             </SheetDescription>
           </SheetHeader>
 
           {/* Mobile Search Input */}
-          <div className="border-b border-slate-100">
+          <div className="border-b border-slate-100 dark:border-zinc-800">
             <OptimizedSearchInput />
           </div>
 
@@ -1158,8 +1158,8 @@ const ProductsFilter: React.FC = React.memo(() => {
           </div>
 
           {/* Mobile Footer with Apply Button */}
-          <div className="p-4 border-t border-slate-200 bg-white space-y-3">
-            <div className="flex items-center justify-between text-sm text-slate-600">
+          <div className="p-4 border-t border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 space-y-3">
+            <div className="flex items-center justify-between text-sm text-slate-600 dark:text-zinc-400">
               <span>
                 {activeFiltersCount > 0
                   ? t('filter.filtersApplied', {
@@ -1172,18 +1172,18 @@ const ProductsFilter: React.FC = React.memo(() => {
                   variant="ghost"
                   size="sm"
                   onClick={handleResetFilters}
-                  className="text-xs text-slate-600 hover:text-primary p-1 h-auto"
+                  className="text-xs text-slate-600 dark:text-zinc-400 hover:text-primary dark:hover:text-[#ABDE3B] p-1 h-auto"
                 >
                   {t('filter.clearAll')}
                 </Button>
               )}
             </div>
             <SheetClose asChild>
-              <Button className="w-full bg-primary hover:bg-primary/90 text-white font-semibold h-12 rounded-xl">
+              <Button className="w-full bg-primary dark:bg-gradient-to-r dark:from-[#198341] dark:to-[#ABDE3B] hover:bg-primary/90 text-white font-semibold h-12 rounded-xl border-none">
                 <Check className="mr-2 h-4 w-4" />
                 {t('filter.applyFilters')}
                 {activeFiltersCount > 0 && (
-                  <span className="ml-2 bg-white text-primary px-2 py-0.5 rounded-full text-sm font-bold">
+                  <span className="ml-2 bg-white dark:bg-zinc-950 text-primary dark:text-[#ABDE3B] px-2 py-0.5 rounded-full text-sm font-bold">
                     {activeFiltersCount}
                   </span>
                 )}
