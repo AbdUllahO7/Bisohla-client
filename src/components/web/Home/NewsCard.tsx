@@ -59,7 +59,7 @@ const NewsCard: React.FC<NewsCardProps> = ({
       >
         {/* Category Badge - always at the top right of the image */}
         {article.category && (
-          <div className="absolute top-4 right-4 z-10 px-3 py-1 bg-primary/80 text-white text-xs font-semibold rounded-full backdrop-blur-sm">
+          <div className="absolute top-4 right-4 z-10 px-3 py-1 bg-primary/80 dark:bg-[#ABDE3B]/80 text-white dark:text-zinc-950 text-xs font-semibold rounded-full backdrop-blur-sm">
             {article.category.name}
           </div>
         )}
@@ -81,7 +81,7 @@ const NewsCard: React.FC<NewsCardProps> = ({
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-zinc-850 dark:to-zinc-900 flex items-center justify-center">
+            <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-zinc-800 dark:to-zinc-900 flex items-center justify-center">
               <Newspaper className="w-16 h-16 text-gray-400 dark:text-zinc-600" />
             </div>
           )}

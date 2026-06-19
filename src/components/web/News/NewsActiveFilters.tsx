@@ -33,13 +33,13 @@ export default function NewsActiveFilters({
       {searchTerm && (
         <div className="group/tag relative">
           <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-primary-light/20 rounded-2xl blur-xl" />
-          <span className="relative inline-flex items-center gap-3 px-5 py-3 bg-gradient-to-r from-primary/10 to-primary-light/10 border-2 border-primary/20 text-primary rounded-2xl font-semibold">
+          <span className="relative inline-flex items-center gap-3 px-5 py-3 bg-gradient-to-r from-primary/10 to-primary-light/10 dark:from-[#198341]/10 dark:to-[#ABDE3B]/10 border-2 border-primary/20 dark:border-[#ABDE3B]/20 text-primary dark:text-[#ABDE3B] rounded-2xl font-semibold">
             <Search className="w-4 h-4" />
             {translations.searchingFor}: &quot;{searchTerm}&quot;
             <button
               title="Clear search"
               onClick={onClearSearch}
-              className="hover:bg-primary hover:text-white rounded-lg p-1 transition-all duration-300"
+              className="hover:bg-primary dark:hover:bg-[#ABDE3B] hover:text-white dark:hover:text-zinc-950 rounded-lg p-1 transition-all duration-300"
             >
               <X className="w-4 h-4" />
             </button>
@@ -50,13 +50,13 @@ export default function NewsActiveFilters({
       {selectedCategory && categories.length > 0 && (
         <div className="group/tag relative">
           <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-primary-light/20 rounded-2xl blur-xl" />
-          <span className="relative inline-flex items-center gap-3 px-5 py-3 bg-gradient-to-r from-primary/10 to-primary-light/10 border-2 border-primary/20 text-primary rounded-2xl font-semibold">
+          <span className="relative inline-flex items-center gap-3 px-5 py-3 bg-gradient-to-r from-primary/10 to-primary-light/10 dark:from-[#198341]/10 dark:to-[#ABDE3B]/10 border-2 border-primary/20 dark:border-[#ABDE3B]/20 text-primary dark:text-[#ABDE3B] rounded-2xl font-semibold">
             <Filter className="w-4 h-4" />
             {categories.find((c) => c.id === selectedCategory)?.name}
             <button
               title="Clear category filter"
               onClick={onClearCategory}
-              className="hover:bg-primary hover:text-white rounded-lg p-1 transition-all duration-300"
+              className="hover:bg-primary dark:hover:bg-[#ABDE3B] hover:text-white dark:hover:text-zinc-950 rounded-lg p-1 transition-all duration-300"
             >
               <X className="w-4 h-4" />
             </button>

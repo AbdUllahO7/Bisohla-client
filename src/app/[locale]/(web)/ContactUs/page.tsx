@@ -45,7 +45,7 @@ const ContactUs: React.FC = () => {
       <div className="relative flex items-center justify-center min-h-screen p-4 sm:p-6">
         <div className="w-full max-w-6xl">
           {/* Main Card */}
-          <div className="bg-white/95 backdrop-blur-lg rounded-3xl shadow-2xl overflow-hidden">
+          <div className="bg-white/95 dark:bg-zinc-900/95 backdrop-blur-lg rounded-3xl shadow-2xl overflow-hidden border border-slate-100 dark:border-zinc-800">
             <div className="grid md:grid-cols-2 gap-0">
               {/* Left Side - Header & Info */}
               <div className="relative p-8 sm:p-12 text-white overflow-hidden" 
@@ -116,28 +116,26 @@ const ContactUs: React.FC = () => {
               </div>
 
               {/* Right Side - Contact Details */}
-              <div className="p-8 sm:p-12 bg-gradient-to-br from-gray-50 to-white">
+              <div className="p-8 sm:p-12 bg-gradient-to-br from-gray-50 to-white dark:from-zinc-950 dark:to-zinc-900">
                 <div className="space-y-6">
                   {/* Email Card */}
                   <div className="group relative">
                     <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                          style={{ background: 'linear-gradient(135deg, #ABDE3B 0%, #198341 100%)', filter: 'blur(20px)' }}></div>
-                    <div className="relative bg-white rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border-2 border-transparent hover:border-opacity-50"
+                    <div className="relative bg-white dark:bg-zinc-900 rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border-2 border-transparent dark:border-zinc-800 hover:border-opacity-50"
                          style={{ borderColor: '#ABDE3B' }}>
                       <div className="flex items-start gap-4">
                         <div className="flex-shrink-0 p-3 rounded-xl" 
                              style={{ backgroundColor: '#ABDE3B' }}>
-                          <Mail className="w-6 h-6" style={{ color: '#2C3C39' }} />
+                          <Mail className="w-6 h-6 text-[#2C3C39]" />
                         </div>
                         <div className="flex-1">
-                          <h3 className="text-sm font-semibold uppercase tracking-wide mb-2" 
-                              style={{ color: '#198341' }}>
+                          <h3 className="text-sm font-semibold uppercase tracking-wide mb-2 text-[#198341] dark:text-[#ABDE3B]">
                             {t('email.label')}
                           </h3>
                           <a 
                             href={`mailto:${contactInfo.email}`}
-                            className="text-lg font-medium hover:underline transition-colors block"
-                            style={{ color: '#2C3C39' }}
+                            className="text-lg font-medium hover:underline transition-colors block text-[#2C3C39] dark:text-zinc-200"
                           >
                             {contactInfo.email}
                           </a>
@@ -150,25 +148,23 @@ const ContactUs: React.FC = () => {
                   <div className="group relative">
                     <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                          style={{ background: 'linear-gradient(135deg, #ABDE3B 0%, #198341 100%)', filter: 'blur(20px)' }}></div>
-                    <div className="relative bg-white rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border-2 border-transparent hover:border-opacity-50"
+                    <div className="relative bg-white dark:bg-zinc-900 rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border-2 border-transparent dark:border-zinc-800 hover:border-opacity-50"
                          style={{ borderColor: '#ABDE3B' }}>
                       <div className="flex items-start gap-4">
                         <div className="flex-shrink-0 p-3 rounded-xl" 
                              style={{ backgroundColor: '#ABDE3B' }}>
-                          <Phone className="w-6 h-6" style={{ color: '#2C3C39' }} />
+                          <Phone className="w-6 h-6 text-[#2C3C39]" />
                         </div>
                         <div className="flex-1">
-                          <h3 className="text-sm font-semibold uppercase tracking-wide mb-3" 
-                              style={{ color: '#198341' }}>
+                          <h3 className="text-sm font-semibold uppercase tracking-wide mb-3 text-[#198341] dark:text-[#ABDE3B]">
                             {t('phone.label')}
                           </h3>
                           <div className="space-y-2">
-                            {contactInfo.phones.map((phone: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined, index: React.Key | null | undefined) => (
+                            {contactInfo.phones.map((phone: any, index: number) => (
                               <a
                                 key={index}
                                 href={`tel:${phone}`}
-                                className="block text-lg font-medium hover:underline transition-colors"
-                                style={{ color: '#2C3C39' }}
+                                className="block text-lg font-medium hover:underline transition-colors text-[#2C3C39] dark:text-zinc-200"
                               >
                                 {phone}
                               </a>

@@ -36,7 +36,7 @@ export default function NewsSearchBar({
     >
       <Box
         variant="column"
-        className="relative w-full bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl border border-gray-100 p-8"
+        className="relative w-full bg-white/80 dark:bg-zinc-900/80 backdrop-blur-lg rounded-3xl shadow-xl border border-gray-100 dark:border-zinc-800 p-8"
       >
         <Box variant="row" className="w-full gap-4">
           <div className="flex-1 relative group/input">
@@ -45,7 +45,7 @@ export default function NewsSearchBar({
               <Search
                 className={`absolute ${
                   locale === 'ar' ? 'right-5' : 'left-5'
-                } text-gray-400 w-5 h-5 group-focus-within/input:text-primary transition-colors`}
+                } text-gray-400 dark:text-zinc-500 w-5 h-5 group-focus-within/input:text-primary dark:group-focus-within/input:text-[#ABDE3B] transition-colors`}
               />
               <input
                 type="text"
@@ -54,7 +54,7 @@ export default function NewsSearchBar({
                 placeholder={translations.searchPlaceholder}
                 className={`w-full ${
                   locale === 'ar' ? 'pr-14 pl-5' : 'pl-14 pr-5'
-                } py-2 bg-gray-50 border-2 border-gray-100 rounded-2xl focus:outline-none focus:border-primary focus:bg-white transition-all duration-300 text-lg`}
+                } py-2 bg-gray-50 dark:bg-zinc-950 border-2 border-gray-100 dark:border-zinc-800 rounded-2xl focus:outline-none focus:border-primary dark:focus:border-[#ABDE3B] focus:bg-white dark:focus:bg-zinc-900 transition-all duration-300 text-lg text-slate-800 dark:text-zinc-100`}
               />
             </div>
           </div>
@@ -64,12 +64,12 @@ export default function NewsSearchBar({
             onClick={onFilterClick}
             className={`relative px-5 md:px-8 py-2 rounded-2xl font-bold transition-all duration-300 flex items-center justify-center md:justify-start gap-2 transform hover:scale-105 ${
               showFilters
-                ? 'bg-gradient-to-r from-primary to-primary-light text-white shadow-xl'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                ? 'bg-gradient-to-r from-primary to-primary-light dark:from-[#198341] dark:to-[#ABDE3B] text-white dark:text-zinc-950 shadow-xl'
+                : 'bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-zinc-300 hover:bg-gray-200 dark:hover:bg-zinc-700'
             }`}
           >
             {hasActiveCategory && (
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white" />
+              <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white dark:border-zinc-900" />
             )}
             <Filter className="w-5 h-5" />
             <span className="hidden md:inline">{translations.filters}</span>

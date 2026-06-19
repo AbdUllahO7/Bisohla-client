@@ -86,11 +86,11 @@ export default function NewsPageClient() {
 
   return (
     <div
-      className={`min-h-screen bg-white ${
+      className={`min-h-screen bg-white dark:bg-zinc-950 ${
         showFilters ? 'overflow-hidden' : ''
       }`}
     >
-      <div className="relative bg-gradient-to-b from-gray-50 to-white py-20">
+      <div className="relative bg-gradient-to-b from-gray-50 to-white dark:from-zinc-950 dark:to-zinc-900 py-20">
         <div className="container mx-auto px-4 max-w-7xl">
           <NewsSearchBar
             searchTerm={searchTerm}
