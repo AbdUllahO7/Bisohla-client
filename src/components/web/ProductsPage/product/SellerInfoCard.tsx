@@ -50,18 +50,18 @@ const SellerInfoCard: React.FC<SellerInfoCardProps> = ({
       >
         {/* Avatar */}
         <div className="relative flex-shrink-0">
-          <Avatar className="h-10 w-10 border-2 border-gray-100 group-hover:border-[#198341]/30 transition-colors">
+          <Avatar className="h-10 w-10 border-2 border-gray-100 dark:border-zinc-800 group-hover:border-[#198341]/30 dark:group-hover:border-[#ABDE3B]/30 transition-colors">
             <AvatarImage
               src={user.profileUrl || '/placeholder.svg'}
               alt={user.name}
               referrerPolicy="no-referrer"
             />
-            <AvatarFallback className="text-sm bg-gray-100 text-gray-600">
+            <AvatarFallback className="text-sm bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-400">
               {getUserInitials(user.name)}
             </AvatarFallback>
           </Avatar>
           {user.verifiedAt && (
-            <div className="absolute -bottom-0.5 -right-0.5 bg-white rounded-full p-0.5">
+            <div className="absolute -bottom-0.5 -right-0.5 bg-white dark:bg-zinc-900 rounded-full p-0.5">
               <CheckCircle2 className="h-3 w-3 text-[#198341]" />
             </div>
           )}
@@ -70,23 +70,23 @@ const SellerInfoCard: React.FC<SellerInfoCardProps> = ({
         {/* User info */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <p className="text-sm font-semibold text-gray-700 group-hover:text-[#198341] transition-colors font-cairo truncate">
+            <p className="text-sm font-semibold text-gray-700 dark:text-zinc-200 group-hover:text-[#198341] dark:group-hover:text-[#ABDE3B] transition-colors font-cairo truncate">
               {user.name}
             </p>
             {user.verifiedAt && (
               <Badge
                 variant="secondary"
-                className="bg-[#198341]/10 text-[#198341] border-0 text-[10px] px-1.5 py-0 h-4"
+                className="bg-[#198341]/10 dark:bg-[#ABDE3B]/10 text-[#198341] dark:text-[#ABDE3B] border-0 text-[10px] px-1.5 py-0 h-4"
               >
                 {t('verified')}
               </Badge>
             )}
           </div>
-          <p className="text-xs text-gray-500 font-cairo">{t('title')}</p>
+          <p className="text-xs text-gray-500 dark:text-zinc-400 font-cairo">{t('title')}</p>
         </div>
 
         {/* Arrow icon */}
-        <User className="h-4 w-4 text-gray-400 group-hover:text-[#198341] transition-colors flex-shrink-0" />
+        <User className="h-4 w-4 text-gray-400 dark:text-zinc-550 group-hover:text-[#198341] dark:group-hover:text-[#ABDE3B] transition-colors flex-shrink-0" />
       </Link>
     </div>
   );

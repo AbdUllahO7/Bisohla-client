@@ -212,10 +212,9 @@ const SimilarAds: React.FC<SimilarAdsProps> = ({
             >
               <div className="text-center">
                 <CarFrontIcon
-                  className="w-16 h-16 mx-auto mb-4 opacity-30"
-                  style={{ color: '#198341' }}
+                  className="w-16 h-16 mx-auto mb-4 opacity-30 text-[#198341] dark:text-[#ABDE3B]"
                 />
-                <Text className="text-gray-500 text-lg">
+                <Text className="text-gray-500 dark:text-zinc-400 text-lg">
                   No car listings available
                 </Text>
               </div>

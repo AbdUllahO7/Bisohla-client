@@ -213,7 +213,7 @@ const Footer = ({ isUserProfile }: { isUserProfile?: boolean }) => {
         className="justify-between container w-full mt-10"
       >
         <Box className="">
-          <Logo width={153} height={33} className="dark:brightness-200 dark:invert" />
+          <Logo width={153} height={33} className="" />
         </Box>
 
         {/* social */}

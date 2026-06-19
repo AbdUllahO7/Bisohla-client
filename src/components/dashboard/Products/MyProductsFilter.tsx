@@ -209,7 +209,7 @@ const MyProductsFilter: React.FC<MyProductsFilterProps> = ({
         </div>
       </div>
 
-      <Card>
+      <Card className="dark:bg-zinc-900 dark:border-zinc-800">
         <CardContent className="p-4">
           <div className="flex flex-col sm:flex-row gap-4 items-center">
             {/* Search */}
@@ -219,7 +219,7 @@ const MyProductsFilter: React.FC<MyProductsFilterProps> = ({
                 placeholder={t('searchPlaceholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 rtl:pl-3 rtl:pr-9 h-10"
+                className="pl-9 rtl:pl-3 rtl:pr-9 h-10 dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-200"
               />
             </div>
 
@@ -228,11 +228,11 @@ const MyProductsFilter: React.FC<MyProductsFilterProps> = ({
               value={listingTypeId ? String(listingTypeId) : "all"}
               onValueChange={(val) => onListingTypeChange?.(val === "all" ? undefined : Number(val))}
             >
-              <SelectTrigger className="w-full sm:w-[160px] h-10">
+              <SelectTrigger className="w-full sm:w-[160px] h-10 dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-200">
                 <Filter className="h-4 w-4 mr-2 rtl:mr-0 rtl:ml-2" />
                 <SelectValue placeholder={isRTL ? 'الفئة' : 'Category'} />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-200">
                 <SelectItem value="all">{isRTL ? 'جميع الفئات' : 'All Categories'}</SelectItem>
                 {listingTypes.map((type) => (
                   <SelectItem key={type.id} value={String(type.id)}>
@@ -244,10 +244,10 @@ const MyProductsFilter: React.FC<MyProductsFilterProps> = ({
 
             {/* Offer Type */}
             <Select value={listingType} onValueChange={(val: any) => setListingType(val)}>
-              <SelectTrigger className="w-full sm:w-[150px] h-10">
+              <SelectTrigger className="w-full sm:w-[150px] h-10 dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-200">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-200">
                 <SelectItem value="all">{t('allTypes')}</SelectItem>
                 <SelectItem value="for_sale">{t('forSale')}</SelectItem>
                 <SelectItem value="for_rent">{t('forRent')}</SelectItem>
@@ -256,10 +256,10 @@ const MyProductsFilter: React.FC<MyProductsFilterProps> = ({
 
             {/* Status */}
             <Select value={status} onValueChange={(val: any) => setStatus(val)}>
-              <SelectTrigger className="w-full sm:w-[150px] h-10">
+              <SelectTrigger className="w-full sm:w-[150px] h-10 dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-200">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-200">
                 <SelectItem value="all">{t('allStatus')}</SelectItem>
                 <SelectItem value="approved">{t('active')}</SelectItem>
                 <SelectItem value="pending">{t('pending')}</SelectItem>
@@ -269,10 +269,10 @@ const MyProductsFilter: React.FC<MyProductsFilterProps> = ({
 
             {/* Sort */}
             <Select value={sortBy} onValueChange={(val: any) => setSortBy(val)}>
-              <SelectTrigger className="w-full sm:w-[150px] h-10">
+              <SelectTrigger className="w-full sm:w-[150px] h-10 dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-200">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-200">
                 <SelectItem value="newest">{t('newest')}</SelectItem>
                 <SelectItem value="oldest">{t('oldest')}</SelectItem>
                 <SelectItem value="price_high">{t('priceHigh')}</SelectItem>
@@ -321,10 +321,10 @@ const MyProductsFilter: React.FC<MyProductsFilterProps> = ({
                             value={dynamicAttributes[attr.slug] ? String(dynamicAttributes[attr.slug]) : "all"}
                             onValueChange={(value) => updateAttribute(attr.slug, value === "all" ? undefined : value)}
                           >
-                            <SelectTrigger className="w-full h-10">
+                            <SelectTrigger className="w-full h-10 dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-200">
                               <SelectValue placeholder={attrName} />
                             </SelectTrigger>
-                            <SelectContent className="bg-white">
+                            <SelectContent className="bg-white dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-200">
                               <SelectItem value="all">{isRTL ? 'الكل' : 'All'}</SelectItem>
                               {attr.options.map((opt: any) => (
                                 <SelectItem key={String(opt.id)} value={String(opt.id)}>
@@ -351,10 +351,10 @@ const MyProductsFilter: React.FC<MyProductsFilterProps> = ({
                             value={dynamicAttributes[attr.slug] ? String(dynamicAttributes[attr.slug]) : "all"}
                             onValueChange={(value) => updateAttribute(attr.slug, value === "all" ? undefined : value)}
                           >
-                            <SelectTrigger className="w-full h-10">
+                            <SelectTrigger className="w-full h-10 dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-200">
                               <SelectValue placeholder={attrName} />
                             </SelectTrigger>
-                            <SelectContent className="bg-white">
+                            <SelectContent className="bg-white dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-200">
                               <SelectItem value="all">{isRTL ? 'الكل' : 'All'}</SelectItem>
                               {yearOptions.map((y) => (
                                 <SelectItem key={y} value={y}>
@@ -376,10 +376,10 @@ const MyProductsFilter: React.FC<MyProductsFilterProps> = ({
                             value={dynamicAttributes[attr.slug] ? String(dynamicAttributes[attr.slug]) : "all"}
                             onValueChange={(value) => updateAttribute(attr.slug, value === "all" ? undefined : value)}
                           >
-                            <SelectTrigger className="w-full h-10">
+                            <SelectTrigger className="w-full h-10 dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-200">
                               <SelectValue placeholder={attrName} />
                             </SelectTrigger>
-                            <SelectContent className="bg-white">
+                            <SelectContent className="bg-white dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-200">
                               <SelectItem value="all">{isRTL ? 'الكل' : 'All'}</SelectItem>
                               {options.map((opt: any) => (
                                 <SelectItem key={String(opt.id)} value={String(opt.id)}>
@@ -412,14 +412,14 @@ const MyProductsFilter: React.FC<MyProductsFilterProps> = ({
                               type="color"
                               value={val || '#000000'}
                               onChange={(e) => updateAttribute(attr.slug, e.target.value)}
-                              className="w-10 h-10 border border-slate-200 rounded-lg cursor-pointer p-0.5 bg-white shadow-sm"
+                              className="w-10 h-10 border border-slate-200 dark:border-zinc-800 rounded-lg cursor-pointer p-0.5 bg-white dark:bg-zinc-900 shadow-sm"
                             />
                             <Input
                               type="text"
                               placeholder="#000000"
                               value={val}
                               onChange={(e) => updateAttribute(attr.slug, e.target.value)}
-                              className="h-10 font-mono"
+                              className="h-10 font-mono dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-200"
                               dir="ltr"
                             />
                           </div>
@@ -436,7 +436,7 @@ const MyProductsFilter: React.FC<MyProductsFilterProps> = ({
                             placeholder={attrName}
                             value={dynamicAttributes[attr.slug] || ''}
                             onChange={(e) => updateAttribute(attr.slug, e.target.value)}
-                            className="h-10"
+                            className="h-10 dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-200"
                           />
                         </div>
                       );

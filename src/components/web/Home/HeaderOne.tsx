@@ -138,7 +138,7 @@ const HeaderOne = () => {
     <>
       <Box className="flex justify-between items-center py-1 w-full px-4 container border-b border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-950">
         {/* Logo */}
-        <Logo className="dark:brightness-200 dark:invert" />
+        <Logo className="" />
 
         {/* Desktop Actions - Hidden on mobile */}
         <div className="hidden md:flex items-center gap-3">

@@ -76,7 +76,7 @@ const Pagination: React.FC<PaginationProps> = ({
           key="first"
           onClick={() => onPageChange(1)}
           aria-label="Go to page 1"
-          className="w-11 h-11 flex items-center justify-center rounded-full border border-gray-200 bg-white shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-primary transition"
+          className="w-11 h-11 flex items-center justify-center rounded-full border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-gray-700 dark:text-zinc-200 shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-primary transition"
         >
           1
         </button>,
@@ -106,7 +106,7 @@ const Pagination: React.FC<PaginationProps> = ({
             ${
               isCurrent
                 ? 'bg-primary-foreground text-white shadow'
-                : 'bg-white text-gray-700 hover:shadow-md border border-gray-100'
+                : 'bg-white dark:bg-zinc-900 text-gray-700 dark:text-zinc-300 hover:shadow-md border border-gray-100 dark:border-zinc-800'
             }`}
         >
           {i}
@@ -131,7 +131,7 @@ const Pagination: React.FC<PaginationProps> = ({
           key="last"
           onClick={() => onPageChange(totalPages)}
           aria-label={`Go to page ${totalPages}`}
-          className="w-11 h-11 flex items-center justify-center rounded-full border border-gray-200 bg-white shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-primary transition"
+          className="w-11 h-11 flex items-center justify-center rounded-full border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-gray-700 dark:text-zinc-200 shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-primary transition"
         >
           {totalPages}
         </button>,
@@ -174,8 +174,8 @@ const Pagination: React.FC<PaginationProps> = ({
           }
           className={`w-11 h-11 flex items-center justify-center rounded-full transition ${
             !hasPreviousPage
-              ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-100'
-              : 'bg-white text-gray-600 hover:shadow-md border border-gray-100'
+              ? 'bg-gray-100 dark:bg-zinc-800 text-gray-400 dark:text-zinc-550 cursor-not-allowed border border-gray-100 dark:border-zinc-800'
+              : 'bg-white dark:bg-zinc-900 text-gray-600 dark:text-zinc-300 hover:shadow-md border border-gray-100 dark:border-zinc-800'
           }`}
         >
           {/* flip chevron depending on locale so direction looks correct in RTL */}
@@ -202,8 +202,8 @@ const Pagination: React.FC<PaginationProps> = ({
           }
           className={`w-11 h-11 flex items-center justify-center rounded-full transition ${
             !hasNextPage
-              ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-100'
-              : 'bg-white text-gray-600 hover:shadow-md border border-gray-100'
+              ? 'bg-gray-100 dark:bg-zinc-800 text-gray-400 dark:text-zinc-550 cursor-not-allowed border border-gray-100 dark:border-zinc-800'
+              : 'bg-white dark:bg-zinc-900 text-gray-600 dark:text-zinc-300 hover:shadow-md border border-gray-100 dark:border-zinc-800'
           }`}
         >
           {isRTL ? <ChevronLeft /> : <ChevronRight />}

@@ -121,7 +121,7 @@ const MobileProductClient = ({
       </div>
 
       {/* Mobile: Title and Actions Header */}
-      <div className="md:hidden w-full mb-3 bg-white my-4">
+      <div className="md:hidden w-full mb-3 bg-white dark:bg-zinc-950 my-4">
         <Box variant="container" className="py-3">
           <Box variant="column" className="w-full gap-3">
             {/* Action Buttons - Full Width */}
@@ -203,7 +203,7 @@ const MobileProductClient = ({
 
       {/* Desktop: Original Layout (kept for safety, hidden on mobile) */}
       <div className="hidden md:block">
-        <div className="w-full mb-3 bg-white">
+        <div className="w-full mb-3 bg-white dark:bg-zinc-950">
           <Box variant="container">
             <ProductHeader
               productName={carData.title}

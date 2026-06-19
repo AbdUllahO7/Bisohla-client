@@ -385,7 +385,7 @@ const UserFavoritesEnhanced = () => {
         </div>
 
         {/* Search and Filters */}
-        <Card>
+        <Card className="dark:bg-zinc-900 dark:border-zinc-800">
           <CardContent className="p-4">
             <div className="flex flex-col sm:flex-row gap-4 items-center">
               {/* Search */}
@@ -395,7 +395,7 @@ const UserFavoritesEnhanced = () => {
                   placeholder={t('searchPlaceholder')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 rtl:pl-3 rtl:pr-9"
+                  className="pl-9 rtl:pl-3 rtl:pr-9 dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-200"
                 />
               </div>
 
@@ -404,11 +404,11 @@ const UserFavoritesEnhanced = () => {
                 value={listingTypeId ? String(listingTypeId) : "all"}
                 onValueChange={(value) => setListingTypeId(value === "all" ? undefined : Number(value))}
               >
-                <SelectTrigger className="w-full sm:w-[180px]">
+                <SelectTrigger className="w-full sm:w-[180px] dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-200">
                   <Filter className="h-4 w-4 mr-2 rtl:mr-0 rtl:ml-2" />
                   <SelectValue placeholder={locale === 'ar' ? 'الفئة' : 'Category'} />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-200">
                   <SelectItem value="all">{t('filters.all')}</SelectItem>
                   {listingTypes.map((type) => (
                     <SelectItem key={type.id} value={String(type.id)}>
@@ -423,11 +423,11 @@ const UserFavoritesEnhanced = () => {
                 value={filterType}
                 onValueChange={(value: FilterType) => setFilterType(value)}
               >
-                <SelectTrigger className="w-full sm:w-[180px]">
+                <SelectTrigger className="w-full sm:w-[180px] dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-200">
                   <Filter className="h-4 w-4 mr-2 rtl:mr-0 rtl:ml-2" />
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-200">
                   <SelectItem value="all">{t('filters.all')}</SelectItem>
                   <SelectItem value="for_sale">
                     {t('filters.forSale')}
@@ -504,10 +504,10 @@ const UserFavoritesEnhanced = () => {
                               value={dynamicAttributes[attr.slug] ? String(dynamicAttributes[attr.slug]) : "all"}
                               onValueChange={(value) => updateAttribute(attr.slug, value === "all" ? undefined : value)}
                             >
-                              <SelectTrigger className="w-full">
+                              <SelectTrigger className="w-full dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-200">
                                 <SelectValue placeholder={attrName} />
                               </SelectTrigger>
-                              <SelectContent className="bg-white">
+                              <SelectContent className="bg-white dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-200">
                                 <SelectItem value="all">{t('filters.all') || 'All'}</SelectItem>
                                 {attr.options.map((opt: any) => (
                                   <SelectItem key={String(opt.id)} value={String(opt.id)}>
@@ -534,10 +534,10 @@ const UserFavoritesEnhanced = () => {
                               value={dynamicAttributes[attr.slug] ? String(dynamicAttributes[attr.slug]) : "all"}
                               onValueChange={(value) => updateAttribute(attr.slug, value === "all" ? undefined : value)}
                             >
-                              <SelectTrigger className="w-full">
+                              <SelectTrigger className="w-full dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-200">
                                 <SelectValue placeholder={attrName} />
                               </SelectTrigger>
-                              <SelectContent className="bg-white">
+                              <SelectContent className="bg-white dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-200">
                                 <SelectItem value="all">{t('filters.all') || 'All'}</SelectItem>
                                 {yearOptions.map((y) => (
                                   <SelectItem key={y} value={y}>
@@ -559,10 +559,10 @@ const UserFavoritesEnhanced = () => {
                               value={dynamicAttributes[attr.slug] ? String(dynamicAttributes[attr.slug]) : "all"}
                               onValueChange={(value) => updateAttribute(attr.slug, value === "all" ? undefined : value)}
                             >
-                              <SelectTrigger className="w-full">
+                              <SelectTrigger className="w-full dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-200">
                                 <SelectValue placeholder={attrName} />
                               </SelectTrigger>
-                              <SelectContent className="bg-white">
+                              <SelectContent className="bg-white dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-200">
                                 <SelectItem value="all">{t('filters.all') || 'All'}</SelectItem>
                                 {options.map((opt: any) => (
                                   <SelectItem key={String(opt.id)} value={String(opt.id)}>
@@ -595,14 +595,14 @@ const UserFavoritesEnhanced = () => {
                                 type="color"
                                 value={val || '#000000'}
                                 onChange={(e) => updateAttribute(attr.slug, e.target.value)}
-                                className="w-10 h-10 border border-slate-200 rounded-lg cursor-pointer p-0.5 bg-white shadow-sm"
+                                className="w-10 h-10 border border-slate-200 dark:border-zinc-800 rounded-lg cursor-pointer p-0.5 bg-white dark:bg-zinc-900 shadow-sm"
                               />
                               <Input
                                 type="text"
                                 placeholder="#000000"
                                 value={val}
                                 onChange={(e) => updateAttribute(attr.slug, e.target.value)}
-                                className="font-mono"
+                                className="font-mono dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-200"
                                 dir="ltr"
                               />
                             </div>
@@ -619,6 +619,7 @@ const UserFavoritesEnhanced = () => {
                               placeholder={attrName}
                               value={dynamicAttributes[attr.slug] || ''}
                               onChange={(e) => updateAttribute(attr.slug, e.target.value)}
+                              className="dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-200"
                             />
                           </div>
                         );
@@ -639,7 +640,7 @@ const UserFavoritesEnhanced = () => {
 
       {/* Error state */}
       {error && (
-        <Card>
+        <Card className="dark:bg-zinc-900 dark:border-zinc-800">
           <CardContent className="p-8 text-center">
             <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-destructive mb-2">
@@ -656,7 +657,7 @@ const UserFavoritesEnhanced = () => {
 
       {/* Empty state */}
       {!isLoading && !error && favoriteListings.length === 0 && (
-        <Card>
+        <Card className="dark:bg-zinc-900 dark:border-zinc-800">
           <CardContent className="p-12 text-center">
             <Heart className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-xl font-semibold mb-2">{t('empty.title')}</h3>
@@ -763,7 +764,7 @@ const UserFavoritesEnhanced = () => {
         !error &&
         paginationInfo &&
         paginationInfo.totalPages > 1 && (
-          <Card>
+          <Card className="dark:bg-zinc-900 dark:border-zinc-800">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 {/* Page info */}
@@ -849,7 +850,7 @@ const UserFavoritesEnhanced = () => {
       {/* Refresh Indicator */}
       {isRefetching && !isLoading && (
         <div className="fixed bottom-4 right-4 rtl:right-auto rtl:left-4 z-50">
-          <Card>
+          <Card className="dark:bg-zinc-900 dark:border-zinc-800">
             <CardContent className="p-3 flex items-center gap-2">
               <RefreshCw className="h-4 w-4 animate-spin" />
               <span className="text-sm">{t('refreshing')}</span>

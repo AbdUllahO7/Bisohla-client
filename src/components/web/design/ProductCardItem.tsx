@@ -228,12 +228,12 @@ export const ProductCardItem: React.FC<ExtendedCarCardItemPropsProfile> = ({
 
   // RTL-aware positioning classes
   const heartButtonClass = clsx(
-    'absolute top-2 bg-white p-2 rounded-full shadow-md z-10',
+    'absolute top-2 bg-white dark:bg-zinc-900 border dark:border-zinc-800 p-2 rounded-full shadow-md z-10',
     locale === 'ar' ? 'right-2' : 'left-2',
   );
 
   const typeTagClass = clsx(
-    'absolute bottom-40 bg-white px-2 py-1 rounded-lg shadow-md text-primary text-sm',
+    'absolute bottom-40 bg-white dark:bg-zinc-900 border dark:border-zinc-800 px-2 py-1 rounded-lg shadow-md text-primary text-sm',
     locale === 'ar' ? 'right-2' : 'left-2',
   );
 
@@ -242,7 +242,7 @@ export const ProductCardItem: React.FC<ExtendedCarCardItemPropsProfile> = ({
   return (
     <div className="w-full" dir={direction}>
       <Card
-        className={`group border-none rounded-lg bg-white w-full shadow-lg relative `}
+        className={`group border-none rounded-lg bg-white dark:bg-zinc-900 w-full shadow-lg relative `}
       >
         {/* Heart Icon for Favorites with favorite status directly from props */}
         {isFavorites && (
@@ -295,7 +295,7 @@ export const ProductCardItem: React.FC<ExtendedCarCardItemPropsProfile> = ({
               >
                 {title}
               </Text>
-              <Text variant="mid" className="text-gray-600">
+              <Text variant="mid" className="text-gray-600 dark:text-zinc-400">
                 {marka}
               </Text>
             </CardDescription>
@@ -308,7 +308,7 @@ export const ProductCardItem: React.FC<ExtendedCarCardItemPropsProfile> = ({
               profile ? '?profile=true' : ''
             }`}
           >
-            <CardFooter className="bg-[#E4E4E4] flex justify-between p-4 rounded-b-lg group-hover:bg-primary-light duration-500">
+            <CardFooter className="bg-[#E4E4E4] dark:bg-zinc-950 flex justify-between p-4 rounded-b-lg group-hover:bg-primary-light duration-500">
               <Text className="text-primary group-hover:text-white duration-500">
                 {priceWord}
               </Text>
@@ -318,7 +318,7 @@ export const ProductCardItem: React.FC<ExtendedCarCardItemPropsProfile> = ({
             </CardFooter>
           </Link>
         ) : (
-          <CardFooter className="bg-gray-100 w-full flex flex-wrap gap-2 justify-between p-4 rounded-b-lg">
+          <CardFooter className="bg-gray-100 dark:bg-zinc-950 w-full flex flex-wrap gap-2 justify-between p-4 rounded-b-lg dark:border-t dark:border-zinc-800/85">
             <Button
               className="bg-red-500 hover:bg-red-600 px-4 py-2 text-white rounded-lg flex-1 text-center"
               onClick={handleDeleteClick}
@@ -376,9 +376,9 @@ export const ProductCardItem: React.FC<ExtendedCarCardItemPropsProfile> = ({
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent
           dir={direction}
-          className="bg-white rounded-lg p-0 max-w-md shadow-xl"
+          className="bg-white dark:bg-zinc-900 dark:border-zinc-800 rounded-lg p-0 max-w-md shadow-xl"
         >
-          <div className="bg-red-50 p-4 rounded-t-lg border-b border-red-100">
+          <div className="bg-red-50 dark:bg-red-950/20 p-4 rounded-t-lg border-b border-red-100 dark:border-red-900/50">
             <AlertDialogHeader>
               <div className="flex items-center">
                 <div className="flex-shrink-0">
@@ -397,30 +397,30 @@ export const ProductCardItem: React.FC<ExtendedCarCardItemPropsProfile> = ({
           </div>
 
           <div className="p-6">
-            <AlertDialogDescription className="text-sm text-gray-600">
+            <AlertDialogDescription className="text-sm text-gray-600 dark:text-zinc-350">
               {t('deleteWarning')}
             </AlertDialogDescription>
 
             <div className="mt-2">
-              <div className="rounded-md bg-gray-50 p-4">
+              <div className="rounded-md bg-gray-50 dark:bg-zinc-950 border dark:border-zinc-800 p-4">
                 <div className="flex">
                   <div
                     className={`${
                       locale === 'ar' ? 'mr-3' : 'ml-3'
                     } mt-2 text-sm`}
                   >
-                    <h3 className="font-medium text-gray-800">{title}</h3>
-                    <p className="text-gray-500">{marka}</p>
+                    <h3 className="font-medium text-gray-800 dark:text-white">{title}</h3>
+                    <p className="text-gray-500 dark:text-zinc-400">{marka}</p>
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <AlertDialogFooter className="bg-gray-50 px-6 py-4 rounded-b-lg flex flex-row-reverse sm:flex-row gap-2">
+          <AlertDialogFooter className="bg-gray-50 dark:bg-zinc-950 px-6 py-4 rounded-b-lg border-t dark:border-zinc-800/80 flex flex-row-reverse sm:flex-row gap-2">
             <AlertDialogCancel
               onClick={handleCancelDelete}
-              className={`inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
+              className={`inline-flex justify-center rounded-md border border-gray-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-4 py-2 text-sm font-medium text-gray-700 dark:text-zinc-300 shadow-sm hover:bg-gray-50 dark:hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
                 locale === 'ar' ? 'sm:ml-3' : 'sm:mr-3'
               } w-full sm:w-auto`}
             >

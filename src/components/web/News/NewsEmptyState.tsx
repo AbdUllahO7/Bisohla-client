@@ -32,7 +32,7 @@ export default function NewsEmptyState({
         </div>
       </div>
 
-      <Text className="text-4xl font-black text-gray-800 dark:text-zinc-150 mb-3 text-center">
+      <Text className="text-4xl font-black text-gray-800 dark:text-white mb-3 text-center">
         {hasActiveFilters ? translations.noResultsFound : translations.noNews}
       </Text>
 

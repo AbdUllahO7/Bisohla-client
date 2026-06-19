@@ -68,10 +68,10 @@ const SignInPage = () => {
               />
             </div>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
             {isRTL ? 'مرحباً بعودتك' : 'Welcome Back'}
           </h1>
-          <p className="text-gray-600 text-sm sm:text-base">
+          <p className="text-gray-600 dark:text-white text-sm sm:text-base">
             {isRTL
               ? 'سجل دخولك للوصول إلى حسابك'
               : 'Sign in to access your account'}
@@ -84,7 +84,7 @@ const SignInPage = () => {
         </div>
 
         {/* Sign In Card */}
-        <Card className="shadow-xl border-0 bg-white/95 backdrop-blur-sm w-full">
+        <Card className="shadow-xl border-0 dark:border dark:border-zinc-800 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-sm w-full">
           <CardHeader className="space-y-1 pb-4">
             <FormStateMessage state={state} />
           </CardHeader>
@@ -103,7 +103,7 @@ const SignInPage = () => {
                 name="email"
                 error={state?.errors?.email}
                 caption={isRTL ? 'البريد الإلكتروني' : 'Email Address'}
-                icon={<Mail className="h-5 w-5 text-gray-400" />}
+                icon={<Mail className="h-5 w-5 text-gray-400 dark:text-zinc-400" />}
               />
 
               {/* Password Input */}
@@ -113,7 +113,7 @@ const SignInPage = () => {
                 name="password"
                 error={state?.errors?.password}
                 caption={isRTL ? 'كلمة المرور' : 'Password'}
-                icon={<Lock className="h-5 w-5 text-gray-400" />}
+                icon={<Lock className="h-5 w-5 text-gray-400 dark:text-zinc-400" />}
               />
 
               {/* Submit Button */}
@@ -130,10 +130,10 @@ const SignInPage = () => {
                 authSettings?.auth_providers?.enable_apple_oauth) && (
                 <div className="relative py-2">
                   <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-gray-200"></div>
+                    <div className="w-full border-t border-gray-200 dark:border-zinc-800"></div>
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-white px-2 text-gray-500">
+                    <span className="bg-white dark:bg-zinc-900 px-2 text-gray-500 dark:text-white">
                       {isRTL ? 'أو' : 'Or'}
                     </span>
                   </div>
@@ -156,27 +156,27 @@ const SignInPage = () => {
 
         {/* Footer Links */}
         <div className="space-y-3 text-center">
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-gray-600 dark:text-white">
             {isRTL ? 'جديد في Bishola؟' : 'New to Bishola?'}{' '}
             <Link
               href={allRoutes.auth.children.register.path}
-              className="font-semibold text-emerald-600 hover:text-emerald-700 transition-colors"
+              className="font-semibold text-emerald-600 dark:text-[#ABDE3B] hover:text-emerald-700 dark:hover:text-[#ABDE3B]/90 transition-colors"
             >
               {isRTL ? 'سجل الآن' : 'Create Account'}
             </Link>
           </div>
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-gray-600 dark:text-white">
             <Link
               href={allRoutes.auth.children.sendResetPasswordEmail.path}
-              className="font-medium text-gray-700 hover:text-emerald-600 transition-colors"
+              className="font-medium text-gray-700 dark:text-white hover:text-emerald-600 dark:hover:text-[#ABDE3B] transition-colors"
             >
               {isRTL ? 'هل نسيت كلمة المرور؟' : 'Forgot your password?'}
             </Link>
           </div>
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-gray-600 dark:text-white">
             <Link
               href="/"
-              className="font-medium text-gray-700 hover:text-emerald-600 transition-colors inline-flex items-center gap-1"
+              className="font-medium text-gray-700 dark:text-white hover:text-emerald-600 dark:hover:text-[#ABDE3B] transition-colors inline-flex items-center gap-1"
             >
               {t('footer.backToHome')}
               <ArrowRight className={`h-3 w-3 ${isRTL ? 'rotate-180' : ''}`} />

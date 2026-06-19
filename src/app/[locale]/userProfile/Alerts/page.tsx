@@ -104,7 +104,7 @@ const AlertsPage = () => {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mt-6 mb-6 gap-4">
                 <div className="flex items-center gap-3">
                     <div className="h-8 w-1 bg-gradient-to-b from-[#198341] to-[#ABDE3B] rounded-full" />
-                    <Text variant="h3" className="font-bold text-[#2C3C39]">
+                    <Text variant="h3" className="font-bold text-[#2C3C39] dark:text-zinc-100">
                         {t('title', { defaultValue: 'My Alerts' })}
                     </Text>
                     {alerts.length > 0 && (
@@ -120,10 +120,10 @@ const AlertsPage = () => {
                         value={listingTypeId ? String(listingTypeId) : "all"}
                         onValueChange={(value) => setListingTypeId(value === "all" ? undefined : Number(value))}
                     >
-                        <SelectTrigger className="w-[180px] rounded-xl border-gray-200 bg-white">
+                        <SelectTrigger className="w-[180px] rounded-xl border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">
                             <SelectValue placeholder={isArabic ? 'الفئة' : 'Category'} />
                         </SelectTrigger>
-                        <SelectContent className="bg-white">
+                        <SelectContent className="bg-white dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-200">
                             <SelectItem value="all">
                                 {isArabic ? 'جميع الفئات' : 'All Categories'}
                             </SelectItem>
@@ -147,14 +147,14 @@ const AlertsPage = () => {
 
             {/* Empty state */}
             {!isLoading && alerts.length === 0 && (
-                <div className="flex flex-col items-center justify-center p-12 bg-white rounded-2xl border border-dashed border-gray-200">
-                    <div className="w-20 h-20 rounded-full bg-gray-50 flex items-center justify-center mb-6">
-                        <BellOff className="w-10 h-10 text-gray-300" />
+                <div className="flex flex-col items-center justify-center p-12 bg-white dark:bg-zinc-900/50 rounded-2xl border border-dashed border-gray-200 dark:border-zinc-800">
+                    <div className="w-20 h-20 rounded-full bg-gray-50 dark:bg-zinc-850 flex items-center justify-center mb-6">
+                        <BellOff className="w-10 h-10 text-gray-300 dark:text-zinc-650" />
                     </div>
-                    <Text variant="h4" className="font-bold text-[#2C3C39] mb-2">
+                    <Text variant="h4" className="font-bold text-[#2C3C39] dark:text-white mb-2">
                         {isArabic ? 'لا توجد تنبيهات بعد' : 'No Alerts Yet'}
                     </Text>
-                    <Text className="text-gray-500 text-center max-w-sm mb-8">
+                    <Text className="text-gray-500 dark:text-zinc-400 text-center max-w-sm mb-8">
                         {isArabic
                             ? 'أنشئ تنبيهاً لتكون أول من يعرف عند توفر إعلانات جديدة تناسب طلبك.'
                             : 'Create an alert to be the first to know when new listings match your criteria.'}
@@ -196,9 +196,9 @@ const AlertsPage = () => {
 
             {/* Type Selection Dialog for New Alert */}
             <Dialog open={isTypeSelectionOpen} onOpenChange={setIsTypeSelectionOpen}>
-                <DialogContent className="bg-white rounded-2xl max-w-md">
+                <DialogContent className="bg-white dark:bg-zinc-900 dark:border-zinc-800 rounded-2xl max-w-md">
                     <DialogHeader>
-                        <DialogTitle className="text-xl font-bold text-center">
+                        <DialogTitle className="text-xl font-bold text-center text-zinc-900 dark:text-zinc-100">
                             {isArabic ? 'اختر فئة التنبيه' : 'Choose Alert Category'}
                         </DialogTitle>
                     </DialogHeader>
@@ -207,7 +207,7 @@ const AlertsPage = () => {
                             <Button
                                 key={type.id}
                                 variant="outline"
-                                className="h-14 justify-start px-6 rounded-xl hover:border-primary hover:bg-primary/5 transition-all"
+                                className="h-14 justify-start px-6 rounded-xl dark:border-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-800/50 hover:border-primary hover:bg-primary/5 transition-all"
                                 onClick={() => {
                                     setNewAlertListingTypeId(type.id);
                                     setIsTypeSelectionOpen(false);

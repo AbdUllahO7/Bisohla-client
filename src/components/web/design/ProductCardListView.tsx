@@ -382,57 +382,57 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
         label: locale === 'ar' ? 'عدد المشاهدات' : 'Views Count',
         value: stats.viewsCount?.toLocaleString() || '0',
         icon: Eye,
-        color: 'text-blue-600',
-        bgColor: 'bg-blue-50',
-        borderColor: 'border-blue-200',
+        color: 'text-blue-600 dark:text-blue-400',
+        bgColor: 'bg-blue-50 dark:bg-blue-950/20',
+        borderColor: 'border-blue-200 dark:border-blue-900/50',
       },
       {
         label: locale === 'ar' ? 'عدد جهات الاتصال' : 'Contact Count',
         value: stats.contactCount?.toLocaleString() || '0',
         icon: Phone,
-        color: 'text-green-600',
-        bgColor: 'bg-green-50',
-        borderColor: 'border-green-200',
+        color: 'text-green-600 dark:text-green-400',
+        bgColor: 'bg-green-50 dark:bg-green-950/20',
+        borderColor: 'border-green-200 dark:border-green-900/50',
       },
       {
         label: locale === 'ar' ? 'عدد المفضلة' : 'Favorites Count',
         value: stats.favoritesCount?.toLocaleString() || '0',
         icon: HeartIcon,
-        color: 'text-red-600',
-        bgColor: 'bg-red-50',
-        borderColor: 'border-red-200',
+        color: 'text-red-600 dark:text-red-400',
+        bgColor: 'bg-red-50 dark:bg-red-950/20',
+        borderColor: 'border-red-200 dark:border-red-900/50',
       },
       {
         label: locale === 'ar' ? 'عدد المشاركات' : 'Shares Count',
         value: stats.sharesCount?.toLocaleString() || '0',
         icon: Share2,
-        color: 'text-purple-600',
-        bgColor: 'bg-purple-50',
-        borderColor: 'border-purple-200',
+        color: 'text-purple-600 dark:text-purple-400',
+        bgColor: 'bg-purple-50 dark:bg-purple-950/20',
+        borderColor: 'border-purple-200 dark:border-purple-900/50',
       },
       {
         label: locale === 'ar' ? 'مدة المشاهدة' : 'View Duration',
         value: formatDuration(stats.viewDuration),
         icon: Clock,
-        color: 'text-orange-600',
-        bgColor: 'bg-orange-50',
-        borderColor: 'border-orange-200',
+        color: 'text-orange-600 dark:text-orange-400',
+        bgColor: 'bg-orange-50 dark:bg-orange-950/20',
+        borderColor: 'border-orange-200 dark:border-orange-900/50',
       },
       {
         label: locale === 'ar' ? 'عدد التفاصيل المعروضة' : 'Details Viewed',
         value: stats.detailsViewedCount?.toLocaleString() || '0',
         icon: TrendingUp,
-        color: 'text-indigo-600',
-        bgColor: 'bg-indigo-50',
-        borderColor: 'border-indigo-200',
+        color: 'text-indigo-600 dark:text-indigo-400',
+        bgColor: 'bg-indigo-50 dark:bg-indigo-950/20',
+        borderColor: 'border-indigo-200 dark:border-indigo-900/50',
       },
       {
         label: locale === 'ar' ? 'آخر مشاهدة' : 'Last Viewed',
         value: formatDateValue(stats.lastViewedAt),
         icon: Calendar,
-        color: 'text-gray-600',
-        bgColor: 'bg-gray-50',
-        borderColor: 'border-gray-200',
+        color: 'text-gray-600 dark:text-zinc-300',
+        bgColor: 'bg-gray-50 dark:bg-zinc-800/50',
+        borderColor: 'border-gray-200 dark:border-zinc-700',
         fullWidth: true,
       },
     ];
@@ -534,7 +534,7 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
           </DropdownMenuTrigger>
           <DropdownMenuContent
             align={locale === 'ar' ? 'end' : 'start'}
-            className="z-[102] bg-white rounded-lg shadow-xl border-2 border-gray-200 p-1 min-w-[180px]"
+            className="z-[102] bg-white dark:bg-zinc-900 rounded-lg shadow-xl border-2 border-gray-200 dark:border-zinc-800 p-1 min-w-[180px]"
             onClick={(e) => {
               e.stopPropagation();
             }}
@@ -549,9 +549,9 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
               className={clsx(
                 'flex items-center gap-2 px-3 py-2 rounded-md text-sm cursor-pointer transition-colors',
                 currentSaveStatus === SaveStatus.PUBLISHED
-                  ? 'bg-green-50 text-green-800 cursor-default'
-                  : 'hover:bg-green-50 text-gray-700 hover:text-green-800',
-                'focus:outline-none focus:bg-green-50'
+                  ? 'bg-green-50 dark:bg-green-950/20 text-green-800 dark:text-green-400 cursor-default'
+                  : 'hover:bg-green-50 dark:hover:bg-green-950/20 text-gray-700 dark:text-zinc-300 hover:text-green-800 dark:hover:text-green-400',
+                'focus:outline-none focus:bg-green-50 dark:focus:bg-green-950/20'
               )}
             >
               <CheckCircle size={16} className="flex-shrink-0" />
@@ -571,19 +571,19 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
               className={clsx(
                 'flex items-center gap-2 px-3 py-2 rounded-md text-sm cursor-pointer transition-colors',
                 currentSaveStatus === SaveStatus.DRAFT
-                  ? 'bg-gray-50 text-gray-800 cursor-default'
-                  : 'hover:bg-gray-50 text-gray-700 hover:text-gray-800',
-                'focus:outline-none focus:bg-gray-50'
+                  ? 'bg-gray-50 dark:bg-zinc-800 text-gray-800 dark:text-zinc-200 cursor-default'
+                  : 'hover:bg-gray-50 dark:hover:bg-zinc-800 text-gray-700 dark:text-zinc-300 hover:text-gray-800 dark:hover:text-white',
+                'focus:outline-none focus:bg-gray-50 dark:focus:bg-zinc-800'
               )}
             >
               <Clock size={16} className="flex-shrink-0" />
               <span className="flex-1">{locale === 'ar' ? 'مسودة' : 'Draft'}</span>
               {currentSaveStatus === SaveStatus.DRAFT && (
-                <CheckCircle size={14} className="text-gray-600" />
+                <CheckCircle size={14} className="text-gray-605" />
               )}
             </DropdownMenuItem>
 
-            <DropdownMenuSeparator className="my-1 h-px bg-gray-200" />
+            <DropdownMenuSeparator className="my-1 h-px bg-gray-200 dark:bg-zinc-800" />
 
             <DropdownMenuItem
               onClick={(e) => {
@@ -595,9 +595,9 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
               className={clsx(
                 'flex items-center gap-2 px-3 py-2 rounded-md text-sm cursor-pointer transition-colors',
                 currentSaveStatus === SaveStatus.SOLD
-                  ? 'bg-blue-50 text-blue-800 cursor-default'
-                  : 'hover:bg-blue-50 text-gray-700 hover:text-blue-800',
-                'focus:outline-none focus:bg-blue-50'
+                  ? 'bg-blue-50 dark:bg-blue-950/20 text-blue-800 dark:text-blue-400 cursor-default'
+                  : 'hover:bg-blue-50 dark:hover:bg-blue-950/20 text-gray-700 dark:text-zinc-300 hover:text-blue-800 dark:hover:text-blue-400',
+                'focus:outline-none focus:bg-blue-50 dark:focus:bg-blue-950/20'
               )}
             >
               <CheckCircle size={16} className="flex-shrink-0" />
@@ -785,12 +785,12 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
   const remainingCount = footerDetails.length - maxVisibleAttributes;
 
   const cardClass = clsx(
-    'group hover:shadow-lg transition-all duration-300 border border-gray-200 overflow-hidden',
+    'group hover:shadow-lg transition-all duration-300 border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 overflow-hidden',
     direction === 'rtl' ? 'text-right' : 'text-left',
   );
 
   const imageContainerClass = clsx(
-    'relative overflow-hidden bg-gray-100',
+    'relative overflow-hidden bg-gray-100 dark:bg-zinc-800',
     'w-full sm:w-48 md:w-56 lg:w-64 h-48 sm:h-full',
   );
 
@@ -831,7 +831,7 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
                 size="sm"
                 variant="secondary"
                 className={clsx(
-                  'absolute top-3 bg-white/90 hover:bg-white shadow-lg',
+                  'absolute top-3 bg-white/90 dark:bg-zinc-900/90 hover:bg-white dark:hover:bg-zinc-850 dark:text-zinc-200 dark:border-zinc-800 border shadow-lg',
                   locale === 'ar' ? 'right-3' : 'left-3',
                 )}
                 onClick={handleFavoriteClick}
@@ -925,10 +925,10 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
                     }`}
                 >
                   <div className="mb-3">
-                    <h3 className="text-lg sm:text-xl font-bold text-gray-900 line-clamp-2 group-hover:text-primary transition-colors">
+                    <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white line-clamp-2 group-hover:text-primary transition-colors">
                       {carListing.title}
                     </h3>
-                    <p className="text-sm text-gray-600 mt-1">
+                    <p className="text-sm text-gray-600 dark:text-zinc-400 mt-1">
                       {carListing.listingTypeId === 1 || carListing.listingTypeId === 3 || carListing.listingTypeId === undefined 
                         ? (carListing.make?.name && carListing.make?.name !== 'Unknown' ? `${carListing.make.name} ${carListing.model?.name || ''}` : '')
                         : (`${carListing.city}, ${carListing.governorate}`)
@@ -949,7 +949,7 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
 
                 {/* Rejection Reason display if rejected */}
                 {isMine && carListing.status?.toLowerCase() === 'rejected' && carListing.rejectionReason && (
-                  <div className="mb-3 p-2 bg-red-50 border border-red-200 rounded text-red-800 text-xs flex items-start gap-1.5 max-w-xl">
+                  <div className="mb-3 p-2 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/50 rounded text-red-800 dark:text-red-300 text-xs flex items-start gap-1.5 max-w-xl">
                     <AlertTriangle className="text-red-500 flex-shrink-0 mt-0.5" size={14} />
                     <div>
                       <span className="font-semibold">{locale === 'ar' ? 'سبب الرفض: ' : 'Rejection Reason: '}</span>
@@ -962,7 +962,7 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
                 {visibleDetails.length > 0 && (
                   <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-4 text-sm">
                     {visibleDetails.map((detail: { icon: React.ReactNode; value: string }, idx: number) => (
-                      <div key={idx} className="flex items-center gap-2 text-gray-600">
+                      <div key={idx} className="flex items-center gap-2 text-gray-600 dark:text-zinc-300">
                         {detail.icon}
                         <span>{detail.value}</span>
                       </div>
@@ -977,7 +977,7 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
 
 
                 {/* Location and Date */}
-                <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 mb-4">
+                <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-zinc-400 mb-4">
                   <div className="flex items-center gap-1">
                     <MapPin size={14} />
                     <span>
@@ -1000,7 +1000,7 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
 
                 {/* Description */}
                 {carListing.description && (
-                  <p className="text-sm text-gray-600 line-clamp-2 mb-4">
+                  <p className="text-sm text-gray-600 dark:text-zinc-350 line-clamp-2 mb-4">
                     {carListing.description}
                   </p>
                 )}
@@ -1010,7 +1010,7 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
                   <div className="mb-4">
                     <Badge
                       variant="outline"
-                      className="text-orange-600 border-orange-200 bg-orange-50"
+                      className="text-orange-600 dark:text-orange-400 border-orange-200 dark:border-orange-900/50 bg-orange-50 dark:bg-orange-950/20"
                     >
                       <AlertTriangle
                         size={12}
@@ -1023,7 +1023,7 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
               </div>
 
               {/* Footer */}
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-4 border-t border-gray-100">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-4 border-t border-gray-100 dark:border-zinc-800">
                 {/* Price */}
                 <div className="flex items-center gap-2">
                   <span className="text-2xl sm:text-3xl font-bold text-primary">
@@ -1031,7 +1031,7 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
                   </span>
                   {carListing.listingType === 'for_rent' &&
                     carListing.rentType && (
-                      <span className="text-sm text-gray-500">
+                      <span className="text-sm text-gray-500 dark:text-zinc-400">
                         / {carListing.rentType}
                       </span>
                     )}
@@ -1071,7 +1071,7 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
                         <Button
                           size="sm"
                           variant="outline"
-                          className={`${actionButtonClass} text-red-600 border-red-200 hover:bg-red-50`}
+                          className={`${actionButtonClass} text-red-600 dark:text-red-400 border-red-200 dark:border-red-900/50 hover:bg-red-50 dark:hover:bg-red-950/30`}
                           onClick={handleDeleteClick}
                           disabled={isDeleting}
                         >
@@ -1117,23 +1117,22 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
         </div>
       </Card>
 
-      {/* Delete Confirmation Dialog */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent
           dir={direction}
-          className="bg-white rounded-lg p-0 max-w-md shadow-xl"
+          className="bg-white dark:bg-zinc-900 dark:border-zinc-800 rounded-lg p-0 max-w-md shadow-xl"
         >
-          <div className="bg-red-50 p-4 rounded-t-lg border-b border-red-100">
+          <div className="bg-red-50 dark:bg-red-950/20 p-4 rounded-t-lg border-b border-red-100 dark:border-red-900/50">
             <AlertDialogHeader>
               <div className="flex items-center">
                 <div className="flex-shrink-0">
                   <AlertTriangle
-                    className="h-6 w-6 text-red-500"
+                    className="h-6 w-6 text-red-500 dark:text-red-400"
                     aria-hidden="true"
                   />
                 </div>
                 <div className={`${locale === 'ar' ? 'mr-3' : 'ml-3'}`}>
-                  <AlertDialogTitle className="text-lg font-medium text-red-800">
+                  <AlertDialogTitle className="text-lg font-medium text-red-800 dark:text-red-400">
                     {t('deleteConfirmation')}
                   </AlertDialogTitle>
                 </div>
@@ -1142,21 +1141,21 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
           </div>
 
           <div className="p-6">
-            <AlertDialogDescription className="text-sm text-gray-600">
+            <AlertDialogDescription className="text-sm text-gray-600 dark:text-zinc-350">
               {t('deleteWarning')}
             </AlertDialogDescription>
 
             <div className="mt-2">
-              <div className="rounded-md bg-gray-50 p-4">
+              <div className="rounded-md bg-gray-50 dark:bg-zinc-950 border dark:border-zinc-800 p-4">
                 <div className="flex">
                   <div
                     className={`${locale === 'ar' ? 'mr-3' : 'ml-3'
                       } mt-2 text-sm`}
                   >
-                    <h3 className="font-medium text-gray-800">
+                    <h3 className="font-medium text-gray-800 dark:text-white">
                       {carListing.title}
                     </h3>
-                    <p className="text-gray-500">
+                    <p className="text-gray-500 dark:text-zinc-400">
                       {carListing.make?.name} {carListing.model?.name}
                     </p>
                   </div>
@@ -1165,10 +1164,10 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
             </div>
           </div>
 
-          <AlertDialogFooter className="bg-gray-50 px-6 py-4 rounded-b-lg flex flex-row-reverse sm:flex-row gap-2">
+          <AlertDialogFooter className="bg-gray-50 dark:bg-zinc-950 px-6 py-4 rounded-b-lg border-t dark:border-zinc-800/80 flex flex-row-reverse sm:flex-row gap-2">
             <AlertDialogCancel
               onClick={handleCancelDelete}
-              className={`inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${locale === 'ar' ? 'sm:ml-3' : 'sm:mr-3'
+              className={`inline-flex justify-center rounded-md border border-gray-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-4 py-2 text-sm font-medium text-gray-700 dark:text-zinc-350 shadow-sm hover:bg-gray-50 dark:hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${locale === 'ar' ? 'sm:ml-3' : 'sm:mr-3'
                 } w-full sm:w-auto`}
             >
               {t('cancel')}
@@ -1199,14 +1198,13 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Statistics Dialog */}
       <Dialog open={showStatisticsDialog} onOpenChange={setShowStatisticsDialog}>
         <DialogContent
-          className="bg-white rounded-lg max-w-2xl max-h-[85vh] overflow-y-auto"
+          className="bg-white dark:bg-zinc-900 dark:border-zinc-800 rounded-lg max-w-2xl max-h-[85vh] overflow-y-auto dark:text-zinc-200"
         >
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold flex items-center gap-3">
-              <div className="p-2 bg-primary/10 rounded-lg">
+              <div className="p-2 bg-primary/10 dark:bg-primary/20 rounded-lg">
                 <BarChart3 className="text-primary" size={28} />
               </div>
               <span>{locale === 'ar' ? 'إحصائيات الإعلان' : 'Listing Statistics'}</span>
@@ -1218,7 +1216,7 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
             {isLoadingStatistics ? (
               <div className="flex flex-col items-center justify-center py-16">
                 <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-primary mb-4" />
-                <p className="text-gray-500">
+                <p className="text-gray-505 dark:text-zinc-400">
                   {locale === 'ar' ? 'جاري تحميل الإحصائيات...' : 'Loading statistics...'}
                 </p>
               </div>
@@ -1228,17 +1226,17 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
                 return (
                   <div className="space-y-6">
                     {/* Car Info Header */}
-                    <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 rounded-xl p-5 border-2 border-primary/20">
+                    <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 dark:from-primary/20 dark:via-primary/10 dark:to-primary/20 rounded-xl p-5 border-2 border-primary/20 dark:border-primary/40">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
-                          <h3 className="font-bold text-xl text-gray-900 mb-2">
+                          <h3 className="font-bold text-xl text-gray-900 dark:text-white mb-2">
                             {carListing.title}
                           </h3>
-                          <p className="text-sm text-gray-600">
+                          <p className="text-sm text-gray-600 dark:text-zinc-400">
                             {carListing.make?.name} {carListing.model?.name}
                           </p>
                           <div className="flex items-center gap-2 mt-3">
-                            <Badge className="bg-primary text-white">
+                            <Badge className="bg-primary text-white border-none">
                               ID: {carListing.id}
                             </Badge>
                             {getStatusBadge()}
@@ -1282,20 +1280,20 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
                     </div>
 
                     {/* Additional Info Section */}
-                    <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-5 border border-gray-200">
+                    <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-zinc-950 dark:to-zinc-900 rounded-xl p-5 border border-gray-200 dark:border-zinc-800">
                       <div className="flex items-center gap-2 mb-4">
-                        <Clock className="text-gray-600" size={20} />
-                        <h4 className="font-semibold text-gray-900">
+                        <Clock className="text-gray-600 dark:text-zinc-300" size={20} />
+                        <h4 className="font-semibold text-gray-900 dark:text-white">
                           {locale === 'ar' ? 'معلومات إضافية' : 'Additional Information'}
                         </h4>
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                         {statsObj.createdAt && (
-                          <div className="flex items-center justify-between bg-white rounded-lg p-3">
-                            <span className="text-gray-600">
+                          <div className="flex items-center justify-between bg-white dark:bg-zinc-900 border dark:border-zinc-850 rounded-lg p-3">
+                            <span className="text-gray-600 dark:text-zinc-400">
                               {locale === 'ar' ? 'تاريخ الإنشاء:' : 'Created:'}
                             </span>
-                            <span className="font-medium text-gray-900">
+                            <span className="font-medium text-gray-900 dark:text-white">
                               {new Date(statsObj.createdAt).toLocaleDateString(
                                 locale === 'ar' ? 'ar-SA' : 'en-US'
                               )}
@@ -1303,11 +1301,11 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
                           </div>
                         )}
                         {statsObj.updatedAt && (
-                          <div className="flex items-center justify-between bg-white rounded-lg p-3">
-                            <span className="text-gray-600">
+                          <div className="flex items-center justify-between bg-white dark:bg-zinc-900 border dark:border-zinc-850 rounded-lg p-3">
+                            <span className="text-gray-600 dark:text-zinc-400">
                               {locale === 'ar' ? 'آخر تحديث:' : 'Last Updated:'}
                             </span>
-                            <span className="font-medium text-gray-900">
+                            <span className="font-medium text-gray-900 dark:text-white">
                               {new Date(statsObj.updatedAt).toLocaleDateString(
                                 locale === 'ar' ? 'ar-SA' : 'en-US'
                               )}

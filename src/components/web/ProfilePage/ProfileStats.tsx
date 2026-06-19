@@ -6,7 +6,7 @@ import Text from '@/components/ui/text';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslations } from 'next-intl';
-import { Eye, Car, ShoppingCart, Package } from 'lucide-react';
+import {  Car, ShoppingCart, Package } from 'lucide-react';
 import { PublicProfileData } from '@/core/entities/models/public-profile/public-profile.dto';
 
 interface ProfileStatsProps {

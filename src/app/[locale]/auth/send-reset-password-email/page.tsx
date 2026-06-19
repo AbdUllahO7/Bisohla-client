@@ -46,10 +46,10 @@ const SendResetPasswordEmailPage = () => {
                   />
         </div>
           </div>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 ">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
             {t('pageTitle')}
           </h1>
-          <p className="text-gray-600 text-sm">
+          <p className="text-gray-600 dark:text-white text-sm">
             {t('pageSubtitle')}
           </p>
         </div>
@@ -60,7 +60,7 @@ const SendResetPasswordEmailPage = () => {
         </div>
 
         {/* Reset Password Email Form Card - Compact */}
-        <Card className="shadow-xl border-0 bg-white/95 backdrop-blur-sm w-full">
+        <Card className="shadow-xl border-0 dark:border dark:border-zinc-800 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-sm w-full">
           <CardHeader className="space-y-1 pb-1">
             <FormStateMessage state={state} />
 
@@ -77,20 +77,20 @@ const SendResetPasswordEmailPage = () => {
                 name="email"
                 error={state?.errors?.email}
                 caption={t('emailLabel')}
-                icon={<Mail className="h-5 w-5 text-gray-400" />}
+                icon={<Mail className="h-5 w-5 text-gray-400 dark:text-zinc-400" />}
               />
 
               {/* Instructions - More compact */}
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900/30 rounded-lg p-3">
                 <div className="flex">
                   <div className="flex-shrink-0">
-                    <Shield className="h-4 w-4 text-blue-400" />
+                    <Shield className="h-4 w-4 text-blue-400 dark:text-blue-300" />
                   </div>
                   <div className={`${isRTL ? 'mr-2' : 'ml-2'}`}>
-                    <h3 className="text-xs font-medium text-blue-800">
+                    <h3 className="text-xs font-medium text-blue-800 dark:text-blue-300">
                       {t('instructionsTitle')}
                     </h3>
-                    <div className="mt-1 text-xs text-blue-700">
+                    <div className="mt-1 text-xs text-blue-700 dark:text-blue-400">
                       <p>{t('instructionsText')}</p>
                     </div>
                   </div>
@@ -111,30 +111,30 @@ const SendResetPasswordEmailPage = () => {
 
         {/* Footer Links - More compact */}
         <div className="space-y-2 text-center">
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-gray-600 dark:text-white">
             {t('footer.newToBishola')}{' '}
             <Link
               href={allRoutes.auth.children.register.path}
-              className="font-semibold text-emerald-600 hover:text-emerald-700 transition-colors inline-flex items-center gap-1"
+              className="font-semibold text-emerald-600 dark:text-[#ABDE3B] hover:text-emerald-700 dark:hover:text-[#ABDE3B]/90 transition-colors inline-flex items-center gap-1"
             >
               {t('footer.registerNow')}
               <UserPlus className="h-3 w-3" />
             </Link>
           </div>
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-gray-600 dark:text-white">
             {t('footer.rememberedPassword')}{' '}
             <Link
               href={allRoutes.auth.children.signIn.path}
-              className="font-semibold text-emerald-600 hover:text-emerald-700 transition-colors inline-flex items-center gap-1"
+              className="font-semibold text-emerald-600 dark:text-[#ABDE3B] hover:text-emerald-700 dark:hover:text-[#ABDE3B]/90 transition-colors inline-flex items-center gap-1"
             >
               {t('footer.signInNow')}
               <LogIn className="h-3 w-3" />
             </Link>
           </div>
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-gray-600 dark:text-white">
             <Link
               href="/"
-              className="font-medium text-gray-700 hover:text-emerald-600 transition-colors inline-flex items-center gap-1"
+              className="font-medium text-gray-700 dark:text-white hover:text-emerald-600 dark:hover:text-[#ABDE3B] transition-colors inline-flex items-center gap-1"
             >
               {t('footer.backToHome')}
               <ArrowRight className={`h-3 w-3 ${isRTL ? 'rotate-180' : ''}`} />
@@ -143,7 +143,7 @@ const SendResetPasswordEmailPage = () => {
         </div>
 
         {/* Trust Indicators - More compact */}
-        <div className="flex items-center justify-center gap-4 text-xs text-gray-500">
+        <div className="flex items-center justify-center gap-4 text-xs text-gray-500 dark:text-zinc-500">
           <div className="flex items-center gap-1">
             <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
             <span>{t('trustIndicators.secure')}</span>
