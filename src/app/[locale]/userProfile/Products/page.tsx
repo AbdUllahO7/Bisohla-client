@@ -243,7 +243,7 @@ const UserProductPage = () => {
 
       {/* Error state */}
       {error && (
-        <Card>
+        <Card className="dark:bg-zinc-900 dark:border-zinc-800">
           <CardContent className="p-8 text-center">
             <div className="flex flex-col items-center">
               <Car className="h-12 w-12 text-destructive mx-auto mb-4" />
@@ -252,7 +252,7 @@ const UserProductPage = () => {
                   ? 'Failed to Load Products'
                   : 'فشل في تحميل الإعلانات'}
               </h3>
-              <p className="text-muted-foreground mb-4">
+              <p className="text-muted-foreground dark:text-zinc-400 mb-4">
                 {direction === 'ltr'
                   ? "We couldn't load your listings. Please try again."
                   : 'لم نتمكن من تحميل إعلاناتك. يرجى المحاولة مرة أخرى.'}
@@ -270,13 +270,13 @@ const UserProductPage = () => {
 
       {/* Empty state */}
       {!isLoading && !error && listings.length === 0 && (
-        <Card>
+        <Card className="dark:bg-zinc-900 dark:border-zinc-800">
           <CardContent className="p-12 text-center">
             <Plus className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-xl font-semibold mb-2">
+            <h3 className="text-xl font-semibold text-zinc-900 dark:text-white mb-2">
               {direction === 'ltr' ? 'No Listings Yet' : 'لا توجد إعلانات بعد'}
             </h3>
-            <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+            <p className="text-muted-foreground dark:text-zinc-400 mb-6 max-w-md mx-auto">
               {direction === 'ltr'
                 ? "You haven't created any listings yet. Add your first item to get started!"
                 : 'لم تقم بإنشاء أي إعلانات بعد. أضف إعلانك الأول للبدء!'}
