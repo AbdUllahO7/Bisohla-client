@@ -13,13 +13,13 @@ const Hero = () => {
   return (
     <div className="w-full h-full relative overflow-hidden">
       {/* Modern gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-emerald-50 to-teal-100"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-emerald-50 to-teal-100 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950"></div>
 
       {/* Animated background elements - Contained within viewport */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-16 left-8 w-48 h-48 lg:w-72 lg:h-72 bg-emerald-200/30 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-16 right-8 w-64 h-64 lg:w-96 lg:h-96 bg-teal-200/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/4 w-32 h-32 lg:w-64 lg:h-64 bg-green-200/25 rounded-full blur-2xl animate-bounce"></div>
+        <div className="absolute top-16 left-8 w-48 h-48 lg:w-72 lg:h-72 bg-emerald-200/30 dark:bg-emerald-950/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-16 right-8 w-64 h-64 lg:w-96 lg:h-96 bg-teal-200/20 dark:bg-teal-950/15 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/4 w-32 h-32 lg:w-64 lg:h-64 bg-green-200/25 dark:bg-green-950/20 rounded-full blur-2xl animate-bounce"></div>
       </div>
 
       {/* Main content container */}
@@ -27,7 +27,7 @@ const Hero = () => {
         <div className="w-full max-w-3xl xl:max-w-4xl mx-auto h-full flex flex-col justify-center">
           
           {/* Glassmorphism background */}
-          <div className="relative bg-white/20 backdrop-blur-lg rounded-2xl md:rounded-3xl border border-white/30 shadow-2xl p-4 md:p-6 lg:p-8 xl:p-12">
+          <div className="relative bg-white/20 dark:bg-zinc-900/40 backdrop-blur-lg rounded-2xl md:rounded-3xl border border-white/30 dark:border-zinc-800/30 shadow-2xl p-4 md:p-6 lg:p-8 xl:p-12">
 
             {/* Content */}
             <div className="space-y-3 md:space-y-4 lg:space-y-6 xl:space-y-8">
@@ -46,15 +46,15 @@ const Hero = () => {
                   />
                 </div>
 
-                <Text className="text-slate-700 text-center leading-relaxed max-w-lg lg:max-w-2xl mx-auto">
+                <Text className="text-slate-700 dark:text-zinc-300 text-center leading-relaxed max-w-lg lg:max-w-2xl mx-auto">
                   {isRTL ? (
-                    <span className="text-xs md:text-sm lg:text-base xl:text-lg font-medium bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent transition-all duration-700">
+                    <span className="text-xs md:text-sm lg:text-base xl:text-lg font-medium bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent transition-all duration-700">
                       انطلق بحرية مع أفضل عروض تأجير وبيع السيارات
                       <br className="hidden sm:block" />
                       رفاهية وسهولة في كل رحلة! 🚗✨
                     </span>
                   ) : (
-                    <span className="text-xs md:text-sm lg:text-base xl:text-lg font-medium bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent transition-all duration-700">
+                    <span className="text-xs md:text-sm lg:text-base xl:text-lg font-medium bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent transition-all duration-700">
                       Drive freely with the best car rental and sales deals
                       <br className="hidden sm:block" />
                       Luxury and ease in every trip! 🚗✨
@@ -65,12 +65,12 @@ const Hero = () => {
 
               {/* Services section */}
               <div className="text-center space-y-2 md:space-y-3 lg:space-y-4">
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 rounded-full border border-emerald-200/50 backdrop-blur-sm transition-all duration-700 hover:scale-105">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 rounded-full border border-emerald-200/50 dark:border-emerald-900/50 backdrop-blur-sm transition-all duration-700 hover:scale-105">
                   <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
-                  <Text className="text-emerald-700 font-medium text-xs md:text-sm">{t('PremiumCarServices')}</Text>
+                  <Text className="text-emerald-700 dark:text-emerald-400 font-medium text-xs md:text-sm">{t('PremiumCarServices')}</Text>
                 </div>
 
-                <Text className="text-sm md:text-base lg:text-xl xl:text-2xl font-bold text-slate-800 leading-tight transition-all duration-700">
+                <Text className="text-sm md:text-base lg:text-xl xl:text-2xl font-bold text-slate-800 dark:text-zinc-100 leading-tight transition-all duration-700">
                   {t("hero.description")}
                 </Text>
               </div>
@@ -97,17 +97,17 @@ const Hero = () => {
 
               {/* Bottom stats - Compact for tablet */}
               <div className="grid grid-cols-3 gap-1.5 md:gap-2 lg:gap-4">
-                <div className="text-center p-1.5 md:p-2 lg:p-4 bg-white/30 rounded-lg md:rounded-xl lg:rounded-2xl backdrop-blur-sm border border-white/20 transition-all duration-700 hover:scale-105 hover:bg-white/40">
-                  <div className="text-base md:text-lg lg:text-2xl font-bold text-emerald-600">500+</div>
-                  <div className="text-xs md:text-sm text-slate-600">{t('CarsAvailable')}</div>
+                <div className="text-center p-1.5 md:p-2 lg:p-4 bg-white/30 dark:bg-zinc-900/30 rounded-lg md:rounded-xl lg:rounded-2xl backdrop-blur-sm border border-white/20 dark:border-zinc-800/20 transition-all duration-700 hover:scale-105 hover:bg-white/40 dark:hover:bg-zinc-900/50">
+                  <div className="text-base md:text-lg lg:text-2xl font-bold text-emerald-600 dark:text-emerald-400">500+</div>
+                  <div className="text-xs md:text-sm text-slate-600 dark:text-zinc-400">{t('CarsAvailable')}</div>
                 </div>
-                <div className="text-center p-1.5 md:p-2 lg:p-4 bg-white/30 rounded-lg md:rounded-xl lg:rounded-2xl backdrop-blur-sm border border-white/20 transition-all duration-700 hover:scale-105 hover:bg-white/40">
-                  <div className="text-base md:text-lg lg:text-2xl font-bold text-teal-600">24/7</div>
-                  <div className="text-xs md:text-sm text-slate-600">{t('Support')}</div>
+                <div className="text-center p-1.5 md:p-2 lg:p-4 bg-white/30 dark:bg-zinc-900/30 rounded-lg md:rounded-xl lg:rounded-2xl backdrop-blur-sm border border-white/20 dark:border-zinc-800/20 transition-all duration-700 hover:scale-105 hover:bg-white/40 dark:hover:bg-zinc-900/50">
+                  <div className="text-base md:text-lg lg:text-2xl font-bold text-teal-600 dark:text-teal-400">24/7</div>
+                  <div className="text-xs md:text-sm text-slate-600 dark:text-zinc-400">{t('Support')}</div>
                 </div>
-                <div className="text-center p-1.5 md:p-2 lg:p-4 bg-white/30 rounded-lg md:rounded-xl lg:rounded-2xl backdrop-blur-sm border border-white/20 transition-all duration-700 hover:scale-105 hover:bg-white/40">
-                  <div className="text-base md:text-lg lg:text-2xl font-bold text-emerald-600">5★</div>
-                  <div className="text-xs md:text-sm text-slate-600">{t('Rating')}</div>
+                <div className="text-center p-1.5 md:p-2 lg:p-4 bg-white/30 dark:bg-zinc-900/30 rounded-lg md:rounded-xl lg:rounded-2xl backdrop-blur-sm border border-white/20 dark:border-zinc-800/20 transition-all duration-700 hover:scale-105 hover:bg-white/40 dark:hover:bg-zinc-900/50">
+                  <div className="text-base md:text-lg lg:text-2xl font-bold text-emerald-600 dark:text-emerald-400">5★</div>
+                  <div className="text-xs md:text-sm text-slate-600 dark:text-zinc-400">{t('Rating')}</div>
                 </div>
               </div>
             </div>

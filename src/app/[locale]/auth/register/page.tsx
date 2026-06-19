@@ -87,30 +87,30 @@ const RegisterPage = () => {
           </div>
 
           {/* Success Card */}
-          <Card className="shadow-xl border-0 bg-white/95 backdrop-blur-sm">
+          <Card className="shadow-xl border-0 dark:border dark:border-zinc-800 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-sm">
             <CardContent className="p-8 text-center">
               {/* Success Icon */}
               <div className="mb-6 flex justify-center">
                 <div className="relative">
                   <div className="absolute inset-0 bg-emerald-500/20 rounded-full blur-xl animate-pulse"></div>
-                  <div className="relative bg-emerald-100 rounded-full p-4">
-                    <MailOpen className="h-16 w-16 text-emerald-600" />
+                  <div className="relative bg-emerald-100 dark:bg-emerald-950/30 rounded-full p-4">
+                    <MailOpen className="h-16 w-16 text-emerald-600 dark:text-emerald-400" />
                   </div>
                 </div>
               </div>
 
               {/* Title */}
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
                 {isRTL ? 'تحقق من بريدك الإلكتروني' : 'Check Your Email'}
               </h2>
 
               {/* Message */}
-              <p className="text-gray-600 mb-6 leading-relaxed">
+              <p className="text-gray-600 dark:text-white mb-6 leading-relaxed">
                 {isRTL ? (
                   <>
                     لقد أرسلنا رابط التحقق إلى
                     <br />
-                    <span className="font-semibold text-emerald-600">
+                    <span className="font-semibold text-emerald-600 dark:text-[#ABDE3B]">
                       {state.data.email}
                     </span>
                     <br />
@@ -120,7 +120,7 @@ const RegisterPage = () => {
                   <>
                     {"We've sent a verification link to"}
                     <br />
-                    <span className="font-semibold text-emerald-600">
+                    <span className="font-semibold text-emerald-600 dark:text-[#ABDE3B]">
                       {state.data.email}
                     </span>
                     <br />
@@ -141,7 +141,7 @@ const RegisterPage = () => {
               {/* Resend Link */}
               <Link
                 href={allRoutes.auth.children.verifyEmail.path}
-                className="inline-flex items-center text-emerald-600 hover:text-emerald-700 font-medium text-sm transition-colors gap-1"
+                className="inline-flex items-center text-emerald-600 hover:text-emerald-700 dark:text-[#ABDE3B] dark:hover:text-[#ABDE3B]/90 font-medium text-sm transition-colors gap-1"
               >
                 <RefreshCw className="h-4 w-4" />
                 {isRTL
@@ -150,8 +150,8 @@ const RegisterPage = () => {
               </Link>
 
               {/* Instructions */}
-              <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-                <p className="text-xs text-gray-600 text-start leading-relaxed">
+              <div className="mt-6 p-4 bg-gray-50 dark:bg-zinc-800/50 rounded-lg">
+                <p className="text-xs text-gray-600 dark:text-white text-start leading-relaxed">
                   {isRTL ? (
                     <>
                       <strong>ملاحظة:</strong> إذا لم تجد الرسالة، يرجى التحقق
@@ -169,10 +169,10 @@ const RegisterPage = () => {
 
           {/* Footer Links */}
           <div className="text-center space-y-2">
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-gray-600 dark:text-white">
               <Link
                 href={allRoutes.auth.children.signIn.path}
-                className="font-semibold text-emerald-600 hover:text-emerald-700 transition-colors inline-flex items-center gap-1"
+                className="font-semibold text-emerald-600 hover:text-emerald-700 dark:text-[#ABDE3B] dark:hover:text-[#ABDE3B]/90 transition-colors inline-flex items-center gap-1"
               >
                 <ArrowRight
                   className={`h-3 w-3 ${isRTL ? 'rotate-180' : ''}`}
@@ -205,7 +205,7 @@ const RegisterPage = () => {
             </div>
           </div>
 
-          <p className="text-gray-600 text-sm">
+          <p className="text-gray-600 dark:text-white text-sm">
             {isRTL
               ? 'انضم إلى بسهولة واستمتع بخدماتنا المميزة'
               : 'Join Bishola and enjoy our premium services'}
@@ -218,7 +218,7 @@ const RegisterPage = () => {
         </div>
 
         {/* Registration Card - More compact */}
-        <Card className="shadow-xl border-0 bg-white/95 backdrop-blur-sm w-full">
+        <Card className="shadow-xl border-0 dark:border dark:border-zinc-800 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-sm w-full">
           <CardHeader className="space-y-1 pb-1">
             <FormStateMessage state={state} />
           </CardHeader>
@@ -238,7 +238,7 @@ const RegisterPage = () => {
                 type="email"
                 error={state.errors?.email}
                 caption={isRTL ? 'البريد الإلكتروني' : 'Email Address'}
-                icon={<Mail className="h-5 w-5 text-gray-400" />}
+                icon={<Mail className="h-5 w-5 text-gray-400 dark:text-zinc-400" />}
                 defaultValue={state.data?.email || ''}
               />
 
@@ -251,7 +251,7 @@ const RegisterPage = () => {
                 type="text"
                 error={state.errors?.name}
                 caption={isRTL ? 'الاسم الكامل' : 'Full Name'}
-                icon={<User className="h-5 w-5 text-gray-400" />}
+                icon={<User className="h-5 w-5 text-gray-400 dark:text-zinc-400" />}
                 defaultValue={state.data?.name || ''}
               />
 
@@ -264,7 +264,7 @@ const RegisterPage = () => {
                 type="password"
                 error={state.errors?.password}
                 caption={isRTL ? 'كلمة المرور' : 'Password'}
-                icon={<Lock className="h-5 w-5 text-gray-400" />}
+                icon={<Lock className="h-5 w-5 text-gray-400 dark:text-zinc-400" />}
               />
 
               {/* Password Confirmation Input - NOT preserved for security */}
@@ -276,24 +276,24 @@ const RegisterPage = () => {
                 type="password"
                 error={state.errors?.passwordConfirmation}
                 caption={isRTL ? 'تأكيد كلمة المرور' : 'Confirm Password'}
-                icon={<Lock className="h-5 w-5 text-gray-400" />}
+                icon={<Lock className="h-5 w-5 text-gray-400 dark:text-zinc-400" />}
               />
 
               {/* Terms and Privacy Notice - More compact */}
-              <div className="text-xs text-gray-500 text-center leading-relaxed px-1">
+              <div className="text-xs text-gray-500 dark:text-white text-center leading-relaxed px-1">
                 {isRTL ? (
                   <>
                     بإنشاء حساب، فإنك توافق على{' '}
                     <Link
                       href="#"
-                      className="text-emerald-600 hover:text-emerald-700 font-medium"
+                      className="text-emerald-600 hover:text-emerald-700 dark:text-[#ABDE3B] dark:hover:text-[#ABDE3B]/90 font-medium"
                     >
                       شروط الخدمة
                     </Link>{' '}
                     و{' '}
                     <Link
                       href="#"
-                      className="text-emerald-600 hover:text-emerald-700 font-medium"
+                      className="text-emerald-600 hover:text-emerald-700 dark:text-[#ABDE3B] dark:hover:text-[#ABDE3B]/90 font-medium"
                     >
                       سياسة الخصوصية
                     </Link>
@@ -303,14 +303,14 @@ const RegisterPage = () => {
                     By creating an account, you agree to our{' '}
                     <Link
                       href="#"
-                      className="text-emerald-600 hover:text-emerald-700 font-medium"
+                      className="text-emerald-600 hover:text-emerald-700 dark:text-[#ABDE3B] dark:hover:text-[#ABDE3B]/90 font-medium"
                     >
                       Terms of Service
                     </Link>{' '}
                     and{' '}
                     <Link
                       href="#"
-                      className="text-emerald-600 hover:text-emerald-700 font-medium"
+                      className="text-emerald-600 hover:text-emerald-700 dark:text-[#ABDE3B] dark:hover:text-[#ABDE3B]/90 font-medium"
                     >
                       Privacy Policy
                     </Link>
@@ -335,10 +335,10 @@ const RegisterPage = () => {
                 authSettings?.auth_providers?.enable_apple_oauth) && (
                 <div className="relative py-2">
                   <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-gray-200"></div>
+                    <div className="w-full border-t border-gray-200 dark:border-zinc-800"></div>
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-white px-2 text-gray-500">
+                    <span className="bg-white dark:bg-zinc-900 px-2 text-gray-500 dark:text-white">
                       {isRTL ? 'أو' : 'Or'}
                     </span>
                   </div>
@@ -361,19 +361,19 @@ const RegisterPage = () => {
 
         {/* Footer Links - More compact */}
         <div className="text-center space-y-1">
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-gray-600 dark:text-white">
             {isRTL ? 'لديك حساب بالفعل؟' : 'Already have an account?'}{' '}
             <Link
               href={allRoutes.auth.children.signIn.path}
-              className="font-semibold text-emerald-600 hover:text-emerald-700 transition-colors"
+              className="font-semibold text-emerald-600 hover:text-emerald-700 dark:text-[#ABDE3B] dark:hover:text-[#ABDE3B]/90 transition-colors"
             >
               {isRTL ? 'تسجيل الدخول الآن' : 'Sign in here'}
             </Link>
           </div>
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-gray-600 dark:text-white">
             <Link
               href="/"
-              className="font-medium text-gray-700 hover:text-emerald-600 transition-colors inline-flex items-center gap-1"
+              className="font-medium text-gray-700 dark:text-white hover:text-emerald-600 dark:hover:text-[#ABDE3B] transition-colors inline-flex items-center gap-1"
             >
               {t('footer.backToHome')}
               <ArrowRight className={`h-3 w-3 ${isRTL ? 'rotate-180' : ''}`} />

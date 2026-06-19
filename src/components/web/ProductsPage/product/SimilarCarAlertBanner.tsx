@@ -130,7 +130,7 @@ const SimilarCarAlertBanner: React.FC<SimilarCarAlertBannerProps> = ({
 
                         {/* Content */}
                         <div className="flex-1 min-w-0">
-                            <p className="font-bold text-[#2C3C39] dark:text-zinc-150 text-base">
+                            <p className="font-bold text-[#2C3C39] dark:text-white text-base">
                                 {isArabic
                                     ? 'هل تريد تنبيهات بمنتجات مشابهة؟'
                                     : 'Get alerts for similar products?'}
