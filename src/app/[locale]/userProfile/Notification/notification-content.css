@@ -318,3 +318,50 @@
 .notification-content.ql-editor .ql-indent-8 {
   padding-inline-start: 24em;
 }
+
+/* Dark Mode Overrides */
+.dark .notification-preview {
+  color: #d4d4d8 !important;
+}
+
+.dark .notification-content.ql-editor {
+  color: #e4e4e7;
+}
+
+.dark .notification-content.ql-editor a {
+  color: #ABDE3B;
+}
+
+.dark .notification-content.ql-editor a:hover {
+  color: #c0eb52;
+}
+
+.dark .notification-content.ql-editor blockquote {
+  border-inline-start-color: #ABDE3B;
+  color: #a1a1aa;
+}
+
+.dark .notification-content.ql-editor pre {
+  background-color: #18181b;
+  border-color: #27272a;
+  color: #f4f4f5;
+}
+
+.dark .notification-content.ql-editor code {
+  background-color: #27272a;
+  color: #f4f4f5;
+}
+
+.dark .notification-content.ql-editor table td,
+.dark .notification-content.ql-editor table th {
+  border-color: #27272a;
+  color: #e4e4e7;
+}
+
+.dark .notification-content.ql-editor table th {
+  background-color: #18181b;
+}
+
+.dark .notification-content.ql-editor hr {
+  border-top-color: #27272a;
+}
