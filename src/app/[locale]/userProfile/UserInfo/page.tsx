@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
@@ -65,10 +64,10 @@ const KeyValueField: React.FC<KeyValueFieldProps> = ({
     <div className={`flex flex-col space-y-2 ${className}`}>
       <div className="flex items-center gap-2">
         {icon}
-        <span className="text-sm font-medium text-gray-700">{label}</span>
+        <span className="text-sm font-medium text-gray-700 dark:text-zinc-300">{label}</span>
       </div>
       <div className="pl-7">
-        {children || <div className="text-gray-900">{value}</div>}
+        {children || <div className="text-gray-900 dark:text-white">{value}</div>}
       </div>
     </div>
   );
@@ -264,7 +263,7 @@ const UserInfoPage = () => {
       >
         <div className="flex items-center gap-2">
           <User className="h-5 w-5 text-primary" />
-          <h1 className="text-2xl font-bold">{t('YourProfile')}</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('YourProfile')}</h1>
         </div>
         <motion.div
           whileHover={{ scale: 1.02 }}
@@ -273,7 +272,7 @@ const UserInfoPage = () => {
           <Button
             onClick={handleLogout}
             variant="outline"
-            className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 flex items-center gap-2 rounded-md transition-all duration-300"
+            className="border-red-200 dark:border-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 hover:text-red-700 dark:hover:text-red-300 flex items-center gap-2 rounded-md transition-all duration-300"
           >
             <LogOut className="h-4 w-4" />
             {locale === 'en' ? 'Logout' : 'تسجيل الخروج'}
@@ -283,7 +282,7 @@ const UserInfoPage = () => {
 
       {isLoading ? (
         <motion.div
-          className="bg-white rounded-lg shadow-md p-8 flex justify-center items-center"
+          className="bg-white dark:bg-zinc-900 border dark:border-zinc-800 rounded-lg shadow-md p-8 flex justify-center items-center"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3 }}
@@ -292,15 +291,15 @@ const UserInfoPage = () => {
         </motion.div>
       ) : (
         <motion.div
-          className="bg-white rounded-lg shadow-md"
+          className="bg-white dark:bg-zinc-900 border dark:border-zinc-800 rounded-lg shadow-md"
           variants={itemVariants}
         >
           <motion.div
-            className="p-6 border-b border-gray-100"
+            className="p-6 border-b border-gray-100 dark:border-zinc-800"
             variants={itemVariants}
           >
-            <h2 className="text-xl font-semibold">{t('editProfile')}</h2>
-            <p className="text-gray-500 text-sm mt-1">{t('editProfile')}</p>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{t('editProfile')}</h2>
+            <p className="text-gray-500 dark:text-zinc-400 text-sm mt-1">{t('editProfile')}</p>
           </motion.div>
 
           <motion.div className="p-6 space-y-8" variants={containerVariants}>
@@ -319,7 +318,7 @@ const UserInfoPage = () => {
                     delay: 0.2,
                   }}
                 >
-                  <Avatar className="h-24 w-24 border-2 border-gray-100 shadow-sm transition-all duration-300 hover:shadow-md hover:border-primary/30">
+                  <Avatar className="h-24 w-24 border-2 border-gray-100 dark:border-zinc-800 shadow-sm transition-all duration-300 hover:shadow-md hover:border-primary/30">
                     {profileForm.getValues('profileUrl') ? (
                       <AvatarImage
                         src={profileForm.getValues('profileUrl') ?? undefined}
@@ -339,13 +338,13 @@ const UserInfoPage = () => {
                 </motion.div>
                 <div className="space-y-2 flex-1">
                   <motion.h4
-                    className="text-sm font-medium"
+                    className="text-sm font-medium text-gray-900 dark:text-white"
                     variants={itemVariants}
                   >
                     {t('YourProfile')}
                   </motion.h4>
                   <motion.p
-                    className="text-xs text-gray-500"
+                    className="text-xs text-gray-500 dark:text-zinc-400"
                     variants={itemVariants}
                   >
                     {t('editProfile')}
@@ -369,7 +368,7 @@ const UserInfoPage = () => {
                         showPreview={true}
                         name="profile-image"
                         containerClassName="w-full mt-2"
-                        dropzoneClassName="p-4 border-dashed border-2 border-gray-200 rounded-md hover:border-primary/50 transition-all duration-300"
+                        dropzoneClassName="p-4 border-dashed border-2 border-gray-200 dark:border-zinc-800 rounded-md hover:border-primary/50 transition-all duration-300"
                         ref={profileImageRef}
                       />
                     </motion.div>
@@ -379,7 +378,7 @@ const UserInfoPage = () => {
             </motion.div>
 
             <motion.div variants={itemVariants}>
-              <Separator className="bg-gray-100" />
+              <Separator className="bg-gray-100 dark:bg-zinc-800" />
             </motion.div>
 
             <Form {...profileForm}>
@@ -406,7 +405,7 @@ const UserInfoPage = () => {
                                 placeholder={t('name')}
                                 {...field}
                                 disabled={isFormDisabled}
-                                className="border-gray-200 focus:border-primary focus:ring-primary rounded-md transition-all duration-300"
+                                className="border-gray-200 dark:border-zinc-800 focus:border-primary focus:ring-primary rounded-md transition-all duration-300 dark:bg-zinc-900 dark:text-zinc-100"
                               />
                             </FormControl>
                             <FormMessage className="text-xs" />
@@ -431,7 +430,7 @@ const UserInfoPage = () => {
                                 placeholder={t('email')}
                                 {...field}
                                 disabled={true}
-                                className="border-gray-200 bg-gray-50 text-gray-500 rounded-md transition-all duration-300"
+                                className="border-gray-200 dark:border-zinc-800 bg-gray-50 dark:bg-zinc-800 text-gray-500 dark:text-zinc-400 rounded-md transition-all duration-300"
                               />
                             </FormControl>
                             <FormDescription className="text-xs text-gray-400">
@@ -461,7 +460,7 @@ const UserInfoPage = () => {
                               {...field}
                               value={field.value || ''}
                               disabled={isFormDisabled}
-                              className="border-gray-200 focus:border-primary focus:ring-primary rounded-md transition-all duration-300"
+                              className="border-gray-200 dark:border-zinc-800 focus:border-primary focus:ring-primary rounded-md transition-all duration-300 dark:bg-zinc-900 dark:text-zinc-100"
                             />
                           </FormControl>
                           <FormMessage className="text-xs" />
@@ -492,7 +491,7 @@ const UserInfoPage = () => {
                                 {...field}
                                 value={field.value || ''}
                                 disabled={isFormDisabled}
-                                className="border-gray-200 focus:border-primary focus:ring-primary rounded-md transition-all duration-300"
+                                className="border-gray-200 dark:border-zinc-800 focus:border-primary focus:ring-primary rounded-md transition-all duration-300 dark:bg-zinc-900 dark:text-zinc-100"
                               />
                             </FormControl>
                             <FormMessage className="text-xs" />
@@ -519,7 +518,7 @@ const UserInfoPage = () => {
                                 {...field}
                                 value={field.value || ''}
                                 disabled={isFormDisabled}
-                                className="border-gray-200 focus:border-primary focus:ring-primary rounded-md transition-all duration-300"
+                                className="border-gray-200 dark:border-zinc-800 focus:border-primary focus:ring-primary rounded-md transition-all duration-300 dark:bg-zinc-900 dark:text-zinc-100"
                               />
                             </FormControl>
                             <FormMessage className="text-xs" />
@@ -561,7 +560,7 @@ const UserInfoPage = () => {
             </Form>
 
             <motion.div variants={itemVariants}>
-              <Separator className="bg-gray-100 my-6" />
+              <Separator className="bg-gray-100 dark:bg-zinc-800 my-6" />
             </motion.div>
 
             <motion.div className="space-y-4" variants={itemVariants}>
@@ -569,7 +568,7 @@ const UserInfoPage = () => {
                 <h3 className="text-lg font-semibold text-red-600">
                   {t('deleteAccount.title')}
                 </h3>
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-sm text-gray-500 dark:text-zinc-400 mt-1">
                   {t('deleteAccount.description')}
                 </p>
               </div>
