@@ -205,7 +205,7 @@ const ProfileClient = ({
           <div className="mb-6">
             <div className="flex items-center gap-3">
               <div className="h-8 w-1 bg-gradient-to-b from-[#198341] to-[#ABDE3B] rounded-full"></div>
-              <Text variant="h3" className="font-bold text-[#2C3C39]">
+              <Text variant="h3" className="font-bold text-[#2C3C39] dark:text-white">
                 {t('listings.title')}
               </Text>
             </div>
@@ -236,7 +236,7 @@ const ProfileClient = ({
               {Array.from({ length: 8 }).map((_, index) => (
                 <Card
                   key={`skeleton-${index}`}
-                  className="bg-white border-none rounded-xl overflow-hidden shadow-md"
+                  className="bg-white dark:bg-zinc-900 border-none rounded-xl overflow-hidden shadow-md"
                 >
                   <Skeleton className="h-48 w-full" />
                   <CardContent className="p-4 space-y-3">
@@ -279,8 +279,8 @@ const ProfileClient = ({
               })}
             </div>
           ) : (
-            <div className="bg-white rounded-xl p-12 text-center shadow-md w-full">
-              <Text variant="p" className="text-gray-500">
+            <div className="bg-white dark:bg-zinc-900 rounded-xl p-12 text-center shadow-md w-full">
+              <Text variant="p" className="text-gray-500 dark:text-zinc-400">
                 {t('listings.noListings')}
               </Text>
             </div>

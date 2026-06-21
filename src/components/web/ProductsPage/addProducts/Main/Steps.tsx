@@ -6,13 +6,10 @@ import { useSettings } from '@/providers/settings.provider';
 
 // Import components
 import { getRequiredFieldsMessage, getErrorDialogTexts } from './utils';
-import { showStepNavigationToast, getStepNavigationMessages } from './utils/stepNavigationUtils';
 import { StepContent } from './Components/StepContent';
 import AddProductStepFour from '../StepFour/AddProductStepFour';
 import ErrorDialog from './Components/ErrorDialog';
 import { StepTrigger, StepperContainer } from './Components/StepTrigger';
-import { useStepManagement } from './hooks/useStepManagement';
-import { STORAGE_KEYS, getStorageKey } from './hooks/useLocalStorage';
 import AddProductTypeSelection from '../TypeSelection/AddProductTypeSelection';
 import DynamicFormStep from './Components/DynamicFormStep';
 import CarPhotosSection from '../StepThree/CarPhotosSection';
@@ -20,6 +17,9 @@ import { getInjection } from '@/di/container';
 import { ListingTypeDto, ListingTypeFormSchemaDto } from '@/core/entities/models/listing-types/listing-types.dto';
 import { useMemo, useCallback } from 'react';
 import { cn } from '@/lib/utils';
+import { useStepManagement } from './hooks/useStepManagement';
+import { getStorageKey, STORAGE_KEYS } from './hooks/useLocalStorage';
+import { getStepNavigationMessages, showStepNavigationToast } from './utils/stepNavigationUtils';
 
 // Props interface for Steps component
 interface StepsProps {

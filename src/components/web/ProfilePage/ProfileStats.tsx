@@ -60,7 +60,7 @@ const ProfileStats: React.FC<ProfileStatsProps> = ({
           {Array.from({ length: 4 }).map((_, index) => (
             <Card
               key={`skeleton-${index}`}
-              className="bg-white border-none rounded-xl p-4 shadow-sm"
+              className="bg-white dark:bg-zinc-900 border-none rounded-xl p-4 shadow-sm"
             >
               <CardContent className="flex flex-col gap-3 p-0">
                 <Skeleton className="h-10 w-10 rounded-lg" />
@@ -86,7 +86,7 @@ const ProfileStats: React.FC<ProfileStatsProps> = ({
                 className={`absolute -inset-0.5 bg-gradient-to-r ${stat.gradient} rounded-xl opacity-0 group-hover:opacity-20 blur transition-opacity duration-300`}
               ></div>
 
-              <Card className="relative bg-white border-2 border-gray-100 rounded-xl p-4 shadow-md hover:shadow-xl hover:border-primary-light transition-all duration-300 overflow-hidden">
+              <Card className="relative bg-white dark:bg-zinc-900 border-2 border-gray-100 dark:border-zinc-800 rounded-xl p-4 shadow-md hover:shadow-xl hover:border-primary-light transition-all duration-300 overflow-hidden">
                 {/* Top accent line */}
                 <div
                   className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${stat.gradient} transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300`}
@@ -106,13 +106,13 @@ const ProfileStats: React.FC<ProfileStatsProps> = ({
                   {/* Label */}
                   <Text
                     variant="small"
-                    className="text-gray-600 font-cairo font-medium text-xs"
+                    className="text-gray-600 dark:text-zinc-400 font-cairo font-medium text-xs"
                   >
                     {stat.label}
                   </Text>
 
                   {/* Value */}
-                  <Text variant="h3" className="text-[#2C3C39] font-bold">
+                  <Text variant="h3" className="text-[#2C3C39] dark:text-white font-bold">
                     {stat.value.toLocaleString()}
                   </Text>
                 </CardContent>
@@ -134,7 +134,7 @@ const ProfileStats: React.FC<ProfileStatsProps> = ({
               className={`absolute -inset-0.5 bg-gradient-to-r ${stat.gradient} rounded-xl opacity-0 group-hover:opacity-20 blur transition-opacity duration-300`}
             ></div>
 
-            <Card className="relative bg-white border-2 border-gray-100 rounded-xl p-6 shadow-md hover:shadow-2xl hover:border-primary-light transition-all duration-300 overflow-hidden">
+            <Card className="relative bg-white dark:bg-zinc-900 border-2 border-gray-100 dark:border-zinc-800 rounded-xl p-6 shadow-md hover:shadow-2xl hover:border-primary-light transition-all duration-300 overflow-hidden">
               {/* Top accent line */}
               <div
                 className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${stat.gradient} transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300`}
@@ -159,7 +159,7 @@ const ProfileStats: React.FC<ProfileStatsProps> = ({
                 {/* Label */}
                 <Text
                   variant="small"
-                  className="text-gray-600 font-cairo font-medium"
+                  className="text-gray-600 dark:text-zinc-400 font-cairo font-medium"
                 >
                   {stat.label}
                 </Text>
@@ -167,7 +167,7 @@ const ProfileStats: React.FC<ProfileStatsProps> = ({
                 {/* Value */}
                 <Text
                   variant="h2"
-                  className="text-[#2C3C39] font-bold group-hover:text-primary-light transition-colors duration-300"
+                  className="text-[#2C3C39] dark:text-white font-bold group-hover:text-primary-light transition-colors duration-300"
                 >
                   {stat.value.toLocaleString()}
                 </Text>
