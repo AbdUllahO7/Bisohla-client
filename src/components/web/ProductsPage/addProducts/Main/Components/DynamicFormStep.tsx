@@ -335,7 +335,7 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
                   <div className={cn("flex flex-col gap-2", isLocation && "mb-2")}>
                     <div className="flex items-center gap-1.5 pb-1">
                       <Label className={cn(
-                        "text-[#1a2b28] dark:text-zinc-100 font-bold tracking-tight",
+                        "text-[#1a2b28] dark:text-white font-bold tracking-tight",
                         isLocation ? "text-2xl" : "text-base"
                       )}>
                         {getTranslation(attr.name)}
@@ -523,7 +523,7 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
                 {/* Label Rendering matched with standard fields */}
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center gap-1.5 pb-1">
-                    <Label className="text-[#1a2b28] dark:text-zinc-100 font-bold tracking-tight text-base">
+                    <Label className="text-[#1a2b28] dark:text-white font-bold tracking-tight text-base">
                       {getTranslation(attr.name)}
                       {attr.isRequired && <span className={cn("text-red-500", isArabic ? "mr-1" : "ml-1")}>*</span>}
                     </Label>
@@ -600,7 +600,7 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
                     <Card key={attr.id} className="border-0 shadow-sm bg-white dark:bg-zinc-900 overflow-hidden rounded-2xl border border-gray-100 dark:border-zinc-800">
                       <CardHeader className="bg-gray-50/50 dark:bg-zinc-800/50 border-b dark:border-zinc-800 py-5 px-6 space-y-4">
                         <div className="flex justify-between items-center">
-                          <Text className="font-bold text-gray-800 dark:text-zinc-100 text-lg">
+                          <Text className="font-bold text-gray-800 dark:text-white text-lg">
                             {getTranslation(attr.name)}
                           </Text>
                           <div className="bg-[#1e293b] dark:bg-zinc-800 text-white text-[10px] font-bold px-2.5 py-1 rounded-full">
@@ -697,7 +697,7 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
                     <Card key={gName} className="border-0 shadow-sm bg-white dark:bg-zinc-900 overflow-hidden rounded-2xl border border-gray-100 dark:border-zinc-800">
                       <CardHeader className="bg-gray-50/50 dark:bg-zinc-800/50 border-b dark:border-zinc-800 py-5 px-6 space-y-4">
                         <div className="flex justify-between items-center">
-                          <Text className="font-bold text-gray-800 dark:text-zinc-100 text-lg">
+                          <Text className="font-bold text-gray-800 dark:text-white text-lg">
                             {gName}
                           </Text>
                           <div className="bg-[#1e293b] dark:bg-zinc-800 text-white text-[10px] font-bold px-2.5 py-1 rounded-full">

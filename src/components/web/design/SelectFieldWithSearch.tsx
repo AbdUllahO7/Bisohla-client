@@ -119,7 +119,7 @@ const SelectFieldWithSearch: React.FC<SelectFieldWithSearchProps> = ({
             aria-expanded={open}
             disabled={disabled}
             className={cn(
-              "w-full h-12 px-4 justify-between bg-white dark:bg-zinc-900 border-2 border-[#198341]/20 dark:border-zinc-800 hover:border-[#198341]/40 dark:hover:border-zinc-700 text-gray-700 dark:text-zinc-200 font-semibold transition-all rounded-2xl shadow-sm hover:shadow-md",
+              "w-full h-12 px-4 justify-between bg-white dark:bg-zinc-900 border-2 border-[#198341]/20 dark:border-zinc-800 hover:border-[#198341]/40 dark:hover:border-zinc-700 text-gray-700 dark:text-white font-semibold transition-all rounded-2xl shadow-sm hover:shadow-md",
               isRtl ? "text-right flex-row" : "text-left flex-row",
               error ? "border-red-500" : "",
               disabled && "opacity-50 cursor-not-allowed bg-gray-50 dark:bg-zinc-850",
@@ -179,7 +179,7 @@ const SelectFieldWithSearch: React.FC<SelectFieldWithSearchProps> = ({
                         "flex items-center justify-between px-4 py-2.5 cursor-pointer rounded-xl mb-1 transition-all duration-300 border border-transparent group",
                         isSelected 
                           ? "bg-gradient-to-r from-[#198341] to-[#2C3C39] text-white shadow-lg scale-[1.01] border-[#198341]" 
-                          : "bg-white dark:bg-zinc-900 text-[#2C3C39] dark:text-zinc-200 hover:bg-gradient-to-r hover:from-[#ABDE3B]/10 hover:to-[#198341]/5 dark:hover:from-[#ABDE3B]/20 dark:hover:to-[#198341]/10 hover:shadow-md hover:border-[#198341]/20 dark:hover:border-[#198341]/40"
+                          : "bg-white dark:bg-zinc-900 text-[#2C3C39] dark:text-white hover:bg-gradient-to-r hover:from-[#ABDE3B]/10 hover:to-[#198341]/5 dark:hover:from-[#ABDE3B]/20 dark:hover:to-[#198341]/10 hover:shadow-md hover:border-[#198341]/20 dark:hover:border-[#198341]/40"
                       )}
                     >
                       <div className="flex items-center gap-3 overflow-hidden">

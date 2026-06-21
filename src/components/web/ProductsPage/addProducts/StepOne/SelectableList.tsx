@@ -66,7 +66,7 @@ const SelectableList: React.FC<SelectableListProps> = ({
       {/* Enhanced Header */}
       <Box variant="row" className="flex items-center pb-4 mb-2">
         <div className="flex items-center">
-          <Text className="text-[#1a2b28] dark:text-zinc-100 font-bold text-2xl tracking-tight">{title}</Text>
+          <Text className="text-[#1a2b28] dark:text-white font-bold text-2xl tracking-tight">{title}</Text>
           {required && <Text className="text-red-500 ml-2 text-xl">*</Text>}
         </div>
         {required && !selectedValue && (

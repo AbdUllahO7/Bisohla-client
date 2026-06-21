@@ -82,7 +82,7 @@ const EnumSelect = ({
       name={name}
       render={({ field }) => (
         <FormItem className={`text-primary ${className}`}>
-          <FormLabel className="text-primary">
+          <FormLabel className="text-primary dark:text-white">
             {label}
             {required && <span className="text-red-500">*</span>}
           </FormLabel>
@@ -97,12 +97,12 @@ const EnumSelect = ({
             dir={`${isRtl ? "rtl" : "ltr"}`}
           >
             <FormControl>
-              <SelectTrigger className="h-11 border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 dark:text-zinc-100">
+              <SelectTrigger className="h-11 border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 dark:text-white">
                 <SelectValue placeholder={placeholder} dir={`${isRtl ? "rtl" : "ltr"}`} />
               </SelectTrigger>
             </FormControl>
             <SelectContent
-              className="bg-white dark:bg-zinc-900 shadow-2xl text-primary dark:text-zinc-100 border dark:border-zinc-800 !z-[99999]"
+              className="bg-white dark:bg-zinc-900 shadow-2xl text-primary dark:text-white border dark:border-zinc-800 !z-[99999]"
               dir={`${isRtl ? "rtl" : "ltr"}`}
               position="popper"
               sideOffset={4}
@@ -662,7 +662,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 {direction === "rtl" ? "الخطوة الأخيرة" : "Final Step"}
               </span>
-              <Text className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-800 dark:text-zinc-100">
+              <Text className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-800 dark:text-white">
                 {t("stepFour.title", { defaultValue: "Ad Information" })}
               </Text>
               <p className="text-sm text-slate-500 dark:text-zinc-400 max-w-md">
@@ -678,7 +678,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                 <div className="text-xs text-slate-400 dark:text-zinc-400 font-medium">
                   {direction === "rtl" ? "التقدم الحالي" : "Current Progress"}
                 </div>
-                <div className="text-sm font-bold text-slate-700 dark:text-zinc-200">
+                <div className="text-sm font-bold text-slate-700 dark:text-white">
                   {direction === "rtl" ? "خطوة 4 من 4" : "Step 4 of 4"}
                 </div>
               </div>
@@ -697,7 +697,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                     <FileText className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-slate-800 dark:text-zinc-100">
+                    <h3 className="text-lg font-bold text-slate-800 dark:text-white">
                       {direction === "rtl" ? "المعلومات الأساسية" : "Basic Information"}
                     </h3>
                     <p className="text-xs text-slate-400 dark:text-zinc-400">
@@ -712,14 +712,14 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                     name="title"
                     render={({ field }) => (
                       <FormItem className="text-primary">
-                        <FormLabel className="text-slate-700 dark:text-zinc-200 font-semibold flex items-center gap-1 text-sm">
+                        <FormLabel className="text-slate-700 dark:text-white font-semibold flex items-center gap-1 text-sm">
                           {t("stepFour.adTitle")}
                           <span className="text-rose-500">*</span>
                         </FormLabel>
                         <FormControl>
                           <Input
                             placeholder={t("stepFour.adTitle")}
-                            className="h-11 rounded-xl border-slate-200 dark:border-zinc-800 focus-visible:ring-primary focus-visible:border-primary bg-white dark:bg-zinc-950 dark:text-zinc-100 shadow-sm transition-all"
+                            className="h-11 rounded-xl border-slate-200 dark:border-zinc-800 focus-visible:ring-primary focus-visible:border-primary bg-white dark:bg-zinc-950 dark:text-white shadow-sm transition-all"
                             {...field}
                           />
                         </FormControl>
@@ -733,14 +733,14 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                     name="description"
                     render={({ field }) => (
                       <FormItem className="text-primary">
-                        <FormLabel className="text-slate-700 dark:text-zinc-200 font-semibold flex items-center gap-1 text-sm">
+                        <FormLabel className="text-slate-700 dark:text-white font-semibold flex items-center gap-1 text-sm">
                           {t("stepFour.adDescription")}
                           <span className="text-rose-500">*</span>
                         </FormLabel>
                         <FormControl>
                           <Textarea
                             placeholder={t("stepFour.adDescription")}
-                            className="min-h-[120px] resize-y rounded-xl border-slate-200 dark:border-zinc-800 focus-visible:ring-primary focus-visible:border-primary bg-white dark:bg-zinc-950 dark:text-zinc-100 shadow-sm transition-all"
+                            className="min-h-[120px] resize-y rounded-xl border-slate-200 dark:border-zinc-800 focus-visible:ring-primary focus-visible:border-primary bg-white dark:bg-zinc-950 dark:text-white shadow-sm transition-all"
                             {...field}
                           />
                         </FormControl>
@@ -758,7 +758,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                     <DollarSign className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-slate-800 dark:text-zinc-100">
+                    <h3 className="text-lg font-bold text-slate-800 dark:text-white">
                       {direction === "rtl" ? "الاتصال والتسعير" : "Contact & Pricing"}
                     </h3>
                     <p className="text-xs text-slate-400 dark:text-zinc-400">
@@ -770,7 +770,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                   {/* Country Code + Contact Number */}
                   <div className="sm:col-span-2 lg:col-span-1 space-y-1.5">
-                    <FormLabel className="text-slate-700 dark:text-zinc-200 font-semibold flex items-center gap-1 text-sm">
+                    <FormLabel className="text-slate-700 dark:text-white font-semibold flex items-center gap-1 text-sm">
                       <Phone className="w-4 h-4 text-slate-400" />
                       {t("stepFour.contactNumber")}
                       <span className="text-rose-500">*</span>
@@ -793,7 +793,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                             <FormControl>
                               <Input
                                 placeholder="5551234567"
-                                className="h-11 rounded-xl border-slate-200 dark:border-zinc-800 focus-visible:ring-primary focus-visible:border-primary bg-white dark:bg-zinc-950 dark:text-zinc-100 shadow-sm transition-all"
+                                className="h-11 rounded-xl border-slate-200 dark:border-zinc-800 focus-visible:ring-primary focus-visible:border-primary bg-white dark:bg-zinc-950 dark:text-white shadow-sm transition-all"
                                 {...field}
                                 type="tel"
                               />
@@ -811,7 +811,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                     name="price"
                     render={({ field }) => (
                       <FormItem className="text-primary">
-                        <FormLabel className="text-slate-700 dark:text-zinc-200 font-semibold flex items-center gap-1 text-sm">
+                        <FormLabel className="text-slate-700 dark:text-white font-semibold flex items-center gap-1 text-sm">
                           {t("stepFour.price", { defaultValue: "Price" })}
                           <span className="text-rose-500">*</span>
                         </FormLabel>
@@ -819,7 +819,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                           <Input
                             type="text"
                             placeholder={t("stepFour.price", { defaultValue: "Enter price" })}
-                            className="h-11 rounded-xl border-slate-200 dark:border-zinc-800 focus-visible:ring-primary focus-visible:border-primary bg-white dark:bg-zinc-950 dark:text-zinc-100 shadow-sm transition-all"
+                            className="h-11 rounded-xl border-slate-200 dark:border-zinc-800 focus-visible:ring-primary focus-visible:border-primary bg-white dark:bg-zinc-950 dark:text-white shadow-sm transition-all"
                             {...field}
                           />
                         </FormControl>
@@ -851,7 +851,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                     <MapPin className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-slate-800 dark:text-zinc-100">
+                    <h3 className="text-lg font-bold text-slate-800 dark:text-white">
                       {direction === "rtl" ? "معلومات الموقع" : "Location Information"}
                     </h3>
                     <p className="text-xs text-slate-400 dark:text-zinc-400">
@@ -914,14 +914,14 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                   name="address"
                   render={({ field }) => (
                     <FormItem className="text-primary w-full">
-                      <FormLabel className="text-slate-700 dark:text-zinc-200 font-semibold flex items-center gap-1 text-sm">
+                      <FormLabel className="text-slate-700 dark:text-white font-semibold flex items-center gap-1 text-sm">
                         {direction === "rtl" ? "العنوان التفصيلي" : "Detailed Address"}
                         <span className="text-rose-500">*</span>
                       </FormLabel>
                       <FormControl>
                         <Textarea
                           placeholder={direction === "rtl" ? "العنوان بالتفصيل..." : "Enter detailed address..."}
-                          className="min-h-[80px] resize-y rounded-xl border-slate-200 dark:border-zinc-800 focus-visible:ring-primary focus-visible:border-primary bg-white dark:bg-zinc-950 dark:text-zinc-100 shadow-sm transition-all"
+                          className="min-h-[80px] resize-y rounded-xl border-slate-200 dark:border-zinc-800 focus-visible:ring-primary focus-visible:border-primary bg-white dark:bg-zinc-950 dark:text-white shadow-sm transition-all"
                           {...field}
                         />
                       </FormControl>
@@ -931,7 +931,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                         <div className="flex items-center gap-2 mb-3">
                           <MapPin className="h-5 w-5 text-emerald-500 animate-bounce" />
                           <div>
-                            <h4 className="text-sm font-bold text-slate-800 dark:text-zinc-100">
+                            <h4 className="text-sm font-bold text-slate-800 dark:text-white">
                               {direction === "rtl" ? "تحديد الموقع على الخريطة" : "Interactive Map Location"}
                             </h4>
                             <p className="text-[10px] text-slate-400 dark:text-zinc-400">
@@ -942,7 +942,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
 
                         {/* Address Auto-Suggestions list when typing */}
                         {field.value && field.value.length > 2 && (
-                          <div className="mb-4 bg-white dark:bg-zinc-905 border border-slate-100 dark:border-zinc-800 rounded-xl shadow-lg p-1 space-y-1 max-h-40 overflow-y-auto">
+                          <div className="mb-4 bg-white dark:bg-zinc-950 border border-slate-100 dark:border-zinc-800 rounded-xl shadow-lg p-1 space-y-1 max-h-40 overflow-y-auto">
                             {[
                               direction === "rtl" ? `${form.watch("city") || "دمشق"}، وسط المدينة - شارع النصر` : `${form.watch("city") || "Damascus"} City Center, Al-Shaalan`,
                               direction === "rtl" ? `${form.watch("city") || "دمشق"}، أوتوستراد المزة - بجانب صيدلية ابن النفيس` : `${form.watch("city") || "Damascus"} Mezzeh Highway, Near Ibn Al-Nafees Pharmacy`,
@@ -955,7 +955,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                                 onClick={() => {
                                   form.setValue("address", suggest);
                                 }}
-                                className="w-full text-left rtl:text-right px-3 py-2 text-xs text-slate-700 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-800 rounded-lg transition-colors flex items-center gap-2 font-medium"
+                                className="w-full text-left rtl:text-right px-3 py-2 text-xs text-slate-700 dark:text-white hover:bg-slate-50 dark:hover:bg-zinc-800 rounded-lg transition-colors flex items-center gap-2 font-medium"
                               >
                                 <MapPin className="h-3.5 w-3.5 text-slate-400" />
                                 <span>{suggest}</span>
@@ -985,7 +985,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                     <Sliders className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-slate-800 dark:text-zinc-100">
+                    <h3 className="text-lg font-bold text-slate-800 dark:text-white">
                       {direction === "rtl" ? "تكوين الإعلان" : "Listing Configuration"}
                     </h3>
                     <p className="text-xs text-slate-400 dark:text-zinc-400">
@@ -1042,7 +1042,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                     <CalendarIcon className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-slate-800 dark:text-zinc-100">
+                    <h3 className="text-lg font-bold text-slate-800 dark:text-white">
                       {direction === "rtl" ? "جدولة النشر" : "Publication Settings"}
                     </h3>
                     <p className="text-xs text-slate-400 dark:text-zinc-400">
@@ -1057,7 +1057,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                     name="publicationDate"
                     render={({ field }) => (
                       <FormItem className="flex flex-col space-y-1.5">
-                        <FormLabel className="text-slate-700 dark:text-zinc-200 font-semibold text-sm">
+                        <FormLabel className="text-slate-700 dark:text-white font-semibold text-sm">
                           {t("stepFour.publicationDate")}
                         </FormLabel>
                         <Popover>
@@ -1066,7 +1066,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                               <Button
                                 variant={"outline"}
                                 className={cn(
-                                  "w-full h-11 px-3 text-left font-normal text-slate-700 dark:text-zinc-200 justify-between rounded-xl border-slate-200 dark:border-zinc-800 hover:bg-slate-50 dark:hover:bg-zinc-800 shadow-sm transition-all",
+                                  "w-full h-11 px-3 text-left font-normal text-slate-700 dark:text-white justify-between rounded-xl border-slate-200 dark:border-zinc-800 hover:bg-slate-50 dark:hover:bg-zinc-800 shadow-sm transition-all",
                                   !field.value && "text-muted-foreground",
                                 )}
                               >

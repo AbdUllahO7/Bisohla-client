@@ -257,7 +257,7 @@ const Steps: React.FC<StepsProps> = ({ isEditMode = false, carId, initialData })
             isArabic && "sm:flex-row-reverse"
           )}>
             <div>
-              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-zinc-100">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">
                 {isEditMode 
                   ? (isArabic ? `تعديل ${categoryName}` : `Edit ${categoryName} Listing`) 
                   : (isArabic ? `إضافة ${categoryName} جديد` : `Add New ${categoryName} Listing`)}
