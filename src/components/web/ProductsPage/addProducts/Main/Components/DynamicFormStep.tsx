@@ -87,15 +87,15 @@ const DamageMatrix: React.FC<{
   };
 
   return (
-    <div className="w-full overflow-hidden rounded-xl border border-gray-100 shadow-sm bg-white" dir={isArabic ? 'rtl' : 'ltr'}>
+    <div className="w-full overflow-hidden rounded-xl border border-gray-100 dark:border-zinc-800 shadow-sm bg-white dark:bg-zinc-900" dir={isArabic ? 'rtl' : 'ltr'}>
       <table className="w-full border-collapse">
-        <thead className="bg-gray-100/80">
+        <thead className="bg-gray-100/80 dark:bg-zinc-800/80">
           <tr>
-            <th className="py-4 px-4 text-sm font-bold text-gray-500 text-center w-1/4 border-b border-gray-200">
+            <th className="py-4 px-4 text-sm font-bold text-gray-500 dark:text-zinc-400 text-center w-1/4 border-b border-gray-200 dark:border-zinc-800">
               {isArabic ? "اسم القسم" : "Section Name"}
             </th>
             {types.map((type: any) => (
-              <th key={type.id} className="py-4 px-2 border-b border-gray-200">
+              <th key={type.id} className="py-4 px-2 border-b border-gray-200 dark:border-zinc-800">
                 <div className={cn(
                   "flex items-center justify-center gap-2 px-4 py-2 rounded-full text-white text-xs font-bold shadow-sm mx-auto",
                   getColor(type.id)
@@ -111,9 +111,9 @@ const DamageMatrix: React.FC<{
           {zones.map((zone: any, idx: number) => {
             const zoneValue = value.find(v => v.damage_zone === zone.id);
             return (
-              <tr key={zone.id} className={cn(idx % 2 === 0 ? "bg-white" : "bg-gray-50/30")}>
+              <tr key={zone.id} className={cn(idx % 2 === 0 ? "bg-white dark:bg-zinc-900" : "bg-gray-50/30 dark:bg-zinc-800/20")}>
                 <td className={cn(
-                  "py-4 px-6 text-sm font-semibold text-gray-700 border-b border-gray-100",
+                  "py-4 px-6 text-sm font-semibold text-gray-700 dark:text-zinc-300 border-b border-gray-100 dark:border-zinc-800",
                   isArabic ? "text-right" : "text-left"
                 )}>
                   {getTranslation(zone.label || zone.name)}
@@ -121,15 +121,15 @@ const DamageMatrix: React.FC<{
                 {types.map((type: any) => {
                   const isSelected = zoneValue?.damage_type === type.id;
                   return (
-                    <td key={type.id} className="py-4 px-2 text-center border-b border-gray-100">
+                    <td key={type.id} className="py-4 px-2 text-center border-b border-gray-100 dark:border-zinc-800">
                       <button
                         type="button"
                         onClick={() => handleToggle(zone.id, type.id)}
                         className={cn(
                           "w-6 h-6 rounded-full border-2 transition-all duration-200 flex items-center justify-center mx-auto",
                           isSelected 
-                            ? "border-[#198341] bg-white scale-110 shadow-sm" 
-                            : "border-gray-200 bg-white hover:border-[#198341]/50"
+                            ? "border-[#198341] bg-white dark:bg-zinc-900 scale-110 shadow-sm" 
+                            : "border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:border-[#198341]/50"
                         )}
                       >
                         {isSelected && <div className="w-3 h-3 rounded-full bg-[#198341]" />}
@@ -255,7 +255,7 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
       <div className="space-y-10">
         {/* Render Reference Fields & Location Cards (Image 1 Design) */}
         {(attributes.some(a => (a.type === 'reference' || a.slug === 'governorate' || a.slug === 'city') && shouldShowField(a))) && (
-          <div className="flex flex-wrap justify-center gap-10 pb-10 border-b border-gray-100 mb-6">
+          <div className="flex flex-wrap justify-center gap-10 pb-10 border-b border-gray-100 dark:border-zinc-800 mb-6">
             {attributes
               .filter(a => (a.type === 'reference' || a.slug === 'governorate' || a.slug === 'city') && shouldShowField(a))
               .sort((a, b) => a.order - b.order)
@@ -343,7 +343,7 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
                   <div className={cn("flex flex-col gap-2", isLocation && "mb-2")}>
                     <div className="flex items-center gap-1.5 pb-1">
                       <Label className={cn(
-                        "text-[#1a2b28] font-bold tracking-tight",
+                        "text-[#1a2b28] dark:text-zinc-100 font-bold tracking-tight",
                         isLocation ? "text-2xl" : "text-base"
                       )}>
                         {getTranslation(attr.name)}
@@ -374,14 +374,14 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
                             type="color"
                             value={formData[attr.slug] || '#000000'}
                             onChange={(e) => handleFieldChange(attr.slug, e.target.value)}
-                            className="w-12 h-11 border border-gray-300 rounded-xl cursor-pointer p-1 bg-white shadow-sm"
+                            className="w-12 h-11 border border-gray-300 dark:border-zinc-800 rounded-xl cursor-pointer p-1 bg-white dark:bg-zinc-900 shadow-sm"
                           />
                           <Input
                             type="text"
                             placeholder="#000000"
                             value={formData[attr.slug] || ''}
                             onChange={(e) => handleFieldChange(attr.slug, e.target.value)}
-                            className={cn("h-11 border-gray-300 focus:border-[#198341] transition-all font-mono", isArabic && "text-right")}
+                            className={cn("h-11 border-gray-300 dark:border-zinc-800 focus:border-[#198341] transition-all font-mono", isArabic && "text-right")}
                             dir="ltr"
                           />
                         </div>
@@ -454,7 +454,7 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
                           searchPlaceholder={isArabic ? `بحث في ${getTranslation(attr.name)}...` : `Search ${getTranslation(attr.name)}...`}
                           emptyMessage={isArabic ? "لا توجد نتائج" : "No results found"}
                           isRtl={isArabic}
-                          SelectTriggerStyle="h-11 border-gray-300 focus:border-[#198341]"
+                          SelectTriggerStyle="h-11 border-gray-300 dark:border-zinc-800 focus:border-[#198341]"
                           isMulti={isMulti}
                         />
                       );
@@ -467,7 +467,7 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
                           placeholder={getTranslation(attr.hint || attr.name)}
                           value={formData[attr.slug] || ''}
                           onChange={(e) => handleFieldChange(attr.slug, e.target.value)}
-                          className={cn("h-11 border-gray-300 focus:border-[#198341] transition-all", isArabic && "text-right")}
+                          className={cn("h-11 border-gray-300 dark:border-zinc-800 focus:border-[#198341] transition-all", isArabic && "text-right")}
                           dir={isArabic ? "rtl" : "ltr"}
                         />
                       );
@@ -479,7 +479,7 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
                           placeholder={getTranslation(attr.hint || attr.name)}
                           value={formData[attr.slug] || ''}
                           onChange={(e) => handleFieldChange(attr.slug, e.target.value)}
-                          className={cn("min-h-[120px] border-gray-300 focus:border-[#198341] transition-all", isArabic && "text-right")}
+                          className={cn("min-h-[120px] border-gray-300 dark:border-zinc-800 focus:border-[#198341] transition-all", isArabic && "text-right")}
                           dir={isArabic ? "rtl" : "ltr"}
                         />
                       );
@@ -494,7 +494,7 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
                             onCheckedChange={(checked) => handleFieldChange(attr.slug, checked)}
                             className="data-[state=checked]:bg-[#198341] data-[state=checked]:border-[#198341]"
                           />
-                          <Label htmlFor={`attr-${attr.slug}`} className="text-sm text-gray-500 cursor-pointer">
+                          <Label htmlFor={`attr-${attr.slug}`} className="text-sm text-gray-500 dark:text-zinc-400 cursor-pointer">
                             {getTranslation(attr.hint || attr.name)}
                           </Label>
                         </div>
@@ -531,7 +531,7 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
                 {/* Label Rendering matched with standard fields */}
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center gap-1.5 pb-1">
-                    <Label className="text-[#1a2b28] font-bold tracking-tight text-base">
+                    <Label className="text-[#1a2b28] dark:text-zinc-100 font-bold tracking-tight text-base">
                       {getTranslation(attr.name)}
                       {attr.isRequired && <span className={cn("text-red-500", isArabic ? "mr-1" : "ml-1")}>*</span>}
                     </Label>
@@ -542,7 +542,7 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
                     <Button
                       variant={"outline"}
                       className={cn(
-                        "w-full h-11 px-3 text-left font-normal border-gray-300 focus:border-[#198341] justify-between rounded-xl shadow-sm transition-all hover:bg-slate-50",
+                        "w-full h-11 px-3 text-left font-normal border-gray-300 dark:border-zinc-800 focus:border-[#198341] justify-between rounded-xl shadow-sm transition-all hover:bg-slate-50 dark:hover:bg-zinc-800",
                         !formData[attr.slug] && "text-muted-foreground",
                         isArabic && "text-right"
                       )}
@@ -556,7 +556,7 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
                       <CalendarIcon className="h-4 w-4 opacity-50 text-[#198341]" />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0 bg-white" align="start" dir={isArabic ? "rtl" : "ltr"}>
+                  <PopoverContent className="w-auto p-0 bg-white dark:bg-zinc-900 border dark:border-zinc-800" align="start" dir={isArabic ? "rtl" : "ltr"}>
                     <Calendar
                       mode="single"
                       selected={formData[attr.slug] ? new Date(formData[attr.slug]) : undefined}
@@ -605,18 +605,18 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
                   const progress = options.length > 0 ? (selectedValues.length / options.length) * 100 : 0;
                   
                   return (
-                    <Card key={attr.id} className="border-0 shadow-sm bg-white overflow-hidden rounded-2xl border border-gray-100">
-                      <CardHeader className="bg-gray-50/50 border-b py-5 px-6 space-y-4">
+                    <Card key={attr.id} className="border-0 shadow-sm bg-white dark:bg-zinc-900 overflow-hidden rounded-2xl border border-gray-100 dark:border-zinc-800">
+                      <CardHeader className="bg-gray-50/50 dark:bg-zinc-800/50 border-b dark:border-zinc-800 py-5 px-6 space-y-4">
                         <div className="flex justify-between items-center">
-                          <Text className="font-bold text-gray-800 text-lg">
+                          <Text className="font-bold text-gray-800 dark:text-zinc-100 text-lg">
                             {getTranslation(attr.name)}
                           </Text>
-                          <div className="bg-[#1e293b] text-white text-[10px] font-bold px-2.5 py-1 rounded-full">
+                          <div className="bg-[#1e293b] dark:bg-zinc-800 text-white text-[10px] font-bold px-2.5 py-1 rounded-full">
                             {selectedValues.length}/{options.length}
                           </div>
                         </div>
                         {/* Progress Bar */}
-                        <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                        <div className="w-full h-1.5 bg-gray-200 dark:bg-zinc-800 rounded-full overflow-hidden">
                           <div 
                             className="h-full bg-[#198341] transition-all duration-500 ease-in-out" 
                             style={{ width: `${progress}%` }}
@@ -648,7 +648,7 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
                               key={optionId} 
                               className={cn(
                                 "flex items-center justify-between p-3 rounded-xl transition-all duration-200 border border-transparent",
-                                isChecked ? "bg-gray-50 border-gray-200 shadow-sm" : "hover:bg-gray-50/50"
+                                isChecked ? "bg-gray-50 dark:bg-zinc-800/30 border-gray-200 dark:border-zinc-800 shadow-sm" : "hover:bg-gray-50/50 dark:hover:bg-zinc-800/20"
                               )}
                             >
                               <div className={cn("flex items-center gap-3 flex-1")}>
@@ -663,10 +663,10 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
                                   }}
                                   className="data-[state=checked]:bg-[#198341] data-[state=checked]:border-[#198341] w-5 h-5 rounded"
                                 />
-                                <Label htmlFor={`attr-${attr.id}-${optionId}`} className="text-sm font-medium text-gray-600 cursor-pointer flex items-center gap-2">
+                                <Label htmlFor={`attr-${attr.id}-${optionId}`} className="text-sm font-medium text-gray-600 dark:text-zinc-300 cursor-pointer flex items-center gap-2">
                                   {hasColor && (
                                     <span 
-                                      className="w-3.5 h-3.5 rounded-full border border-gray-300 shadow-sm"
+                                      className="w-3.5 h-3.5 rounded-full border border-gray-300 dark:border-zinc-700 shadow-sm"
                                       style={{ backgroundColor: colorVal }}
                                     />
                                   )}
@@ -674,7 +674,7 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
                                 </Label>
                               </div>
                               {isChecked && (
-                                <div className="w-2 h-2 rounded-full bg-gray-400" />
+                                <div className="w-2 h-2 rounded-full bg-gray-400 dark:bg-zinc-600" />
                               )}
                             </div>
                           );
@@ -702,18 +702,18 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
                   const progress = (selectedCount / attrs.length) * 100;
 
                   return (
-                    <Card key={gName} className="border-0 shadow-sm bg-white overflow-hidden rounded-2xl border border-gray-100">
-                      <CardHeader className="bg-gray-50/50 border-b py-5 px-6 space-y-4">
+                    <Card key={gName} className="border-0 shadow-sm bg-white dark:bg-zinc-900 overflow-hidden rounded-2xl border border-gray-100 dark:border-zinc-800">
+                      <CardHeader className="bg-gray-50/50 dark:bg-zinc-800/50 border-b dark:border-zinc-800 py-5 px-6 space-y-4">
                         <div className="flex justify-between items-center">
-                          <Text className="font-bold text-gray-800 text-lg">
+                          <Text className="font-bold text-gray-800 dark:text-zinc-100 text-lg">
                             {gName}
                           </Text>
-                          <div className="bg-[#1e293b] text-white text-[10px] font-bold px-2.5 py-1 rounded-full">
+                          <div className="bg-[#1e293b] dark:bg-zinc-800 text-white text-[10px] font-bold px-2.5 py-1 rounded-full">
                             {selectedCount}/{attrs.length}
                           </div>
                         </div>
                         {/* Progress Bar */}
-                        <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                        <div className="w-full h-1.5 bg-gray-200 dark:bg-zinc-800 rounded-full overflow-hidden">
                           <div 
                             className="h-full bg-[#198341] transition-all duration-500 ease-in-out" 
                             style={{ width: `${progress}%` }}
@@ -728,7 +728,7 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
                               key={attr.id} 
                               className={cn(
                                 "flex items-center justify-between p-3 rounded-xl transition-all duration-200 border border-transparent",
-                                isChecked ? "bg-gray-50 border-gray-200 shadow-sm" : "hover:bg-gray-50/50"
+                                isChecked ? "bg-gray-50 dark:bg-zinc-800/30 border-gray-200 dark:border-zinc-800 shadow-sm" : "hover:bg-gray-50/50 dark:hover:bg-zinc-800/20"
                               )}
                             >
                               <div className={cn("flex items-center gap-3 flex-1")}>
@@ -738,12 +738,12 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
                                   onCheckedChange={(checked) => handleFieldChange(attr.slug, checked)}
                                   className="data-[state=checked]:bg-[#198341] data-[state=checked]:border-[#198341] w-5 h-5 rounded"
                                 />
-                                <Label htmlFor={`attr-${attr.slug}`} className="text-sm font-medium text-gray-600 cursor-pointer">
+                                <Label htmlFor={`attr-${attr.slug}`} className="text-sm font-medium text-gray-600 dark:text-zinc-300 cursor-pointer">
                                   {getTranslation(attr.name)}
                                 </Label>
                               </div>
                               {isChecked && (
-                                <div className="w-2 h-2 rounded-full bg-gray-400" />
+                                <div className="w-2 h-2 rounded-full bg-gray-400 dark:bg-zinc-600" />
                               )}
                             </div>
                           );
