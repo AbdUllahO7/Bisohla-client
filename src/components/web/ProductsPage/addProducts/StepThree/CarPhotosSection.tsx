@@ -116,7 +116,7 @@ const CarPhotosSection: React.FC<CarPhotosSectionProps> = ({
   return (
     <div className="gap-6 p-4">
       {/* Photo Tips Section */}
-      <Card className="mb-6 border-2 border-emerald-100 bg-gradient-to-br from-emerald-50 to-white">
+      <Card className="mb-6 border-2 border-emerald-100 dark:border-emerald-950 bg-gradient-to-br from-emerald-50 to-white dark:from-emerald-950/20 dark:to-zinc-900">
         <CardContent className="p-4">
           <button
             type="button"
@@ -127,32 +127,32 @@ const CarPhotosSection: React.FC<CarPhotosSectionProps> = ({
             )}
           >
             <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
-              <Camera className="h-5 w-5 text-emerald-600" />
-              <Text className="text-lg font-bold text-emerald-700">
+              <Camera className="h-5 w-5 text-emerald-600 dark:text-emerald-450" />
+              <Text className="text-lg font-bold text-emerald-700 dark:text-emerald-400">
                 {tips.title}
               </Text>
             </div>
             {showTips ? (
-              <ChevronUp className="h-5 w-5 text-emerald-600" />
+              <ChevronUp className="h-5 w-5 text-emerald-600 dark:text-emerald-405" />
             ) : (
-              <ChevronDown className="h-5 w-5 text-emerald-600" />
+              <ChevronDown className="h-5 w-5 text-emerald-600 dark:text-emerald-405" />
             )}
           </button>
 
           {showTips && (
             <div className="space-y-4 mt-4">
               <Text className={cn(
-                "text-sm text-gray-600",
+                "text-sm text-gray-600 dark:text-zinc-400",
                 isRTL && "text-right"
               )}>
                 {tips.subtitle}
               </Text>
 
               {/* Quality Alert */}
-              <Alert className="border-amber-200 bg-amber-50">
+              <Alert className="border-amber-200 dark:border-amber-950/30 bg-amber-50 dark:bg-amber-950/10">
                 <Sparkles className="h-4 w-4 text-amber-600" />
                 <AlertDescription className={cn(
-                  "text-amber-800 text-sm font-medium",
+                  "text-amber-800 dark:text-amber-300 text-sm font-medium",
                   isRTL && "text-right"
                 )}>
                   {tips.qualityTip}
@@ -167,7 +167,7 @@ const CarPhotosSection: React.FC<CarPhotosSectionProps> = ({
                     isRTL && "flex-row-reverse"
                   )}>
                     <CheckCircle2 className="h-5 w-5 text-green-600" />
-                    <Text className="font-semibold text-green-700">
+                    <Text className="font-semibold text-green-700 dark:text-green-400">
                       {isRTL ? "ينصح بـ" : "Do's"}
                     </Text>
                   </div>
@@ -176,7 +176,7 @@ const CarPhotosSection: React.FC<CarPhotosSectionProps> = ({
                       <li 
                         key={index}
                         className={cn(
-                          "flex items-start gap-2 text-sm text-gray-700",
+                          "flex items-start gap-2 text-sm text-gray-700 dark:text-zinc-300",
                           isRTL && "flex-row-reverse text-right"
                         )}
                       >
@@ -194,7 +194,7 @@ const CarPhotosSection: React.FC<CarPhotosSectionProps> = ({
                     isRTL && "flex-row-reverse"
                   )}>
                     <X className="h-5 w-5 text-red-600" />
-                    <Text className="font-semibold text-red-700">
+                    <Text className="font-semibold text-red-700 dark:text-red-400">
                       {isRTL ? "تجنب" : "Don'ts"}
                     </Text>
                   </div>
@@ -203,7 +203,7 @@ const CarPhotosSection: React.FC<CarPhotosSectionProps> = ({
                       <li 
                         key={index}
                         className={cn(
-                          "flex items-start gap-2 text-sm text-gray-700",
+                          "flex items-start gap-2 text-sm text-gray-700 dark:text-zinc-300",
                           isRTL && "flex-row-reverse text-right"
                         )}
                       >
@@ -216,13 +216,13 @@ const CarPhotosSection: React.FC<CarPhotosSectionProps> = ({
               </div>
 
               {/* Recommended Angles */}
-              <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-100">
+              <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-950/10 rounded-lg border border-blue-100 dark:border-blue-950/30">
                 <div className={cn(
                   "flex items-center gap-2 mb-3",
                   isRTL && "flex-row-reverse"
                 )}>
                   <ImageIcon className="h-5 w-5 text-blue-600" />
-                  <Text className="font-semibold text-blue-700">
+                  <Text className="font-semibold text-blue-700 dark:text-blue-400">
                     {tips.recommended}
                   </Text>
                 </div>
@@ -231,12 +231,12 @@ const CarPhotosSection: React.FC<CarPhotosSectionProps> = ({
                     <div
                       key={index}
                       className={cn(
-                        "flex items-center gap-2 text-sm text-gray-700",
+                        "flex items-center gap-2 text-sm text-gray-700 dark:text-zinc-300",
                         isRTL && "flex-row-reverse text-right"
                       )}
                     >
-                      <div className="h-6 w-6 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                        <span className="text-xs font-bold text-blue-600">
+                      <div className="h-6 w-6 rounded-full bg-blue-100 dark:bg-blue-950/50 flex items-center justify-center flex-shrink-0">
+                        <span className="text-xs font-bold text-blue-600 dark:text-blue-400">
                           {index + 1}
                         </span>
                       </div>
@@ -262,7 +262,7 @@ const CarPhotosSection: React.FC<CarPhotosSectionProps> = ({
           <Info className="h-4 w-4 text-gray-400" />
         </div>
         <Text className={cn(
-          "text-sm text-gray-500 mb-3",
+          "text-sm text-gray-500 dark:text-zinc-400 mb-3",
           isRTL && "text-right"
         )}>
           {isRTL
@@ -272,10 +272,10 @@ const CarPhotosSection: React.FC<CarPhotosSectionProps> = ({
         </Text>
         
         {/* Quick Tips Below Uploader */}
-        <Alert className="mb-3 border-blue-100 bg-blue-50">
+        <Alert className="mb-3 border-blue-100 dark:border-blue-950/30 bg-blue-50 dark:bg-blue-950/10">
           <Sun className="h-4 w-4 text-blue-600" />
           <AlertDescription className={cn(
-            "text-blue-800 text-sm",
+            "text-blue-800 dark:text-blue-300 text-sm",
             isRTL && "text-right"
           )}>
             {isRTL 

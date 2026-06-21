@@ -197,10 +197,10 @@ const FloatingProfileShareButton: React.FC<FloatingProfileShareButtonProps> = ({
       <div className="fixed bottom-32 right-4 md:right-8 z-50">
         {/* Share Options Menu */}
         {isOpen && (
-          <div className="absolute bottom-16 right-0 bg-white rounded-2xl shadow-2xl p-4 min-w-[280px] border border-gray-200 animate-in slide-in-from-bottom-5 duration-300">
+          <div className="absolute bottom-16 right-0 bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl p-4 min-w-[280px] border border-gray-200 dark:border-zinc-800 animate-in slide-in-from-bottom-5 duration-300">
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-gray-800">{tProfile('share')}</h3>
+              <h3 className="font-semibold text-gray-800 dark:text-zinc-200">{tProfile('share')}</h3>
               <Button
                 variant="ghost"
                 size="sm"
@@ -219,7 +219,7 @@ const FloatingProfileShareButton: React.FC<FloatingProfileShareButtonProps> = ({
                   <Button
                     key={option.name}
                     onClick={option.action}
-                    className={`flex flex-col items-center justify-center h-20 bg-gray-50 hover:text-white transition-all duration-300 ${option.color}`}
+                    className={`flex flex-col items-center justify-center h-20 bg-gray-50 dark:bg-zinc-800/50 dark:text-zinc-200 hover:text-white transition-all duration-300 ${option.color}`}
                     variant="outline"
                     disabled={isSharePending}
                   >

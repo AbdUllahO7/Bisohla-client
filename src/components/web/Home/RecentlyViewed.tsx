@@ -43,14 +43,22 @@ const RecentlyViewed = () => {
     setRecentlyViewed([]);
   };
 
-  const carIds = recentlyViewed.filter(item => item.typeId === 1).map(item => item.id);
+  const carIds = recentlyViewed
+    .filter(item => Number(item.typeId) === 1)
+    .map(item => item.id);
 
   const { data, isLoading } = useListings(1, {
     page: 1,
     pageSize: 10,
     userId: session.user?.id,
     include: 'attributeValues.attribute,images,user,listingType,listingTypeVersion',
-    id: carIds.length > 0 ? carIds : [-1], // Fetch by IDs
+    where: [
+      {
+        field: 'id',
+        operator: 'in',
+        value: carIds.length > 0 ? carIds : [-1],
+      },
+    ],
   });
 
   // Sort the fetched data to match the order of IDs in localStorage

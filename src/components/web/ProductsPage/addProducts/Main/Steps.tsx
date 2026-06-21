@@ -6,13 +6,10 @@ import { useSettings } from '@/providers/settings.provider';
 
 // Import components
 import { getRequiredFieldsMessage, getErrorDialogTexts } from './utils';
-import { showStepNavigationToast, getStepNavigationMessages } from './utils/stepNavigationUtils';
 import { StepContent } from './Components/StepContent';
 import AddProductStepFour from '../StepFour/AddProductStepFour';
 import ErrorDialog from './Components/ErrorDialog';
 import { StepTrigger, StepperContainer } from './Components/StepTrigger';
-import { useStepManagement } from './hooks/useStepManagement';
-import { STORAGE_KEYS, getStorageKey } from './hooks/useLocalStorage';
 import AddProductTypeSelection from '../TypeSelection/AddProductTypeSelection';
 import DynamicFormStep from './Components/DynamicFormStep';
 import CarPhotosSection from '../StepThree/CarPhotosSection';
@@ -20,6 +17,9 @@ import { getInjection } from '@/di/container';
 import { ListingTypeDto, ListingTypeFormSchemaDto } from '@/core/entities/models/listing-types/listing-types.dto';
 import { useMemo, useCallback } from 'react';
 import { cn } from '@/lib/utils';
+import { useStepManagement } from './hooks/useStepManagement';
+import { getStorageKey, STORAGE_KEYS } from './hooks/useLocalStorage';
+import { getStepNavigationMessages, showStepNavigationToast } from './utils/stepNavigationUtils';
 
 // Props interface for Steps component
 interface StepsProps {
@@ -247,7 +247,7 @@ const Steps: React.FC<StepsProps> = ({ isEditMode = false, carId, initialData })
   const progress = getStepProgress();
 
   return (
-    <div className="w-full min-h-screen bg-gray-50">
+    <div className="w-full min-h-screen bg-gray-50 dark:bg-zinc-950">
       <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
         {/* Header Section */}
         <div className="mb-6 sm:mb-8">
@@ -257,7 +257,7 @@ const Steps: React.FC<StepsProps> = ({ isEditMode = false, carId, initialData })
             isArabic && "sm:flex-row-reverse"
           )}>
             <div>
-              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">
                 {isEditMode 
                   ? (isArabic ? `تعديل ${categoryName}` : `Edit ${categoryName} Listing`) 
                   : (isArabic ? `إضافة ${categoryName} جديد` : `Add New ${categoryName} Listing`)}
@@ -266,8 +266,8 @@ const Steps: React.FC<StepsProps> = ({ isEditMode = false, carId, initialData })
 
             {/* Interactive Circular Step Progress Ring */}
             <div className={cn(
-              "flex items-center gap-4 bg-white p-3 px-4 rounded-2xl border border-slate-100 shadow-sm transition-all duration-300 hover:shadow-md",
-              isArabic && "flex-row-reverse"
+              "flex items-center gap-4 bg-white dark:bg-zinc-900 p-3 px-4 rounded-2xl border border-slate-100 dark:border-zinc-800 shadow-sm transition-all duration-300 hover:shadow-md",
+              isArabic && "sm:flex-row-reverse"
             )}>
               <div className="relative flex items-center justify-center h-14 w-14">
                 {/* SVG Progress Ring */}
@@ -276,7 +276,7 @@ const Steps: React.FC<StepsProps> = ({ isEditMode = false, carId, initialData })
                     cx="28"
                     cy="28"
                     r="23"
-                    className="stroke-slate-100"
+                    className="stroke-slate-100 dark:stroke-zinc-800"
                     strokeWidth="4"
                     fill="transparent"
                   />
@@ -292,7 +292,7 @@ const Steps: React.FC<StepsProps> = ({ isEditMode = false, carId, initialData })
                     strokeLinecap="round"
                   />
                 </svg>
-                <span className="absolute text-xs font-black text-slate-800">
+                <span className="absolute text-xs font-black text-slate-800 dark:text-zinc-200">
                   {progress.progressPercentage}%
                 </span>
               </div>
@@ -300,7 +300,7 @@ const Steps: React.FC<StepsProps> = ({ isEditMode = false, carId, initialData })
                 <p className="text-[10px] font-extrabold text-emerald-600 tracking-wider uppercase mb-0.5">
                   {isArabic ? "نسبة الإنجاز" : "Completion Status"}
                 </p>
-                <p className="text-sm font-bold text-slate-800">
+                <p className="text-sm font-bold text-slate-800 dark:text-zinc-200">
                   {isArabic 
                     ? `الخطوة ${progress.currentStepIndex + 1} من ${progress.totalSteps}` 
                     : `Step ${progress.currentStepIndex + 1} of ${progress.totalSteps}`}
@@ -332,7 +332,7 @@ const Steps: React.FC<StepsProps> = ({ isEditMode = false, carId, initialData })
 
         {/* Main Content Area */}
         <Tabs value={currentStep} className="w-full">
-          <div className="bg-white rounded-lg shadow-sm border min-h-[600px]">
+          <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-sm border dark:border-zinc-800 min-h-[600px]">
             {/* Step Content */}
             <div className="p-4 sm:p-6 lg:p-8">
               {currentStep === 'typeSelection' && (

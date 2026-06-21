@@ -97,15 +97,15 @@ export const StepTrigger: React.FC<StepTriggerProps> = ({
     let baseClasses = "text-xs sm:text-sm font-medium transition-all duration-300 leading-tight"
     
     if (isCurrentStep) {
-      baseClasses += " text-emerald-700 font-semibold"
+      baseClasses += " text-emerald-700 dark:text-emerald-400 font-semibold"
     } else if (isCompleted) {
-      baseClasses += " text-gray-700"
+      baseClasses += " text-gray-700 dark:text-zinc-300"
     } else if (hasError) {
-      baseClasses += " text-red-600"
+      baseClasses += " text-red-600 dark:text-red-400"
     } else if (!isAccessible) {
-      baseClasses += " text-gray-400"
+      baseClasses += " text-gray-400 dark:text-zinc-500"
     } else {
-      baseClasses += " text-gray-600"
+      baseClasses += " text-gray-600 dark:text-zinc-400"
     }
 
     return baseClasses
@@ -117,7 +117,7 @@ export const StepTrigger: React.FC<StepTriggerProps> = ({
     if (isCompleted || (index < totalSteps - 1 && stepValidation[step])) {
       baseClasses += " bg-emerald-400"
     } else {
-      baseClasses += " bg-gray-300"
+      baseClasses += " bg-gray-300 dark:bg-zinc-800"
     }
 
     return baseClasses
@@ -141,10 +141,10 @@ export const StepTrigger: React.FC<StepTriggerProps> = ({
         >
           <div className={`flex items-center gap-3 p-3 rounded-lg transition-all duration-300 ${
             isCurrentStep 
-              ? 'bg-emerald-50 border-2 border-emerald-200' 
+              ? 'bg-emerald-50 dark:bg-emerald-950/20 border-2 border-emerald-200 dark:border-emerald-800' 
               : hasError 
-                ? 'bg-red-50 border-2 border-red-200'
-                : 'bg-white border border-gray-200'
+                ? 'bg-red-50 dark:bg-red-950/20 border-2 border-red-200 dark:border-red-800'
+                : 'bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800'
           }`}>
             {/* Circle with number/icon */}
             <div className={getCircleClasses()}>
@@ -156,7 +156,7 @@ export const StepTrigger: React.FC<StepTriggerProps> = ({
               <div className={getTextClasses()}>
                 {stepName}
               </div>
-              <div className="text-xs text-gray-500 mt-0.5">
+              <div className="text-xs text-gray-500 dark:text-zinc-400 mt-0.5">
                 {isCurrentStep 
                   ? (locale === 'ar' ? 'الخطوة الحالية' : 'Current Step')
                   : isCompleted 
@@ -187,7 +187,7 @@ export const StepTrigger: React.FC<StepTriggerProps> = ({
         {/* Mobile Progress Line */}
         {index < totalSteps - 1 && (
           <div className={`ml-4 w-0.5 h-4 transition-colors duration-300 ${
-            isCompleted ? 'bg-emerald-400' : 'bg-gray-300'
+            isCompleted ? 'bg-emerald-400' : 'bg-gray-300 dark:bg-zinc-800'
           }`} />
         )}
       </div>

@@ -21,7 +21,7 @@ interface ProfilePageProps {
 
 export async function generateMetadata({
   params,
-}: ProfilePageProps): Promise<Metadata> {
+}: ProfilePageProps): Promise<Metadata> { 
   const { id } = await params;
 
   try {

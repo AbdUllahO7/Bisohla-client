@@ -40,10 +40,10 @@ export const StepContent: React.FC<StepContentProps> = ({
                 {children}
             </motion.div>
             
-            <Box variant="row" className="w-full justify-between items-center bg-white mt-10 px-5 py-5 rounded-2xl border border-slate-100 shadow-sm xs:mb-5" dir={direction}>
+            <Box variant="row" className="w-full justify-between items-center bg-white dark:bg-zinc-900 mt-10 px-5 py-5 rounded-2xl border border-slate-100 dark:border-zinc-800 shadow-sm xs:mb-5" dir={direction}>
                 <div className="flex flex-col items-start">
                     <Button 
-                        className="bg-slate-100 text-slate-700 font-bold px-7 h-11 min-w-[150px] hover:bg-slate-200 duration-300 rounded-xl" 
+                        className="bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-200 font-bold px-7 h-11 min-w-[150px] hover:bg-slate-200 dark:hover:bg-zinc-700 duration-300 rounded-xl" 
                         onClick={handleBack}
                     >
                         {direction === "ltr" ? <ArrowLeft className="mr-2 h-4 w-4"/> : <ArrowRight className="ml-2 h-4 w-4"/>}

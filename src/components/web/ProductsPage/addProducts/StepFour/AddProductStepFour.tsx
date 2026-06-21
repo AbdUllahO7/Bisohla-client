@@ -82,7 +82,7 @@ const EnumSelect = ({
       name={name}
       render={({ field }) => (
         <FormItem className={`text-primary ${className}`}>
-          <FormLabel className="text-primary">
+          <FormLabel className="text-primary dark:text-white">
             {label}
             {required && <span className="text-red-500">*</span>}
           </FormLabel>
@@ -97,12 +97,12 @@ const EnumSelect = ({
             dir={`${isRtl ? "rtl" : "ltr"}`}
           >
             <FormControl>
-              <SelectTrigger className="h-11">
+              <SelectTrigger className="h-11 border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 dark:text-white">
                 <SelectValue placeholder={placeholder} dir={`${isRtl ? "rtl" : "ltr"}`} />
               </SelectTrigger>
             </FormControl>
             <SelectContent
-              className="bg-white shadow-2xl text-primary border-none !z-[99999]"
+              className="bg-white dark:bg-zinc-900 shadow-2xl text-primary dark:text-white border dark:border-zinc-800 !z-[99999]"
               dir={`${isRtl ? "rtl" : "ltr"}`}
               position="popper"
               sideOffset={4}
@@ -651,34 +651,34 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
 
   return (
     <div className="w-full max-w-7xl mx-auto space-y-8 p-4 sm:p-6" dir={direction}>
-      <Card className="w-full bg-white border border-slate-100 shadow-xl overflow-hidden rounded-2xl transition-all duration-300">
-        <CardHeader className="relative overflow-hidden bg-gradient-to-r from-slate-50 via-white to-slate-50 py-6 sm:py-8 px-6 sm:px-8 border-b border-slate-100">
+      <Card className="w-full bg-white dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800 shadow-xl overflow-hidden rounded-2xl transition-all duration-300">
+        <CardHeader className="relative overflow-hidden bg-gradient-to-r from-slate-50 dark:from-zinc-900/50 via-white dark:via-zinc-900 to-slate-50 dark:to-zinc-900/50 py-6 sm:py-8 px-6 sm:px-8 border-b border-slate-100 dark:border-zinc-800">
           <div className="absolute top-0 right-0 w-32 h-32 bg-primary-light/5 rounded-full blur-2xl -mr-10 -mt-10" />
           <div className="absolute bottom-0 left-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl -ml-10 -mb-10" />
           
           <div className="relative flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="text-center sm:text-left space-y-1">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-600 border border-emerald-100/60 mb-2">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 border border-emerald-100/60 dark:border-emerald-900/40 mb-2">
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 {direction === "rtl" ? "الخطوة الأخيرة" : "Final Step"}
               </span>
-              <Text className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-800">
+              <Text className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-800 dark:text-white">
                 {t("stepFour.title", { defaultValue: "Ad Information" })}
               </Text>
-              <p className="text-sm text-slate-500 max-w-md">
+              <p className="text-sm text-slate-500 dark:text-zinc-400 max-w-md">
                 {direction === "rtl" 
                   ? "يرجى مراجعة تفاصيل الإعلان والتسعير والموقع لإكمال النشر." 
                   : "Please review your ad details, pricing, and location to complete publishing."}
               </p>
             </div>
             
-            <div className="flex items-center gap-3 px-4 py-2 bg-slate-50 rounded-xl border border-slate-100 shadow-sm">
+            <div className="flex items-center gap-3 px-4 py-2 bg-slate-50 dark:bg-zinc-800/50 rounded-xl border border-slate-100 dark:border-zinc-800 shadow-sm">
               <Award className="w-5 h-5 text-emerald-500 animate-pulse" />
               <div className="text-right sm:text-left">
-                <div className="text-xs text-slate-400 font-medium">
+                <div className="text-xs text-slate-400 dark:text-zinc-400 font-medium">
                   {direction === "rtl" ? "التقدم الحالي" : "Current Progress"}
                 </div>
-                <div className="text-sm font-bold text-slate-700">
+                <div className="text-sm font-bold text-slate-700 dark:text-white">
                   {direction === "rtl" ? "خطوة 4 من 4" : "Step 4 of 4"}
                 </div>
               </div>
@@ -691,16 +691,16 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 sm:space-y-10">
 
               {/* 1. Basic Information Section */}
-              <div className="p-5 sm:p-6 rounded-2xl border border-slate-100 bg-slate-50/30 hover:bg-slate-50/50 transition-all duration-300 space-y-6">
-                <div className="flex items-center gap-2.5 pb-2 border-b border-slate-100">
+              <div className="p-5 sm:p-6 rounded-2xl border border-slate-100 dark:border-zinc-800 bg-slate-50/30 dark:bg-zinc-900/30 hover:bg-slate-50/50 dark:hover:bg-zinc-900/50 transition-all duration-300 space-y-6">
+                <div className="flex items-center gap-2.5 pb-2 border-b border-slate-100 dark:border-zinc-800">
                   <div className="p-2 rounded-lg bg-primary/10 text-primary">
                     <FileText className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-slate-800">
+                    <h3 className="text-lg font-bold text-slate-800 dark:text-white">
                       {direction === "rtl" ? "المعلومات الأساسية" : "Basic Information"}
                     </h3>
-                    <p className="text-xs text-slate-400">
+                    <p className="text-xs text-slate-400 dark:text-zinc-400">
                       {direction === "rtl" ? "أدخل عنوان الإعلان ووصفه بالتفصيل" : "Provide a catchy title and clear description"}
                     </p>
                   </div>
@@ -712,14 +712,14 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                     name="title"
                     render={({ field }) => (
                       <FormItem className="text-primary">
-                        <FormLabel className="text-slate-700 font-semibold flex items-center gap-1 text-sm">
+                        <FormLabel className="text-slate-700 dark:text-white font-semibold flex items-center gap-1 text-sm">
                           {t("stepFour.adTitle")}
                           <span className="text-rose-500">*</span>
                         </FormLabel>
                         <FormControl>
                           <Input
                             placeholder={t("stepFour.adTitle")}
-                            className="h-11 rounded-xl border-slate-200 focus-visible:ring-primary focus-visible:border-primary bg-white shadow-sm transition-all"
+                            className="h-11 rounded-xl border-slate-200 dark:border-zinc-800 focus-visible:ring-primary focus-visible:border-primary bg-white dark:bg-zinc-950 dark:text-white shadow-sm transition-all"
                             {...field}
                           />
                         </FormControl>
@@ -733,14 +733,14 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                     name="description"
                     render={({ field }) => (
                       <FormItem className="text-primary">
-                        <FormLabel className="text-slate-700 font-semibold flex items-center gap-1 text-sm">
+                        <FormLabel className="text-slate-700 dark:text-white font-semibold flex items-center gap-1 text-sm">
                           {t("stepFour.adDescription")}
                           <span className="text-rose-500">*</span>
                         </FormLabel>
                         <FormControl>
                           <Textarea
                             placeholder={t("stepFour.adDescription")}
-                            className="min-h-[120px] resize-y rounded-xl border-slate-200 focus-visible:ring-primary focus-visible:border-primary bg-white shadow-sm transition-all"
+                            className="min-h-[120px] resize-y rounded-xl border-slate-200 dark:border-zinc-800 focus-visible:ring-primary focus-visible:border-primary bg-white dark:bg-zinc-950 dark:text-white shadow-sm transition-all"
                             {...field}
                           />
                         </FormControl>
@@ -752,16 +752,16 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
               </div>
 
               {/* 2. Contact & Pricing Section */}
-              <div className="p-5 sm:p-6 rounded-2xl border border-slate-100 bg-slate-50/30 hover:bg-slate-50/50 transition-all duration-300 space-y-6">
-                <div className="flex items-center gap-2.5 pb-2 border-b border-slate-100">
+              <div className="p-5 sm:p-6 rounded-2xl border border-slate-100 dark:border-zinc-800 bg-slate-50/30 dark:bg-zinc-900/30 hover:bg-slate-50/50 dark:hover:bg-zinc-900/50 transition-all duration-300 space-y-6">
+                <div className="flex items-center gap-2.5 pb-2 border-b border-slate-100 dark:border-zinc-800">
                   <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-600">
                     <DollarSign className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-slate-800">
+                    <h3 className="text-lg font-bold text-slate-800 dark:text-white">
                       {direction === "rtl" ? "الاتصال والتسعير" : "Contact & Pricing"}
                     </h3>
-                    <p className="text-xs text-slate-400">
+                    <p className="text-xs text-slate-400 dark:text-zinc-400">
                       {direction === "rtl" ? "حدد السعر المناسب وتفاصيل الاتصال" : "Set your price, currency, and primary contact number"}
                     </p>
                   </div>
@@ -770,7 +770,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                   {/* Country Code + Contact Number */}
                   <div className="sm:col-span-2 lg:col-span-1 space-y-1.5">
-                    <FormLabel className="text-slate-700 font-semibold flex items-center gap-1 text-sm">
+                    <FormLabel className="text-slate-700 dark:text-white font-semibold flex items-center gap-1 text-sm">
                       <Phone className="w-4 h-4 text-slate-400" />
                       {t("stepFour.contactNumber")}
                       <span className="text-rose-500">*</span>
@@ -793,7 +793,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                             <FormControl>
                               <Input
                                 placeholder="5551234567"
-                                className="h-11 rounded-xl border-slate-200 focus-visible:ring-primary focus-visible:border-primary bg-white shadow-sm transition-all"
+                                className="h-11 rounded-xl border-slate-200 dark:border-zinc-800 focus-visible:ring-primary focus-visible:border-primary bg-white dark:bg-zinc-950 dark:text-white shadow-sm transition-all"
                                 {...field}
                                 type="tel"
                               />
@@ -811,7 +811,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                     name="price"
                     render={({ field }) => (
                       <FormItem className="text-primary">
-                        <FormLabel className="text-slate-700 font-semibold flex items-center gap-1 text-sm">
+                        <FormLabel className="text-slate-700 dark:text-white font-semibold flex items-center gap-1 text-sm">
                           {t("stepFour.price", { defaultValue: "Price" })}
                           <span className="text-rose-500">*</span>
                         </FormLabel>
@@ -819,7 +819,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                           <Input
                             type="text"
                             placeholder={t("stepFour.price", { defaultValue: "Enter price" })}
-                            className="h-11 rounded-xl border-slate-200 focus-visible:ring-primary focus-visible:border-primary bg-white shadow-sm transition-all"
+                            className="h-11 rounded-xl border-slate-200 dark:border-zinc-800 focus-visible:ring-primary focus-visible:border-primary bg-white dark:bg-zinc-950 dark:text-white shadow-sm transition-all"
                             {...field}
                           />
                         </FormControl>
@@ -845,16 +845,16 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
               </div>
 
               {/* 3. Location Information Section */}
-              <div className="p-5 sm:p-6 rounded-2xl border border-slate-100 bg-slate-50/30 hover:bg-slate-50/50 transition-all duration-300 space-y-6">
-                <div className="flex items-center gap-2.5 pb-2 border-b border-slate-100">
+              <div className="p-5 sm:p-6 rounded-2xl border border-slate-100 dark:border-zinc-800 bg-slate-50/30 dark:bg-zinc-900/30 hover:bg-slate-50/50 dark:hover:bg-zinc-900/50 transition-all duration-300 space-y-6">
+                <div className="flex items-center gap-2.5 pb-2 border-b border-slate-100 dark:border-zinc-800">
                   <div className="p-2 rounded-lg bg-sky-500/10 text-sky-600">
                     <MapPin className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-slate-800">
+                    <h3 className="text-lg font-bold text-slate-800 dark:text-white">
                       {direction === "rtl" ? "معلومات الموقع" : "Location Information"}
                     </h3>
-                    <p className="text-xs text-slate-400">
+                    <p className="text-xs text-slate-400 dark:text-zinc-400">
                       {direction === "rtl" ? "حدد موقع السلعة أو الخدمة بدقة" : "Specify where the item is located"}
                     </p>
                   </div>
@@ -914,27 +914,27 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                   name="address"
                   render={({ field }) => (
                     <FormItem className="text-primary w-full">
-                      <FormLabel className="text-slate-700 font-semibold flex items-center gap-1 text-sm">
+                      <FormLabel className="text-slate-700 dark:text-white font-semibold flex items-center gap-1 text-sm">
                         {direction === "rtl" ? "العنوان التفصيلي" : "Detailed Address"}
                         <span className="text-rose-500">*</span>
                       </FormLabel>
                       <FormControl>
                         <Textarea
                           placeholder={direction === "rtl" ? "العنوان بالتفصيل..." : "Enter detailed address..."}
-                          className="min-h-[80px] resize-y rounded-xl border-slate-200 focus-visible:ring-primary focus-visible:border-primary bg-white shadow-sm transition-all"
+                          className="min-h-[80px] resize-y rounded-xl border-slate-200 dark:border-zinc-800 focus-visible:ring-primary focus-visible:border-primary bg-white dark:bg-zinc-950 dark:text-white shadow-sm transition-all"
                           {...field}
                         />
                       </FormControl>
                       
                       {/* Interactive Map & Suggestions Widget */}
-                      <div className="mt-4 border border-slate-100 rounded-2xl overflow-hidden bg-slate-50 relative p-4 shadow-sm hover:shadow-md transition-all duration-300">
+                      <div className="mt-4 border border-slate-100 dark:border-zinc-800 rounded-2xl overflow-hidden bg-slate-50 dark:bg-zinc-900/50 relative p-4 shadow-sm hover:shadow-md transition-all duration-300">
                         <div className="flex items-center gap-2 mb-3">
                           <MapPin className="h-5 w-5 text-emerald-500 animate-bounce" />
                           <div>
-                            <h4 className="text-sm font-bold text-slate-800">
+                            <h4 className="text-sm font-bold text-slate-800 dark:text-white">
                               {direction === "rtl" ? "تحديد الموقع على الخريطة" : "Interactive Map Location"}
                             </h4>
-                            <p className="text-[10px] text-slate-400">
+                            <p className="text-[10px] text-slate-400 dark:text-zinc-400">
                               {direction === "rtl" ? "اسحب المؤشر أو اختر من الاقتراحات لتحديد الموقع" : "Drag pin or choose from suggestions to pinpoint location"}
                             </p>
                           </div>
@@ -942,7 +942,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
 
                         {/* Address Auto-Suggestions list when typing */}
                         {field.value && field.value.length > 2 && (
-                          <div className="mb-4 bg-white border border-slate-100 rounded-xl shadow-lg p-1 space-y-1 max-h-40 overflow-y-auto">
+                          <div className="mb-4 bg-white dark:bg-zinc-950 border border-slate-100 dark:border-zinc-800 rounded-xl shadow-lg p-1 space-y-1 max-h-40 overflow-y-auto">
                             {[
                               direction === "rtl" ? `${form.watch("city") || "دمشق"}، وسط المدينة - شارع النصر` : `${form.watch("city") || "Damascus"} City Center, Al-Shaalan`,
                               direction === "rtl" ? `${form.watch("city") || "دمشق"}، أوتوستراد المزة - بجانب صيدلية ابن النفيس` : `${form.watch("city") || "Damascus"} Mezzeh Highway, Near Ibn Al-Nafees Pharmacy`,
@@ -955,7 +955,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                                 onClick={() => {
                                   form.setValue("address", suggest);
                                 }}
-                                className="w-full text-left rtl:text-right px-3 py-2 text-xs text-slate-700 hover:bg-slate-50 rounded-lg transition-colors flex items-center gap-2 font-medium"
+                                className="w-full text-left rtl:text-right px-3 py-2 text-xs text-slate-700 dark:text-white hover:bg-slate-50 dark:hover:bg-zinc-800 rounded-lg transition-colors flex items-center gap-2 font-medium"
                               >
                                 <MapPin className="h-3.5 w-3.5 text-slate-400" />
                                 <span>{suggest}</span>
@@ -968,7 +968,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                         <div 
                           ref={mapRef}
                           style={{ zIndex: 1 }}
-                          className="relative h-64 w-full rounded-xl border border-slate-200 overflow-hidden shadow-md bg-slate-100 transition-all hover:border-emerald-500/50 !z-[1]"
+                          className="relative h-64 w-full rounded-xl border border-slate-200 dark:border-zinc-800 overflow-hidden shadow-md bg-slate-100 dark:bg-zinc-900 transition-all hover:border-emerald-500/50 !z-[1]"
                         />
                       </div>
 
@@ -979,16 +979,16 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
               </div>
 
               {/* 4. Listing Configuration Section */}
-              <div className="p-5 sm:p-6 rounded-2xl border border-slate-100 bg-slate-50/30 hover:bg-slate-50/50 transition-all duration-300 space-y-6">
-                <div className="flex items-center gap-2.5 pb-2 border-b border-slate-100">
+              <div className="p-5 sm:p-6 rounded-2xl border border-slate-100 dark:border-zinc-800 bg-slate-50/30 dark:bg-zinc-900/30 hover:bg-slate-50/50 dark:hover:bg-zinc-900/50 transition-all duration-300 space-y-6">
+                <div className="flex items-center gap-2.5 pb-2 border-b border-slate-100 dark:border-zinc-800">
                   <div className="p-2 rounded-lg bg-amber-500/10 text-amber-600">
                     <Sliders className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-slate-800">
+                    <h3 className="text-lg font-bold text-slate-800 dark:text-white">
                       {direction === "rtl" ? "تكوين الإعلان" : "Listing Configuration"}
                     </h3>
-                    <p className="text-xs text-slate-400">
+                    <p className="text-xs text-slate-400 dark:text-zinc-400">
                       {direction === "rtl" ? "اختر نوع النشر وحالة الحفظ" : "Choose your listing type and save status"}
                     </p>
                   </div>
@@ -1036,16 +1036,16 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
               </div>
 
               {/* 5. Publication Settings Section */}
-              <div className="p-5 sm:p-6 rounded-2xl border border-slate-100 bg-slate-50/30 hover:bg-slate-50/50 transition-all duration-300 space-y-6">
-                <div className="flex items-center gap-2.5 pb-2 border-b border-slate-100">
+              <div className="p-5 sm:p-6 rounded-2xl border border-slate-100 dark:border-zinc-800 bg-slate-50/30 dark:bg-zinc-900/30 hover:bg-slate-50/50 dark:hover:bg-zinc-900/50 transition-all duration-300 space-y-6">
+                <div className="flex items-center gap-2.5 pb-2 border-b border-slate-100 dark:border-zinc-800">
                   <div className="p-2 rounded-lg bg-indigo-500/10 text-indigo-600">
                     <CalendarIcon className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-slate-800">
+                    <h3 className="text-lg font-bold text-slate-800 dark:text-white">
                       {direction === "rtl" ? "جدولة النشر" : "Publication Settings"}
                     </h3>
-                    <p className="text-xs text-slate-400">
+                    <p className="text-xs text-slate-400 dark:text-zinc-400">
                       {direction === "rtl" ? "حدد تاريخ ووقت النشر التلقائي" : "Schedule when your listing goes live"}
                     </p>
                   </div>
@@ -1057,7 +1057,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                     name="publicationDate"
                     render={({ field }) => (
                       <FormItem className="flex flex-col space-y-1.5">
-                        <FormLabel className="text-slate-700 font-semibold text-sm">
+                        <FormLabel className="text-slate-700 dark:text-white font-semibold text-sm">
                           {t("stepFour.publicationDate")}
                         </FormLabel>
                         <Popover>
@@ -1066,7 +1066,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                               <Button
                                 variant={"outline"}
                                 className={cn(
-                                  "w-full h-11 px-3 text-left font-normal text-slate-700 justify-between rounded-xl border-slate-200 hover:bg-slate-50 shadow-sm transition-all",
+                                  "w-full h-11 px-3 text-left font-normal text-slate-700 dark:text-white justify-between rounded-xl border-slate-200 dark:border-zinc-800 hover:bg-slate-50 dark:hover:bg-zinc-800 shadow-sm transition-all",
                                   !field.value && "text-muted-foreground",
                                 )}
                               >
@@ -1079,13 +1079,13 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                               </Button>
                             </FormControl>
                           </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0 rounded-2xl border-slate-100 shadow-xl" align="start">
+                          <PopoverContent className="w-auto p-0 rounded-2xl border-slate-100 dark:border-zinc-800 shadow-xl bg-white dark:bg-zinc-900" align="start">
                             <Calendar
-                              mode="single"
-                              selected={field.value}
-                              onSelect={field.onChange}
-                              initialFocus
-                              className="rounded-2xl"
+                               mode="single"
+                               selected={field.value}
+                               onSelect={field.onChange}
+                               initialFocus
+                               className="rounded-2xl"
                             />
                           </PopoverContent>
                         </Popover>
