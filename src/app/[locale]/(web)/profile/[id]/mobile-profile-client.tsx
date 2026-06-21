@@ -206,7 +206,7 @@ const MobileProfileClient = ({
           <div className="mb-4">
             <div className="flex items-center gap-2">
               <div className="h-6 w-1 bg-gradient-to-b from-[#198341] to-[#ABDE3B] rounded-full"></div>
-              <Text variant="h4" className="font-bold text-[#2C3C39]">
+              <Text variant="h4" className="font-bold text-[#2C3C39] dark:text-white">
                 {t('listings.title')}
               </Text>
             </div>
@@ -239,7 +239,7 @@ const MobileProfileClient = ({
               {Array.from({ length: 6 }).map((_, index) => (
                 <Card
                   key={`skeleton-${index}`}
-                  className="bg-white border-none rounded-xl overflow-hidden shadow-md"
+                  className="bg-white dark:bg-zinc-900 border-none rounded-xl overflow-hidden shadow-md"
                 >
                   <Skeleton className="h-40 w-full" />
                   <CardContent className="p-3 space-y-2">
@@ -282,8 +282,8 @@ const MobileProfileClient = ({
               })}
             </div>
           ) : (
-            <div className="bg-white rounded-xl p-8 text-center shadow-md">
-              <Text variant="p" className="text-gray-500">
+            <div className="bg-white dark:bg-zinc-900 rounded-xl p-8 text-center shadow-md">
+              <Text variant="p" className="text-gray-500 dark:text-zinc-400">
                 {t('listings.noListings')}
               </Text>
             </div>
