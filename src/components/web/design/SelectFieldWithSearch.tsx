@@ -119,10 +119,10 @@ const SelectFieldWithSearch: React.FC<SelectFieldWithSearchProps> = ({
             aria-expanded={open}
             disabled={disabled}
             className={cn(
-              "w-full h-12 px-4 justify-between bg-white border-2 border-[#198341]/20 hover:border-[#198341]/40 text-gray-700 font-semibold transition-all rounded-2xl shadow-sm hover:shadow-md",
+              "w-full h-12 px-4 justify-between bg-white dark:bg-zinc-900 border-2 border-[#198341]/20 dark:border-zinc-800 hover:border-[#198341]/40 dark:hover:border-zinc-700 text-gray-700 dark:text-zinc-200 font-semibold transition-all rounded-2xl shadow-sm hover:shadow-md",
               isRtl ? "text-right flex-row" : "text-left flex-row",
               error ? "border-red-500" : "",
-              disabled && "opacity-50 cursor-not-allowed bg-gray-50",
+              disabled && "opacity-50 cursor-not-allowed bg-gray-50 dark:bg-zinc-850",
               SelectTriggerStyle
             )}
           >
@@ -131,12 +131,12 @@ const SelectFieldWithSearch: React.FC<SelectFieldWithSearchProps> = ({
           </Button>
         </PopoverTrigger>
         <PopoverContent 
-          className="bg-white shadow-2xl border-none p-0 overflow-hidden !z-[99999] rounded-2xl ring-1 ring-black/5" 
+          className="bg-white dark:bg-zinc-900 shadow-2xl border-none p-0 overflow-hidden !z-[99999] rounded-2xl ring-1 ring-black/5 dark:ring-white/10" 
           align="start" 
           style={{ width: 'var(--radix-popover-trigger-width)' }}
           dir={isRtl ? "rtl" : "ltr"}
         >
-          <div className="p-5 pb-3 bg-gradient-to-r from-gray-50 to-white border-b border-gray-100">
+          <div className="p-5 pb-3 bg-gradient-to-r from-gray-50 to-white dark:from-zinc-900 dark:to-zinc-950 border-b border-gray-100 dark:border-zinc-800">
             <div className="relative w-full">
               <Input
                 type="text"
@@ -145,7 +145,7 @@ const SelectFieldWithSearch: React.FC<SelectFieldWithSearchProps> = ({
                 onKeyDown={handleSearchKeyDown}
                 placeholder={isRtl ? `بحث ${placeholder}...` : searchPlaceholder}
                 className={cn(
-                  "w-full py-4 h-12 text-sm border-2 border-[#198341]/30 focus:border-[#198341] focus:ring-4 focus:ring-[#ABDE3B]/20 rounded-xl focus-visible:ring-0 focus-visible:ring-offset-0 bg-white text-gray-800 transition-all duration-300 shadow-sm hover:shadow-md",
+                  "w-full py-4 h-12 text-sm border-2 border-[#198341]/30 dark:border-zinc-800 focus:border-[#198341] focus:ring-4 focus:ring-[#ABDE3B]/20 rounded-xl focus-visible:ring-0 focus-visible:ring-offset-0 bg-white dark:bg-zinc-950 text-gray-800 dark:text-zinc-100 transition-all duration-300 shadow-sm hover:shadow-md",
                   isRtl ? "pr-10 pl-4 text-right" : "pl-10 pr-4 text-left"
                 )}
                 dir={isRtl ? "rtl" : "ltr"}
@@ -161,8 +161,8 @@ const SelectFieldWithSearch: React.FC<SelectFieldWithSearchProps> = ({
                 "custom-scrollbar-rtl"
               )}
             >
-              <CommandEmpty className="py-12 text-center text-sm text-gray-500">
-                <Search className="h-8 w-8 text-gray-200 mx-auto mb-2" />
+              <CommandEmpty className="py-12 text-center text-sm text-gray-500 dark:text-zinc-400">
+                <Search className="h-8 w-8 text-gray-200 dark:text-zinc-800 mx-auto mb-2" />
                 {emptyMessage}
               </CommandEmpty>
               <CommandGroup className="p-0">
@@ -179,7 +179,7 @@ const SelectFieldWithSearch: React.FC<SelectFieldWithSearchProps> = ({
                         "flex items-center justify-between px-4 py-2.5 cursor-pointer rounded-xl mb-1 transition-all duration-300 border border-transparent group",
                         isSelected 
                           ? "bg-gradient-to-r from-[#198341] to-[#2C3C39] text-white shadow-lg scale-[1.01] border-[#198341]" 
-                          : "bg-white text-[#2C3C39] hover:bg-gradient-to-r hover:from-[#ABDE3B]/10 hover:to-[#198341]/5 hover:shadow-md hover:border-[#198341]/20"
+                          : "bg-white dark:bg-zinc-900 text-[#2C3C39] dark:text-zinc-200 hover:bg-gradient-to-r hover:from-[#ABDE3B]/10 hover:to-[#198341]/5 dark:hover:from-[#ABDE3B]/20 dark:hover:to-[#198341]/10 hover:shadow-md hover:border-[#198341]/20 dark:hover:border-[#198341]/40"
                       )}
                     >
                       <div className="flex items-center gap-3 overflow-hidden">
@@ -191,7 +191,7 @@ const SelectFieldWithSearch: React.FC<SelectFieldWithSearchProps> = ({
                         <ChevronRight 
                           className={cn(
                             "h-4 w-4 transition-all duration-300", 
-                            "text-gray-300 group-hover:text-[#198341] group-hover:translate-x-1",
+                            "text-gray-300 dark:text-zinc-600 group-hover:text-[#198341] group-hover:translate-x-1",
                             isRtl && "rotate-180 group-hover:-translate-x-1"
                           )} 
                         />

@@ -6,13 +6,7 @@ import { useDynamicForm } from '../hooks/useDynamicForm';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from '@/components/ui/select';
+
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -30,11 +24,9 @@ import { getColorOptions } from '@/core/entities/enums/cars.enums';
 import { 
   SyriaGovernorate, 
   SyriaGovernorate_ARABIC_NAMES, 
-  SyriaCity, 
   SyriaCity_ARABIC_NAMES, 
   SyriaGovernorate_TO_CITIES 
 } from '@/core/entities/enums/syria.enums';
-import { getInjection } from '@/di/container';
 // --- Sub-components for specialized rendering ---
 
 /**
@@ -405,7 +397,7 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
                           searchPlaceholder={isArabic ? `بحث في ${getTranslation(attr.name)}...` : `Search ${getTranslation(attr.name)}...`}
                           emptyMessage={isArabic ? "لا توجد نتائج" : "No results found"}
                           isRtl={isArabic}
-                          SelectTriggerStyle="h-11 border-gray-300 focus:border-[#198341]"
+                          SelectTriggerStyle="h-11 border-gray-300 dark:border-zinc-800 focus:border-[#198341]"
                         />
                       );
                     }
