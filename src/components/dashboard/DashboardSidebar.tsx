@@ -116,7 +116,7 @@ export function DashboardSidebar() {
       collapsible="icon"
     >
       {/* Header */}
-      <SidebarHeader className="border-b text-primary border-primary-light/20 p-2">
+      <SidebarHeader className="border-b text-white border-primary-light/20 p-2">
         <div className="flex items-center gap-2">
           {!isCollapsed ? (
             <>
@@ -135,10 +135,10 @@ export function DashboardSidebar() {
                 />
               </div>
               <div className="flex flex-col overflow-hidden">
-                <span className="text-lg font-bold text-primary truncate">
+                <span className="text-lg font-bold text-white truncate">
                   {direction === 'ltr' ? 'Bishola' : 'بسهولة'}
                 </span>
-                <span className="text-xs text-primary truncate">
+                <span className="text-xs text-white/70 truncate">
                   {direction === 'ltr' ? 'Dashboard' : 'لوحة التحكم'}
                 </span>
               </div>
@@ -170,7 +170,7 @@ export function DashboardSidebar() {
         <div className="space-y-2">
           {!isCollapsed && (
             <div className="px-3 py-2">
-              <h2 className="text-xs font-semibold text-primary uppercase tracking-wider">
+              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-wider">
                 {direction === 'ltr' ? 'Main' : 'الرئيسي'}
               </h2>
             </div>
@@ -182,7 +182,7 @@ export function DashboardSidebar() {
                   asChild
                   className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 ${isActiveRoute(href)
                     ? 'bg-primary-light text-white shadow-sm'
-                    : 'hover:bg-primary-light/50 text-primary hover:text-white'
+                    : 'hover:bg-primary-light/50 text-white/70 hover:text-white'
                     }`}
                   tooltip={isCollapsed ? label : undefined}
                 >
@@ -202,7 +202,7 @@ export function DashboardSidebar() {
         <div className="space-y-2 mt-8">
           {!isCollapsed && (
             <div className="px-3 py-2">
-              <h2 className="text-xs font-semibold text-primary uppercase tracking-wider">
+              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-wider">
                 {direction === 'ltr' ? 'Quick Access' : 'وصول سريع'}
               </h2>
             </div>
@@ -212,7 +212,7 @@ export function DashboardSidebar() {
               <SidebarMenuItem key={href}>
                 <SidebarMenuButton
                   asChild
-                  className="flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200  text-primary hover:bg-primary-light/50 hover:text-white"
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200  text-white/70 hover:bg-primary-light/50 hover:text-white"
                   tooltip={isCollapsed ? label : undefined}
                 >
                   <Link href={href}>
