@@ -101,7 +101,7 @@ const AdSpace: React.FC<AdSpaceProps> = ({
                                 extractedAds = slotObj || [];
                             }
                         } else {
-                            extractedAds = Array.isArray(data) ? data : [data];
+                            extractedAds = (Array.isArray(data) ? data : [data]) as unknown as AdContentDto[];
                         }
 
                         setFetchedAds(extractedAds.filter((ad: any) => ad && ad.id !== undefined && ad.displayTemplate !== undefined));

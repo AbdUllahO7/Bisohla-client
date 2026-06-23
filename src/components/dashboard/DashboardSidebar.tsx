@@ -10,6 +10,7 @@ import {
   HomeIcon,
   Bell,
   BellRing,
+  LogOut,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -29,6 +30,7 @@ import { useSession } from '@/hooks/auth/use-session';
 import { useDirection } from '@/hooks/use-direction';
 import { useProfileContext } from '@/providers/profile.provider';
 import Image from 'next/image';
+import { logoutAction } from '@/app/[locale]/auth/actions';
 
 export function DashboardSidebar() {
   const pathname = usePathname();
@@ -44,6 +46,15 @@ export function DashboardSidebar() {
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  const handleLogout = async () => {
+    try {
+      window.dispatchEvent(new CustomEvent('logout-success'));
+      await logoutAction();
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
 
   // Get initials for avatar fallback
   const getInitials = (name: string) => {
@@ -116,7 +127,7 @@ export function DashboardSidebar() {
       collapsible="icon"
     >
       {/* Header */}
-      <SidebarHeader className="border-b text-primary border-primary-light/20 p-2">
+      <SidebarHeader className="border-b text-white border-primary-light/20 p-2">
         <div className="flex items-center gap-2">
           {!isCollapsed ? (
             <>
@@ -135,10 +146,10 @@ export function DashboardSidebar() {
                 />
               </div>
               <div className="flex flex-col overflow-hidden">
-                <span className="text-lg font-bold text-primary truncate">
+                <span className="text-lg font-bold text-white truncate">
                   {direction === 'ltr' ? 'Bishola' : 'بسهولة'}
                 </span>
-                <span className="text-xs text-primary truncate">
+                <span className="text-xs text-white/70 truncate">
                   {direction === 'ltr' ? 'Dashboard' : 'لوحة التحكم'}
                 </span>
               </div>
@@ -170,7 +181,7 @@ export function DashboardSidebar() {
         <div className="space-y-2">
           {!isCollapsed && (
             <div className="px-3 py-2">
-              <h2 className="text-xs font-semibold text-primary uppercase tracking-wider">
+              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-wider">
                 {direction === 'ltr' ? 'Main' : 'الرئيسي'}
               </h2>
             </div>
@@ -182,7 +193,7 @@ export function DashboardSidebar() {
                   asChild
                   className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 ${isActiveRoute(href)
                     ? 'bg-primary-light text-white shadow-sm'
-                    : 'hover:bg-primary-light/50 text-primary hover:text-white'
+                    : 'hover:bg-primary-light/50 text-white/70 hover:text-white'
                     }`}
                   tooltip={isCollapsed ? label : undefined}
                 >
@@ -202,7 +213,7 @@ export function DashboardSidebar() {
         <div className="space-y-2 mt-8">
           {!isCollapsed && (
             <div className="px-3 py-2">
-              <h2 className="text-xs font-semibold text-primary uppercase tracking-wider">
+              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-wider">
                 {direction === 'ltr' ? 'Quick Access' : 'وصول سريع'}
               </h2>
             </div>
@@ -212,7 +223,7 @@ export function DashboardSidebar() {
               <SidebarMenuItem key={href}>
                 <SidebarMenuButton
                   asChild
-                  className="flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200  text-primary hover:bg-primary-light/50 hover:text-white"
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200  text-white/70 hover:bg-primary-light/50 hover:text-white"
                   tooltip={isCollapsed ? label : undefined}
                 >
                   <Link href={href}>
@@ -224,6 +235,22 @@ export function DashboardSidebar() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
             ))}
+
+            {/* Sign Out Button */}
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                onClick={handleLogout}
+                className="flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 text-red-200 hover:bg-red-600/20 hover:text-red-100 cursor-pointer"
+                tooltip={isCollapsed ? (direction === 'ltr' ? 'Sign Out' : 'تسجيل الخروج') : undefined}
+              >
+                <LogOut className="h-4 w-4 flex-shrink-0" />
+                {!isCollapsed && (
+                  <span className="font-medium truncate">
+                    {direction === 'ltr' ? 'Sign Out' : 'تسجيل الخروج'}
+                  </span>
+                )}
+              </SidebarMenuButton>
+            </SidebarMenuItem>
           </SidebarMenu>
         </div>
       </SidebarContent>

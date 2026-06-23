@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Box from '@/components/ui/box';
 import { useTranslations } from 'next-intl';
-import { useListings } from '@/core/infrastructure-adapters/use-actions/visitors/listing.visitor.use-actions';
+import { getListingById } from '@/core/infrastructure-adapters/actions/visitors/listing.visitor.actions';
 import ProductSkeleton from '../design/ProductSkeletonItem';
 import { useSession } from '@/hooks/auth/use-session';
 import SectionHeader from '@/components/shared/SectionHeader';
@@ -21,6 +21,8 @@ const RecentlyViewed = () => {
   const locale = useLocale();
   const [recentlyViewed, setRecentlyViewed] = useState<{ id: number, typeId: number }[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [listings, setListings] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const STORAGE_KEY = 'bishola-recently-viewed';
@@ -33,56 +35,55 @@ const RecentlyViewed = () => {
       setRecentlyViewed(normalizedItems);
     } catch (error) {
       console.error('Failed to load recently viewed:', error);
-    } finally {
       setIsLoaded(true);
     }
   }, []);
 
+  useEffect(() => {
+    if (recentlyViewed.length === 0) {
+      setListings([]);
+      setIsLoaded(true);
+      return;
+    }
+
+    const fetchAll = async () => {
+      setIsLoading(true);
+      try {
+        const params = session.user?.id ? { userId: session.user.id } : undefined;
+        // Fetch each listing by its ID in parallel
+        const promises = recentlyViewed.map(item => getListingById(item.id, params));
+        const responses = await Promise.all(promises);
+        
+        // Extract successful data
+        const fetched = responses
+          .map(res => res.success && res.data ? res.data : null)
+          .filter(Boolean);
+          
+        // Normalize based on the order of recentlyViewed items
+        const normalized = recentlyViewed
+          .map(item => {
+            const found = fetched.find((l: any) => l.id === item.id);
+            return found ? normalizeListingToCarDto(found, locale) : null;
+          })
+          .filter(Boolean);
+
+        setListings(normalized);
+      } catch (error) {
+        console.error('Failed to fetch recently viewed listings:', error);
+      } finally {
+        setIsLoading(false);
+        setIsLoaded(true);
+      }
+    };
+
+    fetchAll();
+  }, [recentlyViewed, locale, session.user?.id]);
+
   const handleClearAll = () => {
     localStorage.removeItem('bishola-recently-viewed');
     setRecentlyViewed([]);
+    setListings([]);
   };
-
-  const carIds = recentlyViewed
-    .filter(item => Number(item.typeId) === 1)
-    .map(item => item.id);
-
-  const { data, isLoading } = useListings(1, {
-    page: 1,
-    pageSize: 10,
-    userId: session.user?.id,
-    include: 'attributeValues.attribute,images,user,listingType,listingTypeVersion',
-    where: [
-      {
-        field: 'id',
-        operator: 'in',
-        value: carIds.length > 0 ? carIds : [-1],
-      },
-    ],
-  });
-
-  // Sort the fetched data to match the order of IDs in localStorage
-  const carListings = React.useMemo(() => {
-    const apiData = data as any;
-    if (!apiData) return [];
-
-    let listings: any[] = [];
-    if (apiData.data && Array.isArray(apiData.data.data)) {
-      listings = apiData.data.data;
-    } else if (Array.isArray(apiData.data)) {
-      listings = apiData.data;
-    } else if (Array.isArray(apiData)) {
-      listings = apiData;
-    }
-    
-    // Normalize and sort based on the order of recentlyViewed car items
-    return carIds
-      .map(id => {
-        const item = listings.find((listing: any) => listing.id === id);
-        return item ? normalizeListingToCarDto(item, locale) : null;
-      })
-      .filter(Boolean);
-  }, [data, carIds, locale]);
 
   if (!isLoaded || (recentlyViewed.length === 0 && !isLoading)) {
     return null;
@@ -111,7 +112,7 @@ const RecentlyViewed = () => {
   };
 
   return (
-    <div className="relative py-12 w-full bg-gray-50/50">
+    <div className="relative py-12 w-full bg-gray-50/50 dark:bg-zinc-900/50">
       <Box variant="container">
         <Box variant="column" className="w-full">
           <div className="flex justify-center items-start w-full">
@@ -119,12 +120,11 @@ const RecentlyViewed = () => {
               title={t('title')}
               icon={History}
             />
-            
           </div>
 
           {isLoading ? (
             <ProductSkeleton count={4} showTitle={false} />
-          ) : carListings.length > 0 ? (
+          ) : listings.length > 0 ? (
             <div className="w-full overflow-x-auto scrollbar-hide pb-4">
               <motion.div 
                 className="flex gap-6 min-w-max px-2"
@@ -133,7 +133,7 @@ const RecentlyViewed = () => {
                 whileInView="visible"
                 viewport={{ once: true }}
               >
-                {carListings.map((card: any) => (
+                {listings.map((card: any) => (
                   <motion.div 
                     key={card.id} 
                     className="w-[280px] sm:w-[300px]"
@@ -148,7 +148,7 @@ const RecentlyViewed = () => {
               </motion.div>
             </div>
           ) : (
-            <p className="text-gray-500 text-center py-4">{t('noItems')}</p>
+            <p className="text-gray-500 dark:text-zinc-400 text-center py-4">{t('noItems')}</p>
           )}
         </Box>
       </Box>

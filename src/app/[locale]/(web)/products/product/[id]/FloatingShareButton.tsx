@@ -217,15 +217,15 @@ const FloatingShareButton: React.FC<FloatingShareButtonProps> = ({
       <div className="fixed bottom-32 right-4 md:right-8 z-50">
         {/* Share Options Menu */}
         {isOpen && (
-          <div className="absolute bottom-16 right-0 bg-white rounded-2xl shadow-2xl p-4 min-w-[280px] border border-gray-200 animate-in slide-in-from-bottom-5 duration-300">
+          <div className="absolute bottom-16 right-0 bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl p-4 min-w-[280px] border border-gray-200 dark:border-zinc-800 animate-in slide-in-from-bottom-5 duration-300">
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-gray-800">{t('share')}</h3>
+              <h3 className="font-semibold text-gray-800 dark:text-zinc-100">{t('share')}</h3>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setIsOpen(false)}
-                className="h-8 w-8 p-0 rounded-full"
+                className="h-8 w-8 p-0 rounded-full dark:text-zinc-400 dark:hover:text-zinc-200 dark:hover:bg-zinc-800"
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -239,7 +239,7 @@ const FloatingShareButton: React.FC<FloatingShareButtonProps> = ({
                   <Button
                     key={option.name}
                     onClick={option.action}
-                    className={`flex flex-col items-center justify-center h-20 bg-gray-50 hover:text-white transition-all duration-300 ${option.color}`}
+                    className={`flex flex-col items-center justify-center h-20 bg-gray-50 dark:bg-zinc-800/50 dark:border-zinc-800 dark:text-zinc-200 hover:text-white transition-all duration-300 ${option.color}`}
                     variant="outline"
                     disabled={isSharePending}
                   >
@@ -251,7 +251,7 @@ const FloatingShareButton: React.FC<FloatingShareButtonProps> = ({
             </div>
 
             {/* Copy Link Section */}
-            <div className="border-t pt-4">
+            <div className="border-t dark:border-zinc-800 pt-4">
               <Button
                 onClick={handleCopyLink}
                 className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white"
@@ -277,7 +277,7 @@ const FloatingShareButton: React.FC<FloatingShareButtonProps> = ({
                 <Button
                   onClick={handleNativeShare}
                   variant="outline"
-                  className="w-full"
+                  className="w-full dark:border-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-800"
                   disabled={isSharePending}
                 >
                   <Share2 className="h-4 w-4 mr-2" />
