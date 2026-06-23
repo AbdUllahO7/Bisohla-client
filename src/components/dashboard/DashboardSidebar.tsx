@@ -10,6 +10,7 @@ import {
   HomeIcon,
   Bell,
   BellRing,
+  LogOut,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -29,6 +30,7 @@ import { useSession } from '@/hooks/auth/use-session';
 import { useDirection } from '@/hooks/use-direction';
 import { useProfileContext } from '@/providers/profile.provider';
 import Image from 'next/image';
+import { logoutAction } from '@/app/[locale]/auth/actions';
 
 export function DashboardSidebar() {
   const pathname = usePathname();
@@ -44,6 +46,15 @@ export function DashboardSidebar() {
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  const handleLogout = async () => {
+    try {
+      window.dispatchEvent(new CustomEvent('logout-success'));
+      await logoutAction();
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
 
   // Get initials for avatar fallback
   const getInitials = (name: string) => {
@@ -224,6 +235,22 @@ export function DashboardSidebar() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
             ))}
+
+            {/* Sign Out Button */}
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                onClick={handleLogout}
+                className="flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 text-red-200 hover:bg-red-600/20 hover:text-red-100 cursor-pointer"
+                tooltip={isCollapsed ? (direction === 'ltr' ? 'Sign Out' : 'تسجيل الخروج') : undefined}
+              >
+                <LogOut className="h-4 w-4 flex-shrink-0" />
+                {!isCollapsed && (
+                  <span className="font-medium truncate">
+                    {direction === 'ltr' ? 'Sign Out' : 'تسجيل الخروج'}
+                  </span>
+                )}
+              </SidebarMenuButton>
+            </SidebarMenuItem>
           </SidebarMenu>
         </div>
       </SidebarContent>
