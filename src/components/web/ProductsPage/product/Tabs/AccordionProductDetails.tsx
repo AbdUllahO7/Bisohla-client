@@ -2,6 +2,7 @@ import Text from '@/components/ui/text';
 import { CheckCircle2, AlertTriangle, Wrench, Palette } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import React from 'react';
+import CarBlueprint from '../CarBlueprint';
 
 // Define the type for product details boxes data
 interface ProductDetailsBox {
@@ -18,8 +19,10 @@ interface ProductDetailsBox {
 interface CarDamage {
   id: number;
   carListingId: number;
-  damageType: string;
-  damageZone: string;
+  damageType?: string;
+  damage_type?: string;
+  damageZone?: string;
+  damage_zone?: string;
   description: string | null;
   createdAt: string;
   updatedAt: string;
@@ -39,17 +42,19 @@ const AccordionProductDetails: React.FC<AccordionProductDetailsProps> = ({
 
   if (Array.isArray(damages) && damages.length > 0) {
     damages.forEach((damage) => {
-      if (!damage.damageType) return;
+      const type = damage.damageType || damage.damage_type;
+      const zone = damage.damageZone || damage.damage_zone;
+      if (!type) return;
 
-      if (!damagesByType[damage.damageType]) {
-        damagesByType[damage.damageType] = [];
+      if (!damagesByType[type]) {
+        damagesByType[type] = [];
       }
 
       if (
-        damage.damageZone &&
-        !damagesByType[damage.damageType].includes(damage.damageZone)
+        zone &&
+        !damagesByType[type].includes(zone)
       ) {
-        damagesByType[damage.damageType].push(damage.damageZone);
+        damagesByType[type].push(zone);
       }
     });
   }
@@ -72,7 +77,7 @@ const AccordionProductDetails: React.FC<AccordionProductDetailsProps> = ({
         defaultValue: 'Paint Damage',
       }),
       damageType: 'paint',
-           bgColor: 'bg-gradient-to-br from-[#2C3C39] to-[#198341]',
+      bgColor: 'bg-gradient-to-br from-[#2C3C39] to-[#198341]',
 
       textColor: 'text-white',
       icon: <Palette className="w-5 h-5 text-white" />,
@@ -92,10 +97,60 @@ const AccordionProductDetails: React.FC<AccordionProductDetailsProps> = ({
     },
   };
 
+  // Count active damages
+  const totalDamages = damages.length;
+  const uniqueDamageTypes = new Set(
+    damages.map(d => d.damageType || d.damage_type).filter(Boolean)
+  ).size;
+
   return (
-    <div className="w-full">
-      {/* Grid Layout for Cards - Enhanced */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+    <div className="w-full flex flex-col lg:flex-row gap-8 items-start">
+      {/* Visual Blueprint Summary Card */}
+      <div className="w-full lg:w-[340px] bg-gradient-to-b from-white to-slate-50 dark:from-zinc-900 dark:to-zinc-950 rounded-3xl p-5 border-2 border-slate-200 dark:border-zinc-700 shadow-xl flex flex-col items-center shrink-0">
+        {/* Header with count badge */}
+        <div className="w-full flex items-center justify-between mb-4">
+          <h4 className="text-base font-bold text-gray-800 dark:text-white">
+            {t('accordionDetails.details.damageSummary', { defaultValue: 'Visual Damage Map' })}
+          </h4>
+          {totalDamages > 0 && (
+            <span className="inline-flex items-center gap-1 bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400 text-xs font-bold px-2.5 py-1 rounded-full border border-red-200 dark:border-red-800">
+              <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+              {totalDamages} {totalDamages === 1 ? 'damage' : 'damages'}
+            </span>
+          )}
+          {totalDamages === 0 && (
+            <span className="inline-flex items-center gap-1 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 text-xs font-bold px-2.5 py-1 rounded-full border border-emerald-200 dark:border-emerald-800">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              Clear
+            </span>
+          )}
+        </div>
+
+        {/* Blueprint */}
+        <div className="w-full max-w-[280px] rounded-2xl bg-slate-100/60 dark:bg-zinc-800/40 p-3 border border-slate-200 dark:border-zinc-700">
+          <CarBlueprint damages={damages} isInteractive={false} />
+        </div>
+
+        {/* Legend */}
+        <div className="mt-4 w-full">
+          <p className="text-xs font-semibold text-gray-400 dark:text-zinc-500 uppercase tracking-wider mb-2.5">Legend</p>
+          <div className="grid grid-cols-1 gap-1.5">
+            {[
+              { color: 'bg-blue-500', label: t('accordionDetails.details.productDetailsTitles.scratch', { defaultValue: 'Scratch' }), dot: '#3b82f6' },
+              { color: 'bg-emerald-500', label: t('accordionDetails.details.productDetailsTitles.paint', { defaultValue: 'Paint Damage' }), dot: '#10b981' },
+              { color: 'bg-purple-500', label: t('accordionDetails.details.productDetailsTitles.replacement', { defaultValue: 'Requires Replacement' }), dot: '#a855f7' },
+            ].map((item) => (
+              <div key={item.label} className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-white dark:bg-zinc-800 border border-slate-100 dark:border-zinc-700">
+                <span className={`w-3 h-3 rounded-sm ${item.color} shrink-0`} />
+                <span className="text-xs font-medium text-gray-600 dark:text-zinc-300">{item.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Details Cards Container */}
+      <div className="flex-1 w-full grid grid-cols-1 md:grid-cols-2 gap-6">
         {Object.keys(productDetailsBoxes).map((boxKey, index) => {
           const box = productDetailsBoxes[boxKey];
           const damageZones = damagesByType[box.damageType] || [];

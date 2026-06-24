@@ -99,7 +99,7 @@ const ProductsContent = () => {
         {/* Filter Section - Fixed position on desktop */}
         <div className="w-full xl:w-[360px] xl:flex-shrink-0 relative">
           <div className="xl:sticky xl:top-5 w-full">
-            <ProductsFilter />
+            <ProductsFilter totalResults={totalItems} />
           </div>
         </div>
 
