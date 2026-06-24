@@ -265,7 +265,7 @@ const FilterContent = React.memo(
         <ActiveFiltersSummary filters={filters} onClearAll={resetFilters} />
 
         {/* Filter Body */}
-        <div className="flex-1 overflow-auto md:overflow-visible">
+        <div className={`flex-1 overflow-auto md:overflow-visible ${isMobile ? 'pb-28' : ''}`}>
           {/* <ScrollArea
             className={`px-0 ${isMobile ? 'h-[calc(100vh-200px)]' : ''}`}
           > */}
@@ -279,7 +279,10 @@ const FilterContent = React.memo(
               {/* Listing Type Filter - FIXED: Changed value to "listing-type" */}
               <AccordionItem
                 value="listing-type"
-                className="border border-slate-200 dark:border-zinc-800 rounded-lg overflow-hidden bg-white dark:bg-zinc-900 hover:shadow-sm transition-shadow"
+                className={`border border-slate-200 dark:border-zinc-800 rounded-lg overflow-hidden bg-white dark:bg-zinc-900 hover:shadow-sm transition-shadow ${
+                  isMobile ? 'mobile-fade-in' : ''
+                }`}
+                style={isMobile ? { animationDelay: '50ms', animationFillMode: 'both' } : undefined}
               >
                 <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors duration-200">
                   <AccordionHeader
@@ -321,7 +324,10 @@ const FilterContent = React.memo(
               {/* Location Filter */}
               <AccordionItem
                 value="address"
-                className="border border-slate-200 dark:border-zinc-800 rounded-lg overflow-hidden bg-white dark:bg-zinc-900 hover:shadow-sm transition-shadow"
+                className={`border border-slate-200 dark:border-zinc-800 rounded-lg overflow-hidden bg-white dark:bg-zinc-900 hover:shadow-sm transition-shadow ${
+                  isMobile ? 'mobile-fade-in' : ''
+                }`}
+                style={isMobile ? { animationDelay: '100ms', animationFillMode: 'both' } : undefined}
               >
                 <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors duration-200">
                   <AccordionHeader
@@ -361,7 +367,10 @@ const FilterContent = React.memo(
               {hasAttribute('make') && (
                 <AccordionItem
                   value="car-marka"
-                  className="border border-slate-200 dark:border-zinc-800 rounded-lg overflow-hidden bg-white dark:bg-zinc-900 hover:shadow-sm transition-shadow"
+                  className={`border border-slate-200 dark:border-zinc-800 rounded-lg overflow-hidden bg-white dark:bg-zinc-900 hover:shadow-sm transition-shadow ${
+                    isMobile ? 'mobile-fade-in' : ''
+                  }`}
+                  style={isMobile ? { animationDelay: '150ms', animationFillMode: 'both' } : undefined}
                 >
                   <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors duration-200">
                     <AccordionHeader
@@ -397,7 +406,10 @@ const FilterContent = React.memo(
               {hasAttribute('year') && (
                 <AccordionItem
                   value="car-year"
-                  className="border border-slate-200 dark:border-zinc-800 rounded-lg overflow-hidden bg-white dark:bg-zinc-900 hover:shadow-sm transition-shadow"
+                  className={`border border-slate-200 dark:border-zinc-800 rounded-lg overflow-hidden bg-white dark:bg-zinc-900 hover:shadow-sm transition-shadow ${
+                    isMobile ? 'mobile-fade-in' : ''
+                  }`}
+                  style={isMobile ? { animationDelay: '200ms', animationFillMode: 'both' } : undefined}
                 >
                   <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors duration-200">
                     <AccordionHeader
@@ -436,7 +448,10 @@ const FilterContent = React.memo(
               {/* Price Range */}
               <AccordionItem
                 value="price-range"
-                className="border border-slate-200 dark:border-zinc-800 rounded-lg overflow-hidden bg-white dark:bg-zinc-900 hover:shadow-sm transition-shadow"
+                className={`border border-slate-200 dark:border-zinc-800 rounded-lg overflow-hidden bg-white dark:bg-zinc-900 hover:shadow-sm transition-shadow ${
+                  isMobile ? 'mobile-fade-in' : ''
+                }`}
+                style={isMobile ? { animationDelay: '250ms', animationFillMode: 'both' } : undefined}
               >
                 <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors duration-200">
                   <AccordionHeader
@@ -486,7 +501,10 @@ const FilterContent = React.memo(
               {hasAttribute('mileage') && (
                 <AccordionItem
                   value="mileage-range"
-                  className="border border-slate-200 dark:border-zinc-800 rounded-lg overflow-hidden bg-white dark:bg-zinc-900 hover:shadow-sm transition-shadow"
+                  className={`border border-slate-200 dark:border-zinc-800 rounded-lg overflow-hidden bg-white dark:bg-zinc-900 hover:shadow-sm transition-shadow ${
+                    isMobile ? 'mobile-fade-in' : ''
+                  }`}
+                  style={isMobile ? { animationDelay: '300ms', animationFillMode: 'both' } : undefined}
                 >
                   <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors duration-200">
                     <AccordionHeader
@@ -534,7 +552,10 @@ const FilterContent = React.memo(
               {hasAttribute('transmission') && (
                 <AccordionItem
                   value="control-type"
-                  className="border border-slate-200 dark:border-zinc-800 rounded-lg overflow-hidden bg-white dark:bg-zinc-900 hover:shadow-sm transition-shadow"
+                  className={`border border-slate-200 dark:border-zinc-800 rounded-lg overflow-hidden bg-white dark:bg-zinc-900 hover:shadow-sm transition-shadow ${
+                    isMobile ? 'mobile-fade-in' : ''
+                  }`}
+                  style={isMobile ? { animationDelay: '350ms', animationFillMode: 'both' } : undefined}
                 >
                   <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors duration-200">
                     <AccordionHeader
@@ -559,7 +580,10 @@ const FilterContent = React.memo(
               {hasAttribute('fuel_type') && (
                 <AccordionItem
                   value="fuel-type"
-                  className="border border-slate-200 dark:border-zinc-800 rounded-lg overflow-hidden bg-white dark:bg-zinc-900 hover:shadow-sm transition-shadow"
+                  className={`border border-slate-200 dark:border-zinc-800 rounded-lg overflow-hidden bg-white dark:bg-zinc-900 hover:shadow-sm transition-shadow ${
+                    isMobile ? 'mobile-fade-in' : ''
+                  }`}
+                  style={isMobile ? { animationDelay: '400ms', animationFillMode: 'both' } : undefined}
                 >
                   <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors duration-200">
                     <AccordionHeader
@@ -584,7 +608,10 @@ const FilterContent = React.memo(
               {hasAttribute('body_type') && (
                 <AccordionItem
                   value="body-type"
-                  className="border border-slate-200 dark:border-zinc-800 rounded-lg overflow-hidden bg-white dark:bg-zinc-900 hover:shadow-sm transition-shadow"
+                  className={`border border-slate-200 dark:border-zinc-800 rounded-lg overflow-hidden bg-white dark:bg-zinc-900 hover:shadow-sm transition-shadow ${
+                    isMobile ? 'mobile-fade-in' : ''
+                  }`}
+                  style={isMobile ? { animationDelay: '450ms', animationFillMode: 'both' } : undefined}
                 >
                   <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors duration-200">
                     <AccordionHeader
@@ -606,7 +633,7 @@ const FilterContent = React.memo(
               )}
 
               {/* Dynamic Filter Sections from Schema */}
-              {filterSchema?.sections.map((section: any) => {
+              {filterSchema?.sections.map((section: any, idx: number) => {
                 if (!section.isActive) return null;
 
                 // Skip if it only contains car-specific attributes we already handled
@@ -622,7 +649,10 @@ const FilterContent = React.memo(
                   <AccordionItem
                     key={section.id}
                     value={`dynamic-section-${section.id}`}
-                    className="border border-slate-200 dark:border-zinc-800 rounded-lg overflow-hidden bg-white dark:bg-zinc-900 hover:shadow-sm transition-shadow"
+                    className={`border border-slate-200 dark:border-zinc-800 rounded-lg overflow-hidden bg-white dark:bg-zinc-900 hover:shadow-sm transition-shadow ${
+                      isMobile ? 'mobile-fade-in' : ''
+                    }`}
+                    style={isMobile ? { animationDelay: `${500 + idx * 50}ms`, animationFillMode: 'both' } : undefined}
                   >
                     <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors duration-200">
                       <AccordionHeader
@@ -779,8 +809,11 @@ const FilterContent = React.memo(
 
 FilterContent.displayName = 'FilterContent';
 
-// Main Filter Component with mobile drawer
-const ProductsFilter: React.FC = React.memo(() => {
+interface ProductsFilterProps {
+  totalResults?: number;
+}
+
+const ProductsFilter: React.FC<ProductsFilterProps> = React.memo(({ totalResults = 0 }) => {
   const locale = useLocale();
   const isRTL = locale === 'ar';
   const t = useTranslations('productsPage');
@@ -1124,7 +1157,7 @@ const ProductsFilter: React.FC = React.memo(() => {
       <Sheet open={isMobileDrawerOpen} onOpenChange={setIsMobileDrawerOpen}>
         <SheetContent
           side={isRTL ? 'right' : 'left'}
-          className="w-full sm:w-[400px] p-0 flex flex-col"
+          className="w-full sm:w-[400px] p-0 flex flex-col relative"
           style={{ zIndex: 10000 }}
         >
           {/* Mobile Header */}
@@ -1157,9 +1190,9 @@ const ProductsFilter: React.FC = React.memo(() => {
             <FilterContent {...filterContentProps} isMobile={true} />
           </div>
 
-          {/* Mobile Footer with Apply Button */}
-          <div className="p-4 border-t border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 space-y-3">
-            <div className="flex items-center justify-between text-sm text-slate-600 dark:text-zinc-400">
+          {/* Mobile Footer with Sticky Floating Show Results Button */}
+          <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-white via-white/95 to-transparent dark:from-zinc-950 dark:via-zinc-950/95 dark:to-transparent backdrop-blur-[2px] pt-8 flex flex-col gap-2.5 z-20 border-t border-slate-200/40 dark:border-zinc-800/40 shadow-[0_-8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_-8px_30px_rgb(0,0,0,0.2)]">
+            <div className="flex items-center justify-between text-xs font-semibold text-slate-600 dark:text-zinc-400 px-1">
               <span>
                 {activeFiltersCount > 0
                   ? t('filter.filtersApplied', {
@@ -1172,21 +1205,16 @@ const ProductsFilter: React.FC = React.memo(() => {
                   variant="ghost"
                   size="sm"
                   onClick={handleResetFilters}
-                  className="text-xs text-slate-600 dark:text-zinc-400 hover:text-primary dark:hover:text-[#ABDE3B] p-1 h-auto"
+                  className="text-xs text-red-500 hover:text-red-600 dark:text-red-400 hover:bg-red-50/50 dark:hover:bg-red-950/20 px-2 h-6 rounded-md"
                 >
                   {t('filter.clearAll')}
                 </Button>
               )}
             </div>
             <SheetClose asChild>
-              <Button className="w-full bg-primary dark:bg-gradient-to-r dark:from-[#198341] dark:to-[#ABDE3B] hover:bg-primary/90 text-white font-semibold h-12 rounded-xl border-none">
-                <Check className="mr-2 h-4 w-4" />
-                {t('filter.applyFilters')}
-                {activeFiltersCount > 0 && (
-                  <span className="ml-2 bg-white dark:bg-zinc-950 text-primary dark:text-[#ABDE3B] px-2 py-0.5 rounded-full text-sm font-bold">
-                    {activeFiltersCount}
-                  </span>
-                )}
+              <Button className="w-full bg-gradient-to-r from-[#198341] to-[#ABDE3B] hover:shadow-lg hover:shadow-emerald-500/20 text-white font-bold h-12 rounded-xl border-none shadow-md transition-all duration-300 transform active:scale-98 flex items-center justify-center gap-2">
+                <Check className="h-4 w-4" />
+                <span>{t('filter.showResults', { count: String(totalResults) })}</span>
               </Button>
             </SheetClose>
           </div>

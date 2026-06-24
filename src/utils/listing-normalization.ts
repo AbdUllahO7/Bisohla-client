@@ -213,6 +213,49 @@ export const normalizeListingToCarDto = (listing: any, locale: string = 'en'): S
     }
   });
 
+  // Mapping damages
+  let damages: any[] = [];
+  if (listing.damages && Array.isArray(listing.damages)) {
+    damages = listing.damages.map((d: any) => ({
+      id: d.id,
+      carListingId: d.carListingId || listing.id,
+      damageZone: d.damageZone || d.damage_zone,
+      damageType: d.damageType || d.damage_type,
+      damage_zone: d.damage_zone || d.damageZone,
+      damage_type: d.damage_type || d.damageType,
+      description: d.description || '',
+      createdAt: d.createdAt,
+      updatedAt: d.updatedAt,
+    }));
+  } else {
+    const damagesAttr = getAttr('damages');
+    if (damagesAttr) {
+      let rawDamages: any[] = [];
+      if (Array.isArray(damagesAttr.valueJson)) {
+        rawDamages = damagesAttr.valueJson;
+      } else if (typeof damagesAttr.valueText === 'string') {
+        try {
+          rawDamages = JSON.parse(damagesAttr.valueText);
+        } catch (e) {
+          console.error('Failed to parse damages JSON text', e);
+        }
+      }
+      if (Array.isArray(rawDamages)) {
+        damages = rawDamages.map((d: any, index: number) => ({
+          id: d.id || index,
+          carListingId: listing.id,
+          damageZone: d.damageZone || d.damage_zone,
+          damageType: d.damageType || d.damage_type,
+          damage_zone: d.damage_zone || d.damageZone,
+          damage_type: d.damage_type || d.damageType,
+          description: d.description || '',
+          createdAt: d.createdAt || listing.createdAt,
+          updatedAt: d.updatedAt || listing.updatedAt,
+        }));
+      }
+    }
+  }
+
   // Extract translation for title, description, story
   const translations = listing.translations || {};
   let currentTranslation: any = {};
@@ -349,6 +392,7 @@ export const normalizeListingToCarDto = (listing: any, locale: string = 'en'): S
       updatedAt: trimAttr?.referenceItem?.updatedAt || listing.trim?.updatedAt || '',
       deletedAt: null
     } : undefined,
+    damages: damages,
     statics: {
         id: listing.id,
         carListingId: listing.id,
