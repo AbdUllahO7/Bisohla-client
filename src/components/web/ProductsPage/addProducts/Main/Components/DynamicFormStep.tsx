@@ -27,10 +27,12 @@ import {
   SyriaCity_ARABIC_NAMES, 
   SyriaGovernorate_TO_CITIES 
 } from '@/core/entities/enums/syria.enums';
+import CarBlueprint from '../../../product/CarBlueprint';
+
 // --- Sub-components for specialized rendering ---
 
 /**
- * Renders a specialized matrix table for car damages
+ * Renders an interactive visual car blueprint for mapping damages
  * Specifically for types like 'repeating_group' with zone/type selects
  */
 const DamageMatrix: React.FC<{
@@ -43,97 +45,150 @@ const DamageMatrix: React.FC<{
   const zoneAttr = attribute.childAttributes?.find((a: any) => a.slug === 'damage_zone');
   const typeAttr = attribute.childAttributes?.find((a: any) => a.slug === 'damage_type');
 
+  const [selectedZoneId, setSelectedZoneId] = React.useState<string | null>(null);
+  const [selectedZoneLabel, setSelectedZoneLabel] = React.useState<string>('');
+
   if (!zoneAttr || !typeAttr) return null;
 
   const zones = zoneAttr.options || [];
   const types = typeAttr.options || [];
 
-  // Map types to colors from the previous design
-  const getColor = (typeId: string) => {
-    const id = typeId.toLowerCase();
-    if (id.includes('paint') || id.includes('طلاء')) return 'bg-[#198341]'; // Green
-    if (id.includes('scratch') || id.includes('خدش')) return 'bg-[#5e6adb]'; // Blue
-    if (id.includes('replacement') || id.includes('استبدال')) return 'bg-[#b861e6]'; // Purple
-    return 'bg-gray-400';
+  const handleZoneSelect = (schemaZoneId: string, label: string) => {
+    setSelectedZoneId(schemaZoneId);
+    setSelectedZoneLabel(label);
   };
 
-  const handleToggle = (zoneId: string, typeId: string) => {
-    const existing = value.find((v: any) => v.damage_zone === zoneId);
-    let newValue = [...value];
+  const existingDamage = selectedZoneId ? value.find(v => v.damage_zone === selectedZoneId) : null;
 
-    if (existing) {
-      if (existing.damage_type === typeId) {
-        // Toggle off
-        newValue = newValue.filter((v: any) => v.damage_zone !== zoneId);
+  const handleTypeSelect = (typeId: string) => {
+    if (!selectedZoneId) return;
+    
+    let newValue = [...value];
+    const existingIndex = value.findIndex(v => v.damage_zone === selectedZoneId);
+    
+    if (existingIndex > -1) {
+      if (value[existingIndex].damage_type === typeId) {
+        // Toggle off if clicking the same type
+        newValue = newValue.filter(v => v.damage_zone !== selectedZoneId);
       } else {
-        // Change type
-        newValue = newValue.map((v: any) => 
-          v.damage_zone === zoneId ? { ...v, damage_type: typeId } : v
-        );
+        // Update type
+        newValue[existingIndex] = { ...newValue[existingIndex], damage_type: typeId };
       }
     } else {
-      // Add new
-      newValue.push({ damage_zone: zoneId, damage_type: typeId });
+      // Add new selection
+      newValue.push({ damage_zone: selectedZoneId, damage_type: typeId });
     }
     onChange(newValue);
   };
 
+  const handleClearDamage = () => {
+    if (!selectedZoneId) return;
+    const newValue = value.filter(v => v.damage_zone !== selectedZoneId);
+    onChange(newValue);
+  };
+
   return (
-    <div className="w-full overflow-hidden rounded-xl border border-gray-100 dark:border-zinc-800 shadow-sm bg-white dark:bg-zinc-900" dir={isArabic ? 'rtl' : 'ltr'}>
-      <table className="w-full border-collapse">
-        <thead className="bg-gray-100/80 dark:bg-zinc-800/80">
-          <tr>
-            <th className="py-4 px-4 text-sm font-bold text-gray-500 dark:text-zinc-400 text-center w-1/4 border-b border-gray-200 dark:border-zinc-800">
-              {isArabic ? "اسم القسم" : "Section Name"}
-            </th>
-            {types.map((type: any) => (
-              <th key={type.id} className="py-4 px-2 border-b border-gray-200 dark:border-zinc-800">
-                <div className={cn(
-                  "flex items-center justify-center gap-2 px-4 py-2 rounded-full text-white text-xs font-bold shadow-sm mx-auto",
-                  getColor(type.id)
-                )}>
-                  <div className="w-4 h-4 rounded-full border-2 border-white/50" />
-                  {getTranslation(type.label || type.name)}
-                </div>
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {zones.map((zone: any, idx: number) => {
-            const zoneValue = value.find(v => v.damage_zone === zone.id);
-            return (
-              <tr key={zone.id} className={cn(idx % 2 === 0 ? "bg-white dark:bg-zinc-900" : "bg-gray-50/30 dark:bg-zinc-800/20")}>
-                <td className={cn(
-                  "py-4 px-6 text-sm font-semibold text-gray-700 dark:text-zinc-300 border-b border-gray-100 dark:border-zinc-800",
-                  isArabic ? "text-right" : "text-left"
-                )}>
-                  {getTranslation(zone.label || zone.name)}
-                </td>
+    <div className="w-full flex flex-col lg:flex-row gap-8 items-stretch" dir={isArabic ? 'rtl' : 'ltr'}>
+      {/* Visual blueprint section */}
+      <div className="flex-1 bg-gray-50/50 dark:bg-zinc-950/20 p-6 rounded-2xl border border-slate-100 dark:border-zinc-800 flex flex-col items-center justify-center">
+        <Text className="text-sm font-bold text-gray-700 dark:text-zinc-300 mb-4 text-center">
+          {isArabic ? "انقر على أي جزء من هيكل السيارة لتحديد الأضرار" : "Click on any car panel to mark damage"}
+        </Text>
+        <div className="w-full max-w-[280px]">
+          <CarBlueprint
+            damages={value}
+            selectedZone={selectedZoneId}
+            onZoneSelect={handleZoneSelect}
+            isInteractive={true}
+          />
+        </div>
+      </div>
+      
+      {/* Control panel section */}
+      <div className="w-full lg:w-[350px] bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-2xl p-6 shadow-sm flex flex-col min-h-[350px]">
+        {selectedZoneId ? (
+          <div className="flex flex-col h-full justify-between">
+            <div>
+              <div className="flex items-center gap-2 border-b pb-4 mb-5 dark:border-zinc-800">
+                <div className="w-1.5 h-4 bg-gradient-to-b from-[#198341] to-[#ABDE3B] rounded-full" />
+                <Text className="font-bold text-gray-800 dark:text-white text-lg">
+                  {selectedZoneLabel}
+                </Text>
+              </div>
+              
+              <Text className="text-xs text-gray-400 font-medium mb-3 block">
+                {isArabic ? "اختر نوع الضرر المكتشف:" : "Select type of damage detected:"}
+              </Text>
+              
+              <div className="flex flex-col gap-3">
                 {types.map((type: any) => {
-                  const isSelected = zoneValue?.damage_type === type.id;
+                  const isSelected = existingDamage?.damage_type === type.id;
+                  const typeLabel = getTranslation(type.label || type.name);
+                  
+                  // Setup styles matching the damage colors
+                  let btnStyle = "";
+                  const typeIdLower = type.id.toLowerCase();
+                  if (typeIdLower.includes('paint') || typeIdLower.includes('طلاء')) {
+                    btnStyle = isSelected 
+                      ? "bg-emerald-500 hover:bg-emerald-600 text-white border-emerald-500" 
+                      : "hover:bg-emerald-50 dark:hover:bg-emerald-950/20 text-emerald-600 border-emerald-200 dark:border-emerald-900";
+                  } else if (typeIdLower.includes('scratch') || typeIdLower.includes('خدش')) {
+                    btnStyle = isSelected 
+                      ? "bg-blue-500 hover:bg-blue-600 text-white border-blue-500" 
+                      : "hover:bg-blue-50 dark:hover:bg-blue-950/20 text-blue-600 border-blue-200 dark:border-blue-900";
+                  } else if (typeIdLower.includes('replacement') || typeIdLower.includes('استبدال')) {
+                    btnStyle = isSelected 
+                      ? "bg-purple-500 hover:bg-purple-600 text-white border-purple-500" 
+                      : "hover:bg-purple-50 dark:hover:bg-purple-950/20 text-purple-600 border-purple-200 dark:border-purple-900";
+                  } else {
+                    btnStyle = isSelected 
+                      ? "bg-amber-500 text-white border-amber-500" 
+                      : "hover:bg-amber-50 text-amber-600 border-amber-200";
+                  }
+                  
                   return (
-                    <td key={type.id} className="py-4 px-2 text-center border-b border-gray-100 dark:border-zinc-800">
-                      <button
-                        type="button"
-                        onClick={() => handleToggle(zone.id, type.id)}
-                        className={cn(
-                          "w-6 h-6 rounded-full border-2 transition-all duration-200 flex items-center justify-center mx-auto",
-                          isSelected 
-                            ? "border-[#198341] bg-white dark:bg-zinc-900 scale-110 shadow-sm" 
-                            : "border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:border-[#198341]/50"
-                        )}
-                      >
-                        {isSelected && <div className="w-3 h-3 rounded-full bg-[#198341]" />}
-                      </button>
-                    </td>
+                    <button
+                      key={type.id}
+                      type="button"
+                      onClick={() => handleTypeSelect(type.id)}
+                      className={cn(
+                        "w-full h-11 border rounded-xl flex items-center justify-center font-bold text-sm transition-all duration-200",
+                        btnStyle
+                      )}
+                    >
+                      {typeLabel}
+                    </button>
                   );
                 })}
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+              </div>
+            </div>
+            
+            {existingDamage && (
+              <button
+                type="button"
+                onClick={handleClearDamage}
+                className="w-full h-11 border border-red-200 dark:border-red-950/50 hover:bg-red-50 dark:hover:bg-red-950/20 text-red-500 hover:text-red-600 font-bold text-sm rounded-xl mt-6 transition-all"
+              >
+                {isArabic ? "إزالة هذا الضرر" : "Clear Damage"}
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="flex-1 flex flex-col items-center justify-center py-10 text-center">
+            <div className="w-16 h-16 rounded-full bg-slate-50 dark:bg-zinc-800 flex items-center justify-center mb-4 border border-dashed border-slate-200 dark:border-zinc-700">
+              <span className="text-xl">📍</span>
+            </div>
+            <Text className="font-bold text-slate-800 dark:text-zinc-200 text-sm mb-1">
+              {isArabic ? "لم يتم تحديد أي جزء" : "No section selected"}
+            </Text>
+            <Text className="text-xs text-slate-400 dark:text-zinc-500 max-w-[200px] leading-relaxed">
+              {isArabic 
+                ? "انقر على أي جزء من هيكل السيارة في النموذج للبدء." 
+                : "Click on any car panel in the model to start marking."}
+            </Text>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
