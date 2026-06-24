@@ -17,7 +17,9 @@
     "fuel": "الوقود",
     "transmission": "ناقل الحركة",
     "mileage": "المسافة المقطوعة",
-    "backToList": "العودة للقوائم"
+    "backToList": "العودة للقوائم",
+    "highlightDifferences": "تظليل الاختلافات",
+    "comparingCount": "مقارنة {count} عناصر"
   },
   "homePage": {
     "lang": "ar",

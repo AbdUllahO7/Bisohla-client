@@ -17,7 +17,9 @@
     "fuel": "Fuel",
     "transmission": "Transmission",
     "mileage": "Mileage",
-    "backToList": "Back to listings"
+    "backToList": "Back to listings",
+    "highlightDifferences": "Highlight differences",
+    "comparingCount": "Comparing {count} items"
   },
   "homePage": {
     "featuredListings": "Featured Listings",
