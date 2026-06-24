@@ -459,6 +459,7 @@
       "filtersApplied_other": "{count} filters applied",
       "noFiltersApplied": "No filters applied",
       "applyFilters": "Apply Filters",
+      "showResults": "Show {count} Results",
       "search": {
         "brands": "Search brands...",
         "models": "Search models...",

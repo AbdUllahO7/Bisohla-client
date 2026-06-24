@@ -456,6 +456,7 @@
       "filtersApplied_other": "تم تطبيق {count} مرشحات",
       "noFiltersApplied": "لم يتم تطبيق أي مرشحات",
       "applyFilters": "تطبيق المرشحات",
+      "showResults": "إظهار {count} نتيجة",
       "search": {
         "brands": "البحث عن العلامات التجارية...",
         "models": "البحث عن الموديلات...",
