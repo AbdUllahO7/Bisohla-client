@@ -9,6 +9,7 @@ import { useLocale } from 'next-intl';
 import Image from 'next/image';
 import { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import ProductImageViewer from './ProductImageViewer';
 
 // Updated interface to match your API type
 interface CarImage {
@@ -295,15 +296,13 @@ const ProductImages: React.FC<ProductImagesProps> = ({
           variant="column"
           className="w-full items-center md:items-start md:flex-row gap-3 hidden md:flex"
         >
-          {/* Main Image */}
+          {/* Main Image – 360° viewer with optional hotspots */}
           <Box className="w-full md:w-[60%] lg:w-[70%] xl:w-[75%]">
-            <Image
-              src={primaryImage || '/placeholder.svg'}
-              alt="Car"
-              width={700}
-              height={500}
-              className="w-full rounded-md cursor-pointer object-contain max-h-[300px] sm:max-h-[400px] md:max-h-[520px]"
-              onClick={() => openCarousel(allImageUrls.indexOf(primaryImage))}
+            <ProductImageViewer
+              images={allImageUrls}
+              primaryIndex={allImageUrls.indexOf(primaryImage)}
+              hotspots={[]}
+              altPrefix="Car"
             />
           </Box>
 

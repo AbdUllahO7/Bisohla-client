@@ -34,19 +34,19 @@ const ComparePage = () => {
   }, [data, compareIds]);
 
   return (
-    <div className="min-h-screen bg-gray-50/50 py-12">
+    <div className="min-h-screen bg-gray-50/50 dark:bg-zinc-950 py-12">
       <Box variant="container">
         <div className="flex flex-col gap-8">
           {/* Header */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <Link href="/products">
-                <Button variant="ghost" size="icon" className="rounded-full hover:bg-white shadow-sm border border-emerald-50">
+                <Button variant="ghost" size="icon" className="rounded-full hover:bg-white dark:hover:bg-zinc-800 shadow-sm border border-emerald-50 dark:border-zinc-700">
                   <ArrowLeft size={20} className="text-emerald-700" />
                 </Button>
               </Link>
               <div>
-                <Text variant="h1" className="text-3xl font-bold text-gray-900 font-cairo">
+                <Text variant="h1" className="text-3xl font-bold text-gray-900 dark:text-gray-100 font-cairo">
                   {t('title')}
                 </Text>
                 <div className="flex items-center gap-2 mt-1">
@@ -61,7 +61,7 @@ const ComparePage = () => {
 
           {/* Loading State */}
           {isLoading && compareIds.length > 0 && (
-            <div className="bg-white p-8 rounded-3xl shadow-xl mt-4">
+            <div className="bg-white dark:bg-zinc-900 p-8 rounded-3xl shadow-xl mt-4">
               <ProductSkeleton count={maxCompare} showTitle={false} />
             </div>
           )}
@@ -73,12 +73,12 @@ const ComparePage = () => {
             </div>
           ) : !isLoading && compareIds.length === 0 ? (
             /* Empty State */
-            <div className="flex flex-col items-center justify-center py-20 bg-white rounded-[40px] shadow-xl border border-emerald-50 max-w-2xl mx-auto w-full px-6 text-center animate-in zoom-in duration-500">
-              <div className="w-24 h-24 bg-emerald-50 rounded-full flex items-center justify-center mb-6 shadow-inner">
+            <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-zinc-900 rounded-[40px] shadow-xl border border-emerald-50 dark:border-zinc-700 max-w-2xl mx-auto w-full px-6 text-center animate-in zoom-in duration-500">
+              <div className="w-24 h-24 bg-emerald-50 dark:bg-emerald-950 rounded-full flex items-center justify-center mb-6 shadow-inner">
                 <CarFront size={48} className="text-emerald-300" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-3">{t('noCarsTitle')}</h2>
-              <p className="text-gray-500 mb-8 max-w-sm">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">{t('noCarsTitle')}</h2>
+              <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-sm">
                 {t('noCarsDesc')}
               </p>
               <Link href="/products">
