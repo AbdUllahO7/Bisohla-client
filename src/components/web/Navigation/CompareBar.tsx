@@ -41,9 +41,9 @@ const CompareBar = () => {
         exit={{ y: 100, opacity: 0 }}
         className="fixed bottom-20 left-0 right-0 z-[90] px-4 lg:bottom-8"
       >
-        <div className="max-w-4xl mx-auto bg-white/90 backdrop-blur-md shadow-2xl border border-emerald-100 rounded-2xl p-4 flex items-center justify-between gap-4">
+        <div className="max-w-4xl mx-auto bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md shadow-2xl border border-emerald-100 dark:border-zinc-700 rounded-2xl p-4 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 overflow-x-auto no-scrollbar py-1">
-            <div className="hidden sm:flex items-center gap-2 text-emerald-700 bg-emerald-50 px-3 py-2 rounded-xl mr-2">
+            <div className="hidden sm:flex items-center gap-2 text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950 px-3 py-2 rounded-xl mr-2">
               <Scale size={20} />
               <span className="font-bold whitespace-nowrap">
                 {compareIds.length} / {maxCompare}
@@ -76,7 +76,7 @@ const CompareBar = () => {
             {/* Skeletons while loading */}
             {isLoading && compareIds.length > selectedCars.length && 
               Array.from({ length: compareIds.length - selectedCars.length }).map((_, i) => (
-                <div key={i} className="w-12 h-12 rounded-xl bg-gray-200 animate-pulse" />
+                <div key={i} className="w-12 h-12 rounded-xl bg-gray-200 dark:bg-zinc-700 animate-pulse" />
               ))
             }
           </div>
@@ -86,13 +86,13 @@ const CompareBar = () => {
               variant="ghost"
               size="sm"
               onClick={clearCompare}
-              className="hidden md:flex text-gray-500 hover:text-red-500"
+              className="hidden md:flex text-gray-500 dark:text-zinc-400 hover:text-red-500 dark:hover:text-red-400"
             >
               {t('clearAll')}
             </Button>
             
             <Link href="/compare">
-              <Button className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl px-6 flex items-center gap-2 shadow-lg shadow-emerald-200 group">
+              <Button className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl px-6 flex items-center gap-2 shadow-lg shadow-emerald-200 dark:shadow-emerald-900/40 group">
                 <span className="font-bold">{t('compareNow')}</span>
                 <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
               </Button>
