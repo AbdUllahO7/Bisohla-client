@@ -262,6 +262,7 @@ const config: Config = {
         projectImageAnimation: 'projectImageAnimation 6s ease-in-out infinite',
         testimonial: 'testimonial 4s ease-in-out infinite',
         'progress-bar': 'progress-bar 2s ease-out',
+        'spin-slow': 'spin 3s linear infinite',
       },
       fontFamily: {
         cairo: ['Cairo', 'sans-serif'],
