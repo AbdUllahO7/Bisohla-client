@@ -156,8 +156,8 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
           {/* Header */}
           <div className="w-full bg-[#198341] p-4 border-b border-gray-100 dark:border-zinc-800 relative overflow-hidden z-10">
             <Text className="font-bold font-cairo text-white text-base tracking-wide relative z-10 flex items-center gap-2">
-              <span className="w-1 h-5 bg-[#ABDE3B] rounded-full"></span>
-              {locale === 'ar' ? 'معلومات المنتج' : 'Product Info'}
+              <span className="w-1.5 h-5 bg-[#ABDE3B] rounded-full"></span>
+              {productT('infoTitle')}
             </Text>
           </div>
 
@@ -204,7 +204,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
             
             <Text className="font-bold font-cairo text-white text-lg tracking-wide relative z-10 flex items-center gap-2">
               <span className="w-1.5 h-6 bg-[#ABDE3B] rounded-full"></span>
-              {locale === 'ar' ? 'معلومات المنتج' : 'Product Info'}
+              {productT('infoTitle')}
             </Text>
           </div>
 

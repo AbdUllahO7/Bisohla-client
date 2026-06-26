@@ -12,8 +12,7 @@ import { getCarListingById } from '@/core/infrastructure-adapters/actions/visito
 import { getListingBySlug, getListingById } from '@/core/infrastructure-adapters/actions/visitors/listing.visitor.actions';
 import { getSession } from '@/core/lib/web/session';
 import { normalizeListingToCarDto } from '@/utils/listing-normalization';
-import ProductClient from './product-client';
-import MobileProductClient from './mobile-product-client';
+import ProductDetailSwitcher from './product-detail-switcher';
 import { APP_URL } from '@/core/lib/web/constants';
 import SimilarAds from '@/components/web/ProductsPage/product/SimilarAds';
 import SimilarCarAlertBanner from '@/components/web/ProductsPage/product/SimilarCarAlertBanner';
@@ -187,27 +186,13 @@ const ProductPage = async ({ params, searchParams }: ProductPageProps) => {
 
     return (
       <>
-        {/* Desktop Version */}
-        <div className="hidden md:block">
-          <ProductClient
-            carDataRes={carResponse}
-            rawListing={rawListing}
-            isAuthenticated={isAuthenticated}
-            locale={locale}
-            isProfileView={isProfileView}
-          />
-        </div>
-
-        {/* Mobile Version */}
-        <div className="block md:hidden">
-          <MobileProductClient
-            carDataRes={carResponse}
-            rawListing={rawListing}
-            isAuthenticated={isAuthenticated}
-            locale={locale}
-            isProfileView={isProfileView}
-          />
-        </div>
+        <ProductDetailSwitcher
+          carDataRes={carResponse}
+          rawListing={rawListing}
+          isAuthenticated={isAuthenticated}
+          locale={locale}
+          isProfileView={isProfileView}
+        />
 
         {/* Ad Section */}
         <div className="container">

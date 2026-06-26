@@ -9,7 +9,7 @@ import { Heart, MessageCircle, PhoneCall, LogIn } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import { useState } from 'react';
-import { toggleListingFavorite } from '@/core/infrastructure-adapters/actions/users/listing.user.actions';
+import { toggleFavorite as toggleListingFavorite } from '@/utils/offline-favorites-manager';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { SaveStatus } from '@/core/entities/enums/cars.enums';

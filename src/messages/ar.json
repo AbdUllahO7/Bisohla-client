@@ -60,6 +60,28 @@
       "ContactUs": "اتصل بنا",
       "News": "الأخبار"
     },
+    "footer": {
+      "brandName": "بسهولة",
+      "mainTitle": "العنوان الرئيسي",
+      "createAd": "أنشىء اعلان",
+      "createRentalAd": "إنشىء إعلان تأجير",
+      "createSaleAd": "أنشىء إعلان بيع",
+      "createAccount": "أنشىء حساب",
+      "privacyPolicy": "سياسة الخصوصية",
+      "adCreationPolicy": "سياسة انشاء الاعلان",
+      "dataProtectionPolicy": "سياسية حماية البيانات",
+      "homePage": "الصفحة الرئيسية",
+      "rent": "الاستئجار",
+      "sale": "البيع",
+      "subscribeNewsletter": "اشترك في النشرة الإخبارية لدينا",
+      "newsletterDesc": "ابق على اطلاع على آخر الأخبار والعروض الحصرية والتحديثات المثيرة",
+      "email": "البريد الالكتروني",
+      "subscribe": "اشتراك",
+      "availableOn": "متوفر على",
+      "appStore": "App Store",
+      "playStore": "Google Play",
+      "getItOn": "احصل عليه من"
+    },
     "hero": {
       "title": "بسهولة",
       "description": "بيع . شراء . تأجير . استئجار"
@@ -479,6 +501,20 @@
       "selectionsFromUrl": "تم تحميل الاختيارات من معاملات الرابط",
       "title": "عن ماذا تبحث",
       "searchInput": "بحث",
+      "autocomplete": {
+        "recentSearches": "عمليات البحث الأخيرة",
+        "clearHistory": "مسح الكل",
+        "popularTags": "فلاتر سريعة",
+        "noRecentSearches": "لا توجد عمليات بحث أخيرة",
+        "tags": {
+          "forSale": "للبيع",
+          "forRent": "للإيجار",
+          "automatic": "أوتوماتيك",
+          "suvs": "دفع رباعي (SUV)",
+          "sedans": "سيدان",
+          "under10k": "أقل من $10K"
+        }
+      },
       "filterOptions": {
         "bodyType": {
           "placeholder": "نوع الهيكل"
@@ -589,6 +625,7 @@
     }
   },
   "product": {
+    "infoTitle": "معلومات المنتج",
     "whatsapp": "واتساب",
     "call": "اتصل",
     "authRequired": "مطلوب تسجيل الدخول",
@@ -1152,6 +1189,10 @@
       "description": "إدارة قوائم الإعلانات المحفوظة",
       "itemsCount": "عنصر",
       "searchPlaceholder": "البحث في المفضلة...",
+      "offline": {
+        "savedOffline": "تم حفظ التفضيل محلياً. ستتم المزامنة تلقائياً عند الاتصال بالإنترنت.",
+        "syncSuccess": "تمت مزامنة المفضلة مع الحساب بنجاح."
+      },
       "filters": {
         "all": "جميع الأنواع",
         "forSale": "للبيع",

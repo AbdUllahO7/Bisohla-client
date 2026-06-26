@@ -22,13 +22,14 @@ import {
   Bath,
   Home,
   Ruler,
+  AlertTriangle,
 } from 'lucide-react';
 import { resolveAttributeValue } from '@/utils/listing-normalization';
 
 import { Button } from '@/components/ui/button';
 import { Link } from '@/i18n/routing';
 import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions';
-import { toggleListingFavorite } from '@/core/infrastructure-adapters/actions/users/listing.user.actions';
+import { toggleFavorite as toggleListingFavorite, cacheListing } from '@/utils/offline-favorites-manager';
 import { useTranslations, useLocale } from 'next-intl';
 import {
   getFuelTypeOptions,
@@ -50,6 +51,13 @@ interface RentProductListCardProps {
   priceWord?: string;
   enableViewTracking?: boolean;
 }
+
+const TRANSLATION_KEYS: Record<string, Set<string>> = {
+  fuel_type: new Set(['gasoline', 'diesel', 'electric', 'hybrid', 'plug_in_hybrid', 'gasoline_gas', 'petrol']),
+  transmission: new Set(['automatic', 'manual', 'semi_automatic', 'cvt']),
+  body_type: new Set(['suv', 'sedan', 'hatchback', 'coupe', 'grand_coupe', 'convertible', 'wagon', 'station_wagon', 'van', 'minivan', 'pickup', 'other']),
+  condition: new Set(['new', 'used', 'certified_pre_owned'])
+};
 
 // List-style CardItem Component for mobile
 export const RentProductListCard: React.FC<RentProductListCardProps> = ({
@@ -74,6 +82,7 @@ export const RentProductListCard: React.FC<RentProductListCardProps> = ({
   // Get translators for different namespaces
   const productT = useTranslations('product');
   const bodyTypeT = useTranslations('addProduct.enteredData.stepTwo');
+  const commonT = useTranslations('common');
 
   // Use the custom card view tracking hook with owner protection
   const { hasTrackedView } = useCardViewTracking({
@@ -152,7 +161,7 @@ export const RentProductListCard: React.FC<RentProductListCardProps> = ({
     const rawAttrValues = (car as any).rawListing?.attributeValues || [];
 
     if (rawAttrValues.length > 0) {
-      return rawAttrValues
+      const detailsList = rawAttrValues
         .map((av: any) => {
           let value = resolveAttributeValue(av, locale);
           const iconUrl = av.attribute?.iconUrl;
@@ -166,17 +175,21 @@ export const RentProductListCard: React.FC<RentProductListCardProps> = ({
 
           // Translate slug values if they exist in the stepTwo translation namespace
           if (slug === 'fuel_type' || slug === 'transmission' || slug === 'body_type' || slug === 'condition') {
-            try {
-              const translationKey = slug === 'fuel_type' 
-                ? `fuelType.${value}` 
-                : slug === 'transmission' 
-                ? `transmission.${value}` 
-                : slug === 'body_type' 
-                ? `bodyType.${value}` 
-                : `vehicleCondition.${value}`;
-              value = bodyTypeT(translationKey);
-            } catch (e) {
-              // Fall back to resolved value
+            const keys = TRANSLATION_KEYS[slug];
+            const lowerVal = value?.toLowerCase();
+            if (keys && keys.has(lowerVal)) {
+              try {
+                const translationKey = slug === 'fuel_type' 
+                  ? `fuelType.${lowerVal === 'petrol' ? 'gasoline' : lowerVal}` 
+                  : slug === 'transmission' 
+                  ? `transmission.${lowerVal}` 
+                  : slug === 'body_type' 
+                  ? `bodyType.${lowerVal}` 
+                  : `vehicleCondition.${lowerVal}`;
+                value = bodyTypeT(translationKey);
+              } catch (e) {
+                // Fall back to resolved value
+              }
             }
           }
 
@@ -202,14 +215,29 @@ export const RentProductListCard: React.FC<RentProductListCardProps> = ({
             slug,
             icon,
             value,
+            type: av.attribute?.type,
           };
         })
         .filter((item: any) => {
           return (
             item.value &&
-            !item.slug.startsWith('features_')
+            !item.slug.startsWith('features_') &&
+            item.slug !== 'damages' &&
+            item.slug !== 'damage' &&
+            item.type !== 'repeating_group'
           );
         });
+
+      // Add a clean formatted damages badge if there are damages
+      if (car.damages && car.damages.length > 0) {
+        detailsList.push({
+          slug: 'damages',
+          icon: <AlertTriangle className="h-3 w-3 text-orange-500" />,
+          value: `${car.damages.length} ${commonT('damageReported')}`,
+        });
+      }
+
+      return detailsList;
     }
 
     const fallback = [];
@@ -245,6 +273,21 @@ export const RentProductListCard: React.FC<RentProductListCardProps> = ({
   useEffect(() => {
     setFavoriteStatus(isMarkedFavorite);
   }, [isMarkedFavorite, productId]);
+
+  // Cache listing details for offline favorites lookup
+  useEffect(() => {
+    if (productId) {
+      cacheListing({
+        id: Number(productId),
+        title: title || '',
+        price: Number(price) || 0,
+        listingOfferType: listingType || 'for_rent',
+        makeName: make?.name || '',
+        imageSrc: imageSrc || '',
+        slug: car.slug || '',
+      });
+    }
+  }, [productId, title, price, listingType, make?.name, imageSrc, car.slug]);
 
   const handleFavoriteClick = async (e: React.MouseEvent) => {
     e.stopPropagation();

@@ -74,7 +74,26 @@ export const useGetListingFavorites = (params: QueryParams) => {
 
   return useLocaleQuery<PaginatedResponse<UserFavoriteListing>>({
     queryKey: ['user-favorite-listings', user.id, params],
-    queryFn: async () => await getListingFavorites(params),
+    queryFn: async () => {
+      const userId = user.id || params.userId || (typeof window !== 'undefined' ? Number(localStorage.getItem('bishola_current_user_id') || 0) : 0);
+      
+      if (typeof window !== 'undefined' && !navigator.onLine && userId) {
+        const { getOfflineFavorites } = await import('@/utils/offline-favorites-manager');
+        const cached = getOfflineFavorites(userId);
+        if (cached) {
+          return cached;
+        }
+      }
+      
+      const response = await getListingFavorites(params);
+      
+      if (typeof window !== 'undefined' && response && userId) {
+        const { saveOfflineFavorites } = await import('@/utils/offline-favorites-manager');
+        saveOfflineFavorites(userId, response);
+      }
+      
+      return response;
+    },
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
   });
@@ -99,7 +118,10 @@ export const useToggleListingFavorite = () =>
     Error,
     ToggleFavoriteListingDto
   >({
-    mutationFn: async (toggleDto) => await toggleListingFavorite(toggleDto),
+    mutationFn: async (toggleDto) => {
+      const { toggleFavorite } = await import('@/utils/offline-favorites-manager');
+      return await toggleFavorite(toggleDto.listingId);
+    },
     onError: (error) => {
       console.error('Failed to toggle listing favorite status:', error);
     },
