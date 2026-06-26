@@ -1,35 +1,18 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import Box from '@/components/ui/box';
 import Text from '@/components/ui/text';
 import { useTranslations } from 'next-intl';
 import SmartBreadcrumb from '@/components/shared/smart-breadcrumbs';
 import { useCarAlerts } from '@/core/infrastructure-adapters/use-actions/users/car-alert.user.use-actions';
-import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions';
-import { useRouter } from '@/i18n/routing';
 import { CarAlertItem } from '@/components/web/CarAlerts/CarAlertItem';
 import { Skeleton } from '@/components/ui/skeleton';
-import { toast } from '@/hooks/use-toast';
 import { Bell, Plus } from 'lucide-react';
 import { Link } from '@/i18n/routing';
+import { SelectCarAlertDto } from '@/core/entities/models/car-alerts/car-alerts.dto';
 
 const CarAlertsPage = () => {
     const t = useTranslations('carAlerts');
-    const router = useRouter();
-    const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-
-    useEffect(() => {
-        const verifyAuth = async () => {
-            const res = await checkAuth();
-            if (!res.success) {
-                router.push('/');
-            } else {
-                setIsAuthenticated(true);
-            }
-        };
-        verifyAuth();
-    }, [router]);
 
     const { data, isLoading, refetch } = useCarAlerts({
         pageSize: 50,
@@ -39,7 +22,7 @@ const CarAlertsPage = () => {
 
     const alerts = data?.data?.data || [];
 
-    if (isAuthenticated === null || isLoading) {
+    if (isLoading) {
         return (
             <Box variant="container" className="py-10">
                 <Skeleton className="h-10 w-48 mb-6" />
@@ -96,7 +79,7 @@ const CarAlertsPage = () => {
                     </Box>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {alerts.map((alert: any) => (
+                        {alerts.map((alert: SelectCarAlertDto) => (
                             <CarAlertItem key={alert.id} alert={alert} onUpdate={refetch} />
                         ))}
                     </div>

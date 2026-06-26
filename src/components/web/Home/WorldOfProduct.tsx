@@ -6,7 +6,7 @@ import Text from "@/components/ui/text"
 import { useRouter } from "next/navigation"
 import { useTranslations, useLocale } from "next-intl"
 import CarouselComponent from "../design/CarouselComponent"
-import { useProductStepOne } from "@/components/web/ProductsPage/addProducts/StepOne/hooks"
+import { getGovernorateOptions } from "@/components/web/ProductsPage/addProducts/StepOne/utils"
 import { useGetCityCounts } from "@/core/infrastructure-adapters/use-actions/visitors/car.visitor.use-actions"
 import SectionHeader from "@/components/shared/SectionHeader"
 import {  SearchCodeIcon } from "lucide-react"
@@ -30,11 +30,8 @@ const WorldOfProduct = () => {
   const direction = locale === "ar" ? "rtl" : "ltr"
   const router = useRouter()
 
-  // Initialize the hook with a dummy validation handler
-  const handleValidationChange = (isValid: boolean) => {}
-
-  // Use the hook to get governorate options
-  const { governorateOptions } = useProductStepOne(handleValidationChange)
+  // Get governorate options statically
+  const governorateOptions = useMemo(() => getGovernorateOptions(locale === "ar"), [locale]);
 
   const { data, isLoading, error } = useGetCityCounts()
 
