@@ -3,7 +3,7 @@ import Box from '@/components/ui/box';
 import Text from '@/components/ui/text';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { Link } from '@/i18n/routing';
 import React from 'react';
@@ -11,8 +11,8 @@ import Logo from '@/components/shared/logo';
 import { useSettings } from '@/providers/settings.provider';
 import { Skeleton } from '@/components/ui/skeleton';
 
-const Footer = ({ isUserProfile }: { isUserProfile?: boolean }) => {
-  const locale = useLocale(); // Get the current language
+const Footer = () => {
+  const t = useTranslations('homePage.footer');
   const { getCopyrightMessage, isLoading, getAppSettings, getSocialLinks } =
     useSettings();
 
@@ -36,18 +36,16 @@ const Footer = ({ isUserProfile }: { isUserProfile?: boolean }) => {
           className="items-start justify-start gap-8 md:w-[300px] sm:w-[400px] xs:w-[400px] lg:mt-0 lg:items-start xs:items-center xs:mt-5"
         >
           <Text variant="h4" className="text-primary dark:text-[#ABDE3B] font-bold">
-            {locale === 'ar' ? 'أنشىء اعلان' : 'Create Ad'}
+            {t('createAd')}
           </Text>
           <Link href="/products/AddProducts" className="text-primary dark:text-zinc-300 hover:text-primary-light dark:hover:text-[#ABDE3B] transition-colors">
-            {locale === 'ar'
-              ? 'إنشىء إعلان تأجير'
-              : 'Create a rental ad'}
+            {t('createRentalAd')}
           </Link>
           <Link href="/products/AddProducts" className="text-primary dark:text-zinc-300 hover:text-primary-light dark:hover:text-[#ABDE3B] transition-colors">
-            {locale === 'ar' ? 'أنشىء إعلان بيع' : 'Create a sale ad'}
+            {t('createSaleAd')}
           </Link>
           <Link href="/auth/sign-in" className="text-primary dark:text-zinc-300 hover:text-primary-light dark:hover:text-[#ABDE3B] transition-colors">
-            {locale === 'ar' ? 'أنشىء حساب' : 'Create Account'}
+            {t('createAccount')}
           </Link>
         </Box>
         <Box
@@ -55,20 +53,16 @@ const Footer = ({ isUserProfile }: { isUserProfile?: boolean }) => {
           className="items-start justify-start gap-8 md:w-[300px] sm:w-[400px] lg:mt-0 xs:w-[400px] lg:items-start xs:items-center xs:mt-5"
         >
           <Text variant="h4" className="text-primary dark:text-[#ABDE3B] font-bold">
-            {locale === 'ar' ? 'بسهولة' : 'Bishola'}
+            {t('brandName')}
           </Text>
           <Link href="/Privacypolicy" className="text-primary dark:text-zinc-300 hover:text-primary-light dark:hover:text-[#ABDE3B] transition-colors">
-            {locale === 'ar' ? 'سياسة الخصوصية' : 'Privacy policy'}
+            {t('privacyPolicy')}
           </Link>
           <Link href="/Privacypolicy" className="text-primary dark:text-zinc-300 hover:text-primary-light dark:hover:text-[#ABDE3B] transition-colors">
-            {locale === 'ar'
-              ? 'سياسة انشاء الاعلان'
-              : 'Advertisement creation policy'}
+            {t('adCreationPolicy')}
           </Link>
           <Link href="/Privacypolicy" className="text-primary dark:text-zinc-300 hover:text-primary-light dark:hover:text-[#ABDE3B] transition-colors">
-            {locale === 'ar'
-              ? 'سياسية حماية البيانات'
-              : 'Data Protection Policy'}
+            {t('dataProtectionPolicy')}
           </Link>
         </Box>
         <Box
@@ -76,16 +70,16 @@ const Footer = ({ isUserProfile }: { isUserProfile?: boolean }) => {
           className="items-start justify-start gap-8 md:w-[300px] sm:w-[400px] lg:mt-0 xs:w-[400px] lg:items-start xs:items-center xs:mt-5"
         >
           <Text variant="h4" className="text-primary dark:text-[#ABDE3B] font-bold">
-            {locale === 'ar' ? 'العنوان الرئيسي' : 'Main Title'}
+            {t('mainTitle')}
           </Text>
           <Link href="/" className="text-primary dark:text-zinc-300 hover:text-primary-light dark:hover:text-[#ABDE3B] transition-colors">
-            {locale === 'ar' ? 'الصفحة الرئيسية' : 'Home Page'}
+            {t('homePage')}
           </Link>
           <Link href="/products?listingOfferType=for_rent" className="text-primary dark:text-zinc-300 hover:text-primary-light dark:hover:text-[#ABDE3B] transition-colors">
-            {locale === 'ar' ? 'الاستئجار' : 'Rent'}
+            {t('rent')}
           </Link>
           <Link href="/products?listingOfferType=for_sale" className="text-primary dark:text-zinc-300 hover:text-primary-light dark:hover:text-[#ABDE3B] transition-colors">
-            {locale === 'ar' ? ' البيع' : 'Sale'}
+            {t('sale')}
           </Link>
         </Box>
 
@@ -95,26 +89,22 @@ const Footer = ({ isUserProfile }: { isUserProfile?: boolean }) => {
           className="justify-start items-start  md:w-[300px] sm:w-[400px] lg:mt-0 xs:w-[400px] "
         >
           <Text variant="lead" className="text-[600] text-primary dark:text-zinc-100 font-semibold">
-            {locale === 'ar'
-              ? 'اشترك في النشرة الإخبارية لدينا'
-              : 'Subscribe to our newsletter'}
+            {t('subscribeNewsletter')}
           </Text>
           <Text variant="mid" className="w-full text-secondary-text dark:text-zinc-400">
-            {locale === 'ar'
-              ? 'ابق على اطلاع على آخر الأخبار والعروض الحصرية والتحديثات المثيرة'
-              : 'Stay up to date with the latest news, exclusive offers and exciting updates.'}
+            {t('newsletterDesc')}
           </Text>
           <Box variant="center" className="flex w-full max-w-sm items-center">
             <Input
               type="email"
-              placeholder={locale === 'ar' ? 'البريد الالكتروني' : 'Email'}
+              placeholder={t('email')}
               className="rounded-2xl border-secondary-text dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100"
             />
             <Button
               type="submit"
               className="bg-primary-foreground text-primary ml-1 mr-1"
             >
-              {locale === 'ar' ? 'اشتراك' : 'Subscribe'}
+              {t('subscribe')}
             </Button>
           </Box>
           <Box variant="row" className="mt-5 w-full">
@@ -130,10 +120,10 @@ const Footer = ({ isUserProfile }: { isUserProfile?: boolean }) => {
                     <Button className="bg-white dark:bg-zinc-900 shadow-none border border-primary-light dark:border-zinc-800 h-full ">
                       <Box variant="column" className="gap-0 h-full">
                         <Text variant="small" className="text-primary-light dark:text-zinc-300">
-                          Available on the{' '}
+                          {t('availableOn')}{' '}
                         </Text>
                         <Text variant="mid" className="text-primary-light dark:text-zinc-100">
-                          App Store{' '}
+                          {t('appStore')}{' '}
                         </Text>
                       </Box>
                       <Image
@@ -149,10 +139,10 @@ const Footer = ({ isUserProfile }: { isUserProfile?: boolean }) => {
                   <Button className="bg-white dark:bg-zinc-900 shadow-none border border-primary-light dark:border-zinc-800 h-full ">
                     <Box variant="column" className="gap-0 h-full">
                       <Text variant="small" className="text-primary-light dark:text-zinc-300">
-                        Available on the{' '}
+                        {t('availableOn')}{' '}
                       </Text>
                       <Text variant="mid" className="text-primary-light dark:text-zinc-100">
-                        App Store{' '}
+                        {t('appStore')}{' '}
                       </Text>
                     </Box>
                     <Image
@@ -170,10 +160,10 @@ const Footer = ({ isUserProfile }: { isUserProfile?: boolean }) => {
                     <Button className="bg-white dark:bg-zinc-900 shadow-none border border-primary-light dark:border-zinc-800 h-full ">
                       <Box variant="column" className=" gap-0 h-full">
                         <Text variant="small" className="text-primary-light dark:text-zinc-300">
-                          Available on the{' '}
+                          {t('availableOn')}{' '}
                         </Text>
                         <Text variant="mid" className="text-primary-light dark:text-zinc-100">
-                          Google Play
+                          {t('playStore')}
                         </Text>
                       </Box>
                       <Image
@@ -188,10 +178,10 @@ const Footer = ({ isUserProfile }: { isUserProfile?: boolean }) => {
                   <Button className="bg-white dark:bg-zinc-900 shadow-none border border-primary-light dark:border-zinc-800 h-full ">
                     <Box variant="column" className=" gap-0 h-full">
                       <Text variant="small" className="text-primary-light dark:text-zinc-300">
-                        Available on the{' '}
+                        {t('availableOn')}{' '}
                       </Text>
                       <Text variant="mid" className="text-primary-light dark:text-zinc-100">
-                        Google Play
+                        {t('playStore')}
                       </Text>
                     </Box>
                     <Image

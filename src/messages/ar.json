@@ -60,6 +60,28 @@
       "ContactUs": "اتصل بنا",
       "News": "الأخبار"
     },
+    "footer": {
+      "brandName": "بسهولة",
+      "mainTitle": "العنوان الرئيسي",
+      "createAd": "أنشىء اعلان",
+      "createRentalAd": "إنشىء إعلان تأجير",
+      "createSaleAd": "أنشىء إعلان بيع",
+      "createAccount": "أنشىء حساب",
+      "privacyPolicy": "سياسة الخصوصية",
+      "adCreationPolicy": "سياسة انشاء الاعلان",
+      "dataProtectionPolicy": "سياسية حماية البيانات",
+      "homePage": "الصفحة الرئيسية",
+      "rent": "الاستئجار",
+      "sale": "البيع",
+      "subscribeNewsletter": "اشترك في النشرة الإخبارية لدينا",
+      "newsletterDesc": "ابق على اطلاع على آخر الأخبار والعروض الحصرية والتحديثات المثيرة",
+      "email": "البريد الالكتروني",
+      "subscribe": "اشتراك",
+      "availableOn": "متوفر على",
+      "appStore": "App Store",
+      "playStore": "Google Play",
+      "getItOn": "احصل عليه من"
+    },
     "hero": {
       "title": "بسهولة",
       "description": "بيع . شراء . تأجير . استئجار"
@@ -589,6 +611,7 @@
     }
   },
   "product": {
+    "infoTitle": "معلومات المنتج",
     "whatsapp": "واتساب",
     "call": "اتصل",
     "authRequired": "مطلوب تسجيل الدخول",

@@ -5,34 +5,34 @@ import React from 'react';
 const textVariants = cva('', {
   variants: {
     variant: {
-      h1: 'scroll-m-20 text-5xl font-pextrabold tracking-wider lg:text-7xl',
-      h2: 'scroll-m-20 text-4xl font-psemibold tracking-wider lg:text-6xl first:mt-0',
-      h3: 'scroll-m-20 text-3xl font-pregular tracking-wider',
-      h4: 'scroll-m-20 text-2xl font-pregular tracking-wider',
-      h5: 'scroll-m-20 text-xl font-pregular tracking-wider',
+      h1: 'scroll-m-20 text-5xl font-extrabold tracking-wider lg:text-7xl',
+      h2: 'scroll-m-20 text-4xl font-semibold tracking-wider lg:text-6xl first:mt-0',
+      h3: 'scroll-m-20 text-3xl font-normal tracking-wider',
+      h4: 'scroll-m-20 text-2xl font-normal tracking-wider',
+      h5: 'scroll-m-20 text-xl font-normal tracking-wider',
       title:
-        'scroll-m-20  font-pbold tracking-widest text-3xl sm:text-5xl lg:text-6xl',
+        'scroll-m-20  font-bold tracking-widest text-3xl sm:text-5xl lg:text-6xl',
       p: 'leading-7',
       blockquote: 'mt-6 border-l-2 pl-6 italic',
       inlineCode:
-        'relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-psemibold',
+        'relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold',
       lead: 'text-xl text-muted-foreground',
-      large: 'text-lg font-psemibold',
-      mid: 'text-base font-psemibold',
-      small: 'text-sm font-pmedium leading-none',
+      large: 'text-lg font-semibold',
+      mid: 'text-base font-semibold',
+      small: 'text-sm font-medium leading-none',
       muted: 'text-sm text-muted-foreground',
-      subtle: 'text-xs text-gray-500 font-pmedium',
-      caption: 'text-xs text-gray-600 font-pregular',
-      label: 'text-sm font-pmedium text-gray-700',
+      subtle: 'text-xs text-gray-500 font-medium',
+      caption: 'text-xs text-gray-600 font-normal',
+      label: 'text-sm font-medium text-gray-700',
       link: 'text-primary underline-offset-4 hover:underline cursor-pointer',
       'link-muted':
         'text-muted-foreground underline-offset-4 hover:underline cursor-pointer',
       'link-subtle':
         'text-foreground hover:text-primary transition-colors duration-200 cursor-pointer',
       'link-nav':
-        'text-foreground hover:text-primary transition-colors duration-200 font-psemibold cursor-pointer',
+        'text-foreground hover:text-primary transition-colors duration-200 font-semibold cursor-pointer',
       'link-button':
-        'inline-flex items-center justify-center rounded-md text-sm font-pmedium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background hover:bg-accent hover:text-accent-foreground h-10 py-2 px-4 cursor-pointer',
+        'inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background hover:bg-accent hover:text-accent-foreground h-10 py-2 px-4 cursor-pointer',
     },
   },
   defaultVariants: {
