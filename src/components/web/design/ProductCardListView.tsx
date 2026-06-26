@@ -36,7 +36,7 @@ import clsx from 'clsx';
 import { formatDistanceToNow } from 'date-fns';
 import { ar, enUS } from 'date-fns/locale';
 import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions';
-import { toggleListingFavorite } from '@/core/infrastructure-adapters/actions/users/listing.user.actions';
+import { toggleFavorite as toggleListingFavorite, cacheListing } from '@/utils/offline-favorites-manager';
 import {
   useUpdateSaveStatus,
 } from '@/core/infrastructure-adapters/use-actions/users/car.user.use-actions';
@@ -82,6 +82,13 @@ interface ProductCardListViewProps {
   isMine?: boolean;
   onStatusChange?: (productId: number, newStatus: string) => void;
 }
+
+const TRANSLATION_KEYS: Record<string, Set<string>> = {
+  fuel_type: new Set(['gasoline', 'diesel', 'electric', 'hybrid', 'plug_in_hybrid', 'gasoline_gas', 'petrol']),
+  transmission: new Set(['automatic', 'manual', 'semi_automatic', 'cvt']),
+  body_type: new Set(['suv', 'sedan', 'hatchback', 'coupe', 'grand_coupe', 'convertible', 'wagon', 'station_wagon', 'van', 'minivan', 'pickup', 'other']),
+  condition: new Set(['new', 'used', 'certified_pre_owned'])
+};
 
 export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
   carListing,
@@ -135,17 +142,21 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
 
           // Translate slug values if they exist in the stepTwo translation namespace
           if (slug === 'fuel_type' || slug === 'transmission' || slug === 'body_type' || slug === 'condition') {
-            try {
-              const translationKey = slug === 'fuel_type' 
-                ? `fuelType.${value}` 
-                : slug === 'transmission' 
-                ? `transmission.${value}` 
-                : slug === 'body_type' 
-                ? `bodyType.${value}` 
-                : `vehicleCondition.${value}`;
-              value = bodyTypeT(translationKey);
-            } catch (e) {
-              // Fall back to resolved value
+            const keys = TRANSLATION_KEYS[slug];
+            const lowerVal = value?.toLowerCase();
+            if (keys && keys.has(lowerVal)) {
+              try {
+                const translationKey = slug === 'fuel_type' 
+                  ? `fuelType.${lowerVal === 'petrol' ? 'gasoline' : lowerVal}` 
+                  : slug === 'transmission' 
+                  ? `transmission.${lowerVal}` 
+                  : slug === 'body_type' 
+                  ? `bodyType.${lowerVal}` 
+                  : `vehicleCondition.${lowerVal}`;
+                value = bodyTypeT(translationKey);
+              } catch (e) {
+                // Fall back to resolved value
+              }
             }
           }
 
@@ -177,12 +188,16 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
             slug,
             icon,
             value: displayValue,
+            type: av.attribute?.type,
           };
         })
         .filter((item: any) => {
           return (
             item.value &&
-            !item.slug.startsWith('features_')
+            !item.slug.startsWith('features_') &&
+            item.slug !== 'damages' &&
+            item.slug !== 'damage' &&
+            item.type !== 'repeating_group'
           );
         });
     }
@@ -272,6 +287,21 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
       setIsAuthenticated(isAuthenticatedProp);
     }
   }, [isAuthenticatedProp]);
+
+  // Cache listing details for offline favorites lookup
+  useEffect(() => {
+    if (carListing.id) {
+      cacheListing({
+        id: Number(carListing.id),
+        title: carListing.title || '',
+        price: Number(carListing.price) || 0,
+        listingOfferType: carListing.listingType || carListing.listingOfferType || 'for_sale',
+        makeName: carListing.make?.name || '',
+        imageSrc: getPrimaryImage(),
+        slug: carListing.slug || '',
+      });
+    }
+  }, [carListing.id, carListing.title, carListing.price, carListing.listingType, carListing.listingOfferType, carListing.make?.name, carListing.slug]);
 
   // Update favorite status
   const prevFavoriteRef = useRef(isMarkedFavorite);

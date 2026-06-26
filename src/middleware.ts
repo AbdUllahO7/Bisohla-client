@@ -108,7 +108,7 @@ async function middleware(req: NextRequest) {
     }
 
     // User routes
-    if (routeType === 'userProfile') {
+    if (routeType === 'userProfile' || routeType === 'car-alerts') {
       try {
         const userRoleName = getUserRole()?.name || 'user';
         const isUser = await checkRole(userRoleName);

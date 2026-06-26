@@ -61,9 +61,10 @@ const AttributeGrid: React.FC<AttributeGridProps> = ({
         label: av.attribute.name,
         hint: av.attribute.hint,
         type: av.attribute.type,
+        slug: av.attribute.slug,
         value: resolveAttributeValue(av, locale),
       }))
-      .filter((item) => item.value !== '');
+      .filter((item) => item.value !== '' && item.slug !== 'damages' && item.slug !== 'damage' && item.type !== 'repeating_group');
   }, [attributeValues, locale]);
 
   if (isLoading) {

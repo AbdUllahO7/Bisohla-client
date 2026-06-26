@@ -60,6 +60,28 @@
       "ContactUs": "Contact Us",
       "News": "News"
     },
+    "footer": {
+      "brandName": "Bishola",
+      "mainTitle": "Main Title",
+      "createAd": "Create Ad",
+      "createRentalAd": "Create a rental ad",
+      "createSaleAd": "Create a sale ad",
+      "createAccount": "Create Account",
+      "privacyPolicy": "Privacy policy",
+      "adCreationPolicy": "Advertisement creation policy",
+      "dataProtectionPolicy": "Data Protection Policy",
+      "homePage": "Home Page",
+      "rent": "Rent",
+      "sale": "Sale",
+      "subscribeNewsletter": "Subscribe to our newsletter",
+      "newsletterDesc": "Stay up to date with the latest news, exclusive offers and exciting updates.",
+      "email": "Email",
+      "subscribe": "Subscribe",
+      "availableOn": "Available on the",
+      "appStore": "App Store",
+      "playStore": "Google Play",
+      "getItOn": "Get it on"
+    },
     "hero": {
       "title": "Bishola",
       "description": "Sell . Buy . Rent . Hire"
@@ -482,6 +504,20 @@
       "selectionsFromUrl": "Selections loaded from URL parameters",
       "title": "What are you looking for",
       "searchInput": "Search",
+      "autocomplete": {
+        "recentSearches": "Recent Searches",
+        "clearHistory": "Clear All",
+        "popularTags": "Quick Filters",
+        "noRecentSearches": "No recent searches",
+        "tags": {
+          "forSale": "For Sale",
+          "forRent": "For Rent",
+          "automatic": "Automatic",
+          "suvs": "SUVs",
+          "sedans": "Sedans",
+          "under10k": "Under $10k"
+        }
+      },
       "filterOptions": {
         "bodyType": {
           "placeholder": "Body Type"
@@ -581,6 +617,7 @@
     }
   },
   "product": {
+    "infoTitle": "Product Info",
     "whatsapp": "WhatsApp",
     "call": "Call",
     "authRequired": "Authentication Required",
@@ -1149,6 +1186,10 @@
       "description": "Manage your saved listings",
       "itemsCount": "Items",
       "searchPlaceholder": "Search favorites...",
+      "offline": {
+        "savedOffline": "Favorite saved offline. It will sync automatically when you are back online.",
+        "syncSuccess": "Offline favorites synchronized successfully."
+      },
       "filters": {
         "all": "All Types",
         "forSale": "For Sale",

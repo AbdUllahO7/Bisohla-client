@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { cacheListing } from '@/utils/offline-favorites-manager';
 import Box from '@/components/ui/box';
 import Text from '@/components/ui/text';
 import ProductBasicInfo from '@/components/web/ProductsPage/product/ProductBasicInfo';
@@ -64,8 +65,24 @@ const MobileProductClient = ({
       } catch (error) {
         console.error('Failed to update recently viewed:', error);
       }
+
+      // Cache listing details for offline favorites lookup
+      try {
+        const imageSrc = carData.primaryImage || carData.images?.find((img: any) => img.isPrimary)?.url || carData.images?.[0]?.url || '/placeholder-car.jpg';
+        cacheListing({
+          id: carData.id,
+          title: carData.title || '',
+          price: Number(carData.price) || 0,
+          listingOfferType: carData.listingOfferType || 'for_sale',
+          makeName: carData.make?.name || '',
+          imageSrc,
+          slug: carData.slug || '',
+        });
+      } catch (err) {
+        console.error('Failed to cache listing for offline support:', err);
+      }
     }
-  }, [carData?.id]);
+  }, [carData, rawListing]);
 
   // Persist current category for back-button navigation
   useEffect(() => {
