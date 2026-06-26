@@ -501,6 +501,20 @@
       "selectionsFromUrl": "تم تحميل الاختيارات من معاملات الرابط",
       "title": "عن ماذا تبحث",
       "searchInput": "بحث",
+      "autocomplete": {
+        "recentSearches": "عمليات البحث الأخيرة",
+        "clearHistory": "مسح الكل",
+        "popularTags": "فلاتر سريعة",
+        "noRecentSearches": "لا توجد عمليات بحث أخيرة",
+        "tags": {
+          "forSale": "للبيع",
+          "forRent": "للإيجار",
+          "automatic": "أوتوماتيك",
+          "suvs": "دفع رباعي (SUV)",
+          "sedans": "سيدان",
+          "under10k": "أقل من $10K"
+        }
+      },
       "filterOptions": {
         "bodyType": {
           "placeholder": "نوع الهيكل"

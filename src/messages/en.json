@@ -504,6 +504,20 @@
       "selectionsFromUrl": "Selections loaded from URL parameters",
       "title": "What are you looking for",
       "searchInput": "Search",
+      "autocomplete": {
+        "recentSearches": "Recent Searches",
+        "clearHistory": "Clear All",
+        "popularTags": "Quick Filters",
+        "noRecentSearches": "No recent searches",
+        "tags": {
+          "forSale": "For Sale",
+          "forRent": "For Rent",
+          "automatic": "Automatic",
+          "suvs": "SUVs",
+          "sedans": "Sedans",
+          "under10k": "Under $10k"
+        }
+      },
       "filterOptions": {
         "bodyType": {
           "placeholder": "Body Type"
