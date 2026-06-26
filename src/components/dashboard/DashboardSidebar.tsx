@@ -121,13 +121,13 @@ export function DashboardSidebar() {
 
   return (
     <Sidebar
-      className="bg-primary border-r border-primary-light/20 w-64 data-[state=collapsed]:w-16"
+      className="bg-sidebar border-r border-sidebar-border w-64 data-[state=collapsed]:w-16"
       dir={direction}
       side={direction === 'rtl' ? 'right' : 'left'}
       collapsible="icon"
     >
       {/* Header */}
-      <SidebarHeader className="border-b text-white border-primary-light/20 p-2">
+      <SidebarHeader className="border-b border-sidebar-border p-2">
         <div className="flex items-center gap-2">
           {!isCollapsed ? (
             <>
@@ -146,10 +146,10 @@ export function DashboardSidebar() {
                 />
               </div>
               <div className="flex flex-col overflow-hidden">
-                <span className="text-lg font-bold text-white truncate">
+                <span className="text-lg font-bold text-sidebar-foreground truncate">
                   {direction === 'ltr' ? 'Bishola' : 'بسهولة'}
                 </span>
-                <span className="text-xs text-white/70 truncate">
+                <span className="text-xs text-sidebar-foreground/70 truncate">
                   {direction === 'ltr' ? 'Dashboard' : 'لوحة التحكم'}
                 </span>
               </div>
@@ -181,7 +181,7 @@ export function DashboardSidebar() {
         <div className="space-y-2">
           {!isCollapsed && (
             <div className="px-3 py-2">
-              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-wider">
+              <h2 className="text-xs font-semibold text-sidebar-foreground/40 uppercase tracking-wider">
                 {direction === 'ltr' ? 'Main' : 'الرئيسي'}
               </h2>
             </div>
@@ -193,7 +193,7 @@ export function DashboardSidebar() {
                   asChild
                   className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 ${isActiveRoute(href)
                     ? 'bg-primary-light text-white shadow-sm'
-                    : 'hover:bg-primary-light/50 text-white/70 hover:text-white'
+                    : 'text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
                     }`}
                   tooltip={isCollapsed ? label : undefined}
                 >
@@ -213,7 +213,7 @@ export function DashboardSidebar() {
         <div className="space-y-2 mt-8">
           {!isCollapsed && (
             <div className="px-3 py-2">
-              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-wider">
+              <h2 className="text-xs font-semibold text-sidebar-foreground/40 uppercase tracking-wider">
                 {direction === 'ltr' ? 'Quick Access' : 'وصول سريع'}
               </h2>
             </div>
@@ -223,7 +223,7 @@ export function DashboardSidebar() {
               <SidebarMenuItem key={href}>
                 <SidebarMenuButton
                   asChild
-                  className="flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200  text-white/70 hover:bg-primary-light/50 hover:text-white"
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                   tooltip={isCollapsed ? label : undefined}
                 >
                   <Link href={href}>
@@ -240,7 +240,7 @@ export function DashboardSidebar() {
             <SidebarMenuItem>
               <SidebarMenuButton
                 onClick={handleLogout}
-                className="flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 text-red-200 hover:bg-red-600/20 hover:text-red-100 cursor-pointer"
+                className="flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 text-destructive hover:bg-destructive/10 hover:text-destructive cursor-pointer"
                 tooltip={isCollapsed ? (direction === 'ltr' ? 'Sign Out' : 'تسجيل الخروج') : undefined}
               >
                 <LogOut className="h-4 w-4 flex-shrink-0" />
@@ -256,7 +256,7 @@ export function DashboardSidebar() {
       </SidebarContent>
 
       {/* Footer */}
-      <SidebarFooter className="border-t border-primary-light/20 p-4 bg-primary">
+      <SidebarFooter className="border-t border-sidebar-border p-4 bg-transparent">
         {isClient && (
           <div className="flex items-center gap-3">
             {!isCollapsed ? (
@@ -275,10 +275,10 @@ export function DashboardSidebar() {
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-white truncate">
+                  <p className="text-sm font-medium text-sidebar-foreground truncate">
                     {profile?.name || session.user.name || 'User'}
                   </p>
-                  <p className="text-xs text-white truncate">
+                  <p className="text-xs text-sidebar-foreground/70 truncate">
                     {profile?.email || ''}
                   </p>
                 </div>

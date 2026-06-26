@@ -40,6 +40,21 @@ export default async function RootLayout({
     >
       <head>
         <link rel="manifest" href="/manifest.json" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/sw.js').then(function(reg) {
+                    console.log('Service Worker registered with scope: ', reg.scope);
+                  }).catch(function(err) {
+                    console.error('Service Worker registration failed: ', err);
+                  });
+                });
+              }
+            `,
+          }}
+        />
       </head>
       <body className={`bg-white dark:bg-background text-primary dark:text-foreground ${cairo.className}`}>
         <NextIntlClientProvider messages={messages}>

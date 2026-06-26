@@ -34,7 +34,7 @@ import {
   MapPin,
 } from 'lucide-react';
 import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions';
-import { toggleListingFavorite } from '@/core/infrastructure-adapters/actions/users/listing.user.actions';
+import { toggleFavorite as toggleListingFavorite, cacheListing } from '@/utils/offline-favorites-manager';
 import { 
   useUpdateSaveStatus,
 } from '@/core/infrastructure-adapters/use-actions/users/car.user.use-actions';
@@ -183,6 +183,21 @@ export const EnhancedProductCardItem: React.FC<ExtendedCarCardItemPropsProfile> 
       setIsAuthenticated(isAuthenticatedProp);
     }
   }, [isAuthenticatedProp]);
+
+  // Cache listing details for offline favorites lookup
+  useEffect(() => {
+    if (ProductId) {
+      cacheListing({
+        id: Number(ProductId),
+        title: title || '',
+        price: Number(price) || 0,
+        listingOfferType: type || 'for_sale',
+        makeName: marka || '',
+        imageSrc: imageSrc || '',
+        slug: slug || '',
+      });
+    }
+  }, [ProductId, title, price, type, marka, imageSrc, slug]);
 
   // Update internal state when the favorite prop changes
   const prevFavoriteRef = useRef(isMarkedFavorite);

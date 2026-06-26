@@ -1,0 +1,23 @@
+{
+  "name": "Bishola",
+  "short_name": "Bishola",
+  "description": "Bishola Client Web Application",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2C3C39",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/assets/icons/apple-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/icons/001-car.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

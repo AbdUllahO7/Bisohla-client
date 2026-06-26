@@ -1186,6 +1186,10 @@
       "description": "Manage your saved listings",
       "itemsCount": "Items",
       "searchPlaceholder": "Search favorites...",
+      "offline": {
+        "savedOffline": "Favorite saved offline. It will sync automatically when you are back online.",
+        "syncSuccess": "Offline favorites synchronized successfully."
+      },
       "filters": {
         "all": "All Types",
         "forSale": "For Sale",
