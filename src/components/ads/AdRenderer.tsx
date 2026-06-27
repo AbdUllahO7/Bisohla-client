@@ -115,7 +115,7 @@ const ImageOnlyAd = ({ ad, translation, layout }: any) => {
     return (
         <div className={cn(
             isBanner 
-                ? "relative w-full overflow-hidden rounded-lg bg-gray-100 h-[160px] sm:h-[180px] md:h-[220px] lg:h-[250px]" 
+                ? "relative w-full overflow-hidden rounded-lg bg-transparent h-[160px] sm:h-[180px] md:h-[220px] lg:h-[250px]" 
                 : "relative w-full min-h-[395px] h-full flex flex-col justify-between bg-white dark:bg-zinc-900 overflow-hidden shadow-md hover:shadow-2xl hover:shadow-emerald-500/15 rounded-3xl border-none transition-all duration-500 ease-out"
         )}>
             <AdMedia
@@ -124,7 +124,7 @@ const ImageOnlyAd = ({ ad, translation, layout }: any) => {
                 title={translation?.title}
                 adType={ad.adType}
                 ad={ad}
-                className={isBanner ? "w-full h-full object-cover" : "w-full h-full object-contain p-2"}
+                className={isBanner ? "w-full h-full object-contain" : "w-full h-full object-contain p-2"}
             />
         </div>
     );
@@ -598,7 +598,7 @@ const VideoPlayerAd = ({ ad, translation, layout }: any) => {
                                 src={effectiveVideoUrl}
                                 className={cn(
                                     "w-full h-full",
-                                    isBanner ? "object-cover" : "object-contain p-2"
+                                    isBanner ? "object-contain" : "object-contain p-2"
                                 )}
                                 playsInline
                                 preload="metadata"
@@ -626,7 +626,7 @@ const VideoPlayerAd = ({ ad, translation, layout }: any) => {
                             src={effectiveImageUrl} 
                             alt={effectiveTitle || 'Ad'} 
                             fill 
-                            className={isBanner ? "object-cover" : "object-contain p-2"} 
+                            className={isBanner ? "object-contain" : "object-contain p-2"} 
                         />
                     )}
                 </div>
@@ -798,7 +798,7 @@ const AdRenderer: React.FC<AdRendererProps> = ({ ad, isClosable, layout }) => {
                     <div className={cn(
                         "relative w-full overflow-hidden",
                         layout === 'banner' 
-                            ? "rounded-md bg-gray-100 h-[160px] sm:h-[180px] md:h-[220px] lg:h-[250px]" 
+                            ? "rounded-md bg-transparent h-[160px] sm:h-[180px] md:h-[220px] lg:h-[250px]" 
                             : "rounded-3xl bg-white dark:bg-zinc-900 min-h-[395px] h-full shadow-md hover:shadow-2xl hover:shadow-emerald-500/15 transition-all duration-500 ease-out border-none"
                     )}>
                         <AdMedia
@@ -807,7 +807,7 @@ const AdRenderer: React.FC<AdRendererProps> = ({ ad, isClosable, layout }) => {
                             title={translation?.title}
                             adType={ad.adType}
                             ad={ad}
-                            className={layout === 'banner' ? "w-full h-full object-cover" : "w-full h-full object-contain p-2"}
+                            className={layout === 'banner' ? "w-full h-full object-contain" : "w-full h-full object-contain p-2"}
                         />
                     </div>
                 );
