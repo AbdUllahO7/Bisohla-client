@@ -497,6 +497,7 @@ export const NewsDetailClient: React.FC<NewsDetailClientProps> = ({
                       allowPlaceholders={allowPlaceholders}
                       dismissable={dismissable}
                       rotationStrategy={rotationStrategy}
+                      layout="card"
                     />
                   </div>
                   {/* --- END MODIFICATION --- */}
@@ -510,7 +511,7 @@ export const NewsDetailClient: React.FC<NewsDetailClientProps> = ({
 
         {/* Full-width bottom ad */}
         <div className="mt-16 border-t container border-gray-100 dark:border-zinc-800 pt-16">
-          <AdsSectionProduct name='news-details-page-bottom-full-width-ad' />
+          <AdsSectionProduct name="news details page bottom full width ad" layout="banner" />
         </div>
       </div>
       {/* Animations */}

@@ -125,7 +125,7 @@ export default function NewsGrid({
                       key={`ad-slot-${item.adIndex}-${i}`}
                       name="news-page-ads-section"
                       className="w-full h-full"
-                      wrapperClassName="animate-fadeIn w-full h-full min-h-[380px]"
+                      wrapperClassName="animate-fadeIn w-full h-full min-h-[395px] flex flex-col items-stretch"
                       fallbackContent={<CardAds isRent={false} />}
                       isClosable={false}
                       adsData={adsData}
@@ -134,6 +134,7 @@ export default function NewsGrid({
                       allowPlaceholders={allowPlaceholders}
                       dismissable={dismissable}
                       rotationStrategy={rotationStrategy}
+                      layout="card"
                       style={{ animationDelay: `${i * 0.1}s` }}
                     />
                   );
@@ -143,7 +144,7 @@ export default function NewsGrid({
           </div>
 
       {/* Always show an ad after the articles grid */}
-      <AdsSectionProduct />
+      <AdsSectionProduct name="news page bottom full width ad" layout="banner" className="mt-16" />
 
       {paginationMeta && paginationMeta.totalPages > 1 && (
         <Pagination

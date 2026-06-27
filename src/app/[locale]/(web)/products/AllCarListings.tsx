@@ -355,12 +355,14 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
 
                       return (
                         <AdsSectionProduct
+                          name="all-car-listining-space"
                           adIndex={currentAdIndex}
                           adsData={adsData}
                           isLoadingAds={isLoadingAds}
                           allowPlaceholders={allowPlaceholders}
                           dismissable={dismissable}
                           rotationStrategy={rotationStrategy}
+                          layout="banner"
                         />
                       );
                     })()}
@@ -387,12 +389,14 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
                       return (
                         <div className="col-span-full">
                           <AdsSectionProduct 
+                            name="all-car-listining-space"
                             adIndex={currentAdIndex}
                             adsData={adsData}
                             isLoadingAds={isLoadingAds}
                             allowPlaceholders={allowPlaceholders}
                             dismissable={dismissable}
                             rotationStrategy={rotationStrategy}
+                            layout="banner"
                           />
                         </div>
                       );

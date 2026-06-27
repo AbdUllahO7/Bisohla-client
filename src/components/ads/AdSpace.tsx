@@ -21,6 +21,7 @@ interface AdSpaceProps {
     dismissable?: boolean;
     rotationStrategy?: 'priority' | 'round_robin' | 'random';
     style?: React.CSSProperties;
+    layout?: 'card' | 'banner';
 }
 
 const AdSpace: React.FC<AdSpaceProps> = ({
@@ -37,6 +38,7 @@ const AdSpace: React.FC<AdSpaceProps> = ({
     dismissable,
     rotationStrategy,
     style,
+    layout,
 }) => {
     const [fetchedAds, setFetchedAds] = useState<AdContentDto[]>([]);
     const [isFetching, setIsFetching] = useState(true);
@@ -104,7 +106,7 @@ const AdSpace: React.FC<AdSpaceProps> = ({
                             extractedAds = (Array.isArray(data) ? data : [data]) as unknown as AdContentDto[];
                         }
 
-                        setFetchedAds(extractedAds.filter((ad: any) => ad && ad.id !== undefined && ad.displayTemplate !== undefined));
+                        setFetchedAds(extractedAds.filter((ad: any) => ad && ad.id !== undefined));
                         setInternalAllowPlaceholders(parsedAllowPlaceholders);
                         setInternalDismissable(parsedDismissable);
                         setInternalRotationStrategy(parsedRotationStrategy);
@@ -164,14 +166,17 @@ const AdSpace: React.FC<AdSpaceProps> = ({
 
     // ── Loading state ──────────────────────────────────────────────────────
     if (isLoading) {
+        const isBanner = layout === 'banner';
+        const skeletonMinHeight = isBanner ? 'min-h-[160px]' : 'min-h-[395px]';
+        const skeletonRounded = isBanner ? 'rounded-lg' : 'rounded-3xl';
         return (
             <>
                 {wrapperClassName ? (
                     <div className={wrapperClassName} style={style}>
-                        <Skeleton className={`w-full h-full min-h-[200px] rounded-lg ${className}`} />
+                        <Skeleton className={`w-full h-full ${skeletonMinHeight} ${skeletonRounded} ${className}`} />
                     </div>
                 ) : (
-                    <Skeleton className={`w-full h-full min-h-[200px] rounded-lg ${className}`} style={style} />
+                    <Skeleton className={`w-full h-full ${skeletonMinHeight} ${skeletonRounded} ${className}`} style={style} />
                 )}
             </>
         );
@@ -238,12 +243,12 @@ const AdSpace: React.FC<AdSpaceProps> = ({
 
         const isOverlayTemplate = ['popup_modal', 'interstitial', 'floating_button', 'popup'].includes(adToRender.displayTemplate);
         if (isClosable !== false && isOverlayTemplate) {
-            return <AdRenderer key={adToRender.id} ad={adToRender} isClosable={isClosable} />;
+            return <AdRenderer key={adToRender.id} ad={adToRender} isClosable={isClosable} layout={layout} />;
         }
 
         let AdsContent = (
             <div className={`w-full h-full flex flex-col gap-4 ad-space-${name.replace(/\s+/g, '-')} ${className}`}>
-                <AdRenderer key={adToRender.id} ad={adToRender} isClosable={isClosable} />
+                <AdRenderer key={adToRender.id} ad={adToRender} isClosable={isClosable} layout={layout} />
             </div>
         );
 
@@ -264,7 +269,7 @@ const AdSpace: React.FC<AdSpaceProps> = ({
         return (
             <>
                 {orderedAds.map((ad, index) => (
-                    <AdRenderer key={ad.id || `ad-${index}`} ad={ad} isClosable={isClosable} />
+                    <AdRenderer key={ad.id || `ad-${index}`} ad={ad} isClosable={isClosable} layout={layout} />
                 ))}
             </>
         );
@@ -273,7 +278,7 @@ const AdSpace: React.FC<AdSpaceProps> = ({
     let AdsContent = (
         <div className={`w-full h-full flex flex-col gap-4 ad-space-${name.replace(/\s+/g, '-')} ${className}`}>
             {orderedAds.map((ad, index) => (
-                <AdRenderer key={ad.id || `ad-${index}`} ad={ad} isClosable={isClosable} />
+                <AdRenderer key={ad.id || `ad-${index}`} ad={ad} isClosable={isClosable} layout={layout} />
             ))}
         </div>
     );
@@ -282,7 +287,7 @@ const AdSpace: React.FC<AdSpaceProps> = ({
         AdsContent = renderInlineContainer(AdsContent);
     }
 
-    return wrapperClassName ? <div className={wrapperClassName} style={style}>{AdsContent}</div> : <div style={style}>{AdsContent}</div>;
+    return wrapperClassName ? <div className={wrapperClassName} style={style}>{AdsContent}</div> : <div className="w-full" style={style}>{AdsContent}</div>;
 };
 
 export default AdSpace;
