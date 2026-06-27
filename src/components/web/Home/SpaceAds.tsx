@@ -23,7 +23,7 @@ const SpaceAds = () => {
     allowPlaceholders: rightAllowPlaceholders,
     dismissable: rightDismissable,
     rotationStrategy: rightRotationStrategy
-  } = useAdSlot('web-home-page-ads-section-right-side');
+  } = useAdSlot('web home page ads section right side');
 
   const FallbackBanner = ({ title, bishola }: { title: string; bishola: string }) => (
     <Box
@@ -66,11 +66,12 @@ const SpaceAds = () => {
             allowPlaceholders={leftAllowPlaceholders}
             dismissable={leftDismissable}
             rotationStrategy={leftRotationStrategy}
+            layout="banner"
           />
         </div>
         <div className="w-full md:w-[48%] min-h-[200px] sm:h-[220px] md:h-[250px]">
           <AdSpace
-            name="web-home-page-ads-section-right-side"
+            name="web home page ads section right side"
             className="w-full h-full"
             fallbackContent={<FallbackBanner title={t("spaceAds.box2.title")} bishola={t("spaceAds.box2.bishola")} />}
             isClosable={false}
@@ -79,6 +80,7 @@ const SpaceAds = () => {
             allowPlaceholders={rightAllowPlaceholders}
             dismissable={rightDismissable}
             rotationStrategy={rightRotationStrategy}
+            layout="banner"
           />
         </div>
       </Box>

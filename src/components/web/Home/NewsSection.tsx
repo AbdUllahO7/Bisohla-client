@@ -27,7 +27,7 @@ const NewsSection: React.FC<NewsSectionProps> = ({
 }) => {
   const locale = useLocale();
   const t = useTranslations('news');
-  const { adsData, isLoadingAds, allowPlaceholders, dismissable, rotationStrategy } = useAdSlot('web-home-page-news-section-ad');
+  const { adsData, isLoadingAds, allowPlaceholders, dismissable, rotationStrategy } = useAdSlot('web home page news section ad');
 
   const { data, isLoading, error } = useGetNewsArticles({
     page: 1,
@@ -231,9 +231,9 @@ const NewsSection: React.FC<NewsSectionProps> = ({
                       return (
                         <AdSpace
                           key={`ad-slot-${item.adIndex}-${i}`}
-                          name="web-home-page-news-section-ad"
+                          name="web home page news section ad"
                           className="w-full h-full"
-                          wrapperClassName="w-full h-full min-h-[380px] animate-fadeInUp"
+                          wrapperClassName="w-full h-full min-h-[395px] animate-fadeInUp flex flex-col items-stretch"
                           fallbackContent={<CardAds isRent={false} />}
                           isClosable={false}
                           adsData={adsData}
@@ -242,6 +242,7 @@ const NewsSection: React.FC<NewsSectionProps> = ({
                           allowPlaceholders={allowPlaceholders}
                           dismissable={dismissable}
                           rotationStrategy={rotationStrategy}
+                          layout="card"
                           style={{
                             animationDelay: `${i * 0.1}s`,
                             animationFillMode: 'both',

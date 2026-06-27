@@ -7,10 +7,12 @@ import { useLocale } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import { trackClickAction } from '@/core/infrastructure-adapters/actions/visitors/ads.actions';
 import { X, Play, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface AdRendererProps {
     ad: AdContentDto;
     isClosable?: boolean;
+    layout?: 'card' | 'banner';
 }
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -108,72 +110,138 @@ const AdMedia = ({
 // ─── Template Components ─────────────────────────────────────────────────────
 
 /** image_only — full image/video fill, no text overlay */
-const ImageOnlyAd = ({ ad, translation }: any) => (
-    <div className="relative w-full h-full min-h-[250px] overflow-hidden rounded-lg bg-gray-100">
-        <AdMedia
-            imageUrl={translation?.imageUrl}
-            videoUrl={translation?.videoUrl}
-            title={translation?.title}
-            adType={ad.adType}
-            ad={ad}
-        />
-    </div>
-);
+const ImageOnlyAd = ({ ad, translation, layout }: any) => {
+    const isBanner = layout === 'banner';
+    return (
+        <div className={cn(
+            isBanner 
+                ? "relative w-full overflow-hidden rounded-lg bg-transparent h-[160px] sm:h-[180px] md:h-[220px] lg:h-[250px]" 
+                : "relative w-full min-h-[395px] h-full flex flex-col justify-between bg-white dark:bg-zinc-900 overflow-hidden shadow-md hover:shadow-2xl hover:shadow-emerald-500/15 rounded-3xl border-none transition-all duration-500 ease-out"
+        )}>
+            <AdMedia
+                imageUrl={translation?.imageUrl}
+                videoUrl={translation?.videoUrl}
+                title={translation?.title}
+                adType={ad.adType}
+                ad={ad}
+                className={isBanner ? "w-full h-full object-contain" : "w-full h-full object-contain p-2"}
+            />
+        </div>
+    );
+};
 
-/** standard_card — image with text overlay at bottom */
-const StandardCardAd = ({ ad, translation }: any) => (
-    <div className="relative w-full h-full min-h-[250px] overflow-hidden rounded-lg shadow-sm hover:shadow-md transition-shadow bg-gray-50 border border-gray-100">
-        <AdMedia
-            imageUrl={translation?.imageUrl}
-            videoUrl={translation?.videoUrl}
-            title={translation?.title}
-            adType={ad.adType}
-            ad={ad}
-        />
-        {(translation?.title || translation?.description) && (
-            <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent text-white">
-                {translation?.title && <h3 className="text-lg font-bold leading-tight">{translation.title}</h3>}
+/** standard_card — image with text overlay at bottom or horizontal banner format */
+const StandardCardAd = ({ ad, translation, layout }: any) => {
+    const isBanner = layout === 'banner';
+
+    if (isBanner) {
+        return (
+            <div className="relative w-full h-[160px] sm:h-[180px] md:h-[220px] lg:h-[250px] overflow-hidden rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 bg-gradient-to-r from-gray-900 to-gray-800 text-white border border-gray-800 flex items-center">
+                {/* Background Media */}
+                <div className="absolute inset-0 opacity-40">
+                    <AdMedia
+                        imageUrl={translation?.imageUrl}
+                        videoUrl={translation?.videoUrl}
+                        title={translation?.title}
+                        adType={ad.adType}
+                        ad={ad}
+                        className="w-full h-full object-cover"
+                    />
+                </div>
+                {/* Content Overlay */}
+                <div className="relative z-10 px-6 md:px-12 flex flex-col justify-center max-w-[65%] space-y-2 md:space-y-3">
+                    {translation?.title && (
+                        <h3 className="text-sm md:text-2xl font-bold leading-tight line-clamp-1">{translation.title}</h3>
+                    )}
+                    {translation?.description && (
+                        <p className="text-[10px] md:text-sm opacity-90 line-clamp-2">{translation.description}</p>
+                    )}
+                    {translation?.actionText && (
+                        <span className="self-start mt-1 px-3 py-1 bg-primary text-white text-[10px] md:text-xs font-semibold rounded-lg hover:bg-green-700 transition-colors">
+                            {translation.actionText}
+                        </span>
+                    )}
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="relative w-full h-full min-h-[395px] flex flex-col justify-between overflow-hidden rounded-3xl shadow-md hover:shadow-2xl hover:shadow-emerald-500/15 transition-all duration-500 ease-out bg-white dark:bg-zinc-900 border-none">
+            <div className="relative w-full h-48 flex-shrink-0 bg-gray-50 dark:bg-zinc-800">
+                <AdMedia
+                    imageUrl={translation?.imageUrl}
+                    videoUrl={translation?.videoUrl}
+                    title={translation?.title}
+                    adType={ad.adType}
+                    ad={ad}
+                    className="w-full h-full object-contain p-2"
+                />
+            </div>
+            {(translation?.title || translation?.description) && (
+                <div className="p-5 flex-1 flex flex-col justify-between items-stretch">
+                    <div className="space-y-2 flex-1 flex flex-col justify-center text-center">
+                        {translation?.title && (
+                            <h3 className="font-bold font-cairo text-lg leading-snug text-gray-800 dark:text-zinc-100 line-clamp-2">
+                                {translation.title}
+                            </h3>
+                        )}
+                        {translation?.description && (
+                            <p className="text-sm text-gray-500 dark:text-zinc-400 line-clamp-3">
+                                {translation.description}
+                            </p>
+                        )}
+                    </div>
+                    {translation?.actionText && (
+                        <span className="w-full mt-6 py-3 bg-gradient-to-r from-[#198341] to-[#ABDE3B] text-white font-extrabold font-cairo text-sm text-center rounded-xl shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] active:scale-95 cursor-pointer block">
+                            {translation.actionText}
+                        </span>
+                    )}
+                </div>
+            )}
+        </div>
+    );
+};
+
+/** hero_banner — full-width tall banner with centred CTA */
+const HeroBannerAd = ({ ad, translation, layout }: any) => {
+    const isBanner = layout === 'banner';
+    return (
+        <div className={cn(
+            "relative w-full overflow-hidden group",
+            isBanner 
+                ? "rounded-2xl h-[160px] sm:h-[180px] md:h-[220px] lg:h-[250px]" 
+                : "rounded-3xl min-h-[395px] h-full shadow-md hover:shadow-2xl hover:shadow-emerald-500/15 transition-all duration-500 ease-out"
+        )}>
+            <AdMedia
+                imageUrl={translation?.imageUrl}
+                videoUrl={translation?.videoUrl}
+                title={translation?.title}
+                adType={ad.adType}
+                ad={ad}
+                className={cn(
+                    "w-full h-full transition-transform duration-700 group-hover:scale-105",
+                    isBanner ? "object-cover" : "object-contain p-2 bg-gray-50 dark:bg-zinc-800"
+                )}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent flex flex-col justify-end p-4 md:p-6 text-white pointer-events-none">
+                {translation?.title && (
+                    <h1 className="text-base md:text-2xl font-bold mb-1 drop-shadow-lg">{translation.title}</h1>
+                )}
                 {translation?.description && (
-                    <p className="text-sm opacity-90 line-clamp-2 mt-1">{translation.description}</p>
+                    <p className="text-[10px] md:text-sm mb-2 max-w-2xl drop-shadow opacity-90 line-clamp-1 md:line-clamp-2">
+                        {translation.description}
+                    </p>
                 )}
                 {translation?.actionText && (
-                    <span className="mt-2 inline-block px-4 py-1 bg-primary text-white text-xs font-semibold rounded-full">
+                    <span className="self-start px-3 py-1 bg-primary hover:bg-green-700 text-white font-bold rounded-lg transition-colors text-[10px] md:text-xs">
                         {translation.actionText}
                     </span>
                 )}
             </div>
-        )}
-    </div>
-);
-
-/** hero_banner — full-width tall banner with centred CTA */
-const HeroBannerAd = ({ ad, translation }: any) => (
-    <div className="relative w-full h-[280px] md:h-[380px] rounded-2xl overflow-hidden group">
-        <AdMedia
-            imageUrl={translation?.imageUrl}
-            videoUrl={translation?.videoUrl}
-            title={translation?.title}
-            adType={ad.adType}
-            ad={ad}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent flex flex-col justify-end p-6 md:p-10 text-white">
-            {translation?.title && (
-                <h1 className="text-2xl md:text-4xl font-bold mb-2 drop-shadow-lg">{translation.title}</h1>
-            )}
-            {translation?.description && (
-                <p className="text-base md:text-lg mb-4 max-w-2xl drop-shadow opacity-90 line-clamp-2">
-                    {translation.description}
-                </p>
-            )}
-            {translation?.actionText && (
-                <span className="self-start px-6 py-2 bg-primary hover:bg-green-700 text-white font-bold rounded-lg transition-colors text-sm md:text-base">
-                    {translation.actionText}
-                </span>
-            )}
         </div>
-    </div>
-);
+    );
+};
 
 /** native_list — looks like editorial content, blends with the page */
 const NativeListAd = ({ ad, translation }: any) => (
@@ -474,9 +542,10 @@ const FloatingButtonAd = ({ ad, translation, onClose, isClosable }: any) => (
 );
 
 /** video_player — dedicated video player with controls */
-const VideoPlayerAd = ({ ad, translation }: any) => {
+const VideoPlayerAd = ({ ad, translation, layout }: any) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [isPlaying, setIsPlaying] = useState(false);
+    const isBanner = layout === 'banner';
 
     // --- FALLBACK LOGIC ---
     const effectiveImageUrl = translation?.imageUrl || ad.imageUrl;
@@ -494,14 +563,24 @@ const VideoPlayerAd = ({ ad, translation }: any) => {
 
     if (!effectiveVideoUrl && !effectiveImageUrl) {
         return (
-            <div className="w-full h-full rounded-xl bg-gray-900 flex items-center justify-center text-gray-500 text-sm">
+            <div className={cn(
+                "w-full flex items-center justify-center text-gray-500 text-sm",
+                isBanner 
+                    ? "rounded-2xl h-[160px] sm:h-[180px] md:h-[220px] lg:h-[250px] bg-gray-900" 
+                    : "rounded-3xl min-h-[395px] h-full bg-white dark:bg-zinc-900 border"
+            )}>
                 No media available
             </div>
         );
     }
 
     return (
-        <div className="relative w-full h-full min-h-[250px] rounded-xl overflow-hidden bg-black group">
+        <div className={cn(
+            "relative w-full overflow-hidden bg-black group",
+            isBanner 
+                ? "rounded-2xl h-[160px] sm:h-[180px] md:h-[220px] lg:h-[250px]" 
+                : "rounded-3xl min-h-[395px] h-full shadow-md hover:shadow-2xl hover:shadow-emerald-500/15 transition-all duration-500 ease-out"
+        )}>
             {effectiveVideoUrl ? (
                 <>
                     {youtubeId ? (
@@ -517,7 +596,10 @@ const VideoPlayerAd = ({ ad, translation }: any) => {
                             <video
                                 ref={videoRef}
                                 src={effectiveVideoUrl}
-                                className="w-full h-full object-cover"
+                                className={cn(
+                                    "w-full h-full",
+                                    isBanner ? "object-contain" : "object-contain p-2"
+                                )}
                                 playsInline
                                 preload="metadata"
                                 onPlay={() => setIsPlaying(true)}
@@ -539,12 +621,19 @@ const VideoPlayerAd = ({ ad, translation }: any) => {
                 </>
             ) : (
                 <div className="relative w-full h-full">
-                    {effectiveImageUrl && <Image src={effectiveImageUrl} alt={effectiveTitle || 'Ad'} fill className="object-cover" />}
+                    {effectiveImageUrl && (
+                        <Image 
+                            src={effectiveImageUrl} 
+                            alt={effectiveTitle || 'Ad'} 
+                            fill 
+                            className={isBanner ? "object-contain" : "object-contain p-2"} 
+                        />
+                    )}
                 </div>
             )}
 
             {/* Bottom overlay with ad info */}
-            <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent text-white">
+            <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent text-white pointer-events-none">
                 {effectiveTitle && <h3 className="text-base font-bold leading-tight">{effectiveTitle}</h3>}
                 {(translation?.description || ad.description) && (
                     <p className="text-xs opacity-80 mt-0.5 line-clamp-1">{translation?.description || ad.description}</p>
@@ -610,7 +699,7 @@ const HtmlAd = ({ html }: { html: string }) => (
 
 // ─── Main AdRenderer ─────────────────────────────────────────────────────────
 
-const AdRenderer: React.FC<AdRendererProps> = ({ ad, isClosable }) => {
+const AdRenderer: React.FC<AdRendererProps> = ({ ad, isClosable, layout }) => {
     const locale = useLocale();
     const translation =
         ad.translations?.find((t) => t.locale === locale || t.locale.startsWith(locale)) ||
@@ -670,13 +759,13 @@ const AdRenderer: React.FC<AdRendererProps> = ({ ad, isClosable }) => {
     const renderInlineContent = () => {
         switch (ad.displayTemplate as AdTemplate) {
             case 'image_only':
-                return <ImageOnlyAd ad={ad} translation={translation} />;
+                return <ImageOnlyAd ad={ad} translation={translation} layout={layout} />;
 
             case 'standard_card':
-                return <StandardCardAd ad={ad} translation={translation} />;
+                return <StandardCardAd ad={ad} translation={translation} layout={layout} />;
 
             case 'hero_banner':
-                return <HeroBannerAd ad={ad} translation={translation} />;
+                return <HeroBannerAd ad={ad} translation={translation} layout={layout} />;
 
             case 'native_list':
                 return <NativeListAd ad={ad} translation={translation} />;
@@ -691,7 +780,7 @@ const AdRenderer: React.FC<AdRendererProps> = ({ ad, isClosable }) => {
                 return <InlineContentAd ad={ad} translation={translation} />;
 
             case 'video_player':
-                return <VideoPlayerAd ad={ad} translation={translation} />;
+                return <VideoPlayerAd ad={ad} translation={translation} layout={layout} />;
 
             case 'sticky_banner':
                 return <StickyBannerAd ad={ad} translation={translation} />;
@@ -701,18 +790,24 @@ const AdRenderer: React.FC<AdRendererProps> = ({ ad, isClosable }) => {
             case 'interstitial':
             case 'floating_button':
                 // When forced to be inline, these resemble a standard card/banner
-                return <StandardCardAd ad={ad} translation={translation} />;
+                return <StandardCardAd ad={ad} translation={translation} layout={layout} />;
 
             default:
                 // Unknown template: show media if available, otherwise nothing
                 return (
-                    <div className="relative w-full h-full min-h-[250px] rounded-md overflow-hidden bg-gray-100">
+                    <div className={cn(
+                        "relative w-full overflow-hidden",
+                        layout === 'banner' 
+                            ? "rounded-md bg-transparent h-[160px] sm:h-[180px] md:h-[220px] lg:h-[250px]" 
+                            : "rounded-3xl bg-white dark:bg-zinc-900 min-h-[395px] h-full shadow-md hover:shadow-2xl hover:shadow-emerald-500/15 transition-all duration-500 ease-out border-none"
+                    )}>
                         <AdMedia
                             imageUrl={translation?.imageUrl}
                             videoUrl={translation?.videoUrl}
                             title={translation?.title}
                             adType={ad.adType}
                             ad={ad}
+                            className={layout === 'banner' ? "w-full h-full object-contain" : "w-full h-full object-contain p-2"}
                         />
                     </div>
                 );

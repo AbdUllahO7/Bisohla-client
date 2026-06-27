@@ -297,7 +297,8 @@ const SimilarAds: React.FC<SimilarAdsProps> = ({
                         allowPlaceholders={allowPlaceholders}
                         dismissable={dismissable}
                         rotationStrategy={rotationStrategy}
-                        wrapperClassName="justify-center items-center animate-fadeInUp flex w-full h-full"
+                        wrapperClassName="w-full h-full min-h-[395px] animate-fadeInUp flex flex-col items-stretch"
+                        layout="card"
                         style={{
                           animationDelay: `${i * 0.1}s`,
                           animationFillMode: 'both',
