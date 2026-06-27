@@ -13,6 +13,7 @@ export interface AttributeValue {
   valueBoolean?: boolean;
   valueJson?: any;
   valueTextTranslations?: { en?: string; ar?: string };
+  referenceItemId?: number | null;
 }
 
 export interface CreateListingDto {
