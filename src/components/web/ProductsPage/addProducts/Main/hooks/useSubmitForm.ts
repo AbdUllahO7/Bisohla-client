@@ -52,11 +52,11 @@ const buildAttributeValue = (
     return { ...base, valueBoolean: Boolean(rawValue) };
   }
 
-  // Reference (foreign key IDs) → valueNumber
+  // Reference (foreign key IDs) → referenceItemId
   if (type === 'reference') {
     const num = Number(rawValue);
-    if (!isNaN(num)) return { ...base, valueNumber: num };
-    return { ...base, valueText: String(rawValue) };
+    if (!isNaN(num)) return { ...base, referenceItemId: num };
+    return null;
   }
 
   // Default: text
@@ -205,6 +205,7 @@ export const useSubmitForm = () => {
           attributeValues,
           images,
         };
+              console.log("createDto",createDto)
         response = await createListing(createDto);
       }
 
