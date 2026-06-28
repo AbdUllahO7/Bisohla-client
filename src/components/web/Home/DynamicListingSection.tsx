@@ -156,6 +156,7 @@ const DynamicListingSection: React.FC<DynamicListingSectionProps> = ({
                       <AdSpace
                         name={adSlotName!}
                         className="w-full h-full"
+                        wrapperClassName="w-full h-full min-h-[395px] flex flex-col items-stretch"
                         fallbackContent={<CardAds isRent={false} />}
                         isClosable={false}
                         adsData={adsData}
@@ -164,6 +165,7 @@ const DynamicListingSection: React.FC<DynamicListingSectionProps> = ({
                         allowPlaceholders={allowPlaceholders}
                         dismissable={dismissable}
                         rotationStrategy={rotationStrategy}
+                        layout="card"
                       />
                     </motion.div>
                   );

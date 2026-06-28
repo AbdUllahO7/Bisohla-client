@@ -224,7 +224,7 @@ const WebPage = async () => {
         listings: (rentRes.data?.data || []).map((item) =>
           normalizeListingToCarDto(item, locale),
         ),
-        adSlotName: 'rent-page-ad-section',
+        adSlotName: 'home page rent section ad',
         listingOfferType: 'for_rent',
       });
     } else {
@@ -257,6 +257,7 @@ const WebPage = async () => {
           listings={featuredListings}
           title={t('featuredListings')}
           iconName="star"
+          adSlotName="home page featured section ad"
         />
 
         {/* Dynamic Sections per Listing Type */}
@@ -275,6 +276,7 @@ const WebPage = async () => {
           listings={trendingListings}
           title={t('trendingListings')}
           iconName="trending"
+          adSlotName="home page trending section ad"
         />
 
         <AdsSection />
