@@ -265,8 +265,8 @@ const TabsSection: React.FC<TabsSectionProps> = ({
         </div>
       )}
 
-      {/* Product Damages Section — car listings only */}
-      {isCarListing && (
+      {/* Product Damages Section — cars, motors, or any listing with damages */}
+      {(isCarListing || Number(data?.data?.listingTypeId) === 2 || damages.length > 0) && (
         <div className="shadow-xl bg-white dark:bg-zinc-900 border dark:border-zinc-800 p-2 rounded-lg w-full mb-4">
           <div className="font-cairo font-bold text-primary dark:text-[#ABDE3B]">
             {isLoading ? (
@@ -289,7 +289,7 @@ const TabsSection: React.FC<TabsSectionProps> = ({
                 ))}
               </div>
             ) : (
-              <AccordionProductDetails damages={damages} />
+              <AccordionProductDetails damages={damages} listingTypeId={data?.data?.listingTypeId} />
             )}
           </div>
         </div>
