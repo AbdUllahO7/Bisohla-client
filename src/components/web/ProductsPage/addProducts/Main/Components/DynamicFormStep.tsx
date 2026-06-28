@@ -28,6 +28,7 @@ import {
   SyriaGovernorate_TO_CITIES 
 } from '@/core/entities/enums/syria.enums';
 import CarBlueprint from '../../../product/CarBlueprint';
+import MotorcycleBlueprint from '../../../product/MotorcycleBlueprint';
 
 // --- Sub-components for specialized rendering ---
 
@@ -41,7 +42,8 @@ const DamageMatrix: React.FC<{
   onChange: (value: any[]) => void;
   getTranslation: (val: any) => string;
   isArabic: boolean;
-}> = ({ attribute, value, onChange, getTranslation, isArabic }) => {
+  listingTypeId?: number;
+}> = ({ attribute, value, onChange, getTranslation, isArabic, listingTypeId }) => {
   const zoneAttr = attribute.childAttributes?.find((a: any) => a.slug === 'damage_zone');
   const typeAttr = attribute.childAttributes?.find((a: any) => a.slug === 'damage_type');
 
@@ -87,20 +89,126 @@ const DamageMatrix: React.FC<{
     onChange(newValue);
   };
 
+  // Helper for old table colors
+  const getTableColor = (typeId: string) => {
+    const id = typeId.toLowerCase();
+    if (id.includes('paint') || id.includes('طلاء')) return 'bg-emerald-500'; 
+    if (id.includes('scratch') || id.includes('خدش')) return 'bg-red-500'; 
+    if (id.includes('replacement') || id.includes('استبدال')) return 'bg-purple-500'; 
+    return 'bg-amber-500';
+  };
+
+  const handleTableToggle = (zoneId: string, typeId: string) => {
+    const existing = value.find((v: any) => v.damage_zone === zoneId);
+    let newValue = [...value];
+
+    if (existing) {
+      if (existing.damage_type === typeId) {
+        // Toggle off
+        newValue = newValue.filter((v: any) => v.damage_zone !== zoneId);
+      } else {
+        // Change type
+        newValue = newValue.map((v: any) => 
+          v.damage_zone === zoneId ? { ...v, damage_type: typeId } : v
+        );
+      }
+    } else {
+      // Add new
+      newValue.push({ damage_zone: zoneId, damage_type: typeId });
+    }
+    onChange(newValue);
+  };
+
+  const isVisualBlueprint = Number(listingTypeId) === 1 || Number(listingTypeId) === 2;
+
+  // Fallback to table selection layout for other listing types
+  if (!isVisualBlueprint) {
+    return (
+      <div className="w-full overflow-hidden rounded-xl border border-gray-100 dark:border-zinc-800 shadow-sm bg-white dark:bg-zinc-900" dir={isArabic ? 'rtl' : 'ltr'}>
+        <table className="w-full border-collapse">
+          <thead className="bg-gray-100/80 dark:bg-zinc-800/80">
+            <tr>
+              <th className="py-4 px-4 text-sm font-bold text-gray-500 dark:text-zinc-400 text-center w-1/4 border-b border-gray-200 dark:border-zinc-800">
+                {isArabic ? "اسم القسم" : "Section Name"}
+              </th>
+              {types.map((type: any) => (
+                <th key={type.id} className="py-4 px-2 border-b border-gray-200 dark:border-zinc-800">
+                  <div className={cn(
+                    "flex items-center justify-center gap-2 px-4 py-2 rounded-full text-white text-xs font-bold shadow-sm mx-auto",
+                    getTableColor(type.id)
+                  )}>
+                    <div className="w-4 h-4 rounded-full border-2 border-white/50" />
+                    {getTranslation(type.label || type.name)}
+                  </div>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {zones.map((zone: any, idx: number) => {
+              const zoneValue = value.find(v => v.damage_zone === zone.id);
+              return (
+                <tr key={zone.id} className={cn(idx % 2 === 0 ? "bg-white dark:bg-zinc-900" : "bg-gray-50/30 dark:bg-zinc-800/20")}>
+                  <td className={cn(
+                    "py-4 px-6 text-sm font-semibold text-gray-700 dark:text-zinc-300 border-b border-gray-100 dark:border-zinc-800",
+                    isArabic ? "text-right" : "text-left"
+                  )}>
+                    {getTranslation(zone.label || zone.name)}
+                  </td>
+                  {types.map((type: any) => {
+                    const isSelected = zoneValue?.damage_type === type.id;
+                    return (
+                      <td key={type.id} className="py-4 px-2 text-center border-b border-gray-100 dark:border-zinc-800">
+                        <button
+                          type="button"
+                          onClick={() => handleTableToggle(zone.id, type.id)}
+                          className={cn(
+                            "w-6 h-6 rounded-full border-2 transition-all duration-200 flex items-center justify-center mx-auto",
+                            isSelected 
+                              ? "border-[#198341] bg-white dark:bg-zinc-900 scale-110 shadow-sm" 
+                              : "border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:border-[#198341]/50"
+                          )}
+                        >
+                          {isSelected && <div className="w-3 h-3 rounded-full bg-[#198341]" />}
+                        </button>
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    );
+  }
+
+  // Visual layout for cars and motorcycles
   return (
     <div className="w-full flex flex-col lg:flex-row gap-8 items-stretch" dir={isArabic ? 'rtl' : 'ltr'}>
       {/* Visual blueprint section */}
       <div className="flex-1 bg-gray-50/50 dark:bg-zinc-950/20 p-6 rounded-2xl border border-slate-100 dark:border-zinc-800 flex flex-col items-center justify-center">
         <Text className="text-sm font-bold text-gray-700 dark:text-zinc-300 mb-4 text-center">
-          {isArabic ? "انقر على أي جزء من هيكل السيارة لتحديد الأضرار" : "Click on any car panel to mark damage"}
+          {Number(listingTypeId) === 2
+            ? (isArabic ? "انقر على أي جزء من هيكل الدراجة النارية لتحديد الأضرار" : "Click on any motorcycle panel to mark damage")
+            : (isArabic ? "انقر على أي جزء من هيكل السيارة لتحديد الأضرار" : "Click on any car panel to mark damage")}
         </Text>
         <div className="w-full max-w-[280px]">
-          <CarBlueprint
-            damages={value}
-            selectedZone={selectedZoneId}
-            onZoneSelect={handleZoneSelect}
-            isInteractive={true}
-          />
+          {Number(listingTypeId) === 2 ? (
+            <MotorcycleBlueprint
+              damages={value}
+              selectedZone={selectedZoneId}
+              onZoneSelect={handleZoneSelect}
+              isInteractive={true}
+            />
+          ) : (
+            <CarBlueprint
+              damages={value}
+              selectedZone={selectedZoneId}
+              onZoneSelect={handleZoneSelect}
+              isInteractive={true}
+            />
+          )}
         </div>
       </div>
       
@@ -134,8 +242,8 @@ const DamageMatrix: React.FC<{
                       : "hover:bg-emerald-50 dark:hover:bg-emerald-950/20 text-emerald-600 border-emerald-200 dark:border-emerald-900";
                   } else if (typeIdLower.includes('scratch') || typeIdLower.includes('خدش')) {
                     btnStyle = isSelected 
-                      ? "bg-blue-500 hover:bg-blue-600 text-white border-blue-500" 
-                      : "hover:bg-blue-50 dark:hover:bg-blue-950/20 text-blue-600 border-blue-200 dark:border-blue-900";
+                      ? "bg-red-500 hover:bg-red-600 text-white border-red-500" 
+                      : "hover:bg-red-50 dark:hover:bg-red-950/20 text-red-600 border-red-200 dark:border-red-900";
                   } else if (typeIdLower.includes('replacement') || typeIdLower.includes('استبدال')) {
                     btnStyle = isSelected 
                       ? "bg-purple-500 hover:bg-purple-600 text-white border-purple-500" 
@@ -183,8 +291,8 @@ const DamageMatrix: React.FC<{
             </Text>
             <Text className="text-xs text-slate-400 dark:text-zinc-500 max-w-[200px] leading-relaxed">
               {isArabic 
-                ? "انقر على أي جزء من هيكل السيارة في النموذج للبدء." 
-                : "Click on any car panel in the model to start marking."}
+                ? (Number(listingTypeId) === 2 ? "انقر على أي جزء من هيكل الدراجة النارية في النموذج للبدء." : "انقر على أي جزء من هيكل السيارة في النموذج للبدء.")
+                : (Number(listingTypeId) === 2 ? "Click on any motorcycle panel in the model to start marking." : "Click on any car panel in the model to start marking.")}
             </Text>
           </div>
         )}
@@ -565,6 +673,7 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
                   onChange={(val) => handleFieldChange(attr.slug, val)}
                   getTranslation={getTranslation}
                   isArabic={isArabic}
+                  listingTypeId={schema?.listingTypeId || section.listingTypeId}
                 />
               </div>
             ))}

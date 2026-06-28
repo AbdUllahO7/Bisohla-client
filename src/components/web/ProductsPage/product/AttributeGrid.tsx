@@ -64,7 +64,18 @@ const AttributeGrid: React.FC<AttributeGridProps> = ({
         slug: av.attribute.slug,
         value: resolveAttributeValue(av, locale),
       }))
-      .filter((item) => item.value !== '' && item.slug !== 'damages' && item.slug !== 'damage' && item.type !== 'repeating_group');
+      .filter((item) => 
+        item.value !== '' && 
+        item.slug !== 'damages' && 
+        item.slug !== 'damage' && 
+        item.slug !== 'additional_features' && 
+        item.slug !== 'additional-features' && 
+        item.slug !== 'features' && 
+        !item.label.toLowerCase().includes('additional feature') &&
+        !item.label.includes('الميزات الإضافية') &&
+        !item.label.includes('المميزات الإضافية') &&
+        (item.type as string) !== 'repeating_group'
+      );
   }, [attributeValues, locale]);
 
   if (isLoading) {

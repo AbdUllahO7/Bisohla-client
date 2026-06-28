@@ -17,6 +17,64 @@ const getLocalizedValue = (val: any, locale: string): string => {
   return '';
 };
 
+const getFeatureLabel = (featureKey: string, locale: string): string | null => {
+  const messages = locale === 'ar' ? arMessages : enMessages;
+  const featuresObj = (messages as any).addProduct?.enteredData?.stepTwo?.features;
+  if (featuresObj && typeof featuresObj === 'object') {
+    for (const category of Object.values(featuresObj)) {
+      if (category && typeof category === 'object') {
+        const label = (category as any)[featureKey];
+        if (label) return label;
+      }
+    }
+  }
+  return null;
+};
+
+export const humanizeOptionId = (id: string, locale: string): string => {
+  const translated = getFeatureLabel(id, locale);
+  if (translated) return translated;
+
+  const mappingsEn: Record<string, string> = {
+    abs: 'ABS',
+    usb_charger: 'USB Charger',
+    led_lights: 'LED Lights',
+    gps: 'GPS',
+    tcs: 'TCS',
+    esc: 'ESC',
+    ebd: 'EBD',
+  };
+
+  const mappingsAr: Record<string, string> = {
+    abs: 'نظام الفرامل المانعة للانغلاق (ABS)',
+    electric_start: 'تشغيل كهربائي',
+    kick_start: 'تشغيل بالقدم (مانيلا)',
+    digital_display: 'شاشة رقمية',
+    led_lights: 'إضاءة LED',
+    alarm: 'إنذار ضد السرقة',
+    usb_charger: 'شاحن USB',
+    keyless: 'بدون مفتاح (بصمة)',
+    traction_control: 'نظام التحكم في الجر',
+    cruise_control: 'مثبت السرعة',
+    heated_grips: 'مقابض مدفأة',
+    windshield: 'زجاج أمامي',
+    luggage_box: 'صندوق أمتعة',
+    crash_bars: 'قضبان الحماية',
+    disc_brake: 'فرامل ديسك',
+    alloy_wheels: 'جنوط ألمنيوم',
+  };
+
+  if (locale === 'ar') {
+    if (mappingsAr[id]) return mappingsAr[id];
+  }
+
+  if (mappingsEn[id]) return mappingsEn[id];
+
+  return id
+    .replace(/[_-]/g, ' ')
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+};
+
 /**
  * Resolves a raw GenericAttributeValue into a human-readable display string.
  * Handles: reference, select, number, boolean, date, text.
@@ -28,7 +86,7 @@ export const resolveAttributeValue = (
   const { attribute, referenceItem, valueText, valueNumber, valueBoolean, valueDate, valueJson } = av;
 
   const getVal = () => {
-    switch (attribute.type) {
+    switch (attribute.type as string) {
       case 'reference':
         return referenceItem ? getLocalizedValue(referenceItem.name, locale) : '';
 
@@ -108,13 +166,61 @@ export const resolveAttributeValue = (
         }
       }
 
+      case 'multi_select':
+      case 'multi_selection': {
+        let ids: string[] = [];
+        if (Array.isArray(valueJson)) {
+          ids = valueJson;
+        } else if (typeof valueText === 'string') {
+          try {
+            const parsed = JSON.parse(valueText);
+            if (Array.isArray(parsed)) ids = parsed;
+            else ids = [valueText];
+          } catch {
+            ids = valueText.split(',').map(s => s.trim());
+          }
+        }
+        if (ids.length === 0) return '';
+        const labels = ids.map(id => {
+          const option = attribute.options?.find((o) => o.id === id);
+          if (option) return option.label[locale as 'ar' | 'en'] || option.label.en || id;
+          return humanizeOptionId(id, locale);
+        });
+        return labels.join(', ');
+      }
+
       case 'text':
-      default:
+      default: {
+        // If the value is a JSON string of an array (e.g. ["abs", "electric_start"]), parse and format it.
+        let ids: string[] | null = null;
+        if (Array.isArray(valueJson)) {
+          ids = valueJson.map(v => String(v));
+        } else if (typeof valueText === 'string' && valueText.trim().startsWith('[') && valueText.trim().endsWith(']')) {
+          try {
+            const parsed = JSON.parse(valueText);
+            if (Array.isArray(parsed)) {
+              ids = parsed.map(v => String(v));
+            }
+          } catch {
+            // Not a valid JSON array
+          }
+        }
+
+        if (ids && ids.length > 0) {
+          const labels = ids.map(id => {
+            const option = attribute.options?.find((o) => o.id === id);
+            if (option) return option.label[locale as 'ar' | 'en'] || option.label.en || id;
+            return humanizeOptionId(id, locale);
+          });
+          return labels.join(', ');
+        }
+
         if (valueText) return valueText;
         if (valueJson !== null && valueJson !== undefined) {
           return typeof valueJson === 'string' ? valueJson : JSON.stringify(valueJson);
         }
         return '';
+      }
     }
   };
 

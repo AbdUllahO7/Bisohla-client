@@ -18,7 +18,7 @@ export const getDamageStyle = (typeId: string | undefined | null): { fill?: stri
     return { fill: '#10b981', opacity: 0.55 }; // Emerald semi-transparent
   }
   if (id.includes('scratch') || id.includes('خدش')) {
-    return { fill: '#3b82f6', opacity: 0.55 }; // Blue semi-transparent
+    return { fill: '#ef4444', opacity: 0.55 }; // Red semi-transparent
   }
   if (id.includes('replacement') || id.includes('استبدال')) {
     return { fill: '#a855f7', opacity: 0.55 }; // Purple semi-transparent
@@ -31,7 +31,7 @@ export const getDamageColorClass = (typeId: string | undefined | null) => {
   if (!typeId) return 'fill-transparent';
   const id = typeId.toLowerCase();
   if (id.includes('paint') || id.includes('طلاء')) return 'fill-emerald-500/50';
-  if (id.includes('scratch') || id.includes('خدش')) return 'fill-blue-500/50';
+  if (id.includes('scratch') || id.includes('خدش')) return 'fill-red-500/50';
   if (id.includes('replacement') || id.includes('استبدال')) return 'fill-purple-500/50';
   return 'fill-amber-500/50';
 };
