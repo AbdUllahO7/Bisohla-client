@@ -915,6 +915,16 @@ export default function PrivacyPolicyPage() {
         .privacy-content :global(*) {
           background-color: transparent !important;
         }
+
+        /* Override Quill inline colors in dark mode to prevent black text on dark background */
+        :global(.dark) .privacy-content :global(span),
+        :global(.dark) .privacy-content :global(p),
+        :global(.dark) .privacy-content :global(li),
+        :global(.dark) .privacy-content :global(strong),
+        :global(.dark) .privacy-content :global(td),
+        :global(.dark) .privacy-content :global(th) {
+          color: inherit !important;
+        }
         
         .privacy-content :global(pre),
         .privacy-content :global(pre) :global(*) {
@@ -925,6 +935,32 @@ export default function PrivacyPolicyPage() {
         :global(.dark) .privacy-content :global(pre) :global(*) {
           background-color: #18181B !important;
           color: #E4E4E7 !important;
+        }
+
+        .privacy-content :global(table) {
+          border-collapse: collapse !important;
+          width: 100% !important;
+          margin: 1.5rem 0 !important;
+        }
+
+        .privacy-content :global(table td),
+        .privacy-content :global(table th) {
+          border: 1px solid #E5E7EB !important;
+          padding: 0.75rem !important;
+        }
+
+        :global(.dark) .privacy-content :global(table td),
+        :global(.dark) .privacy-content :global(table th) {
+          border-color: #27272A !important;
+        }
+
+        .privacy-content :global(table th) {
+          background-color: #F9FAFB !important;
+          font-weight: 700 !important;
+        }
+
+        :global(.dark) .privacy-content :global(table th) {
+          background-color: #18181B !important;
         }
 
         .privacy-content :global(h1) {
@@ -963,6 +999,22 @@ export default function PrivacyPolicyPage() {
         }
 
         :global(.dark) .privacy-content :global(h3) {
+          color: #ABDE3B !important;
+        }
+
+        .privacy-content :global(h4),
+        .privacy-content :global(h5),
+        .privacy-content :global(h6) {
+          font-size: 1.15rem !important;
+          font-weight: 700 !important;
+          color: #198341 !important;
+          margin-top: 1.5rem !important;
+          margin-bottom: 0.5rem !important;
+        }
+
+        :global(.dark) .privacy-content :global(h4),
+        :global(.dark) .privacy-content :global(h5),
+        :global(.dark) .privacy-content :global(h6) {
           color: #ABDE3B !important;
         }
 
