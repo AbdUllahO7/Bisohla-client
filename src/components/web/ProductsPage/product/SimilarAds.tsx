@@ -171,7 +171,7 @@ const SimilarAds: React.FC<SimilarAdsProps> = ({
               <SectionHeader
                 title={title ? title : t('latestOffers.title')}
                 icon={CarFrontIcon}
-                showMoreLink="products"
+                showMoreLink={`/products?listingTypeId=${car.listingTypeId || 1}&listingOfferType=${car.listingType || car.listingOfferType || 'for_sale'}`}
                 showMoreText={t('latestOffers.showMore')}
               />
             </div>
