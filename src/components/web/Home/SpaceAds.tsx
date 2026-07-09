@@ -55,7 +55,7 @@ const SpaceAds = () => {
   return (
     <Box variant="container" className="w-full mx-auto p-0">
       <Box variant="row" className="flex flex-col md:flex-row gap-4 md:gap-6 lg:gap-8">
-        <div className="w-full md:w-[48%] min-h-[200px] sm:h-[220px] md:h-[250px] mb-4 md:mb-0">
+        <div className="w-full md:w-[48%] min-h-[150px] sm:h-[270px] md:h-[300px] mb-4 md:mb-0">
           <AdSpace
             name="web-home-page-ads-section-left-side"
             className="w-full h-full"
@@ -69,7 +69,7 @@ const SpaceAds = () => {
             layout="banner"
           />
         </div>
-        <div className="w-full md:w-[48%] min-h-[200px] sm:h-[220px] md:h-[250px]">
+        <div className="w-full md:w-[48%] min-h-[250px] sm:h-[270px] md:h-[300px]">
           <AdSpace
             name="web home page ads section right side"
             className="w-full h-full"

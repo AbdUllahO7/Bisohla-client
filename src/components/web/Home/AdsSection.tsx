@@ -14,8 +14,8 @@ const AdsSection = () => {
         <Box variant="container" className="flex justify-center p-0" dir={locale === 'ar' ? 'rtl' : 'ltr'}>
             <AdSpace
                 name="home-page-ads-section-full-width"
-                className="w-full min-h-[300px]"
-                wrapperClassName="w-full"
+                className="w-full"
+                wrapperClassName="w-full min-h-[380px]"
                 fallbackContent={<StaticAdsDesign />}
                 isClosable={false}
                 adsData={adsData}
@@ -24,6 +24,7 @@ const AdsSection = () => {
                 dismissable={dismissable}
                 rotationStrategy={rotationStrategy}
                 layout="banner"
+                style={{ minHeight: '500px' }}
             />
         </Box>
     );
