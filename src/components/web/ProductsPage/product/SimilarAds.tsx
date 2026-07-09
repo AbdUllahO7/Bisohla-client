@@ -171,7 +171,7 @@ const SimilarAds: React.FC<SimilarAdsProps> = ({
               <SectionHeader
                 title={title ? title : t('latestOffers.title')}
                 icon={CarFrontIcon}
-                showMoreLink="products"
+                showMoreLink={`/products?listingTypeId=${car.listingTypeId || 1}&listingOfferType=${car.listingType || car.listingOfferType || 'for_sale'}`}
                 showMoreText={t('latestOffers.showMore')}
               />
             </div>
@@ -223,92 +223,91 @@ const SimilarAds: React.FC<SimilarAdsProps> = ({
 
           {/* Display actual cards when data is loaded */}
           {!isLoading && !error && carListings.length > 0 && (
-            <Box
-              className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 ${showTitle ? 'lg:grid-cols-5' : 'lg:grid-cols-4'
-                } gap-6 sm:w-[90%] xs:w-[90%] lg:w-full`}
-              variant="center"
-            >
-              {(() => {
-                const items: any[] = [];
-                let adIndexCounter = 0;
-                const showPlaceholder = allowPlaceholders !== true;
-                
-                carListings.forEach((card: any, index: number) => {
-                  items.push({ type: 'product', data: card, originalIndex: index });
+              <div
+                className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 ${showTitle ? 'lg:grid-cols-5' : 'lg:grid-cols-4'
+                  } gap-6 sm:w-[90%] xs:w-[90%] lg:w-full`}
+              >
+                {(() => {
+                  const items: any[] = [];
+                  let adIndexCounter = 0;
+                  const showPlaceholder = allowPlaceholders !== false;
                   
-                  let showAd = false;
-                  let baseAdIndex = -1;
+                  carListings.forEach((card: any, index: number) => {
+                    items.push({ type: 'product', data: card, originalIndex: index });
+                    
+                    let showAd = false;
+                    let baseAdIndex = -1;
 
-                  if (adsData.length === 0) {
-                      if (showPlaceholder && index === 1) { showAd = true; baseAdIndex = 0; }
-                  } else if (adsData.length === 1) {
-                      if (index === 3) { showAd = true; baseAdIndex = 0; }
-                  } else {
-                      if (index === 1) { showAd = true; baseAdIndex = 0; }
-                      else if (index === 3) { showAd = true; baseAdIndex = 1; }
-                      else if (index === 5) { showAd = true; baseAdIndex = 2; }
-                      else if (index === 7) { showAd = true; baseAdIndex = 3; }
+                    if (adsData.length === 0) {
+                        if (showPlaceholder && index === 1) { showAd = true; baseAdIndex = 0; }
+                    } else if (adsData.length === 1) {
+                        if (index === 3) { showAd = true; baseAdIndex = 0; }
+                    } else {
+                        if (index === 1) { showAd = true; baseAdIndex = 0; }
+                        else if (index === 3) { showAd = true; baseAdIndex = 1; }
+                        else if (index === 5) { showAd = true; baseAdIndex = 2; }
+                        else if (index === 7) { showAd = true; baseAdIndex = 3; }
+                    }
+
+                    if (showAd) {
+                       items.push({ type: 'ad', baseAdIndex });
+                       adIndexCounter = Math.max(adIndexCounter, baseAdIndex + 1);
+                    }
+                  });
+
+                  if (showPlaceholder || adsData.length > 0) {
+                    const targetAdsLimit = Math.max(adsData.length, showPlaceholder ? 1 : 0);
+                    while (adIndexCounter < targetAdsLimit) {
+                      items.push({ type: 'ad', baseAdIndex: adIndexCounter });
+                      adIndexCounter++;
+                    }
                   }
 
-                  if (showAd) {
-                     items.push({ type: 'ad', baseAdIndex });
-                     adIndexCounter = Math.max(adIndexCounter, baseAdIndex + 1);
-                  }
-                });
-
-                if (showPlaceholder || adsData.length > 0) {
-                  const targetAdsLimit = Math.max(adsData.length, showPlaceholder ? 1 : 0);
-                  while (adIndexCounter < targetAdsLimit) {
-                    items.push({ type: 'ad', baseAdIndex: adIndexCounter });
-                    adIndexCounter++;
-                  }
-                }
-
-                return items.map((item, i) => {
-                  if (item.type === 'product') {
-                    return (
-                      <React.Fragment key={`product-${item.data.id || item.originalIndex}`}>
-                        {/* Card with Fade-in Animation */}
-                        <div
-                          className="animate-fadeInUp h-full w-full flex flex-col"
+                  return items.map((item, i) => {
+                    if (item.type === 'product') {
+                      return (
+                        <React.Fragment key={`product-${item.data.id || item.originalIndex}`}>
+                          {/* Card with Fade-in Animation */}
+                          <div
+                            className="animate-fadeInUp h-full w-full flex flex-col"
+                            style={{
+                              animationDelay: `${item.originalIndex * 0.1}s`,
+                              animationFillMode: 'both',
+                            }}
+                          >
+                            <RentProductCard
+                              car={item.data}
+                              priceWord={t('latestOffers.price')}
+                            />
+                          </div>
+                        </React.Fragment>
+                      );
+                    } else {
+                      const currentAdIndex = (item.baseAdIndex >= 0 && adsData.length > 0) ? item.baseAdIndex % adsData.length : item.baseAdIndex;
+                      return (
+                        <AdSpace 
+                          key={`ad-slot-${item.baseAdIndex}-${i}`}
+                          name="sale-page-ads-section" 
+                          isClosable={false}
+                          fallbackContent={<CardAds isRent={false} />}
+                          adsData={adsData}
+                          isLoadingAds={isLoadingAds}
+                          adIndex={currentAdIndex}
+                          allowPlaceholders={allowPlaceholders}
+                          dismissable={dismissable}
+                          rotationStrategy={rotationStrategy}
+                          wrapperClassName="w-full h-full min-h-[395px] animate-fadeInUp flex flex-col items-stretch"
+                          layout="card"
                           style={{
-                            animationDelay: `${item.originalIndex * 0.1}s`,
+                            animationDelay: `${i * 0.1}s`,
                             animationFillMode: 'both',
                           }}
-                        >
-                          <RentProductCard
-                            car={item.data}
-                            priceWord={t('latestOffers.price')}
-                          />
-                        </div>
-                      </React.Fragment>
-                    );
-                  } else {
-                    const currentAdIndex = (item.baseAdIndex >= 0 && adsData.length > 0) ? item.baseAdIndex % adsData.length : item.baseAdIndex;
-                    return (
-                      <AdSpace 
-                        key={`ad-slot-${item.baseAdIndex}-${i}`}
-                        name="sale-page-ads-section" 
-                        isClosable={false}
-                        fallbackContent={<CardAds isRent={false} />}
-                        adsData={adsData}
-                        isLoadingAds={isLoadingAds}
-                        adIndex={currentAdIndex}
-                        allowPlaceholders={allowPlaceholders}
-                        dismissable={dismissable}
-                        rotationStrategy={rotationStrategy}
-                        wrapperClassName="w-full h-full min-h-[395px] animate-fadeInUp flex flex-col items-stretch"
-                        layout="card"
-                        style={{
-                          animationDelay: `${i * 0.1}s`,
-                          animationFillMode: 'both',
-                        }}
-                      />
-                    );
-                  }
-                });
-              })()}
-            </Box>
+                        />
+                      );
+                    }
+                  });
+                })()}
+              </div>
           )}
         </Box>
       </Box>

@@ -172,15 +172,14 @@ const NewsSection: React.FC<NewsSectionProps> = ({
           {/* News Grid */}
           {!isLoading && !error && hasArticles && (
             <>
-              <Box
-                className="grid grid-cols-1 md:grid-cols-4 gap-6"
-                variant="center"
+              <div
+                className="grid grid-cols-1 md:grid-cols-4 gap-6 w-full"
               >
                 {(() => {
                   const items: any[] = [];
                   let adIndexCounter = 0;
                   const actualAdsLength = adsData?.length || 0;
-                  const showPlaceholder = allowPlaceholders !== true;
+                  const showPlaceholder = allowPlaceholders !== false;
                   // Use exactly 1 fallback ad if no real ads and placeholders are allowed
                   const totalAdsTarget = (actualAdsLength === 0 && !showPlaceholder) ? 0 : Math.max(actualAdsLength, 1);
                   let lastAdIndex = -10;
@@ -252,7 +251,7 @@ const NewsSection: React.FC<NewsSectionProps> = ({
                     }
                   });
                 })()}
-              </Box>
+              </div>
 
             </>
           )}

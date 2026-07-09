@@ -113,7 +113,7 @@ const DynamicListingSection: React.FC<DynamicListingSectionProps> = ({
               const items: any[] = [];
               let adIndexCounter = 0;
               const displayLimit = 10; // 9 products + 1 ad = 10 slots
-              const showPlaceholder = allowPlaceholders !== true;
+              const showPlaceholder = allowPlaceholders !== false;
               const hasAd = adSlotName && (adsData.length > 0 || showPlaceholder);
 
               listings.slice(0, 9).forEach((listing, index) => {
