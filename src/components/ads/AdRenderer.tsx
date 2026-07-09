@@ -177,7 +177,7 @@ const ImageOnlyAd = ({ ad, translation, layout }: { ad: AdContentDto; translatio
                 title={translation?.title}
                 adType={ad.adType}
                 ad={ad}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain"
             />
         </div>
     );

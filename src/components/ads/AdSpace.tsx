@@ -184,8 +184,8 @@ const AdSpace: React.FC<AdSpaceProps> = ({
 
     // ── No ads returned (error or empty) ─────────────────────────────────
     if (error || orderedAds.length === 0) {
-        // If allowPlaceholders is true, hide the default ads. If false, show them!
-        if (finalAllowPlaceholders === true) {
+        // If allowPlaceholders is explicitly false, hide the slot entirely.
+        if (finalAllowPlaceholders === false) {
             return null;
         }
 
@@ -233,7 +233,7 @@ const AdSpace: React.FC<AdSpaceProps> = ({
         const adToRender = orderedAds[adIndex];
 
         if (!adToRender) {
-            if (finalAllowPlaceholders === true) {
+            if (finalAllowPlaceholders === false) {
                 return null;
             }
             return fallbackContent ? (
