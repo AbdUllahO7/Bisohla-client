@@ -15,6 +15,36 @@ interface AdRendererProps {
     layout?: 'card' | 'banner';
 }
 
+// ─── Image analysis hook ─────────────────────────────────────────────────────
+
+/** Asynchronously reads the natural width/height of an image URL */
+const useImageAnalysis = (url?: string) => {
+    const [dimensions, setDimensions] = useState<{ width: number; height: number; aspectRatio: number } | null>(null);
+    const [isLoading, setIsLoading] = useState(!!url);
+
+    useEffect(() => {
+        if (!url) {
+            setDimensions(null);
+            setIsLoading(false);
+            return;
+        }
+        setIsLoading(true);
+        const img = new window.Image();
+        img.src = url;
+        img.onload = () => {
+            setDimensions({ width: img.naturalWidth, height: img.naturalHeight, aspectRatio: img.naturalWidth / img.naturalHeight });
+            setIsLoading(false);
+        };
+        img.onerror = () => { setDimensions(null); setIsLoading(false); };
+    }, [url]);
+
+    return { dimensions, isLoading };
+};
+
+/** Clamp an aspect ratio to avoid extreme tall/wide cards */
+const clampAspect = (ratio: number) => Math.max(0.5, Math.min(2.0, ratio));
+
+
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
 /** Extracts YouTube video ID from various URL formats */
@@ -110,33 +140,59 @@ const AdMedia = ({
 // ─── Template Components ─────────────────────────────────────────────────────
 
 /** image_only — full image/video fill, no text overlay */
-const ImageOnlyAd = ({ ad, translation, layout }: any) => {
+const ImageOnlyAd = ({ ad, translation, layout }: { ad: AdContentDto; translation: { imageUrl?: string; videoUrl?: string; title?: string } | undefined; layout?: string }) => {
     const isBanner = layout === 'banner';
+    const imageUrl = translation?.imageUrl || ad.imageUrl;
+    const { dimensions, isLoading } = useImageAnalysis(imageUrl);
+
+    // Skeleton while analysing
+    if (isLoading) {
+        return (
+            <div className={cn(
+                "w-full bg-gray-100 dark:bg-zinc-800 animate-pulse",
+                isBanner ? "rounded-lg h-full min-h-[210px] sm:min-h-[230px] md:min-h-[270px] lg:min-h-[300px]" : "rounded-3xl min-h-[395px]"
+            )} />
+        );
+    }
+
+    // For card: derive a sensible container height from image aspect ratio
+    const ratio = dimensions ? clampAspect(dimensions.aspectRatio) : 1.0;
+    const cardStyle = !isBanner
+        ? { minHeight: '445px', maxHeight: '470px', aspectRatio: `${ratio}` }
+        : {};
+
     return (
-        <div className={cn(
-            isBanner 
-                ? "relative w-full overflow-hidden rounded-lg bg-transparent h-[160px] sm:h-[180px] md:h-[220px] lg:h-[250px]" 
-                : "relative w-full min-h-[395px] h-full flex flex-col justify-between bg-white dark:bg-zinc-900 overflow-hidden shadow-md hover:shadow-2xl hover:shadow-emerald-500/15 rounded-3xl border-none transition-all duration-500 ease-out"
-        )}>
+        <div
+            className={cn(
+                "relative w-full overflow-hidden",
+                isBanner
+                    ? "rounded-lg bg-transparent h-full min-h-[210px] sm:min-h-[230px] md:min-h-[270px] lg:min-h-[300px]"
+                    : "rounded-3xl shadow-md hover:shadow-2xl hover:shadow-emerald-500/15 border-none transition-all duration-500 ease-out bg-black"
+            )}
+            style={cardStyle}
+        >
             <AdMedia
                 imageUrl={translation?.imageUrl}
                 videoUrl={translation?.videoUrl}
                 title={translation?.title}
                 adType={ad.adType}
                 ad={ad}
-                className={isBanner ? "w-full h-full object-contain" : "w-full h-full object-contain p-2"}
+                className="w-full h-full object-cover"
             />
         </div>
     );
 };
 
-/** standard_card — image with text overlay at bottom or horizontal banner format */
-const StandardCardAd = ({ ad, translation, layout }: any) => {
+
+/** standard_card — image header with text content below */
+const StandardCardAd = ({ ad, translation, layout }: { ad: AdContentDto; translation: { imageUrl?: string; videoUrl?: string; title?: string; description?: string; actionText?: string } | undefined; layout?: string }) => {
     const isBanner = layout === 'banner';
+    const imageUrl = translation?.imageUrl || ad.imageUrl;
+    const { dimensions, isLoading } = useImageAnalysis(imageUrl);
 
     if (isBanner) {
         return (
-            <div className="relative w-full h-[160px] sm:h-[180px] md:h-[220px] lg:h-[250px] overflow-hidden rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 bg-gradient-to-r from-gray-900 to-gray-800 text-white border border-gray-800 flex items-center">
+            <div className="relative w-full h-full min-h-[210px] sm:min-h-[230px] md:min-h-[270px] lg:min-h-[300px] overflow-hidden rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 bg-gradient-to-r from-gray-900 to-gray-800 text-white border border-gray-800 flex items-center">
                 {/* Background Media */}
                 <div className="absolute inset-0 opacity-40">
                     <AdMedia
@@ -166,16 +222,29 @@ const StandardCardAd = ({ ad, translation, layout }: any) => {
         );
     }
 
+    // Card mode: skeleton while image loads
+    if (isLoading) {
+        return <div className="w-full rounded-3xl bg-gray-100 dark:bg-zinc-800 animate-pulse min-h-[395px]" />;
+    }
+
+    // Compute image header height from aspect ratio — wider images get shorter header, portrait gets taller
+    const ratio = dimensions ? clampAspect(dimensions.aspectRatio) : 1.5;
+    // header height = card width / ratio. We pick a sensible % of total card height
+    // Wide landscape (ratio ~1.5+): ~45–50% → ≈190px header at 420px card
+    // Portrait (ratio ~0.75): ~60% → ~220px header
+    const headerHeightPx = Math.round(Math.min(280, Math.max(190, 200 / ratio)));
+
     return (
-        <div className="relative w-full h-full min-h-[395px] flex flex-col justify-between overflow-hidden rounded-3xl shadow-md hover:shadow-2xl hover:shadow-emerald-500/15 transition-all duration-500 ease-out bg-white dark:bg-zinc-900 border-none">
-            <div className="relative w-full h-48 flex-shrink-0 bg-gray-50 dark:bg-zinc-800">
+        <div className="relative w-full flex flex-col justify-between overflow-hidden rounded-3xl shadow-md hover:shadow-2xl hover:shadow-emerald-500/15 transition-all duration-500 ease-out bg-white dark:bg-zinc-900 border-none" style={{ minHeight: '445px', maxHeight: '470px' }}>
+            {/* Image fills full width, height derived from real aspect ratio */}
+            <div className="relative w-full flex-shrink-0 overflow-hidden" style={{ height: `${headerHeightPx}px` }}>
                 <AdMedia
                     imageUrl={translation?.imageUrl}
                     videoUrl={translation?.videoUrl}
                     title={translation?.title}
                     adType={ad.adType}
                     ad={ad}
-                    className="w-full h-full object-contain p-2"
+                    className="w-full h-full object-cover"
                 />
             </div>
             {(translation?.title || translation?.description) && (
@@ -203,26 +272,37 @@ const StandardCardAd = ({ ad, translation, layout }: any) => {
     );
 };
 
+
 /** hero_banner — full-width tall banner with centred CTA */
-const HeroBannerAd = ({ ad, translation, layout }: any) => {
+const HeroBannerAd = ({ ad, translation, layout }: { ad: AdContentDto; translation: { imageUrl?: string; videoUrl?: string; title?: string; description?: string; actionText?: string } | undefined; layout?: string }) => {
     const isBanner = layout === 'banner';
+    const imageUrl = translation?.imageUrl || ad.imageUrl;
+    const { dimensions, isLoading } = useImageAnalysis(imageUrl);
+
+    if (isLoading && !isBanner) {
+        return <div className="w-full rounded-3xl bg-gray-100 dark:bg-zinc-800 animate-pulse min-h-[395px]" />;
+    }
+
+    const ratio = dimensions ? clampAspect(dimensions.aspectRatio) : 1.5;
+    const cardStyle = !isBanner ? { minHeight: '395px', maxHeight: '420px', aspectRatio: `${ratio}` } : {};
+
     return (
-        <div className={cn(
-            "relative w-full overflow-hidden group",
-            isBanner 
-                ? "rounded-2xl h-[160px] sm:h-[180px] md:h-[220px] lg:h-[250px]" 
-                : "rounded-3xl min-h-[395px] h-full shadow-md hover:shadow-2xl hover:shadow-emerald-500/15 transition-all duration-500 ease-out"
-        )}>
+        <div
+            className={cn(
+                "relative w-full overflow-hidden group",
+                isBanner
+                    ? "rounded-2xl h-full min-h-[210px] sm:min-h-[230px] md:min-h-[270px] lg:min-h-[300px]"
+                    : "rounded-3xl shadow-md hover:shadow-2xl hover:shadow-emerald-500/15 transition-all duration-500 ease-out"
+            )}
+            style={cardStyle}
+        >
             <AdMedia
                 imageUrl={translation?.imageUrl}
                 videoUrl={translation?.videoUrl}
                 title={translation?.title}
                 adType={ad.adType}
                 ad={ad}
-                className={cn(
-                    "w-full h-full transition-transform duration-700 group-hover:scale-105",
-                    isBanner ? "object-cover" : "object-contain p-2 bg-gray-50 dark:bg-zinc-800"
-                )}
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent flex flex-col justify-end p-4 md:p-6 text-white pointer-events-none">
                 {translation?.title && (
@@ -242,6 +322,7 @@ const HeroBannerAd = ({ ad, translation, layout }: any) => {
         </div>
     );
 };
+
 
 /** native_list — looks like editorial content, blends with the page */
 const NativeListAd = ({ ad, translation }: any) => (
@@ -566,7 +647,7 @@ const VideoPlayerAd = ({ ad, translation, layout }: any) => {
             <div className={cn(
                 "w-full flex items-center justify-center text-gray-500 text-sm",
                 isBanner 
-                    ? "rounded-2xl h-[160px] sm:h-[180px] md:h-[220px] lg:h-[250px] bg-gray-900" 
+                    ? "rounded-2xl h-full min-h-[210px] sm:min-h-[230px] md:min-h-[270px] lg:min-h-[300px] bg-gray-900" 
                     : "rounded-3xl min-h-[395px] h-full bg-white dark:bg-zinc-900 border"
             )}>
                 No media available
@@ -578,7 +659,7 @@ const VideoPlayerAd = ({ ad, translation, layout }: any) => {
         <div className={cn(
             "relative w-full overflow-hidden bg-black group",
             isBanner 
-                ? "rounded-2xl h-[160px] sm:h-[180px] md:h-[220px] lg:h-[250px]" 
+                ? "rounded-2xl h-full min-h-[210px] sm:min-h-[230px] md:min-h-[270px] lg:min-h-[300px]" 
                 : "rounded-3xl min-h-[395px] h-full shadow-md hover:shadow-2xl hover:shadow-emerald-500/15 transition-all duration-500 ease-out"
         )}>
             {effectiveVideoUrl ? (
@@ -798,7 +879,7 @@ const AdRenderer: React.FC<AdRendererProps> = ({ ad, isClosable, layout }) => {
                     <div className={cn(
                         "relative w-full overflow-hidden",
                         layout === 'banner' 
-                            ? "rounded-md bg-transparent h-[160px] sm:h-[180px] md:h-[220px] lg:h-[250px]" 
+                            ? "rounded-md bg-transparent h-full min-h-[210px] sm:min-h-[230px] md:min-h-[270px] lg:min-h-[300px]" 
                             : "rounded-3xl bg-white dark:bg-zinc-900 min-h-[395px] h-full shadow-md hover:shadow-2xl hover:shadow-emerald-500/15 transition-all duration-500 ease-out border-none"
                     )}>
                         <AdMedia
