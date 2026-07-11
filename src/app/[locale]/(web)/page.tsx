@@ -15,6 +15,8 @@ import RecentlyViewed from '@/components/web/Home/RecentlyViewed';
 import { getInjection } from '@/di/container';
 import DynamicListingSection from '@/components/web/Home/DynamicListingSection';
 import { normalizeListingToCarDto } from '@/utils/listing-normalization';
+import TopSellersSection from '@/components/web/Home/TopSellersSection';
+import { getTopSellers } from '@/core/infrastructure-adapters/actions/visitors/public-profile.actions';
 
 // Generate metadata based on locale and settings
 export async function generateMetadata(): Promise<Metadata> {
@@ -245,7 +247,9 @@ const WebPage = async () => {
     }
   }
 
-
+  // Fetch top sellers
+  const topSellersRes = await getTopSellers(10, 1);
+  const topSellers = topSellersRes.data ?? [];
 
   return (
     <AnimatedPageWrapper>
@@ -278,6 +282,10 @@ const WebPage = async () => {
           iconName="trending"
           adSlotName="home page trending section ad"
         />
+
+       
+               {/* Top Sellers Section */}
+        <TopSellersSection sellers={topSellers} />
 
         <AdsSection />
         <WorldOfCar />
