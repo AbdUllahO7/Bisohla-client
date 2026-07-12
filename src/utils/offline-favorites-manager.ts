@@ -60,7 +60,8 @@ export const getCachedListingFromPool = (listingId: number): MinimalListingInfo 
 };
 
 // Get cached favorites list
-export const getOfflineFavorites = (userId: number): Record<string, unknown> | null => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const getOfflineFavorites = (userId: number): any | null => {
   if (typeof window === 'undefined') return null;
   try {
     const cached = localStorage.getItem(`${CACHE_PREFIX}${userId}`);

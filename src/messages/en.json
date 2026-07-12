@@ -231,6 +231,11 @@
         }
       }
     },
+    "topSellers": {
+      "title": "Top Sellers",
+      "listings": "listings",
+      "viewProfile": "View Profile"
+    },
     "recentlyViewed": {
       "title": "Recently Viewed",
       "clearAll": "Clear All",

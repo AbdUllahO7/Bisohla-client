@@ -1,5 +1,5 @@
 import { IListingsVisitorRepo } from '@/core/application/repositories/listings/listings.visitor.repo.interface';
-import { PaginatedResponse, ApiResponse } from '@/core/entities/api/success.response';
+import { PaginatedResponse, ApiResponse, PaginationInfo } from '@/core/entities/api/success.response';
 import { ListingDto } from '@/core/entities/models/listings/listings.dto';
 import { getReq } from '@/core/lib/api';
 import { QueryParams } from '@/core/entities/api/api';
@@ -9,7 +9,7 @@ export class ListingsVisitorRepo implements IListingsVisitorRepo {
     typeId?: number,
     params?: QueryParams
   ): Promise<PaginatedResponse<ListingDto>> {
-    const res = await getReq<any, PaginatedResponse<ListingDto>>({
+    const res = await getReq<any, PaginationInfo<ListingDto>>({
       url: '/listings-visitor/featured',
       params: { typeId, ...params },
     });
@@ -19,7 +19,7 @@ export class ListingsVisitorRepo implements IListingsVisitorRepo {
   async getTrendingListings(
     params?: QueryParams
   ): Promise<PaginatedResponse<ListingDto>> {
-    const res = await getReq<any, PaginatedResponse<ListingDto>>({
+    const res = await getReq<any, PaginationInfo<ListingDto>>({
       url: '/listings-visitor/trending',
       params,
     });
@@ -30,7 +30,7 @@ export class ListingsVisitorRepo implements IListingsVisitorRepo {
     listingTypeId: number,
     params: QueryParams
   ): Promise<PaginatedResponse<ListingDto>> {
-    const res = await getReq<any, PaginatedResponse<ListingDto>>({
+    const res = await getReq<any, PaginationInfo<ListingDto>>({
       url: `/listings-visitor/${listingTypeId}/search`,
       params,
     });
@@ -38,7 +38,7 @@ export class ListingsVisitorRepo implements IListingsVisitorRepo {
   }
   
   async getListingBySlug(slug: string, params?: QueryParams): Promise<ApiResponse<any>> {
-    const res = await getReq<any, ApiResponse<any>>({
+    const res = await getReq<any, any>({
       url: `/listings-visitor/slug/${slug}`,
       params,
     });
@@ -46,7 +46,7 @@ export class ListingsVisitorRepo implements IListingsVisitorRepo {
   }
 
   async getListingById(id: number, params?: QueryParams): Promise<ApiResponse<any>> {
-    const res = await getReq<any, ApiResponse<any>>({
+    const res = await getReq<any, any>({
       url: `/listings-visitor/${id}`,
       params,
     });

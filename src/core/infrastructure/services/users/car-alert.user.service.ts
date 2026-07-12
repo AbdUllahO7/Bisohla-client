@@ -4,6 +4,7 @@ import {
     ApiResponse,
     PaginatedResponse,
     SuccessResponseWithNoContent,
+    PaginationInfo,
 } from '@/core/entities/api/success.response';
 import { SelectCarAlertDto } from '@/core/entities/models/car-alerts/car-alerts.dto';
 import {
@@ -23,7 +24,7 @@ export class CarAlertUserService implements ICarAlertUserService {
     async getCarAlerts(
         params: QueryParams,
     ): Promise<PaginatedResponse<SelectCarAlertDto>> {
-        const res = await getAuthReq<Record<string, unknown>, SelectCarAlertDto>({
+        const res = await getAuthReq<Record<string, unknown>, PaginationInfo<SelectCarAlertDto>>({
             url: '/listing-alerts',
             params: params,
         });
@@ -61,7 +62,7 @@ export class CarAlertUserService implements ICarAlertUserService {
     async deleteCarAlert(
         id: number,
     ): Promise<ApiResponse<SuccessResponseWithNoContent>> {
-        const res = await deleteAuthReq({
+        const res = await deleteAuthReq<any, SuccessResponseWithNoContent>({
             url: '/listing-alerts/' + id,
         });
         return res;

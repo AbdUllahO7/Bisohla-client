@@ -1,11 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use server';
 
 import { verifyZodFields } from './validation';
 import { ZodError, ZodTypeAny } from 'zod';
-import { ApiResponse, BaseApiResponse } from '../entities/api/success.response';
+import { ApiResponse } from '../entities/api/success.response';
 import { ValidationError } from '../entities/errors/validation-error';
 import { AppError } from '../entities/errors/app-error';
-import { Filter, FilterGroup, QueryParams } from '../entities/api/api';
+import { QueryParams } from '../entities/api/api';
 import { getLocale } from 'next-intl/server';
 import { BACKEND_URL } from './web/constants';
 import { getSession } from './web/session';
@@ -16,7 +17,7 @@ type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 interface RequestConfig<
   T = Record<string, FormDataEntryValue | null> | FormData,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  R = Record<string, unknown>,
+  R = any,
 > {
   url: string;
   method?: HttpMethod;
@@ -46,103 +47,33 @@ const DEFAULT_RETRY = { attempts: 3, delay: 1000 };
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
+const JSON_PARAM_KEYS: ReadonlySet<string> = new Set(['where', 'filterGroups']);
+
 const buildUrl = (baseUrl: string, params?: QueryParams): string => {
   if (!params) return baseUrl;
 
   const searchParams = new URLSearchParams();
-  // Handle basic params
-  Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined) {
-      // Handle search object format
-      if (key === 'searchKey') {
-        // Only add search[key] if value is not null
-        if (value !== null) {
-          searchParams.append('search[key]', value.toString());
-        }
-        return;
-      }
+  for (const [key, value] of Object.entries(params)) {
+    if (value === undefined || value === null) continue;
 
-      if (key === 'searchTerm') {
-        if (value !== null && value !== undefined) {
-          searchParams.append(
-            'search[term]',
-            params.searchTerm?.toString() || '',
-          );
-        }
-        return;
-      }
-
-      // Handle simple arrays (like id array)
-      if (Array.isArray(value) && key !== 'where' && key !== 'filterGroups') {
-        value.forEach((item) => {
-          searchParams.append(`${key}[]`, item.toString());
-        });
-        return;
-      }
-
-      // Handle where conditions array
-      if (key === 'where' && Array.isArray(value)) {
-        value.forEach((filter: Filter, index) => {
-          searchParams.append(`where[${index}][field]`, filter.field);
-          searchParams.append(`where[${index}][operator]`, filter.operator);
-
-          if (Array.isArray(filter.value)) {
-            filter.value.forEach((item, valueIndex) => {
-              searchParams.append(
-                `where[${index}][value][${valueIndex}]`,
-                item?.toString() || '',
-              );
-            });
-          } else {
-            searchParams.append(
-              `where[${index}][value]`,
-              filter.value?.toString() || '',
-            );
-          }
-        });
-        return;
-      }
-
-      // Handle filter groups
-      if (key === 'filterGroups' && Array.isArray(value)) {
-        value.forEach((group: FilterGroup, groupIndex) => {
-          // Add the group operator if it exists
-          if (group.operator) {
-            searchParams.append(
-              `filterGroups[${groupIndex}][operator]`,
-              group.operator,
-            );
-          }
-
-          // Add each filter in the group
-          group.filters.forEach((filter, filterIndex) => {
-            const baseKey = `filterGroups[${groupIndex}][filters][${filterIndex}]`;
-
-            searchParams.append(`${baseKey}[field]`, filter.field);
-            searchParams.append(`${baseKey}[operator]`, filter.operator);
-
-            if (Array.isArray(filter.value)) {
-              filter.value.forEach((item, valueIndex) => {
-                searchParams.append(
-                  `${baseKey}[value][${valueIndex}]`,
-                  item?.toString() || '',
-                );
-              });
-            } else {
-              searchParams.append(
-                `${baseKey}[value]`,
-                filter.value?.toString() || '',
-              );
-            }
-          });
-        });
-        return;
-      }
-
-      // Skip searchTerm as it's handled with searchKey
-      searchParams.append(key, value.toString());
+    if (JSON_PARAM_KEYS.has(key)) {
+      if (Array.isArray(value) && value.length === 0) continue;
+      searchParams.set(key, JSON.stringify(value));
+      continue;
     }
-  });
+
+    if (Array.isArray(value)) {
+      searchParams.set(key, value.map((v) => String(v)).join(','));
+      continue;
+    }
+
+    if (typeof value === 'object') {
+      searchParams.set(key, JSON.stringify(value));
+      continue;
+    }
+
+    searchParams.set(key, String(value));
+  }
 
   const queryString = searchParams.toString();
   return queryString ? `${baseUrl}?${queryString}` : baseUrl;
@@ -222,7 +153,7 @@ async function fetchWithRetry(
 
 export async function makeRequest<
   T = Record<string, FormDataEntryValue | null> | FormData,
-  R = Record<string, unknown>,
+  R = any,
 >({
   url,
   method = 'POST',
@@ -233,7 +164,7 @@ export async function makeRequest<
   errorDefaultMessage = 'An unexpected error occurred',
   timeout = DEFAULT_TIMEOUT,
   retry = DEFAULT_RETRY,
-}: RequestConfig<T, R>): Promise<BaseApiResponse> {
+}: RequestConfig<T, R>): Promise<ApiResponse<R>> {
   try {
     let validatedBody = body;
     if (validationSchema && body) {
@@ -349,28 +280,28 @@ export const catchActionRequest = async <T>(
 // Type-safe convenience methods
 export const postReq = async <
   T = Record<string, FormDataEntryValue | null> | FormData,
-  R = Record<string, unknown>,
+  R = any,
 >(
   config: Omit<RequestConfig<T, R>, 'method'>,
 ) => makeRequest<T, R>({ ...config, method: 'POST' });
 
 export const getReq = async <
-  T extends Record<string, unknown>,
-  R = Record<string, unknown>,
+  T extends Record<string, unknown> = Record<string, unknown>,
+  R = any,
 >(
   config: Omit<RequestConfig<T, R>, 'method' | 'body'>,
 ) => makeRequest<T, R>({ ...config, method: 'GET' });
 
 export const putReq = async <
   T = Record<string, FormDataEntryValue | null> | FormData,
-  R = Record<string, unknown>,
+  R = any,
 >(
   config: Omit<RequestConfig<T, R>, 'method'>,
 ) => makeRequest<T, R>({ ...config, method: 'PUT' });
 
 export const deleteReq = async <
-  T extends Record<string, unknown>,
-  R = Record<string, unknown>,
+  T extends Record<string, unknown> = Record<string, unknown>,
+  R = any,
 >(
   config: Omit<RequestConfig<T, R>, 'method'>,
 ) => makeRequest<T, R>({ ...config, method: 'DELETE' });
@@ -399,7 +330,7 @@ const withAuth = async <T, R>(
 const makeAuthRequest = async <T, R>(
   config: Omit<RequestConfig<T, R>, 'method'>,
   method: HttpMethod,
-): Promise<BaseApiResponse> => {
+): Promise<ApiResponse<R>> => {
   // First attempt with current token
   const authConfig = await withAuth<T, R>(config, method);
   const response = await makeRequest(authConfig);
@@ -446,35 +377,35 @@ const makeAuthRequest = async <T, R>(
 
 export const postAuthReq = async <
   T = Record<string, FormDataEntryValue | null> | FormData,
-  R = Record<string, unknown>,
+  R = any,
 >(
   config: Omit<RequestConfig<T, R>, 'method'>,
 ) => makeAuthRequest<T, R>(config, 'POST');
 
 export const getAuthReq = async <
-  T extends Record<string, unknown>,
-  R = Record<string, unknown>,
+  T extends Record<string, unknown> = Record<string, unknown>,
+  R = any,
 >(
   config: Omit<RequestConfig<T, R>, 'method' | 'body'>,
 ) => makeAuthRequest<T, R>(config, 'GET');
 
 export const putAuthReq = async <
   T = Record<string, FormDataEntryValue | null> | FormData,
-  R = Record<string, unknown>,
+  R = any,
 >(
   config: Omit<RequestConfig<T, R>, 'method'>,
 ) => makeAuthRequest<T, R>(config, 'PUT');
 
 export const patchAuthReq = async <
   T = Record<string, FormDataEntryValue | null> | FormData,
-  R = Record<string, unknown>,
+  R = any,
 >(
   config: Omit<RequestConfig<T, R>, 'method'>,
 ) => makeAuthRequest<T, R>(config, 'PATCH');
 
 export const deleteAuthReq = async <
-  T extends Record<string, unknown>,
-  R = Record<string, unknown>,
+  T extends Record<string, unknown> = Record<string, unknown>,
+  R = any,
 >(
   config: Omit<RequestConfig<T, R>, 'method'>,
 ) => makeAuthRequest<T, R>(config, 'DELETE');

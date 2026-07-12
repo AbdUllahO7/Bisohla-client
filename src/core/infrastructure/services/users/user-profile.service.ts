@@ -12,7 +12,7 @@ export class UserProfileService implements IUserProfileService {
   async getAuthProfile(): Promise<ApiResponse<GetUserProfile>> {
     const res = await getAuthReq<
       Record<string, unknown>,
-      ApiResponse<GetUserProfile>
+      GetUserProfile
     >({
       url: '/profile/v2',
     });
@@ -21,7 +21,7 @@ export class UserProfileService implements IUserProfileService {
   async updateAuthProfile(
     dto: UpdateProfileDto,
   ): Promise<ApiResponse<SelectUserDto>> {
-    const res = await putAuthReq<UpdateProfileDto, ApiResponse<SelectUserDto>>({
+    const res = await putAuthReq<UpdateProfileDto, SelectUserDto>({
       url: this.path + '/update',
       body: dto,
     });
