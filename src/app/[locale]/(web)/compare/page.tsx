@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useCompare } from '@/providers/CompareProvider';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useCarListings } from '@/core/infrastructure-adapters/use-actions/visitors/car.visitor.use-actions';
 import Box from '@/components/ui/box';
 import Text from '@/components/ui/text';
@@ -11,15 +11,29 @@ import { Button } from '@/components/ui/button';
 import { Link } from '@/i18n/routing';
 import { ArrowLeft, CarFront } from 'lucide-react';
 import ProductSkeleton from '@/components/web/design/ProductSkeletonItem';
+import { normalizeListingToCarDto } from '@/utils/listing-normalization';
 
 const ComparePage = () => {
   const t = useTranslations('compare');
+  const locale = useLocale();
   const { compareIds, maxCompare } = useCompare();
 
   const { data, isLoading } = useCarListings({
-    id: compareIds.length > 0 ? compareIds : [-1],
+    filterGroups: [
+      {
+        operator: 'and',
+        filters: [
+          {
+            field: 'id',
+            operator: 'in',
+            value: compareIds.length > 0 ? compareIds : [-1],
+          },
+        ],
+      },
+    ],
     page: 1,
     pageSize: 10,
+    include: 'attributeValues.attribute,images,user,listingType,listingTypeVersion',
   });
 
   const selectedCars = React.useMemo(() => {
@@ -29,9 +43,12 @@ const ComparePage = () => {
         ? data.data.data
         : [];
     return compareIds
-      .map((id) => listings.find((c: any) => c.id === id))
+      .map((id) => {
+        const car = listings.find((c: any) => c.id === id);
+        return car ? normalizeListingToCarDto(car, locale) : null;
+      })
       .filter(Boolean);
-  }, [data, compareIds]);
+  }, [data, compareIds, locale]);
 
   return (
     <div className="min-h-screen bg-gray-50/50 dark:bg-zinc-950 py-12">
