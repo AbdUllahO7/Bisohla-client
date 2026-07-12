@@ -315,7 +315,7 @@ const UserFavoritesEnhanced = () => {
   useEffect(() => {
     if (favoriteListings.length > 0) {
       const newFavoriteStatuses: Record<number, boolean> = {};
-      favoriteListings.forEach((listing) => {
+      favoriteListings.forEach((listing: FavoriteListing) => {
         newFavoriteStatuses[listing.id] = true;
       });
       setFavoriteStatuses(newFavoriteStatuses);
@@ -683,7 +683,7 @@ const UserFavoritesEnhanced = () => {
               : 'space-y-4'
           }
         >
-          {favoriteListings.map((card) => {
+          {favoriteListings.map((card: FavoriteListing) => {
             const isFavorite =
               favoriteStatuses[card.id] !== undefined
                 ? favoriteStatuses[card.id]

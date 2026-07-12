@@ -3,6 +3,7 @@ import { QueryParams } from '@/core/entities/api/api';
 import {
   ApiResponse,
   PaginatedResponse,
+  PaginationInfo,
 } from '@/core/entities/api/success.response';
 import {
   SelectNewsArticleDto,
@@ -17,7 +18,7 @@ export class NewsVisitorService implements INewsVisitorStrategy {
   ): Promise<PaginatedResponse<SelectNewsArticleDto>> {
     const res = await getReq<
       Record<string, unknown>,
-      PaginatedResponse<SelectNewsArticleDto>
+      PaginationInfo<SelectNewsArticleDto>
     >({
       url: '/news-public',
       params: queryParams,
@@ -31,7 +32,7 @@ export class NewsVisitorService implements INewsVisitorStrategy {
     const { id, ...otherParams } = queryParams;
     const res = await getReq<
       Record<string, unknown>,
-      ApiResponse<SelectNewsArticleDto>
+      SelectNewsArticleDto
     >({
       url: `/news-public/${id}`,
       params: otherParams,
@@ -45,7 +46,7 @@ export class NewsVisitorService implements INewsVisitorStrategy {
     const { slug, ...otherParams } = queryParams;
     const res = await getReq<
       Record<string, unknown>,
-      ApiResponse<SelectNewsArticleDto>
+      SelectNewsArticleDto
     >({
       url: `/news-public/slug/${slug}`,
       params: otherParams,
@@ -58,7 +59,7 @@ export class NewsVisitorService implements INewsVisitorStrategy {
   ): Promise<PaginatedResponse<SelectNewsCategoryDto>> {
     const res = await getReq<
       Record<string, unknown>,
-      PaginatedResponse<SelectNewsCategoryDto>
+      PaginationInfo<SelectNewsCategoryDto>
     >({
       url: '/news-categories-public',
       params: queryParams,
@@ -72,7 +73,7 @@ export class NewsVisitorService implements INewsVisitorStrategy {
     const { id, ...otherParams } = queryParams;
     const res = await getReq<
       Record<string, unknown>,
-      ApiResponse<SelectNewsCategoryDto>
+      SelectNewsCategoryDto
     >({
       url: `/news-categories-public/${id}`,
       params: otherParams,
@@ -86,7 +87,7 @@ export class NewsVisitorService implements INewsVisitorStrategy {
     const { slug, ...otherParams } = queryParams;
     const res = await getReq<
       Record<string, unknown>,
-      ApiResponse<SelectNewsCategoryDto>
+      SelectNewsCategoryDto
     >({
       url: `/news-categories-public/slug/${slug}`,
       params: otherParams,

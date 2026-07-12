@@ -2,6 +2,7 @@ import { INotificationUserService } from '@/core/application/services/users/noti
 import {
   PaginatedResponse,
   ApiResponse,
+  PaginationInfo,
 } from '@/core/entities/api/success.response';
 import {
   NotificationFilterOptions,
@@ -17,7 +18,7 @@ export class NotificationUserService implements INotificationUserService {
   ): Promise<PaginatedResponse<Notification>> {
     const res = await getAuthReq<
       Record<string, unknown>,
-      PaginatedResponse<Notification>
+      PaginationInfo<Notification>
     >({
       url: this.path,
       params: queries,
@@ -28,7 +29,7 @@ export class NotificationUserService implements INotificationUserService {
   async getMyNotificationById(id: number): Promise<ApiResponse<Notification>> {
     const res = await getAuthReq<
       Record<string, unknown>,
-      ApiResponse<Notification>
+      Notification
     >({
       url: `${this.path}/${id}`,
     });
@@ -39,7 +40,7 @@ export class NotificationUserService implements INotificationUserService {
   ): Promise<ApiResponse<boolean>> {
     const res = await patchAuthReq<
       UpdateNotificationReadStatusDto,
-      ApiResponse<boolean>
+      boolean
     >({
       url: `${this.path}/read-status`,
       body: dto,

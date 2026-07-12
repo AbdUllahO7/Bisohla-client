@@ -231,6 +231,11 @@
         }
       }
     },
+    "topSellers": {
+      "title": "أفضل البائعين",
+      "listings": "إعلان",
+      "viewProfile": "عرض الملف الشخصي"
+    },
     "recentlyViewed": {
       "title": "شوهد مؤخراً",
       "clearAll": "مسح الكل",

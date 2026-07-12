@@ -2,6 +2,7 @@ import { IFileManagerService } from '@/core/application/services/file-manager.se
 import {
   ApiResponse,
   PaginatedResponse,
+  PaginationInfo,
 } from '@/core/entities/api/success.response';
 import {
   GetUserUploadsResponse,
@@ -24,7 +25,7 @@ export class FileManagerService implements IFileManagerService {
       // Append the single file to FormData with field name 'file'
       formData.append('file', dto.file);
 
-      const res = await postAuthReq<FormData, UploadResponse>({
+      const res = await postAuthReq<FormData, UploadSingleImageResponse>({
         url: '/storage/upload-image',
         body: formData,
         errorDefaultMessage: 'Failed to upload image.',
@@ -71,7 +72,7 @@ export class FileManagerService implements IFileManagerService {
     try {
       const res = await getAuthReq<
         Record<string, unknown>,
-        GetUserUploadsResponse
+        PaginationInfo<GetUserUploadsResponse>
       >({
         url: '/user-uploads',
       });

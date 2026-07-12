@@ -74,7 +74,7 @@ export const useGetListingFavorites = (params: QueryParams) => {
 
   return useLocaleQuery<PaginatedResponse<UserFavoriteListing>>({
     queryKey: ['user-favorite-listings', user.id, params],
-    queryFn: async () => {
+    queryFn: async (): Promise<PaginatedResponse<UserFavoriteListing>> => {
       const userId = user.id || params.userId || (typeof window !== 'undefined' ? Number(localStorage.getItem('bishola_current_user_id') || 0) : 0);
       
       if (typeof window !== 'undefined' && !navigator.onLine && userId) {
