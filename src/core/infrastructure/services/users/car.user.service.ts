@@ -4,6 +4,7 @@ import {
   ApiResponse,
   PaginatedResponse,
   SuccessResponseWithNoContent,
+  PaginationInfo,
 } from '@/core/entities/api/success.response';
 import { SelectCarListingDto } from '@/core/entities/models/cars/cars.dto';
 import {
@@ -34,7 +35,7 @@ export class CarUserService implements ICarUserService {
   ): Promise<PaginatedResponse<UserFavoriteCarListing>> {
     const res = await getAuthReq<
       Record<string, unknown>,
-      UserFavoriteCarListing
+      PaginationInfo<UserFavoriteCarListing>
     >({
       url: '/user-favorites',
       params: params,
@@ -58,7 +59,7 @@ export class CarUserService implements ICarUserService {
   async removeCarListingFromFavorites(
     id: number,
   ): Promise<ApiResponse<SuccessResponseWithNoContent>> {
-    const res = await deleteAuthReq({
+    const res = await deleteAuthReq<any, SuccessResponseWithNoContent>({
       url: '/user-favorites/' + id,
     });
 
@@ -69,7 +70,7 @@ export class CarUserService implements ICarUserService {
   ): Promise<ApiResponse<ToggleFavoriteResponse>> {
     const res = await postAuthReq<
       ToggleFavoriteCarListingDto,
-      UserFavoriteCarListing
+      ToggleFavoriteResponse
     >({
       url: '/user-favorites/toggle',
       body: dto,
@@ -87,7 +88,10 @@ export class CarUserService implements ICarUserService {
       url: '/user-favorites/check/' + carListingId,
     });
 
-    return res;
+    return {
+      ...res,
+      data: res.data?.isFavorite ?? false,
+    };
   }
 
   async addCarListing(
@@ -128,7 +132,7 @@ export class CarUserService implements ICarUserService {
   async deleteCarListing(
     id: number,
   ): Promise<ApiResponse<SuccessResponseWithNoContent>> {
-    const res = await deleteAuthReq({
+    const res = await deleteAuthReq<any, SuccessResponseWithNoContent>({
       url: '/car-listings-user/' + id,
     });
 
@@ -138,7 +142,7 @@ export class CarUserService implements ICarUserService {
   async getMyCars(
     params: QueryParams,
   ): Promise<PaginatedResponse<SelectCarListingDto>> {
-    const res = await getAuthReq<Record<string, unknown>, SelectCarListingDto>({
+    const res = await getAuthReq<Record<string, unknown>, PaginationInfo<SelectCarListingDto>>({
       url: '/car-listings-user/get-my-cars',
       params: params,
     });

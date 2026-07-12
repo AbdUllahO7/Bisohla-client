@@ -1,12 +1,11 @@
-import { fetchAuth } from '@/lib/fetch-auth';
+import { postAuthReq } from '@/core/lib/api';
 import { deleteSession } from '@/core/lib/web/session';
 import { revalidatePath } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest) {
-  const res = await fetchAuth({
+  const res = await postAuthReq({
     url: '/auth/signout',
-    method: 'POST',
   });
 
   if (res.success) {

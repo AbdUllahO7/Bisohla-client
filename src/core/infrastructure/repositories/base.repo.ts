@@ -4,6 +4,7 @@ import {
   ApiResponse,
   PaginatedResponse,
   SuccessResponseWithNoContent,
+  PaginationInfo,
 } from '@/core/entities/api/success.response';
 import {
   deleteAuthReq,
@@ -30,7 +31,7 @@ export class BaseRepo<
     throw new Error('Method not implemented.');
   }
   async findById(id: number): Promise<ApiResponse<S>> {
-    const res = await getAuthReq<Record<string, unknown>, ApiResponse<S>>({
+    const res = await getAuthReq<Record<string, unknown>, S>({
       url: '/' + this.path + '/' + id,
     });
 
@@ -39,7 +40,7 @@ export class BaseRepo<
 
   async search(params: QueryParams): Promise<PaginatedResponse<S>> {
     // const locale = await getLocale();
-    const res = await postAuthReq<QueryParams, S>({
+    const res = await postAuthReq<QueryParams, PaginationInfo<S>>({
       url: '/' + this.path + '/search',
       body: params,
     });
@@ -49,7 +50,7 @@ export class BaseRepo<
 
   async findAll(params: QueryParams): Promise<PaginatedResponse<S>> {
     // const locale = await getLocale();
-    const res = await getAuthReq<Record<string, unknown>, S>({
+    const res = await getAuthReq<Record<string, unknown>, PaginationInfo<S>>({
       url: '/' + this.path,
       params: params,
     });

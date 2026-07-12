@@ -8,10 +8,9 @@ import {
 import { redirect } from 'next/navigation';
 import { deleteSession, updateTokens } from '@/core/lib/web/session';
 import { allRoutes } from '@/constants/routes.constant';
-import { fetchAuth } from '@/lib/fetch-auth';
 import { revalidatePath } from 'next/cache';
-import { postReq } from '@/lib/fetch';
-import { APP_URL, BACKEND_URL } from '@/core/lib/web/constants';
+import { postReq, postAuthReq } from '@/core/lib/api';
+import { BACKEND_URL } from '@/core/lib/web/constants';
 
 export const handleRegister = async (
   state: ApiResponse<RegisterFormValues>,
@@ -73,9 +72,8 @@ export const validateResetPasswordToken = async (token: string) => {
 };
 
 export const handleSignout = async () => {
-  const res = await fetchAuth({
+  const res = await postAuthReq({
     url: '/auth/signout',
-    method: 'POST',
   });
 
   if (res.success) {

@@ -3,6 +3,7 @@ import { QueryParams } from '@/core/entities/api/api';
 import {
   ApiResponse,
   PaginatedResponse,
+  PaginationInfo,
 } from '@/core/entities/api/success.response';
 import {
   Notification,
@@ -41,7 +42,7 @@ export class NotificationService implements INotificationService {
   ): Promise<ApiResponse<Notification>> {
     const res = await postAuthReq<
       CreateUserNotificationDto,
-      ApiResponse<Notification>
+      Notification
     >({
       url: this.path + '/user',
       body: dto,
@@ -55,7 +56,7 @@ export class NotificationService implements INotificationService {
   ): Promise<ApiResponse<Notification>> {
     const res = await postAuthReq<
       CreateMultiUserNotificationDto,
-      ApiResponse<Notification>
+      Notification
     >({
       url: this.path + '/multi-user',
       body: dto,
@@ -68,7 +69,7 @@ export class NotificationService implements INotificationService {
   ): Promise<ApiResponse<Notification>> {
     const res = await postAuthReq<
       CreateGroupNotificationDto,
-      ApiResponse<Notification>
+      Notification
     >({
       url: this.path + '/group',
       body: dto,
@@ -81,7 +82,7 @@ export class NotificationService implements INotificationService {
   ): Promise<ApiResponse<Notification>> {
     const res = await postAuthReq<
       CreateTemplatedNotificationDto,
-      ApiResponse<Notification>
+      Notification
     >({
       url: this.path + '/template',
       body: dto,
@@ -95,7 +96,7 @@ export class NotificationService implements INotificationService {
   ): Promise<ApiResponse<Notification>> {
     const res = await postAuthReq<
       CreateBroadcastNotificationDto,
-      ApiResponse<Notification>
+      Notification
     >({
       url: this.path + '/broadcast',
       body: dto,
@@ -108,7 +109,7 @@ export class NotificationService implements INotificationService {
   ): Promise<ApiResponse<Notification>> {
     const res = await patchAuthReq<
       UpdateNotificationStatusDto,
-      ApiResponse<Notification>
+      Notification
     >({
       url: this.path + '/status',
       body: dto,
@@ -122,7 +123,7 @@ export class NotificationService implements INotificationService {
   ): Promise<PaginatedResponse<Notification>> {
     const res = await getAuthReq<
       Record<string, unknown>,
-      PaginatedResponse<Notification>
+      PaginationInfo<Notification>
     >({
       url: this.path + '/user-notifications/' + userId,
       params: query,
@@ -134,7 +135,7 @@ export class NotificationService implements INotificationService {
   async getUsersNotifications(
     query: QueryParams,
   ): Promise<PaginatedResponse<Notification>> {
-    const res = await postAuthReq<QueryParams, PaginatedResponse<Notification>>(
+    const res = await postAuthReq<QueryParams, PaginationInfo<Notification>>(
       {
         url: this.path + '/users-notifications',
         body: query,
@@ -147,7 +148,7 @@ export class NotificationService implements INotificationService {
   async getMyNotficiations(
     query: QueryParams,
   ): Promise<PaginatedResponse<Notification>> {
-    const res = await postAuthReq<QueryParams, PaginatedResponse<Notification>>(
+    const res = await postAuthReq<QueryParams, PaginationInfo<Notification>>(
       {
         url: this.path + '/my-notifications',
         body: query,
@@ -160,7 +161,7 @@ export class NotificationService implements INotificationService {
   async getAdminNotifications(
     query: QueryParams,
   ): Promise<PaginatedResponse<Notification>> {
-    const res = await postAuthReq<QueryParams, PaginatedResponse<Notification>>(
+    const res = await postAuthReq<QueryParams, PaginationInfo<Notification>>(
       {
         url: this.path + '/admin-notifications',
         body: query,
@@ -173,7 +174,7 @@ export class NotificationService implements INotificationService {
   async getNotificationById(id: number): Promise<ApiResponse<Notification>> {
     const res = await getAuthReq<
       Record<string, unknown>,
-      ApiResponse<Notification>
+      Notification
     >({
       url: this.path + '/' + id,
     });
@@ -183,7 +184,7 @@ export class NotificationService implements INotificationService {
   async deleteNotification(id: number): Promise<ApiResponse<boolean>> {
     const res = await deleteAuthReq<
       Record<string, unknown>,
-      ApiResponse<boolean>
+      boolean
     >({
       url: this.path + '/' + id,
     });
@@ -196,7 +197,7 @@ export class NotificationService implements INotificationService {
   ): Promise<ApiResponse<NotificationTemplate>> {
     const res = await postAuthReq<
       CreateNotificationTemplateDto,
-      ApiResponse<NotificationTemplate>
+      NotificationTemplate
     >({
       url: this.path + '/templates/create',
       body: dto,
@@ -210,7 +211,7 @@ export class NotificationService implements INotificationService {
   ): Promise<ApiResponse<NotificationTemplate>> {
     const res = await putAuthReq<
       UpdateNotificationTemplateDto,
-      ApiResponse<NotificationTemplate>
+      NotificationTemplate
     >({
       url: this.path + '/templates/' + id,
       body: dto,
@@ -221,7 +222,7 @@ export class NotificationService implements INotificationService {
   async deleteTemplate(id: number): Promise<ApiResponse<boolean>> {
     const res = await deleteAuthReq<
       Record<string, unknown>,
-      ApiResponse<boolean>
+      boolean
     >({
       url: this.path + '/templates/' + id,
     });
@@ -233,7 +234,7 @@ export class NotificationService implements INotificationService {
   ): Promise<PaginatedResponse<NotificationTemplate>> {
     const res = await postAuthReq<
       QueryParams,
-      PaginatedResponse<NotificationTemplate>
+      PaginationInfo<NotificationTemplate>
     >({
       url: this.path + '/templates',
       body: params,
@@ -247,7 +248,7 @@ export class NotificationService implements INotificationService {
   ): Promise<ApiResponse<NotificationGroup>> {
     const res = await postAuthReq<
       CreateNotificationGroupDto,
-      ApiResponse<NotificationGroup>
+      NotificationGroup
     >({
       url: this.path + '/groups',
       body: dto,
@@ -261,7 +262,7 @@ export class NotificationService implements INotificationService {
   ): Promise<ApiResponse<NotificationGroup>> {
     const res = await putAuthReq<
       UpdateNotificationGroupDto,
-      ApiResponse<NotificationGroup>
+      NotificationGroup
     >({
       url: this.path + '/groups/' + id,
       body: dto,
@@ -272,7 +273,7 @@ export class NotificationService implements INotificationService {
   async deleteGroup(id: number): Promise<ApiResponse<boolean>> {
     const res = await deleteAuthReq<
       Record<string, unknown>,
-      ApiResponse<boolean>
+      boolean
     >({
       url: this.path + '/groups/' + id,
     });
@@ -282,7 +283,7 @@ export class NotificationService implements INotificationService {
   async addUsersToGroup(
     dto: AddUsersToGroupDto,
   ): Promise<ApiResponse<boolean>> {
-    const res = await postAuthReq<AddUsersToGroupDto, ApiResponse<boolean>>({
+    const res = await postAuthReq<AddUsersToGroupDto, boolean>({
       url: this.path + '/groups/add-users',
       body: dto,
     });
@@ -294,7 +295,7 @@ export class NotificationService implements INotificationService {
   ): Promise<ApiResponse<boolean>> {
     const res = await postAuthReq<
       RemoveUsersFromGroupDto,
-      ApiResponse<boolean>
+      boolean
     >({
       url: this.path + '/groups/remove-users',
       body: dto,
@@ -307,7 +308,7 @@ export class NotificationService implements INotificationService {
   ): Promise<PaginatedResponse<NotificationGroup>> {
     const res = await postAuthReq<
       QueryParams,
-      PaginatedResponse<NotificationGroup>
+      PaginationInfo<NotificationGroup>
     >({
       url: this.path + '/groups/search',
       body: params,
@@ -321,7 +322,7 @@ export class NotificationService implements INotificationService {
   ): Promise<PaginatedResponse<SelectUserDto>> {
     const res = await getAuthReq<
       Record<string, unknown>,
-      PaginatedResponse<SelectUserDto>
+      PaginationInfo<SelectUserDto>
     >({
       url: this.path + `/groups/${id}/users`,
       params: {

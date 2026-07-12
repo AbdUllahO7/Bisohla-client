@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 export interface GetUserProfile {
+  id: number;
   name: string;
   email: string;
   profileUrl: string | null;
