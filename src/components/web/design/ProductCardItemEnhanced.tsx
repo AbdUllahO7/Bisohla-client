@@ -767,7 +767,7 @@ export const EnhancedProductCardItem: React.FC<ExtendedCarCardItemPropsProfile> 
             <CardDescription className="p-4 pb-2">
               <Text
                 variant="h4"
-                className="text-primary font-bold line-clamp-1 mb-1 group-hover:text-primary-light transition-colors duration-300"
+                className="text-primary dark:text-zinc-100 font-bold line-clamp-1 mb-1 group-hover:text-primary-light transition-colors duration-300"
               >
                 {title}
               </Text>
@@ -923,7 +923,7 @@ export const EnhancedProductCardItem: React.FC<ExtendedCarCardItemPropsProfile> 
           </div>
 
           <div className="p-6">
-            <AlertDialogDescription className="text-sm text-gray-600 dark:text-zinc-350">
+            <AlertDialogDescription className="text-sm text-gray-600 dark:text-white">
               {t('deleteWarning')}
             </AlertDialogDescription>
 
@@ -1061,10 +1061,10 @@ export const EnhancedProductCardItem: React.FC<ExtendedCarCardItemPropsProfile> 
                             <div className="flex items-start justify-between">
                               <div className="flex-1">
                                 <div className="flex items-center gap-3 mb-3">
-                                  <div className={clsx('p-2 rounded-lg bg-white/80 shadow-sm', stat.color)}>
+                                  <div className={clsx('p-2 rounded-lg bg-white/80 dark:bg-zinc-800/80 shadow-sm', stat.color)}>
                                     <IconComponent size={20} strokeWidth={2.5} />
                                   </div>
-                                  <p className="text-sm font-medium text-gray-700">
+                                  <p className="text-sm font-medium text-gray-700 dark:text-white">
                                     {stat.label}
                                   </p>
                                 </div>
