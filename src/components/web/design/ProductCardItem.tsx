@@ -306,7 +306,7 @@ export const ProductCardItem: React.FC<ExtendedCarCardItemPropsProfile> = ({
             <CardDescription className="p-4">
               <Text
                 variant="h4"
-                className="text-primary font-semibold line-clamp-1"
+                className="text-primary dark:text-zinc-100 font-semibold line-clamp-1"
               >
                 {title}
               </Text>
@@ -412,7 +412,7 @@ export const ProductCardItem: React.FC<ExtendedCarCardItemPropsProfile> = ({
           </div>
 
           <div className="p-6">
-            <AlertDialogDescription className="text-sm text-gray-600 dark:text-zinc-350">
+            <AlertDialogDescription className="text-sm text-gray-600 dark:text-white">
               {t('deleteWarning')}
             </AlertDialogDescription>
 

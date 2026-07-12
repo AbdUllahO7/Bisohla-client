@@ -1074,7 +1074,7 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
                     <Button
                       size="sm"
                       variant="outline"
-                      className={`${actionButtonClass} text-blue-600 border-blue-200 hover:bg-blue-50`}
+                      className={`${actionButtonClass} text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-900/50 hover:bg-blue-50 dark:hover:bg-blue-950/30`}
                       onClick={handleStatisticsClick}
                     >
                       <BarChart3 size={14} />
@@ -1171,7 +1171,7 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
           </div>
 
           <div className="p-6">
-            <AlertDialogDescription className="text-sm text-gray-600 dark:text-zinc-350">
+            <AlertDialogDescription className="text-sm text-gray-600 dark:text-white">
               {t('deleteWarning')}
             </AlertDialogDescription>
 
@@ -1292,10 +1292,10 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
                             <div className="flex items-start justify-between">
                               <div className="flex-1">
                                 <div className="flex items-center gap-3 mb-3">
-                                  <div className={clsx('p-2 rounded-lg bg-white/80 shadow-sm', stat.color)}>
+                                  <div className={clsx('p-2 rounded-lg bg-white/80 dark:bg-zinc-800/80 shadow-sm', stat.color)}>
                                     <IconComponent size={20} strokeWidth={2.5} />
                                   </div>
-                                  <p className="text-sm font-medium text-gray-700">
+                                  <p className="text-sm font-medium text-gray-700 dark:text-zinc-350">
                                     {stat.label}
                                   </p>
                                 </div>

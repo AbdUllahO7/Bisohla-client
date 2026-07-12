@@ -2,34 +2,58 @@
 
 import React from 'react';
 import { useCompare } from '@/providers/CompareProvider';
-import { useTranslations } from 'next-intl';
-import { useCarListings } from '@/core/infrastructure-adapters/use-actions/visitors/car.visitor.use-actions';
+import { useLocale, useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Scale, ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
+import { normalizeListingToCarDto } from '@/utils/listing-normalization';
+import { getListingById } from '@/core/infrastructure-adapters/actions/visitors/listing.visitor.actions';
+import { useLocaleQuery } from '@/core/infrastructure-adapters/use-actions/common/use-locale-query';
 
 const CompareBar = () => {
   const t = useTranslations('compare');
+  const locale = useLocale();
   const { compareIds, removeFromCompare, clearCompare, maxCompare } = useCompare();
 
-  const { data, isLoading } = useCarListings({
-    id: compareIds.length > 0 ? compareIds : [-1],
-    page: 1,
-    pageSize: 10,
+  const { data: listings, isLoading } = useLocaleQuery({
+    queryKey: ['compare-listings-details', compareIds],
+    queryFn: async () => {
+      if (compareIds.length === 0) return [];
+      
+      const promises = compareIds.map(async (id) => {
+        try {
+          const res = await getListingById(id, {
+            include: 'attributeValues.attribute,images,user,listingType,listingTypeVersion',
+          });
+          if (res.success && res.data) {
+            return res.data;
+          }
+          return null;
+        } catch (e) {
+          console.error(`Failed to fetch listing ${id}`, e);
+          return null;
+        }
+      });
+      
+      const results = await Promise.all(promises);
+      return results.filter(Boolean);
+    },
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    enabled: compareIds.length > 0,
   });
 
   const selectedCars = React.useMemo(() => {
-    const listings = Array.isArray(data?.data)
-      ? data.data
-      : Array.isArray(data?.data?.data)
-        ? data.data.data
-        : [];
+    const list = Array.isArray(listings) ? listings : [];
     return compareIds
-      .map((id) => listings.find((c: any) => c.id === id))
+      .map((id) => {
+        const car = list.find((c: any) => c.id === id);
+        return car ? normalizeListingToCarDto(car, locale) : null;
+      })
       .filter(Boolean);
-  }, [data, compareIds]);
+  }, [listings, compareIds, locale]);
 
   if (compareIds.length === 0) return null;
 
