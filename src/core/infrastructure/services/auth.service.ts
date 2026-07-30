@@ -11,7 +11,7 @@ import {
 } from '@/core/entities/models/auth/register.dto';
 import { ResetPasswordDto } from '@/core/entities/models/auth/reset-password.dto';
 import { SendVerificationEmailDto } from '@/core/entities/models/auth/send-verification-email.dto';
-import { getAuthReq, postReq } from '@/core/lib/api';
+import { getAuthReq, postReq, postAuthReq } from '@/core/lib/api';
 
 export class AuthService implements IAuthService {
   async register(
@@ -136,7 +136,7 @@ export class AuthService implements IAuthService {
   async signOut(): Promise<ApiResponse<SuccessResponseWithNoContent>> {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const fields = {};
-    const response = await postReq<typeof fields, SuccessResponseWithNoContent>(
+    const response = await postAuthReq<typeof fields, SuccessResponseWithNoContent>(
       {
         url: '/auth/signout',
         body: {},

@@ -10,8 +10,7 @@ import NotificationDropdown from './NotificationDropdown';
 import { useRouter } from 'next/navigation';
 import { useSession } from '@/hooks/auth/use-session';
 import { useTranslations, useLocale } from 'next-intl';
-import { useEffect, useState, useRef } from 'react';
-import { deleteSession } from '@/core/lib/web/session';
+import { useEffect, useState } from 'react';
 import { logoutAction } from '@/app/[locale]/auth/actions';
 import Logo from '@/components/shared/logo';
 import ThemeToggle from '@/components/shared/ThemeToggle';
@@ -20,50 +19,13 @@ const HeaderOne = () => {
   const t = useTranslations('homePage');
   const locale = useLocale();
   const isRTL = locale === 'ar';
-  const { user, accessToken, isLoading, invalidateSession, refetchSession } =
-    useSession();
+  const { user, isLoading, refetchSession } = useSession();
   const router = useRouter();
   const [isClient, setIsClient] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const [isAuthChanging, setIsAuthChanging] = useState(false);
-  const prevAuthState = useRef<boolean | null>(null);
 
   // Determine if user is authenticated
-  const isAuthenticated = !!accessToken && !!user;
-
-  // Track authentication state changes
-  useEffect(() => {
-    // Skip first render when prevAuthState is null
-    if (
-      prevAuthState.current !== null &&
-      prevAuthState.current !== isAuthenticated
-    ) {
-      setIsAuthChanging(true);
-
-      // Reset the changing state after a short delay
-      const timer = setTimeout(() => {
-        setIsAuthChanging(false);
-      }, 1000); // Adjust timing as needed
-
-      return () => clearTimeout(timer);
-    }
-
-    // Update previous state
-    prevAuthState.current = isAuthenticated;
-  }, [isAuthenticated]);
-
-  // Listen for logout completion to ensure skeleton is hidden
-  useEffect(() => {
-    const handleLogoutSuccess = () => {
-      setTimeout(() => {
-        setIsAuthChanging(false);
-      }, 300);
-    };
-
-    window.addEventListener('logout-success', handleLogoutSuccess);
-    return () =>
-      window.removeEventListener('logout-success', handleLogoutSuccess);
-  }, []);
+  const isAuthenticated = !!user?.id;
 
   // Ensure client-side rendering
   useEffect(() => {
@@ -77,25 +39,9 @@ const HeaderOne = () => {
     }
   }, [isClient, refetchSession]);
 
-  // Listen for login success events
-  useEffect(() => {
-    const handleLoginSuccess = () => {
-      invalidateSession();
-      refetchSession();
-    };
-
-    window.addEventListener('login-success', handleLoginSuccess);
-    return () =>
-      window.removeEventListener('login-success', handleLoginSuccess);
-  }, [invalidateSession, refetchSession]);
-
   // Handle logout
   const handleLogout = async () => {
     try {
-      await deleteSession();
-      invalidateSession();
-      window.dispatchEvent(new CustomEvent('logout-success'));
-      window.dispatchEvent(new CustomEvent('auth-changed'));
       await logoutAction();
     } catch (error) {
       console.error('Logout error:', error);
@@ -103,8 +49,8 @@ const HeaderOne = () => {
     }
   };
 
-  // Show loading state during hydration, session loading, or auth changing
-  if (!isClient || isLoading || isAuthChanging) {
+  // Show loading state during hydration or session loading
+  if (!isClient || isLoading) {
     return (
       <Box className="flex justify-between items-center py-3  w-full px-4 border-b border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-950">
         {/* Logo Skeleton */}

@@ -19,7 +19,6 @@ import NotificationDropdown from '@/components/web/Home/NotificationDropdown';
 import { useRouter } from 'next/navigation';
 import { useSession } from '@/hooks/auth/use-session';
 import { useTranslations } from 'next-intl';
-import { deleteSession } from '@/core/lib/web/session';
 import { logoutAction } from '@/app/[locale]/auth/actions';
 import { useDirection } from '@/hooks/use-direction';
 
@@ -45,7 +44,7 @@ export function DashboardHeader({
 }: DashboardHeaderImprovedProps) {
   const t = useTranslations('homePage');
   const direction = useDirection();
-  const { user, accessToken, isLoading, invalidateSession, refetchSession } =
+  const { user, isLoading, invalidateSession, refetchSession } =
     useSession();
   const { profile } = useProfileContext();
   const router = useRouter();
@@ -63,7 +62,7 @@ export function DashboardHeader({
   const isCollapsed = state === 'collapsed';
 
   // Determine if user is authenticated
-  const isAuthenticated = !!accessToken && !!user;
+  const isAuthenticated = !!user?.id;
 
   // Track authentication state changes
   useEffect(() => {
@@ -92,24 +91,9 @@ export function DashboardHeader({
     }
   }, [isClient, refetchSession]);
 
-  // Listen for login success events
-  useEffect(() => {
-    const handleLoginSuccess = () => {
-      invalidateSession();
-      refetchSession();
-    };
-    window.addEventListener('login-success', handleLoginSuccess);
-    return () =>
-      window.removeEventListener('login-success', handleLoginSuccess);
-  }, [invalidateSession, refetchSession]);
-
   // Handle logout
   const handleLogout = async () => {
     try {
-      await deleteSession();
-      invalidateSession();
-      window.dispatchEvent(new CustomEvent('logout-success'));
-      window.dispatchEvent(new CustomEvent('auth-changed'));
       await logoutAction();
     } catch (error) {
       console.error('Logout error:', error);

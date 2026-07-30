@@ -175,7 +175,7 @@ const ProductPage = async ({ params, searchParams }: ProductPageProps) => {
 
   try {
     const session = await getSession();
-    const isAuthenticated = !!(session?.accessToken || session?.user);
+    const isAuthenticated = !!session?.user;
     const locale = await getLocale();
 
     const { carResponse, rawListing } = await fetchCarData(id, isProfileView, locale, session?.user?.id);

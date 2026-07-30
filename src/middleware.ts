@@ -1,33 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Locale, routing } from './i18n/routing';
 import createIntlMiddleware from 'next-intl/middleware';
-import { getSession, deleteSession } from './core/lib/web/session';
-import { checkAuth } from './core/infrastructure-adapters/actions/auth/auth.actions';
+import { getSession } from './core/lib/web/session';
 import { allRoutes } from './constants/routes.constant';
 import { getAdminRole, getUserRole } from './services/permission.service';
-import { checkRole } from './lib/permission';
 
 // Create internationalization middleware
 const intlMiddleware = createIntlMiddleware(routing);
-
-// Session validation helper function
-async function validateSession(): Promise<boolean> {
-  try {
-    const session = await getSession();
-    if (!session) return false;
-
-    const res = await checkAuth();
-    if (!res.success) {
-      await deleteSession();
-      return false;
-    }
-
-    return true;
-  } catch (error) {
-    console.error('Error validating session:', error);
-    return false;
-  }
-}
 
 async function middleware(req: NextRequest) {
   // Early return for .well-known paths (universal links)
@@ -47,7 +26,18 @@ async function middleware(req: NextRequest) {
     return response;
   }
 
-  // Extract locale from URL (considering the intl middleware has processed it)
+  // Validate session locally without network calls
+  const session = await getSession();
+  const hasSessionCookie = req.cookies.has('session');
+
+  // If cookie exists but verification failed, clear invalid cookie on response
+  if (hasSessionCookie && !session) {
+    response.cookies.set('session', '', { maxAge: 0, path: '/' });
+  }
+
+  const isValidSession = !!session?.user;
+
+  // Extract locale from URL
   const pathParts = req.nextUrl.pathname.split('/').filter(Boolean);
   const locale = routing.locales.includes(pathParts[0] as Locale)
     ? pathParts[0]
@@ -56,12 +46,9 @@ async function middleware(req: NextRequest) {
     ? pathParts[1]
     : pathParts[0];
 
-  // Validate user session
-  const isValidSession = await validateSession();
-
   // Handle route-specific logic
   try {
-    // Auth routes - redirect logged-in users
+    // Auth routes - redirect logged-in users away from sign-in/register
     if (routeType === 'auth') {
       if (isValidSession) {
         return NextResponse.redirect(
@@ -73,53 +60,40 @@ async function middleware(req: NextRequest) {
 
     // Admin routes
     if (routeType === 'admin') {
-      // Allow access to admin auth pages
       if (req.nextUrl.pathname.includes('/admin/auth')) {
         return response;
       }
 
-      // Check if user is admin
-      try {
-        const adminRoleName = getAdminRole()?.name || 'admin';
-        const isAdmin = await checkRole(adminRoleName);
+      const adminRoleName = getAdminRole()?.name || 'admin';
+      const isAdmin = isValidSession && (session?.user?.roles?.includes(adminRoleName) ?? false);
 
-        if (!isAdmin) {
-          return NextResponse.redirect(
-            new URL(`${allRoutes.home.path}`, req.nextUrl.origin),
-          );
-        }
-
-        return response;
-      } catch (error) {
-        console.error('Error checking admin role:', error);
+      if (!isAdmin) {
         return NextResponse.redirect(
           new URL(`${allRoutes.home.path}`, req.nextUrl.origin),
         );
       }
+
+      return response;
     }
 
     // User routes
     if (routeType === 'userProfile' || routeType === 'car-alerts') {
-      try {
-        const userRoleName = getUserRole()?.name || 'user';
-        const isUser = await checkRole(userRoleName);
+      const userRoleName = getUserRole()?.name || 'user';
+      const isUser =
+        isValidSession &&
+        ((session?.user?.roles?.includes(userRoleName) ?? false) ||
+          (session?.user?.roles?.includes('admin') ?? false));
 
-        if (!isUser) {
-          return NextResponse.redirect(
-            new URL(
-              `${allRoutes.auth.children.signIn.path}`,
-              req.nextUrl.origin,
-            ),
-          );
-        }
-
-        return response;
-      } catch (error) {
-        console.error('Error checking user role:', error);
+      if (!isUser) {
         return NextResponse.redirect(
-          new URL(`${allRoutes.home.path}`, req.nextUrl.origin),
+          new URL(
+            `${allRoutes.auth.children.signIn.path}`,
+            req.nextUrl.origin,
+          ),
         );
       }
+
+      return response;
     }
 
     return response;
@@ -136,13 +110,6 @@ export default middleware;
 // Configure middleware matcher with static values
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
     '/((?!api|_next/static|_next/image|favicon.ico|assets/).*)',
   ],
 };

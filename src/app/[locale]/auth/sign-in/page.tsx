@@ -16,7 +16,6 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Mail, Lock, ArrowRight } from 'lucide-react';
 import { useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { triggerAuthStateChange } from '@/lib/utils/auth-utils';
 import Image from 'next/image';
 import { useSettings } from '@/providers/settings.provider';
 import GoogleButton from '@/components/auth/google-button';
@@ -38,16 +37,12 @@ const SignInPage = () => {
     defaultActionState,
   );
 
-  // Trigger auth state change when login is successful
+  // Invalidate queries when login is successful
   useEffect(() => {
     if (state.success) {
       // Invalidate auth-related queries
       queryClient.invalidateQueries({ queryKey: ['session'] });
       queryClient.invalidateQueries({ queryKey: ['check-auth-user'] });
-
-      // Trigger custom events for UI updates
-      // This will now trigger the modal in the layout
-      triggerAuthStateChange();
     }
   }, [state.success, queryClient]);
 
