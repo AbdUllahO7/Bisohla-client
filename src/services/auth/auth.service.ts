@@ -71,20 +71,6 @@ export const validateResetPasswordToken = async (token: string) => {
   return res;
 };
 
-export const handleSignout = async () => {
-  const res = await postAuthReq({
-    url: '/auth/signout',
-  });
-
-  if (res.success) {
-    await deleteSession();
-  }
-
-  revalidatePath('/', 'layout');
-  revalidatePath('/', 'page');
-  redirect(allRoutes.home.path);
-};
-
 export const handleRefreshToken = async (oldRefreshToken: string) => {
   try {
     const backendRes = await fetch(BACKEND_URL + '/auth/refresh', {

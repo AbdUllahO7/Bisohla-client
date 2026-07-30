@@ -42,7 +42,7 @@ import {
 } from '@/core/entities/models/users/users.dto';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { useRouter } from '@/i18n/routing';
-import { deleteSession } from '@/core/lib/web/session';
+import { logoutAction } from '@/app/[locale]/auth/actions';
 
 // KeyValue component for consistent display of field labels and values
 interface KeyValueFieldProps {
@@ -188,9 +188,7 @@ const UserInfoPage = () => {
   // Handle logout
   const handleLogout = async () => {
     try {
-      await deleteSession();
-      router.push('/');
-      router.refresh();
+      await logoutAction();
     } catch (error) {
       console.error('Failed to logout:', error);
     }

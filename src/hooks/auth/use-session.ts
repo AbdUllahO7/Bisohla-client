@@ -31,7 +31,7 @@ export const useSession = (): SessionReturnType => {
   } = useQuery({
     queryKey: ['session'],
     queryFn: getUserSession,
-    staleTime: 1 * 60 * 1000, // Cache for 1 minute (reduced from 5 minutes)
+    staleTime: 0,
     gcTime: 5 * 60 * 1000, // Keep in cache for 5 minutes
     refetchOnMount: 'always',
     refetchOnWindowFocus: true,
@@ -73,23 +73,6 @@ export const useSession = (): SessionReturnType => {
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, [refetchSession]);
-
-  // Listen for custom auth events
-  useEffect(() => {
-    const handleAuthChange = () => {
-      invalidateSession();
-    };
-
-    window.addEventListener('auth-changed', handleAuthChange);
-    window.addEventListener('login-success', handleAuthChange);
-    window.addEventListener('logout-success', handleAuthChange);
-    
-    return () => {
-      window.removeEventListener('auth-changed', handleAuthChange);
-      window.removeEventListener('login-success', handleAuthChange);
-      window.removeEventListener('logout-success', handleAuthChange);
-    };
-  }, [queryClient]);
 
   const defaultSession = {
     user: {

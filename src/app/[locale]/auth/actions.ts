@@ -102,9 +102,6 @@ export const logoutAction = async (): Promise<void> => {
   revalidateTag('session');
   revalidateTag('user');
 
-  // Add a small delay to ensure cache invalidation completes
-  await new Promise((resolve) => setTimeout(resolve, 100));
-
   const locale = await getLocale();
 
   redirect({ href: '/', locale: locale });
