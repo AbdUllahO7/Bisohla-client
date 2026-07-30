@@ -31,6 +31,7 @@ interface RequestConfig<
     attempts: number;
     delay: number;
   };
+  skipAuth?: boolean;
 }
 
 interface FetchError extends Error {
@@ -164,6 +165,7 @@ export async function makeRequest<
   errorDefaultMessage = 'An unexpected error occurred',
   timeout = DEFAULT_TIMEOUT,
   retry = DEFAULT_RETRY,
+  skipAuth = false,
 }: RequestConfig<T, R>): Promise<ApiResponse<R>> {
   try {
     let validatedBody = body;
@@ -177,16 +179,35 @@ export async function makeRequest<
 
     const locale = await getLocale();
 
-    // Automatically attach Bearer token if session exists and header isn't explicitly provided
+    // Check if the endpoint is a pre-auth or public auth endpoint
+    const isPreAuthEndpoint =
+      url.startsWith('/auth/login') ||
+      url.startsWith('/auth/register') ||
+      url.startsWith('/auth/refresh') ||
+      url.includes('password') ||
+      url.includes('verify');
+    const shouldSkipAuth = skipAuth || isPreAuthEndpoint;
+
+    // Opportunistically attach Bearer token if session exists and skipAuth is false
     let authHeader = headers.Authorization;
+    let authHeaderAttached = !!authHeader;
     let currentSession = null;
-    if (!authHeader) {
+
+    if (!authHeader && !shouldSkipAuth) {
       currentSession = await getSession();
       if (currentSession?.accessToken) {
         authHeader = `Bearer ${currentSession.accessToken}`;
+        authHeaderAttached = true;
       }
     }
 
+    /**
+     * CAUTION: Next.js Fetch Caching & Cross-User Data Leaks
+     * Requests in this helper automatically attach per-user Authorization Bearer tokens
+     * when a session is active. Responses are user-specific (e.g. isFavorite, user profile data).
+     * Never add static `revalidate` or `cache: 'force-cache'` to requests carrying per-user
+     * Authorization headers, as this will cache personalized responses and leak user data across visitors.
+     */
     const fetchOptions: RequestInit = {
       method,
       headers: {
@@ -213,9 +234,11 @@ export async function makeRequest<
 
     const apiResponse = await handleResponse<R>(response);
 
-    // If unauthorized and a refresh token is available, attempt token refresh and retry
+    // Gate 401/403 refresh reaction ONLY on requests where an Auth token was actually sent
     if (
       !apiResponse.success &&
+      authHeaderAttached &&
+      !shouldSkipAuth &&
       (apiResponse.status === 401 ||
         apiResponse.status === 403 ||
         (apiResponse.status === 500 && apiResponse.message === 'Unauthorized'))
@@ -223,7 +246,9 @@ export async function makeRequest<
       const sessionForRefresh = currentSession || (await getSession());
       if (sessionForRefresh?.refreshToken) {
         try {
-          const newAccessToken = await handleRefreshToken(sessionForRefresh.refreshToken);
+          const newAccessToken = await handleRefreshToken(
+            sessionForRefresh.refreshToken,
+          );
           const retryFetchOptions: RequestInit = {
             ...fetchOptions,
             headers: {
@@ -231,7 +256,11 @@ export async function makeRequest<
               Authorization: `Bearer ${newAccessToken}`,
             },
           };
-          const retryResponse = await fetchWithRetry(fullUrl, retryFetchOptions, retry);
+          const retryResponse = await fetchWithRetry(
+            fullUrl,
+            retryFetchOptions,
+            retry,
+          );
           return await handleResponse<R>(retryResponse);
         } catch (refreshError) {
           console.warn('Token refresh failed:', refreshError);
