@@ -3,11 +3,17 @@
 import { Session, UserSession } from '@/core/entities/models/auth/session';
 import { jwtVerify, SignJWT } from 'jose';
 import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
 import { sessionConfig } from './config/session.config';
 
 const encodedKey = new TextEncoder().encode(sessionConfig.secretKey);
 const SESSION_KEY = 'session';
+
+const COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'lax' as const,
+  path: '/',
+};
 
 export const createSession = async (payload: Session): Promise<void> => {
   try {
@@ -21,13 +27,10 @@ export const createSession = async (payload: Session): Promise<void> => {
       .sign(encodedKey);
 
     (await cookies()).set(SESSION_KEY, session, {
-      httpOnly: true,
-      secure: true, //TODO: convert to process.env.NODE_ENV === 'production'
+      ...COOKIE_OPTIONS,
       expires: new Date(
         Date.now() + sessionConfig.cookieMaxAge.toMilliseconds(),
       ),
-      sameSite: 'lax',
-      path: '/',
     });
   } catch (error) {
     console.error('Error creating session:', error);
@@ -50,42 +53,30 @@ export const getSession = async (): Promise<Session | null> => {
     return payload as Session;
   } catch (error) {
     console.error('Error verifying session:', error);
-    (await cookies()).delete(SESSION_KEY);
-    redirect('/');
+    return null;
   }
 };
 
 export const getUserSession = async (): Promise<UserSession | null> => {
-  const sessionCookie = (await cookies()).get(SESSION_KEY);
+  const session = await getSession();
+  if (!session?.user) return null;
 
-  if (!sessionCookie?.value) {
-    return null;
-  }
-
-  try {
-    const { payload } = await jwtVerify(sessionCookie.value, encodedKey, {
-      algorithms: [sessionConfig.algorithm],
-    });
-
-    const session = payload as Session;
-    if (!session?.user) return null;
-
-    return {
-      user: {
-        id: session.user.id,
-        name: session.user.name,
-        roles: session.user.roles || [],
-        permissions: session.user.permissions || [],
-      },
-    };
-  } catch (error) {
-    console.error('Error verifying session:', error);
-    return null;
-  }
+  return {
+    user: {
+      id: session.user.id,
+      name: session.user.name,
+      roles: session.user.roles || [],
+      permissions: session.user.permissions || [],
+    },
+  };
 };
 
 export const deleteSession = async () => {
-  (await cookies()).delete(SESSION_KEY);
+  (await cookies()).set(SESSION_KEY, '', {
+    ...COOKIE_OPTIONS,
+    maxAge: 0,
+    expires: new Date(0),
+  });
 };
 
 export const updateTokens = async ({
@@ -98,16 +89,24 @@ export const updateTokens = async ({
   const cookie = (await cookies()).get(SESSION_KEY)?.value;
   if (!cookie) return null;
 
-  const { payload } = await jwtVerify<Session>(cookie, encodedKey);
+  try {
+    const { payload } = await jwtVerify<Session>(cookie, encodedKey, {
+      algorithms: [sessionConfig.algorithm],
+    });
 
-  if (!payload) throw new Error('Session not found');
+    if (!payload) throw new Error('Session not found');
 
-  const newPayload: Session = {
-    user: {
-      ...payload.user,
-    },
-    accessToken,
-    refreshToken,
-  };
-  await createSession(newPayload);
+    const newPayload: Session = {
+      user: {
+        ...payload.user,
+      },
+      accessToken,
+      refreshToken,
+    };
+    await createSession(newPayload);
+  } catch (error) {
+    console.error('Error updating tokens:', error);
+    await deleteSession();
+    throw error;
+  }
 };
