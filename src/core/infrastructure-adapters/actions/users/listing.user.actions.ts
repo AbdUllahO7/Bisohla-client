@@ -79,9 +79,13 @@ export const deleteListing = async (
 export const getListingFavorites = async (
   params: QueryParams,
 ): Promise<PaginatedResponse<UserFavoriteListing>> => {
+  const cleanParams = {
+    page: params?.page || 1,
+    pageSize: params?.pageSize || 20,
+  };
   const res = await getAuthReq<QueryParams, any>({
     url: '/listing-favorites',
-    params,
+    params: cleanParams,
   });
   return res as PaginatedResponse<UserFavoriteListing>;
 };
