@@ -1,16 +1,17 @@
 'use client';
 
-import { Session } from '@/core/entities/models/auth/session';
-import { getSession } from '@/core/lib/web/session';
+import { UserSession } from '@/core/entities/models/auth/session';
+import { getUserSession } from '@/core/lib/web/session';
 import { useQuery } from '@tanstack/react-query';
 
-interface SessionReturnType extends Session {
+interface SessionReturnType extends UserSession {
   isLoading: boolean;
   isPending: boolean;
   isError: boolean;
   hasRole: (role: string) => boolean;
   hasPermission: (permission: string) => boolean;
   hasAnyPermission: (permissions: string[]) => boolean;
+  refetchSession: () => void;
 }
 export const useSession = (): SessionReturnType => {
   const {
@@ -21,7 +22,7 @@ export const useSession = (): SessionReturnType => {
     isError,
   } = useQuery({
     queryKey: ['session'],
-    queryFn: getSession,
+    queryFn: getUserSession,
     staleTime: 5 * 60 * 1000, // Cache the session for 5 minutes
   });
 
@@ -35,11 +36,10 @@ export const useSession = (): SessionReturnType => {
     isLoading: isLoading,
     isPending: isPending,
     isError: isError,
-    accessToken: '',
-    refreshToken: '',
     hasRole: () => false,
     hasPermission: () => false,
     hasAnyPermission: () => false,
+    refetchSession: () => refetchSession(),
   };
 
   if (!session || isError) return defaultSession;
@@ -64,8 +64,6 @@ export const useSession = (): SessionReturnType => {
 
   return {
     user,
-    accessToken: session?.accessToken,
-    refreshToken: session?.refreshToken,
     isLoading,
     isPending,
     isError,

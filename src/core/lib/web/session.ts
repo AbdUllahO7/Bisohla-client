@@ -1,6 +1,6 @@
 'use server';
 
-import { Session } from '@/core/entities/models/auth/session';
+import { Session, UserSession } from '@/core/entities/models/auth/session';
 import { jwtVerify, SignJWT } from 'jose';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
@@ -52,6 +52,35 @@ export const getSession = async (): Promise<Session | null> => {
     console.error('Error verifying session:', error);
     (await cookies()).delete(SESSION_KEY);
     redirect('/');
+  }
+};
+
+export const getUserSession = async (): Promise<UserSession | null> => {
+  const sessionCookie = (await cookies()).get(SESSION_KEY);
+
+  if (!sessionCookie?.value) {
+    return null;
+  }
+
+  try {
+    const { payload } = await jwtVerify(sessionCookie.value, encodedKey, {
+      algorithms: [sessionConfig.algorithm],
+    });
+
+    const session = payload as Session;
+    if (!session?.user) return null;
+
+    return {
+      user: {
+        id: session.user.id,
+        name: session.user.name,
+        roles: session.user.roles || [],
+        permissions: session.user.permissions || [],
+      },
+    };
+  } catch (error) {
+    console.error('Error verifying session:', error);
+    return null;
   }
 };
 

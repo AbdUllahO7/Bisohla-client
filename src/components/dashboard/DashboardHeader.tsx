@@ -45,7 +45,7 @@ export function DashboardHeader({
 }: DashboardHeaderImprovedProps) {
   const t = useTranslations('homePage');
   const direction = useDirection();
-  const { user, accessToken, isLoading, invalidateSession, refetchSession } =
+  const { user, isLoading, invalidateSession, refetchSession } =
     useSession();
   const { profile } = useProfileContext();
   const router = useRouter();
@@ -63,7 +63,7 @@ export function DashboardHeader({
   const isCollapsed = state === 'collapsed';
 
   // Determine if user is authenticated
-  const isAuthenticated = !!accessToken && !!user;
+  const isAuthenticated = !!user?.id;
 
   // Track authentication state changes
   useEffect(() => {

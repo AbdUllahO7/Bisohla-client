@@ -20,7 +20,7 @@ const HeaderOne = () => {
   const t = useTranslations('homePage');
   const locale = useLocale();
   const isRTL = locale === 'ar';
-  const { user, accessToken, isLoading, invalidateSession, refetchSession } =
+  const { user, isLoading, invalidateSession, refetchSession } =
     useSession();
   const router = useRouter();
   const [isClient, setIsClient] = useState(false);
@@ -29,7 +29,7 @@ const HeaderOne = () => {
   const prevAuthState = useRef<boolean | null>(null);
 
   // Determine if user is authenticated
-  const isAuthenticated = !!accessToken && !!user;
+  const isAuthenticated = !!user?.id;
 
   // Track authentication state changes
   useEffect(() => {

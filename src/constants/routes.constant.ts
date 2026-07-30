@@ -66,11 +66,4 @@ export const allRoutes = {
       },
     },
   },
-  api: {
-    auth: {
-      signOut: {
-        path: APP_URL + '/api/auth/signout',
-      },
-    },
-  },
 };

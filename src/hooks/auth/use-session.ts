@@ -1,12 +1,12 @@
 'use client';
 
-import { Session } from '@/core/entities/models/auth/session';
-import { getSession } from '@/core/lib/web/session';
+import { UserSession } from '@/core/entities/models/auth/session';
+import { getUserSession } from '@/core/lib/web/session';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 
-interface SessionReturnType extends Session {
+interface SessionReturnType extends UserSession {
   isLoading: boolean;
   isPending: boolean;
   isError: boolean;
@@ -30,7 +30,7 @@ export const useSession = (): SessionReturnType => {
     isError,
   } = useQuery({
     queryKey: ['session'],
-    queryFn: getSession,
+    queryFn: getUserSession,
     staleTime: 1 * 60 * 1000, // Cache for 1 minute (reduced from 5 minutes)
     gcTime: 5 * 60 * 1000, // Keep in cache for 5 minutes
     refetchOnMount: 'always',
@@ -101,8 +101,6 @@ export const useSession = (): SessionReturnType => {
     isLoading: isLoading,
     isPending: isPending,
     isError: isError,
-    accessToken: '',
-    refreshToken: '',
     hasRole: () => false,
     hasPermission: () => false,
     hasAnyPermission: () => false,
@@ -130,8 +128,6 @@ export const useSession = (): SessionReturnType => {
 
   return {
     user,
-    accessToken: session?.accessToken,
-    refreshToken: session?.refreshToken,
     isLoading,
     isPending,
     isError,
