@@ -57,7 +57,7 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
   const session = useSession();
   const locale = useLocale();
   const isRTL = locale === 'ar';
-  const isAuthenticated = session && session.accessToken;
+  const isAuthenticated = !!session?.user?.id;
   const isOwner =
     (!session.isLoading &&
       isAuthenticated &&

@@ -8,6 +8,10 @@ export interface SessionConfig {
   cookieMaxAge: Duration;
 }
 
+const defaultDuration = env('SESSION_EXPIRATION_TIME', Duration.parse('7d'), {
+  parseDuration: true,
+});
+
 export const sessionConfig: SessionConfig = {
   secretKey:
     env('SESSION_SECRET_KEY', '') ||
@@ -17,10 +21,6 @@ export const sessionConfig: SessionConfig = {
       );
     })(),
   algorithm: env('SESSION_ALGORITHM', 'HS256'),
-  expirationTime: env('SESSION_EXPIRATION_TIME', Duration.parse('7d'), {
-    parseDuration: true,
-  }),
-  cookieMaxAge: env('SESSION_COOKIE_MAX_AGE', Duration.parse('7d'), {
-    parseDuration: true,
-  }),
+  expirationTime: defaultDuration,
+  cookieMaxAge: defaultDuration,
 };

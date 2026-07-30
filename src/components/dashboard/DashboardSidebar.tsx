@@ -192,7 +192,7 @@ export function DashboardSidebar() {
                 <SidebarMenuButton
                   asChild
                   className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 ${isActiveRoute(href)
-                    ? 'bg-primary-light text-white shadow-sm'
+                    ? 'bg-primary-light text-black shadow-sm '
                     : 'text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
                     }`}
                   tooltip={isCollapsed ? label : undefined}

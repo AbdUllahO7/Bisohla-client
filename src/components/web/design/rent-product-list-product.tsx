@@ -69,7 +69,7 @@ export const RentProductListCard: React.FC<RentProductListCardProps> = ({
 }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const session = useSession();
-  const isAuthenticated = session && session.accessToken;
+  const isAuthenticated = !!session?.user?.id;
   const isOwner =
     (!session.isLoading &&
       isAuthenticated &&

@@ -31,6 +31,7 @@ interface RequestConfig<
     attempts: number;
     delay: number;
   };
+  skipAuth?: boolean;
 }
 
 interface FetchError extends Error {
@@ -164,6 +165,7 @@ export async function makeRequest<
   errorDefaultMessage = 'An unexpected error occurred',
   timeout = DEFAULT_TIMEOUT,
   retry = DEFAULT_RETRY,
+  skipAuth = false,
 }: RequestConfig<T, R>): Promise<ApiResponse<R>> {
   try {
     let validatedBody = body;
@@ -177,6 +179,35 @@ export async function makeRequest<
 
     const locale = await getLocale();
 
+    // Check if the endpoint is a pre-auth or public auth endpoint
+    const isPreAuthEndpoint =
+      url.startsWith('/auth/login') ||
+      url.startsWith('/auth/register') ||
+      url.startsWith('/auth/refresh') ||
+      url.includes('password') ||
+      url.includes('verify');
+    const shouldSkipAuth = skipAuth || isPreAuthEndpoint;
+
+    // Opportunistically attach Bearer token if session exists and skipAuth is false
+    let authHeader = headers.Authorization;
+    let authHeaderAttached = !!authHeader;
+    let currentSession = null;
+
+    if (!authHeader && !shouldSkipAuth) {
+      currentSession = await getSession();
+      if (currentSession?.accessToken) {
+        authHeader = `Bearer ${currentSession.accessToken}`;
+        authHeaderAttached = true;
+      }
+    }
+
+    /**
+     * CAUTION: Next.js Fetch Caching & Cross-User Data Leaks
+     * Requests in this helper automatically attach per-user Authorization Bearer tokens
+     * when a session is active. Responses are user-specific (e.g. isFavorite, user profile data).
+     * Never add static `revalidate` or `cache: 'force-cache'` to requests carrying per-user
+     * Authorization headers, as this will cache personalized responses and leak user data across visitors.
+     */
     const fetchOptions: RequestInit = {
       method,
       headers: {
@@ -186,6 +217,7 @@ export async function makeRequest<
           'x-app-source': 'web-app',
         }),
         ...headers,
+        ...(authHeader && { Authorization: authHeader }),
       },
       signal: controller.signal,
       body:
@@ -200,7 +232,43 @@ export async function makeRequest<
     const response = await fetchWithRetry(fullUrl, fetchOptions, retry);
     clearTimeout(timeoutId);
 
-    return await handleResponse<R>(response);
+    const apiResponse = await handleResponse<R>(response);
+
+    // Gate 401/403 refresh reaction ONLY on requests where an Auth token was actually sent
+    if (
+      !apiResponse.success &&
+      authHeaderAttached &&
+      !shouldSkipAuth &&
+      (apiResponse.status === 401 ||
+        apiResponse.status === 403 ||
+        (apiResponse.status === 500 && apiResponse.message === 'Unauthorized'))
+    ) {
+      const sessionForRefresh = currentSession || (await getSession());
+      if (sessionForRefresh?.refreshToken) {
+        try {
+          const newAccessToken = await handleRefreshToken(
+            sessionForRefresh.refreshToken,
+          );
+          const retryFetchOptions: RequestInit = {
+            ...fetchOptions,
+            headers: {
+              ...fetchOptions.headers,
+              Authorization: `Bearer ${newAccessToken}`,
+            },
+          };
+          const retryResponse = await fetchWithRetry(
+            fullUrl,
+            retryFetchOptions,
+            retry,
+          );
+          return await handleResponse<R>(retryResponse);
+        } catch (refreshError) {
+          console.warn('Token refresh failed:', refreshError);
+        }
+      }
+    }
+
+    return apiResponse;
   } catch (error) {
     if (error instanceof ZodError) {
       const formattedErrors = error.errors.reduce((acc, curr) => {
@@ -306,73 +374,24 @@ export const deleteReq = async <
   config: Omit<RequestConfig<T, R>, 'method'>,
 ) => makeRequest<T, R>({ ...config, method: 'DELETE' });
 
-// Helper function to create authenticated request config
-const withAuth = async <T, R>(
-  config: Omit<RequestConfig<T, R>, 'method'>,
-  method: HttpMethod,
-): Promise<RequestConfig<T, R>> => {
-  const session = await getSession();
-
-  if (!session?.accessToken) {
-    throw new Error('No authentication token available');
-  }
-
-  return {
-    ...config,
-    method,
-    headers: {
-      ...config.headers,
-      Authorization: `Bearer ${session.accessToken}`,
-    },
-  };
-};
-
 const makeAuthRequest = async <T, R>(
   config: Omit<RequestConfig<T, R>, 'method'>,
   method: HttpMethod,
 ): Promise<ApiResponse<R>> => {
-  // First attempt with current token
-  const authConfig = await withAuth<T, R>(config, method);
-  const response = await makeRequest(authConfig);
+  const session = await getSession();
 
-  // Check if the response indicates unauthorized access
-  if (
-    !response.success &&
-    (response.status === 401 ||
-      response.status === 403 ||
-      (response.status === 500 && response.message === 'Unauthorized'))
-  ) {
-    try {
-      // Get current session to access refresh token
-      const session = await getSession();
-
-      if (!session?.refreshToken) {
-        console.warn('No refresh token available, redirecting to sign-in');
-        return response; // Return the original unauthorized response
-      }
-
-      // Attempt to refresh the token
-      const newAccessToken = await handleRefreshToken(session.refreshToken);
-
-      // Retry the original request with the new token
-      const retryConfig = {
-        ...config,
-        method,
-        headers: {
-          ...config.headers,
-          Authorization: `Bearer ${newAccessToken}`,
-        },
-      };
-
-      return await makeRequest(retryConfig);
-    } catch (refreshError) {
-      console.warn('Token refresh failed:', refreshError);
-      return response;
-    }
+  if (!session?.accessToken) {
+    return {
+      success: false,
+      message: 'No authentication token available',
+      status: 401,
+    };
   }
 
-  // If it's not an auth error, return the response as-is
-  return response;
+  return makeRequest<T, R>({
+    ...config,
+    method,
+  });
 };
 
 export const postAuthReq = async <

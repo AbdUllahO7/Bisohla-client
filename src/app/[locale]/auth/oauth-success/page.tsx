@@ -8,7 +8,6 @@ import { CheckCircle, Loader2, XCircle } from "lucide-react"
 import Image from "next/image"
 import { allRoutes } from "@/constants/routes.constant"
 import { useQueryClient } from "@tanstack/react-query"
-import { triggerAuthStateChange } from "@/lib/utils/auth-utils"
 import { oauthCallbackAction } from "../actions"
 
 const OAuthSuccessPage = () => {
@@ -68,9 +67,6 @@ const OAuthSuccessPage = () => {
         // Invalidate auth-related queries (same as normal login)
         queryClient.invalidateQueries({ queryKey: ['session'] })
         queryClient.invalidateQueries({ queryKey: ['check-auth-user'] })
-
-        // Trigger custom events for UI updates
-        triggerAuthStateChange()
 
         // Redirect to user home page after 1.5 seconds
         setTimeout(() => {

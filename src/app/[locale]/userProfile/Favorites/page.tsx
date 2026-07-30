@@ -7,8 +7,6 @@ import { Badge } from '@/components/ui/badge';
 import { ProductCardItem } from '@/components/web/design/ProductCardItem';
 import { useTranslations } from 'next-intl';
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import { UserFavoriteCarListing } from '@/core/entities/models/cars/users-favorites-cars.zod.dto';
-import { ListingType } from '@/core/entities/enums/cars.enums';
 import { useSession } from '@/hooks/auth/use-session';
 import { useDirection } from '@/hooks/use-direction';
 import { getInjection } from '@/di/container';
@@ -139,107 +137,23 @@ const UserFavoritesEnhanced = () => {
     setDynamicAttributes((prev) => ({ ...prev, [slug]: value }));
   };
 
-  const pageSize = 12; // Items per page
+  const pageSize = 20; // Items per page
 
   // Debounced search query
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
 
   // Build query params for the API
   const queryParams = useMemo<QueryParams>(() => {
-    const params: QueryParams = {
-      userId: session?.user?.id,
+    return {
       page: currentPage,
       pageSize: pageSize,
-      sortBy: 'createdAt',
-      sortDirection: 'desc',
     };
-
-    // Add search if provided (use debounced value)
-    if (debouncedSearchQuery.trim()) {
-      // For car listings search, we might want to search in multiple fields
-      params.filterGroups = [
-        {
-          operator: 'or',
-          filters: [
-            {
-              field: 'title',
-              operator: 'like',
-              value: `%${debouncedSearchQuery.trim()}%`,
-            },
-            {
-              field: 'make.name',
-              operator: 'like',
-              value: `%${debouncedSearchQuery.trim()}%`,
-            },
-          ],
-        },
-      ];
-    }
-
-    // Add filter for listing type ID if selected
-    if (listingTypeId) {
-      const typeIdFilter = {
-        field: 'listingTypeId',
-        operator: 'eq' as const,
-        value: listingTypeId,
-      };
-
-      if (!params.where) params.where = [];
-      params.where.push(typeIdFilter);
-
-      // Add as top-level param too as we did on Products/page.tsx
-      (params as any).listingTypeId = listingTypeId;
-    }
-
-    // Add filter for listing offer type (Sale/Rent)
-    if (filterType !== 'all') {
-      const typeFilter = {
-        field: 'listingOfferType',
-        operator: 'eq' as const,
-        value: filterType,
-      };
-
-      if (!params.where) params.where = [];
-      params.where.push(typeFilter);
-    }
-
-    // Add dynamic attribute filters
-    if (Object.keys(dynamicAttributes).length > 0) {
-      const dynamicFilters: any[] = [];
-      Object.entries(dynamicAttributes).forEach(([slug, value]) => {
-        if (value !== undefined && value !== '' && (Array.isArray(value) ? value.length > 0 : true)) {
-          if (Array.isArray(value)) {
-            dynamicFilters.push({ field: `attrs.${slug}`, operator: 'in', value });
-          } else {
-            dynamicFilters.push({ field: `attrs.${slug}`, operator: 'eq', value });
-          }
-        }
-      });
-      if (dynamicFilters.length > 0) {
-        if (params.filterGroups) {
-          params.filterGroups.push({ operator: 'and', filters: dynamicFilters });
-        } else {
-          params.filterGroups = [{ operator: 'and', filters: dynamicFilters }];
-        }
-      }
-    }
-
-    return params;
-  }, [session?.user?.id, debouncedSearchQuery, filterType, dynamicAttributes, currentPage, listingTypeId]);
+  }, [currentPage]);
 
   // Use the query hook with proper dependency tracking
   const { data, isLoading, error, refetch, isRefetching } =
     useGetListingFavorites(queryParams);
-
-  // Force refetch when search or filter changes (additional safeguard)
-  useEffect(() => {
-    refetch();
-  }, [debouncedSearchQuery, filterType, listingTypeId, dynamicAttributes, refetch]);
-
-  // Reset to page 1 when search or filter changes
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [debouncedSearchQuery, filterType, listingTypeId]);
+  console.log("data",data)
 
   // Function to safely check if an image is primary
   const isPrimaryImage = (

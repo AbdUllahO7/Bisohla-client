@@ -17,7 +17,7 @@ import { getInjection } from '@/di/container';
 import { redirect } from '@/i18n/routing';
 import { getLocale } from 'next-intl/server';
 import { revalidatePath, revalidateTag } from 'next/cache';
-import { createSession } from '@/core/lib/web/session';
+import { createSession, deleteSession } from '@/core/lib/web/session';
 
 export const signInAction = async (
   state: ApiResponse<LoginResponse>,
@@ -93,14 +93,14 @@ export const logoutAction = async (): Promise<void> => {
     console.error('Logout API error:', error);
   }
 
+  // Delete the session cookie unconditionally
+  await deleteSession();
+
   // Revalidate all paths and clear auth cache
   revalidatePath('/', 'layout');
   revalidateTag('auth');
   revalidateTag('session');
   revalidateTag('user');
-
-  // Add a small delay to ensure cache invalidation completes
-  await new Promise((resolve) => setTimeout(resolve, 100));
 
   const locale = await getLocale();
 
