@@ -355,7 +355,7 @@ export const RentProductListCard: React.FC<RentProductListCardProps> = ({
       }`}
       ref={cardRef}
     >
-      <Link href={`/products/product/${car.slug || productId}`} className="block w-full">
+      <Link href={`/products/product/${car.slug || productId}`} prefetch={false} className="block w-full">
         <div className="flex flex-row h-32 relative">
           {/* SOLD Badge and Overlay */}
           {isSold && (

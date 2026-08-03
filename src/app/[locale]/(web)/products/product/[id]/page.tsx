@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getLocale } from 'next-intl/server';
@@ -32,12 +33,12 @@ interface FetchListingResult {
   rawListing: GenericListingDto | null;
 }
 
-async function fetchCarData(
+const fetchCarData = cache(async (
   idOrSlug: string,
   isProfileView: boolean,
   locale: string,
   userId?: number,
-): Promise<FetchListingResult> {
+): Promise<FetchListingResult> => {
 
   if (isProfileView) {
     let id = Number(idOrSlug);
@@ -113,7 +114,7 @@ async function fetchCarData(
 
   console.warn(`[ProductPage] all attempts failed for ${idOrSlug}`);
   return { carResponse: slugRes as ApiResponse<SelectCarListingDto>, rawListing: null };
-}
+});
 
 export async function generateMetadata({
   params,

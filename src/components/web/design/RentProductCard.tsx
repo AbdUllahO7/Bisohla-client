@@ -463,7 +463,7 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
             </Text>
           </Box>
 
-          <Link href={`/products/product/${car.slug || car.id}`} className="block">
+          <Link href={`/products/product/${car.slug || car.id}`} prefetch={false} className="block">
             <CardHeader className="p-0">
               <CardTitle className="w-full relative h-48 overflow-hidden">
                 <Image
