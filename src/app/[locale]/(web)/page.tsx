@@ -135,121 +135,126 @@ const WebPage = async () => {
   const listingTypesRepo = getInjection('IListingTypesRepo');
   const listingsVisitorRepo = getInjection('IListingsVisitorRepo');
 
-  // Fetch listing types
-  const listingTypesRes = await listingTypesRepo.getListingTypes();
-  const listingTypes = (listingTypesRes.data?.data || []).sort((a: any, b: any) => {
-    const orderA = !a.order ? Infinity : Number(a.order);
-    const orderB = !b.order ? Infinity : Number(b.order);
-    if (orderA === orderB) return 0;
-    return orderA - orderB;
-  });
+  // Fetch initial independent resources in parallel
+  const [listingTypesRes, locale, t, trendingRes, featuredRes, topSellersRes] =
+    await Promise.all([
+      listingTypesRepo.getListingTypes(),
+      getLocale(),
+      getTranslations('homePage'),
+      listingsVisitorRepo.getTrendingListings({
+        pageSize: 10,
+        include:
+          'attributeValues.attribute,images,user,listingType,listingTypeVersion',
+      }),
+      listingsVisitorRepo.getFeaturedListings(undefined, {
+        pageSize: 10,
+        include:
+          'attributeValues.attribute,images,user,listingType,listingTypeVersion',
+      }),
+      getTopSellers(10, 1),
+    ]);
 
-  const locale = await getLocale();
-  const t = await getTranslations('homePage');
+  const listingTypes = (listingTypesRes.data?.data || []).sort(
+    (a: any, b: any) => {
+      const orderA = !a.order ? Infinity : Number(a.order);
+      const orderB = !b.order ? Infinity : Number(b.order);
+      if (orderA === orderB) return 0;
+      return orderA - orderB;
+    },
+  );
 
-  // Fetch trending listings
-  const trendingRes = await listingsVisitorRepo.getTrendingListings({
-    pageSize: 10,
-    include:
-      'attributeValues.attribute,images,user,listingType,listingTypeVersion',
-  });
   const trendingListings = (trendingRes.data?.data || []).map((item) =>
     normalizeListingToCarDto(item, locale),
   );
 
-
-
-  // Fetch featured listings (global)
-  const featuredRes = await listingsVisitorRepo.getFeaturedListings(undefined, {
-    pageSize: 10,
-    include:
-      'attributeValues.attribute,images,user,listingType,listingTypeVersion',
-  });
   const featuredListings = (featuredRes.data?.data || []).map((item) =>
     normalizeListingToCarDto(item, locale),
   );
 
-  // Fetch featured listings per type
-  const typeFeaturedListings: {
+  const topSellers = topSellersRes.data ?? [];
+
+  // Build queries array for per-type listings to run concurrently
+  const typeQueries: {
     type: any;
-    listings: any[];
     title: string;
     adSlotName?: string;
     listingOfferType?: string;
+    promise: Promise<any>;
   }[] = [];
 
   for (const type of listingTypes) {
     if (type.slug === 'cars') {
-      // Fetch for_sale
-      const saleRes = await listingsVisitorRepo.searchListings(type.id, {
-        pageSize: 10,
-        sortBy: 'createdAt',
-        sortDirection: 'desc',
-        where: [
-          {
-            field: 'listingOfferType',
-            operator: 'eq',
-            value: 'for_sale',
-          },
-        ],
-        include:
-          'attributeValues.attribute,images,user,listingType,listingTypeVersion',
-      });
-      typeFeaturedListings.push({
+      typeQueries.push({
         type,
         title: `${type.name} - ${locale === 'ar' ? 'للبيع' : 'For Sale'}`,
-        listings: (saleRes.data?.data || []).map((item) =>
-          normalizeListingToCarDto(item, locale),
-        ),
         adSlotName: 'lateset-offers-card',
         listingOfferType: 'for_sale',
+        promise: listingsVisitorRepo.searchListings(type.id, {
+          pageSize: 10,
+          sortBy: 'createdAt',
+          sortDirection: 'desc',
+          where: [
+            {
+              field: 'listingOfferType',
+              operator: 'eq',
+              value: 'for_sale',
+            },
+          ],
+          include:
+            'attributeValues.attribute,images,user,listingType,listingTypeVersion',
+        }),
       });
 
-      // Fetch for_rent
-      const rentRes = await listingsVisitorRepo.searchListings(type.id, {
-        pageSize: 10,
-        sortBy: 'createdAt',
-        sortDirection: 'desc',
-        where: [
-          {
-            field: 'listingOfferType',
-            operator: 'eq',
-            value: 'for_rent',
-          },
-        ],
-        include:
-          'attributeValues.attribute,images,user,listingType,listingTypeVersion',
-      });
-      typeFeaturedListings.push({
+      typeQueries.push({
         type,
         title: `${type.name} - ${locale === 'ar' ? 'للإيجار' : 'For Rent'}`,
-        listings: (rentRes.data?.data || []).map((item) =>
-          normalizeListingToCarDto(item, locale),
-        ),
         adSlotName: 'home page rent section ad',
         listingOfferType: 'for_rent',
+        promise: listingsVisitorRepo.searchListings(type.id, {
+          pageSize: 10,
+          sortBy: 'createdAt',
+          sortDirection: 'desc',
+          where: [
+            {
+              field: 'listingOfferType',
+              operator: 'eq',
+              value: 'for_rent',
+            },
+          ],
+          include:
+            'attributeValues.attribute,images,user,listingType,listingTypeVersion',
+        }),
       });
     } else {
-      const res = await listingsVisitorRepo.searchListings(type.id, {
-        pageSize: 10,
-        sortBy: 'createdAt',
-        sortDirection: 'desc',
-        include:
-          'attributeValues.attribute,images,user,listingType,listingTypeVersion',
-      });
-      typeFeaturedListings.push({
+      typeQueries.push({
         type,
         title: type.name,
-        listings: (res.data?.data || []).map((item) =>
-          normalizeListingToCarDto(item, locale),
-        ),
+        promise: listingsVisitorRepo.searchListings(type.id, {
+          pageSize: 10,
+          sortBy: 'createdAt',
+          sortDirection: 'desc',
+          include:
+            'attributeValues.attribute,images,user,listingType,listingTypeVersion',
+        }),
       });
     }
   }
 
-  // Fetch top sellers
-  const topSellersRes = await getTopSellers(10, 1);
-  const topSellers = topSellersRes.data ?? [];
+  // Fetch all per-type listings in parallel
+  const typeResults = await Promise.all(typeQueries.map((q) => q.promise));
+
+  const typeFeaturedListings = typeQueries.map((query, index) => {
+    const res = typeResults[index];
+    return {
+      type: query.type,
+      title: query.title,
+      listings: (res.data?.data || []).map((item: any) =>
+        normalizeListingToCarDto(item, locale),
+      ),
+      adSlotName: query.adSlotName,
+      listingOfferType: query.listingOfferType,
+    };
+  });
 
   return (
     <AnimatedPageWrapper>

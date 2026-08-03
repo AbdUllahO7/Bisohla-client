@@ -839,6 +839,7 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
           <div className={imageContainerClass}>
             <div className="relative w-full h-[260px]">
               <Link
+                prefetch={false}
                 href={`/products/product/${carListing.id}${profile && isMine ? '?profile=true' : ''
                   }`}
               >
@@ -951,6 +952,7 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
               {/* Header */}
               <div className="flex-1">
                 <Link
+                  prefetch={false}
                   href={`/products/product/${carListing.id}${profile ? '?profile=true' : ''
                     }`}
                 >
@@ -1133,6 +1135,7 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
                   {/* View Details Button */}
                   <Button size="sm" className={actionButtonClass} asChild>
                     <Link
+                      prefetch={false}
                       href={`/products/product/${carListing.id}${profile && isMine ? '?profile=true' : ''
                         }`}
                     >
