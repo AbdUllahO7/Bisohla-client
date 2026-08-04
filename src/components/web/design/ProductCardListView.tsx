@@ -1082,17 +1082,9 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
                     </Button>
                   )}
 
-                  {/* Contact Button */}
-                  {carListing.contactNumber && !isMine && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className={actionButtonClass}
-                    >
-                      <Phone size={14} />
-                      {t('contact')}
-                    </Button>
-                  )}
+                  {/* No Contact button here: cards never carry the seller's
+                      number now, and contacting happens on the product page
+                      where the reveal flow lives. */}
 
                   {/* Profile-specific buttons */}
                   {profile && (

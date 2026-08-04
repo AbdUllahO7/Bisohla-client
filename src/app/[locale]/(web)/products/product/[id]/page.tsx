@@ -30,6 +30,13 @@ interface ProductPageProps {
 interface FetchListingResult {
   carResponse: ApiResponse<SelectCarListingDto>;
   rawListing: GenericListingDto | null;
+  /**
+   * Set only by the legacy car fallback below. Car ids and listing-types ids come
+   * from different tables, so a car id must never be sent to the listing-types
+   * reveal-contact endpoint — it would resolve to an unrelated listing and hand
+   * the visitor the wrong seller's number.
+   */
+  isLegacyCar?: boolean;
 }
 
 async function fetchCarData(
@@ -107,7 +114,7 @@ async function fetchCarData(
     // Attempt 3: Legacy car endpoint fallback
     const legacyRes = await getCarListingById({ id, userId });
     if (legacyRes.success && legacyRes.data) {
-      return { carResponse: legacyRes, rawListing: null };
+      return { carResponse: legacyRes, rawListing: null, isLegacyCar: true };
     }
   }
 
@@ -178,7 +185,7 @@ const ProductPage = async ({ params, searchParams }: ProductPageProps) => {
     const isAuthenticated = !!session?.user;
     const locale = await getLocale();
 
-    const { carResponse, rawListing } = await fetchCarData(id, isProfileView, locale, session?.user?.id);
+    const { carResponse, rawListing, isLegacyCar } = await fetchCarData(id, isProfileView, locale, session?.user?.id);
     console.log("carResponse",carResponse)
     if (!carResponse.success || !carResponse.data) {
       notFound();
@@ -189,6 +196,7 @@ const ProductPage = async ({ params, searchParams }: ProductPageProps) => {
         <ProductDetailSwitcher
           carDataRes={carResponse}
           rawListing={rawListing}
+          isLegacyCar={isLegacyCar}
           isAuthenticated={isAuthenticated}
           locale={locale}
           isProfileView={isProfileView}

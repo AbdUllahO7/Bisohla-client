@@ -395,6 +395,9 @@ export const normalizeListingToCarDto = (listing: any, locale: string = 'en'): S
     saveStatus: listing.publicationStatus,
     listingType: listing.listingOfferType,
     contactNumber: listing.contactNumber,
+    // Carry the reveal flag: without it every product page reads "seller has no
+    // number" and disables Call / WhatsApp permanently once protection is on.
+    contactAvailable: listing.contactAvailable,
 
     governorate: getLocalizedValue(listing.governorate),
     city: getLocalizedValue(listing.city),

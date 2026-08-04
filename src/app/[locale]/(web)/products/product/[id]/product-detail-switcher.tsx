@@ -11,6 +11,11 @@ import { GenericListingDto } from '@/core/entities/models/listings/generic-listi
 interface ProductDetailSwitcherProps {
   carDataRes: ApiResponse<SelectCarListingDto>;
   rawListing?: GenericListingDto | null;
+  /**
+   * True when the data came from the legacy car endpoint, whose ids belong to a
+   * different table than the listing-types reveal endpoint — see `product-client`.
+   */
+  isLegacyCar?: boolean;
   isAuthenticated: boolean;
   locale: string;
   isProfileView: boolean;
@@ -19,6 +24,7 @@ interface ProductDetailSwitcherProps {
 export default function ProductDetailSwitcher({
   carDataRes,
   rawListing,
+  isLegacyCar,
   isAuthenticated,
   locale,
   isProfileView,
@@ -37,6 +43,7 @@ export default function ProductDetailSwitcher({
       <ProductClient
         carDataRes={carDataRes}
         rawListing={rawListing}
+        isLegacyCar={isLegacyCar}
         isAuthenticated={isAuthenticated}
         locale={locale}
         isProfileView={isProfileView}
@@ -48,6 +55,7 @@ export default function ProductDetailSwitcher({
     <MobileProductClient
       carDataRes={carDataRes}
       rawListing={rawListing}
+      isLegacyCar={isLegacyCar}
       isAuthenticated={isAuthenticated}
       locale={locale}
       isProfileView={isProfileView}
@@ -56,6 +64,7 @@ export default function ProductDetailSwitcher({
     <ProductClient
       carDataRes={carDataRes}
       rawListing={rawListing}
+      isLegacyCar={isLegacyCar}
       isAuthenticated={isAuthenticated}
       locale={locale}
       isProfileView={isProfileView}

@@ -87,7 +87,26 @@ export interface GenericListingDto {
   condition: string | null;
   isFeatured: boolean;
   isTrend: boolean;
-  contactNumber: string;
+  /**
+   * `null` on every public response once seller-contact protection is enabled
+   * in backend settings. Check `contactAvailable` before deciding what to do.
+   */
+  contactNumber: string | null;
+  /**
+   * Whether the listing has a reachable number at all, computed server-side
+   * BEFORE any hiding. The rule, which behaves the same whether or not
+   * protection is on:
+   *
+   *   contactNumber present  → use it directly, no request
+   *   else contactAvailable  → POST /listings-visitor/:id/reveal-contact
+   *   else                   → no contact; disable Call / WhatsApp
+   *
+   * Never reveal when this is false — it spends one of the visitor's limited
+   * daily reveals only to learn the seller never entered a number.
+   *
+   * Optional because older cached SSR payloads may predate the field.
+   */
+  contactAvailable?: boolean;
   publishedAt: string;
   expiresAt: string | null;
   createdAt: string;

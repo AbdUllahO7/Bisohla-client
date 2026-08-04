@@ -1,7 +1,8 @@
 import { IListingsVisitorRepo } from '@/core/application/repositories/listings/listings.visitor.repo.interface';
 import { PaginatedResponse, ApiResponse, PaginationInfo } from '@/core/entities/api/success.response';
 import { ListingDto } from '@/core/entities/models/listings/listings.dto';
-import { getReq } from '@/core/lib/api';
+import { RevealContactDto } from '@/core/entities/models/listings/reveal-contact.dto';
+import { getReq, postReq } from '@/core/lib/api';
 import { QueryParams } from '@/core/entities/api/api';
 
 export class ListingsVisitorRepo implements IListingsVisitorRepo {
@@ -49,6 +50,22 @@ export class ListingsVisitorRepo implements IListingsVisitorRepo {
     const res = await getReq<any, any>({
       url: `/listings-visitor/${id}`,
       params,
+    });
+    return res;
+  }
+
+  /**
+   * `postReq`, not `postAuthReq`: anonymous visitors must be able to reach a
+   * seller. `postReq` still attaches a bearer opportunistically when there is a
+   * session, which is what earns the signed-in visitor the higher daily quota.
+   *
+   * The endpoint is POST on the backend by design — a GET would be executed by
+   * Next `<Link>` prefetch on hover and burn every visitor's quota without a
+   * click, so this must never be turned into a GET route handler.
+   */
+  async revealContact(listingId: number): Promise<ApiResponse<RevealContactDto>> {
+    const res = await postReq<any, RevealContactDto>({
+      url: `/listings-visitor/${listingId}/reveal-contact`,
     });
     return res;
   }
