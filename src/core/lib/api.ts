@@ -9,7 +9,7 @@ import { AppError } from '../entities/errors/app-error';
 import { QueryParams } from '../entities/api/api';
 import { getLocale } from 'next-intl/server';
 import { BACKEND_URL } from './web/constants';
-import { CLIENT_IP_HEADER, getVisitorIp } from './web/client-ip';
+import { getForwardedFor } from './web/client-ip';
 import { getSession } from './web/session';
 import { handleRefreshToken } from '@/services/auth/auth.service';
 
@@ -179,7 +179,7 @@ export async function makeRequest<
     const timeoutId = setTimeout(() => controller.abort(), timeout);
 
     const locale = await getLocale();
-    const visitorIp = await getVisitorIp();
+    const forwardedFor = await getForwardedFor();
 
     // Check if the endpoint is a pre-auth or public auth endpoint
     const isPreAuthEndpoint =
@@ -218,10 +218,11 @@ export async function makeRequest<
           'Accept-Language': locale,
           'x-app-source': 'web-app',
         }),
-        // OUTSIDE the FormData guard above on purpose: uploads need the visitor
-        // identity too, and that guard is why FormData requests currently send
-        // no Accept-Language / x-app-source either.
-        ...(visitorIp && { [CLIENT_IP_HEADER]: visitorIp }),
+        // Pass the visitor's forwarding chain through, as any proxy does, so the
+        // backend counts each user individually instead of seeing this server.
+        // OUTSIDE the FormData guard above on purpose: uploads need it too, and
+        // that guard is why FormData sends no Accept-Language / x-app-source.
+        ...(forwardedFor && { 'x-forwarded-for': forwardedFor }),
         ...headers,
         ...(authHeader && { Authorization: authHeader }),
       },

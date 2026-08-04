@@ -1,35 +1,28 @@
 import { headers } from 'next/headers';
 
-/** Header the backend reads to learn which visitor a server call is for. */
-export const CLIENT_IP_HEADER = 'x-client-ip';
-
 /**
- * The visitor's IP, to forward on server-side API calls.
+ * The forwarding chain of the incoming page request, to pass through on
+ * server-side API calls.
  *
- * Every call in `api.ts` is server-side, so the backend otherwise sees this
- * machine's address for every user. Against the rate limiter that never mattered
- * (400 req/min is generous and the site is nowhere near it), but the
- * contact-reveal quota is 20 per DAY — shared, the whole site would exhaust it
- * on the 21st person who taps Call.
+ * This app is a proxy hop like any other: every call in `api.ts` is server-side,
+ * so without forwarding this the backend sees THIS machine for every user. It
+ * never mattered against the rate limiter (400 req/min is generous and the site
+ * is nowhere near it), but the contact-reveal quota is 20 per DAY — shared, the
+ * whole site would exhaust it on the 21st person who taps Call.
  *
- * The backend honours this header ONLY from an IP listed in
- * `security_settings.rate_limiting.trusted_ips`, so a visitor cannot send it to
- * become someone else.
+ * The backend walks this chain from the right and discards its own hops, so a
+ * value forged by a visitor can never win: nginx appends its view of the source
+ * after whatever we send. Nothing needs configuring on either side.
  *
- * Returns `null` outside a request scope (build-time / static generation), where
- * `headers()` throws and there is no visitor to speak for.
+ * Returns `null` outside a request scope (build time / static generation).
  */
-export async function getVisitorIp(): Promise<string | null> {
+export async function getForwardedFor(): Promise<string | null> {
   try {
     const h = await headers();
-    // nginx-proxy overwrites x-real-ip with the true peer; the leftmost
-    // x-forwarded-for entry is client-supplied, so it is only a last resort.
-    const realIp = h.get('x-real-ip')?.trim();
-    if (realIp) return realIp;
-
-    const forwarded = h.get('x-forwarded-for');
-    const first = forwarded?.split(',')[0]?.trim();
-    return first || null;
+    const forwarded = h.get('x-forwarded-for')?.trim();
+    if (forwarded) return forwarded;
+    // Some proxies set only X-Real-IP; it starts a chain just as well.
+    return h.get('x-real-ip')?.trim() || null;
   } catch {
     return null;
   }
