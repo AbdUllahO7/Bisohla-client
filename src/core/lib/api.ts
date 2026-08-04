@@ -9,6 +9,7 @@ import { AppError } from '../entities/errors/app-error';
 import { QueryParams } from '../entities/api/api';
 import { getLocale } from 'next-intl/server';
 import { BACKEND_URL } from './web/constants';
+import { CLIENT_IP_HEADER, getVisitorIp } from './web/client-ip';
 import { getSession } from './web/session';
 import { handleRefreshToken } from '@/services/auth/auth.service';
 
@@ -178,6 +179,7 @@ export async function makeRequest<
     const timeoutId = setTimeout(() => controller.abort(), timeout);
 
     const locale = await getLocale();
+    const visitorIp = await getVisitorIp();
 
     // Check if the endpoint is a pre-auth or public auth endpoint
     const isPreAuthEndpoint =
@@ -216,6 +218,10 @@ export async function makeRequest<
           'Accept-Language': locale,
           'x-app-source': 'web-app',
         }),
+        // OUTSIDE the FormData guard above on purpose: uploads need the visitor
+        // identity too, and that guard is why FormData requests currently send
+        // no Accept-Language / x-app-source either.
+        ...(visitorIp && { [CLIENT_IP_HEADER]: visitorIp }),
         ...headers,
         ...(authHeader && { Authorization: authHeader }),
       },
