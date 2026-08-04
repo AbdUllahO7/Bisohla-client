@@ -120,7 +120,14 @@ const CarDetailsContent: React.FC<CarDetailsContentProps> = ({
   const contactDetails: DetailItem[] = [
     {
       label: t('contactNumber'),
-      value: data?.contactNumber || '-',
+      // Never print the digits here. This row is plain server-rendered text, so
+      // a number in it is the single easiest thing on the page for a scraper to
+      // take — and it would defeat the reveal flow the Call/WhatsApp buttons
+      // use. When the backend has hidden the number, point the user at those
+      // buttons instead.
+      value:
+        data?.contactNumber ||
+        (data?.contactAvailable ? t('contactViaButtons') : '-'),
       icon: <Phone className="w-4 h-4" />,
     },
     {

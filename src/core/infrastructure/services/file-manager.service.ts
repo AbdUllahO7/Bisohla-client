@@ -25,6 +25,12 @@ export class FileManagerService implements IFileManagerService {
       // Append the single file to FormData with field name 'file'
       formData.append('file', dto.file);
 
+      // Server-side default is `images/default`, which the watermark allowlist
+      // excludes — listing photos must land in `images/listings` to be marked.
+      if (dto.folder) {
+        formData.append('folder', dto.folder);
+      }
+
       const res = await postAuthReq<FormData, UploadSingleImageResponse>({
         url: '/storage/upload-image',
         body: formData,
