@@ -19,12 +19,14 @@ import FloatingShareButton from './FloatingShareButton';
 interface ProductClientProps {
   carDataRes: ApiResponse<SelectCarListingDto>;
   rawListing?: GenericListingDto | null;
+  /** Legacy car record — its id is NOT a listing-types id, so no reveal. */
+  isLegacyCar?: boolean;
   isAuthenticated: boolean;
   locale: string;
   isProfileView: boolean;
 }
 
-const ProductClient = ({ carDataRes, rawListing, isAuthenticated, locale }: ProductClientProps) => {
+const ProductClient = ({ carDataRes, rawListing, isLegacyCar, isAuthenticated, locale }: ProductClientProps) => {
   const carData = carDataRes.data;
 
   // Determine if this is a car listing based on raw listing type slug
@@ -128,6 +130,9 @@ const ProductClient = ({ carDataRes, rawListing, isAuthenticated, locale }: Prod
             saveStatus={carData.saveStatus as any}
             productName={carData.title}
             ContactNumber={carData.contactNumber?.toString()}
+            // A legacy car id would resolve to an unrelated listing-types listing,
+            // so never offer a reveal for one — an inline number still works.
+            contactAvailable={isLegacyCar ? false : carData.contactAvailable}
             price={carData.price?.toString() || ''}
             currency={carData.currency}
             isLoading={false}

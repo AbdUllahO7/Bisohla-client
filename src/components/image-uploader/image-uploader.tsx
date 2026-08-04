@@ -68,6 +68,12 @@ interface ImageUploaderProps {
   showPreview?: boolean;
   name?: string;
   error?: string;
+  /**
+   * Storage subfolder, e.g. `listings`. Defaults to `default` server-side —
+   * which the watermark allowlist deliberately excludes, so uploads that ARE
+   * listing photos must pass `listings` or they ship unwatermarked.
+   */
+  folder?: string;
 }
 
 export interface ImageUploaderRef {
@@ -91,6 +97,7 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
       name = 'images',
       setDisableForm,
       error: propError,
+      folder,
     },
     ref,
   ) => {
@@ -298,6 +305,7 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
           // Prepare the DTO with the file object
           const uploadDto: UploadSingleImageDto = {
             file: pendingFile.file,
+            folder,
           };
 
           const response = await uploadMutation.mutateAsync(uploadDto);
@@ -370,6 +378,7 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
       setDisableForm,
       startProgressAnimation,
       queryClient,
+      folder,
     ]);
 
     const handleImageChange = useCallback(

@@ -154,7 +154,15 @@ export interface SelectCarListingDto {
   moderationStatus?: string | null;
   rejectionReason?: string | null;
   rentType?: RentType | string | null;
+  /** Null once seller-contact protection is on — see `contactAvailable`. */
   contactNumber?: string | null;
+  /**
+   * Whether the listing has a reachable number at all, computed server-side
+   * BEFORE any hiding, so a client can tell "hidden until you ask" apart from
+   * "the seller never entered one" without spending a reveal to find out.
+   * Optional because older cached SSR payloads predate the field.
+   */
+  contactAvailable?: boolean;
 
   // location
   governorate: SyriaGovernorate | string;

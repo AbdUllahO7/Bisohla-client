@@ -23,7 +23,7 @@
   },
   "homePage": {
     "lang": "ar",
-    "bodyType":"نوع الهيكل",
+    "bodyType": "نوع الهيكل",
     "featuredListings": "الإعلانات المميزة",
     "trendingListings": "الإعلانات الأكثر رواجاً",
     "metadata": {
@@ -870,8 +870,11 @@
       "doors": "الأبواب",
       "colorExterior": "اللون الخارجي",
       "colorInterior": "اللون الداخلي",
-      "vin": "VIN"
-    }
+      "vin": "VIN",
+      "contactViaButtons": "استخدم زر الاتصال أو واتساب في الأعلى"
+    },
+    "contactUnavailable": "تعذّر الحصول على الرقم",
+    "contactUnavailableHint": "تعذّر تحميل رقم البائع الآن. يرجى المحاولة بعد قليل."
   },
   "addProduct": {
     "steps": {

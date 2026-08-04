@@ -25,7 +25,7 @@
     "featuredListings": "Featured Listings",
     "trendingListings": "Trending Listings",
     "lang": "en",
-    "bodyType":"Body Type",
+    "bodyType": "Body Type",
     "metadata": {
       "title": "Bishola - Rental & Sales Platform",
       "description": "Rent or buy your perfect item with Bishola. Premium rental services and quality used items for sale. Find the best deals on listings in Syria."
@@ -836,8 +836,11 @@
       "doors": "Doors",
       "colorExterior": "Exterior Color",
       "colorInterior": "Interior Color",
-      "vin": "vin"
-    }
+      "vin": "vin",
+      "contactViaButtons": "Use the Call or WhatsApp button above"
+    },
+    "contactUnavailable": "Couldn't get the number",
+    "contactUnavailableHint": "The seller's number couldn't be loaded just now. Please try again in a moment."
   },
   "adminPage": {
     "general": {

@@ -7,4 +7,5 @@ export interface UploadImagesDto {
 
 export interface UploadSingleImageDto {
   file: File;
+  folder?: string;
 }

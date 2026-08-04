@@ -41,6 +41,8 @@ const CarPhotosSection: React.FC<CarPhotosSectionProps> = ({
   const minImages = listingsSettings?.images?.min_images_per_listing ?? 5;
   const maxImages = listingsSettings?.images?.max_images_per_listing ?? 15;
   const maxImageSizeMb = listingsSettings?.images?.max_image_size_mb ?? 10;
+  // Must match the mobile app and the watermark allowlist — see image-uploader.
+  const uploadFolder = listingsSettings?.images?.upload_folder || "listings";
 
   const photoTips = {
     en: {
@@ -289,6 +291,7 @@ const CarPhotosSection: React.FC<CarPhotosSectionProps> = ({
           ref={coverImageRef}
           maxImages={maxImages}
           maxSizeInMB={maxImageSizeMb}
+          folder={uploadFolder}
           onChange={onCoverImageChange}
           setDisableForm={setIsFormDisabled}
           value={coverImage}
