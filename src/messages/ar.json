@@ -1392,7 +1392,8 @@
       "last7Days": "آخر 7 أيام",
       "recentViews": "المشاهدات الأخيرة",
       "last30Days": "آخر 30 يوماً",
-      "monthlyViews": "المشاهدات الشهرية"
+      "monthlyViews": "المشاهدات الشهرية",
+      "profileNotFound": "الملف الشخصي غير موجود"
     }
   },
   "saleProduct": {

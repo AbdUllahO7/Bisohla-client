@@ -11,7 +11,7 @@ export const checkAuth = async (): Promise<
 > => {
   const controller = getInjection('IAuthController');
 
-  const res = controller.checkAuth();
+  const res = await controller.checkAuth();
 
   return res;
 };

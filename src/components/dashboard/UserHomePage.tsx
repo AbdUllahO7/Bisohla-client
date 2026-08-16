@@ -73,7 +73,7 @@ const UserHomePageRefactored = () => {
         dir={direction}
       >
         <h2 className="text-xl font-semibold text-muted-foreground">
-          {direction === 'ltr' ? 'Profile not found' : 'الملف الشخصي غير موجود'}
+          {t('profileNotFound')}
         </h2>
       </div>
     );
