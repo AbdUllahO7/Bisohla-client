@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Home, Search, PlusCircle, User } from 'lucide-react';
+import { Home, Search, MapPin, PlusCircle, User } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Link, usePathname } from '@/i18n/routing';
 import { motion } from 'framer-motion';
@@ -28,6 +28,11 @@ const BottomNavigation = () => {
       icon: Search,
     },
     {
+      label: t('map'),
+      href: '/map',
+      icon: MapPin,
+    },
+    {
       label: t('sell'),
       href: '/products/AddProducts',
       icon: PlusCircle,
@@ -38,6 +43,7 @@ const BottomNavigation = () => {
       icon: User,
     },
   ];
+
 
   return (
     <div className="lg:hidden fixed bottom-0 left-0 right-0 z-[100] bg-white/80 backdrop-blur-lg border-t border-gray-200 pb-safe shadow-[0_-4px_12px_rgba(0,0,0,0.05)]">

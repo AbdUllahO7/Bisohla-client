@@ -28,4 +28,13 @@ export interface IListingsVisitorRepo {
    * callers must pass `carData.id`, not the route param.
    */
   revealContact(listingId: number): Promise<ApiResponse<RevealContactDto>>;
+
+  getMapListings(
+    params: { bbox: string; typeId?: number; offerType?: string; where?: any; filterGroups?: any }
+  ): Promise<ApiResponse<any>>;
+
+  getListingCard(slug: string): Promise<ApiResponse<any>>;
+
+  getGovernorateCounts(): Promise<ApiResponse<any>>;
 }
+

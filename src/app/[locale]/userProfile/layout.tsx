@@ -26,6 +26,7 @@ export default async function DashboardLayout({ children }: PropsWithChildren) {
                   home: t('headerTow.home'),
                   rent: t('headerTow.rent'),
                   sale: t('headerTow.sale'),
+                  map: t('headerTow.map'),
                   join: t('headerTow.join'),
                   BrowseAll: t('headerTow.BrowseAll'),
                   Privacypolicy: t('headerTow.Privacypolicy'),
