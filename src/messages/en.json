@@ -1397,7 +1397,8 @@
       "last7Days": "Last 7 Days",
       "recentViews": "Recent views",
       "last30Days": "Last 30 Days",
-      "monthlyViews": "Monthly views"
+      "monthlyViews": "Monthly views",
+      "profileNotFound": "Profile not found"
     }
   },
   "saleProduct": {

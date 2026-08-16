@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Locale, routing } from './i18n/routing';
 import createIntlMiddleware from 'next-intl/middleware';
-import { getSession } from './core/lib/web/session';
+import { refreshSessionIfNeeded } from './core/lib/web/session.refresh';
+import {
+  getSessionFromRequest,
+  SESSION_COOKIE_OPTIONS,
+  SESSION_KEY,
+} from './core/lib/web/session.token';
 import { allRoutes } from './constants/routes.constant';
 import { getAdminRole, getUserRole } from './services/permission.service';
 
@@ -35,11 +40,49 @@ async function middleware(req: NextRequest) {
     return response;
   }
 
-  // Validate session locally without network calls
-  const session = await getSession();
+  // Renew the backend tokens here, where cookies are still writable — a Server
+  // Component render cannot write them, so this is the only place a page load
+  // can heal an expired access token. Also the point where a refresh token the
+  // backend has rejected turns into an actual sign-out.
+  //
+  // Real navigations only:
+  // - a Server Action arrives as a POST to the current URL, and the redirect
+  //   below would discard it. Those run where cookies ARE writable, so
+  //   `makeRequest` refreshes them itself.
+  // - a `<Link>` prefetch is a GET the user never asked for, and several fire at
+  //   once. Rotating credentials from one is the same trap that once had
+  //   prefetch executing the sign-out route.
+  const isPrefetch =
+    req.headers.get('next-router-prefetch') === '1' ||
+    req.headers.get('purpose') === 'prefetch' ||
+    req.headers.get('x-purpose') === 'prefetch';
+
+  const refresh =
+    (req.method === 'GET' || req.method === 'HEAD') && !isPrefetch
+      ? await refreshSessionIfNeeded(req)
+      : ({ status: 'untouched', session: null } as const);
+
+  if (refresh.status === 'refreshed') {
+    // Redirect rather than continue: the render for THIS request has already
+    // been handed the old cookie, and nothing downstream would see the new one.
+    // Costs one round trip per access-token lifetime, and the next request
+    // carries a live token so this cannot loop.
+    const renewed = NextResponse.redirect(req.nextUrl);
+    renewed.cookies.set(SESSION_KEY, refresh.cookie.token, {
+      ...SESSION_COOKIE_OPTIONS,
+      expires: new Date(refresh.cookie.expiresAt * 1000),
+    });
+    return renewed;
+  }
+
+  // Validated locally, without a network call, from the cookie the request
+  // arrived with.
+  const session =
+    refresh.status === 'expired' ? null : await getSessionFromRequest(req);
   const hasSessionCookie = req.cookies.has('session');
 
-  // If cookie exists but verification failed, clear invalid cookie on response
+  // If cookie exists but verification failed — or the backend just rejected the
+  // refresh token — clear it on the response.
   if (hasSessionCookie && !session) {
     response.cookies.set('session', '', { maxAge: 0, path: '/' });
   }

@@ -6,11 +6,12 @@ import { ZodError, ZodTypeAny } from 'zod';
 import { ApiResponse } from '../entities/api/success.response';
 import { ValidationError } from '../entities/errors/validation-error';
 import { AppError } from '../entities/errors/app-error';
+import { SessionExpiredError } from '../entities/errors/session-expired-error';
 import { QueryParams } from '../entities/api/api';
 import { getLocale } from 'next-intl/server';
 import { BACKEND_URL } from './web/constants';
 import { getForwardedFor } from './web/client-ip';
-import { getSession } from './web/session';
+import { canPersistSession, getSession } from './web/session';
 import { handleRefreshToken } from '@/services/auth/auth.service';
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
@@ -125,26 +126,78 @@ const handleResponse = async <T>(
   };
 };
 
+/**
+ * Turns a thrown `FetchError`/`ZodError`/unknown into the resolved failure
+ * shape callers expect. Shared by the initial response handling and the outer
+ * catch so a 401 is a VALUE at the point the refresh decision is made — when
+ * `handleResponse` was allowed to throw past that point, the refresh block below
+ * was unreachable and the site never refreshed a token at all.
+ */
+const toFailureResponse = <R>(
+  error: unknown,
+  errorDefaultMessage: string,
+): ApiResponse<R> => {
+  if (error instanceof ZodError) {
+    const formattedErrors = error.errors.reduce((acc, curr) => {
+      const field = curr.path[0].toString();
+      acc[field] = curr.message;
+      return acc;
+    }, {} as Record<string, string>);
+
+    return {
+      success: false,
+      message: 'Validation failed',
+      errors: formattedErrors,
+      status: 400,
+    };
+  }
+
+  if (error instanceof Error) {
+    const fetchError = error as FetchError;
+    return {
+      success: false,
+      message: fetchError.message || errorDefaultMessage,
+      errors: fetchError.errors,
+      status: fetchError.status || 500,
+      path: fetchError.path,
+      timestamp: fetchError.timestamp,
+      fields: fetchError.fields,
+    };
+  }
+
+  return {
+    success: false,
+    message: errorDefaultMessage,
+    status: 500,
+  };
+};
+
+// A timeout or a 503 is AMBIGUOUS, not a failure — the server may well have
+// applied the write. Only replay methods that are safe to apply twice.
+const IDEMPOTENT_METHODS: ReadonlySet<HttpMethod> = new Set(['GET']);
+
 async function fetchWithRetry(
   url: string,
   options: RequestInit,
   retryConfig = DEFAULT_RETRY,
 ): Promise<Response> {
   let lastError: Error | null = null;
+  const method = (options.method as HttpMethod) ?? 'GET';
+  const attempts = IDEMPOTENT_METHODS.has(method) ? retryConfig.attempts : 1;
 
-  for (let attempt = 0; attempt < retryConfig.attempts; attempt++) {
+  for (let attempt = 0; attempt < attempts; attempt++) {
     try {
       const response = await fetch(url, options);
       if (response.status !== 503 && response.status !== 429) {
         return response;
       }
       throw createFetchError(
-        `Service unavailable (attempt ${attempt + 1}/${retryConfig.attempts})`,
+        `Service unavailable (attempt ${attempt + 1}/${attempts})`,
         response.status,
       );
     } catch (error) {
       lastError = error as Error;
-      if (attempt < retryConfig.attempts - 1) {
+      if (attempt < attempts - 1) {
         await sleep(retryConfig.delay * Math.pow(2, attempt));
       }
     }
@@ -239,7 +292,15 @@ export async function makeRequest<
     const response = await fetchWithRetry(fullUrl, fetchOptions, retry);
     clearTimeout(timeoutId);
 
-    const apiResponse = await handleResponse<R>(response);
+    // `handleResponse` THROWS on any non-2xx, so this must be converted to a
+    // value here — otherwise a 401 skips straight past the refresh block below
+    // to the outer catch, which is exactly why refresh never ran.
+    let apiResponse: ApiResponse<R>;
+    try {
+      apiResponse = await handleResponse<R>(response);
+    } catch (error) {
+      apiResponse = toFailureResponse<R>(error, errorDefaultMessage);
+    }
 
     // Gate 401/403 refresh reaction ONLY on requests where an Auth token was actually sent
     if (
@@ -251,7 +312,9 @@ export async function makeRequest<
         (apiResponse.status === 500 && apiResponse.message === 'Unauthorized'))
     ) {
       const sessionForRefresh = currentSession || (await getSession());
-      if (sessionForRefresh?.refreshToken) {
+      // Refreshing where the rotated token cannot be written back would burn
+      // it. Leave the 401 to the caller; a Server Action will refresh properly.
+      if (sessionForRefresh?.refreshToken && (await canPersistSession())) {
         try {
           const newAccessToken = await handleRefreshToken(
             sessionForRefresh.refreshToken,
@@ -268,8 +331,17 @@ export async function makeRequest<
             retryFetchOptions,
             retry,
           );
-          return await handleResponse<R>(retryResponse);
+          try {
+            return await handleResponse<R>(retryResponse);
+          } catch (error) {
+            return toFailureResponse<R>(error, errorDefaultMessage);
+          }
         } catch (refreshError) {
+          // Only a rejected refresh TOKEN ends the session; a network drop or a
+          // 5xx leaves it alone so the next request can try again.
+          if (refreshError instanceof SessionExpiredError) {
+            return { ...apiResponse, sessionExpired: true };
+          }
           console.warn('Token refresh failed:', refreshError);
         }
       }
@@ -277,39 +349,7 @@ export async function makeRequest<
 
     return apiResponse;
   } catch (error) {
-    if (error instanceof ZodError) {
-      const formattedErrors = error.errors.reduce((acc, curr) => {
-        const field = curr.path[0].toString();
-        acc[field] = curr.message;
-        return acc;
-      }, {} as Record<string, string>);
-
-      return {
-        success: false,
-        message: 'Validation failed',
-        errors: formattedErrors,
-        status: 400,
-      };
-    }
-
-    if (error instanceof Error) {
-      const fetchError = error as FetchError;
-      return {
-        success: false,
-        message: fetchError.message || errorDefaultMessage,
-        errors: fetchError.errors,
-        status: fetchError.status || 500,
-        path: fetchError.path,
-        timestamp: fetchError.timestamp,
-        fields: fetchError.fields,
-      };
-    }
-
-    return {
-      success: false,
-      message: errorDefaultMessage,
-      status: 500,
-    };
+    return toFailureResponse<R>(error, errorDefaultMessage);
   }
 }
 

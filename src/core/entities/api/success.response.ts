@@ -17,6 +17,12 @@ export interface BaseApiResponse {
   stack?: string;
   fields?: Record<string, string | number | undefined>;
   status?: number;
+  /**
+   * The backend rejected our refresh token outright, so the session cookie has
+   * been cleared server-side. Distinct from a plain 401: it means "you are
+   * signed out", not "this one call failed". `query.provider` watches for it.
+   */
+  sessionExpired?: boolean;
 }
 
 export interface ApiResponse<T = Record<string, unknown>>

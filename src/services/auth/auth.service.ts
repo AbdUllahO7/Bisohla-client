@@ -6,6 +6,7 @@ import {
   RegisterFormValues,
 } from '@/core/entities/models/auth/register-form-schema';
 import { redirect } from 'next/navigation';
+import { SessionExpiredError } from '@/core/entities/errors/session-expired-error';
 import { deleteSession, updateTokens } from '@/core/lib/web/session';
 import { allRoutes } from '@/constants/routes.constant';
 import { revalidatePath } from 'next/cache';
@@ -71,34 +72,72 @@ export const validateResetPasswordToken = async (token: string) => {
   return res;
 };
 
-export const handleRefreshToken = async (oldRefreshToken: string) => {
+/**
+ * In-flight refreshes keyed by the token being redeemed. A page renders many
+ * server actions at once and they would each redeem the SAME token; the backend
+ * rotates on every redemption, so without this only one would win and the rest
+ * would burn grace-window replays and pollute the reuse-detection signal.
+ * Keyed by token (not a single global slot) so a stale in-flight refresh can
+ * never be handed to a caller that already holds a newer token.
+ */
+const inFlightRefreshes = new Map<string, Promise<string>>();
+
+const refreshOnce = async (oldRefreshToken: string): Promise<string> => {
+  let backendRes: Response;
+
   try {
-    const backendRes = await fetch(BACKEND_URL + '/auth/refresh', {
+    backendRes = await fetch(BACKEND_URL + '/auth/refresh', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ refresh: oldRefreshToken }),
     });
+  } catch (error) {
+    // Never reached the server — the session may well still be good.
+    throw new Error(
+      `Refresh request failed: ${(error as Error)?.message ?? 'network error'}`,
+    );
+  }
 
-    const responseData = await backendRes.json();
+  const responseData = await backendRes.json().catch(() => ({}));
 
-
-    // Check if the request was successful
-    if (!backendRes.ok || !responseData.success) {
-      throw new Error(responseData.message || 'Failed to refresh token');
+  if (!backendRes.ok || !responseData?.success) {
+    // Only the backend explicitly rejecting the token itself means the session
+    // is over. A 5xx/429/parse failure is transient and must leave it intact,
+    // or a blip of downtime signs every visitor out.
+    if (backendRes.status === 401 || backendRes.status === 403) {
+      await deleteSession();
+      throw new SessionExpiredError(
+        responseData?.message || 'Refresh token rejected',
+      );
     }
 
-    // Extract tokens from the data object
-    const { accessToken, refreshToken } = responseData.data;
-
-    // Update the session with new tokens
-    await updateTokens({ accessToken, refreshToken });
-
-    return accessToken;
-  } catch (error) {
-    console.warn('Refresh token error:', error);
-    await deleteSession();
-    throw error;
+    throw new Error(
+      responseData?.message || `Failed to refresh token (${backendRes.status})`,
+    );
   }
+
+  const { accessToken, refreshToken } = responseData.data;
+
+  // Rotation is unconditional server-side: dropping the new refresh token here
+  // makes the NEXT refresh present a dead token and force a re-login.
+  await updateTokens({ accessToken, refreshToken });
+
+  return accessToken;
+};
+
+export const handleRefreshToken = async (
+  oldRefreshToken: string,
+): Promise<string> => {
+  const pending = inFlightRefreshes.get(oldRefreshToken);
+  if (pending) return pending;
+
+  const attempt = refreshOnce(oldRefreshToken).finally(() => {
+    inFlightRefreshes.delete(oldRefreshToken);
+  });
+
+  inFlightRefreshes.set(oldRefreshToken, attempt);
+
+  return attempt;
 };

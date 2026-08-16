@@ -1,36 +1,21 @@
 'use server';
 
 import { Session, UserSession } from '@/core/entities/models/auth/session';
-import { jwtVerify, SignJWT } from 'jose';
 import { cookies } from 'next/headers';
-import { sessionConfig } from './config/session.config';
-
-const encodedKey = new TextEncoder().encode(sessionConfig.secretKey);
-const SESSION_KEY = 'session';
-
-const COOKIE_OPTIONS = {
-  httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: 'lax' as const,
-  path: '/',
-};
+import {
+  SESSION_COOKIE_OPTIONS,
+  SESSION_KEY,
+  signSessionToken,
+  verifySessionToken,
+} from './session.token';
 
 export const createSession = async (payload: Session): Promise<void> => {
   try {
-    const session = await new SignJWT(payload)
-      .setProtectedHeader({ alg: sessionConfig.algorithm })
-      .setIssuedAt()
-      .setExpirationTime(
-        Math.floor(Date.now() / 1000) +
-          sessionConfig.expirationTime.toSeconds(),
-      )
-      .sign(encodedKey);
+    const { token, expiresAt } = await signSessionToken(payload);
 
-    (await cookies()).set(SESSION_KEY, session, {
-      ...COOKIE_OPTIONS,
-      expires: new Date(
-        Date.now() + sessionConfig.cookieMaxAge.toMilliseconds(),
-      ),
+    (await cookies()).set(SESSION_KEY, token, {
+      ...SESSION_COOKIE_OPTIONS,
+      expires: new Date(expiresAt * 1000),
     });
   } catch (error) {
     console.error('Error creating session:', error);
@@ -38,24 +23,26 @@ export const createSession = async (payload: Session): Promise<void> => {
   }
 };
 
-export const getSession = async (): Promise<Session | null> => {
-  const sessionCookie = (await cookies()).get(SESSION_KEY);
-
-  if (!sessionCookie?.value) {
-    return null;
-  }
-
+/**
+ * A Server Component render gets a READ-ONLY cookie store — `cookies().set()`
+ * throws there, and only Server Actions / Route Handlers may write. That matters
+ * because the backend rotates the refresh token on EVERY redemption: refreshing
+ * from a context that cannot persist the result would burn the session's token
+ * and force a re-login. Probed with a throwaway deletion (a no-op for a cookie
+ * that was never set) rather than by rewriting the session cookie, which would
+ * drop its `expires` and silently downgrade it to a browser-session cookie.
+ */
+export const canPersistSession = async (): Promise<boolean> => {
   try {
-    const { payload } = await jwtVerify(sessionCookie.value, encodedKey, {
-      algorithms: [sessionConfig.algorithm],
-    });
-
-    return payload as Session;
-  } catch (error) {
-    console.error('Error verifying session:', error);
-    return null;
+    (await cookies()).set('__session_probe', '', { maxAge: 0, path: '/' });
+    return true;
+  } catch {
+    return false;
   }
 };
+
+export const getSession = async (): Promise<Session | null> =>
+  verifySessionToken((await cookies()).get(SESSION_KEY)?.value);
 
 export const getUserSession = async (): Promise<UserSession | null> => {
   const session = await getSession();
@@ -73,7 +60,7 @@ export const getUserSession = async (): Promise<UserSession | null> => {
 
 export const deleteSession = async () => {
   (await cookies()).set(SESSION_KEY, '', {
-    ...COOKIE_OPTIONS,
+    ...SESSION_COOKIE_OPTIONS,
     maxAge: 0,
     expires: new Date(0),
   });
@@ -86,27 +73,17 @@ export const updateTokens = async ({
   accessToken: string;
   refreshToken: string;
 }) => {
-  const cookie = (await cookies()).get(SESSION_KEY)?.value;
-  if (!cookie) return null;
+  const payload = await verifySessionToken(
+    (await cookies()).get(SESSION_KEY)?.value,
+  );
+  // Throw rather than no-op: the caller has already redeemed (and thereby
+  // killed) the old refresh token, so a silent failure to store the new one
+  // strands the session with a token that will be rejected next time.
+  if (!payload) throw new Error('No valid session to attach tokens to');
 
-  try {
-    const { payload } = await jwtVerify<Session>(cookie, encodedKey, {
-      algorithms: [sessionConfig.algorithm],
-    });
-
-    if (!payload) throw new Error('Session not found');
-
-    const newPayload: Session = {
-      user: {
-        ...payload.user,
-      },
-      accessToken,
-      refreshToken,
-    };
-    await createSession(newPayload);
-  } catch (error) {
-    console.error('Error updating tokens:', error);
-    await deleteSession();
-    throw error;
-  }
+  await createSession({
+    user: { ...payload.user },
+    accessToken,
+    refreshToken,
+  });
 };
