@@ -65,6 +65,7 @@ export interface HeaderTowProps {
     home: string;
     rent: string;
     sale: string;
+    map?: string;
     join: string;
     BrowseAll: string;
     Privacypolicy: string;

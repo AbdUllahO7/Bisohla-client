@@ -79,11 +79,12 @@ const WebLayout = async ({
                 home: t('headerTow.home'),
                 rent: t('headerTow.rent'),
                 sale: t('headerTow.sale'),
+                map: t('headerTow.map'),
                 join: t('headerTow.join'),
                 BrowseAll: t('headerTow.BrowseAll'),
                 Privacypolicy: t('headerTow.Privacypolicy'),
                 ContactUs: t('headerTow.ContactUs'),
-                News:t('headerTow.News')
+                News: t('headerTow.News'),
               }}
             />
           </div>

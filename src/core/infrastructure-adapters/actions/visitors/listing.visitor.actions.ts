@@ -55,3 +55,25 @@ export const revealListingContact = async (
   const repo = getInjection('IListingsVisitorRepo');
   return await repo.revealContact(listingId);
 };
+
+export const getMapListingsAction = async (params: {
+  bbox: string;
+  typeId?: number;
+  offerType?: string;
+  where?: any;
+  filterGroups?: any;
+}): Promise<ApiResponse<any>> => {
+  const repo = getInjection('IListingsVisitorRepo');
+  return await repo.getMapListings(params);
+};
+
+export const getListingCardAction = async (slug: string): Promise<ApiResponse<any>> => {
+  const repo = getInjection('IListingsVisitorRepo');
+  return await repo.getListingCard(slug);
+};
+
+export const getGovernorateCountsAction = async (): Promise<ApiResponse<any>> => {
+  const repo = getInjection('IListingsVisitorRepo');
+  return await repo.getGovernorateCounts();
+};
+
