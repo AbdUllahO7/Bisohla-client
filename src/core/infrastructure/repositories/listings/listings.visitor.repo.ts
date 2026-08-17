@@ -69,4 +69,29 @@ export class ListingsVisitorRepo implements IListingsVisitorRepo {
     });
     return res;
   }
+
+  async getMapListings(
+    params: { bbox: string; typeId?: number; offerType?: string; where?: any; filterGroups?: any }
+  ): Promise<ApiResponse<any>> {
+    const res = await getReq<any, any>({
+      url: '/listings-visitor/map',
+      params,
+    });
+    return res;
+  }
+
+  async getListingCard(slug: string): Promise<ApiResponse<any>> {
+    const res = await getReq<any, any>({
+      url: `/listings-visitor/card/${slug}`,
+    });
+    return res;
+  }
+
+  async getGovernorateCounts(): Promise<ApiResponse<any>> {
+    const res = await getReq<any, any>({
+      url: '/listings-visitor/governorate-counts',
+    });
+    return res;
+  }
 }
+

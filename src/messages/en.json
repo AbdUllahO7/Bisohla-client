@@ -46,6 +46,7 @@
     "bottomNav": {
       "home": "Home",
       "explore": "Explore",
+      "map": "Map",
       "sell": "Sell",
       "profile": "Profile"
     },
@@ -53,6 +54,7 @@
       "home": "Home",
       "rent": "Rent",
       "sale": "Sale",
+      "map": "Map",
       "news": "news",
       "join": "Join",
       "BrowseAll": "Browse All",

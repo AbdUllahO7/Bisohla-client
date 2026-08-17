@@ -19,10 +19,11 @@ const HeaderTwo: React.FC<HeaderTowProps> = ({ translations }) => {
     { href: '/', label: translations.home },
     { href: '/products?listingOfferType=for_rent', label: translations.rent },
     { href: '/products?listingOfferType=for_sale', label: translations.sale },
+    { href: '/map', label: translations.map || (isRTL ? 'الخريطة' : 'Map') },
     { href: '/products', label: translations.BrowseAll },
     { href: '/news', label: translations.News },
-        { href: '/ContactUs', label: translations.ContactUs },
-     { href: '/Privacypolicy', label: translations.Privacypolicy },
+    { href: '/ContactUs', label: translations.ContactUs },
+    { href: '/Privacypolicy', label: translations.Privacypolicy },
   ];
 
   return (
