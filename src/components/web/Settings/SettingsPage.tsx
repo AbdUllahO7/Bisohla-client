@@ -16,6 +16,7 @@ import {
   ChevronRight,
   Info,
   Check,
+  Sparkles,
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { useLocale, useTranslations } from 'next-intl';
@@ -25,6 +26,7 @@ import { useSession } from '@/core/infrastructure-adapters/use-actions/auth/use-
 import { useDeleteMyAccount } from '@/core/infrastructure-adapters/use-actions/users/user-profile.use-actions';
 import { useRateApp } from '@/hooks/use-rate-app';
 import { RateAppModal } from '@/components/web/Ratings/RateAppModal';
+import { resetTour } from '@/utils/tour-storage';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -219,6 +221,31 @@ export function SettingsPage() {
                 v0.1.0 (Web)
               </span>
             </div>
+
+            {/* Replay Tour */}
+            <button
+              type="button"
+              onClick={() => {
+                resetTour('home_tour', '1.0');
+                router.push('/');
+                toast({
+                  title: locale === 'ar' ? 'جولة تعريفية' : 'Guided Tour',
+                  description:
+                    locale === 'ar'
+                      ? 'تمت إعادة تشغيل الجولة التعريفية'
+                      : 'Restarting onboarding tour on home page',
+                });
+              }}
+              className="w-full flex items-center justify-between p-4 text-xs text-gray-600 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-800/40 transition-colors text-left rtl:text-right group"
+            >
+              <div className="flex items-center gap-3">
+                <Sparkles size={18} className="text-[#198341]" />
+                <span className="font-semibold group-hover:text-[#198341] transition-colors">
+                  {locale === 'ar' ? 'إعادة تشغيل الجولة التعريفية' : 'Replay Guided Tour'}
+                </span>
+              </div>
+              <ChevronRight size={16} className="text-gray-400 rtl:rotate-180" />
+            </button>
 
             {/* Rate Bishola */}
             <button
