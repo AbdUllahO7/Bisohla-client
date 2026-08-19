@@ -1,18 +1,20 @@
 'use client';
 
+import React, { useState } from 'react';
 import Box from '@/components/ui/box';
 import Text from '@/components/ui/text';
 import { useTranslations } from 'next-intl';
 import SmartBreadcrumb from '@/components/shared/smart-breadcrumbs';
 import { useCarAlerts } from '@/core/infrastructure-adapters/use-actions/users/car-alert.user.use-actions';
 import { CarAlertItem } from '@/components/web/CarAlerts/CarAlertItem';
+import { AlertFormModal } from '@/components/web/CarAlerts/AlertFormModal';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Bell, Plus } from 'lucide-react';
-import { Link } from '@/i18n/routing';
 import { SelectCarAlertDto } from '@/core/entities/models/car-alerts/car-alerts.dto';
 
 const CarAlertsPage = () => {
     const t = useTranslations('carAlerts');
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
     const { data, isLoading, refetch } = useCarAlerts({
         pageSize: 50,
@@ -50,13 +52,13 @@ const CarAlertsPage = () => {
                         </Text>
                     </div>
 
-                    <Link
-                        href="/products"
-                        className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-[#198341] text-[#198341] font-bold hover:bg-[#198341]/5 transition-all duration-300"
+                    <button
+                        onClick={() => setIsCreateModalOpen(true)}
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#198341] to-[#ABDE3B] text-white font-bold shadow-md hover:shadow-lg transition-all duration-300"
                     >
                         <Plus size={18} />
                         {t('createNew', { defaultValue: 'Create New Alert' })}
-                    </Link>
+                    </button>
                 </Box>
 
                 {alerts.length === 0 ? (
@@ -70,12 +72,12 @@ const CarAlertsPage = () => {
                         <Text className="text-gray-500 mb-8 max-w-md">
                             {t('noAlertsDesc', { defaultValue: 'Set up car alerts to get notified when new cars matching your criteria are listed.' })}
                         </Text>
-                        <Link
-                            href="/products"
+                        <button
+                            onClick={() => setIsCreateModalOpen(true)}
                             className="px-8 py-3 rounded-xl bg-gradient-to-r from-[#198341] to-[#ABDE3B] text-white font-bold shadow-md hover:shadow-lg transition-all"
                         >
-                            {t('getStarted', { defaultValue: 'Explore Cars' })}
-                        </Link>
+                            {t('getStarted', { defaultValue: 'Create Alert' })}
+                        </button>
                     </Box>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -85,6 +87,13 @@ const CarAlertsPage = () => {
                     </div>
                 )}
             </Box>
+
+            {/* Create Alert Modal */}
+            <AlertFormModal
+                open={isCreateModalOpen}
+                onOpenChange={setIsCreateModalOpen}
+                onSuccess={refetch}
+            />
         </div>
     );
 };

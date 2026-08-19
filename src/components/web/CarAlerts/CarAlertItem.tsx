@@ -40,8 +40,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { useTranslations, useLocale } from 'next-intl';
 import { cn } from '@/lib/utils';
-import CarAlertModal from '@/components/web/ProductsPage/CarAlertModal';
-import { getCityOptions, getGovernorateOptions } from '@/components/web/ProductsPage/addProducts/StepOne/utils';
+import { AlertFormModal } from './AlertFormModal';
 
 interface CarAlertItemProps {
     alert: SelectCarAlertDto;
@@ -451,16 +450,13 @@ export const CarAlertItem: React.FC<CarAlertItemProps> = ({
                 </div>
             </div>
             {/* Edit Alert Modal */}
-            <CarAlertModal
+            <AlertFormModal
                 open={isEditModalOpen}
-                onOpenChange={(open) => {
-                    setIsEditModalOpen(open);
-                    if (!open) {
-                        onUpdate?.();
-                    }
-                }}
+                onOpenChange={setIsEditModalOpen}
+                alertId={alert.id}
                 initialData={{
                     id: alert.id,
+                    listingTypeId: alert.listingTypeId,
                     makeId: alert.makeId || 0,
                     modelId: alert.modelId || 0,
                     trimId: alert.trimId || 0,
@@ -470,11 +466,8 @@ export const CarAlertItem: React.FC<CarAlertItemProps> = ({
                     city: alert.city || '',
                     attributeFilters: alert.attributeFilters,
                 }}
-                listingTypeId={alert.listingTypeId}
-                governorateOptions={getGovernorateOptions(isRtl)}
-                getCityOptions={(gov) => getCityOptions(gov, isRtl)}
-                isArabic={isRtl}
-                t={t}
+                defaultListingTypeId={alert.listingTypeId}
+                onSuccess={onUpdate}
             />
         </TooltipProvider>
     );
