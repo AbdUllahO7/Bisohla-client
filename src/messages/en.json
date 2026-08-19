@@ -2001,5 +2001,35 @@
       "rate_cta": "Rate Bishola",
       "later_cta": "Not now"
     }
+  },
+  "map": {
+    "filter": {
+      "all_types": "All Types",
+      "for_sale": "For Sale",
+      "for_rent": "For Rent",
+      "area": "Area",
+      "filters": "Filters"
+    },
+    "area": {
+      "title": "Choose a Region",
+      "whole_governorate": "All Syria"
+    },
+    "near_me": {
+      "button": "Near Me",
+      "permission_denied": "Location access denied. Please enable location permissions.",
+      "error": "Could not retrieve your location. Please try again."
+    },
+    "preview": {
+      "view_listing": "View Listing",
+      "directions": "Directions"
+    },
+    "loading": {
+      "listings": "Loading listings on map…"
+    },
+    "empty": {
+      "title": "No listings in this area",
+      "description": "Try zooming out or selecting a different region."
+    },
+    "total_found": "{count} listings found"
   }
 }
