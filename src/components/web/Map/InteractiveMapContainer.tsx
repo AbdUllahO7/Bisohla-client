@@ -2,18 +2,23 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import dynamic from 'next/dynamic';
-import { getMapListingsAction, getListingCardAction } from '@/core/infrastructure-adapters/actions/visitors/listing.visitor.actions';
+import {
+  getMapListingsAction,
+  getListingCardAction,
+} from '@/core/infrastructure-adapters/actions/visitors/listing.visitor.actions';
 import { ListingMapPoint, MapOfferType } from '@/core/entities/models/listings/map.dto';
 import { MapFilterBar, GovernorateLocation } from './MapFilterBar';
 import { MapListingPreviewCard } from './MapListingPreviewCard';
 import { MapPin } from 'lucide-react';
+import { getInjection } from '@/di/container';
+import { useToast } from '@/hooks/use-toast';
 
 const LeafletMapView = dynamic(() => import('./LeafletMapView'), {
   ssr: false,
   loading: () => (
     <div className="w-full h-full min-h-[500px] bg-gray-100 dark:bg-zinc-900 flex flex-col items-center justify-center text-gray-500 gap-3">
-      <MapPin className="w-10 h-10 text-[#ABDE3B] animate-bounce" />
-      <span className="text-sm font-bold animate-pulse font-cairo">
+      <MapPin className="w-10 h-10 text-[#198341] animate-bounce" />
+      <span className="text-sm font-bold animate-pulse">
         جاري تحميل خريطة الإعلانات التفاعلية...
       </span>
     </div>
@@ -28,15 +33,20 @@ interface InteractiveMapContainerProps {
 
 export const InteractiveMapContainer: React.FC<InteractiveMapContainerProps> = ({
   initialTypeId,
-  listingTypes = [],
+  listingTypes: initialListingTypes = [],
   locale,
 }) => {
   const isRtl = locale === 'ar';
+  const { toast } = useToast();
 
+  const [availableTypes, setAvailableTypes] = useState<{ id: number; name: string }[]>(
+    initialListingTypes,
+  );
   const [bbox, setBbox] = useState<string>('');
   const [offerType, setOfferType] = useState<MapOfferType | undefined>(undefined);
   const [selectedTypeId, setSelectedTypeId] = useState<number | undefined>(initialTypeId);
   const [selectedGov, setSelectedGov] = useState<string | undefined>(undefined);
+  const [isLocating, setIsLocating] = useState<boolean>(false);
   const [center, setCenter] = useState<{ lat: number; lng: number; zoom: number }>({
     lat: 33.5138,
     lng: 36.2765,
@@ -51,6 +61,32 @@ export const InteractiveMapContainer: React.FC<InteractiveMapContainerProps> = (
 
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Fetch listing types if not provided
+  useEffect(() => {
+    if (availableTypes.length === 0) {
+      const fetchTypes = async () => {
+        try {
+          const controller = getInjection('IListingTypesRepoController');
+          const res = await controller.getListingTypes(1, 100);
+          if (res.success && res.data) {
+            setAvailableTypes(
+              res.data.data
+                .filter((t: any) => t.isActive)
+                .map((t: any) => ({
+                  id: t.id,
+                  name:
+                    t.translations?.find((tr: any) => tr.locale === locale)?.name || t.name,
+                })),
+            );
+          }
+        } catch {
+          // silently ignore
+        }
+      };
+      fetchTypes();
+    }
+  }, [availableTypes.length, locale]);
+
   // Fetch points from backend when bbox, offerType, or selectedTypeId change
   const fetchPoints = useCallback(
     async (currentBbox: string) => {
@@ -63,7 +99,6 @@ export const InteractiveMapContainer: React.FC<InteractiveMapContainerProps> = (
           typeId: selectedTypeId,
         });
 
-        // unwrap data
         const data = res?.data || res || [];
         setPoints(Array.isArray(data) ? data : []);
       } catch (err) {
@@ -72,7 +107,7 @@ export const InteractiveMapContainer: React.FC<InteractiveMapContainerProps> = (
         setLoading(false);
       }
     },
-    [offerType, selectedTypeId]
+    [offerType, selectedTypeId],
   );
 
   // Debounced bbox handler
@@ -84,7 +119,7 @@ export const InteractiveMapContainer: React.FC<InteractiveMapContainerProps> = (
         fetchPoints(newBbox);
       }, 400);
     },
-    [fetchPoints]
+    [fetchPoints],
   );
 
   // Re-fetch when offerType or selectedTypeId changes
@@ -122,6 +157,49 @@ export const InteractiveMapContainer: React.FC<InteractiveMapContainerProps> = (
     });
   };
 
+  // GPS Locate User
+  const handleLocateUser = () => {
+    if (!navigator.geolocation) {
+      toast({
+        title: isRtl ? 'الموقع غير مدعوم' : 'Geolocation Unsupported',
+        description: isRtl
+          ? 'المتصفح الخاص بك لا يدعم تحديد الموقع'
+          : 'Your browser does not support geolocation.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setIsLocating(false);
+        const { latitude, longitude } = position.coords;
+        setCenter({
+          lat: latitude,
+          lng: longitude,
+          zoom: 14,
+        });
+        setSelectedGov(undefined);
+        toast({
+          title: isRtl ? 'تم تحديد موقعك' : 'Location Found',
+          description: isRtl ? 'تم تحريك الخريطة إلى موقعك الحالي' : 'Centered map on your current location.',
+        });
+      },
+      () => {
+        setIsLocating(false);
+        toast({
+          title: isRtl ? 'تعذر تحديد الموقع' : 'Location Error',
+          description: isRtl
+            ? 'يرجى التأكد من تفعيل إذن الموقع في متصفحك'
+            : 'Please ensure location permissions are enabled in your browser.',
+          variant: 'destructive',
+        });
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 },
+    );
+  };
+
   return (
     <div className="relative w-full h-[calc(100vh-64px)] min-h-[600px] overflow-hidden bg-gray-50 dark:bg-zinc-950 font-cairo">
       {/* Top Filter Bar */}
@@ -130,9 +208,11 @@ export const InteractiveMapContainer: React.FC<InteractiveMapContainerProps> = (
         onOfferTypeChange={setOfferType}
         selectedGov={selectedGov}
         onSelectGov={handleSelectGov}
-        listingTypes={listingTypes}
+        listingTypes={availableTypes}
         selectedTypeId={selectedTypeId}
         onSelectTypeId={setSelectedTypeId}
+        onLocateUser={handleLocateUser}
+        isLocating={isLocating}
         totalPoints={points.length}
         loading={loading}
         onRefresh={() => bbox && fetchPoints(bbox)}

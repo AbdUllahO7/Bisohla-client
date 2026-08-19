@@ -1,6 +1,6 @@
 'use client';
 
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { ApiResponse, PaginatedResponse, SuccessResponseWithNoContent } from '@/core/entities/api/success.response';
 import { QueryParams } from '@/core/entities/api/api';
 import { useLocaleQuery } from '../common/use-locale-query';
@@ -44,13 +44,61 @@ export const useGetListingById = (id: number) =>
     enabled: !!id,
   });
 
+import {
+  changePublicationStatus,
+  changeMapVisibility,
+} from '../../actions/users/listing.user.actions';
+
 /**
  * Hook to delete a listing
  */
-export const useDeleteListing = () =>
-  useMutation<ApiResponse<Record<string, unknown>>, Error, { id: number }>({
+export const useDeleteListing = () => {
+  const queryClient = useQueryClient();
+  return useMutation<ApiResponse<Record<string, unknown>>, Error, { id: number }>({
     mutationFn: async ({ id }) => await deleteListing(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['my-listings'] });
+    },
   });
+};
+
+/**
+ * Hook to change publication status (draft | published | sold)
+ */
+export const useChangePublicationStatus = () => {
+  const queryClient = useQueryClient();
+  return useMutation<
+    ApiResponse<ListingDto>,
+    Error,
+    { id: number; publicationStatus: 'draft' | 'published' | 'sold' }
+  >({
+    mutationFn: async ({ id, publicationStatus }) =>
+      await changePublicationStatus(id, publicationStatus),
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ['my-listings'] });
+      queryClient.invalidateQueries({ queryKey: ['my-listing-by-id', id] });
+    },
+  });
+};
+
+/**
+ * Hook to change map visibility
+ */
+export const useChangeMapVisibility = () => {
+  const queryClient = useQueryClient();
+  return useMutation<
+    ApiResponse<ListingDto>,
+    Error,
+    { id: number; showOnMap: boolean }
+  >({
+    mutationFn: async ({ id, showOnMap }) =>
+      await changeMapVisibility(id, showOnMap),
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ['my-listings'] });
+      queryClient.invalidateQueries({ queryKey: ['my-listing-by-id', id] });
+    },
+  });
+};
 
 /**
  * Hook to create a new listing
@@ -112,8 +160,10 @@ export const useGetListingFavoriteById = (id: number) => {
   });
 };
 
-export const useToggleListingFavorite = () =>
-  useMutation<
+export const useToggleListingFavorite = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<
     ApiResponse<ToggleFavoriteListingResponse>,
     Error,
     ToggleFavoriteListingDto
@@ -122,10 +172,14 @@ export const useToggleListingFavorite = () =>
       const { toggleFavorite } = await import('@/utils/offline-favorites-manager');
       return await toggleFavorite(toggleDto.listingId);
     },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user-favorite-listings'] });
+    },
     onError: (error) => {
       console.error('Failed to toggle listing favorite status:', error);
     },
   });
+};
 
 export const useCreateListingFavorite = () =>
   useMutation<

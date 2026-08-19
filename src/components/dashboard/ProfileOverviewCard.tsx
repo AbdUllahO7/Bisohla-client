@@ -100,21 +100,38 @@ export function ProfileOverviewCard({ profile }: ProfileOverviewCardProps) {
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Badge
-                variant="secondary"
-                className="bg-white/20 text-white hover:bg-white/30 w-fit"
-              >
-                <Calendar className="h-3 w-3 mr-1 rtl:mr-0 rtl:ml-1" />
-                {t('memberSince')} {formatDate(profile?.createdAt || '')}
-              </Badge>
-              <Badge
-                variant="secondary"
-                className="bg-white/20 text-white hover:bg-white/30 w-fit"
-              >
-                <Clock className="h-3 w-3 mr-1 rtl:mr-0 rtl:ml-1" />
-                {getAccountAge()} {t('months')}
-              </Badge>
+            <div className="flex flex-wrap items-center gap-3 pt-2">
+              <div className="flex flex-wrap gap-2">
+                <Badge
+                  variant="secondary"
+                  className="bg-white/20 text-white hover:bg-white/30 w-fit"
+                >
+                  <Calendar className="h-3 w-3 mr-1 rtl:mr-0 rtl:ml-1" />
+                  {t('memberSince')} {formatDate(profile?.createdAt || '')}
+                </Badge>
+                <Badge
+                  variant="secondary"
+                  className="bg-white/20 text-white hover:bg-white/30 w-fit"
+                >
+                  <Clock className="h-3 w-3 mr-1 rtl:mr-0 rtl:ml-1" />
+                  {getAccountAge()} {t('months')}
+                </Badge>
+              </div>
+
+              <div className="flex items-center gap-2 mr-auto rtl:mr-0 rtl:ml-auto">
+                <a
+                  href="/userProfile/Statistics"
+                  className="px-3.5 py-1.5 rounded-xl bg-white text-[#198341] font-bold text-xs shadow hover:bg-white/90 transition-all"
+                >
+                  {direction === 'rtl' ? 'الإحصائيات' : 'Statistics'}
+                </a>
+                <a
+                  href="/userProfile/UserInfo"
+                  className="px-3.5 py-1.5 rounded-xl bg-white/20 hover:bg-white/30 text-white font-bold text-xs border border-white/30 transition-all"
+                >
+                  {direction === 'rtl' ? 'تعديل الملف' : 'Edit Profile'}
+                </a>
+              </div>
             </div>
           </div>
         </div>

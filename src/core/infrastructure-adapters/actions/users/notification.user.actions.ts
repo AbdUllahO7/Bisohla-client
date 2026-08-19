@@ -35,3 +35,12 @@ export const updateNotificationReadStatus = async (
 
   return res;
 };
+
+export const markAllNotificationsAsRead = async (): Promise<
+  ApiResponse<{ updatedCount: number }>
+> => {
+  const controller = getInjection('INotificationUserController');
+  const res = await controller.markAllAsRead();
+
+  return res;
+};

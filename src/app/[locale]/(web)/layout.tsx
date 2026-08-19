@@ -56,6 +56,9 @@ interface WebLayoutProps extends PropsWithChildren {
   };
 }
 
+import { TourProvider } from '@/context/tour-context';
+import { TourOverlay } from '@/components/shared/Tour/TourOverlay';
+
 const WebLayout = async ({
   children,
   pageType = 'home',
@@ -65,7 +68,7 @@ const WebLayout = async ({
   const t = await getTranslations('homePage');
 
   return (
-    <>
+    <TourProvider>
       <div className="flex flex-col min-h-screen relative overflow-x-hidden">
         <CompareProvider>
           {/* Fixed Header Container */}
@@ -106,10 +109,13 @@ const WebLayout = async ({
           <CompareBar />
         </CompareProvider>
 
+        {/* Global Guided Tour Overlay */}
+        <TourOverlay />
+
         {/* Toast Notifications */}
         <Toaster />
       </div>
-    </>
+    </TourProvider>
   );
 };
 

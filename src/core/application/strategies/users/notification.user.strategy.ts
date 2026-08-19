@@ -8,6 +8,10 @@ import {
 } from '@/core/entities/models/notifications/notifications.domain';
 import { UpdateNotificationReadStatusDto } from '@/core/entities/models/notifications/notifications.zod.dto';
 
+export interface MarkAllAsReadResponse {
+  updatedCount: number;
+}
+
 export interface NotificationUserStrategy {
   getMyNotifications(
     queries: NotificationFilterOptions,
@@ -16,4 +20,5 @@ export interface NotificationUserStrategy {
   updateReadStatus(
     dto: UpdateNotificationReadStatusDto,
   ): Promise<ApiResponse<boolean>>;
+  markAllAsRead(): Promise<ApiResponse<MarkAllAsReadResponse>>;
 }
