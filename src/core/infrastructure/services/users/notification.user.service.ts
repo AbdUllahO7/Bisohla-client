@@ -48,4 +48,11 @@ export class NotificationUserService implements INotificationUserService {
 
     return res;
   }
+  async markAllAsRead(): Promise<ApiResponse<{ updatedCount: number }>> {
+    const res = await patchAuthReq<Record<string, never>, { updatedCount: number }>({
+      url: `${this.path}/read-all`,
+      body: {},
+    });
+    return res;
+  }
 }

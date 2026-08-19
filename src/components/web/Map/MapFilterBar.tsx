@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { MapPin, Filter, Tag, Layers, RefreshCw } from 'lucide-react';
+import { MapPin, Navigation, Layers, RefreshCw, Compass } from 'lucide-react';
 import { MapOfferType } from '@/core/entities/models/listings/map.dto';
 
 export interface GovernorateLocation {
@@ -37,6 +37,8 @@ interface MapFilterBarProps {
   listingTypes?: { id: number; name: string }[];
   selectedTypeId: number | undefined;
   onSelectTypeId: (typeId: number | undefined) => void;
+  onLocateUser: () => void;
+  isLocating: boolean;
   totalPoints: number;
   loading: boolean;
   onRefresh: () => void;
@@ -51,6 +53,8 @@ export const MapFilterBar: React.FC<MapFilterBarProps> = ({
   listingTypes = [],
   selectedTypeId,
   onSelectTypeId,
+  onLocateUser,
+  isLocating,
   totalPoints,
   loading,
   onRefresh,
@@ -59,100 +63,110 @@ export const MapFilterBar: React.FC<MapFilterBarProps> = ({
   const isRtl = locale === 'ar';
 
   return (
-    <div className="absolute top-4 left-1/2 -translate-x-1/2 w-[95%] max-w-5xl z-[1000] flex flex-col sm:flex-row items-center gap-2.5 p-2.5 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-gray-200/80 dark:border-zinc-800/80 rounded-2xl shadow-lg transition-all">
-      {/* Governorate / Location Selector */}
-      <div className="flex items-center gap-1.5 overflow-x-auto max-w-full scrollbar-none py-1 px-1 w-full sm:w-auto">
-        <span className="text-xs font-bold text-gray-500 dark:text-gray-400 flex items-center gap-1 shrink-0 px-1">
-          <MapPin className="w-3.5 h-3.5 text-[#8CBD2A] dark:text-[#ABDE3B]" />
-          <span>{isRtl ? 'المنطقة:' : 'Region:'}</span>
-        </span>
-        <select
-          value={selectedGov || ''}
-          onChange={(e) => {
-            const govName = e.target.value;
-            const found = SYRIA_GOVERNORATES.find((g) => g.nameAr === govName || g.nameEn === govName);
-            if (found) onSelectGov(found);
-          }}
-          className="text-xs font-bold bg-gray-100 dark:bg-zinc-800 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-zinc-700 rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#ABDE3B] cursor-pointer"
+    <div className="absolute top-4 left-1/2 -translate-x-1/2 w-[95%] max-w-5xl z-[1000] flex flex-col md:flex-row items-center justify-between gap-3 p-3 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl border border-gray-100 dark:border-zinc-800 rounded-3xl shadow-xl transition-all">
+      {/* Left / Top Row: Near Me + Governorate + Category */}
+      <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+        {/* GPS Near Me Button */}
+        <button
+          type="button"
+          onClick={onLocateUser}
+          disabled={isLocating}
+          className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-[#198341]/10 dark:bg-[#198341]/20 border border-[#198341]/30 text-[#198341] dark:text-[#ABDE3B] text-xs font-bold hover:bg-[#198341]/20 transition-all shadow-sm shrink-0"
         >
-          <option value="">{isRtl ? 'اختر المحافظة...' : 'Select Governorate...'}</option>
-          {SYRIA_GOVERNORATES.map((g) => (
-            <option key={g.nameEn} value={isRtl ? g.nameAr : g.nameEn}>
-              {isRtl ? g.nameAr : g.nameEn}
-            </option>
-          ))}
-        </select>
-      </div>
+          <Navigation size={14} className={isLocating ? 'animate-spin' : ''} />
+          <span>{isRtl ? 'بالقرب مني' : 'Near Me'}</span>
+        </button>
 
-      {/* Offer Type Filter Pills */}
-      <div className="flex items-center gap-1 shrink-0 bg-gray-100 dark:bg-zinc-800/80 p-1 rounded-xl">
-        <button
-          onClick={() => onOfferTypeChange(undefined)}
-          className={`px-3 py-1 text-xs font-bold rounded-lg transition-all ${
-            offerType === undefined
-              ? 'bg-white dark:bg-zinc-900 text-black dark:text-white shadow-sm'
-              : 'text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white'
-          }`}
-        >
-          {isRtl ? 'الكل' : 'All'}
-        </button>
-        <button
-          onClick={() => onOfferTypeChange('for_sale')}
-          className={`px-3 py-1 text-xs font-bold rounded-lg transition-all ${
-            offerType === 'for_sale'
-              ? 'bg-[#ABDE3B] text-black shadow-sm'
-              : 'text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white'
-          }`}
-        >
-          {isRtl ? 'للبيع' : 'For Sale'}
-        </button>
-        <button
-          onClick={() => onOfferTypeChange('for_rent')}
-          className={`px-3 py-1 text-xs font-bold rounded-lg transition-all ${
-            offerType === 'for_rent'
-              ? 'bg-[#8CBD2A] text-white shadow-sm'
-              : 'text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white'
-          }`}
-        >
-          {isRtl ? 'للإيجار' : 'For Rent'}
-        </button>
-      </div>
-
-      {/* Category Dropdown (if available) */}
-      {listingTypes.length > 0 && (
-        <div className="flex items-center gap-1.5 shrink-0">
+        {/* Governorate / Region Selector */}
+        <div className="flex items-center gap-1 bg-gray-50 dark:bg-zinc-800/80 border border-gray-200 dark:border-zinc-700/80 rounded-2xl px-2.5 py-1 shrink-0">
+          <MapPin size={14} className="text-[#198341]" />
           <select
-            value={selectedTypeId || ''}
+            value={selectedGov || ''}
             onChange={(e) => {
-              const val = e.target.value ? Number(e.target.value) : undefined;
-              onSelectTypeId(val);
+              const govName = e.target.value;
+              const found = SYRIA_GOVERNORATES.find(
+                (g) => g.nameAr === govName || g.nameEn === govName,
+              );
+              if (found) onSelectGov(found);
             }}
-            className="text-xs font-bold bg-gray-100 dark:bg-zinc-800 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-zinc-700 rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#ABDE3B] cursor-pointer"
+            className="text-xs font-bold bg-transparent text-gray-800 dark:text-zinc-200 focus:outline-none cursor-pointer py-1"
           >
-            <option value="">{isRtl ? 'جميع الأقسام' : 'All Categories'}</option>
-            {listingTypes.map((t) => (
-              <option key={t.id} value={t.id}>
-                {t.name}
+            <option value="">{isRtl ? 'اختر المحافظة...' : 'Select Governorate...'}</option>
+            {SYRIA_GOVERNORATES.map((g) => (
+              <option key={g.nameEn} value={isRtl ? g.nameAr : g.nameEn}>
+                {isRtl ? g.nameAr : g.nameEn}
               </option>
             ))}
           </select>
         </div>
-      )}
 
-      {/* Marker Counter & Refresh Button */}
-      <div className="ml-auto mr-auto sm:ml-auto sm:mr-0 flex items-center gap-2 shrink-0">
-        <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-zinc-700 flex items-center gap-1">
-          <Layers className="w-3 h-3 text-[#ABDE3B]" />
-          <span>{totalPoints} {isRtl ? 'إعلان عل الخريطة' : 'on map'}</span>
+        {/* Category Selector */}
+        {listingTypes.length > 0 && (
+          <div className="flex items-center gap-1 bg-gray-50 dark:bg-zinc-800/80 border border-gray-200 dark:border-zinc-700/80 rounded-2xl px-2.5 py-1 shrink-0">
+            <Compass size={14} className="text-[#198341]" />
+            <select
+              value={selectedTypeId || ''}
+              onChange={(e) => {
+                const val = e.target.value ? Number(e.target.value) : undefined;
+                onSelectTypeId(val);
+              }}
+              className="text-xs font-bold bg-transparent text-gray-800 dark:text-zinc-200 focus:outline-none cursor-pointer py-1"
+            >
+              <option value="">{isRtl ? 'جميع الأقسام' : 'All Categories'}</option>
+              {listingTypes.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+      </div>
+
+      {/* Right / Bottom Row: Offer Type Filter Pills + Counter & Refresh */}
+      <div className="flex items-center justify-between sm:justify-end gap-2 w-full md:w-auto">
+        {/* Offer Type Filter Pills */}
+        <div className="flex items-center gap-1 bg-gray-100 dark:bg-zinc-800 p-1 rounded-2xl">
+          {[
+            { key: undefined, label: isRtl ? 'الكل' : 'All' },
+            { key: 'for_sale' as MapOfferType, label: isRtl ? 'للبيع' : 'For Sale' },
+            { key: 'for_rent' as MapOfferType, label: isRtl ? 'للإيجار' : 'For Rent' },
+          ].map((item) => {
+            const isSelected = offerType === item.key;
+            return (
+              <button
+                key={item.label}
+                type="button"
+                onClick={() => onOfferTypeChange(item.key)}
+                className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all ${
+                  isSelected
+                    ? 'bg-[#198341] text-white shadow-sm'
+                    : 'text-gray-600 dark:text-zinc-400 hover:text-black dark:hover:text-white'
+                }`}
+              >
+                {item.label}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Counter Badge */}
+        <span className="text-xs font-bold px-3 py-1.5 rounded-2xl bg-gray-50 dark:bg-zinc-800 text-gray-700 dark:text-zinc-300 border border-gray-200 dark:border-zinc-700 flex items-center gap-1.5 shrink-0">
+          <Layers size={13} className="text-[#198341]" />
+          <span>
+            {totalPoints} {isRtl ? 'إعلان' : 'listings'}
+          </span>
         </span>
 
+        {/* Refresh Button */}
         <button
+          type="button"
           onClick={onRefresh}
           disabled={loading}
-          className="p-1.5 rounded-xl bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors disabled:opacity-50"
+          className="p-2 rounded-2xl bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 text-gray-600 dark:text-zinc-300 hover:bg-gray-100 dark:hover:bg-zinc-700 transition-colors disabled:opacity-50 shrink-0"
           title={isRtl ? 'تحديث الخريطة' : 'Refresh Map'}
         >
-          <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+          <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
         </button>
       </div>
     </div>

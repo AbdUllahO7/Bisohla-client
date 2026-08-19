@@ -57,31 +57,71 @@ export const useDynamicForm = (
       // Priority: localStorage (current session) > apiAttributeMap > details > top-level > defaults
       const savedValue = savedData[attr.slug];
       
-      // Try to find the value in initialData mapping sources
-      let editValue = savedValue; // Start with savedValue
+      let editValue = savedValue;
       
-      if (editValue === undefined || editValue === null) {
+      if (editValue === undefined || editValue === null || editValue === '') {
         // Fallback to API attribute map (flattened list)
         editValue = apiAttributeMap[attr.slug];
         
-        if (editValue === undefined || editValue === null) {
-            // Fallback to details (legacy) or top-level listing fields
+        if (editValue === undefined || editValue === null || editValue === '') {
+          const slugLower = (attr.slug || '').toLowerCase();
+          
+          if (slugLower === 'make' || slugLower === 'marka' || slugLower === 'brand' || slugLower === 'car_make' || slugLower === 'carmake') {
+            editValue =
+              initialData?.makeId ||
+              initialData?.carMakeId ||
+              initialData?.make_id ||
+              initialData?.make?.id ||
+              initialData?.details?.makeId ||
+              initialData?.details?.carMakeId ||
+              initialData?.details?.make?.id ||
+              apiAttributeMap['make'] ||
+              apiAttributeMap['marka'] ||
+              apiAttributeMap['brand'] ||
+              apiAttributeMap['car_make'];
+          } else if (slugLower === 'model' || slugLower === 'car_model' || slugLower === 'carmodel') {
+            editValue =
+              initialData?.modelId ||
+              initialData?.carModelId ||
+              initialData?.model_id ||
+              initialData?.model?.id ||
+              initialData?.details?.modelId ||
+              initialData?.details?.carModelId ||
+              initialData?.details?.model?.id ||
+              apiAttributeMap['model'] ||
+              apiAttributeMap['car_model'];
+          } else if (slugLower === 'trim' || slugLower === 'car_trim' || slugLower === 'cartrim') {
+            editValue =
+              initialData?.trimId ||
+              initialData?.carTrimId ||
+              initialData?.trim_id ||
+              initialData?.trim?.id ||
+              initialData?.details?.trimId ||
+              initialData?.details?.trim?.id ||
+              apiAttributeMap['trim'] ||
+              apiAttributeMap['car_trim'];
+          } else if (slugLower === 'governorate' || slugLower === 'محافظة') {
+            editValue = initialData?.governorate || apiAttributeMap['governorate'];
+          } else if (slugLower === 'city' || slugLower === 'مدينة') {
+            editValue = initialData?.city || apiAttributeMap['city'];
+          } else {
             editValue = initialData?.details?.[attr.slug] ?? initialData?.[attr.slug];
-            
-            // If not found, try with "Id" suffix
-            if ((editValue === undefined || editValue === null) && (attr.type === 'reference' || attr.type === 'select')) {
+            if (editValue === undefined || editValue === null) {
               editValue = initialData?.[`${attr.slug}Id`] ?? initialData?.details?.[`${attr.slug}Id`];
             }
-            
-            // Extract ID from object if necessary
-            if (editValue && typeof editValue === 'object' && !Array.isArray(editValue) && editValue.id !== undefined) {
-              editValue = editValue.id;
-            }
+          }
         }
       }
+
+      // Extract ID from object if necessary
+      if (editValue && typeof editValue === 'object' && !Array.isArray(editValue) && editValue.id !== undefined) {
+        editValue = editValue.id;
+      }
       
-      if (editValue !== undefined && editValue !== null) {
-        initial[attr.slug] = editValue;
+      if (editValue !== undefined && editValue !== null && editValue !== '') {
+        initial[attr.slug] = (attr.type === 'reference' || attr.type === 'select')
+          ? String(editValue)
+          : editValue;
       } else {
         initial[attr.slug] = (attr.type === 'repeating_group' || attr.type === 'color_multi_selection') ? [] : '';
       }

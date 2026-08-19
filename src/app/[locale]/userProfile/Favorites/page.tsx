@@ -153,7 +153,6 @@ const UserFavoritesEnhanced = () => {
   // Use the query hook with proper dependency tracking
   const { data, isLoading, error, refetch, isRefetching } =
     useGetListingFavorites(queryParams);
-  console.log("data",data)
 
   // Function to safely check if an image is primary
   const isPrimaryImage = (

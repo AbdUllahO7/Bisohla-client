@@ -36,6 +36,10 @@ export interface ListingDto {
   trim?: { id: number; name: string } | null;
   damages?: any[];
   saveStatus?: string;
+  publicationStatus?: 'draft' | 'published' | 'sold' | string;
+  showOnMap?: boolean;
+  translations?: Record<string, any>;
+  attributes?: Record<string, any>;
   listingOfferType?: string;
   rentType?: string | null;
   contactNumber?: string | null;

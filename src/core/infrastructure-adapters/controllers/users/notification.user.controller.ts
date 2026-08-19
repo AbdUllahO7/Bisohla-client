@@ -38,4 +38,11 @@ export class NotificationUserController implements INotificationUserController {
       return catchClientRequest(e);
     }
   }
+  async markAllAsRead(): Promise<ApiResponse<{ updatedCount: number }>> {
+    try {
+      return await this.useCase.markAllAsRead();
+    } catch (e) {
+      return catchClientRequest(e);
+    }
+  }
 }

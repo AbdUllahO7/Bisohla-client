@@ -129,6 +129,34 @@ export const createListingFavorite = async (
 };
 
 /**
+ * Change publication status via PATCH /my-listings/{id}/publication-status
+ */
+export const changePublicationStatus = async (
+  id: number,
+  publicationStatus: 'draft' | 'published' | 'sold',
+): Promise<ApiResponse<ListingDto>> => {
+  const res = await patchAuthReq<{ publicationStatus: string }, ListingDto>({
+    url: `/my-listings/${id}/publication-status`,
+    body: { publicationStatus },
+  });
+  return res;
+};
+
+/**
+ * Change map visibility via PATCH /my-listings/{id}/map-visibility
+ */
+export const changeMapVisibility = async (
+  id: number,
+  showOnMap: boolean,
+): Promise<ApiResponse<ListingDto>> => {
+  const res = await patchAuthReq<{ showOnMap: boolean }, ListingDto>({
+    url: `/my-listings/${id}/map-visibility`,
+    body: { showOnMap },
+  });
+  return res;
+};
+
+/**
  * Get listing statistics via GET /my-listings/{id}/statistics
  */
 export const getListingStatistics = async (
