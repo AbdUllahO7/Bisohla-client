@@ -44,13 +44,61 @@ export const useGetListingById = (id: number) =>
     enabled: !!id,
   });
 
+import {
+  changePublicationStatus,
+  changeMapVisibility,
+} from '../../actions/users/listing.user.actions';
+
 /**
  * Hook to delete a listing
  */
-export const useDeleteListing = () =>
-  useMutation<ApiResponse<Record<string, unknown>>, Error, { id: number }>({
+export const useDeleteListing = () => {
+  const queryClient = useQueryClient();
+  return useMutation<ApiResponse<Record<string, unknown>>, Error, { id: number }>({
     mutationFn: async ({ id }) => await deleteListing(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['my-listings'] });
+    },
   });
+};
+
+/**
+ * Hook to change publication status (draft | published | sold)
+ */
+export const useChangePublicationStatus = () => {
+  const queryClient = useQueryClient();
+  return useMutation<
+    ApiResponse<ListingDto>,
+    Error,
+    { id: number; publicationStatus: 'draft' | 'published' | 'sold' }
+  >({
+    mutationFn: async ({ id, publicationStatus }) =>
+      await changePublicationStatus(id, publicationStatus),
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ['my-listings'] });
+      queryClient.invalidateQueries({ queryKey: ['my-listing-by-id', id] });
+    },
+  });
+};
+
+/**
+ * Hook to change map visibility
+ */
+export const useChangeMapVisibility = () => {
+  const queryClient = useQueryClient();
+  return useMutation<
+    ApiResponse<ListingDto>,
+    Error,
+    { id: number; showOnMap: boolean }
+  >({
+    mutationFn: async ({ id, showOnMap }) =>
+      await changeMapVisibility(id, showOnMap),
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ['my-listings'] });
+      queryClient.invalidateQueries({ queryKey: ['my-listing-by-id', id] });
+    },
+  });
+};
 
 /**
  * Hook to create a new listing
