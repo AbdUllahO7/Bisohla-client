@@ -25,4 +25,7 @@ export class NotificationUserUseCase implements INotificationUserUseCase {
   ): Promise<ApiResponse<boolean>> {
     return this.notificationUserService.updateReadStatus(dto);
   }
+  async markAllAsRead(): Promise<ApiResponse<{ updatedCount: number }>> {
+    return this.notificationUserService.markAllAsRead();
+  }
 }
