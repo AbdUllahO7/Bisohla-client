@@ -1993,5 +1993,13 @@
         "invalid_range": "End date must be after start date"
       }
     }
+  },
+  "ratings": {
+    "modal": {
+      "title": "Enjoying Bishola?",
+      "message": "Your rating helps others discover Bishola and supports the app's development.",
+      "rate_cta": "Rate Bishola",
+      "later_cta": "Not now"
+    }
   }
 }
