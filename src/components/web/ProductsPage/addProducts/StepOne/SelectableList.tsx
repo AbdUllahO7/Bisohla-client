@@ -144,7 +144,7 @@ const SelectableList: React.FC<SelectableListProps> = ({
                     hover:text-[#1a2b28] dark:hover:text-white hover:shadow-md hover:scale-[1.02]
                     transition-all duration-300 rounded-xl border border-transparent
                     hover:border-[#198341]/20 dark:hover:border-[#198341]/40 group
-                    ${selectedValue === option.value 
+                    ${String(selectedValue) === String(option.value)
                       ? "bg-gradient-to-r from-[#198341] to-[#2C3C39] text-white shadow-lg scale-[1.02] border-[#198341]" 
                       : "hover:border-gray-200 dark:hover:border-zinc-800"
                     } 
@@ -155,7 +155,7 @@ const SelectableList: React.FC<SelectableListProps> = ({
                     {shouldShowLogo && option.logoUrl && (
                       <div className="flex-shrink-0 mr-3">
                         <div className={`w-8 h-8 rounded-lg p-1 shadow-sm transition-all duration-300 ${
-                          selectedValue === option.value ? "bg-white/20" : "bg-gray-100 dark:bg-zinc-800 group-hover:bg-white dark:group-hover:bg-zinc-750 group-hover:shadow-md"
+                          String(selectedValue) === String(option.value) ? "bg-white/20" : "bg-gray-100 dark:bg-zinc-800 group-hover:bg-white dark:group-hover:bg-zinc-750 group-hover:shadow-md"
                         }`}>
                           <Image
                             alt={`${option.label} logo`}

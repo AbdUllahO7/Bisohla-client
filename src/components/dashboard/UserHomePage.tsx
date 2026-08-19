@@ -94,6 +94,47 @@ const UserHomePageRefactored = () => {
       {/* User Profile Overview Card */}
       <ProfileOverviewCard profile={profile} />
 
+      {/* Prominent Link to Full Statistics & Charts Dashboard */}
+      <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-[#198341]/10 via-[#ABDE3B]/15 to-emerald-500/10 border border-[#198341]/20 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex items-center gap-3.5">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#198341] to-[#ABDE3B] text-white flex items-center justify-center shadow-md shrink-0">
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+              />
+            </svg>
+          </div>
+          <div>
+            <h3 className="text-base font-extrabold text-[#2C3C39] dark:text-zinc-100">
+              {direction === 'rtl'
+                ? 'مركز الإحصائيات والتحليلات البيانية'
+                : 'Advanced Statistics & Trend Analytics'}
+            </h3>
+            <p className="text-xs text-gray-600 dark:text-zinc-400 mt-0.5">
+              {direction === 'rtl'
+                ? 'استعرض الرسوم البيانية التفاعلية للمشاهدات، التواصل، فترات الظهور، ومعدل نمو إعلاناتك'
+                : 'Explore interactive trend charts for views, inquiries, viewing duration, and listing growth'}
+            </p>
+          </div>
+        </div>
+
+        <a
+          href="/userProfile/Statistics"
+          className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#198341] to-[#ABDE3B] text-white text-xs font-bold shadow-md hover:shadow-lg transition-all text-center shrink-0"
+        >
+          {direction === 'rtl' ? 'فتح الإحصائيات الكاملة ←' : 'Open Full Analytics →'}
+        </a>
+      </div>
+
       {/* Stats Cards */}
       <StatsCards profile={profile} />
 

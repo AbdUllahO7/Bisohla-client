@@ -1,10 +1,12 @@
-import { MyListingsOverviewPage } from '@/components/web/MyListings/MyListingsOverviewPage';
+import { redirect } from '@/i18n/routing';
 
-export const metadata = {
-  title: 'My Listings | Bishola',
-  description: 'Manage and monitor all your listings on Bishola.',
-};
+interface PageProps {
+  params: Promise<{
+    locale: string;
+  }>;
+}
 
-export default function Page() {
-  return <MyListingsOverviewPage />;
+export default async function Page({ params }: PageProps) {
+  const { locale } = await params;
+  redirect({ href: '/userProfile/Products', locale });
 }

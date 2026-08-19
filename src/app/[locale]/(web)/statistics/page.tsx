@@ -1,10 +1,12 @@
-import { MyStatisticsPage } from '@/components/web/Statistics/MyStatisticsPage';
+import { redirect } from '@/i18n/routing';
 
-export const metadata = {
-  title: 'Statistics | Bishola',
-  description: 'View portfolio performance, visitor views, and trends on Bishola.',
-};
+interface PageProps {
+  params: Promise<{
+    locale: string;
+  }>;
+}
 
-export default function Page() {
-  return <MyStatisticsPage />;
+export default async function Page({ params }: PageProps) {
+  const { locale } = await params;
+  redirect({ href: '/userProfile/Statistics', locale });
 }

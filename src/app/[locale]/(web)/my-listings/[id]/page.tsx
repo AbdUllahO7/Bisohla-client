@@ -1,18 +1,13 @@
-import { MyListingDetailPage } from '@/components/web/MyListings/MyListingDetailPage';
+import { redirect } from '@/i18n/routing';
 
 interface PageProps {
   params: Promise<{
-    id: string;
     locale: string;
+    id: string;
   }>;
 }
 
-export const metadata = {
-  title: 'Listing Management | Bishola',
-  description: 'Manage listing details, visibility, and status on Bishola.',
-};
-
 export default async function Page({ params }: PageProps) {
-  const { id } = await params;
-  return <MyListingDetailPage listingId={Number(id)} />;
+  const { locale, id } = await params;
+  redirect({ href: `/userProfile/Products/${id}`, locale });
 }

@@ -11,6 +11,7 @@ import {
   Bell,
   BellRing,
   LogOut,
+  BarChart3,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -69,12 +70,38 @@ export function DashboardSidebar() {
 
   // Helper function to check if route is active
   const isActiveRoute = (href: string) => {
-    // Remove locale prefix from pathname for comparison
-    const pathWithoutLocale = pathname.replace(/\/(en|ar)/, '') || '/';
-    return (
-      pathWithoutLocale === href ||
-      (href === '/userProfile' && pathWithoutLocale === '/userProfile')
-    );
+    const path = pathname.replace(/\/(en|ar)/, '') || '/';
+    if (href === '/userProfile') {
+      return path === '/userProfile' || path === '/userProfile/Home';
+    }
+    if (href === '/userProfile/Statistics') {
+      return path.startsWith('/userProfile/Statistics') || path.startsWith('/statistics');
+    }
+    if (href === '/userProfile/Products') {
+      return (
+        path.startsWith('/userProfile/Products') ||
+        path.startsWith('/my-listings') ||
+        path.startsWith('/products/EditProduct') ||
+        path.startsWith('/products/edit')
+      );
+    }
+    if (href === '/userProfile/Favorites') {
+      return path.startsWith('/userProfile/Favorites') || path.startsWith('/favorites');
+    }
+    if (href === '/userProfile/Alerts') {
+      return path.startsWith('/userProfile/Alerts') || path.startsWith('/car-alerts');
+    }
+    if (href === '/userProfile/Notification') {
+      return path.startsWith('/userProfile/Notification') || path.startsWith('/notifications');
+    }
+    if (href === '/userProfile/UserInfo') {
+      return (
+        path.startsWith('/userProfile/UserInfo') ||
+        path.startsWith('/settings') ||
+        path.startsWith('/profile/edit')
+      );
+    }
+    return path === href;
   };
 
   // Navigation items
@@ -85,9 +112,14 @@ export function DashboardSidebar() {
       label: direction === 'ltr' ? 'Dashboard' : 'لوحة التحكم',
     },
     {
+      href: '/userProfile/Statistics',
+      icon: BarChart3,
+      label: direction === 'ltr' ? 'Statistics & Analytics' : 'الإحصائيات والتحليلات',
+    },
+    {
       href: '/userProfile/Products',
       icon: Home,
-      label: direction === 'ltr' ? 'My Products' : 'منتجاتي',
+      label: direction === 'ltr' ? 'My Products' : 'إعلاناتي ومنتجاتي',
     },
     {
       href: '/userProfile/Favorites',
@@ -95,19 +127,19 @@ export function DashboardSidebar() {
       label: direction === 'ltr' ? 'Favorites' : 'المفضلة',
     },
     {
-      href: '/userProfile/Notification',
-      icon: Bell,
-      label: direction === 'ltr' ? 'Notifications' : 'الإشعارات',
-    },
-    {
       href: '/userProfile/Alerts',
       icon: BellRing,
       label: direction === 'ltr' ? 'My Alerts' : 'تنبيهاتي',
     },
     {
+      href: '/userProfile/Notification',
+      icon: Bell,
+      label: direction === 'ltr' ? 'Notifications' : 'الإشعارات',
+    },
+    {
       href: '/userProfile/UserInfo',
       icon: Settings,
-      label: direction === 'ltr' ? 'Settings' : 'الإعدادات',
+      label: direction === 'ltr' ? 'Profile & Settings' : 'الملف والإعدادات',
     },
   ];
 

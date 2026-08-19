@@ -23,7 +23,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import { useLocale } from 'next-intl';
-import { Link, useRouter } from '@/i18n/routing';
+import { Link, useRouter, usePathname } from '@/i18n/routing';
 import SmartBreadcrumb from '@/components/shared/smart-breadcrumbs';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -61,6 +61,7 @@ export function MyListingDetailPage({ listingId }: MyListingDetailPageProps) {
   const locale = useLocale();
   const isArabic = locale === 'ar';
   const router = useRouter();
+  const pathname = usePathname();
   const { toast } = useToast();
 
   const [activeImageIndex, setActiveImageIndex] = useState(0);
@@ -86,7 +87,13 @@ export function MyListingDetailPage({ listingId }: MyListingDetailPageProps) {
     listing?.description ||
     '';
 
-  const images = listing?.images && listing.images.length > 0 ? listing.images : [];
+  const rawImages = listing?.images && listing.images.length > 0 ? listing.images : [];
+  const images: { url: string }[] = rawImages.map((img: any) =>
+    typeof img === 'string' ? { url: img } : { url: img.url || img.imageUrl }
+  );
+  if (images.length === 0 && listing?.primaryImage) {
+    images.push({ url: listing.primaryImage });
+  }
 
   const handleStatusChange = async (newStatus: 'draft' | 'published' | 'sold') => {
     try {
@@ -169,8 +176,15 @@ export function MyListingDetailPage({ listingId }: MyListingDetailPageProps) {
     }
   };
 
+  const isDashboard = pathname.includes('/userProfile');
+  const backHref = isDashboard ? '/userProfile/Products' : '/my-listings';
+  const statsHref = isDashboard
+    ? `/userProfile/Statistics/listing/${listingId}`
+    : `/statistics/listing/${listingId}`;
+
   const breadcrumbItems = [
-    { label: isArabic ? 'إعلاناتي' : 'My Listings', href: '/my-listings' },
+    ...(isDashboard ? [{ label: isArabic ? 'لوحة التحكم' : 'Dashboard', href: '/userProfile' }] : []),
+    { label: isArabic ? 'إعلاناتي' : 'My Listings', href: backHref },
     { label: title },
   ];
 
@@ -199,7 +213,7 @@ export function MyListingDetailPage({ listingId }: MyListingDetailPageProps) {
               : 'The listing may have been deleted or you do not have permission to view it.'}
           </p>
           <Link
-            href="/my-listings"
+            href={backHref}
             className="px-6 py-2.5 rounded-xl bg-[#198341] text-white font-bold text-xs"
           >
             {isArabic ? 'العودة إلى إعلاناتي' : 'Back to My Listings'}
@@ -256,7 +270,7 @@ export function MyListingDetailPage({ listingId }: MyListingDetailPageProps) {
           <div className="flex flex-wrap items-center gap-2.5">
             {/* View Stats Button */}
             <Link
-              href={`/statistics/listing/${listing.id}`}
+              href={statsHref}
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-emerald-200 dark:border-emerald-800/60 bg-emerald-50 dark:bg-emerald-950/30 text-[#198341] dark:text-emerald-300 text-xs font-bold hover:bg-emerald-100 transition-colors shadow-sm"
             >
               <BarChart3 size={16} />
@@ -265,7 +279,7 @@ export function MyListingDetailPage({ listingId }: MyListingDetailPageProps) {
 
             {/* Edit Button */}
             <Link
-              href={`/products/edit/${listing.id}`}
+              href={`/products/EditProduct/${listing.id}`}
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-gray-700 dark:text-zinc-200 text-xs font-bold hover:bg-gray-50 transition-colors shadow-sm"
             >
               <Edit3 size={16} />

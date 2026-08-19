@@ -19,8 +19,8 @@ import {
   Clock,
   CheckCircle2,
 } from 'lucide-react';
-import { useLocale, useTranslations } from 'next-intl';
-import { Link, useRouter } from '@/i18n/routing';
+import { useLocale } from 'next-intl';
+import { Link, useRouter, usePathname } from '@/i18n/routing';
 import SmartBreadcrumb from '@/components/shared/smart-breadcrumbs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -46,6 +46,7 @@ export function MyListingsOverviewPage() {
   const locale = useLocale();
   const isArabic = locale === 'ar';
   const router = useRouter();
+  const pathname = usePathname();
   const { toast } = useToast();
 
   const [activeTab, setActiveTab] = useState<'all' | 'published' | 'draft' | 'sold'>('all');
@@ -289,7 +290,23 @@ export function MyListingsOverviewPage() {
                 'Listing';
 
               const itemStatus = listing.publicationStatus || 'draft';
-              const heroImage = listing.images?.[0]?.url;
+              const heroImage =
+                listing.primaryImage ||
+                (Array.isArray(listing.images) && listing.images.length > 0
+                  ? typeof listing.images[0] === 'string'
+                    ? listing.images[0]
+                    : (listing.images.find((img: any) => img?.isPrimary)?.url ||
+                       (listing.images[0] as any)?.url ||
+                       (listing.images[0] as any)?.imageUrl)
+                  : null);
+
+              const detailHref = pathname.includes('/userProfile')
+                ? `/userProfile/Products/${listing.id}`
+                : `/my-listings/${listing.id}`;
+
+              const statsHref = pathname.includes('/userProfile')
+                ? `/userProfile/Statistics/listing/${listing.id}`
+                : `/statistics/listing/${listing.id}`;
 
               return (
                 <div
@@ -362,7 +379,7 @@ export function MyListingsOverviewPage() {
                   <div className="pt-3 mt-3 border-t border-gray-100 dark:border-zinc-800 flex items-center justify-between gap-2">
                     {/* View Details Link */}
                     <Link
-                      href={`/my-listings/${listing.id}`}
+                      href={detailHref}
                       className="flex-1 text-center py-2 rounded-xl bg-gray-50 dark:bg-zinc-800 hover:bg-[#198341] hover:text-white text-gray-700 dark:text-zinc-200 text-xs font-bold transition-all shadow-sm"
                     >
                       {isArabic ? 'إدارة الإعلان' : 'Manage'}
@@ -370,7 +387,7 @@ export function MyListingsOverviewPage() {
 
                     {/* Quick Stats */}
                     <Link
-                      href={`/statistics/listing/${listing.id}`}
+                      href={statsHref}
                       className="p-2 rounded-xl border border-gray-200 dark:border-zinc-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 text-emerald-600 transition-colors"
                       title={isArabic ? 'الإحصائيات' : 'Statistics'}
                     >
@@ -379,7 +396,7 @@ export function MyListingsOverviewPage() {
 
                     {/* Quick Edit */}
                     <Link
-                      href={`/products/edit/${listing.id}`}
+                      href={`/products/EditProduct/${listing.id}`}
                       className="p-2 rounded-xl border border-gray-200 dark:border-zinc-700 hover:bg-gray-100 dark:hover:bg-zinc-800 text-gray-600 dark:text-zinc-300 transition-colors"
                       title={isArabic ? 'تعديل' : 'Edit'}
                     >
