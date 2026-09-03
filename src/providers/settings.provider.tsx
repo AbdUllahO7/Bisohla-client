@@ -203,14 +203,17 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
       const rawEn = rawData['en'] as Record<string, unknown> | undefined;
       const rawListings = rawData['listings_settings'] as Record<string, unknown> | undefined;
 
+      const getEnabled = (obj: Record<string, unknown> | undefined): boolean | undefined => {
+        const ls = obj?.listings_settings as Record<string, unknown> | undefined;
+        const map = ls?.map as Record<string, unknown> | undefined;
+        return typeof map?.enabled === 'boolean' ? map.enabled : undefined;
+      };
+
       const rawMapEnabled =
-        (rawLocale?.listings_settings as Record<string, unknown> | undefined)?.map &&
-        ((rawLocale?.listings_settings as Record<string, unknown>).map as Record<string, unknown>)?.enabled ??
-        (rawAr?.listings_settings as Record<string, unknown> | undefined)?.map &&
-        ((rawAr?.listings_settings as Record<string, unknown>).map as Record<string, unknown>)?.enabled ??
-        (rawEn?.listings_settings as Record<string, unknown> | undefined)?.map &&
-        ((rawEn?.listings_settings as Record<string, unknown>).map as Record<string, unknown>)?.enabled ??
-        (rawListings?.map as Record<string, unknown> | undefined)?.enabled;
+        getEnabled(rawLocale) ??
+        getEnabled(rawAr) ??
+        getEnabled(rawEn) ??
+        ((rawListings?.map as Record<string, unknown> | undefined)?.enabled as boolean | undefined);
 
       if (typeof rawMapEnabled === 'boolean') {
         return rawMapEnabled;
