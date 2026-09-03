@@ -1,12 +1,11 @@
 'use client';
-
 import { cn } from '@/lib/utils';
-import { useTheme } from 'next-themes';
 import Image from 'next/image';
-import Box from '@/components/ui/box';
 import { useEffect, useState } from 'react';
 import { useRouter } from '@/i18n/routing';
 import { useSettings } from '@/providers/settings.provider';
+
+const FALLBACK_LOGO = '/assets/images/logo/bishola.png';
 
 const Logo = ({
   className,
@@ -18,13 +17,20 @@ const Logo = ({
   height?: number;
 }) => {
   const router = useRouter();
-
   const { getLogo, isLoading } = useSettings();
+  const logoUrl = getLogo();
+  const [imgSrc, setImgSrc] = useState<string>(logoUrl || FALLBACK_LOGO);
+
+  useEffect(() => {
+    if (logoUrl) {
+      setImgSrc(logoUrl);
+    }
+  }, [logoUrl]);
 
   if (isLoading) {
     return (
       <div className="flex items-center">
-        <div className="h-5 w-24 bg-gray-200 rounded animate-pulse sm:h-6 sm:w-28"></div>
+        <div className="h-6 w-28 bg-gray-200 dark:bg-zinc-800 rounded animate-pulse"></div>
       </div>
     );
   }
@@ -35,14 +41,16 @@ const Logo = ({
       onClick={() => router.push('/')}
     >
       <Image
-        src={getLogo()}
-        alt="Logo"
-        width={width || 100}
-        height={height || 24}
+        src={imgSrc || FALLBACK_LOGO}
+        alt="Bishola Logo"
+        width={width || 120}
+        height={height || 30}
         priority
-        onError={(e) => {
-          console.error('Failed to load logo image');
-          e.currentTarget.style.display = 'none';
+        className="h-auto w-auto max-h-8 sm:max-h-9 object-contain"
+        onError={() => {
+          if (imgSrc !== FALLBACK_LOGO) {
+            setImgSrc(FALLBACK_LOGO);
+          }
         }}
       />
     </div>

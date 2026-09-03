@@ -13,6 +13,7 @@ interface LeafletMapViewProps {
   onBoundsChange: (bbox: string) => void;
   center: { lat: number; lng: number; zoom: number };
   locale: string;
+  apiKey?: string;
 }
 
 export const LeafletMapView: React.FC<LeafletMapViewProps> = ({
@@ -22,6 +23,7 @@ export const LeafletMapView: React.FC<LeafletMapViewProps> = ({
   onBoundsChange,
   center,
   locale,
+  apiKey,
 }) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
