@@ -9,9 +9,12 @@ import {
 import { ListingMapPoint, MapOfferType } from '@/core/entities/models/listings/map.dto';
 import { MapFilterBar, GovernorateLocation } from './MapFilterBar';
 import { MapListingPreviewCard } from './MapListingPreviewCard';
-import { MapPin } from 'lucide-react';
+import { MapPin, MapPinOff } from 'lucide-react';
 import { getInjection } from '@/di/container';
 import { useToast } from '@/hooks/use-toast';
+import { useSettings } from '@/providers/settings.provider';
+import { Button } from '@/components/ui/button';
+import { Link } from '@/i18n/routing';
 
 const LeafletMapView = dynamic(() => import('./LeafletMapView'), {
   ssr: false,
@@ -38,6 +41,10 @@ export const InteractiveMapContainer: React.FC<InteractiveMapContainerProps> = (
 }) => {
   const isRtl = locale === 'ar';
   const { toast } = useToast();
+  const { isMapEnabled, getMapSettings, getGoogleMapsApiKey, isLoading: isSettingsLoading } = useSettings();
+  const mapEnabled = isMapEnabled();
+  const mapSettings = getMapSettings();
+  const mapApiKey = getGoogleMapsApiKey();
 
   const [availableTypes, setAvailableTypes] = useState<{ id: number; name: string }[]>(
     initialListingTypes,
@@ -48,10 +55,22 @@ export const InteractiveMapContainer: React.FC<InteractiveMapContainerProps> = (
   const [selectedGov, setSelectedGov] = useState<string | undefined>(undefined);
   const [isLocating, setIsLocating] = useState<boolean>(false);
   const [center, setCenter] = useState<{ lat: number; lng: number; zoom: number }>({
-    lat: 33.5138,
-    lng: 36.2765,
-    zoom: 12,
+    lat: mapSettings?.default_center_lat ?? 33.5138,
+    lng: mapSettings?.default_center_lng ?? 36.2765,
+    zoom: mapSettings?.default_zoom ?? 12,
   });
+
+  // Sync center from settings once available
+  useEffect(() => {
+    if (mapSettings?.default_center_lat && mapSettings?.default_center_lng) {
+      setCenter((prev) => ({
+        ...prev,
+        lat: mapSettings.default_center_lat!,
+        lng: mapSettings.default_center_lng!,
+        zoom: mapSettings.default_zoom || prev.zoom,
+      }));
+    }
+  }, [mapSettings?.default_center_lat, mapSettings?.default_center_lng, mapSettings?.default_zoom]);
 
   const [points, setPoints] = useState<ListingMapPoint[]>([]);
   const [selectedPoint, setSelectedPoint] = useState<ListingMapPoint | null>(null);
@@ -200,6 +219,29 @@ export const InteractiveMapContainer: React.FC<InteractiveMapContainerProps> = (
     );
   };
 
+  if (!isSettingsLoading && !mapEnabled) {
+    return (
+      <div className="w-full min-h-[70vh] flex flex-col items-center justify-center p-6 text-center font-cairo">
+        <div className="w-20 h-20 rounded-full bg-emerald-50 dark:bg-zinc-900 flex items-center justify-center mb-6 shadow-sm border border-emerald-100 dark:border-zinc-800">
+          <MapPinOff className="w-10 h-10 text-emerald-600 dark:text-emerald-400" />
+        </div>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-zinc-100 mb-2">
+          {isRtl ? 'الخريطة التفاعلية غير مفعلة حالياً' : 'Interactive Map is Currently Disabled'}
+        </h2>
+        <p className="text-gray-500 dark:text-zinc-400 max-w-md mb-6 text-sm sm:text-base leading-relaxed">
+          {isRtl
+            ? 'تم تعطيل خدمة استعراض الإعلانات عبر الخريطة من قبل إدارة الموقع. يمكنك استعراض كافة الإعلانات عبر صفحة المنتجات.'
+            : 'Interactive map listing exploration is currently turned off in the settings. You can still browse all listings on the products page.'}
+        </p>
+        <Link href="/products">
+          <Button className="bg-[#198341] hover:bg-[#156e36] text-white rounded-xl px-6 py-2.5 font-semibold shadow-md">
+            {isRtl ? 'تصفح الإعلانات' : 'Browse Listings'}
+          </Button>
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <div className="relative w-full h-[calc(100vh-64px)] min-h-[600px] overflow-hidden bg-gray-50 dark:bg-zinc-950 font-cairo">
       {/* Top Filter Bar */}
@@ -227,6 +269,7 @@ export const InteractiveMapContainer: React.FC<InteractiveMapContainerProps> = (
         onBoundsChange={handleBoundsChange}
         center={center}
         locale={locale}
+        apiKey={mapApiKey}
       />
 
       {/* Bottom Listing Card Drawer */}

@@ -7,6 +7,7 @@ import { Link, usePathname } from '@/i18n/routing';
 import { motion } from 'framer-motion';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { useSettings } from '@/providers/settings.provider';
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -15,6 +16,8 @@ function cn(...inputs: ClassValue[]) {
 const BottomNavigation = () => {
   const t = useTranslations('homePage.bottomNav');
   const pathname = usePathname();
+  const { isMapEnabled } = useSettings();
+  const mapEnabled = isMapEnabled();
 
   const navItems = [
     {
@@ -27,11 +30,15 @@ const BottomNavigation = () => {
       href: '/products',
       icon: Search,
     },
-    {
-      label: t('map'),
-      href: '/map',
-      icon: MapPin,
-    },
+    ...(mapEnabled
+      ? [
+          {
+            label: t('map'),
+            href: '/map',
+            icon: MapPin,
+          },
+        ]
+      : []),
     {
       label: t('sell'),
       href: '/products/AddProducts',

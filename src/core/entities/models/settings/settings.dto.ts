@@ -148,6 +148,24 @@ export interface ThirdPartyIntegrations {
     google_client_secret?: string;
     google_callback_url?: string;
   };
+  google_maps?: {
+    enabled?: boolean;
+    api_key?: string;
+    apiKey?: string;
+  };
+  cloudflare_turnstile?: {
+    enabled?: boolean;
+    site_key?: string;
+  };
+}
+
+export interface MapSettings {
+  enabled?: boolean;
+  default_center_lat?: number;
+  default_center_lng?: number;
+  default_zoom?: number;
+  max_markers?: number;
+  api_key?: string;
 }
 
 export interface ListingsSettings {
@@ -157,6 +175,11 @@ export interface ListingsSettings {
     max_image_size_mb?: number;
     upload_folder?: string;
   };
+  location?: {
+    geocoding_provider?: string;
+    require_coordinates?: boolean;
+  };
+  map?: MapSettings;
   display?: {
     results_per_page?: number;
     compare_max_count?: number;

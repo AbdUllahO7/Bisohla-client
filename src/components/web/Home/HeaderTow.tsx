@@ -8,18 +8,23 @@ import type React from 'react';
 import { useState } from 'react';
 import { useLocale } from 'next-intl';
 import { Button } from '@/components/ui/button';
+import { useSettings } from '@/providers/settings.provider';
 
 const HeaderTwo: React.FC<HeaderTowProps> = ({ translations }) => {
   const [showMobileNav, setShowMobileNav] = useState(false);
   const session = useSession();
   const locale = useLocale();
   const isRTL = locale === 'ar';
+  const { isMapEnabled } = useSettings();
+  const mapEnabled = isMapEnabled();
 
   const navItems = [
     { href: '/', label: translations.home },
     { href: '/products?listingOfferType=for_rent', label: translations.rent },
     { href: '/products?listingOfferType=for_sale', label: translations.sale },
-    { href: '/map', label: translations.map || (isRTL ? 'الخريطة' : 'Map') },
+    ...(mapEnabled
+      ? [{ href: '/map', label: translations.map || (isRTL ? 'الخريطة' : 'Map') }]
+      : []),
     { href: '/products', label: translations.BrowseAll },
     { href: '/news', label: translations.News },
     { href: '/ContactUs', label: translations.ContactUs },
