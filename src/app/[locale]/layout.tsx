@@ -11,6 +11,7 @@ import { Cairo } from 'next/font/google';
 import AppDeepLink from '@/components/shared/AppDeepLink';
 import SmartAppBanner from '@/components/shared/SmartAppBanner';
 import AppDownloadModalProvider from '@/providers/AppDownloadModalProvider';
+import { Toaster } from '@/components/ui/toaster';
 
 const cairo = Cairo({
   subsets: ['latin'],
@@ -67,6 +68,7 @@ export default async function RootLayout({
 
             {children}
             {/* <AppDownloadModalProvider /> */}
+            <Toaster />
           </GlobalProvider>
         </NextIntlClientProvider>
       </body>

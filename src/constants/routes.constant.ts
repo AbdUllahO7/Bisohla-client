@@ -66,4 +66,18 @@ export const allRoutes = {
       },
     },
   },
+  legal: {
+    privacyPolicy: {
+      path: '/legal/privacy-policy',
+      pageName: 'Privacy Policy',
+    },
+    termsOfService: {
+      path: '/legal/terms-of-service',
+      pageName: 'Terms of Service',
+    },
+    cookiePolicy: {
+      path: '/legal/cookie-policy',
+      pageName: 'Cookie Policy',
+    },
+  },
 };

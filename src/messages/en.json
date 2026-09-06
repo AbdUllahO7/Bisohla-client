@@ -2031,5 +2031,55 @@
       "description": "Try zooming out or selecting a different region."
     },
     "total_found": "{count} listings found"
+  },
+  "legal": {
+    "gate": {
+      "title": "Updated legal terms",
+      "body": "We've updated our legal documents. Please review and accept them to continue using بسهولة.",
+      "read_action": "Read the full document",
+      "accept_button": "Accept & continue",
+      "sign_out": "Sign out instead",
+      "error": "We couldn't record your acceptance. Please try again."
+    },
+    "document": {
+      "empty_title": "Content unavailable",
+      "empty_subtitle": "This document hasn't been published yet. Please try again later."
+    },
+    "document_kind": {
+      "privacy_policy": "Privacy Policy",
+      "terms_of_service": "Terms of Service",
+      "cookie_policy": "Cookie Policy"
+    },
+    "list_separator": ", ",
+    "pages": {
+      "privacy": {
+        "title": "Privacy Policy"
+      },
+      "terms": {
+        "title": "Terms of Service"
+      },
+      "cookies": {
+        "title": "Cookie Policy"
+      },
+      "about": {
+        "title": "About Bishola"
+      }
+    },
+    "settings": {
+      "section": "Legal"
+    }
+  },
+  "auth": {
+    "signup": {
+      "legal": {
+        "prefix": "I agree to the "
+      }
+    },
+    "legal": {
+      "oauth_caption_prefix": "By continuing with Google or Apple you agree to the "
+    },
+    "errors": {
+      "legal_required": "You must accept the legal documents to continue."
+    }
   }
 }

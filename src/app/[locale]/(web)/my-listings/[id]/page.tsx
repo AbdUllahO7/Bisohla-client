@@ -10,4 +10,5 @@ interface PageProps {
 export default async function Page({ params }: PageProps) {
   const { locale, id } = await params;
   redirect({ href: `/userProfile/Products/${id}`, locale });
+  return null;
 }

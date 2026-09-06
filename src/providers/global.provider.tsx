@@ -7,24 +7,27 @@ import ClientConfigProvider from './client-config.provider';
 import NavigationProvider from './navigation.provider';
 import { SettingsProvider } from './settings.provider';
 import { ProfileProvider } from './profile.provider';
+import { LegalGateProvider } from './legal-gate.provider';
 
 const GlobalProvider = ({ children }: PropsWithChildren) => {
   return (
     <QueryProvider>
       <SettingsProvider>
         <ProfileProvider>
-          <NavigationProvider>
-            <ClientConfigProvider>
-              <ThemeProvider
-                attribute="class"
-                defaultTheme="system"
-                enableSystem
-                disableTransitionOnChange
-              >
-                {children}
-              </ThemeProvider>
-            </ClientConfigProvider>
-          </NavigationProvider>
+          <LegalGateProvider>
+            <NavigationProvider>
+              <ClientConfigProvider>
+                <ThemeProvider
+                  attribute="class"
+                  defaultTheme="system"
+                  enableSystem
+                  disableTransitionOnChange
+                >
+                  {children}
+                </ThemeProvider>
+              </ClientConfigProvider>
+            </NavigationProvider>
+          </LegalGateProvider>
         </ProfileProvider>
       </SettingsProvider>
     </QueryProvider>

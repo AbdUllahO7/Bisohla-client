@@ -22,6 +22,7 @@ export const handleRegister = async (
     password: data.get('password') as string,
     passwordConfirmation: data.get('passwordConfirmation') as string,
     name: data.get('name') as string,
+    acceptedLegal: data.get('acceptedLegal') === 'on' || data.get('acceptedLegal') === 'true',
   };
 
   const res = await postReq<typeof fields, RegisterFormValues>({
@@ -39,6 +40,7 @@ export const handleRegister = async (
       data: {
         email: fields.email,
         name: fields.name,
+        acceptedLegal: fields.acceptedLegal,
         password: '', // Don't preserve password
         passwordConfirmation: '', // Don't preserve password confirmation
       } as RegisterFormValues,
@@ -53,6 +55,7 @@ export const handleRegister = async (
       data: {
         email: fields.email,
         name: fields.name,
+        acceptedLegal: fields.acceptedLegal,
         password: '',
         passwordConfirmation: '',
       } as RegisterFormValues,
