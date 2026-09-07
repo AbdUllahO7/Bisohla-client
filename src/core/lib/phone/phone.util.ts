@@ -83,6 +83,8 @@ export function repairPhone(
     ...(sanitized.startsWith('+') ? [`+${digits}`] : []),
     // "00" is the international access prefix in most of the region.
     ...(digits.startsWith('00') ? [`+${digits.slice(2)}`] : []),
+    // Leading zero in domestic numbers (e.g. 09... in Syria and Arab countries)
+    ...(digits.startsWith('0') ? [`${dialCode}${digits.replace(/^0+/, '')}`] : []),
     // The dial code was entered twice — the reported defect.
     ...(digits.startsWith(dialDigits) && digits.length > dialDigits.length
       ? [`${dialCode}${digits.slice(dialDigits.length)}`]

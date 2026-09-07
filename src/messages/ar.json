@@ -2075,9 +2075,13 @@
       "contact_prefilled": "تم الملء من ملفك الشخصي",
       "save_as_profile_number": "حفظ كرقم ملفي الشخصي"
     },
+    "preview": {
+      "pending_badge": "قيد المراجعة"
+    },
     "errors": {
       "contact_number_required": "رقم الهاتف مطلوب",
-      "contact_number_invalid": "هذا ليس رقم هاتف صالحاً للدولة المختارة"
+      "contact_number_invalid": "هذا ليس رقم هاتف صالحاً للدولة المختارة",
+      "reference_proposal_generic": "تعذر إرسال إحدى القيم المقترحة. يرجى مراجعة الإعلان والمحاولة مرة أخرى."
     }
   },
   "profile": {
@@ -2088,6 +2092,33 @@
     "errors": {
       "phone_invalid": "هذا ليس رقم هاتف صالحاً للدولة المختارة"
     }
+  },
+  "referenceProposal": {
+    "propose_cta": "لم تجد «{attribute}»؟ اقترحه",
+    "propose_cta_generic": "لم تجده؟ اقترحه",
+    "pending_pill": "قيد المراجعة",
+    "clear_a11y": "إزالة القيمة المقترحة",
+    "sheet_title": "اقتراح قيمة جديدة لـ«{attribute}»",
+    "sheet_subtitle": "يراجعه المشرف قبل إضافته إلى القائمة، ويمكنك نشر إعلانك في الأثناء.",
+    "name_label": "الاسم",
+    "name_placeholder": "اكتب اسم «{attribute}» بدقة",
+    "did_you_mean_title": "هل تقصد أحد هذه؟",
+    "did_you_mean_hint": "أم تقصد:",
+    "under_parent": "ضمن {parent}",
+    "confirm_cta": "لا شيء من هذه — اقترح \"{name}\"",
+    "confirm_cta_empty": "اقترح هذا الاسم",
+    "error_too_short": "يجب ألا يقل عن {min} أحرف",
+    "error_too_long": "يجب ألا يزيد عن {max} حرفًا",
+    "error_contact_info": "الرجاء عدم تضمين رقم هاتف أو رابط أو بريد إلكتروني",
+    "error_disabled": "اقتراح خيارات جديدة غير متاح حاليًا",
+    "blocked_from_approval": "لا يمكن الموافقة على إعلانك حتى نراجع القيمة التي اقترحتها."
+  },
+  "attributeForm": {
+    "search_in_attribute": "ابحث في «{attribute}»…",
+    "parent_pending_description": "القيمة التي اقترحتها لـ«{parent}» ما تزال قيد المراجعة، لذا لا توجد خيارات مرتبطة بها بعد.",
+    "parent_unset_description": "اختر «{parent}» أولًا لعرض الخيارات المتاحة هنا.",
+    "options_empty_title": "لا توجد خيارات متاحة",
+    "options_empty_description": "لا توجد خيارات للاختيار من بينها هنا."
   }
 }
 

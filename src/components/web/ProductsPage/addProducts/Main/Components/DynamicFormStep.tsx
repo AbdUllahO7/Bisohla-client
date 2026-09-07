@@ -1,11 +1,13 @@
 'use client'
-import React from 'react';
+import React, { useState } from 'react';
 import { ListingTypeFormSchemaDto, SectionDto } from '@/core/entities/models/listing-types/listing-types.dto';
 import Text from '@/components/ui/text';
 import { useDynamicForm } from '../hooks/useDynamicForm';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import ProposeReferenceDialog from '../../ProposeReferenceDialog';
+import { ProposeReferenceResult } from '@/core/entities/models/listings/reference-proposal.dto';
 
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
@@ -354,10 +356,64 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
 
   const { 
     formData, 
+    proposals,
     referenceOptions, 
     loadingOptions, 
-    handleFieldChange 
+    handleFieldChange,
+    handleSetProposal,
+    handleClearProposal,
+    handleResolveFuzzyExisting,
   } = useDynamicForm(attributes, onValidationChange, initialData);
+
+  const tProp = useTranslations('referenceProposal');
+  const tAttr = useTranslations('attributeForm');
+
+  const [proposeDialogState, setProposeDialogState] = useState<{
+    open: boolean;
+    attr: any | null;
+    initialSearch?: string;
+  }>({ open: false, attr: null, initialSearch: '' });
+
+  const handleOpenPropose = (attr: any, currentSearch?: string) => {
+    setProposeDialogState({
+      open: true,
+      attr,
+      initialSearch: currentSearch || '',
+    });
+  };
+
+  const handleResolveProposal = (result: ProposeReferenceResult) => {
+    if (!proposeDialogState.attr) return;
+    const attrId = proposeDialogState.attr.id;
+    if (result.kind === 'propose') {
+      handleSetProposal(attrId, result.name);
+    } else if (result.kind === 'existing') {
+      handleResolveFuzzyExisting(attrId, result);
+    }
+  };
+
+  const canProposeFor = (attr: any) => {
+    if (attr.type !== 'reference' || !attr.referenceGroupId) return false;
+    const slug = (attr.slug || '').toLowerCase();
+    if (slug === 'governorate' || slug === 'city' || slug === 'محافظة' || slug === 'مدينة') return false;
+    return true;
+  };
+
+  const getEmptyDescription = (attr: any) => {
+    if (attr.dependsOnAttributeId) {
+      const parentAttr = attributes.find(a => a.id === attr.dependsOnAttributeId);
+      const parentName = parentAttr ? getTranslation(parentAttr.name) : '';
+      const parentHasProposal = parentAttr ? !!proposals[parentAttr.id]?.name : false;
+      const parentHasValue = parentAttr && !!formData[parentAttr.slug];
+
+      if (parentHasProposal) {
+        return tAttr('parent_pending_description', { parent: parentName });
+      } else if (!parentHasValue) {
+        return tAttr('parent_unset_description', { parent: parentName });
+      }
+    }
+    return undefined;
+  };
 
   // Helper to detect if a field should be rendered as a calendar
   const isDateLike = (attr: any) => {
@@ -374,6 +430,12 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
     if (!valDep) return true;
     const { op, value, refAttributeSlug } = valDep;
     if (!refAttributeSlug) return true;
+
+    // §7.7 (2): If parent has a pending proposal, keep conditionally-required child visible & optional
+    const parentAttr = attributes.find(a => a.slug === refAttributeSlug);
+    if (parentAttr && proposals[parentAttr.id]?.name) {
+      return true;
+    }
 
     const parentValue = formData[refAttributeSlug];
     if (parentValue === undefined || parentValue === null || parentValue === '') return true;
@@ -455,6 +517,11 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
                     direction={isArabic ? 'rtl' : 'ltr'}
                     onSelect={(type, val) => handleFieldChange(attr.slug, val)}
                     required={attr.isRequired}
+                    pendingProposalName={proposals[attr.id]?.name}
+                    onClearProposal={() => handleClearProposal(attr.id)}
+                    onProposeClick={canProposeFor(attr) ? (currentSearch) => handleOpenPropose(attr, currentSearch) : undefined}
+                    proposeCtaLabel={tProp('propose_cta', { attribute: getTranslation(attr.name) })}
+                    emptyDescription={getEmptyDescription(attr)}
                   />
                 );
               })}
@@ -913,8 +980,26 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
           </div>
         )}
       </div>
+
+      {proposeDialogState.attr && (
+        <ProposeReferenceDialog
+          open={proposeDialogState.open}
+          onOpenChange={(open: boolean) => setProposeDialogState(prev => ({ ...prev, open }))}
+          attributeName={getTranslation(proposeDialogState.attr.name)}
+          groupId={proposeDialogState.attr.referenceGroupId}
+          parentItemId={(() => {
+            if (!proposeDialogState.attr?.dependsOnAttributeId) return null;
+            const parentAttr = attributes.find(a => a.id === proposeDialogState.attr.dependsOnAttributeId);
+            const parentVal = parentAttr ? formData[parentAttr.slug] : null;
+            return parentVal && !isNaN(Number(parentVal)) ? Number(parentVal) : null;
+          })()}
+          initialName={proposeDialogState.initialSearch}
+          onResolve={handleResolveProposal}
+        />
+      )}
     </div>
   );
 };
 
 export default DynamicFormStep;
+

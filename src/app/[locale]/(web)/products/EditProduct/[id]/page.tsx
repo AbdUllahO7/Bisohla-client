@@ -41,28 +41,40 @@ const EditProductPage = () => {
       // Initialize stepTwoData with flattened attribute values and their metadata
       const attributeValuesMap: Record<string, any> = {};
       const attributeMetaMap: Record<string, any> = {};
+      const proposalsMap: Record<number, { name: string; status: 'pending' }> = {};
 
       if (listing.attributeValues && Array.isArray(listing.attributeValues)) {
         listing.attributeValues.forEach((av: any) => {
           const slug = av.attribute?.slug;
-          if (slug) {
+          const attrId = av.attribute?.id || av.attributeId;
+          if (slug && attrId) {
             attributeMetaMap[slug] = {
-              id: av.attribute.id,
-              type: av.attribute.type,
+              id: attrId,
+              type: av.attribute?.type,
             };
 
-            let val = null;
-            if (av.valueNumber !== null && av.valueNumber !== undefined)
-              val = Number(av.valueNumber);
-            else if (av.valueJson !== null && av.valueJson !== undefined)
-              val = av.valueJson;
-            else if (av.valueBoolean !== null && av.valueBoolean !== undefined)
-              val = av.valueBoolean;
-            else if (av.valueText !== null && av.valueText !== undefined)
-              val = av.valueText;
-            else if (av.valueDate !== null && av.valueDate !== undefined)
-              val = av.valueDate;
-            attributeValuesMap[slug] = val;
+            if (av.refItemProposal && av.refItemProposal.status === 'pending') {
+              proposalsMap[attrId] = {
+                name: av.refItemProposal.submittedName,
+                status: 'pending',
+              };
+              attributeValuesMap[slug] = null;
+            } else {
+              let val = null;
+              if (av.referenceItemId !== null && av.referenceItemId !== undefined)
+                val = av.referenceItemId;
+              else if (av.valueNumber !== null && av.valueNumber !== undefined)
+                val = Number(av.valueNumber);
+              else if (av.valueJson !== null && av.valueJson !== undefined)
+                val = av.valueJson;
+              else if (av.valueBoolean !== null && av.valueBoolean !== undefined)
+                val = av.valueBoolean;
+              else if (av.valueText !== null && av.valueText !== undefined)
+                val = av.valueText;
+              else if (av.valueDate !== null && av.valueDate !== undefined)
+                val = av.valueDate;
+              attributeValuesMap[slug] = val;
+            }
           }
         });
       }
@@ -78,6 +90,7 @@ const EditProductPage = () => {
         trim: listing.trimId || listing.trim?.id || attributeValuesMap.trim || null,
         currency: listing.currency || 'USD',
         __attributeMap__: attributeMetaMap,
+        __proposals__: proposalsMap,
       };
 
       // Normalize images

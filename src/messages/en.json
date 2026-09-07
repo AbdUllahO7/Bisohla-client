@@ -2113,9 +2113,13 @@
       "contact_prefilled": "Pre-filled from your profile",
       "save_as_profile_number": "Save as my profile number"
     },
+    "preview": {
+      "pending_badge": "Pending review"
+    },
     "errors": {
       "contact_number_required": "Phone number is required",
-      "contact_number_invalid": "This is not a valid phone number for the selected country"
+      "contact_number_invalid": "This is not a valid phone number for the selected country",
+      "reference_proposal_generic": "We couldn't submit one of your suggested values. Please review your listing and try again."
     }
   },
   "profile": {
@@ -2126,6 +2130,33 @@
     "errors": {
       "phone_invalid": "This is not a valid phone number for the selected country"
     }
+  },
+  "referenceProposal": {
+    "propose_cta": "Can't find the {attribute}? Suggest it",
+    "propose_cta_generic": "Can't find it? Suggest it",
+    "pending_pill": "Pending",
+    "clear_a11y": "Remove suggested value",
+    "sheet_title": "Suggest a new value for \"{attribute}\"",
+    "sheet_subtitle": "An admin reviews it before it joins the list. You can publish your listing meanwhile.",
+    "name_label": "Name",
+    "name_placeholder": "Type the exact {attribute} name",
+    "did_you_mean_title": "Did you mean one of these?",
+    "did_you_mean_hint": "Or did you mean:",
+    "under_parent": "under {parent}",
+    "confirm_cta": "None of these — suggest \"{name}\"",
+    "confirm_cta_empty": "Suggest this name",
+    "error_too_short": "Must be at least {min} characters",
+    "error_too_long": "Must be at most {max} characters",
+    "error_contact_info": "Please don't include a phone number, link, or email",
+    "error_disabled": "Suggesting new options is currently unavailable",
+    "blocked_from_approval": "Your listing can't be approved until we review the value you suggested."
+  },
+  "attributeForm": {
+    "search_in_attribute": "Search {attribute}…",
+    "parent_pending_description": "The value you suggested for \"{parent}\" is still under review, so nothing is listed under it yet.",
+    "parent_unset_description": "Choose \"{parent}\" first to see the options available here.",
+    "options_empty_title": "No options available",
+    "options_empty_description": "There are no options to choose from here."
   }
 }
 

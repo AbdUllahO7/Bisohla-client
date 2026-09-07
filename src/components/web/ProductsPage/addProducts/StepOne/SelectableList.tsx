@@ -7,7 +7,7 @@ import Text from "@/components/ui/text"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Input } from "@/components/ui/input"
-import { Search, X, ChevronRight } from "lucide-react"
+import { Search, X, ChevronRight, Clock, PlusCircle } from "lucide-react"
 import Image from "next/image"
 
 // Option interface to use instead of directly using SelectCarMakeDto
@@ -19,12 +19,17 @@ interface Option {
 
 interface SelectableListProps {
   title: string
-  type: "marka" | "model" | "year" | "trim" | "governorate" | "city"
+  type: string
   options: Option[]
   selectedValue: string
   direction: string // Changed to string to accept any string value
-  onSelect: (type: "marka" | "model" | "year" | "trim" | "governorate" | "city", value: string) => void
+  onSelect: (type: any, value: string) => void
   required?: boolean
+  pendingProposalName?: string | null
+  onClearProposal?: () => void
+  onProposeClick?: (currentSearch: string) => void
+  proposeCtaLabel?: string
+  emptyDescription?: string
 }
 
 const SelectableList: React.FC<SelectableListProps> = ({
@@ -34,14 +39,19 @@ const SelectableList: React.FC<SelectableListProps> = ({
   selectedValue,
   direction,
   onSelect,
-  required = true, // Make required by default
+  required = true,
+  pendingProposalName,
+  onClearProposal,
+  onProposeClick,
+  proposeCtaLabel,
+  emptyDescription,
 }) => {
   // State for search input
   const [searchTerm, setSearchTerm] = useState("")
 
-
   // Ensure direction is always a valid value for components that expect "rtl" | "ltr"
   const safeDirection = direction === "rtl" || direction === "ltr" ? direction : "ltr"
+  const isRTL = safeDirection === "rtl"
 
   // Filter options based on search term
   const filteredOptions = useMemo(() => {
@@ -60,30 +70,63 @@ const SelectableList: React.FC<SelectableListProps> = ({
 
   // Check if this is a car make type (should show logos)
   const shouldShowLogo = type === "marka"
+  const hasActiveProposal = !!pendingProposalName && (!selectedValue || selectedValue === "");
 
   return (
     <Box className="min-w-[280px] px-6 py-6" variant="column">
       {/* Enhanced Header */}
-      <Box variant="row" className="flex items-center pb-4 mb-2">
+      <Box variant="row" className="flex items-center justify-between pb-4 mb-2">
         <div className="flex items-center">
           <Text className="text-[#1a2b28] dark:text-white font-bold text-2xl tracking-tight">{title}</Text>
           {required && <Text className="text-red-500 ml-2 text-xl">*</Text>}
         </div>
-        {required && !selectedValue && (
+        {hasActiveProposal ? (
+          <div className="flex items-center gap-1.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50 px-2.5 py-1 rounded-full">
+            <Clock className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+            <span className="text-xs font-bold text-amber-700 dark:text-amber-400">
+              {isRTL ? "قيد المراجعة" : "Pending"}
+            </span>
+          </div>
+        ) : required && !selectedValue ? (
           <div className="ml-auto">
             <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-50 dark:bg-red-950/20 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900/30">
               {safeDirection === "ltr" ? "Required" : "مطلوب"}
             </span>
           </div>
-        )}
+        ) : null}
       </Box>
+
+      {/* Active Proposal banner */}
+      {hasActiveProposal && (
+        <div className="mb-3 p-3 rounded-xl bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/40 flex items-center justify-between">
+          <div className="flex items-center gap-2 overflow-hidden">
+            <span className="text-xs text-amber-800 dark:text-amber-300 font-semibold truncate">
+              {pendingProposalName}
+            </span>
+          </div>
+          {onClearProposal && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={onClearProposal}
+              className="h-6 w-6 rounded-full text-amber-600 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
+              title={isRTL ? "إزالة القيمة المقترحة" : "Remove suggested value"}
+            >
+              <X size={14} />
+            </Button>
+          )}
+        </div>
+      )}
 
       {/* Enhanced Container */}
       <Box
         variant="column"
         className={`min-w-[280px] max-w-[280px] bg-white dark:bg-zinc-900 border-2 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 ${
-          !selectedValue && required 
+          !selectedValue && !hasActiveProposal && required 
             ? "border-red-300 dark:border-red-900 shadow-red-100 dark:shadow-none" 
+            : hasActiveProposal
+            ? "border-amber-300 dark:border-amber-700/60"
             : "border-[#198341]/20 dark:border-zinc-800 hover:border-[#198341]/40 dark:hover:border-zinc-700"
         } overflow-hidden`}
       >
@@ -116,6 +159,7 @@ const SelectableList: React.FC<SelectableListProps> = ({
                 className={`absolute ${safeDirection === "rtl" ? "left-4" : "right-4"} top-1/2 transform -translate-y-1/2`}
               >
                 <Button
+                  type="button"
                   variant="ghost"
                   size="icon"
                   onClick={handleClearSearch}
@@ -135,9 +179,10 @@ const SelectableList: React.FC<SelectableListProps> = ({
         >
           <Box variant="column" className="w-full p-2">
             {filteredOptions && filteredOptions.length > 0 ? (
-              filteredOptions.map((option, index) => (
+              filteredOptions.map((option) => (
                 <Button
                   key={option.value}
+                  type="button"
                   onClick={() => onSelect(type, option.value)}
                   className={`w-full py-4 px-4 mb-1 text-[#2C3C39] dark:text-zinc-200 bg-white dark:bg-zinc-900 font-medium text-left
                     hover:bg-gradient-to-r hover:from-[#ABDE3B]/10 hover:to-[#198341]/5 dark:hover:from-[#ABDE3B]/20 dark:hover:to-[#198341]/10
@@ -153,7 +198,7 @@ const SelectableList: React.FC<SelectableListProps> = ({
                   <div className={`flex items-center ${shouldShowLogo ? "flex-1" : "w-full"} ${safeDirection === "ltr" ? "text-left" : "text-right"}`}>
                     {/* Logo for car makes */}
                     {shouldShowLogo && option.logoUrl && (
-                      <div className="flex-shrink-0 mr-3">
+                      <div className="flex-shrink-0 mr-3 rtl:mr-0 rtl:ml-3">
                         <div className={`w-8 h-8 rounded-lg p-1 shadow-sm transition-all duration-300 ${
                           String(selectedValue) === String(option.value) ? "bg-white/20" : "bg-gray-100 dark:bg-zinc-800 group-hover:bg-white dark:group-hover:bg-zinc-750 group-hover:shadow-md"
                         }`}>
@@ -180,33 +225,57 @@ const SelectableList: React.FC<SelectableListProps> = ({
                   {/* Arrow indicator */}
                   <ChevronRight 
                     size={16} 
-                    className={`ml-2 transition-all duration-300 ${
+                    className={`ml-2 rtl:ml-0 rtl:mr-2 transition-all duration-300 ${
                       selectedValue === option.value 
                         ? "text-white" 
-                        : "text-gray-400 group-hover:text-[#198341] group-hover:translate-x-1"
+                        : "text-gray-400 group-hover:text-[#198341] group-hover:translate-x-1 rtl:group-hover:-translate-x-1"
                     }`} 
                   />
                 </Button>
               ))
             ) : (
-              <div className="flex flex-col items-center justify-center py-12 px-4">
-                <div className="w-16 h-16 bg-gray-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mb-4">
-                  <Search size={24} className="text-gray-400 dark:text-zinc-500" />
+              <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
+                <div className="w-12 h-12 bg-gray-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mb-3">
+                  <Search size={20} className="text-gray-400 dark:text-zinc-500" />
                 </div>
-                <Text className="text-gray-500 dark:text-zinc-400 text-center font-medium mb-2">
+                <Text className="text-gray-600 dark:text-zinc-300 text-xs font-semibold mb-1">
                   {searchTerm
-                    ? safeDirection === "ltr"
-                      ? "No matching options found"
-                      : "لا توجد خيارات مطابقة"
-                    : safeDirection === "ltr"
-                      ? "No options available"
-                      : "لا توجد خيارات متاحة"}
+                    ? isRTL ? "لا توجد خيارات مطابقة" : "No matching options found"
+                    : isRTL ? "لا توجد خيارات متاحة" : "No options available"}
                 </Text>
-                {required && !searchTerm && (
-                  <Text className="text-gray-400 dark:text-zinc-500 text-center text-sm">
-                    {safeDirection === "ltr" ? "Selection is required" : "الاختيار مطلوب"}
+                {emptyDescription && (
+                  <Text className="text-gray-400 dark:text-zinc-500 text-[11px] max-w-[200px] leading-relaxed mb-3">
+                    {emptyDescription}
                   </Text>
                 )}
+                {onProposeClick && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onProposeClick(searchTerm)}
+                    className="mt-2 rounded-xl text-xs font-bold border-primary/40 text-primary hover:bg-primary/10 gap-1.5 h-8 shadow-none"
+                  >
+                    <PlusCircle className="w-3.5 h-3.5" />
+                    <span>{proposeCtaLabel || (isRTL ? "اقترح قيمة جديدة" : "Suggest new value")}</span>
+                  </Button>
+                )}
+              </div>
+            )}
+
+            {/* List footer propose CTA when options exist */}
+            {filteredOptions && filteredOptions.length > 0 && onProposeClick && (
+              <div className="pt-2 mt-1 border-t border-slate-100 dark:border-zinc-800">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onProposeClick(searchTerm)}
+                  className="w-full justify-center text-xs font-semibold text-primary hover:bg-primary/10 rounded-xl h-8 gap-1.5"
+                >
+                  <PlusCircle className="w-3.5 h-3.5" />
+                  <span>{proposeCtaLabel || (isRTL ? "لم تجد طلبك؟ اقترحه" : "Can't find it? Suggest it")}</span>
+                </Button>
               </div>
             )}
           </Box>

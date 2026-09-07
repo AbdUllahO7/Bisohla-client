@@ -14,6 +14,7 @@ export interface AttributeValue {
   valueJson?: any;
   valueTextTranslations?: { en?: string; ar?: string };
   referenceItemId?: number | null;
+  proposedReferenceName?: string;
 }
 
 export interface CreateListingDto {
@@ -59,4 +60,6 @@ export interface AttributeMeta {
 export interface StepTwoStorage {
   [slug: string]: any;
   __attributeMap__?: Record<string, AttributeMeta>;
+  __proposals__?: Record<number, { name: string; status: 'pending' }>;
 }
+

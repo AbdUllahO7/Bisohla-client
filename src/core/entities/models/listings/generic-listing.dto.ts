@@ -29,6 +29,8 @@ export interface GenericAttributeMeta {
   isTranslatable: boolean;
 }
 
+import { RefItemProposal } from './reference-proposal.dto';
+
 export interface GenericAttributeValue {
   id: number;
   attributeId: number;
@@ -41,6 +43,7 @@ export interface GenericAttributeValue {
   valueTextTranslations: Record<string, string> | null;
   referenceItemId: number | null;
   referenceItem: GenericAttributeReferenceItem | null;
+  refItemProposal?: RefItemProposal | null;
 }
 
 export interface GenericListingUser {

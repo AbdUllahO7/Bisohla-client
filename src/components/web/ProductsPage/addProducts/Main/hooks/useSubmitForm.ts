@@ -1,4 +1,3 @@
-// hooks/useSubmitForm.ts
 import { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createListing, updateListing } from '@/core/infrastructure-adapters/actions/users/listing.user.actions';
@@ -9,7 +8,7 @@ import {
   clearFormData
 } from './useLocalStorage';
 import { useToast } from '@/hooks/use-toast';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 // Format error message for display
 const formatErrorMessage = (error: any): string => {
@@ -71,6 +70,7 @@ export const useSubmitForm = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [isEditMode, setIsEditMode] = useState(false);
   const locale = useLocale();
+  const tListing = useTranslations('listing');
 
   // Determine if we're in edit mode on mount
   useEffect(() => {
@@ -144,6 +144,7 @@ export const useSubmitForm = () => {
       // 5. attributeValues — from stepTwo dynamic fields via __attributeMap__
       // ─────────────────────────────────────────────────────────────────────
       const attributeMap: Record<string, AttributeMeta> = storedData2?.__attributeMap__ || {};
+      const proposals: Record<number, { name: string; status: 'pending' }> = storedData2?.__proposals__ || {};
       const attributeValues: AttributeValue[] = [];
 
       // Virtual/injected location slugs that we handle as top-level fields
@@ -153,12 +154,26 @@ export const useSubmitForm = () => {
         if (LOCATION_SLUGS.has(slug)) continue; // Already handled as top-level
         if (!meta?.id || meta.id <= 0) continue; // Skip invalid/virtual attrs
 
-        const rawValue = storedData2?.[slug];
-        const attrValue = buildAttributeValue(meta.id, meta.type, rawValue);
-        if (attrValue) {
-          attributeValues.push(attrValue);
+        const pendingProposal = proposals[meta.id] || (proposals as any)?.[String(meta.id)];
+        if (pendingProposal && typeof pendingProposal.name === 'string' && pendingProposal.name.trim() !== '') {
+          // Mutually exclusive: when proposing, send ONLY proposedReferenceName without referenceItemId or valueText
+          attributeValues.push({
+            attributeId: meta.id,
+            proposedReferenceName: pendingProposal.name.trim(),
+          });
+        } else {
+          const rawValue = storedData2?.[slug];
+          const attrValue = buildAttributeValue(meta.id, meta.type, rawValue);
+          if (attrValue) {
+            attributeValues.push(attrValue);
+          }
         }
       }
+
+      console.log("[useSubmitForm] proposals in STEP_TWO:", proposals);
+      console.log("[useSubmitForm] generated attributeValues:", attributeValues);
+
+      const bodyHasReferenceProposal = attributeValues.some(av => !!av.proposedReferenceName);
 
       // ─────────────────────────────────────────────────────────────────────
       // 6. images — from stepThree
@@ -167,8 +182,6 @@ export const useSubmitForm = () => {
       if (storedData3?.coverImage && Array.isArray(storedData3.coverImage)) {
         images.push(...storedData3.coverImage);
       }
-
-
 
       let response;
 
@@ -205,7 +218,7 @@ export const useSubmitForm = () => {
           attributeValues,
           images,
         };
-              console.log("createDto",createDto)
+        console.log("createDto", createDto);
         response = await createListing(createDto);
       }
 
@@ -223,30 +236,38 @@ export const useSubmitForm = () => {
         setTimeout(() => router.refresh(), 100);
         return response;
       } else {
-        setErrorMessage(formatErrorMessage(response));
+        let finalError = formatErrorMessage(response);
+        if (response?.status === 422 && bodyHasReferenceProposal) {
+          finalError = tListing('errors.reference_proposal_generic');
+        }
+        setErrorMessage(finalError);
         setShowErrorDialog(true);
         toast({
           variant: 'destructive',
           title: locale === 'en' ? 'Error' : 'خطأ',
-          description: formatErrorMessage(response),
+          description: finalError,
         });
         console.error('[useSubmitForm] Error response:', response);
         return null;
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('[useSubmitForm] Exception:', error);
-      setErrorMessage(formatErrorMessage(error));
+      let finalError = formatErrorMessage(error);
+      if (error?.status === 422) {
+        finalError = tListing('errors.reference_proposal_generic');
+      }
+      setErrorMessage(finalError);
       setShowErrorDialog(true);
       toast({
         variant: 'destructive',
         title: locale === 'en' ? 'Error' : 'خطأ',
-        description: formatErrorMessage(error),
+        description: finalError,
       });
       return null;
     } finally {
       setIsSubmitting(false);
     }
-  }, [router, toast, locale]);
+  }, [router, toast, locale, tListing]);
 
   return {
     isSubmitting,
