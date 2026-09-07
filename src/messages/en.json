@@ -2081,5 +2081,25 @@
     "errors": {
       "legal_required": "You must accept the legal documents to continue."
     }
+  },
+  "cookieConsent": {
+    "bannerTitle": "We value your privacy.",
+    "bannerDescription": "We use cookies to enhance your browsing experience, analyze site traffic, and deliver personalized content.",
+    "readPolicy": "Read Cookie Policy",
+    "customize": "Cookie Settings",
+    "rejectNonEssential": "Reject Non-Essential",
+    "acceptAll": "Accept All",
+    "savePreferences": "Save Preferences",
+    "preferencesTitle": "Cookie Preferences",
+    "preferencesDescription": "Customize your cookie preferences below. Strictly necessary cookies cannot be disabled as they are required for the website to function properly.",
+    "necessaryTitle": "Strictly Necessary Cookies",
+    "necessaryDescription": "Essential for website navigation, security, and session management.",
+    "alwaysActive": "Always Active",
+    "functionalTitle": "Preferences & Functional",
+    "functionalDescription": "Enables remembering language, region, and interface preferences.",
+    "analyticsTitle": "Analytics & Performance",
+    "analyticsDescription": "Helps us understand how visitors interact with the website to improve user experience.",
+    "marketingTitle": "Marketing & Advertising",
+    "marketingDescription": "Used to deliver relevant advertisements and track campaign effectiveness."
   }
 }
