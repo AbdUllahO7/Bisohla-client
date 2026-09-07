@@ -236,7 +236,12 @@
     "topSellers": {
       "title": "Top Sellers",
       "listings": "listings",
-      "viewProfile": "View Profile"
+      "viewProfile": "View Profile",
+      "see_all": "See all",
+      "listings_count": "{count} listings",
+      "empty_title": "No sellers yet",
+      "error_title": "Could not load sellers",
+      "error_cta": "Try again"
     },
     "recentlyViewed": {
       "title": "Recently Viewed",
@@ -1759,12 +1764,34 @@
     "yesterday": "Yesterday"
   },
   "publicProfile": {
+    "title": "Seller profile",
     "verified": "Verified",
     "memberSince": "Member since",
+    "member_since": "Member since {date}",
+    "listings_count_one": "{count} listing",
+    "listings_count_other": "{count} listings",
+    "for_sale": "For sale",
+    "for_rent": "For rent",
+    "total": "Total",
+    "listings_overview": "Listings overview",
+    "view_listings": "View listings",
+    "listings_section_title": "Listings",
+    "type_chip_all": "All",
+    "filter_button": "Filter listings",
+    "listings_empty": "No listings yet",
+    "listings_empty_description": "This seller has no public listings.",
+    "listings_error": "Failed to load listings",
+    "listings_error_description": "Try again.",
+    "error_title": "Profile not found",
+    "error_description": "This seller's profile could not be loaded.",
+    "empty_title": "No profile found",
+    "empty_description": "This seller has no public profile.",
     "email": "Email",
     "phone": "Phone",
     "noData": "No profile data available",
     "share": "Share this profile",
+    "share_a11y": "Share this seller's profile",
+    "share_message": "Check out {name}'s listings on Bishola: {url}",
     "stats": {
       "totalListings": "Total Listings",
       "forSale": "For Sale",
@@ -2229,6 +2256,41 @@
       "monthly_amount_required": "Enter a monthly amount",
       "monthly_amount_positive": "The monthly amount must be greater than zero",
       "plans_required": "Add at least one installment plan"
+    }
+  },
+  "sellers": {
+    "list": {
+      "title": "Sellers",
+      "search_placeholder": "Search sellers by name",
+      "empty_title": "No sellers yet",
+      "empty_subtitle": "Sellers appear here once they publish their listings.",
+      "empty_search_title": "No sellers match your search",
+      "empty_search_subtitle": "Try a different name.",
+      "error_title": "Could not load sellers",
+      "error_cta": "Try again"
+    }
+  },
+  "home": {
+    "sections": {
+      "top_sellers": "Top Sellers",
+      "see_all": "See all"
+    },
+    "top_sellers": {
+      "listings_count": "{count} listings",
+      "empty_title": "No sellers yet",
+      "error_title": "Could not load sellers",
+      "error_cta": "Try again"
+    }
+  },
+  "listing": {
+    "filters": {
+      "seller_label": "Seller",
+      "seller_placeholder": "Any seller",
+      "seller_clear_a11y": "Clear the selected seller"
+    },
+    "detail": {
+      "view_seller": "View profile",
+      "contact_seller": "Contact seller"
     }
   }
 }

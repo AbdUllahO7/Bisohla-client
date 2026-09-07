@@ -5,9 +5,11 @@
  * (approved + published + not expired + not deleted; sold NOT counted).
  * Users with <= top_sellers_min_listings listings are excluded from the response.
  */
-export interface TopSellerSummaryDto {
+export interface SellerSummary {
   id: number;
   name: string;
   profileUrl: string | null;
   listingsCount: number;
 }
+
+export type TopSellerSummaryDto = SellerSummary;

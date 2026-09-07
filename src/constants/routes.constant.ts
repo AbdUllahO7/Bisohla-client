@@ -11,6 +11,10 @@ export const allRoutes = {
     path: '/',
     pageName: 'Home',
   },
+  sellers: {
+    path: '/sellers',
+    pageName: 'Sellers',
+  },
   auth: {
     children: {
       signIn: {

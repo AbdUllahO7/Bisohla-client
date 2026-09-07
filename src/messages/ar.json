@@ -236,7 +236,12 @@
     "topSellers": {
       "title": "أفضل البائعين",
       "listings": "إعلان",
-      "viewProfile": "عرض الملف الشخصي"
+      "viewProfile": "عرض الملف الشخصي",
+      "see_all": "عرض الكل",
+      "listings_count": "{count} إعلان",
+      "empty_title": "لا يوجد بائعون بعد",
+      "error_title": "تعذّر تحميل البائعين",
+      "error_cta": "حاول مجدداً"
     },
     "recentlyViewed": {
       "title": "شوهد مؤخراً",
@@ -1721,12 +1726,34 @@
     "yesterday": "أمس"
   },
   "publicProfile": {
+    "title": "ملف البائع",
     "verified": "موثق",
     "memberSince": "عضو منذ",
+    "member_since": "عضو منذ {date}",
+    "listings_count_one": "{count} إعلان",
+    "listings_count_other": "{count} إعلان",
+    "for_sale": "للبيع",
+    "for_rent": "للإيجار",
+    "total": "الإجمالي",
+    "listings_overview": "نظرة عامة على الإعلانات",
+    "view_listings": "عرض الإعلانات",
+    "listings_section_title": "الإعلانات",
+    "type_chip_all": "الكل",
+    "filter_button": "تصفية الإعلانات",
+    "listings_empty": "لا توجد إعلانات بعد",
+    "listings_empty_description": "هذا البائع ليس لديه إعلانات عامة.",
+    "listings_error": "فشل تحميل الإعلانات",
+    "listings_error_description": "حاول مجدداً.",
+    "error_title": "الملف الشخصي غير موجود",
+    "error_description": "تعذر تحميل ملف هذا البائع.",
+    "empty_title": "لا يوجد ملف شخصي",
+    "empty_description": "هذا البائع ليس لديه ملف شخصي عام.",
     "email": "البريد الإلكتروني",
     "phone": "رقم الهاتف",
     "noData": "لا توجد بيانات ملف شخصي متاحة",
     "share": "مشاركة هذا الملف الشخصي",
+    "share_a11y": "مشاركة ملف هذا البائع",
+    "share_message": "اطّلع على إعلانات {name} على بسهولة: {url}",
     "stats": {
       "totalListings": "إجمالي الإعلانات",
       "forSale": "إعلانات للبيع",
@@ -2195,6 +2222,41 @@
       "monthly_amount_required": "أدخل القسط الشهري",
       "monthly_amount_positive": "يجب أن يكون القسط الشهري أكبر من صفر",
       "plans_required": "أضف خطة تقسيط واحدة على الأقل"
+    }
+  },
+  "sellers": {
+    "list": {
+      "title": "البائعون",
+      "search_placeholder": "ابحث عن بائع بالاسم",
+      "empty_title": "لا يوجد بائعون بعد",
+      "empty_subtitle": "يظهر البائعون هنا بعد نشر إعلاناتهم.",
+      "empty_search_title": "لا يوجد بائع يطابق بحثك",
+      "empty_search_subtitle": "جرّب اسماً آخر.",
+      "error_title": "تعذّر تحميل البائعين",
+      "error_cta": "إعادة المحاولة"
+    }
+  },
+  "home": {
+    "sections": {
+      "top_sellers": "أفضل البائعين",
+      "see_all": "عرض الكل"
+    },
+    "top_sellers": {
+      "listings_count": "{count} إعلان",
+      "empty_title": "لا يوجد بائعون بعد",
+      "error_title": "تعذّر تحميل البائعين",
+      "error_cta": "حاول مجدداً"
+    }
+  },
+  "listing": {
+    "filters": {
+      "seller_label": "البائع",
+      "seller_placeholder": "أي بائع",
+      "seller_clear_a11y": "إلغاء اختيار البائع"
+    },
+    "detail": {
+      "view_seller": "عرض الملف الشخصي",
+      "contact_seller": "تواصل مع البائع"
     }
   }
 }

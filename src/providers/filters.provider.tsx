@@ -38,6 +38,7 @@ export interface FilterState {
   selectedBrands: string[]; // This is the main source of truth for brands
   attributes: Record<string, any>; // Dynamic attributes from schema
   installmentsAvailable?: boolean;
+  userId?: number | null;
 }
 
 // Search state interface
@@ -67,6 +68,7 @@ const initialFilterState: FilterState = {
   selectedBrands: [],
   attributes: {},
   installmentsAvailable: false,
+  userId: null,
 };
 
 const initialSearchState: SearchState = {
@@ -86,7 +88,7 @@ interface FilterContextValue {
   dynamicOptions: Record<string, any[]>;
 
   // Filter actions
-  updateFilter: (key: keyof FilterState, value: string | string[] | number) => void;
+  updateFilter: (key: keyof FilterState, value: string | string[] | number | boolean | null) => void;
   updateFilters: (updates: Partial<FilterState>) => void;
   resetFilters: () => void;
   toggleBrand: (brandId: string) => void;
@@ -381,12 +383,23 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
         });
       }
 
+      // Seller filter (listings column filter: where=[{"field":"userId","operator":"eq","value":id}])
+      const where: Filter[] = [];
+      if (currentFilters.userId) {
+        where.push({
+          field: 'userId',
+          operator: 'eq',
+          value: currentFilters.userId,
+        });
+      }
+
       const query: QueryParams = {
         page: 1,
         pageSize: 12,
         sortBy: 'createdAt',
         sortDirection: 'desc',
         filterGroups: filterGroups.length > 0 ? filterGroups : undefined,
+        where: where.length > 0 ? where : undefined,
         searchTerm,
       };
 
@@ -451,7 +464,10 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
 
   // Filter actions with optimizations
   const updateFilter = useCallback(
-    (key: keyof FilterState, value: string | string[] | number) => {
+    (
+      key: keyof FilterState,
+      value: string | string[] | number | boolean | null,
+    ) => {
       userInitiatedChange.current = true;
 
       setFilters((prev) => {
@@ -662,6 +678,7 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
       listingType: getDecodedParam('listingOfferType') || getDecodedParam('listingType'),
       listingTypeId: getDecodedParam('listingTypeId'),
       installmentsAvailable: searchParams.get('installmentsAvailable') === 'true',
+      userId: searchParams.get('userId') ? parseInt(searchParams.get('userId')!, 10) : null,
     };
 
     // Build new state based on URL params
@@ -702,6 +719,7 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
     newFilters.fuelType = urlParams.fuelType || '';
     newFilters.bodyType = urlParams.bodyType || '';
     newFilters.listingType = urlParams.listingType || '';
+    newFilters.userId = urlParams.userId || null;
     if (urlParams.listingTypeId) {
       newFilters.listingTypeId = parseInt(urlParams.listingTypeId, 10);
     } else if (initialListingTypeId !== undefined) {
@@ -727,7 +745,8 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
       'search', 'make', 'makes', 'model', 'trim', 'minYear', 'maxYear', 
       'minPrice', 'maxPrice', 'minMileage', 'maxMileage', 'currency', 
       'governorate', 'city', 'transmission', 'fuelType', 'bodyType', 
-      'listingOfferType', 'listingType', 'listingTypeId', 'page', 'pageSize', 'sortBy', 'sortDirection'
+      'listingOfferType', 'listingType', 'listingTypeId', 'installmentsAvailable', 'userId',
+      'page', 'pageSize', 'sortBy', 'sortDirection'
     ];
     
     const attributes: Record<string, any> = {};
@@ -801,6 +820,7 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
           listingOfferType: debouncedFiltersForUrl.listingType,
           listingTypeId: String(debouncedFiltersForUrl.listingTypeId),
           installmentsAvailable: debouncedFiltersForUrl.installmentsAvailable ? 'true' : '',
+          userId: debouncedFiltersForUrl.userId ? String(debouncedFiltersForUrl.userId) : '',
         };
 
         Object.entries(paramMap).forEach(([key, value]) => {

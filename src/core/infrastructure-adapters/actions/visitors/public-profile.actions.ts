@@ -4,6 +4,7 @@ import { QueryParams } from '@/core/entities/api/api';
 import {
   ApiResponse,
   PaginatedResponse,
+  PaginationInfo,
 } from '@/core/entities/api/success.response';
 import { SelectCarListingDto } from '@/core/entities/models/cars/cars.dto';
 import { PublicProfileData } from '@/core/entities/models/public-profile/public-profile.dto';
@@ -54,3 +55,35 @@ export const getTopSellers = async (
 
   return result;
 };
+
+/**
+ * Fetches the paginated sellers directory from GET /public/profile/v2/sellers.
+ * Results are cached server-side; supports case-insensitive name search.
+ *
+ * @param page - current page (default 1)
+ * @param pageSize - page size (default 20, max 50)
+ * @param searchTerm - optional substring match on seller name
+ */
+export const getSellers = async (
+  page: number = 1,
+  pageSize: number = 20,
+  searchTerm?: string,
+): Promise<ApiResponse<PaginationInfo<TopSellerSummaryDto>>> => {
+  const params: Record<string, any> = {
+    page: Math.max(1, page),
+    pageSize: Math.min(50, Math.max(1, pageSize)),
+  };
+  if (searchTerm && searchTerm.trim()) {
+    params.searchTerm = searchTerm.trim();
+  }
+
+  const result = await getReq({
+    url: '/public/profile/v2/sellers',
+    params,
+  });
+
+  return result;
+};
+
+export const getSellerById = getUserProfileInfo;
+
