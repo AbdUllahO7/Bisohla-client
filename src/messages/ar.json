@@ -2063,5 +2063,31 @@
     "analyticsDescription": "تساعدنا على فهم كيفية تفاعل الزوار مع الموقع لتحسين تجربة المستخدم.",
     "marketingTitle": "التسويق والإعلانات",
     "marketingDescription": "تُستخدم لعرض إعلانات ملائمة وقياس مدى فعالية الحملات الإعلانية."
+  },
+  "phone": {
+    "label": "رقم الهاتف",
+    "placeholder": "944 123 456",
+    "country_search": "ابحث عن دولة"
+  },
+  "listing": {
+    "wizard": {
+      "contact_number": "رقم التواصل",
+      "contact_prefilled": "تم الملء من ملفك الشخصي",
+      "save_as_profile_number": "حفظ كرقم ملفي الشخصي"
+    },
+    "errors": {
+      "contact_number_required": "رقم الهاتف مطلوب",
+      "contact_number_invalid": "هذا ليس رقم هاتف صالحاً للدولة المختارة"
+    }
+  },
+  "profile": {
+    "edit": {
+      "phone_label": "رقم الهاتف",
+      "phone_placeholder": "أدخل رقم الهاتف"
+    },
+    "errors": {
+      "phone_invalid": "هذا ليس رقم هاتف صالحاً للدولة المختارة"
+    }
   }
 }
+

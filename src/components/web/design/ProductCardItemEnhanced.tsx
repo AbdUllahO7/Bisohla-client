@@ -797,7 +797,7 @@ export const EnhancedProductCardItem: React.FC<ExtendedCarCardItemPropsProfile> 
               {isMine && contactNumber && (
                 <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-zinc-400 mb-1.5">
                   <Phone size={12} className="flex-shrink-0" />
-                  <span>{contactNumber}</span>
+                  <span dir="ltr" className="font-mono">{contactNumber}</span>
                 </div>
               )}
 

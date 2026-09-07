@@ -46,9 +46,9 @@ import {
 } from "./storageUtils"
 import Text from "@/components/ui/text"
 import { Currency, getCurrencyOptions } from "@/core/entities/enums/currency.enum"
-import { CountryCode, getCountryCodeOptions } from "@/core/entities/enums/country-codes.enum"
-import { SearchableCountrySelect } from "@/components/forms/searchable-country-select"
 import { useProfile } from "@/providers/profile.provider"
+import PhoneField from "@/components/forms/phone-field"
+import { assemblePhone, splitPhone, repairPhone } from "@/core/lib/phone/phone.util"
 
 // Simplified EnumSelect component without internal state tracking
 interface EnumSelectProps {
@@ -149,12 +149,12 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
   const [rentTypeValue, setRentTypeValue] = useState<RentType | null>(null);
   const [saveStatusValue, setSaveStatusValue] = useState<SaveStatus | "">("");
   const [currencyValue, setCurrencyValue] = useState<Currency | "">("");
-  const [countryCodeValue, setCountryCodeValue] = useState<CountryCode>(CountryCode.SY);
-  const countryCodeRef = useRef<CountryCode>(CountryCode.SY);
+  const [countryDialCodeValue, setCountryDialCodeValue] = useState<string>("+963");
+  const countryDialCodeRef = useRef<string>("+963");
 
   useEffect(() => {
-    countryCodeRef.current = countryCodeValue;
-  }, [countryCodeValue]);
+    countryDialCodeRef.current = countryDialCodeValue;
+  }, [countryDialCodeValue]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -286,7 +286,6 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
 
   const t = useTranslations("addProduct.enteredData");
   const { profile } = useProfile();
-  const countryCodeOptions = getCountryCodeOptions();
 
   const listingTypeOptions = getListingTypeOptions(t);
   const rentTypeOptions = getRentTypeOptions(t);
@@ -299,11 +298,6 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
     defaultValues: defaultAdInfoData,
     mode: "onChange",
   });
-
-  const handleCountryCodeChange = (value: string) => {
-    const countryCode = value as CountryCode;
-    setCountryCodeValue(countryCode);
-  };
   // Helper function to map API enums to form enums
   const mapApiEnumToFormEnum = (apiValue: string, enumType: any): any => {
     if (!apiValue) return Object.values(enumType)[0];
@@ -372,12 +366,12 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
   const applyEditData = (editData: AdInformationFormData) => {
     if (editModeDataApplied.current) return;
     let phoneOnly = editData.contactNumber || "";
-    let extractedCountryCode = countryCodeValue;
+    let extractedCountryCode = editData.countryDialCode || countryDialCodeValue;
 
     if (editData.contactNumber) {
-      const { countryCode, phoneNumber } = parsePhoneNumber(editData.contactNumber);
-      extractedCountryCode = countryCode as CountryCode;
-      phoneOnly = phoneNumber;
+      const { dialCode, localNumber } = splitPhone(editData.contactNumber);
+      extractedCountryCode = dialCode;
+      phoneOnly = localNumber;
     }
 
     const mappedListingType = typeof editData.listingType === 'string'
@@ -402,10 +396,11 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
     if (mappedRentType) {
       setRentTypeValue(mappedRentType);
     }
-    setCountryCodeValue(extractedCountryCode);
+    setCountryDialCodeValue(extractedCountryCode);
 
     const processedData = {
       ...editData,
+      countryDialCode: extractedCountryCode,
       contactNumber: phoneOnly,
       listingType: mappedListingType,
       saveStatus: mappedSaveStatus,
@@ -450,6 +445,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
           title: listing.title || '',
           description: listing.description || '',
           price: listing.price?.toString() || '',
+          countryDialCode: '+963',
           contactNumber: listing.contactNumber || '',
           listingType: listing.listingOfferType || listing.listingType || ListingType.FOR_SALE,
           rentType: listing.rentType || null,
@@ -468,12 +464,12 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
     // 3. Apply savedData if available
     if (isActuallySaved && !editModeDataApplied.current) {
       let phoneOnly = savedData.contactNumber || "";
-      let extractedCountryCode = savedData.countryCode || CountryCode.SY;
+      let extractedCountryCode = savedData.countryDialCode || "+963";
 
       if (savedData.contactNumber) {
-        const { countryCode, phoneNumber } = parsePhoneNumber(savedData.contactNumber);
-        extractedCountryCode = countryCode as CountryCode;
-        phoneOnly = phoneNumber;
+        const { dialCode, localNumber } = splitPhone(savedData.contactNumber);
+        extractedCountryCode = dialCode;
+        phoneOnly = localNumber;
       }
       
       setListingTypeValue(savedData.listingType || ListingType.FOR_SALE);
@@ -483,10 +479,11 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
       setSaveStatusValue(savedData.saveStatus || SaveStatus.PUBLISHED);
       setRentTypeValue(savedData.rentType || null);
       setCurrencyValue(savedData.currency || Currency.USD);
-      setCountryCodeValue(extractedCountryCode);
+      setCountryDialCodeValue(extractedCountryCode);
 
       form.reset({
         ...savedData,
+        countryDialCode: extractedCountryCode,
         contactNumber: phoneOnly
       });
       previousFormData.current = savedData;
@@ -505,14 +502,13 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
   // Auto-fill phone number from profile if empty
   useEffect(() => {
     if (!isEditMode && profile?.phoneNumber && !form.getValues("contactNumber")) {
-      const { countryCode, phoneNumber } = parsePhoneNumber(profile.phoneNumber);
+      const repaired = repairPhone(profile.phoneNumber, "+963");
+      const { dialCode, localNumber } = splitPhone(repaired.isValid ? repaired.e164 : profile.phoneNumber);
 
-      if (phoneNumber) {
-        form.setValue("contactNumber", phoneNumber, { shouldValidate: true });
-        setCountryCodeValue(countryCode as CountryCode);
-
-        // No need to manually call autoSaveAdInfoData here as the watch effect 
-        // will handle it when form values change
+      if (localNumber) {
+        form.setValue("contactNumber", localNumber, { shouldValidate: true });
+        form.setValue("countryDialCode", dialCode, { shouldValidate: true });
+        setCountryDialCodeValue(dialCode);
       }
     }
   }, [profile, isEditMode, form]);
@@ -555,18 +551,18 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
         if (!formValues) return;
         
         const phoneOnly = formValues.contactNumber || "";
-        const currentCountryCode = countryCodeRef.current;
+        const currentCountryCode = formValues.countryDialCode || countryDialCodeRef.current || "+963";
         const fullContactNumber = currentCountryCode && phoneOnly
-          ? combinePhoneNumber(currentCountryCode, phoneOnly)
+          ? assemblePhone(currentCountryCode, phoneOnly) || ""
           : phoneOnly;
           
         const currentData = {
           ...formValues,
+          countryDialCode: currentCountryCode,
           contactNumber: fullContactNumber,
           listingType: formValues.listingType || listingTypeValue || ListingType.FOR_SALE,
           saveStatus: formValues.saveStatus || saveStatusValue || SaveStatus.PUBLISHED,
           currency: formValues.currency || currencyValue || Currency.USD,
-          countryCode: currentCountryCode,
           rentType: formValues.listingType === ListingType.FOR_RENT 
             ? (formValues.rentType || rentTypeValue)
             : null
@@ -596,8 +592,10 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
   }, [form, onValidationChange, listingTypeValue, saveStatusValue, currencyValue, rentTypeValue]);
 
   const onSubmit = (data: AdInformationFormData) => {
+    const fullContactNumber = assemblePhone(data.countryDialCode || "+963", data.contactNumber) || "";
     const submittedData = {
       ...data,
+      contactNumber: fullContactNumber,
       listingType: data.listingType || listingTypeValue || ListingType.FOR_SALE,
       saveStatus: data.saveStatus || saveStatusValue || SaveStatus.PUBLISHED,
       currency: data.currency || currencyValue || Currency.USD,
@@ -620,16 +618,16 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
       currency: submittedData.currency
     };
 
-    const isValid = validateForm(adInfoState);
+    const isValid = validateForm(adInfoState, data.countryDialCode || "+963");
 
     if (isValid) {
       saveAdInfoData(submittedData);
     } else {
-      setFormErrors(adInfoState);
+      setFormErrors(adInfoState, data.countryDialCode || "+963");
     }
   };
 
-  const setFormErrors = (adInfoState: AdInfoState) => {
+  const setFormErrors = (adInfoState: AdInfoState, countryDialCode: string = "+963") => {
     const titleError = getTitleErrorMessage(adInfoState.title, direction);
     if (titleError) form.setError("title", { message: titleError });
 
@@ -639,7 +637,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
     const priceError = getPriceErrorMessage(adInfoState.price.toString(), direction);
     if (priceError) form.setError("price", { message: priceError });
 
-    const contactError = getContactErrorMessage(adInfoState.contactNumber, direction);
+    const contactError = getContactErrorMessage(adInfoState.contactNumber, direction, countryDialCode);
     if (contactError) form.setError("contactNumber", { message: contactError });
 
     const dateError = getPublicationDateErrorMessage(adInfoState.publicationDate, direction);
@@ -768,41 +766,35 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                  {/* Country Code + Contact Number */}
-                  <div className="sm:col-span-2 lg:col-span-1 space-y-1.5">
-                    <FormLabel className="text-slate-700 dark:text-white font-semibold flex items-center gap-1 text-sm">
-                      <Phone className="w-4 h-4 text-slate-400" />
-                      {t("stepFour.contactNumber")}
-                      <span className="text-rose-500">*</span>
-                    </FormLabel>
-                    <div className="flex gap-2">
-                      <div className="w-32">
-                        <SearchableCountrySelect
-                          value={countryCodeValue}
-                          onChange={handleCountryCodeChange}
-                          options={countryCodeOptions}
-                          placeholder="+963"
+                  {/* PhoneField for contact number */}
+                  <div className="sm:col-span-2 lg:col-span-1">
+                    <FormField
+                      control={form.control}
+                      name="contactNumber"
+                      render={({ field }) => (
+                        <PhoneField
+                          dialCode={form.watch("countryDialCode") || "+963"}
+                          onDialCodeChange={(code) => {
+                            form.setValue("countryDialCode", code, { shouldValidate: true });
+                            setCountryDialCodeValue(code);
+                          }}
+                          localNumber={field.value || ""}
+                          onLocalNumberChange={(val) => field.onChange(val)}
+                          onLocalNumberBlur={field.onBlur}
+                          label={t("stepFour.contactNumber")}
+                          required
+                          error={
+                            form.formState.errors.contactNumber ? (
+                              form.formState.errors.contactNumber.message === "listing.errors.contact_number_required"
+                                ? (direction === "rtl" ? "رقم الهاتف مطلوب" : "Phone number is required")
+                                : form.formState.errors.contactNumber.message === "listing.errors.contact_number_invalid"
+                                ? (direction === "rtl" ? "هذا ليس رقم هاتف صالحاً للدولة المختارة" : "This is not a valid phone number for the selected country")
+                                : form.formState.errors.contactNumber.message
+                            ) : undefined
+                          }
                         />
-                      </div>
-
-                      <FormField
-                        control={form.control}
-                        name="contactNumber"
-                        render={({ field }) => (
-                          <FormItem className="flex-1">
-                            <FormControl>
-                              <Input
-                                placeholder="5551234567"
-                                className="h-11 rounded-xl border-slate-200 dark:border-zinc-800 focus-visible:ring-primary focus-visible:border-primary bg-white dark:bg-zinc-950 dark:text-white shadow-sm transition-all"
-                                {...field}
-                                type="tel"
-                              />
-                            </FormControl>
-                            <FormMessage className="text-xs text-rose-500 font-medium" />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
+                      )}
+                    />
                   </div>
 
                   {/* Price field */}

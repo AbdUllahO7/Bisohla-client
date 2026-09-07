@@ -1025,7 +1025,7 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
                   {isMine && carListing.contactNumber && (
                     <div className="flex items-center gap-1">
                       <Phone size={14} />
-                      <span>{carListing.contactNumber}</span>
+                      <span dir="ltr" className="font-mono">{carListing.contactNumber}</span>
                     </div>
                   )}
                 </div>

@@ -2101,5 +2101,31 @@
     "analyticsDescription": "Helps us understand how visitors interact with the website to improve user experience.",
     "marketingTitle": "Marketing & Advertising",
     "marketingDescription": "Used to deliver relevant advertisements and track campaign effectiveness."
+  },
+  "phone": {
+    "label": "Phone number",
+    "placeholder": "944 123 456",
+    "country_search": "Search countries"
+  },
+  "listing": {
+    "wizard": {
+      "contact_number": "Contact number",
+      "contact_prefilled": "Pre-filled from your profile",
+      "save_as_profile_number": "Save as my profile number"
+    },
+    "errors": {
+      "contact_number_required": "Phone number is required",
+      "contact_number_invalid": "This is not a valid phone number for the selected country"
+    }
+  },
+  "profile": {
+    "edit": {
+      "phone_label": "Phone number",
+      "phone_placeholder": "Enter phone number"
+    },
+    "errors": {
+      "phone_invalid": "This is not a valid phone number for the selected country"
+    }
   }
 }
+
