@@ -196,14 +196,24 @@ export enum ListingType {
 }
 
 /**
- * Represents rent types
+ * Represents rent types (backend only supports daily, weekly, monthly)
  */
 export enum RentType {
   DAILY = 'daily',
   WEEKLY = 'weekly',
   MONTHLY = 'monthly',
-  YEARLY = 'yearly',
 }
+
+/**
+ * How a seller may pick installment durations on a listing of this type
+ */
+export const LISTING_INSTALLMENTS_MODE = {
+  FREE: 'free',
+  CATALOG: 'catalog',
+} as const;
+
+export type ListingInstallmentsMode =
+  (typeof LISTING_INSTALLMENTS_MODE)[keyof typeof LISTING_INSTALLMENTS_MODE];
 
 export type SelectOption = {
   value: string;
@@ -330,12 +340,6 @@ export function getRentTypeOptions(t: any): SelectOption[] {
       value: RentType.MONTHLY,
       label: t('stepFour.dateValue.RentType.monthly', {
         defaultValue: 'Monthly',
-      }),
-    },
-    {
-      value: RentType.YEARLY,
-      label: t('stepFour.dateValue.RentType.yearly', {
-        defaultValue: 'Yearly',
       }),
     },
   ];

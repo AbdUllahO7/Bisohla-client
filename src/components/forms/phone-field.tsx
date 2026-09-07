@@ -80,10 +80,10 @@ export const PhoneField: React.FC<PhoneFieldProps> = ({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawVal = e.target.value;
     const sanitized = sanitizePhoneInput(rawVal);
-    const isPaste =
-      sanitized.startsWith('+') || sanitized.length - localNumber.length > 1;
+    const isSpecial =
+      sanitized.startsWith('+') || sanitized.startsWith('00') || sanitized.length - localNumber.length > 1;
 
-    if (isPaste) {
+    if (isSpecial) {
       const result = repairPhone(sanitized, dialCode);
       if (result.isValid) {
         onLocalNumberChange(result.localNumber);

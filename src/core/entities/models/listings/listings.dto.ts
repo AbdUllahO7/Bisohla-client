@@ -43,6 +43,9 @@ export interface ListingDto {
   listingOfferType?: string;
   rentType?: string | null;
   contactNumber?: string | null;
+  installmentsAvailable?: boolean;
+  minMonthlyInstallment?: number | null;
+  installmentPlans?: any[];
   createdAt: string | Date;
   updatedAt: string | Date;
   publishedAt?: string | Date | null;

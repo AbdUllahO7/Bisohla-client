@@ -95,6 +95,7 @@ export function EditProfilePage() {
     setValue,
     watch,
     reset,
+    trigger,
     formState: { errors },
   } = useForm<EditProfileFormValues>({
     resolver: zodResolver(editProfileSchema),
@@ -325,9 +326,13 @@ export function EditProfilePage() {
             {/* Phone Number */}
             <PhoneField
               dialCode={watch('countryDialCode') || '+963'}
-              onDialCodeChange={(code) => setValue('countryDialCode', code, { shouldValidate: true })}
+              onDialCodeChange={(code) => {
+                setValue('countryDialCode', code, { shouldValidate: true });
+                trigger('phone');
+              }}
               localNumber={watch('phone') || ''}
               onLocalNumberChange={(val) => setValue('phone', val, { shouldValidate: true })}
+              onLocalNumberBlur={() => trigger('phone')}
               label={isArabic ? 'رقم الهاتف' : 'Phone Number'}
               placeholder="944 123 456"
               error={

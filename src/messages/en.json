@@ -2113,8 +2113,22 @@
       "contact_prefilled": "Pre-filled from your profile",
       "save_as_profile_number": "Save as my profile number"
     },
+    "card": {
+      "installments_from": "from {amount}/month"
+    },
+    "detail": {
+      "installments_summary_title": "Installments available",
+      "installments_summary_plans_one": "1 plan",
+      "installments_summary_plans_other": "{count} plans",
+      "installments_title": "Installment plans",
+      "installments_subtitle": "Offered by the seller. Agree the terms directly with them."
+    },
+    "filters": {
+      "installments_only_label": "Installments available"
+    },
     "preview": {
-      "pending_badge": "Pending review"
+      "pending_badge": "Pending review",
+      "section_installments": "Installments"
     },
     "errors": {
       "contact_number_required": "Phone number is required",
@@ -2157,6 +2171,65 @@
     "parent_unset_description": "Choose \"{parent}\" first to see the options available here.",
     "options_empty_title": "No options available",
     "options_empty_description": "There are no options to choose from here."
+  },
+  "installments": {
+    "months_one": "{count} month",
+    "months_other": "{count} months",
+    "duration_unit": "months",
+    "per_month": "per month",
+    "down_payment_value": "Down payment {value}",
+    "total_value": "Total {value}",
+    "price_label": "Price",
+    "down_payment_line": "− Down payment",
+    "to_finance": "= To finance",
+    "monthly_line": "× {months} months",
+    "total_line": "Total",
+    "over_cash_price": "{value} more than the cash price",
+    "title": "Installments",
+    "description": "Let buyers pay in monthly instalments instead of all at once.",
+    "sheet_title": "Installment plans",
+    "empty_hint": "Add at least one plan so buyers know the terms.",
+    "add_first": "Add your first plan",
+    "add_plan": "Add plan",
+    "edit_plan": "Edit plan",
+    "remove_plan": "Remove plan",
+    "manage": "Manage plans",
+    "more_plans": "+{more} more",
+    "done": "Done",
+    "turn_off": "Turn off installments",
+    "cancel_plan": "Cancel",
+    "save_plan": "Save plan",
+    "duration": "Duration",
+    "duration_other": "Another duration",
+    "duration_placeholder": "e.g. 24",
+    "duration_hint": "In months, up to {max}.",
+    "down_payment": "Down payment",
+    "down_payment_hint": "Must be less than the listing price.",
+    "down_payment_percent": "{percent}%",
+    "down_payment_of_price": "{percent}% of the price.",
+    "monthly_amount": "Monthly amount",
+    "monthly_calculated": "Calculated from the price: {value}. Edit it to add your markup.",
+    "monthly_reset": "Reset to the calculated amount",
+    "note": "Note (optional)",
+    "note_en": "Note (English)",
+    "note_ar": "Note (Arabic)",
+    "note_add": "Add a note (optional)",
+    "catalog_exhausted": "Every available duration is already used.",
+    "max_reached": "You can add up to {max} plans.",
+    "kept_one": "1 plan saved — turn installments on to use it.",
+    "kept_other": "{count} plans saved — turn installments on to use them.",
+    "errors": {
+      "months_required": "Enter a whole number of months",
+      "months_max": "The duration must be {max} months or fewer",
+      "months_not_in_catalog": "Pick one of the offered durations",
+      "months_duplicate": "Each plan needs a different duration",
+      "down_payment_required": "Enter a down payment",
+      "down_payment_negative": "The down payment cannot be negative",
+      "down_payment_too_high": "The down payment must be less than the price",
+      "monthly_amount_required": "Enter a monthly amount",
+      "monthly_amount_positive": "The monthly amount must be greater than zero",
+      "plans_required": "Add at least one installment plan"
+    }
   }
 }
 

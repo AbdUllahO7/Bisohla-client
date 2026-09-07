@@ -44,7 +44,13 @@ export const LegalGateProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const { data: pendingRes, isLoading: isPendingLoading } =
     usePendingLegalDocuments(isAuthenticated);
-  const pendingItems: PendingLegalItemDto[] = pendingRes?.data?.pending ?? [];
+  const pendingItems: PendingLegalItemDto[] = Array.isArray(pendingRes?.data)
+    ? pendingRes.data
+    : Array.isArray(pendingRes?.data?.pending)
+    ? pendingRes.data.pending
+    : Array.isArray((pendingRes as any)?.pending)
+    ? (pendingRes as any).pending
+    : [];
 
   const [activeView, setActiveView] = useState<'list' | 'detail'>('list');
   const [selectedDoc, setSelectedDoc] = useState<PendingLegalItemDto | null>(

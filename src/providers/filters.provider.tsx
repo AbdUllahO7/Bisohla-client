@@ -37,6 +37,7 @@ export interface FilterState {
   listingTypeId: number; // ADDED: Category ID (e.g. 1 for Cars)
   selectedBrands: string[]; // This is the main source of truth for brands
   attributes: Record<string, any>; // Dynamic attributes from schema
+  installmentsAvailable?: boolean;
 }
 
 // Search state interface
@@ -65,6 +66,7 @@ const initialFilterState: FilterState = {
   listingTypeId: 0,
   selectedBrands: [],
   attributes: {},
+  installmentsAvailable: false,
 };
 
 const initialSearchState: SearchState = {
@@ -365,6 +367,20 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
         });
       }
 
+      // Installments available filter
+      if (currentFilters.installmentsAvailable) {
+        filterGroups.push({
+          operator: 'and',
+          filters: [
+            {
+              field: 'installmentsAvailable',
+              operator: 'eq',
+              value: true,
+            },
+          ],
+        });
+      }
+
       const query: QueryParams = {
         page: 1,
         pageSize: 12,
@@ -645,6 +661,7 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
       bodyType: getDecodedParam('bodyType'),
       listingType: getDecodedParam('listingOfferType') || getDecodedParam('listingType'),
       listingTypeId: getDecodedParam('listingTypeId'),
+      installmentsAvailable: searchParams.get('installmentsAvailable') === 'true',
     };
 
     // Build new state based on URL params
@@ -783,6 +800,7 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
           bodyType: debouncedFiltersForUrl.bodyType,
           listingOfferType: debouncedFiltersForUrl.listingType,
           listingTypeId: String(debouncedFiltersForUrl.listingTypeId),
+          installmentsAvailable: debouncedFiltersForUrl.installmentsAvailable ? 'true' : '',
         };
 
         Object.entries(paramMap).forEach(([key, value]) => {

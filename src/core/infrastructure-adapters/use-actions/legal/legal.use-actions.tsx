@@ -44,7 +44,8 @@ export const usePendingLegalDocuments = (enabled = true) =>
     queryFn: async () => await getPendingLegalDocuments(),
     enabled,
     staleTime: 0,
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: true,
+    refetchOnMount: 'always',
   });
 
 export const useAcceptLegalMutation = () => {

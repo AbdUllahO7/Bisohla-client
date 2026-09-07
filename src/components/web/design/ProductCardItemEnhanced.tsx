@@ -114,6 +114,8 @@ export const EnhancedProductCardItem: React.FC<ExtendedCarCardItemPropsProfile> 
   city,
   contactNumber,
   rejectionReason,
+  installmentsAvailable,
+  minMonthlyInstallment,
 }) => {
   // State management
   const [isAuthenticated, setIsAuthenticated] = useState(
@@ -776,11 +778,20 @@ export const EnhancedProductCardItem: React.FC<ExtendedCarCardItemPropsProfile> 
                 <Text variant="mid" className="text-gray-600 dark:text-zinc-400 font-medium">
                   {marka}
                 </Text>
-                {price !== undefined && price !== null && (
-                  <span className="text-primary font-bold text-sm">
-                    {price.toLocaleString()} {currency || 'USD'}
-                  </span>
-                )}
+                <div className="text-right rtl:text-left">
+                  {price !== undefined && price !== null && (
+                    <span className="text-primary font-bold text-sm block">
+                      {price.toLocaleString()} {currency || 'USD'}
+                    </span>
+                  )}
+                  {installmentsAvailable && minMonthlyInstallment && currentSaveStatus !== 'sold' && (
+                    <span className="text-[11px] text-muted-foreground font-medium block">
+                      {locale === 'ar'
+                        ? `ابتداءً من ${minMonthlyInstallment.toLocaleString()} ${currency || 'USD'}/شهرياً`
+                        : `from ${minMonthlyInstallment.toLocaleString()} ${currency || 'USD'}/mo`}
+                    </span>
+                  )}
+                </div>
               </div>
 
               {/* Location info */}

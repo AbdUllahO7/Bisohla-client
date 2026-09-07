@@ -164,6 +164,11 @@ export interface SelectCarListingDto {
    */
   contactAvailable?: boolean;
 
+  // Installments
+  installmentsAvailable?: boolean;
+  minMonthlyInstallment?: number | null;
+  installmentPlans?: any[];
+
   // location
   governorate: SyriaGovernorate | string;
   city: SyriaCity | string;

@@ -22,7 +22,7 @@ export interface FilterState {
 export interface Filter {
   field: string;
   operator: string;
-  value: string | number | string[] | number[];
+  value: string | number | boolean | string[] | number[] | boolean[];
 }
 
 export interface FilterGroup {

@@ -403,6 +403,10 @@ export const normalizeListingToCarDto = (listing: any, locale: string = 'en'): S
     // number" and disables Call / WhatsApp permanently once protection is on.
     contactAvailable: listing.contactAvailable,
 
+    installmentsAvailable: listing.installmentsAvailable,
+    minMonthlyInstallment: listing.minMonthlyInstallment !== null && listing.minMonthlyInstallment !== undefined ? Number(listing.minMonthlyInstallment) : null,
+    installmentPlans: listing.installmentPlans,
+
     governorate: getLocalizedValue(listing.governorate),
     city: getLocalizedValue(listing.city),
     address: getLocalizedValue(listing.address),

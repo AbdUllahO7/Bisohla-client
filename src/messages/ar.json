@@ -2075,8 +2075,22 @@
       "contact_prefilled": "تم الملء من ملفك الشخصي",
       "save_as_profile_number": "حفظ كرقم ملفي الشخصي"
     },
+    "card": {
+      "installments_from": "من {amount} شهرياً"
+    },
+    "detail": {
+      "installments_summary_title": "متاح بالتقسيط",
+      "installments_summary_plans_one": "خطة واحدة",
+      "installments_summary_plans_other": "{count} خطة",
+      "installments_title": "خطط التقسيط",
+      "installments_subtitle": "مقدَّمة من البائع. اتفق على الشروط معه مباشرة."
+    },
+    "filters": {
+      "installments_only_label": "متاح بالتقسيط"
+    },
     "preview": {
-      "pending_badge": "قيد المراجعة"
+      "pending_badge": "قيد المراجعة",
+      "section_installments": "التقسيط"
     },
     "errors": {
       "contact_number_required": "رقم الهاتف مطلوب",
@@ -2119,6 +2133,69 @@
     "parent_unset_description": "اختر «{parent}» أولًا لعرض الخيارات المتاحة هنا.",
     "options_empty_title": "لا توجد خيارات متاحة",
     "options_empty_description": "لا توجد خيارات للاختيار من بينها هنا."
+  },
+  "installments": {
+    "months_zero": "بدون أشهر",
+    "months_one": "شهر واحد",
+    "months_two": "شهران",
+    "months_few": "{count} أشهر",
+    "months_many": "{count} شهراً",
+    "months_other": "{count} شهر",
+    "duration_unit": "شهر",
+    "per_month": "شهرياً",
+    "down_payment_value": "الدفعة الأولى {value}",
+    "total_value": "الإجمالي {value}",
+    "price_label": "السعر",
+    "down_payment_line": "− الدفعة الأولى",
+    "to_finance": "= المبلغ المقسّط",
+    "monthly_line": "× {months} شهر",
+    "total_line": "الإجمالي",
+    "over_cash_price": "{value} أكثر من السعر نقداً",
+    "title": "التقسيط",
+    "description": "اسمح للمشترين بالدفع على أقساط شهرية بدلاً من الدفع دفعة واحدة.",
+    "sheet_title": "خطط التقسيط",
+    "empty_hint": "أضف خطة واحدة على الأقل ليعرف المشترون الشروط.",
+    "add_first": "أضف خطتك الأولى",
+    "add_plan": "إضافة خطة",
+    "edit_plan": "تعديل الخطة",
+    "remove_plan": "حذف الخطة",
+    "manage": "إدارة الخطط",
+    "more_plans": "+{more} أخرى",
+    "done": "تم",
+    "turn_off": "إيقاف التقسيط",
+    "cancel_plan": "إلغاء",
+    "save_plan": "حفظ الخطة",
+    "duration": "المدة",
+    "duration_other": "مدة أخرى",
+    "duration_placeholder": "مثال: ٢٤",
+    "duration_hint": "بالأشهر، حتى {max}.",
+    "down_payment": "الدفعة الأولى",
+    "down_payment_hint": "يجب أن تكون أقل من سعر الإعلان.",
+    "down_payment_percent": "{percent}%",
+    "down_payment_of_price": "{percent}% من السعر.",
+    "monthly_amount": "القسط الشهري",
+    "monthly_calculated": "محسوب من السعر: {value}. عدّله لإضافة هامش ربحك.",
+    "monthly_reset": "العودة إلى المبلغ المحسوب",
+    "note": "ملاحظة (اختياري)",
+    "note_en": "ملاحظة (بالإنكليزية)",
+    "note_ar": "ملاحظة (بالعربية)",
+    "note_add": "إضافة ملاحظة (اختياري)",
+    "catalog_exhausted": "تم استخدام كل المدد المتاحة.",
+    "max_reached": "يمكنك إضافة {max} خطط كحد أقصى.",
+    "kept_one": "خطة واحدة محفوظة — فعّل التقسيط لاستخدامها.",
+    "kept_other": "{count} خطة محفوظة — فعّل التقسيط لاستخدامها.",
+    "errors": {
+      "months_required": "أدخل عدد أشهر صحيح",
+      "months_max": "يجب ألا تتجاوز المدة {max} شهراً",
+      "months_not_in_catalog": "اختر إحدى المدد المتاحة",
+      "months_duplicate": "يجب أن تختلف مدة كل خطة",
+      "down_payment_required": "أدخل الدفعة الأولى",
+      "down_payment_negative": "لا يمكن أن تكون الدفعة الأولى بالسالب",
+      "down_payment_too_high": "يجب أن تكون الدفعة الأولى أقل من السعر",
+      "monthly_amount_required": "أدخل القسط الشهري",
+      "monthly_amount_positive": "يجب أن يكون القسط الشهري أكبر من صفر",
+      "plans_required": "أضف خطة تقسيط واحدة على الأقل"
+    }
   }
 }
 

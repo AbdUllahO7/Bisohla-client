@@ -17,9 +17,14 @@ export interface AttributeValue {
   proposedReferenceName?: string;
 }
 
+import { InstallmentPlanInputDto } from './installments.dto';
+
 export interface CreateListingDto {
   listingTypeId: number;
   listingOfferType: string;       // "for_sale" | "for_rent" | "for_exchange"
+  rentType?: 'daily' | 'weekly' | 'monthly' | null;
+  installmentsAvailable?: boolean;
+  installmentPlans?: InstallmentPlanInputDto[];
   price?: number | null;
   currency?: string;              // "USD" | "SYP" | "EUR"
   governorate?: string | null;
@@ -36,6 +41,9 @@ export interface CreateListingDto {
 export interface UpdateListingDto {
   listingTypeId?: number;
   listingOfferType?: string;
+  rentType?: 'daily' | 'weekly' | 'monthly' | null;
+  installmentsAvailable?: boolean;
+  installmentPlans?: InstallmentPlanInputDto[];
   price?: number | null;
   currency?: string;
   governorate?: string | null;

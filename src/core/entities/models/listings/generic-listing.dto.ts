@@ -69,6 +69,8 @@ export interface GenericListingType {
   imageUrl?: string | null;
 }
 
+import { ListingInstallmentPlan } from './installments.dto';
+
 export interface GenericListingDto {
   id: number;
   userId: number;
@@ -90,6 +92,9 @@ export interface GenericListingDto {
   condition: string | null;
   isFeatured: boolean;
   isTrend: boolean;
+  installmentsAvailable?: boolean;
+  minMonthlyInstallment?: string | null;
+  installmentPlans?: ListingInstallmentPlan[];
   /**
    * `null` on every public response once seller-contact protection is enabled
    * in backend settings. Check `contactAvailable` before deciding what to do.

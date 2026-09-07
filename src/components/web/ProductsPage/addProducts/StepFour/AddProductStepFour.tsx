@@ -49,6 +49,9 @@ import { Currency, getCurrencyOptions } from "@/core/entities/enums/currency.enu
 import { useProfile } from "@/providers/profile.provider"
 import PhoneField from "@/components/forms/phone-field"
 import { assemblePhone, splitPhone, repairPhone } from "@/core/lib/phone/phone.util"
+import InstallmentsCard from "./InstallmentsCard"
+import { ListingInstallmentOption, ListingInstallmentsMode } from "@/core/entities/models/listings/installments.dto"
+import { EDIT_STORAGE_KEYS, getStorageKey, STORAGE_KEYS } from "../Main/hooks/useLocalStorage"
 
 // Simplified EnumSelect component without internal state tracking
 interface EnumSelectProps {
@@ -152,9 +155,60 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
   const [countryDialCodeValue, setCountryDialCodeValue] = useState<string>("+963");
   const countryDialCodeRef = useRef<string>("+963");
 
+  const [listingTypePolicy, setListingTypePolicy] = useState<{
+    rentEnabled?: boolean;
+    installmentsEnabled?: boolean;
+    installmentsMode?: ListingInstallmentsMode;
+    installmentOptions?: ListingInstallmentOption[];
+  } | null>(null);
+
   useEffect(() => {
     countryDialCodeRef.current = countryDialCodeValue;
   }, [countryDialCodeValue]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const stepOneKey = getStorageKey('STEP_ONE', isEditMode);
+    const stepOneRaw = localStorage.getItem(stepOneKey) || localStorage.getItem(STORAGE_KEYS.STEP_ONE);
+    if (stepOneRaw) {
+      try {
+        const parsed = JSON.parse(stepOneRaw);
+        setListingTypePolicy({
+          rentEnabled: parsed.rentEnabled,
+          installmentsEnabled: parsed.installmentsEnabled,
+          installmentsMode: parsed.installmentsMode,
+          installmentOptions: parsed.installmentOptions,
+        });
+      } catch (e) {
+        console.error("Failed to parse STEP_ONE policy in StepFour", e);
+      }
+    }
+  }, [isEditMode]);
+
+  // §7.5 Policy clamp — run whenever the policy resolves (e.g. admin disabled installments after draft was saved)
+  useEffect(() => {
+    if (!listingTypePolicy) return;
+
+    // Clamp 1: rentEnabled === false → force for_sale, clear rentType
+    if (listingTypePolicy.rentEnabled === false) {
+      const currentOffer = form.getValues('listingType');
+      if (currentOffer === 'for_rent') {
+        form.setValue('listingType', 'for_sale' as any, { shouldValidate: true });
+        form.setValue('rentType', null, { shouldValidate: true });
+        setListingTypeValue(ListingType.FOR_SALE);
+        setShowRentType(false);
+        setRentTypeValue(null);
+      }
+    }
+
+    // Clamp 2: installmentsEnabled === false → disable installments (keep plans in state)
+    if (listingTypePolicy.installmentsEnabled === false) {
+      const currentAvail = form.getValues('installmentsAvailable');
+      if (currentAvail) {
+        form.setValue('installmentsAvailable', false, { shouldValidate: true });
+      }
+    }
+  }, [listingTypePolicy]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -287,7 +341,13 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
   const t = useTranslations("addProduct.enteredData");
   const { profile } = useProfile();
 
-  const listingTypeOptions = getListingTypeOptions(t);
+  const rawListingTypeOptions = getListingTypeOptions(t);
+  const listingTypeOptions = rawListingTypeOptions.filter(opt => {
+    if (opt.value === ListingType.FOR_RENT && listingTypePolicy?.rentEnabled === false) {
+      return false;
+    }
+    return true;
+  });
   const rentTypeOptions = getRentTypeOptions(t);
   const saveStatusOptions = getSaveStatusOptions(t);
   const currencyOptions = getCurrencyOptions(t);
@@ -356,6 +416,17 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
         isValid = false;
       }
 
+      if (listingType === ListingType.FOR_SALE && data.installmentsAvailable) {
+        if (!data.installmentPlans || data.installmentPlans.length === 0) {
+          isValid = false;
+        } else {
+          const hasInvalid = data.installmentPlans.some(p => !p.months || !p.monthlyAmount || Number(p.monthlyAmount) <= 0);
+          if (hasInvalid) {
+            isValid = false;
+          }
+        }
+      }
+
       return isValid;
     } finally {
       validationCheckRunning.current = false;
@@ -368,7 +439,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
     let phoneOnly = editData.contactNumber || "";
     let extractedCountryCode = editData.countryDialCode || countryDialCodeValue;
 
-    if (editData.contactNumber) {
+    if (editData.contactNumber && (editData.contactNumber.startsWith('+') || !editData.countryDialCode)) {
       const { dialCode, localNumber } = splitPhone(editData.contactNumber);
       extractedCountryCode = dialCode;
       phoneOnly = localNumber;
@@ -398,14 +469,16 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
     }
     setCountryDialCodeValue(extractedCountryCode);
 
-    const processedData = {
+    const processedData: AdInformationFormData = {
       ...editData,
       countryDialCode: extractedCountryCode,
       contactNumber: phoneOnly,
       listingType: mappedListingType,
       saveStatus: mappedSaveStatus,
       rentType: mappedRentType,
-      currency: mappedCurrency
+      currency: mappedCurrency,
+      installmentsAvailable: Boolean(editData.installmentsAvailable),
+      installmentPlans: editData.installmentPlans || []
     };
 
     if (mappedListingType === ListingType.FOR_RENT) {
@@ -449,6 +522,15 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
           contactNumber: listing.contactNumber || '',
           listingType: listing.listingOfferType || listing.listingType || ListingType.FOR_SALE,
           rentType: listing.rentType || null,
+          installmentsAvailable: Boolean(listing.installmentsAvailable),
+          installmentPlans: Array.isArray(listing.installmentPlans)
+            ? listing.installmentPlans.map((p: any) => ({
+                months: Number(p.months),
+                downPayment: p.downPayment !== null && p.downPayment !== undefined ? p.downPayment.toString() : '',
+                monthlyAmount: p.monthlyAmount !== null && p.monthlyAmount !== undefined ? p.monthlyAmount.toString() : '',
+                noteTranslations: p.noteTranslations || (p.note ? { en: p.note, ar: p.note } : undefined),
+              }))
+            : [],
           saveStatus: listing.saveStatus || SaveStatus.PUBLISHED,
           publicationDate: listing.publishedAt ? new Date(listing.publishedAt) : new Date(),
           currency: listing.currency || Currency.USD,
@@ -466,7 +548,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
       let phoneOnly = savedData.contactNumber || "";
       let extractedCountryCode = savedData.countryDialCode || "+963";
 
-      if (savedData.contactNumber) {
+      if (savedData.contactNumber && (savedData.contactNumber.startsWith('+') || !savedData.countryDialCode)) {
         const { dialCode, localNumber } = splitPhone(savedData.contactNumber);
         extractedCountryCode = dialCode;
         phoneOnly = localNumber;
@@ -484,7 +566,9 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
       form.reset({
         ...savedData,
         countryDialCode: extractedCountryCode,
-        contactNumber: phoneOnly
+        contactNumber: phoneOnly,
+        installmentsAvailable: Boolean(savedData.installmentsAvailable),
+        installmentPlans: savedData.installmentPlans || []
       });
       previousFormData.current = savedData;
 
@@ -519,6 +603,8 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
 
     if (listingTypeValue === ListingType.FOR_RENT) {
       setShowRentType(true);
+      form.setValue('installmentsAvailable', false);
+      form.setValue('installmentPlans', []);
     } else {
       setShowRentType(false);
       setRentTypeValue(null);
@@ -565,7 +651,9 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
           currency: formValues.currency || currencyValue || Currency.USD,
           rentType: formValues.listingType === ListingType.FOR_RENT 
             ? (formValues.rentType || rentTypeValue)
-            : null
+            : null,
+          installmentsAvailable: formValues.listingType === ListingType.FOR_RENT ? false : Boolean(formValues.installmentsAvailable),
+          installmentPlans: formValues.listingType === ListingType.FOR_RENT ? [] : (formValues.installmentPlans || [])
         } as AdInformationFormData;
 
         // Auto-save any valid changes
@@ -601,7 +689,9 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
       currency: data.currency || currencyValue || Currency.USD,
       rentType: data.listingType === ListingType.FOR_RENT
         ? (data.rentType || rentTypeValue)
-        : null
+        : null,
+      installmentsAvailable: data.listingType === ListingType.FOR_RENT ? false : Boolean(data.installmentsAvailable),
+      installmentPlans: data.listingType === ListingType.FOR_RENT ? [] : (data.installmentPlans || [])
     };
 
     const adInfoState: AdInfoState = {
@@ -768,19 +858,27 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                   {/* PhoneField for contact number */}
                   <div className="sm:col-span-2 lg:col-span-1">
+                    <input type="hidden" {...form.register("countryDialCode")} />
                     <FormField
                       control={form.control}
                       name="contactNumber"
                       render={({ field }) => (
                         <PhoneField
-                          dialCode={form.watch("countryDialCode") || "+963"}
+                          dialCode={form.watch("countryDialCode") || countryDialCodeValue || "+963"}
                           onDialCodeChange={(code) => {
-                            form.setValue("countryDialCode", code, { shouldValidate: true });
+                            form.setValue("countryDialCode", code, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
                             setCountryDialCodeValue(code);
+                            countryDialCodeRef.current = code;
+                            form.trigger("contactNumber");
                           }}
                           localNumber={field.value || ""}
-                          onLocalNumberChange={(val) => field.onChange(val)}
-                          onLocalNumberBlur={field.onBlur}
+                          onLocalNumberChange={(val) => {
+                            field.onChange(val);
+                          }}
+                          onLocalNumberBlur={() => {
+                            field.onBlur();
+                            form.trigger("contactNumber");
+                          }}
                           label={t("stepFour.contactNumber")}
                           required
                           error={
@@ -834,6 +932,16 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                     className="rounded-xl"
                   />
                 </div>
+
+                {/* Installments Section */}
+                <InstallmentsCard
+                  form={form}
+                  listingTypePolicy={listingTypePolicy}
+                  listingOfferType={(form.watch("listingType") || listingTypeValue || "for_sale") as string}
+                  price={parseFloat(String(form.watch("price") || '0').replace(/[^0-9.]/g, '')) || null}
+                  currency={form.watch("currency") || currencyValue || "USD"}
+                  direction={direction as "ltr" | "rtl"}
+                />
               </div>
 
               {/* 3. Location Information Section */}

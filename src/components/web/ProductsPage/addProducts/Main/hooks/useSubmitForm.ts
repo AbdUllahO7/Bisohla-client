@@ -2,6 +2,8 @@ import { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createListing, updateListing } from '@/core/infrastructure-adapters/actions/users/listing.user.actions';
 import { CreateListingDto, UpdateListingDto, AttributeValue, AttributeMeta } from '@/core/entities/models/listings/create-listing.dto';
+import { InstallmentPlanInputDto } from '@/core/entities/models/listings/installments.dto';
+import { RentType } from '@/core/entities/enums/cars.enums';
 import {
   STORAGE_KEYS,
   getAllFormData,
@@ -25,13 +27,15 @@ const buildAttributeValue = (
   attrId: number,
   attrType: string,
   rawValue: any,
+  slug?: string,
 ): AttributeValue | null => {
   // Skip empty/null values
   if (rawValue === undefined || rawValue === null || rawValue === '') return null;
 
   const base: AttributeValue = { attributeId: attrId };
 
-  const type = attrType.toLowerCase();
+  const type = (attrType || '').toLowerCase();
+  const slugLower = (slug || '').toLowerCase();
 
   // Repeating groups / arrays → valueJson
   if (type === 'repeating_group' || Array.isArray(rawValue)) {
@@ -39,11 +43,11 @@ const buildAttributeValue = (
     return { ...base, valueJson: rawValue };
   }
 
-  // Numbers → valueNumber
-  if (type === 'number' || type === 'integer' || type === 'year') {
+  // Reference (foreign key IDs) → referenceItemId
+  if (type === 'reference') {
     const num = Number(rawValue);
-    if (isNaN(num)) return { ...base, valueText: String(rawValue) };
-    return { ...base, valueNumber: num };
+    if (!isNaN(num)) return { ...base, referenceItemId: num };
+    return null;
   }
 
   // Booleans → valueBoolean
@@ -51,11 +55,33 @@ const buildAttributeValue = (
     return { ...base, valueBoolean: Boolean(rawValue) };
   }
 
-  // Reference (foreign key IDs) → referenceItemId
-  if (type === 'reference') {
+  // Known numeric slugs or numeric attribute types (doors, cylinders, seats, mileage, etc.)
+  const isNumericSlug =
+    slugLower === 'doors' ||
+    slugLower === 'cylinders' ||
+    slugLower === 'seats' ||
+    slugLower === 'gears' ||
+    slugLower === 'mileage' ||
+    slugLower === 'engine_capacity' ||
+    slugLower === 'horsepower' ||
+    slugLower === 'year' ||
+    slugLower.includes('door') ||
+    slugLower.includes('cylinder') ||
+    slugLower.includes('seat');
+
+  const isNumericType =
+    type === 'number' ||
+    type === 'integer' ||
+    type === 'float' ||
+    type === 'decimal' ||
+    type === 'numeric' ||
+    type === 'year';
+
+  if (isNumericType || isNumericSlug) {
     const num = Number(rawValue);
-    if (!isNaN(num)) return { ...base, referenceItemId: num };
-    return null;
+    if (!isNaN(num)) {
+      return { ...base, valueNumber: num };
+    }
   }
 
   // Default: text
@@ -112,11 +138,26 @@ export const useSubmitForm = () => {
       // 2. top-level fields — from stepFour
       // ─────────────────────────────────────────────────────────────────────
       const listingOfferType: string = storedData4?.listingType || 'for_sale';
+      const rentType: RentType | null = listingOfferType === 'for_rent' ? (storedData4?.rentType || null) : null;
       const price = storedData4?.price ? Number(storedData4.price) : null;
       const currency: string = storedData4?.currency || 'USD';
       const contactNumber: string | null = storedData4?.contactNumber || null;
       const publicationStatus: string = storedData4?.saveStatus === 'published' ? 'published' : 'draft';
       const publishedAt: string | null = storedData4?.publishedAt || storedData4?.publicationDate || null;
+
+      const installmentsAvailable: boolean = listingOfferType === 'for_sale' ? Boolean(storedData4?.installmentsAvailable) : false;
+      let installmentPlans: InstallmentPlanInputDto[] | undefined = undefined;
+
+      if (listingOfferType === 'for_sale' && installmentsAvailable && Array.isArray(storedData4?.installmentPlans) && storedData4.installmentPlans.length > 0) {
+        installmentPlans = storedData4.installmentPlans.map((p: any) => ({
+          months: Number(p.months),
+          downPayment: Number(p.downPayment || 0),
+          monthlyAmount: Number(p.monthlyAmount || 0),
+          noteTranslations: p.noteTranslations || (p.note ? { en: p.note, ar: p.note } : undefined),
+        }));
+      } else if (isEditMode) {
+        installmentPlans = [];
+      }
 
       // ─────────────────────────────────────────────────────────────────────
       // 3. location — location fields are in stepTwo as virtual fields
@@ -163,7 +204,7 @@ export const useSubmitForm = () => {
           });
         } else {
           const rawValue = storedData2?.[slug];
-          const attrValue = buildAttributeValue(meta.id, meta.type, rawValue);
+          const attrValue = buildAttributeValue(meta.id, meta.type, rawValue, slug);
           if (attrValue) {
             attributeValues.push(attrValue);
           }
@@ -189,6 +230,7 @@ export const useSubmitForm = () => {
         const updateDto: UpdateListingDto = {
           listingTypeId,
           listingOfferType,
+          rentType: rentType || undefined,
           price,
           currency,
           governorate,
@@ -200,12 +242,15 @@ export const useSubmitForm = () => {
           translations,
           attributeValues,
           images,
+          installmentsAvailable,
+          installmentPlans,
         };
         response = await updateListing(Number(carIdToEdit), updateDto);
       } else {
         const createDto: CreateListingDto = {
           listingTypeId,
           listingOfferType,
+          rentType: rentType || undefined,
           price,
           currency,
           governorate,
@@ -217,6 +262,8 @@ export const useSubmitForm = () => {
           translations,
           attributeValues,
           images,
+          installmentsAvailable,
+          installmentPlans,
         };
         console.log("createDto", createDto);
         response = await createListing(createDto);

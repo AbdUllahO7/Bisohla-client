@@ -493,6 +493,22 @@ const FilterContent = React.memo(
                       value={filters.currency}
                       name="currency"
                     />
+
+                    {/* Installments Available Filter Toggle */}
+                    {filters.listingType !== 'for_rent' && (
+                      <div className="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-zinc-800">
+                        <Label htmlFor="installmentsAvailableFilter" className="text-xs font-semibold text-slate-700 dark:text-zinc-300 cursor-pointer">
+                          {locale === 'ar' ? 'التقسيط متاح فقط' : 'Installments available only'}
+                        </Label>
+                        <input
+                          id="installmentsAvailableFilter"
+                          type="checkbox"
+                          checked={Boolean(filters.installmentsAvailable)}
+                          onChange={(e) => handleFilterChange('installmentsAvailable', e.target.checked)}
+                          className="h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary accent-[#198341] cursor-pointer"
+                        />
+                      </div>
+                    )}
                   </div>
                 </AccordionContent>
               </AccordionItem>

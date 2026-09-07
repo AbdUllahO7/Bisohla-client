@@ -24,6 +24,8 @@ export const defaultAdInfoData: AdInformationStorageData = {
     governorate: "",
     city: "",
     address: "",
+    installmentsAvailable: false,
+    installmentPlans: [],
 };
 
 export const combinePhoneNumber = (countryCode: string, phoneNumber: string): string => {
