@@ -178,6 +178,8 @@ export interface ListingsSettings {
   location?: {
     geocoding_provider?: string;
     require_coordinates?: boolean;
+    saved_addresses_enabled?: boolean;
+    max_saved_addresses_per_user?: number;
   };
   map?: MapSettings;
   display?: {

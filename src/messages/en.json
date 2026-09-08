@@ -2291,7 +2291,65 @@
     "detail": {
       "view_seller": "View profile",
       "contact_seller": "Contact seller"
+    },
+    "wizard": {
+      "saved_address": {
+        "choose_button": "Choose from saved addresses",
+        "save_checkbox": "Save this address for next time",
+        "label_field": "Address label",
+        "label_placeholder": "e.g. Home, Showroom",
+        "save_failed_toast": "Couldn't save this address, but your listing was published"
+      }
+    },
+    "errors": {
+      "saved_address_label_required": "Please name this address"
     }
+  },
+  "savedAddresses": {
+    "title": "Saved addresses",
+    "add_button": "Add address",
+    "empty_title": "No saved addresses yet",
+    "empty_body": "Save an address once and reuse it on future listings",
+    "cap_reached_note": "You've reached the limit of {count} saved addresses",
+    "delete_confirm_title": "Delete this address?",
+    "delete_confirm_body": "This address will be permanently removed from your address book. Listings you already published using it are not affected.",
+    "delete_confirm_button": "Delete",
+    "delete_success_toast": "Address deleted",
+    "delete_success_promoted_toast": "Address deleted · \"{label}\" is now your default",
+    "delete_failed_toast": "Could not delete the address. Please try again.",
+    "set_default_success_toast": "Default address updated",
+    "set_default_failed_toast": "Could not set this address as default. Please try again.",
+    "form": {
+      "title_add": "New address",
+      "title_edit": "Edit address",
+      "label_field": "Label",
+      "label_placeholder": "e.g. Home, Work",
+      "governorate": "Governorate",
+      "city": "City",
+      "address": "Address details",
+      "pick_on_map": "Pick location on map",
+      "save_button": "Save address",
+      "label_required": "Enter a label for this address",
+      "governorate_required": "Pick a governorate",
+      "city_required": "Pick a city",
+      "governorate_pin_locked": "Set from your map pin",
+      "governorate_pin_undetected": "We couldn't work out the area from your pin — check the governorate matches it",
+      "governorate_change_on_map": "Change on map",
+      "governorate_pin_mismatch": "The governorate must match the location pin. Reposition the pin to change it.",
+      "save_failed_error": "Could not save the address. Please try again.",
+      "not_found_title": "Address not found",
+      "not_found_body": "This address may have been deleted.",
+      "delete_button": "Delete address",
+      "delete_note": "Listings you already published with this address are not affected."
+    }
+  },
+  "savedAddress": {
+    "default_badge": "Default",
+    "set_default_action": "Set as default",
+    "edit_hint": "Opens this address for editing",
+    "select_hint": "Uses this address for this listing",
+    "picker_empty_title": "No saved addresses yet",
+    "picker_empty_body": "Save an address from Profile › Saved addresses to reuse it here"
   }
 }
 

@@ -86,10 +86,10 @@ export const PhoneField: React.FC<PhoneFieldProps> = ({
     if (isSpecial) {
       const result = repairPhone(sanitized, dialCode);
       if (result.isValid) {
-        onLocalNumberChange(result.localNumber);
         if (result.dialCode !== dialCode) {
           onDialCodeChange(result.dialCode);
         }
+        onLocalNumberChange(result.localNumber);
         return;
       }
     }
@@ -99,11 +99,11 @@ export const PhoneField: React.FC<PhoneFieldProps> = ({
   const handleInputBlur = () => {
     const result = repairPhone(localNumber, dialCode);
     if (result.isValid) {
-      if (result.localNumber !== localNumber) {
-        onLocalNumberChange(result.localNumber);
-      }
       if (result.dialCode !== dialCode) {
         onDialCodeChange(result.dialCode);
+      }
+      if (result.localNumber !== localNumber) {
+        onLocalNumberChange(result.localNumber);
       }
     }
     onLocalNumberBlur?.();

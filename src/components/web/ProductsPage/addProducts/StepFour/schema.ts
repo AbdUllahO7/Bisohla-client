@@ -32,8 +32,22 @@ export const adInformationSchema = z
         governorate: z.string().min(1, "Governorate is required"),
         city: z.string().min(1, "City is required"),
         address: z.string().min(1, "Detailed address is required"),
+        latitude: z.number().nullable().optional(),
+        longitude: z.number().nullable().optional(),
+        detectedGovernorate: z.string().nullable().optional(),
+        saveAsSavedAddress: z.boolean().default(false).optional(),
+        savedAddressLabel: z.string().optional(),
         installmentsAvailable: z.boolean().default(false).optional(),
         installmentPlans: z.array(installmentPlanSchema).default([]).optional(),
+    })
+    .refine((d) => {
+        if (d.saveAsSavedAddress) {
+            return !!d.savedAddressLabel && d.savedAddressLabel.trim().length > 0;
+        }
+        return true;
+    }, {
+        message: "listing.errors.saved_address_label_required",
+        path: ["savedAddressLabel"]
     })
     .refine((d) => isPhoneFieldValid(d.contactNumber, d.countryDialCode), {
         message: "listing.errors.contact_number_invalid",

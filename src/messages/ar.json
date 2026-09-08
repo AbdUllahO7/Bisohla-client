@@ -2257,7 +2257,65 @@
     "detail": {
       "view_seller": "عرض الملف الشخصي",
       "contact_seller": "تواصل مع البائع"
+    },
+    "wizard": {
+      "saved_address": {
+        "choose_button": "اختر من العناوين المحفوظة",
+        "save_checkbox": "احفظ هذا العنوان لاستخدامه لاحقًا",
+        "label_field": "اسم العنوان",
+        "label_placeholder": "مثال: المنزل، المعرض",
+        "save_failed_toast": "تعذّر حفظ هذا العنوان، لكن تم نشر إعلانك بنجاح"
+      }
+    },
+    "errors": {
+      "saved_address_label_required": "يرجى تسمية هذا العنوان"
     }
+  },
+  "savedAddresses": {
+    "title": "العناوين المحفوظة",
+    "add_button": "إضافة عنوان",
+    "empty_title": "لا توجد عناوين محفوظة بعد",
+    "empty_body": "احفظ عنواناً مرة واحدة وأعد استخدامه في إعلاناتك القادمة",
+    "cap_reached_note": "لقد وصلت إلى الحد الأقصى وهو {count} عناوين محفوظة",
+    "delete_confirm_title": "حذف هذا العنوان؟",
+    "delete_confirm_body": "سيتم حذف هذا العنوان نهائياً من دفتر عناوينك. لن يؤثر ذلك على الإعلانات التي نشرتها مسبقاً باستخدامه.",
+    "delete_confirm_button": "حذف",
+    "delete_success_toast": "تم حذف العنوان",
+    "delete_success_promoted_toast": "تم حذف العنوان · أصبح \"{label}\" عنوانك الافتراضي",
+    "delete_failed_toast": "تعذّر حذف العنوان. حاول مجدداً.",
+    "set_default_success_toast": "تم تحديث العنوان الافتراضي",
+    "set_default_failed_toast": "تعذّر تعيين هذا العنوان كافتراضي. حاول مجدداً.",
+    "form": {
+      "title_add": "عنوان جديد",
+      "title_edit": "تعديل العنوان",
+      "label_field": "التسمية",
+      "label_placeholder": "مثال: المنزل، العمل",
+      "governorate": "المحافظة",
+      "city": "المدينة",
+      "address": "تفاصيل العنوان",
+      "pick_on_map": "تحديد الموقع على الخريطة",
+      "save_button": "حفظ العنوان",
+      "label_required": "أدخل تسمية لهذا العنوان",
+      "governorate_required": "اختر محافظة",
+      "city_required": "اختر مدينة",
+      "governorate_pin_locked": "محدّدة من موقعك على الخريطة",
+      "governorate_pin_undetected": "تعذّر تحديد المنطقة من موقعك على الخريطة — تأكد من مطابقة المحافظة له",
+      "governorate_change_on_map": "تغيير على الخريطة",
+      "governorate_pin_mismatch": "يجب أن تتطابق المحافظة مع موقعك على الخريطة. أعد تحديد الموقع لتغييرها.",
+      "save_failed_error": "تعذّر حفظ العنوان. حاول مجدداً.",
+      "not_found_title": "العنوان غير موجود",
+      "not_found_body": "قد يكون هذا العنوان قد حُذف.",
+      "delete_button": "حذف العنوان",
+      "delete_note": "لن تتأثر الإعلانات التي سبق أن نشرتها بهذا العنوان."
+    }
+  },
+  "savedAddress": {
+    "default_badge": "افتراضي",
+    "set_default_action": "تعيين كافتراضي",
+    "edit_hint": "يفتح هذا العنوان للتعديل",
+    "select_hint": "استخدام هذا العنوان في هذا الإعلان",
+    "picker_empty_title": "لا توجد عناوين محفوظة بعد",
+    "picker_empty_body": "احفظ عنوانًا من الملف الشخصي ‹ العناوين المحفوظة لاستخدامه هنا"
   }
 }
 

@@ -12,7 +12,9 @@ import {
   BellRing,
   LogOut,
   BarChart3,
+  MapPin,
 } from 'lucide-react';
+import { useSettings } from '@/providers/settings.provider';
 import {
   Sidebar,
   SidebarContent,
@@ -94,6 +96,9 @@ export function DashboardSidebar() {
     if (href === '/userProfile/Notification') {
       return path.startsWith('/userProfile/Notification') || path.startsWith('/notifications');
     }
+    if (href === '/userProfile/SavedAddresses') {
+      return path.startsWith('/userProfile/SavedAddresses');
+    }
     if (href === '/userProfile/UserInfo') {
       return (
         path.startsWith('/userProfile/UserInfo') ||
@@ -103,6 +108,10 @@ export function DashboardSidebar() {
     }
     return path === href;
   };
+
+  const { getListingsSettings } = useSettings();
+  const isSavedAddressesEnabled =
+    getListingsSettings()?.location?.saved_addresses_enabled ?? true;
 
   // Navigation items
   const navItems = [
@@ -136,6 +145,15 @@ export function DashboardSidebar() {
       icon: Bell,
       label: direction === 'ltr' ? 'Notifications' : 'الإشعارات',
     },
+    ...(isSavedAddressesEnabled
+      ? [
+          {
+            href: '/userProfile/SavedAddresses',
+            icon: MapPin,
+            label: direction === 'ltr' ? 'Saved Addresses' : 'العناوين المحفوظة',
+          },
+        ]
+      : []),
     {
       href: '/userProfile/UserInfo',
       icon: Settings,

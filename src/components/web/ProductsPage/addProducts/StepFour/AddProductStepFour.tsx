@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format } from "date-fns"
-import { CalendarIcon, FileText, Phone, DollarSign, MapPin, Sliders, CheckCircle2, Award, Info } from "lucide-react"
+import { CalendarIcon, FileText, Phone, DollarSign, MapPin, Sliders, CheckCircle2, Award, Info, Bookmark } from "lucide-react"
 import { Calendar } from "@/components/ui/calendar"
 import { useTranslations } from "next-intl"
 
@@ -13,6 +13,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
 
 import { ListingType, RentType, SaveStatus, getListingTypeOptions, getRentTypeOptions, getSaveStatusOptions } from "@/core/entities/enums/cars.enums"
@@ -47,6 +48,11 @@ import {
 import Text from "@/components/ui/text"
 import { Currency, getCurrencyOptions } from "@/core/entities/enums/currency.enum"
 import { useProfile } from "@/providers/profile.provider"
+import { useSettings } from "@/providers/settings.provider"
+import { useSavedAddresses } from "@/core/infrastructure-adapters/use-actions/users/saved-address.use-actions"
+import { SavedAddressPickerDialog } from "@/components/web/SavedAddresses/SavedAddressPickerDialog"
+import { findMatchingSavedAddress } from "@/core/lib/saved-address-match"
+import { UserAddress } from "@/core/entities/models/users/saved-address.dto"
 import PhoneField from "@/components/forms/phone-field"
 import { assemblePhone, splitPhone, repairPhone } from "@/core/lib/phone/phone.util"
 import InstallmentsCard from "./InstallmentsCard"
@@ -65,6 +71,9 @@ interface EnumSelectProps {
   value?: string;
   isRtl?: boolean;
   className?: string;
+  disabled?: boolean;
+  hint?: React.ReactNode;
+  headerAction?: React.ReactNode;
 }
 
 const EnumSelect = ({
@@ -77,7 +86,10 @@ const EnumSelect = ({
   onChange,
   value,
   isRtl = false,
-  className = ""
+  className = "",
+  disabled = false,
+  hint,
+  headerAction,
 }: EnumSelectProps) => {
   return (
     <FormField
@@ -85,11 +97,15 @@ const EnumSelect = ({
       name={name}
       render={({ field }) => (
         <FormItem className={`text-primary ${className}`}>
-          <FormLabel className="text-primary dark:text-white">
-            {label}
-            {required && <span className="text-red-500">*</span>}
-          </FormLabel>
+          <div className="flex items-center justify-between gap-2">
+            <FormLabel className="text-primary dark:text-white">
+              {label}
+              {required && <span className="text-red-500">*</span>}
+            </FormLabel>
+            {headerAction}
+          </div>
           <Select
+            disabled={disabled}
             onValueChange={(val) => {
               field.onChange(val);
               if (onChange) {
@@ -100,7 +116,7 @@ const EnumSelect = ({
             dir={`${isRtl ? "rtl" : "ltr"}`}
           >
             <FormControl>
-              <SelectTrigger className="h-11 border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 dark:text-white">
+              <SelectTrigger className="h-11 border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 dark:text-white disabled:opacity-85 disabled:bg-slate-50 dark:disabled:bg-zinc-850">
                 <SelectValue placeholder={placeholder} dir={`${isRtl ? "rtl" : "ltr"}`} />
               </SelectTrigger>
             </FormControl>
@@ -115,16 +131,13 @@ const EnumSelect = ({
               }}
             >
               {options.map((option) => (
-                <SelectItem
-                  className="focus:bg-primary-light focus:text-white transition-all duration-200 font-cairo font-[700]"
-                  key={option.value}
-                  value={option.value}
-                >
+                <SelectItem key={option.value} value={option.value}>
                   {option.label}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
+          {hint && <div className="mt-1">{hint}</div>}
           <FormMessage />
         </FormItem>
       )}
@@ -146,6 +159,19 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
   const [pinPosition, setPinPosition] = useState<{ x: number; y: number } | null>(null);
   const mapRef = useRef<HTMLDivElement>(null);
   const [gpsCoords, setGpsCoords] = useState<{ lat: number; lng: number }>({ lat: 33.5138, lng: 36.2765 });
+
+  const tListing = useTranslations("listing");
+  const { getListingsSettings } = useSettings();
+  const isSavedAddressesEnabled =
+    getListingsSettings()?.location?.saved_addresses_enabled ?? true;
+
+  const { data: savedAddressesResponse, isLoading: isLoadingSavedAddresses } =
+    useSavedAddresses({ enabled: isSavedAddressesEnabled });
+
+  const [isPickerOpen, setIsPickerOpen] = useState(false);
+  const autoPrefillDoneRef = useRef(false);
+  const mapInstanceRef = useRef<any>(null);
+  const markerInstanceRef = useRef<any>(null);
 
   // Create state for enum values as form backups
   const [listingTypeValue, setListingTypeValue] = useState<ListingType | "">("");
@@ -242,10 +268,14 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
       const L = (window as any).L;
       if (!mapRef.current || !L) return;
 
-      const defaultLatLng = [33.5138, 36.2765]; // Damascus
+      const savedLat = form.getValues('latitude');
+      const savedLng = form.getValues('longitude');
+      const defaultLatLng = savedLat != null && savedLng != null
+        ? [savedLat, savedLng]
+        : [33.5138, 36.2765]; // Damascus
 
       // Initialize Leaflet map instance
-      mapInstance = L.map(mapRef.current).setView(defaultLatLng, 13);
+      mapInstance = L.map(mapRef.current).setView(defaultLatLng, savedLat != null ? 14 : 13);
 
       // Add high-performance OpenStreetMap tiles
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -254,6 +284,9 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
 
       // Create interactive draggable marker pin
       markerInstance = L.marker(defaultLatLng, { draggable: true }).addTo(mapInstance);
+
+      mapInstanceRef.current = mapInstance;
+      markerInstanceRef.current = markerInstance;
 
       // Move marker on map click
       mapInstance.on("click", (e: any) => {
@@ -271,6 +304,8 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
 
     const updateAddressFromCoords = (lat: number, lng: number) => {
       setGpsCoords({ lat, lng });
+      form.setValue("latitude", lat, { shouldValidate: true, shouldDirty: true });
+      form.setValue("longitude", lng, { shouldValidate: true, shouldDirty: true });
       
       // Query Nominatim in Arabic to get standard Syrian governorate and city names
       fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=ar`)
@@ -307,6 +342,9 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
             // Set values and trigger form validation updates
             if (matchedGov) {
               form.setValue("governorate", matchedGov as any, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+              form.setValue("detectedGovernorate", matchedGov, { shouldValidate: true, shouldDirty: true });
+            } else {
+              form.setValue("detectedGovernorate", null, { shouldValidate: true, shouldDirty: true });
             }
             
             if (matchedCity) {
@@ -321,10 +359,12 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
               form.setValue("address", displayName, { shouldValidate: true, shouldDirty: true });
             }
           } else {
+            form.setValue("detectedGovernorate", null, { shouldValidate: true, shouldDirty: true });
             form.setValue("address", `${direction === "rtl" ? "موقع محدد" : "Selected location"} (${lat.toFixed(5)}, ${lng.toFixed(5)})`);
           }
         })
         .catch(() => {
+          form.setValue("detectedGovernorate", null, { shouldValidate: true, shouldDirty: true });
           form.setValue("address", `${direction === "rtl" ? "موقع محدد" : "Selected location"} (${lat.toFixed(5)}, ${lng.toFixed(5)})`);
         });
     };
@@ -358,6 +398,95 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
     defaultValues: defaultAdInfoData,
     mode: "onChange",
   });
+
+  const applyAddressToForm = (address: UserAddress) => {
+    const lat = address.latitude;
+    const lng = address.longitude;
+
+    if (lat != null && lng != null) {
+      form.setValue("latitude", lat, { shouldValidate: true, shouldDirty: true });
+      form.setValue("longitude", lng, { shouldValidate: true, shouldDirty: true });
+      form.setValue("detectedGovernorate", address.governorate, { shouldValidate: true, shouldDirty: true });
+      setGpsCoords({ lat, lng });
+
+      if (mapInstanceRef.current && markerInstanceRef.current) {
+        mapInstanceRef.current.setView([lat, lng], 14);
+        markerInstanceRef.current.setLatLng([lat, lng]);
+      }
+    }
+
+    if (address.governorate != null) {
+      form.setValue("governorate", address.governorate as any, { shouldValidate: true, shouldDirty: true });
+    }
+    if (address.city != null) {
+      form.setValue("city", address.city as any, { shouldValidate: true, shouldDirty: true });
+    }
+    if (address.address != null) {
+      form.setValue("address", address.address, { shouldValidate: true, shouldDirty: true });
+    }
+
+    form.trigger(["governorate", "city", "address"]);
+
+    // Persist to draft in localStorage
+    const currentDraft = loadAdInfoData() || defaultAdInfoData;
+    saveAdInfoData({
+      ...currentDraft,
+      governorate: address.governorate || '',
+      city: address.city || '',
+      address: address.address || '',
+      latitude: lat,
+      longitude: lng,
+      detectedGovernorate: address.governorate,
+    });
+  };
+
+  // Auto-prefill from default saved address (one-shot ABSENT gate)
+  useEffect(() => {
+    if (
+      !isSavedAddressesEnabled ||
+      isEditMode ||
+      autoPrefillDoneRef.current ||
+      isLoadingSavedAddresses ||
+      !savedAddressesResponse?.data
+    ) {
+      return;
+    }
+
+    const currentGov = form.getValues('governorate');
+    const currentCity = form.getValues('city');
+    const currentAddr = form.getValues('address');
+
+    if (currentGov || currentCity || currentAddr) {
+      autoPrefillDoneRef.current = true;
+      return;
+    }
+
+    const defaultAddress = savedAddressesResponse.data.find((a) => a.isDefault);
+    if (defaultAddress) {
+      autoPrefillDoneRef.current = true;
+      applyAddressToForm(defaultAddress);
+    }
+  }, [isSavedAddressesEnabled, isEditMode, isLoadingSavedAddresses, savedAddressesResponse]);
+
+  // Check whether current location matches an already saved address
+  const matchingSavedAddress = findMatchingSavedAddress(
+    savedAddressesResponse?.data,
+    {
+      governorate: form.watch('governorate'),
+      city: form.watch('city'),
+      address: form.watch('address'),
+      latitude: form.watch('latitude') || gpsCoords?.lat,
+      longitude: form.watch('longitude') || gpsCoords?.lng,
+    }
+  );
+
+  // Force-clear "Save this address for next time" if the address becomes a known address
+  useEffect(() => {
+    if (matchingSavedAddress && form.getValues('saveAsSavedAddress')) {
+      form.setValue('saveAsSavedAddress', false);
+      form.setValue('savedAddressLabel', '');
+    }
+  }, [matchingSavedAddress]);
   // Helper function to map API enums to form enums
   const mapApiEnumToFormEnum = (apiValue: string, enumType: any): any => {
     if (!apiValue) return Object.values(enumType)[0];
@@ -468,6 +597,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
       setRentTypeValue(mappedRentType);
     }
     setCountryDialCodeValue(extractedCountryCode);
+    countryDialCodeRef.current = extractedCountryCode;
 
     const processedData: AdInformationFormData = {
       ...editData,
@@ -562,6 +692,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
       setRentTypeValue(savedData.rentType || null);
       setCurrencyValue(savedData.currency || Currency.USD);
       setCountryDialCodeValue(extractedCountryCode);
+      countryDialCodeRef.current = extractedCountryCode;
 
       form.reset({
         ...savedData,
@@ -586,13 +717,17 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
   // Auto-fill phone number from profile if empty
   useEffect(() => {
     if (!isEditMode && profile?.phoneNumber && !form.getValues("contactNumber")) {
-      const repaired = repairPhone(profile.phoneNumber, "+963");
-      const { dialCode, localNumber } = splitPhone(repaired.isValid ? repaired.e164 : profile.phoneNumber);
+      const { dialCode: initialDial, localNumber: initialLocal } = splitPhone(profile.phoneNumber);
+      const repaired = repairPhone(initialLocal || profile.phoneNumber, initialDial || "+963");
+      const dialCode = repaired.isValid ? repaired.dialCode : initialDial;
+      const localNumber = repaired.isValid ? repaired.localNumber : initialLocal;
 
       if (localNumber) {
-        form.setValue("contactNumber", localNumber, { shouldValidate: true });
-        form.setValue("countryDialCode", dialCode, { shouldValidate: true });
         setCountryDialCodeValue(dialCode);
+        countryDialCodeRef.current = dialCode;
+        form.setValue("countryDialCode", dialCode, { shouldDirty: true });
+        form.setValue("contactNumber", localNumber, { shouldValidate: true, shouldDirty: true });
+        form.trigger("contactNumber");
       }
     }
   }, [profile, isEditMode, form]);
@@ -858,7 +993,6 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                   {/* PhoneField for contact number */}
                   <div className="sm:col-span-2 lg:col-span-1">
-                    <input type="hidden" {...form.register("countryDialCode")} />
                     <FormField
                       control={form.control}
                       name="contactNumber"
@@ -866,9 +1000,9 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                         <PhoneField
                           dialCode={form.watch("countryDialCode") || countryDialCodeValue || "+963"}
                           onDialCodeChange={(code) => {
-                            form.setValue("countryDialCode", code, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
                             setCountryDialCodeValue(code);
                             countryDialCodeRef.current = code;
+                            form.setValue("countryDialCode", code, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
                             form.trigger("contactNumber");
                           }}
                           localNumber={field.value || ""}
@@ -946,18 +1080,33 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
 
               {/* 3. Location Information Section */}
               <div className="p-5 sm:p-6 rounded-2xl border border-slate-100 dark:border-zinc-800 bg-slate-50/30 dark:bg-zinc-900/30 hover:bg-slate-50/50 dark:hover:bg-zinc-900/50 transition-all duration-300 space-y-6">
-                <div className="flex items-center gap-2.5 pb-2 border-b border-slate-100 dark:border-zinc-800">
-                  <div className="p-2 rounded-lg bg-sky-500/10 text-sky-600">
-                    <MapPin className="w-5 h-5" />
+                <div className="flex items-center justify-between gap-2.5 pb-2 border-b border-slate-100 dark:border-zinc-800 flex-wrap">
+                  <div className="flex items-center gap-2.5">
+                    <div className="p-2 rounded-lg bg-sky-500/10 text-sky-600">
+                      <MapPin className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-slate-800 dark:text-white">
+                        {direction === "rtl" ? "معلومات الموقع" : "Location Information"}
+                      </h3>
+                      <p className="text-xs text-slate-400 dark:text-zinc-400">
+                        {direction === "rtl" ? "حدد موقع السلعة أو الخدمة بدقة" : "Specify where the item is located"}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-slate-800 dark:text-white">
-                      {direction === "rtl" ? "معلومات الموقع" : "Location Information"}
-                    </h3>
-                    <p className="text-xs text-slate-400 dark:text-zinc-400">
-                      {direction === "rtl" ? "حدد موقع السلعة أو الخدمة بدقة" : "Specify where the item is located"}
-                    </p>
-                  </div>
+
+                  {isSavedAddressesEnabled && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setIsPickerOpen(true)}
+                      className="text-primary hover:text-primary hover:bg-primary/10 font-semibold gap-1.5 rounded-xl text-xs h-9 px-3"
+                    >
+                      <Bookmark className="w-4 h-4" />
+                      <span>{tListing('wizard.saved_address.choose_button')}</span>
+                    </Button>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -969,6 +1118,9 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                         : gov.replace(/-/g, ' ')
                     }));
 
+                    const detectedGov = form.watch("detectedGovernorate");
+                    const isGovLocked = Boolean(detectedGov);
+
                     return (
                       <EnumSelect
                         name="governorate"
@@ -977,6 +1129,33 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                         options={governorateOptions}
                         placeholder={direction === "rtl" ? "اختر المحافظة" : "Select Governorate"}
                         required={true}
+                        disabled={isGovLocked}
+                        headerAction={
+                          isGovLocked ? (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                mapRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                              }}
+                              className="text-xs font-semibold text-primary hover:underline"
+                            >
+                              {direction === 'rtl' ? 'تغيير على الخريطة' : 'Change on map'}
+                            </button>
+                          ) : null
+                        }
+                        hint={
+                          isGovLocked ? (
+                            <span className="text-xs text-slate-500 dark:text-zinc-400">
+                              {direction === 'rtl' ? 'محدّدة من موقعك على الخريطة' : 'Set from your map pin'}
+                            </span>
+                          ) : form.watch("latitude") != null ? (
+                            <span className="text-xs text-amber-600 dark:text-amber-400">
+                              {direction === 'rtl'
+                                ? 'تعذّر تحديد المنطقة من موقعك على الخريطة — تأكد من مطابقة المحافظة له'
+                                : "We couldn't work out the area from your pin — check the governorate matches it"}
+                            </span>
+                          ) : null
+                        }
                         onChange={(val) => {
                           form.setValue("city", "");
                         }}
@@ -1076,6 +1255,54 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                     </FormItem>
                   )}
                 />
+
+                {/* Save this address for next time (Reverse Save) */}
+                {isSavedAddressesEnabled && !matchingSavedAddress && (
+                  <div className="p-4 rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 space-y-3">
+                    <div className="flex items-center gap-2.5">
+                      <Checkbox
+                        id="saveAsSavedAddress"
+                        checked={form.watch('saveAsSavedAddress')}
+                        onCheckedChange={(checked) => {
+                          form.setValue('saveAsSavedAddress', Boolean(checked), {
+                            shouldValidate: true,
+                            shouldDirty: true,
+                          });
+                        }}
+                      />
+                      <label
+                        htmlFor="saveAsSavedAddress"
+                        className="text-sm font-semibold text-slate-800 dark:text-zinc-200 cursor-pointer select-none"
+                      >
+                        {tListing('wizard.saved_address.save_checkbox')}
+                      </label>
+                    </div>
+
+                    {form.watch('saveAsSavedAddress') && (
+                      <FormField
+                        control={form.control}
+                        name="savedAddressLabel"
+                        render={({ field }) => (
+                          <FormItem className="ps-6">
+                            <FormLabel className="text-xs font-semibold text-slate-600 dark:text-zinc-300">
+                              {tListing('wizard.saved_address.label_field')}
+                              <span className="text-rose-500 ms-1">*</span>
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder={tListing('wizard.saved_address.label_placeholder')}
+                                className="h-10 rounded-xl bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 text-sm"
+                                {...field}
+                                value={field.value || ''}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* 4. Listing Configuration Section */}
@@ -1199,6 +1426,20 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
           </Form>
         </CardContent>
       </Card>
+
+      {/* Saved Address Picker Dialog */}
+      <SavedAddressPickerDialog
+        open={isPickerOpen}
+        onOpenChange={setIsPickerOpen}
+        currentLocation={{
+          governorate: form.watch('governorate'),
+          city: form.watch('city'),
+          address: form.watch('address'),
+          latitude: form.watch('latitude') || gpsCoords?.lat,
+          longitude: form.watch('longitude') || gpsCoords?.lng,
+        }}
+        onSelectAddress={applyAddressToForm}
+      />
     </div>
   )
 }

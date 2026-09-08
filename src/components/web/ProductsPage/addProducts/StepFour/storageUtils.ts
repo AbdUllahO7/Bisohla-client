@@ -24,6 +24,11 @@ export const defaultAdInfoData: AdInformationStorageData = {
     governorate: "",
     city: "",
     address: "",
+    latitude: null,
+    longitude: null,
+    detectedGovernorate: null,
+    saveAsSavedAddress: false,
+    savedAddressLabel: "",
     installmentsAvailable: false,
     installmentPlans: [],
 };

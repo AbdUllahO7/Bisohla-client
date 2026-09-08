@@ -11,6 +11,7 @@ import {
 } from './useLocalStorage';
 import { useToast } from '@/hooks/use-toast';
 import { useLocale, useTranslations } from 'next-intl';
+import { createUserAddress } from '@/core/infrastructure-adapters/actions/users/saved-address.actions';
 
 // Format error message for display
 const formatErrorMessage = (error: any): string => {
@@ -167,6 +168,10 @@ export const useSubmitForm = () => {
       const governorate: string | null = storedData4?.governorate || storedData2?.governorate || null;
       const city: string | null = storedData4?.city || storedData2?.city || null;
       const address: string | null = storedData4?.address || storedData2?.address || null;
+      const latitude: number | null = storedData4?.latitude != null ? Number(storedData4.latitude) : null;
+      const longitude: number | null = storedData4?.longitude != null ? Number(storedData4.longitude) : null;
+      const saveAsSavedAddress = Boolean(storedData4?.saveAsSavedAddress);
+      const savedAddressLabel = storedData4?.savedAddressLabel;
 
       // ─────────────────────────────────────────────────────────────────────
       // 4. translations — title & description from stepFour
@@ -270,6 +275,32 @@ export const useSubmitForm = () => {
       }
 
       if (response.success) {
+        // If "Save this address for next time" was selected, create unawaited per §5.4(c)
+        if (!isEditMode && saveAsSavedAddress && savedAddressLabel?.trim()) {
+          createUserAddress({
+            label: savedAddressLabel.trim(),
+            governorate: governorate || undefined,
+            city: city || undefined,
+            address: address || undefined,
+            latitude: latitude != null && !isNaN(latitude) ? latitude : undefined,
+            longitude: longitude != null && !isNaN(longitude) ? longitude : undefined,
+          })
+            .then((addrRes) => {
+              if (!addrRes.success) {
+                toast({
+                  variant: 'destructive',
+                  title: tListing('wizard.saved_address.save_failed_toast'),
+                });
+              }
+            })
+            .catch(() => {
+              toast({
+                variant: 'destructive',
+                title: tListing('wizard.saved_address.save_failed_toast'),
+              });
+            });
+        }
+
         toast({
           title: locale === 'en' ? '🚗 Success!' : '🚗 تم بنجاح',
           description: locale === 'en'
