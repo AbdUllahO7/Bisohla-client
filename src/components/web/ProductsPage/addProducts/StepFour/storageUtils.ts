@@ -2,11 +2,11 @@ import { ListingType, RentType, SaveStatus } from "@/core/entities/enums/cars.en
 import { AdInformationFormData } from "./schema";
 import { EDIT_STORAGE_KEYS, STORAGE_KEYS } from "../Main/hooks/useLocalStorage";
 import { Currency } from "@/core/entities/enums/currency.enum";
-import { CountryCode } from "@/core/entities/enums/country-codes.enum";
+import { assemblePhone, splitPhone } from "@/core/lib/phone/phone.util";
 
 // Extended interface for localStorage (includes frontend-only fields)
 export interface AdInformationStorageData extends AdInformationFormData {
-    countryCode?: CountryCode; // Frontend-only: for UI selector
+    countryCode?: string; // Legacy field
 }
 
 // Default values for the form
@@ -14,64 +14,34 @@ export const defaultAdInfoData: AdInformationStorageData = {
     title: "",
     price: "",
     description: "",
-    contactNumber: "", // Will store full phone with country code
+    countryDialCode: "+963",
+    contactNumber: "",
     listingType: ListingType.FOR_SALE,
     rentType: null,
     publicationDate: new Date(),
     saveStatus: SaveStatus.PUBLISHED,
     currency: Currency.USD,
-    countryCode: CountryCode.SY, // Default to Syria (frontend-only)
     governorate: "",
     city: "",
     address: "",
+    latitude: null,
+    longitude: null,
+    detectedGovernorate: null,
+    saveAsSavedAddress: false,
+    savedAddressLabel: "",
+    installmentsAvailable: false,
+    installmentPlans: [],
 };
 
-/**
- * Combines country code and phone number into full format for contactNumber
- * @param countryCode - The country calling code (e.g., "+963")
- * @param phoneNumber - The phone number without country code
- * @returns Full phone number (e.g., "+963 5389370863")
- */
 export const combinePhoneNumber = (countryCode: string, phoneNumber: string): string => {
-    if (!phoneNumber) return "";
-    // Remove any existing + or spaces from phone number
-    const cleanPhone = phoneNumber.replace(/[\s+-]/g, "");
-    return `${countryCode} ${cleanPhone}`;
+    return assemblePhone(countryCode, phoneNumber) || "";
 };
 
-/**
- * Parses contactNumber into country code and phone number for UI
- * @param contactNumber - Complete phone with country code (e.g., "+963 5389370863")
- * @returns Object with countryCode and phoneNumber (without country code)
- */
 export const parsePhoneNumber = (contactNumber: string): { countryCode: string; phoneNumber: string } => {
-    if (!contactNumber) {
-        return { countryCode: CountryCode.SY, phoneNumber: "" };
-    }
-
-    // Clean the input: remove spaces but keep leading +
-    const cleanContact = contactNumber.trim();
-
-    // Sort country codes by length descending to match longest possible prefix first
-    const countryCodes = Object.values(CountryCode).sort((a, b) => b.length - a.length);
-
-    for (const code of countryCodes) {
-        if (cleanContact.startsWith(code)) {
-            const number = cleanContact.slice(code.length).trim();
-            // Remove any other non-digit characters from the number part
-            const cleanNumber = number.replace(/[^\d]/g, "");
-
-            return {
-                countryCode: code as CountryCode,
-                phoneNumber: cleanNumber
-            };
-        }
-    }
-
-    // If no country code matches, default to Syria and clean the whole thing
+    const { dialCode, localNumber } = splitPhone(contactNumber || "");
     return {
-        countryCode: CountryCode.SY,
-        phoneNumber: cleanContact.replace(/[^\d]/g, "")
+        countryCode: dialCode,
+        phoneNumber: localNumber
     };
 };
 
@@ -141,15 +111,6 @@ export const ensureEnumValues = (data: any): AdInformationStorageData => {
         }
     }
 
-    // Handle countryCode (frontend-only)
-    if (data.countryCode && typeof data.countryCode === 'string') {
-        if (Object.values(CountryCode).includes(data.countryCode as CountryCode)) {
-            result.countryCode = data.countryCode as CountryCode;
-        } else {
-            result.countryCode = CountryCode.SY; // Default to Syria
-        }
-    }
-
     return result as AdInformationStorageData;
 };
 
@@ -181,12 +142,11 @@ export const loadAdInfoData = (): AdInformationStorageData => {
                 parsedData.currency = Currency.USD;
             }
 
-            // Parse contactNumber to extract countryCode if not present
-            if (parsedData.contactNumber && !parsedData.countryCode) {
-                const { countryCode } = parsePhoneNumber(parsedData.contactNumber);
-                parsedData.countryCode = countryCode;
-            } else if (!parsedData.countryCode) {
-                parsedData.countryCode = CountryCode.SY;
+            if (parsedData.contactNumber && !parsedData.countryDialCode) {
+                const { dialCode } = splitPhone(parsedData.contactNumber);
+                parsedData.countryDialCode = dialCode;
+            } else if (!parsedData.countryDialCode) {
+                parsedData.countryDialCode = "+963";
             }
 
             return ensureEnumValues(parsedData);

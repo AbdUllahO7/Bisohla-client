@@ -10,6 +10,7 @@ import {
   clearFormData,
 } from '@/components/web/ProductsPage/addProducts/Main/hooks/useLocalStorage';
 import { useGetListingById } from '@/core/infrastructure-adapters/use-actions/users/listing.user.use-actions';
+import { splitPhone } from '@/core/lib/phone/phone.util';
 
 const EditProductPage = () => {
   const { id } = useParams();
@@ -36,33 +37,49 @@ const EditProductPage = () => {
       const stepOneData = {
         id: typeId,
         name: (listing as any).listingType?.name || (listing as any).listingType || 'Listing',
+        rentEnabled: (listing as any).listingType?.rentEnabled,
+        installmentsEnabled: (listing as any).listingType?.installmentsEnabled,
+        installmentsMode: (listing as any).listingType?.installmentsMode,
+        installmentOptions: (listing as any).listingType?.installmentOptions,
       };
 
       // Initialize stepTwoData with flattened attribute values and their metadata
       const attributeValuesMap: Record<string, any> = {};
       const attributeMetaMap: Record<string, any> = {};
+      const proposalsMap: Record<number, { name: string; status: 'pending' }> = {};
 
       if (listing.attributeValues && Array.isArray(listing.attributeValues)) {
         listing.attributeValues.forEach((av: any) => {
           const slug = av.attribute?.slug;
-          if (slug) {
+          const attrId = av.attribute?.id || av.attributeId;
+          if (slug && attrId) {
             attributeMetaMap[slug] = {
-              id: av.attribute.id,
-              type: av.attribute.type,
+              id: attrId,
+              type: av.attribute?.type,
             };
 
-            let val = null;
-            if (av.valueNumber !== null && av.valueNumber !== undefined)
-              val = Number(av.valueNumber);
-            else if (av.valueJson !== null && av.valueJson !== undefined)
-              val = av.valueJson;
-            else if (av.valueBoolean !== null && av.valueBoolean !== undefined)
-              val = av.valueBoolean;
-            else if (av.valueText !== null && av.valueText !== undefined)
-              val = av.valueText;
-            else if (av.valueDate !== null && av.valueDate !== undefined)
-              val = av.valueDate;
-            attributeValuesMap[slug] = val;
+            if (av.refItemProposal && av.refItemProposal.status === 'pending') {
+              proposalsMap[attrId] = {
+                name: av.refItemProposal.submittedName,
+                status: 'pending',
+              };
+              attributeValuesMap[slug] = null;
+            } else {
+              let val = null;
+              if (av.referenceItemId !== null && av.referenceItemId !== undefined)
+                val = av.referenceItemId;
+              else if (av.valueNumber !== null && av.valueNumber !== undefined)
+                val = Number(av.valueNumber);
+              else if (av.valueJson !== null && av.valueJson !== undefined)
+                val = av.valueJson;
+              else if (av.valueBoolean !== null && av.valueBoolean !== undefined)
+                val = av.valueBoolean;
+              else if (av.valueText !== null && av.valueText !== undefined)
+                val = av.valueText;
+              else if (av.valueDate !== null && av.valueDate !== undefined)
+                val = av.valueDate;
+              attributeValuesMap[slug] = val;
+            }
           }
         });
       }
@@ -78,6 +95,7 @@ const EditProductPage = () => {
         trim: listing.trimId || listing.trim?.id || attributeValuesMap.trim || null,
         currency: listing.currency || 'USD',
         __attributeMap__: attributeMetaMap,
+        __proposals__: proposalsMap,
       };
 
       // Normalize images
@@ -121,7 +139,17 @@ const EditProductPage = () => {
         saveStatus: listing.saveStatus || 'PUBLISHED',
         listingType: listing.listingOfferType || listing.listingType || 'for_sale',
         rentType: listing.rentType || null,
-        contactNumber: listing.contactNumber || '',
+        installmentsAvailable: Boolean(listing.installmentsAvailable),
+        installmentPlans: Array.isArray(listing.installmentPlans)
+          ? listing.installmentPlans.map((p: any) => ({
+              months: Number(p.months),
+              downPayment: p.downPayment !== null && p.downPayment !== undefined ? p.downPayment.toString() : '',
+              monthlyAmount: p.monthlyAmount !== null && p.monthlyAmount !== undefined ? p.monthlyAmount.toString() : '',
+              noteTranslations: p.noteTranslations || (p.note ? { en: p.note, ar: p.note } : undefined),
+            }))
+          : [],
+        countryDialCode: splitPhone(listing.contactNumber).dialCode,
+        contactNumber: splitPhone(listing.contactNumber).localNumber,
         publicationDate: listing.publishedAt
           ? new Date(listing.publishedAt).toISOString()
           : new Date().toISOString(),

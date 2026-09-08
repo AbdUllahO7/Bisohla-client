@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format } from "date-fns"
-import { CalendarIcon, FileText, Phone, DollarSign, MapPin, Sliders, CheckCircle2, Award, Info } from "lucide-react"
+import { CalendarIcon, FileText, Phone, DollarSign, MapPin, Sliders, CheckCircle2, Award, Info, Bookmark } from "lucide-react"
 import { Calendar } from "@/components/ui/calendar"
 import { useTranslations } from "next-intl"
 
@@ -13,6 +13,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
 
 import { ListingType, RentType, SaveStatus, getListingTypeOptions, getRentTypeOptions, getSaveStatusOptions } from "@/core/entities/enums/cars.enums"
@@ -46,9 +47,17 @@ import {
 } from "./storageUtils"
 import Text from "@/components/ui/text"
 import { Currency, getCurrencyOptions } from "@/core/entities/enums/currency.enum"
-import { CountryCode, getCountryCodeOptions } from "@/core/entities/enums/country-codes.enum"
-import { SearchableCountrySelect } from "@/components/forms/searchable-country-select"
 import { useProfile } from "@/providers/profile.provider"
+import { useSettings } from "@/providers/settings.provider"
+import { useSavedAddresses } from "@/core/infrastructure-adapters/use-actions/users/saved-address.use-actions"
+import { SavedAddressPickerDialog } from "@/components/web/SavedAddresses/SavedAddressPickerDialog"
+import { findMatchingSavedAddress } from "@/core/lib/saved-address-match"
+import { UserAddress } from "@/core/entities/models/users/saved-address.dto"
+import PhoneField from "@/components/forms/phone-field"
+import { assemblePhone, splitPhone, repairPhone } from "@/core/lib/phone/phone.util"
+import InstallmentsCard from "./InstallmentsCard"
+import { ListingInstallmentOption, ListingInstallmentsMode } from "@/core/entities/models/listings/installments.dto"
+import { EDIT_STORAGE_KEYS, getStorageKey, STORAGE_KEYS } from "../Main/hooks/useLocalStorage"
 
 // Simplified EnumSelect component without internal state tracking
 interface EnumSelectProps {
@@ -62,6 +71,9 @@ interface EnumSelectProps {
   value?: string;
   isRtl?: boolean;
   className?: string;
+  disabled?: boolean;
+  hint?: React.ReactNode;
+  headerAction?: React.ReactNode;
 }
 
 const EnumSelect = ({
@@ -74,7 +86,10 @@ const EnumSelect = ({
   onChange,
   value,
   isRtl = false,
-  className = ""
+  className = "",
+  disabled = false,
+  hint,
+  headerAction,
 }: EnumSelectProps) => {
   return (
     <FormField
@@ -82,11 +97,15 @@ const EnumSelect = ({
       name={name}
       render={({ field }) => (
         <FormItem className={`text-primary ${className}`}>
-          <FormLabel className="text-primary dark:text-white">
-            {label}
-            {required && <span className="text-red-500">*</span>}
-          </FormLabel>
+          <div className="flex items-center justify-between gap-2">
+            <FormLabel className="text-primary dark:text-white">
+              {label}
+              {required && <span className="text-red-500">*</span>}
+            </FormLabel>
+            {headerAction}
+          </div>
           <Select
+            disabled={disabled}
             onValueChange={(val) => {
               field.onChange(val);
               if (onChange) {
@@ -97,7 +116,7 @@ const EnumSelect = ({
             dir={`${isRtl ? "rtl" : "ltr"}`}
           >
             <FormControl>
-              <SelectTrigger className="h-11 border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 dark:text-white">
+              <SelectTrigger className="h-11 border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 dark:text-white disabled:opacity-85 disabled:bg-slate-50 dark:disabled:bg-zinc-850">
                 <SelectValue placeholder={placeholder} dir={`${isRtl ? "rtl" : "ltr"}`} />
               </SelectTrigger>
             </FormControl>
@@ -112,16 +131,13 @@ const EnumSelect = ({
               }}
             >
               {options.map((option) => (
-                <SelectItem
-                  className="focus:bg-primary-light focus:text-white transition-all duration-200 font-cairo font-[700]"
-                  key={option.value}
-                  value={option.value}
-                >
+                <SelectItem key={option.value} value={option.value}>
                   {option.label}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
+          {hint && <div className="mt-1">{hint}</div>}
           <FormMessage />
         </FormItem>
       )}
@@ -144,17 +160,81 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
   const mapRef = useRef<HTMLDivElement>(null);
   const [gpsCoords, setGpsCoords] = useState<{ lat: number; lng: number }>({ lat: 33.5138, lng: 36.2765 });
 
+  const tListing = useTranslations("listing");
+  const { getListingsSettings } = useSettings();
+  const isSavedAddressesEnabled =
+    getListingsSettings()?.location?.saved_addresses_enabled ?? true;
+
+  const { data: savedAddressesResponse, isLoading: isLoadingSavedAddresses } =
+    useSavedAddresses({ enabled: isSavedAddressesEnabled });
+
+  const [isPickerOpen, setIsPickerOpen] = useState(false);
+  const autoPrefillDoneRef = useRef(false);
+  const mapInstanceRef = useRef<any>(null);
+  const markerInstanceRef = useRef<any>(null);
+
   // Create state for enum values as form backups
   const [listingTypeValue, setListingTypeValue] = useState<ListingType | "">("");
   const [rentTypeValue, setRentTypeValue] = useState<RentType | null>(null);
   const [saveStatusValue, setSaveStatusValue] = useState<SaveStatus | "">("");
   const [currencyValue, setCurrencyValue] = useState<Currency | "">("");
-  const [countryCodeValue, setCountryCodeValue] = useState<CountryCode>(CountryCode.SY);
-  const countryCodeRef = useRef<CountryCode>(CountryCode.SY);
+  const [countryDialCodeValue, setCountryDialCodeValue] = useState<string>("+963");
+  const countryDialCodeRef = useRef<string>("+963");
+
+  const [listingTypePolicy, setListingTypePolicy] = useState<{
+    rentEnabled?: boolean;
+    installmentsEnabled?: boolean;
+    installmentsMode?: ListingInstallmentsMode;
+    installmentOptions?: ListingInstallmentOption[];
+  } | null>(null);
 
   useEffect(() => {
-    countryCodeRef.current = countryCodeValue;
-  }, [countryCodeValue]);
+    countryDialCodeRef.current = countryDialCodeValue;
+  }, [countryDialCodeValue]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const stepOneKey = getStorageKey('STEP_ONE', isEditMode);
+    const stepOneRaw = localStorage.getItem(stepOneKey) || localStorage.getItem(STORAGE_KEYS.STEP_ONE);
+    if (stepOneRaw) {
+      try {
+        const parsed = JSON.parse(stepOneRaw);
+        setListingTypePolicy({
+          rentEnabled: parsed.rentEnabled,
+          installmentsEnabled: parsed.installmentsEnabled,
+          installmentsMode: parsed.installmentsMode,
+          installmentOptions: parsed.installmentOptions,
+        });
+      } catch (e) {
+        console.error("Failed to parse STEP_ONE policy in StepFour", e);
+      }
+    }
+  }, [isEditMode]);
+
+  // §7.5 Policy clamp — run whenever the policy resolves (e.g. admin disabled installments after draft was saved)
+  useEffect(() => {
+    if (!listingTypePolicy) return;
+
+    // Clamp 1: rentEnabled === false → force for_sale, clear rentType
+    if (listingTypePolicy.rentEnabled === false) {
+      const currentOffer = form.getValues('listingType');
+      if (currentOffer === 'for_rent') {
+        form.setValue('listingType', 'for_sale' as any, { shouldValidate: true });
+        form.setValue('rentType', null, { shouldValidate: true });
+        setListingTypeValue(ListingType.FOR_SALE);
+        setShowRentType(false);
+        setRentTypeValue(null);
+      }
+    }
+
+    // Clamp 2: installmentsEnabled === false → disable installments (keep plans in state)
+    if (listingTypePolicy.installmentsEnabled === false) {
+      const currentAvail = form.getValues('installmentsAvailable');
+      if (currentAvail) {
+        form.setValue('installmentsAvailable', false, { shouldValidate: true });
+      }
+    }
+  }, [listingTypePolicy]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -188,10 +268,14 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
       const L = (window as any).L;
       if (!mapRef.current || !L) return;
 
-      const defaultLatLng = [33.5138, 36.2765]; // Damascus
+      const savedLat = form.getValues('latitude');
+      const savedLng = form.getValues('longitude');
+      const defaultLatLng = savedLat != null && savedLng != null
+        ? [savedLat, savedLng]
+        : [33.5138, 36.2765]; // Damascus
 
       // Initialize Leaflet map instance
-      mapInstance = L.map(mapRef.current).setView(defaultLatLng, 13);
+      mapInstance = L.map(mapRef.current).setView(defaultLatLng, savedLat != null ? 14 : 13);
 
       // Add high-performance OpenStreetMap tiles
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -200,6 +284,9 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
 
       // Create interactive draggable marker pin
       markerInstance = L.marker(defaultLatLng, { draggable: true }).addTo(mapInstance);
+
+      mapInstanceRef.current = mapInstance;
+      markerInstanceRef.current = markerInstance;
 
       // Move marker on map click
       mapInstance.on("click", (e: any) => {
@@ -217,6 +304,8 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
 
     const updateAddressFromCoords = (lat: number, lng: number) => {
       setGpsCoords({ lat, lng });
+      form.setValue("latitude", lat, { shouldValidate: true, shouldDirty: true });
+      form.setValue("longitude", lng, { shouldValidate: true, shouldDirty: true });
       
       // Query Nominatim in Arabic to get standard Syrian governorate and city names
       fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=ar`)
@@ -253,6 +342,9 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
             // Set values and trigger form validation updates
             if (matchedGov) {
               form.setValue("governorate", matchedGov as any, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+              form.setValue("detectedGovernorate", matchedGov, { shouldValidate: true, shouldDirty: true });
+            } else {
+              form.setValue("detectedGovernorate", null, { shouldValidate: true, shouldDirty: true });
             }
             
             if (matchedCity) {
@@ -267,10 +359,12 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
               form.setValue("address", displayName, { shouldValidate: true, shouldDirty: true });
             }
           } else {
+            form.setValue("detectedGovernorate", null, { shouldValidate: true, shouldDirty: true });
             form.setValue("address", `${direction === "rtl" ? "موقع محدد" : "Selected location"} (${lat.toFixed(5)}, ${lng.toFixed(5)})`);
           }
         })
         .catch(() => {
+          form.setValue("detectedGovernorate", null, { shouldValidate: true, shouldDirty: true });
           form.setValue("address", `${direction === "rtl" ? "موقع محدد" : "Selected location"} (${lat.toFixed(5)}, ${lng.toFixed(5)})`);
         });
     };
@@ -286,9 +380,14 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
 
   const t = useTranslations("addProduct.enteredData");
   const { profile } = useProfile();
-  const countryCodeOptions = getCountryCodeOptions();
 
-  const listingTypeOptions = getListingTypeOptions(t);
+  const rawListingTypeOptions = getListingTypeOptions(t);
+  const listingTypeOptions = rawListingTypeOptions.filter(opt => {
+    if (opt.value === ListingType.FOR_RENT && listingTypePolicy?.rentEnabled === false) {
+      return false;
+    }
+    return true;
+  });
   const rentTypeOptions = getRentTypeOptions(t);
   const saveStatusOptions = getSaveStatusOptions(t);
   const currencyOptions = getCurrencyOptions(t);
@@ -300,10 +399,94 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
     mode: "onChange",
   });
 
-  const handleCountryCodeChange = (value: string) => {
-    const countryCode = value as CountryCode;
-    setCountryCodeValue(countryCode);
+  const applyAddressToForm = (address: UserAddress) => {
+    const lat = address.latitude;
+    const lng = address.longitude;
+
+    if (lat != null && lng != null) {
+      form.setValue("latitude", lat, { shouldValidate: true, shouldDirty: true });
+      form.setValue("longitude", lng, { shouldValidate: true, shouldDirty: true });
+      form.setValue("detectedGovernorate", address.governorate, { shouldValidate: true, shouldDirty: true });
+      setGpsCoords({ lat, lng });
+
+      if (mapInstanceRef.current && markerInstanceRef.current) {
+        mapInstanceRef.current.setView([lat, lng], 14);
+        markerInstanceRef.current.setLatLng([lat, lng]);
+      }
+    }
+
+    if (address.governorate != null) {
+      form.setValue("governorate", address.governorate as any, { shouldValidate: true, shouldDirty: true });
+    }
+    if (address.city != null) {
+      form.setValue("city", address.city as any, { shouldValidate: true, shouldDirty: true });
+    }
+    if (address.address != null) {
+      form.setValue("address", address.address, { shouldValidate: true, shouldDirty: true });
+    }
+
+    form.trigger(["governorate", "city", "address"]);
+
+    // Persist to draft in localStorage
+    const currentDraft = loadAdInfoData() || defaultAdInfoData;
+    saveAdInfoData({
+      ...currentDraft,
+      governorate: address.governorate || '',
+      city: address.city || '',
+      address: address.address || '',
+      latitude: lat,
+      longitude: lng,
+      detectedGovernorate: address.governorate,
+    });
   };
+
+  // Auto-prefill from default saved address (one-shot ABSENT gate)
+  useEffect(() => {
+    if (
+      !isSavedAddressesEnabled ||
+      isEditMode ||
+      autoPrefillDoneRef.current ||
+      isLoadingSavedAddresses ||
+      !savedAddressesResponse?.data
+    ) {
+      return;
+    }
+
+    const currentGov = form.getValues('governorate');
+    const currentCity = form.getValues('city');
+    const currentAddr = form.getValues('address');
+
+    if (currentGov || currentCity || currentAddr) {
+      autoPrefillDoneRef.current = true;
+      return;
+    }
+
+    const defaultAddress = savedAddressesResponse.data.find((a) => a.isDefault);
+    if (defaultAddress) {
+      autoPrefillDoneRef.current = true;
+      applyAddressToForm(defaultAddress);
+    }
+  }, [isSavedAddressesEnabled, isEditMode, isLoadingSavedAddresses, savedAddressesResponse]);
+
+  // Check whether current location matches an already saved address
+  const matchingSavedAddress = findMatchingSavedAddress(
+    savedAddressesResponse?.data,
+    {
+      governorate: form.watch('governorate'),
+      city: form.watch('city'),
+      address: form.watch('address'),
+      latitude: form.watch('latitude') || gpsCoords?.lat,
+      longitude: form.watch('longitude') || gpsCoords?.lng,
+    }
+  );
+
+  // Force-clear "Save this address for next time" if the address becomes a known address
+  useEffect(() => {
+    if (matchingSavedAddress && form.getValues('saveAsSavedAddress')) {
+      form.setValue('saveAsSavedAddress', false);
+      form.setValue('savedAddressLabel', '');
+    }
+  }, [matchingSavedAddress]);
   // Helper function to map API enums to form enums
   const mapApiEnumToFormEnum = (apiValue: string, enumType: any): any => {
     if (!apiValue) return Object.values(enumType)[0];
@@ -362,6 +545,17 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
         isValid = false;
       }
 
+      if (listingType === ListingType.FOR_SALE && data.installmentsAvailable) {
+        if (!data.installmentPlans || data.installmentPlans.length === 0) {
+          isValid = false;
+        } else {
+          const hasInvalid = data.installmentPlans.some(p => !p.months || !p.monthlyAmount || Number(p.monthlyAmount) <= 0);
+          if (hasInvalid) {
+            isValid = false;
+          }
+        }
+      }
+
       return isValid;
     } finally {
       validationCheckRunning.current = false;
@@ -372,12 +566,12 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
   const applyEditData = (editData: AdInformationFormData) => {
     if (editModeDataApplied.current) return;
     let phoneOnly = editData.contactNumber || "";
-    let extractedCountryCode = countryCodeValue;
+    let extractedCountryCode = editData.countryDialCode || countryDialCodeValue;
 
-    if (editData.contactNumber) {
-      const { countryCode, phoneNumber } = parsePhoneNumber(editData.contactNumber);
-      extractedCountryCode = countryCode as CountryCode;
-      phoneOnly = phoneNumber;
+    if (editData.contactNumber && (editData.contactNumber.startsWith('+') || !editData.countryDialCode)) {
+      const { dialCode, localNumber } = splitPhone(editData.contactNumber);
+      extractedCountryCode = dialCode;
+      phoneOnly = localNumber;
     }
 
     const mappedListingType = typeof editData.listingType === 'string'
@@ -402,15 +596,19 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
     if (mappedRentType) {
       setRentTypeValue(mappedRentType);
     }
-    setCountryCodeValue(extractedCountryCode);
+    setCountryDialCodeValue(extractedCountryCode);
+    countryDialCodeRef.current = extractedCountryCode;
 
-    const processedData = {
+    const processedData: AdInformationFormData = {
       ...editData,
+      countryDialCode: extractedCountryCode,
       contactNumber: phoneOnly,
       listingType: mappedListingType,
       saveStatus: mappedSaveStatus,
       rentType: mappedRentType,
-      currency: mappedCurrency
+      currency: mappedCurrency,
+      installmentsAvailable: Boolean(editData.installmentsAvailable),
+      installmentPlans: editData.installmentPlans || []
     };
 
     if (mappedListingType === ListingType.FOR_RENT) {
@@ -450,9 +648,19 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
           title: listing.title || '',
           description: listing.description || '',
           price: listing.price?.toString() || '',
+          countryDialCode: '+963',
           contactNumber: listing.contactNumber || '',
           listingType: listing.listingOfferType || listing.listingType || ListingType.FOR_SALE,
           rentType: listing.rentType || null,
+          installmentsAvailable: Boolean(listing.installmentsAvailable),
+          installmentPlans: Array.isArray(listing.installmentPlans)
+            ? listing.installmentPlans.map((p: any) => ({
+                months: Number(p.months),
+                downPayment: p.downPayment !== null && p.downPayment !== undefined ? p.downPayment.toString() : '',
+                monthlyAmount: p.monthlyAmount !== null && p.monthlyAmount !== undefined ? p.monthlyAmount.toString() : '',
+                noteTranslations: p.noteTranslations || (p.note ? { en: p.note, ar: p.note } : undefined),
+              }))
+            : [],
           saveStatus: listing.saveStatus || SaveStatus.PUBLISHED,
           publicationDate: listing.publishedAt ? new Date(listing.publishedAt) : new Date(),
           currency: listing.currency || Currency.USD,
@@ -468,12 +676,12 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
     // 3. Apply savedData if available
     if (isActuallySaved && !editModeDataApplied.current) {
       let phoneOnly = savedData.contactNumber || "";
-      let extractedCountryCode = savedData.countryCode || CountryCode.SY;
+      let extractedCountryCode = savedData.countryDialCode || "+963";
 
-      if (savedData.contactNumber) {
-        const { countryCode, phoneNumber } = parsePhoneNumber(savedData.contactNumber);
-        extractedCountryCode = countryCode as CountryCode;
-        phoneOnly = phoneNumber;
+      if (savedData.contactNumber && (savedData.contactNumber.startsWith('+') || !savedData.countryDialCode)) {
+        const { dialCode, localNumber } = splitPhone(savedData.contactNumber);
+        extractedCountryCode = dialCode;
+        phoneOnly = localNumber;
       }
       
       setListingTypeValue(savedData.listingType || ListingType.FOR_SALE);
@@ -483,11 +691,15 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
       setSaveStatusValue(savedData.saveStatus || SaveStatus.PUBLISHED);
       setRentTypeValue(savedData.rentType || null);
       setCurrencyValue(savedData.currency || Currency.USD);
-      setCountryCodeValue(extractedCountryCode);
+      setCountryDialCodeValue(extractedCountryCode);
+      countryDialCodeRef.current = extractedCountryCode;
 
       form.reset({
         ...savedData,
-        contactNumber: phoneOnly
+        countryDialCode: extractedCountryCode,
+        contactNumber: phoneOnly,
+        installmentsAvailable: Boolean(savedData.installmentsAvailable),
+        installmentPlans: savedData.installmentPlans || []
       });
       previousFormData.current = savedData;
 
@@ -505,14 +717,17 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
   // Auto-fill phone number from profile if empty
   useEffect(() => {
     if (!isEditMode && profile?.phoneNumber && !form.getValues("contactNumber")) {
-      const { countryCode, phoneNumber } = parsePhoneNumber(profile.phoneNumber);
+      const { dialCode: initialDial, localNumber: initialLocal } = splitPhone(profile.phoneNumber);
+      const repaired = repairPhone(initialLocal || profile.phoneNumber, initialDial || "+963");
+      const dialCode = repaired.isValid ? repaired.dialCode : initialDial;
+      const localNumber = repaired.isValid ? repaired.localNumber : initialLocal;
 
-      if (phoneNumber) {
-        form.setValue("contactNumber", phoneNumber, { shouldValidate: true });
-        setCountryCodeValue(countryCode as CountryCode);
-
-        // No need to manually call autoSaveAdInfoData here as the watch effect 
-        // will handle it when form values change
+      if (localNumber) {
+        setCountryDialCodeValue(dialCode);
+        countryDialCodeRef.current = dialCode;
+        form.setValue("countryDialCode", dialCode, { shouldDirty: true });
+        form.setValue("contactNumber", localNumber, { shouldValidate: true, shouldDirty: true });
+        form.trigger("contactNumber");
       }
     }
   }, [profile, isEditMode, form]);
@@ -523,6 +738,8 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
 
     if (listingTypeValue === ListingType.FOR_RENT) {
       setShowRentType(true);
+      form.setValue('installmentsAvailable', false);
+      form.setValue('installmentPlans', []);
     } else {
       setShowRentType(false);
       setRentTypeValue(null);
@@ -555,21 +772,23 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
         if (!formValues) return;
         
         const phoneOnly = formValues.contactNumber || "";
-        const currentCountryCode = countryCodeRef.current;
+        const currentCountryCode = formValues.countryDialCode || countryDialCodeRef.current || "+963";
         const fullContactNumber = currentCountryCode && phoneOnly
-          ? combinePhoneNumber(currentCountryCode, phoneOnly)
+          ? assemblePhone(currentCountryCode, phoneOnly) || ""
           : phoneOnly;
           
         const currentData = {
           ...formValues,
+          countryDialCode: currentCountryCode,
           contactNumber: fullContactNumber,
           listingType: formValues.listingType || listingTypeValue || ListingType.FOR_SALE,
           saveStatus: formValues.saveStatus || saveStatusValue || SaveStatus.PUBLISHED,
           currency: formValues.currency || currencyValue || Currency.USD,
-          countryCode: currentCountryCode,
           rentType: formValues.listingType === ListingType.FOR_RENT 
             ? (formValues.rentType || rentTypeValue)
-            : null
+            : null,
+          installmentsAvailable: formValues.listingType === ListingType.FOR_RENT ? false : Boolean(formValues.installmentsAvailable),
+          installmentPlans: formValues.listingType === ListingType.FOR_RENT ? [] : (formValues.installmentPlans || [])
         } as AdInformationFormData;
 
         // Auto-save any valid changes
@@ -596,14 +815,18 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
   }, [form, onValidationChange, listingTypeValue, saveStatusValue, currencyValue, rentTypeValue]);
 
   const onSubmit = (data: AdInformationFormData) => {
+    const fullContactNumber = assemblePhone(data.countryDialCode || "+963", data.contactNumber) || "";
     const submittedData = {
       ...data,
+      contactNumber: fullContactNumber,
       listingType: data.listingType || listingTypeValue || ListingType.FOR_SALE,
       saveStatus: data.saveStatus || saveStatusValue || SaveStatus.PUBLISHED,
       currency: data.currency || currencyValue || Currency.USD,
       rentType: data.listingType === ListingType.FOR_RENT
         ? (data.rentType || rentTypeValue)
-        : null
+        : null,
+      installmentsAvailable: data.listingType === ListingType.FOR_RENT ? false : Boolean(data.installmentsAvailable),
+      installmentPlans: data.listingType === ListingType.FOR_RENT ? [] : (data.installmentPlans || [])
     };
 
     const adInfoState: AdInfoState = {
@@ -620,16 +843,16 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
       currency: submittedData.currency
     };
 
-    const isValid = validateForm(adInfoState);
+    const isValid = validateForm(adInfoState, data.countryDialCode || "+963");
 
     if (isValid) {
       saveAdInfoData(submittedData);
     } else {
-      setFormErrors(adInfoState);
+      setFormErrors(adInfoState, data.countryDialCode || "+963");
     }
   };
 
-  const setFormErrors = (adInfoState: AdInfoState) => {
+  const setFormErrors = (adInfoState: AdInfoState, countryDialCode: string = "+963") => {
     const titleError = getTitleErrorMessage(adInfoState.title, direction);
     if (titleError) form.setError("title", { message: titleError });
 
@@ -639,7 +862,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
     const priceError = getPriceErrorMessage(adInfoState.price.toString(), direction);
     if (priceError) form.setError("price", { message: priceError });
 
-    const contactError = getContactErrorMessage(adInfoState.contactNumber, direction);
+    const contactError = getContactErrorMessage(adInfoState.contactNumber, direction, countryDialCode);
     if (contactError) form.setError("contactNumber", { message: contactError });
 
     const dateError = getPublicationDateErrorMessage(adInfoState.publicationDate, direction);
@@ -768,41 +991,42 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                  {/* Country Code + Contact Number */}
-                  <div className="sm:col-span-2 lg:col-span-1 space-y-1.5">
-                    <FormLabel className="text-slate-700 dark:text-white font-semibold flex items-center gap-1 text-sm">
-                      <Phone className="w-4 h-4 text-slate-400" />
-                      {t("stepFour.contactNumber")}
-                      <span className="text-rose-500">*</span>
-                    </FormLabel>
-                    <div className="flex gap-2">
-                      <div className="w-32">
-                        <SearchableCountrySelect
-                          value={countryCodeValue}
-                          onChange={handleCountryCodeChange}
-                          options={countryCodeOptions}
-                          placeholder="+963"
+                  {/* PhoneField for contact number */}
+                  <div className="sm:col-span-2 lg:col-span-1">
+                    <FormField
+                      control={form.control}
+                      name="contactNumber"
+                      render={({ field }) => (
+                        <PhoneField
+                          dialCode={form.watch("countryDialCode") || countryDialCodeValue || "+963"}
+                          onDialCodeChange={(code) => {
+                            setCountryDialCodeValue(code);
+                            countryDialCodeRef.current = code;
+                            form.setValue("countryDialCode", code, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+                            form.trigger("contactNumber");
+                          }}
+                          localNumber={field.value || ""}
+                          onLocalNumberChange={(val) => {
+                            field.onChange(val);
+                          }}
+                          onLocalNumberBlur={() => {
+                            field.onBlur();
+                            form.trigger("contactNumber");
+                          }}
+                          label={t("stepFour.contactNumber")}
+                          required
+                          error={
+                            form.formState.errors.contactNumber ? (
+                              form.formState.errors.contactNumber.message === "listing.errors.contact_number_required"
+                                ? (direction === "rtl" ? "رقم الهاتف مطلوب" : "Phone number is required")
+                                : form.formState.errors.contactNumber.message === "listing.errors.contact_number_invalid"
+                                ? (direction === "rtl" ? "هذا ليس رقم هاتف صالحاً للدولة المختارة" : "This is not a valid phone number for the selected country")
+                                : form.formState.errors.contactNumber.message
+                            ) : undefined
+                          }
                         />
-                      </div>
-
-                      <FormField
-                        control={form.control}
-                        name="contactNumber"
-                        render={({ field }) => (
-                          <FormItem className="flex-1">
-                            <FormControl>
-                              <Input
-                                placeholder="5551234567"
-                                className="h-11 rounded-xl border-slate-200 dark:border-zinc-800 focus-visible:ring-primary focus-visible:border-primary bg-white dark:bg-zinc-950 dark:text-white shadow-sm transition-all"
-                                {...field}
-                                type="tel"
-                              />
-                            </FormControl>
-                            <FormMessage className="text-xs text-rose-500 font-medium" />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
+                      )}
+                    />
                   </div>
 
                   {/* Price field */}
@@ -842,22 +1066,47 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                     className="rounded-xl"
                   />
                 </div>
+
+                {/* Installments Section */}
+                <InstallmentsCard
+                  form={form}
+                  listingTypePolicy={listingTypePolicy}
+                  listingOfferType={(form.watch("listingType") || listingTypeValue || "for_sale") as string}
+                  price={parseFloat(String(form.watch("price") || '0').replace(/[^0-9.]/g, '')) || null}
+                  currency={form.watch("currency") || currencyValue || "USD"}
+                  direction={direction as "ltr" | "rtl"}
+                />
               </div>
 
               {/* 3. Location Information Section */}
               <div className="p-5 sm:p-6 rounded-2xl border border-slate-100 dark:border-zinc-800 bg-slate-50/30 dark:bg-zinc-900/30 hover:bg-slate-50/50 dark:hover:bg-zinc-900/50 transition-all duration-300 space-y-6">
-                <div className="flex items-center gap-2.5 pb-2 border-b border-slate-100 dark:border-zinc-800">
-                  <div className="p-2 rounded-lg bg-sky-500/10 text-sky-600">
-                    <MapPin className="w-5 h-5" />
+                <div className="flex items-center justify-between gap-2.5 pb-2 border-b border-slate-100 dark:border-zinc-800 flex-wrap">
+                  <div className="flex items-center gap-2.5">
+                    <div className="p-2 rounded-lg bg-sky-500/10 text-sky-600">
+                      <MapPin className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-slate-800 dark:text-white">
+                        {direction === "rtl" ? "معلومات الموقع" : "Location Information"}
+                      </h3>
+                      <p className="text-xs text-slate-400 dark:text-zinc-400">
+                        {direction === "rtl" ? "حدد موقع السلعة أو الخدمة بدقة" : "Specify where the item is located"}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-slate-800 dark:text-white">
-                      {direction === "rtl" ? "معلومات الموقع" : "Location Information"}
-                    </h3>
-                    <p className="text-xs text-slate-400 dark:text-zinc-400">
-                      {direction === "rtl" ? "حدد موقع السلعة أو الخدمة بدقة" : "Specify where the item is located"}
-                    </p>
-                  </div>
+
+                  {isSavedAddressesEnabled && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setIsPickerOpen(true)}
+                      className="text-primary hover:text-primary hover:bg-primary/10 font-semibold gap-1.5 rounded-xl text-xs h-9 px-3"
+                    >
+                      <Bookmark className="w-4 h-4" />
+                      <span>{tListing('wizard.saved_address.choose_button')}</span>
+                    </Button>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -869,6 +1118,9 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                         : gov.replace(/-/g, ' ')
                     }));
 
+                    const detectedGov = form.watch("detectedGovernorate");
+                    const isGovLocked = Boolean(detectedGov);
+
                     return (
                       <EnumSelect
                         name="governorate"
@@ -877,6 +1129,33 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                         options={governorateOptions}
                         placeholder={direction === "rtl" ? "اختر المحافظة" : "Select Governorate"}
                         required={true}
+                        disabled={isGovLocked}
+                        headerAction={
+                          isGovLocked ? (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                mapRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                              }}
+                              className="text-xs font-semibold text-primary hover:underline"
+                            >
+                              {direction === 'rtl' ? 'تغيير على الخريطة' : 'Change on map'}
+                            </button>
+                          ) : null
+                        }
+                        hint={
+                          isGovLocked ? (
+                            <span className="text-xs text-slate-500 dark:text-zinc-400">
+                              {direction === 'rtl' ? 'محدّدة من موقعك على الخريطة' : 'Set from your map pin'}
+                            </span>
+                          ) : form.watch("latitude") != null ? (
+                            <span className="text-xs text-amber-600 dark:text-amber-400">
+                              {direction === 'rtl'
+                                ? 'تعذّر تحديد المنطقة من موقعك على الخريطة — تأكد من مطابقة المحافظة له'
+                                : "We couldn't work out the area from your pin — check the governorate matches it"}
+                            </span>
+                          ) : null
+                        }
                         onChange={(val) => {
                           form.setValue("city", "");
                         }}
@@ -976,6 +1255,54 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                     </FormItem>
                   )}
                 />
+
+                {/* Save this address for next time (Reverse Save) */}
+                {isSavedAddressesEnabled && !matchingSavedAddress && (
+                  <div className="p-4 rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 space-y-3">
+                    <div className="flex items-center gap-2.5">
+                      <Checkbox
+                        id="saveAsSavedAddress"
+                        checked={form.watch('saveAsSavedAddress')}
+                        onCheckedChange={(checked) => {
+                          form.setValue('saveAsSavedAddress', Boolean(checked), {
+                            shouldValidate: true,
+                            shouldDirty: true,
+                          });
+                        }}
+                      />
+                      <label
+                        htmlFor="saveAsSavedAddress"
+                        className="text-sm font-semibold text-slate-800 dark:text-zinc-200 cursor-pointer select-none"
+                      >
+                        {tListing('wizard.saved_address.save_checkbox')}
+                      </label>
+                    </div>
+
+                    {form.watch('saveAsSavedAddress') && (
+                      <FormField
+                        control={form.control}
+                        name="savedAddressLabel"
+                        render={({ field }) => (
+                          <FormItem className="ps-6">
+                            <FormLabel className="text-xs font-semibold text-slate-600 dark:text-zinc-300">
+                              {tListing('wizard.saved_address.label_field')}
+                              <span className="text-rose-500 ms-1">*</span>
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder={tListing('wizard.saved_address.label_placeholder')}
+                                className="h-10 rounded-xl bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 text-sm"
+                                {...field}
+                                value={field.value || ''}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* 4. Listing Configuration Section */}
@@ -1099,6 +1426,20 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
           </Form>
         </CardContent>
       </Card>
+
+      {/* Saved Address Picker Dialog */}
+      <SavedAddressPickerDialog
+        open={isPickerOpen}
+        onOpenChange={setIsPickerOpen}
+        currentLocation={{
+          governorate: form.watch('governorate'),
+          city: form.watch('city'),
+          address: form.watch('address'),
+          latitude: form.watch('latitude') || gpsCoords?.lat,
+          longitude: form.watch('longitude') || gpsCoords?.lng,
+        }}
+        onSelectAddress={applyAddressToForm}
+      />
     </div>
   )
 }

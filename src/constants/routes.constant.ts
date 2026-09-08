@@ -11,6 +11,10 @@ export const allRoutes = {
     path: '/',
     pageName: 'Home',
   },
+  sellers: {
+    path: '/sellers',
+    pageName: 'Sellers',
+  },
   auth: {
     children: {
       signIn: {
@@ -64,6 +68,20 @@ export const allRoutes = {
         path: '/admin/dashboard',
         pageName: 'Admin Dashboard',
       },
+    },
+  },
+  legal: {
+    privacyPolicy: {
+      path: '/legal/privacy-policy',
+      pageName: 'Privacy Policy',
+    },
+    termsOfService: {
+      path: '/legal/terms-of-service',
+      pageName: 'Terms of Service',
+    },
+    cookiePolicy: {
+      path: '/legal/cookie-policy',
+      pageName: 'Cookie Policy',
     },
   },
 };

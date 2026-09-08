@@ -236,7 +236,12 @@
     "topSellers": {
       "title": "Top Sellers",
       "listings": "listings",
-      "viewProfile": "View Profile"
+      "viewProfile": "View Profile",
+      "see_all": "See all",
+      "listings_count": "{count} listings",
+      "empty_title": "No sellers yet",
+      "error_title": "Could not load sellers",
+      "error_cta": "Try again"
     },
     "recentlyViewed": {
       "title": "Recently Viewed",
@@ -1759,12 +1764,34 @@
     "yesterday": "Yesterday"
   },
   "publicProfile": {
+    "title": "Seller profile",
     "verified": "Verified",
     "memberSince": "Member since",
+    "member_since": "Member since {date}",
+    "listings_count_one": "{count} listing",
+    "listings_count_other": "{count} listings",
+    "for_sale": "For sale",
+    "for_rent": "For rent",
+    "total": "Total",
+    "listings_overview": "Listings overview",
+    "view_listings": "View listings",
+    "listings_section_title": "Listings",
+    "type_chip_all": "All",
+    "filter_button": "Filter listings",
+    "listings_empty": "No listings yet",
+    "listings_empty_description": "This seller has no public listings.",
+    "listings_error": "Failed to load listings",
+    "listings_error_description": "Try again.",
+    "error_title": "Profile not found",
+    "error_description": "This seller's profile could not be loaded.",
+    "empty_title": "No profile found",
+    "empty_description": "This seller has no public profile.",
     "email": "Email",
     "phone": "Phone",
     "noData": "No profile data available",
     "share": "Share this profile",
+    "share_a11y": "Share this seller's profile",
+    "share_message": "Check out {name}'s listings on Bishola: {url}",
     "stats": {
       "totalListings": "Total Listings",
       "forSale": "For Sale",
@@ -2031,5 +2058,303 @@
       "description": "Try zooming out or selecting a different region."
     },
     "total_found": "{count} listings found"
+  },
+  "legal": {
+    "gate": {
+      "title": "Updated legal terms",
+      "body": "We've updated our legal documents. Please review and accept them to continue using بسهولة.",
+      "read_action": "Read the full document",
+      "accept_button": "Accept & continue",
+      "sign_out": "Sign out instead",
+      "error": "We couldn't record your acceptance. Please try again."
+    },
+    "document": {
+      "empty_title": "Content unavailable",
+      "empty_subtitle": "This document hasn't been published yet. Please try again later."
+    },
+    "document_kind": {
+      "privacy_policy": "Privacy Policy",
+      "terms_of_service": "Terms of Service",
+      "cookie_policy": "Cookie Policy"
+    },
+    "list_separator": ", ",
+    "pages": {
+      "privacy": {
+        "title": "Privacy Policy"
+      },
+      "terms": {
+        "title": "Terms of Service"
+      },
+      "cookies": {
+        "title": "Cookie Policy"
+      },
+      "about": {
+        "title": "About Bishola"
+      }
+    },
+    "settings": {
+      "section": "Legal"
+    }
+  },
+  "auth": {
+    "signup": {
+      "legal": {
+        "prefix": "I agree to the "
+      }
+    },
+    "legal": {
+      "oauth_caption_prefix": "By continuing with Google or Apple you agree to the "
+    },
+    "errors": {
+      "legal_required": "You must accept the legal documents to continue."
+    }
+  },
+  "cookieConsent": {
+    "bannerTitle": "We value your privacy.",
+    "bannerDescription": "We use cookies to enhance your browsing experience, analyze site traffic, and deliver personalized content.",
+    "readPolicy": "Read Cookie Policy",
+    "customize": "Cookie Settings",
+    "rejectNonEssential": "Reject Non-Essential",
+    "acceptAll": "Accept All",
+    "savePreferences": "Save Preferences",
+    "preferencesTitle": "Cookie Preferences",
+    "preferencesDescription": "Customize your cookie preferences below. Strictly necessary cookies cannot be disabled as they are required for the website to function properly.",
+    "necessaryTitle": "Strictly Necessary Cookies",
+    "necessaryDescription": "Essential for website navigation, security, and session management.",
+    "alwaysActive": "Always Active",
+    "functionalTitle": "Preferences & Functional",
+    "functionalDescription": "Enables remembering language, region, and interface preferences.",
+    "analyticsTitle": "Analytics & Performance",
+    "analyticsDescription": "Helps us understand how visitors interact with the website to improve user experience.",
+    "marketingTitle": "Marketing & Advertising",
+    "marketingDescription": "Used to deliver relevant advertisements and track campaign effectiveness."
+  },
+  "phone": {
+    "label": "Phone number",
+    "placeholder": "944 123 456",
+    "country_search": "Search countries"
+  },
+  "listing": {
+    "wizard": {
+      "contact_number": "Contact number",
+      "contact_prefilled": "Pre-filled from your profile",
+      "save_as_profile_number": "Save as my profile number",
+      "saved_address": {
+        "choose_button": "Choose from saved addresses",
+        "save_checkbox": "Save this address for next time",
+        "label_field": "Address label",
+        "label_placeholder": "e.g. Home, Showroom",
+        "save_failed_toast": "Couldn't save this address, but your listing was published"
+      }
+    },
+    "card": {
+      "installments_from": "from {amount}/month"
+    },
+    "detail": {
+      "installments_summary_title": "Installments available",
+      "installments_summary_plans_one": "1 plan",
+      "installments_summary_plans_other": "{count} plans",
+      "installments_title": "Installment plans",
+      "installments_subtitle": "Offered by the seller. Agree the terms directly with them.",
+      "view_seller": "View profile",
+      "contact_seller": "Contact seller",
+      "id_chip": {
+        "copied_toast": "Listing ID copied",
+        "a11y_label": "Copy listing ID {id}"
+      }
+    },
+    "filters": {
+      "installments_only_label": "Installments available",
+      "seller_label": "Seller",
+      "seller_placeholder": "Any seller",
+      "seller_clear_a11y": "Clear the selected seller"
+    },
+    "preview": {
+      "pending_badge": "Pending review",
+      "section_installments": "Installments"
+    },
+    "errors": {
+      "contact_number_required": "Phone number is required",
+      "contact_number_invalid": "This is not a valid phone number for the selected country",
+      "reference_proposal_generic": "We couldn't submit one of your suggested values. Please review your listing and try again.",
+      "saved_address_label_required": "Please name this address"
+    }
+  },
+  "profile": {
+    "edit": {
+      "phone_label": "Phone number",
+      "phone_placeholder": "Enter phone number"
+    },
+    "errors": {
+      "phone_invalid": "This is not a valid phone number for the selected country"
+    }
+  },
+  "referenceProposal": {
+    "propose_cta": "Can't find the {attribute}? Suggest it",
+    "propose_cta_generic": "Can't find it? Suggest it",
+    "pending_pill": "Pending",
+    "clear_a11y": "Remove suggested value",
+    "sheet_title": "Suggest a new value for \"{attribute}\"",
+    "sheet_subtitle": "An admin reviews it before it joins the list. You can publish your listing meanwhile.",
+    "name_label": "Name",
+    "name_placeholder": "Type the exact {attribute} name",
+    "did_you_mean_title": "Did you mean one of these?",
+    "did_you_mean_hint": "Or did you mean:",
+    "under_parent": "under {parent}",
+    "confirm_cta": "None of these — suggest \"{name}\"",
+    "confirm_cta_empty": "Suggest this name",
+    "error_too_short": "Must be at least {min} characters",
+    "error_too_long": "Must be at most {max} characters",
+    "error_contact_info": "Please don't include a phone number, link, or email",
+    "error_disabled": "Suggesting new options is currently unavailable",
+    "blocked_from_approval": "Your listing can't be approved until we review the value you suggested."
+  },
+  "attributeForm": {
+    "search_in_attribute": "Search {attribute}…",
+    "parent_pending_description": "The value you suggested for \"{parent}\" is still under review, so nothing is listed under it yet.",
+    "parent_unset_description": "Choose \"{parent}\" first to see the options available here.",
+    "options_empty_title": "No options available",
+    "options_empty_description": "There are no options to choose from here."
+  },
+  "installments": {
+    "months_one": "{count} month",
+    "months_other": "{count} months",
+    "duration_unit": "months",
+    "per_month": "per month",
+    "down_payment_value": "Down payment {value}",
+    "total_value": "Total {value}",
+    "price_label": "Price",
+    "down_payment_line": "− Down payment",
+    "to_finance": "= To finance",
+    "monthly_line": "× {months} months",
+    "total_line": "Total",
+    "over_cash_price": "{value} more than the cash price",
+    "title": "Installments",
+    "description": "Let buyers pay in monthly instalments instead of all at once.",
+    "sheet_title": "Installment plans",
+    "empty_hint": "Add at least one plan so buyers know the terms.",
+    "add_first": "Add your first plan",
+    "add_plan": "Add plan",
+    "edit_plan": "Edit plan",
+    "remove_plan": "Remove plan",
+    "manage": "Manage plans",
+    "more_plans": "+{more} more",
+    "done": "Done",
+    "turn_off": "Turn off installments",
+    "cancel_plan": "Cancel",
+    "save_plan": "Save plan",
+    "duration": "Duration",
+    "duration_other": "Another duration",
+    "duration_placeholder": "e.g. 24",
+    "duration_hint": "In months, up to {max}.",
+    "down_payment": "Down payment",
+    "down_payment_hint": "Must be less than the listing price.",
+    "down_payment_percent": "{percent}%",
+    "down_payment_of_price": "{percent}% of the price.",
+    "monthly_amount": "Monthly amount",
+    "monthly_calculated": "Calculated from the price: {value}. Edit it to add your markup.",
+    "monthly_reset": "Reset to the calculated amount",
+    "note": "Note (optional)",
+    "note_en": "Note (English)",
+    "note_ar": "Note (Arabic)",
+    "note_add": "Add a note (optional)",
+    "catalog_exhausted": "Every available duration is already used.",
+    "max_reached": "You can add up to {max} plans.",
+    "kept_one": "1 plan saved — turn installments on to use it.",
+    "kept_other": "{count} plans saved — turn installments on to use them.",
+    "errors": {
+      "months_required": "Enter a whole number of months",
+      "months_max": "The duration must be {max} months or fewer",
+      "months_not_in_catalog": "Pick one of the offered durations",
+      "months_duplicate": "Each plan needs a different duration",
+      "down_payment_required": "Enter a down payment",
+      "down_payment_negative": "The down payment cannot be negative",
+      "down_payment_too_high": "The down payment must be less than the price",
+      "monthly_amount_required": "Enter a monthly amount",
+      "monthly_amount_positive": "The monthly amount must be greater than zero",
+      "plans_required": "Add at least one installment plan"
+    }
+  },
+  "sellers": {
+    "list": {
+      "title": "Sellers",
+      "search_placeholder": "Search sellers by name",
+      "empty_title": "No sellers yet",
+      "empty_subtitle": "Sellers appear here once they publish their listings.",
+      "empty_search_title": "No sellers match your search",
+      "empty_search_subtitle": "Try a different name.",
+      "error_title": "Could not load sellers",
+      "error_cta": "Try again"
+    }
+  },
+  "home": {
+    "sections": {
+      "top_sellers": "Top Sellers",
+      "see_all": "See all"
+    },
+    "top_sellers": {
+      "listings_count": "{count} listings",
+      "empty_title": "No sellers yet",
+      "error_title": "Could not load sellers",
+      "error_cta": "Try again"
+    }
+  },
+  "savedAddresses": {
+    "title": "Saved addresses",
+    "add_button": "Add address",
+    "empty_title": "No saved addresses yet",
+    "empty_body": "Save an address once and reuse it on future listings",
+    "cap_reached_note": "You've reached the limit of {count} saved addresses",
+    "delete_confirm_title": "Delete this address?",
+    "delete_confirm_body": "This address will be permanently removed from your address book. Listings you already published using it are not affected.",
+    "delete_confirm_button": "Delete",
+    "delete_success_toast": "Address deleted",
+    "delete_success_promoted_toast": "Address deleted · \"{label}\" is now your default",
+    "delete_failed_toast": "Could not delete the address. Please try again.",
+    "set_default_success_toast": "Default address updated",
+    "set_default_failed_toast": "Could not set this address as default. Please try again.",
+    "form": {
+      "title_add": "New address",
+      "title_edit": "Edit address",
+      "label_field": "Label",
+      "label_placeholder": "e.g. Home, Work",
+      "governorate": "Governorate",
+      "city": "City",
+      "address": "Address details",
+      "pick_on_map": "Pick location on map",
+      "save_button": "Save address",
+      "label_required": "Enter a label for this address",
+      "governorate_required": "Pick a governorate",
+      "city_required": "Pick a city",
+      "governorate_pin_locked": "Set from your map pin",
+      "governorate_pin_undetected": "We couldn't work out the area from your pin — check the governorate matches it",
+      "governorate_change_on_map": "Change on map",
+      "governorate_pin_mismatch": "The governorate must match the location pin. Reposition the pin to change it.",
+      "save_failed_error": "Could not save the address. Please try again.",
+      "not_found_title": "Address not found",
+      "not_found_body": "This address may have been deleted.",
+      "delete_button": "Delete address",
+      "delete_note": "Listings you already published with this address are not affected."
+    }
+  },
+  "savedAddress": {
+    "default_badge": "Default",
+    "set_default_action": "Set as default",
+    "edit_hint": "Opens this address for editing",
+    "select_hint": "Uses this address for this listing",
+    "picker_empty_title": "No saved addresses yet",
+    "picker_empty_body": "Save an address from Profile › Saved addresses to reuse it here"
+  },
+  "search": {
+    "direct_open": {
+      "title": "Found listing {id}",
+      "subtitle": "This listing is in {typeName} — outside your current search",
+      "button": "Open listing"
+    },
+    "seller_matches": {
+      "title": "Sellers",
+      "no_type_listings": "This seller has no listings in this category right now"
+    }
   }
 }
+

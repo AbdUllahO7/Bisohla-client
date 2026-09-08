@@ -45,6 +45,7 @@ interface SettingsContextType {
 
   // Specific commonly-used settings
   getLogo: () => string;
+  getAppLogo: () => string;
   getFavicon: () => string;
   getCopyrightMessage: () => string;
   getSocialLinks: () => GeneralSettings['social_links'];
@@ -137,7 +138,12 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
   const getLogo = () => {
     // 1. Try current locale appearance logo
     const appearanceLogo = getSetting('general', 'appearance', 'logo');
-    if (appearanceLogo && typeof appearanceLogo === 'string' && appearanceLogo.trim() !== '') {
+    if (
+      appearanceLogo &&
+      typeof appearanceLogo === 'string' &&
+      !appearanceLogo.includes('dlftfxjqt') &&
+      appearanceLogo.trim() !== ''
+    ) {
       return appearanceLogo.trim();
     }
 
@@ -165,20 +171,94 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
         ((rawEn?.seo_settings as Record<string, unknown> | undefined)?.global_seo as Record<string, unknown> | undefined)?.organization_logo ||
         (rawSeo?.global_seo as Record<string, unknown> | undefined)?.organization_logo;
 
-      if (typeof fallbackLogo === 'string' && fallbackLogo.trim() !== '') {
+      if (
+        typeof fallbackLogo === 'string' &&
+        !fallbackLogo.includes('dlftfxjqt') &&
+        fallbackLogo.trim() !== ''
+      ) {
         return fallbackLogo.trim();
       }
     }
 
-    // 3. Fallback to default asset
+    // 3. Fallback to app_settings appearance if available
+    const appLogo = settings.app_settings?.appearance?.app_logo_light;
+    if (appLogo && typeof appLogo === 'string' && appLogo.trim() !== '') {
+      return appLogo.trim();
+    }
+
+    // 4. Fallback to default asset
     return '/assets/images/logo/bishola.png';
   };
 
+  const getAppLogo = () => {
+    // 1. Try app_settings.appearance.app_logo_light or app_logo_dark from localized settings
+    const appSettings = settings.app_settings;
+    if (
+      appSettings?.appearance?.app_logo_light &&
+      typeof appSettings.appearance.app_logo_light === 'string' &&
+      appSettings.appearance.app_logo_light.trim() !== ''
+    ) {
+      return appSettings.appearance.app_logo_light.trim();
+    }
+    if (
+      appSettings?.appearance?.app_logo_dark &&
+      typeof appSettings.appearance.app_logo_dark === 'string' &&
+      appSettings.appearance.app_logo_dark.trim() !== ''
+    ) {
+      return appSettings.appearance.app_logo_dark.trim();
+    }
+
+    // 2. Try raw response from any locale or root structure
+    const rawData = settingsResponse?.data as Record<string, unknown> | undefined;
+    if (rawData) {
+      const rawLocale = rawData[locale] as Record<string, unknown> | undefined;
+      const rawAr = rawData['ar'] as Record<string, unknown> | undefined;
+      const rawEn = rawData['en'] as Record<string, unknown> | undefined;
+      const rawAppSettings = rawData['app_settings'] as Record<string, unknown> | undefined;
+
+      const getAppLogoFromObj = (obj: Record<string, unknown> | undefined): string | undefined => {
+        const app = obj?.app_settings as Record<string, unknown> | undefined;
+        const appAppearance = app?.appearance as Record<string, unknown> | undefined;
+        const logo = appAppearance?.app_logo_light || appAppearance?.app_logo_dark;
+        return typeof logo === 'string' && logo.trim() !== '' ? logo.trim() : undefined;
+      };
+
+      const fallbackAppLogo =
+        getAppLogoFromObj(rawLocale) ||
+        getAppLogoFromObj(rawAr) ||
+        getAppLogoFromObj(rawEn) ||
+        ((rawAppSettings?.appearance as Record<string, unknown> | undefined)?.app_logo_light as string | undefined) ||
+        ((rawAppSettings?.appearance as Record<string, unknown> | undefined)?.app_logo_dark as string | undefined);
+
+      if (
+        fallbackAppLogo &&
+        typeof fallbackAppLogo === 'string' &&
+        fallbackAppLogo.trim() !== ''
+      ) {
+        return fallbackAppLogo.trim();
+      }
+    }
+
+    // 3. Fallback to getLogo() if valid
+    const generalLogo = getLogo();
+    if (generalLogo && !generalLogo.includes('dlftfxjqt')) {
+      return generalLogo;
+    }
+
+    return '/assets/images/logo/bisholaLogo2.jpg';
+  };
+
   const getFavicon = () => {
-    return (
-      getSetting('general', 'appearance', 'favicon') ||
-      '/assets/images/logo/bisholaLogo2.jpg'
-    );
+    const favicon = getSetting('general', 'appearance', 'favicon');
+    if (
+      favicon &&
+      typeof favicon === 'string' &&
+      !favicon.includes('dlftfxjqt') &&
+      favicon.trim() !== ''
+    ) {
+      return favicon.trim();
+    }
+    return '/assets/images/logo/bisholaLogo2.jpg';
   };
 
   const getCopyrightMessage = () => {
@@ -290,6 +370,7 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
     getThirdPartyIntegrations,
     getListingsSettings,
     getLogo,
+    getAppLogo,
     getCopyrightMessage,
     getSocialLinks,
     getFavicon,

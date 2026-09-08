@@ -1025,7 +1025,7 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
                   {isMine && carListing.contactNumber && (
                     <div className="flex items-center gap-1">
                       <Phone size={14} />
-                      <span>{carListing.contactNumber}</span>
+                      <span dir="ltr" className="font-mono">{carListing.contactNumber}</span>
                     </div>
                   )}
                 </div>
@@ -1057,16 +1057,25 @@ export const ProductCardListView: React.FC<ProductCardListViewProps> = ({
               {/* Footer */}
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-4 border-t border-gray-100 dark:border-zinc-800">
                 {/* Price */}
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl sm:text-3xl font-bold text-primary">
-                    {formatPrice()}
-                  </span>
-                  {carListing.listingType === 'for_rent' &&
-                    carListing.rentType && (
-                      <span className="text-sm text-gray-500 dark:text-zinc-400">
-                        / {carListing.rentType}
-                      </span>
-                    )}
+                <div className="flex flex-col">
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl sm:text-3xl font-bold text-primary">
+                      {formatPrice()}
+                    </span>
+                    {carListing.listingType === 'for_rent' &&
+                      carListing.rentType && (
+                        <span className="text-sm text-gray-500 dark:text-zinc-400">
+                          / {carListing.rentType}
+                        </span>
+                      )}
+                  </div>
+                  {carListing.installmentsAvailable && carListing.minMonthlyInstallment && (carListing.saveStatus !== 'sold' && carListing.publicationStatus !== 'sold' && currentSaveStatus !== 'sold') && (
+                    <span className="text-xs text-muted-foreground font-medium mt-0.5">
+                      {locale === 'ar'
+                        ? `ابتداءً من ${carListing.minMonthlyInstallment.toLocaleString()} ${carListing.currency || 'USD'} / شهرياً`
+                        : `from ${carListing.minMonthlyInstallment.toLocaleString()} ${carListing.currency || 'USD'}/mo`}
+                    </span>
+                  )}
                 </div>
 
                 {/* Action Buttons */}

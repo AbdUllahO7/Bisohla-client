@@ -9,6 +9,7 @@ import ProductImages from '@/components/web/ProductsPage/product/ProductImages';
 import ProductInfo from '@/components/web/ProductsPage/product/ProductInfo';
 import TabsSection from '@/components/web/ProductsPage/product/TabsSection';
 import AttributeGrid from '@/components/web/ProductsPage/product/AttributeGrid';
+import InstallmentsSummaryRow from '@/components/web/ProductsPage/product/InstallmentsSummaryRow';
 import { ApiResponse } from '@/core/entities/api/success.response';
 import { SelectCarListingDto } from '@/core/entities/models/cars/cars.dto';
 import { GenericListingDto } from '@/core/entities/models/listings/generic-listing.dto';
@@ -136,7 +137,7 @@ const ProductClient = ({ carDataRes, rawListing, isLegacyCar, isAuthenticated, l
             price={carData.price?.toString() || ''}
             currency={carData.currency}
             isLoading={false}
-            productId={carData.id}
+            productId={isLegacyCar ? undefined : (rawListing?.id || carData.id)}
             isMarkedFavorite={favoriteStatus}
             isAuthenticated={isAuthenticated}
             onFavoriteToggle={handleFavoriteToggle}
@@ -168,6 +169,16 @@ const ProductClient = ({ carDataRes, rawListing, isLegacyCar, isAuthenticated, l
             />
           )}
         </Box>
+
+        {/* Installment Plans Summary */}
+        {carData.installmentsAvailable && Array.isArray(carData.installmentPlans) && carData.installmentPlans.length > 0 && carData.saveStatus !== 'sold' && (
+          <div className="w-full mb-3">
+            <InstallmentsSummaryRow
+              plans={carData.installmentPlans}
+              currency={carData.currency || 'USD'}
+            />
+          </div>
+        )}
 
         {/* Images and Info Section */}
         <Box className="w-full">

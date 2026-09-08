@@ -14,11 +14,17 @@ export interface AttributeValue {
   valueJson?: any;
   valueTextTranslations?: { en?: string; ar?: string };
   referenceItemId?: number | null;
+  proposedReferenceName?: string;
 }
+
+import { InstallmentPlanInputDto } from './installments.dto';
 
 export interface CreateListingDto {
   listingTypeId: number;
   listingOfferType: string;       // "for_sale" | "for_rent" | "for_exchange"
+  rentType?: 'daily' | 'weekly' | 'monthly' | null;
+  installmentsAvailable?: boolean;
+  installmentPlans?: InstallmentPlanInputDto[];
   price?: number | null;
   currency?: string;              // "USD" | "SYP" | "EUR"
   governorate?: string | null;
@@ -35,6 +41,9 @@ export interface CreateListingDto {
 export interface UpdateListingDto {
   listingTypeId?: number;
   listingOfferType?: string;
+  rentType?: 'daily' | 'weekly' | 'monthly' | null;
+  installmentsAvailable?: boolean;
+  installmentPlans?: InstallmentPlanInputDto[];
   price?: number | null;
   currency?: string;
   governorate?: string | null;
@@ -59,4 +68,6 @@ export interface AttributeMeta {
 export interface StepTwoStorage {
   [slug: string]: any;
   __attributeMap__?: Record<string, AttributeMeta>;
+  __proposals__?: Record<number, { name: string; status: 'pending' }>;
 }
+

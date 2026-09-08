@@ -10,7 +10,9 @@ import NextTopLoader from 'nextjs-toploader';
 import { Cairo } from 'next/font/google';
 import AppDeepLink from '@/components/shared/AppDeepLink';
 import SmartAppBanner from '@/components/shared/SmartAppBanner';
+import CookieConsentBanner from '@/components/shared/CookieConsentBanner';
 import AppDownloadModalProvider from '@/providers/AppDownloadModalProvider';
+import { Toaster } from '@/components/ui/toaster';
 
 const cairo = Cairo({
   subsets: ['latin'],
@@ -40,6 +42,24 @@ export default async function RootLayout({
     >
       <head>
         <link rel="manifest" href="/manifest.json" />
+        {/* Google Consent Mode v2 Default Settings */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('consent', 'default', {
+                'ad_storage': 'denied',
+                'ad_user_data': 'denied',
+                'ad_personalization': 'denied',
+                'analytics_storage': 'denied',
+                'functionality_storage': 'granted',
+                'security_storage': 'granted',
+                'wait_for_update': 500
+              });
+            `,
+          }}
+        />
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -67,6 +87,8 @@ export default async function RootLayout({
 
             {children}
             {/* <AppDownloadModalProvider /> */}
+            <CookieConsentBanner />
+            <Toaster />
           </GlobalProvider>
         </NextIntlClientProvider>
       </body>

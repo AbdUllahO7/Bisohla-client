@@ -10,6 +10,7 @@ import ProductImages from '@/components/web/ProductsPage/product/ProductImages';
 import ProductInfo from '@/components/web/ProductsPage/product/ProductInfo';
 import TabsSection from '@/components/web/ProductsPage/product/TabsSection';
 import AttributeGrid from '@/components/web/ProductsPage/product/AttributeGrid';
+import InstallmentsSummaryRow from '@/components/web/ProductsPage/product/InstallmentsSummaryRow';
 import { ApiResponse } from '@/core/entities/api/success.response';
 import { SelectCarListingDto } from '@/core/entities/models/cars/cars.dto';
 import { GenericListingDto } from '@/core/entities/models/listings/generic-listing.dto';
@@ -155,7 +156,7 @@ const MobileProductClient = ({
             // so never offer a reveal for one — an inline number still works.
             contactAvailable={isLegacyCar ? false : carData.contactAvailable}
               isLoading={false}
-              productId={carData.id}
+              productId={isLegacyCar ? undefined : (rawListing?.id || carData.id)}
               isMarkedFavorite={favoriteStatus}
               isAuthenticated={isAuthenticated}
               onFavoriteToggle={handleFavoriteToggle}
@@ -189,6 +190,18 @@ const MobileProductClient = ({
           )}
         </Box>
       </div>
+
+      {/* Mobile: Installment Plans Summary */}
+      {carData.installmentsAvailable && Array.isArray(carData.installmentPlans) && carData.installmentPlans.length > 0 && carData.saveStatus !== 'sold' && (
+        <div className="md:hidden w-full mb-4">
+          <Box variant="container">
+            <InstallmentsSummaryRow
+              plans={carData.installmentPlans}
+              currency={carData.currency || 'USD'}
+            />
+          </Box>
+        </div>
+      )}
 
       {/* Mobile: Car Info in Card (cars only) */}
       {isCarListing && (
@@ -235,7 +248,7 @@ const MobileProductClient = ({
             // so never offer a reveal for one — an inline number still works.
             contactAvailable={isLegacyCar ? false : carData.contactAvailable}
               isLoading={false}
-              productId={carData.id}
+              productId={isLegacyCar ? undefined : (rawListing?.id || carData.id)}
               isMarkedFavorite={favoriteStatus}
               isAuthenticated={isAuthenticated}
               onFavoriteToggle={handleFavoriteToggle}

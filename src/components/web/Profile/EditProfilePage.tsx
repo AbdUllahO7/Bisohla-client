@@ -27,17 +27,29 @@ import {
 import ImageUploader from '@/components/image-uploader/image-uploader';
 import { useToast } from '@/hooks/use-toast';
 
+import { isPhoneFieldValid } from '@/core/lib/phone/phone.schema';
+import { assemblePhone, splitPhone } from '@/core/lib/phone/phone.util';
+import PhoneField from '@/components/forms/phone-field';
+
 const editProfileSchema = z
   .object({
     name: z
       .string()
       .min(2, { message: 'Name must be at least 2 characters' })
       .max(50, { message: 'Name must be 50 characters or less' }),
+    countryDialCode: z.string().default('+963'),
     phone: z.string().optional(),
     profileUrl: z.string().optional(),
     password: z.string().optional(),
     confirmPassword: z.string().optional(),
   })
+  .refine(
+    (data) => isPhoneFieldValid(data.phone, data.countryDialCode),
+    {
+      message: 'profile.errors.phone_invalid',
+      path: ['phone'],
+    },
+  )
   .refine(
     (data) => {
       if (data.password && data.password.length > 0) {
@@ -83,11 +95,13 @@ export function EditProfilePage() {
     setValue,
     watch,
     reset,
+    trigger,
     formState: { errors },
   } = useForm<EditProfileFormValues>({
     resolver: zodResolver(editProfileSchema),
     defaultValues: {
       name: '',
+      countryDialCode: '+963',
       phone: '',
       profileUrl: '',
       password: '',
@@ -99,9 +113,11 @@ export function EditProfilePage() {
 
   useEffect(() => {
     if (profile) {
+      const { dialCode, localNumber } = splitPhone(profile.phoneNumber || '');
       reset({
         name: profile.name || '',
-        phone: profile.phoneNumber || '',
+        countryDialCode: dialCode,
+        phone: localNumber,
         profileUrl: profile.profileUrl || '',
         password: '',
         confirmPassword: '',
@@ -109,15 +125,20 @@ export function EditProfilePage() {
     }
   }, [profile, reset]);
 
+
   const handleRemoveAvatar = () => {
     setValue('profileUrl', '', { shouldDirty: true });
   };
 
   const onSubmit = async (values: EditProfileFormValues) => {
     try {
+      const formattedPhone = values.phone
+        ? assemblePhone(values.countryDialCode, values.phone)
+        : null;
+
       const payload: any = {
         name: values.name,
-        phone: values.phone || null,
+        phone: formattedPhone,
         profileUrl: values.profileUrl || null,
       };
 
@@ -303,20 +324,25 @@ export function EditProfilePage() {
             </div>
 
             {/* Phone Number */}
-            <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-gray-700 dark:text-zinc-300 flex items-center gap-1.5">
-                <Phone size={14} className="text-[#198341]" />
-                <span>{isArabic ? 'رقم الهاتف' : 'Phone Number'}</span>
-              </Label>
-              <Input
-                {...register('phone')}
-                placeholder={isArabic ? '09XXXXXXXX أو +963XXXXXXXXX' : '+963XXXXXXXXX'}
-                className="bg-gray-50 dark:bg-zinc-800/80 border-gray-200 dark:border-zinc-700 rounded-xl text-xs font-mono"
-              />
-              {errors.phone && (
-                <p className="text-[11px] text-red-500 font-medium">{errors.phone.message}</p>
-              )}
-            </div>
+            <PhoneField
+              dialCode={watch('countryDialCode') || '+963'}
+              onDialCodeChange={(code) => {
+                setValue('countryDialCode', code, { shouldValidate: true });
+                trigger('phone');
+              }}
+              localNumber={watch('phone') || ''}
+              onLocalNumberChange={(val) => setValue('phone', val, { shouldValidate: true })}
+              onLocalNumberBlur={() => trigger('phone')}
+              label={isArabic ? 'رقم الهاتف' : 'Phone Number'}
+              placeholder="944 123 456"
+              error={
+                errors.phone?.message === 'profile.errors.phone_invalid'
+                  ? (isArabic
+                      ? 'هذا ليس رقم هاتف صالحاً للدولة المختارة'
+                      : 'This is not a valid phone number for the selected country')
+                  : errors.phone?.message
+              }
+            />
           </div>
 
           {/* Change Password (Optional) */}

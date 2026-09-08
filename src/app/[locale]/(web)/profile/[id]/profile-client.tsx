@@ -32,6 +32,7 @@ interface ProfileClientProps {
 const ProfileClient = ({
   profileDataRes,
   isAuthenticated,
+  locale,
   isOwnProfile,
   userId,
 }: ProfileClientProps) => {
@@ -202,7 +203,7 @@ const ProfileClient = ({
         {/* Car Listings Section */}
         <Box className="w-full flex flex-col gap-2">
           {/* Section Header */}
-          <div className="mb-6">
+          <div className="mb-4">
             <div className="flex items-center gap-3">
               <div className="h-8 w-1 bg-gradient-to-b from-[#198341] to-[#ABDE3B] rounded-full"></div>
               <Text variant="h3" className="font-bold text-[#2C3C39] dark:text-white">
@@ -210,6 +211,49 @@ const ProfileClient = ({
               </Text>
             </div>
           </div>
+
+          {/* Listing Type Filter Chips (§6.4) */}
+          {profileData.countsByListingType && profileData.countsByListingType.length > 0 && (
+            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-2 mb-2">
+              <button
+                type="button"
+                onClick={() => handleListingTypeChange(undefined)}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 ${
+                  listingTypeId === undefined
+                    ? 'bg-[#198341] text-white shadow-sm'
+                    : 'bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-700'
+                }`}
+              >
+                <span>{t('type_chip_all', { defaultValue: 'All' })}</span>
+                <span className="opacity-80 text-[11px]">({profileData.totalListings})</span>
+              </button>
+
+              {profileData.countsByListingType.map((ct) => {
+                const typeObj = listingTypes.find((lt) => lt.id === ct.listingTypeId);
+                const typeName =
+                  typeObj?.nameTranslations?.[locale] ||
+                  typeObj?.name ||
+                  `Type #${ct.listingTypeId}`;
+                const isSelected = listingTypeId === ct.listingTypeId;
+
+                return (
+                  <button
+                    key={ct.listingTypeId}
+                    type="button"
+                    onClick={() => handleListingTypeChange(ct.listingTypeId)}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 ${
+                      isSelected
+                        ? 'bg-[#198341] text-white shadow-sm'
+                        : 'bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-700'
+                    }`}
+                  >
+                    <span>{typeName}</span>
+                    <span className="opacity-80 text-[11px]">({ct.count})</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
 
           {/* Filter Component */}
           <MyProductsFilter

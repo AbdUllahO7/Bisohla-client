@@ -17,6 +17,8 @@ import {
   Palette,
 } from 'lucide-react';
 
+import { useTranslations } from 'next-intl';
+
 interface AttributeGridProps {
   attributeValues: GenericAttributeValue[];
   locale?: string;
@@ -52,6 +54,8 @@ const AttributeGrid: React.FC<AttributeGridProps> = ({
   locale = 'en',
   isLoading = false,
 }) => {
+  const tPreview = useTranslations('listing.preview');
+
   /** Filter out attributes with no resolvable value and build display items */
   const displayItems = useMemo(() => {
     if (!attributeValues?.length) return [];
@@ -63,6 +67,7 @@ const AttributeGrid: React.FC<AttributeGridProps> = ({
         type: av.attribute.type,
         slug: av.attribute.slug,
         value: resolveAttributeValue(av, locale),
+        isPendingProposal: av.refItemProposal?.status === 'pending',
       }))
       .filter((item) => 
         item.value !== '' && 
@@ -146,9 +151,16 @@ const AttributeGrid: React.FC<AttributeGridProps> = ({
                 <span className="font-normal text-gray-400 dark:text-zinc-500 ms-1">({item.hint})</span>
               )}
             </span>
-            <span className="text-secondary-text dark:text-zinc-400 text-xs sm:text-sm font-cairo font-medium line-clamp-1">
-              {item.value || '—'}
-            </span>
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="text-secondary-text dark:text-zinc-400 text-xs sm:text-sm font-cairo font-medium line-clamp-1">
+                {item.value || '—'}
+              </span>
+              {item.isPendingProposal && (
+                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-100 text-amber-800 dark:bg-amber-950/50 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                  {tPreview('pending_badge')}
+                </span>
+              )}
+            </div>
           </div>
         </CardContent>
 

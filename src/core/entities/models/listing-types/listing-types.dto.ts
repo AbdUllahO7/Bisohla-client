@@ -1,3 +1,9 @@
+export interface ListingInstallmentOption {
+  id: number;
+  months: number;
+  displayOrder: number;
+}
+
 export interface ListingTypeDto {
   id: number;
   slug: string;
@@ -7,6 +13,10 @@ export interface ListingTypeDto {
   imageUrl: string | null;
   isActive: boolean;
   order: number;
+  rentEnabled?: boolean;
+  installmentsEnabled?: boolean;
+  installmentsMode?: 'free' | 'catalog';
+  installmentOptions?: ListingInstallmentOption[];
   createdByAdminId: number | null;
   updatedByAdminId: number | null;
   createdAt: string;

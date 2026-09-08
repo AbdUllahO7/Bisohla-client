@@ -55,13 +55,13 @@ const Footer = () => {
           <Text variant="h4" className="text-primary dark:text-[#ABDE3B] font-bold">
             {t('brandName')}
           </Text>
-          <Link href="/Privacypolicy" className="text-primary dark:text-zinc-300 hover:text-primary-light dark:hover:text-[#ABDE3B] transition-colors">
+          <Link href="/legal/privacy-policy" className="text-primary dark:text-zinc-300 hover:text-primary-light dark:hover:text-[#ABDE3B] transition-colors">
             {t('privacyPolicy')}
           </Link>
-          <Link href="/Privacypolicy" className="text-primary dark:text-zinc-300 hover:text-primary-light dark:hover:text-[#ABDE3B] transition-colors">
+          <Link href="/legal/terms-of-service" className="text-primary dark:text-zinc-300 hover:text-primary-light dark:hover:text-[#ABDE3B] transition-colors">
             {t('adCreationPolicy')}
           </Link>
-          <Link href="/Privacypolicy" className="text-primary dark:text-zinc-300 hover:text-primary-light dark:hover:text-[#ABDE3B] transition-colors">
+          <Link href="/legal/cookie-policy" className="text-primary dark:text-zinc-300 hover:text-primary-light dark:hover:text-[#ABDE3B] transition-colors">
             {t('dataProtectionPolicy')}
           </Link>
         </Box>

@@ -236,7 +236,12 @@
     "topSellers": {
       "title": "أفضل البائعين",
       "listings": "إعلان",
-      "viewProfile": "عرض الملف الشخصي"
+      "viewProfile": "عرض الملف الشخصي",
+      "see_all": "عرض الكل",
+      "listings_count": "{count} إعلان",
+      "empty_title": "لا يوجد بائعون بعد",
+      "error_title": "تعذّر تحميل البائعين",
+      "error_cta": "حاول مجدداً"
     },
     "recentlyViewed": {
       "title": "شوهد مؤخراً",
@@ -1721,12 +1726,34 @@
     "yesterday": "أمس"
   },
   "publicProfile": {
+    "title": "ملف البائع",
     "verified": "موثق",
     "memberSince": "عضو منذ",
+    "member_since": "عضو منذ {date}",
+    "listings_count_one": "{count} إعلان",
+    "listings_count_other": "{count} إعلان",
+    "for_sale": "للبيع",
+    "for_rent": "للإيجار",
+    "total": "الإجمالي",
+    "listings_overview": "نظرة عامة على الإعلانات",
+    "view_listings": "عرض الإعلانات",
+    "listings_section_title": "الإعلانات",
+    "type_chip_all": "الكل",
+    "filter_button": "تصفية الإعلانات",
+    "listings_empty": "لا توجد إعلانات بعد",
+    "listings_empty_description": "هذا البائع ليس لديه إعلانات عامة.",
+    "listings_error": "فشل تحميل الإعلانات",
+    "listings_error_description": "حاول مجدداً.",
+    "error_title": "الملف الشخصي غير موجود",
+    "error_description": "تعذر تحميل ملف هذا البائع.",
+    "empty_title": "لا يوجد ملف شخصي",
+    "empty_description": "هذا البائع ليس لديه ملف شخصي عام.",
     "email": "البريد الإلكتروني",
     "phone": "رقم الهاتف",
     "noData": "لا توجد بيانات ملف شخصي متاحة",
     "share": "مشاركة هذا الملف الشخصي",
+    "share_a11y": "مشاركة ملف هذا البائع",
+    "share_message": "اطّلع على إعلانات {name} على بسهولة: {url}",
     "stats": {
       "totalListings": "إجمالي الإعلانات",
       "forSale": "إعلانات للبيع",
@@ -1993,5 +2020,307 @@
       "description": "جرّب تصغير الخريطة أو اختيار منطقة أخرى."
     },
     "total_found": "تم العثور على {count} إعلان"
+  },
+  "legal": {
+    "gate": {
+      "title": "تحديث الشروط القانونية",
+      "body": "قمنا بتحديث مستنداتنا القانونية. يرجى مراجعتها والموافقة عليها لمتابعة استخدام بسهولة.",
+      "read_action": "قراءة المستند كاملاً",
+      "accept_button": "أوافق ومتابعة",
+      "sign_out": "تسجيل الخروج بدلاً من ذلك",
+      "error": "تعذّر تسجيل موافقتك. يرجى المحاولة مرة أخرى."
+    },
+    "document": {
+      "empty_title": "المحتوى غير متاح",
+      "empty_subtitle": "لم يتم نشر هذا المستند بعد. يرجى المحاولة لاحقاً."
+    },
+    "document_kind": {
+      "privacy_policy": "سياسة الخصوصية",
+      "terms_of_service": "شروط الخدمة",
+      "cookie_policy": "سياسة ملفات تعريف الارتباط"
+    },
+    "list_separator": "، ",
+    "pages": {
+      "privacy": {
+        "title": "سياسة الخصوصية"
+      },
+      "terms": {
+        "title": "شروط الخدمة"
+      },
+      "cookies": {
+        "title": "سياسة ملفات تعريف الارتباط"
+      },
+      "about": {
+        "title": "عن بسهولة"
+      }
+    },
+    "settings": {
+      "section": "الشروط والسياسات"
+    }
+  },
+  "auth": {
+    "signup": {
+      "legal": {
+        "prefix": "أوافق على "
+      }
+    },
+    "legal": {
+      "oauth_caption_prefix": "بالمتابعة عبر Google أو Apple فإنك توافق على "
+    },
+    "errors": {
+      "legal_required": "يجب الموافقة على المستندات القانونية للمتابعة."
+    }
+  },
+  "cookieConsent": {
+    "bannerTitle": "خصوصيتك تهمنا.",
+    "bannerDescription": "نستخدم ملفات تعريف الارتباط لتحسين تجربة التصفح، وتحليل حركة مرور الموقع، وتقديم محتوى مخصص.",
+    "readPolicy": "قراءة سياسة الكوكيز",
+    "customize": "إعدادات الكوكيز",
+    "rejectNonEssential": "رفض غير الأساسية",
+    "acceptAll": "قبول الكل",
+    "savePreferences": "حفظ التفضيلات",
+    "preferencesTitle": "تفضيلات ملفات تعريف الارتباط",
+    "preferencesDescription": "يمكنك تخصيص تفضيلاتك أدناه. لا يمكن تعطيل ملفات تعريف الارتباط الضرورية لأنها لازمة لعمل الموقع بشكل سليم.",
+    "necessaryTitle": "ملفات تعريف الارتباط الضرورية",
+    "necessaryDescription": "أساسية لتصفح الموقع والأمان وإدارة الجلسات.",
+    "alwaysActive": "نشطة دائماً",
+    "functionalTitle": "التفضيلات والوظائف",
+    "functionalDescription": "تتيح تذكر تفضيلات اللغة والمنطقة والواجهة.",
+    "analyticsTitle": "التحليلات والأداء",
+    "analyticsDescription": "تساعدنا على فهم كيفية تفاعل الزوار مع الموقع لتحسين تجربة المستخدم.",
+    "marketingTitle": "التسويق والإعلانات",
+    "marketingDescription": "تُستخدم لعرض إعلانات ملائمة وقياس مدى فعالية الحملات الإعلانية."
+  },
+  "phone": {
+    "label": "رقم الهاتف",
+    "placeholder": "944 123 456",
+    "country_search": "ابحث عن دولة"
+  },
+  "listing": {
+    "wizard": {
+      "contact_number": "رقم التواصل",
+      "contact_prefilled": "تم الملء من ملفك الشخصي",
+      "save_as_profile_number": "حفظ كرقم ملفي الشخصي",
+      "saved_address": {
+        "choose_button": "اختر من العناوين المحفوظة",
+        "save_checkbox": "احفظ هذا العنوان لاستخدامه لاحقًا",
+        "label_field": "اسم العنوان",
+        "label_placeholder": "مثال: المنزل، المعرض",
+        "save_failed_toast": "تعذّر حفظ هذا العنوان، لكن تم نشر إعلانك بنجاح"
+      }
+    },
+    "card": {
+      "installments_from": "من {amount} شهرياً"
+    },
+    "detail": {
+      "installments_summary_title": "متاح بالتقسيط",
+      "installments_summary_plans_one": "خطة واحدة",
+      "installments_summary_plans_other": "{count} خطة",
+      "installments_title": "خطط التقسيط",
+      "installments_subtitle": "مقدَّمة من البائع. اتفق على الشروط معه مباشرة.",
+      "view_seller": "عرض الملف الشخصي",
+      "contact_seller": "تواصل مع البائع",
+      "id_chip": {
+        "copied_toast": "تم نسخ رقم الإعلان",
+        "a11y_label": "نسخ رقم الإعلان {id}"
+      }
+    },
+    "filters": {
+      "installments_only_label": "متاح بالتقسيط",
+      "seller_label": "البائع",
+      "seller_placeholder": "أي بائع",
+      "seller_clear_a11y": "إلغاء اختيار البائع"
+    },
+    "preview": {
+      "pending_badge": "قيد المراجعة",
+      "section_installments": "التقسيط"
+    },
+    "errors": {
+      "contact_number_required": "رقم الهاتف مطلوب",
+      "contact_number_invalid": "هذا ليس رقم هاتف صالحاً للدولة المختارة",
+      "reference_proposal_generic": "تعذر إرسال إحدى القيم المقترحة. يرجى مراجعة الإعلان والمحاولة مرة أخرى.",
+      "saved_address_label_required": "يرجى تسمية هذا العنوان"
+    }
+  },
+  "profile": {
+    "edit": {
+      "phone_label": "رقم الهاتف",
+      "phone_placeholder": "أدخل رقم الهاتف"
+    },
+    "errors": {
+      "phone_invalid": "هذا ليس رقم هاتف صالحاً للدولة المختارة"
+    }
+  },
+  "referenceProposal": {
+    "propose_cta": "لم تجد «{attribute}»؟ اقترحه",
+    "propose_cta_generic": "لم تجده؟ اقترحه",
+    "pending_pill": "قيد المراجعة",
+    "clear_a11y": "إزالة القيمة المقترحة",
+    "sheet_title": "اقتراح قيمة جديدة لـ«{attribute}»",
+    "sheet_subtitle": "يراجعه المشرف قبل إضافته إلى القائمة، ويمكنك نشر إعلانك في الأثناء.",
+    "name_label": "الاسم",
+    "name_placeholder": "اكتب اسم «{attribute}» بدقة",
+    "did_you_mean_title": "هل تقصد أحد هذه؟",
+    "did_you_mean_hint": "أم تقصد:",
+    "under_parent": "ضمن {parent}",
+    "confirm_cta": "لا شيء من هذه — اقترح \"{name}\"",
+    "confirm_cta_empty": "اقترح هذا الاسم",
+    "error_too_short": "يجب ألا يقل عن {min} أحرف",
+    "error_too_long": "يجب ألا يزيد عن {max} حرفًا",
+    "error_contact_info": "الرجاء عدم تضمين رقم هاتف أو رابط أو بريد إلكتروني",
+    "error_disabled": "اقتراح خيارات جديدة غير متاح حاليًا",
+    "blocked_from_approval": "لا يمكن الموافقة على إعلانك حتى نراجع القيمة التي اقترحتها."
+  },
+  "attributeForm": {
+    "search_in_attribute": "ابحث في «{attribute}»…",
+    "parent_pending_description": "القيمة التي اقترحتها لـ«{parent}» ما تزال قيد المراجعة، لذا لا توجد خيارات مرتبطة بها بعد.",
+    "parent_unset_description": "اختر «{parent}» أولًا لعرض الخيارات المتاحة هنا.",
+    "options_empty_title": "لا توجد خيارات متاحة",
+    "options_empty_description": "لا توجد خيارات للاختيار من بينها هنا."
+  },
+  "installments": {
+    "months_zero": "بدون أشهر",
+    "months_one": "شهر واحد",
+    "months_two": "شهران",
+    "months_few": "{count} أشهر",
+    "months_many": "{count} شهراً",
+    "months_other": "{count} شهر",
+    "duration_unit": "شهر",
+    "per_month": "شهرياً",
+    "down_payment_value": "الدفعة الأولى {value}",
+    "total_value": "الإجمالي {value}",
+    "price_label": "السعر",
+    "down_payment_line": "− الدفعة الأولى",
+    "to_finance": "= المبلغ المقسّط",
+    "monthly_line": "× {months} شهر",
+    "total_line": "الإجمالي",
+    "over_cash_price": "{value} أكثر من السعر نقداً",
+    "title": "التقسيط",
+    "description": "اسمح للمشترين بالدفع على أقساط شهرية بدلاً من الدفع دفعة واحدة.",
+    "sheet_title": "خطط التقسيط",
+    "empty_hint": "أضف خطة واحدة على الأقل ليعرف المشترون الشروط.",
+    "add_first": "أضف خطتك الأولى",
+    "add_plan": "إضافة خطة",
+    "edit_plan": "تعديل الخطة",
+    "remove_plan": "حذف الخطة",
+    "manage": "إدارة الخطط",
+    "more_plans": "+{more} أخرى",
+    "done": "تم",
+    "turn_off": "إيقاف التقسيط",
+    "cancel_plan": "إلغاء",
+    "save_plan": "حفظ الخطة",
+    "duration": "المدة",
+    "duration_other": "مدة أخرى",
+    "duration_placeholder": "مثال: ٢٤",
+    "duration_hint": "بالأشهر، حتى {max}.",
+    "down_payment": "الدفعة الأولى",
+    "down_payment_hint": "يجب أن تكون أقل من سعر الإعلان.",
+    "down_payment_percent": "{percent}%",
+    "down_payment_of_price": "{percent}% من السعر.",
+    "monthly_amount": "القسط الشهري",
+    "monthly_calculated": "محسوب من السعر: {value}. عدّله لإضافة هامش ربحك.",
+    "monthly_reset": "العودة إلى المبلغ المحسوب",
+    "note": "ملاحظة (اختياري)",
+    "note_en": "ملاحظة (بالإنكليزية)",
+    "note_ar": "ملاحظة (بالعربية)",
+    "note_add": "إضافة ملاحظة (اختياري)",
+    "catalog_exhausted": "تم استخدام كل المدد المتاحة.",
+    "max_reached": "يمكنك إضافة {max} خطط كحد أقصى.",
+    "kept_one": "خطة واحدة محفوظة — فعّل التقسيط لاستخدامها.",
+    "kept_other": "{count} خطة محفوظة — فعّل التقسيط لاستخدامها.",
+    "errors": {
+      "months_required": "أدخل عدد أشهر صحيح",
+      "months_max": "يجب ألا تتجاوز المدة {max} شهراً",
+      "months_not_in_catalog": "اختر إحدى المدد المتاحة",
+      "months_duplicate": "يجب أن تختلف مدة كل خطة",
+      "down_payment_required": "أدخل الدفعة الأولى",
+      "down_payment_negative": "لا يمكن أن تكون الدفعة الأولى بالسالب",
+      "down_payment_too_high": "يجب أن تكون الدفعة الأولى أقل من السعر",
+      "monthly_amount_required": "أدخل القسط الشهري",
+      "monthly_amount_positive": "يجب أن يكون القسط الشهري أكبر من صفر",
+      "plans_required": "أضف خطة تقسيط واحدة على الأقل"
+    }
+  },
+  "sellers": {
+    "list": {
+      "title": "البائعون",
+      "search_placeholder": "ابحث عن بائع بالاسم",
+      "empty_title": "لا يوجد بائعون بعد",
+      "empty_subtitle": "يظهر البائعون هنا بعد نشر إعلاناتهم.",
+      "empty_search_title": "لا يوجد بائع يطابق بحثك",
+      "empty_search_subtitle": "جرّب اسماً آخر.",
+      "error_title": "تعذّر تحميل البائعين",
+      "error_cta": "إعادة المحاولة"
+    }
+  },
+  "home": {
+    "sections": {
+      "top_sellers": "أفضل البائعين",
+      "see_all": "عرض الكل"
+    },
+    "top_sellers": {
+      "listings_count": "{count} إعلان",
+      "empty_title": "لا يوجد بائعون بعد",
+      "error_title": "تعذّر تحميل البائعين",
+      "error_cta": "حاول مجدداً"
+    }
+  },
+  "savedAddresses": {
+    "title": "العناوين المحفوظة",
+    "add_button": "إضافة عنوان",
+    "empty_title": "لا توجد عناوين محفوظة بعد",
+    "empty_body": "احفظ عنواناً مرة واحدة وأعد استخدامه في إعلاناتك القادمة",
+    "cap_reached_note": "لقد وصلت إلى الحد الأقصى وهو {count} عناوين محفوظة",
+    "delete_confirm_title": "حذف هذا العنوان؟",
+    "delete_confirm_body": "سيتم حذف هذا العنوان نهائياً من دفتر عناوينك. لن يؤثر ذلك على الإعلانات التي نشرتها مسبقاً باستخدامه.",
+    "delete_confirm_button": "حذف",
+    "delete_success_toast": "تم حذف العنوان",
+    "delete_success_promoted_toast": "تم حذف العنوان · أصبح \"{label}\" عنوانك الافتراضي",
+    "delete_failed_toast": "تعذّر حذف العنوان. حاول مجدداً.",
+    "set_default_success_toast": "تم تحديث العنوان الافتراضي",
+    "set_default_failed_toast": "تعذّر تعيين هذا العنوان كافتراضي. حاول مجدداً.",
+    "form": {
+      "title_add": "عنوان جديد",
+      "title_edit": "تعديل العنوان",
+      "label_field": "التسمية",
+      "label_placeholder": "مثال: المنزل، العمل",
+      "governorate": "المحافظة",
+      "city": "المدينة",
+      "address": "تفاصيل العنوان",
+      "pick_on_map": "تحديد الموقع على الخريطة",
+      "save_button": "حفظ العنوان",
+      "label_required": "أدخل تسمية لهذا العنوان",
+      "governorate_required": "اختر محافظة",
+      "city_required": "اختر مدينة",
+      "governorate_pin_locked": "محدّدة من موقعك على الخريطة",
+      "governorate_pin_undetected": "تعذّر تحديد المنطقة من موقعك على الخريطة — تأكد من مطابقة المحافظة له",
+      "governorate_change_on_map": "تغيير على الخريطة",
+      "governorate_pin_mismatch": "يجب أن تتطابق المحافظة مع موقعك على الخريطة. أعد تحديد الموقع لتغييرها.",
+      "save_failed_error": "تعذّر حفظ العنوان. حاول مجدداً.",
+      "not_found_title": "العنوان غير موجود",
+      "not_found_body": "قد يكون هذا العنوان قد حُذف.",
+      "delete_button": "حذف العنوان",
+      "delete_note": "لن تتأثر الإعلانات التي سبق أن نشرتها بهذا العنوان."
+    }
+  },
+  "savedAddress": {
+    "default_badge": "افتراضي",
+    "set_default_action": "تعيين كافتراضي",
+    "edit_hint": "يفتح هذا العنوان للتعديل",
+    "select_hint": "استخدام هذا العنوان في هذا الإعلان",
+    "picker_empty_title": "لا توجد عناوين محفوظة بعد",
+    "picker_empty_body": "احفظ عنوانًا من الملف الشخصي ‹ العناوين المحفوظة لاستخدامه هنا"
+  },
+  "search": {
+    "direct_open": {
+      "title": "تم العثور على الإعلان {id}",
+      "subtitle": "هذا الإعلان ضمن {typeName} — خارج نطاق بحثك الحالي",
+      "button": "فتح الإعلان"
+    },
+    "seller_matches": {
+      "title": "البائعون",
+      "no_type_listings": "لا توجد لدى هذا البائع إعلانات في هذا القسم حالياً"
+    }
   }
 }
+

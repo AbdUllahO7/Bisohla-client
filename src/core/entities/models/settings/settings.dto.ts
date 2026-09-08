@@ -118,6 +118,10 @@ export interface AppSettings {
     play_store_url?: string;
     app_store_url?: string;
   };
+  appearance?: {
+    app_logo_light?: string;
+    app_logo_dark?: string;
+  };
   version_control?: {
     app_version?: string;
     min_supported_version?: string;
@@ -178,12 +182,19 @@ export interface ListingsSettings {
   location?: {
     geocoding_provider?: string;
     require_coordinates?: boolean;
+    saved_addresses_enabled?: boolean;
+    max_saved_addresses_per_user?: number;
   };
   map?: MapSettings;
   display?: {
     results_per_page?: number;
     compare_max_count?: number;
     featured_listings_limit?: number;
+  };
+  search?: {
+    seller_suggestions_enabled?: boolean;
+    seller_suggestions_count?: number;
+    seller_suggestions_min_term_length?: number;
   };
 }
 

@@ -7,24 +7,30 @@ import ClientConfigProvider from './client-config.provider';
 import NavigationProvider from './navigation.provider';
 import { SettingsProvider } from './settings.provider';
 import { ProfileProvider } from './profile.provider';
+import { LegalGateProvider } from './legal-gate.provider';
+import { CookieConsentProvider } from './cookie-consent.provider';
 
 const GlobalProvider = ({ children }: PropsWithChildren) => {
   return (
     <QueryProvider>
       <SettingsProvider>
         <ProfileProvider>
-          <NavigationProvider>
-            <ClientConfigProvider>
-              <ThemeProvider
-                attribute="class"
-                defaultTheme="system"
-                enableSystem
-                disableTransitionOnChange
-              >
-                {children}
-              </ThemeProvider>
-            </ClientConfigProvider>
-          </NavigationProvider>
+          <LegalGateProvider>
+            <CookieConsentProvider>
+              <NavigationProvider>
+                <ClientConfigProvider>
+                  <ThemeProvider
+                    attribute="class"
+                    defaultTheme="system"
+                    enableSystem
+                    disableTransitionOnChange
+                  >
+                    {children}
+                  </ThemeProvider>
+                </ClientConfigProvider>
+              </NavigationProvider>
+            </CookieConsentProvider>
+          </LegalGateProvider>
         </ProfileProvider>
       </SettingsProvider>
     </QueryProvider>
