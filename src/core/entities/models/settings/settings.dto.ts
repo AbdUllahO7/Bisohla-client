@@ -118,6 +118,10 @@ export interface AppSettings {
     play_store_url?: string;
     app_store_url?: string;
   };
+  appearance?: {
+    app_logo_light?: string;
+    app_logo_dark?: string;
+  };
   version_control?: {
     app_version?: string;
     min_supported_version?: string;

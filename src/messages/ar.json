@@ -2100,7 +2100,14 @@
     "wizard": {
       "contact_number": "رقم التواصل",
       "contact_prefilled": "تم الملء من ملفك الشخصي",
-      "save_as_profile_number": "حفظ كرقم ملفي الشخصي"
+      "save_as_profile_number": "حفظ كرقم ملفي الشخصي",
+      "saved_address": {
+        "choose_button": "اختر من العناوين المحفوظة",
+        "save_checkbox": "احفظ هذا العنوان لاستخدامه لاحقًا",
+        "label_field": "اسم العنوان",
+        "label_placeholder": "مثال: المنزل، المعرض",
+        "save_failed_toast": "تعذّر حفظ هذا العنوان، لكن تم نشر إعلانك بنجاح"
+      }
     },
     "card": {
       "installments_from": "من {amount} شهرياً"
@@ -2110,10 +2117,19 @@
       "installments_summary_plans_one": "خطة واحدة",
       "installments_summary_plans_other": "{count} خطة",
       "installments_title": "خطط التقسيط",
-      "installments_subtitle": "مقدَّمة من البائع. اتفق على الشروط معه مباشرة."
+      "installments_subtitle": "مقدَّمة من البائع. اتفق على الشروط معه مباشرة.",
+      "view_seller": "عرض الملف الشخصي",
+      "contact_seller": "تواصل مع البائع",
+      "id_chip": {
+        "copied_toast": "تم نسخ رقم الإعلان",
+        "a11y_label": "نسخ رقم الإعلان {id}"
+      }
     },
     "filters": {
-      "installments_only_label": "متاح بالتقسيط"
+      "installments_only_label": "متاح بالتقسيط",
+      "seller_label": "البائع",
+      "seller_placeholder": "أي بائع",
+      "seller_clear_a11y": "إلغاء اختيار البائع"
     },
     "preview": {
       "pending_badge": "قيد المراجعة",
@@ -2122,7 +2138,8 @@
     "errors": {
       "contact_number_required": "رقم الهاتف مطلوب",
       "contact_number_invalid": "هذا ليس رقم هاتف صالحاً للدولة المختارة",
-      "reference_proposal_generic": "تعذر إرسال إحدى القيم المقترحة. يرجى مراجعة الإعلان والمحاولة مرة أخرى."
+      "reference_proposal_generic": "تعذر إرسال إحدى القيم المقترحة. يرجى مراجعة الإعلان والمحاولة مرة أخرى.",
+      "saved_address_label_required": "يرجى تسمية هذا العنوان"
     }
   },
   "profile": {
@@ -2246,33 +2263,6 @@
       "empty_title": "لا يوجد بائعون بعد",
       "error_title": "تعذّر تحميل البائعين",
       "error_cta": "حاول مجدداً"
-    }
-  },
-  "listing": {
-    "filters": {
-      "seller_label": "البائع",
-      "seller_placeholder": "أي بائع",
-      "seller_clear_a11y": "إلغاء اختيار البائع"
-    },
-    "detail": {
-      "view_seller": "عرض الملف الشخصي",
-      "contact_seller": "تواصل مع البائع",
-      "id_chip": {
-        "copied_toast": "تم نسخ رقم الإعلان",
-        "a11y_label": "نسخ رقم الإعلان {id}"
-      }
-    },
-    "wizard": {
-      "saved_address": {
-        "choose_button": "اختر من العناوين المحفوظة",
-        "save_checkbox": "احفظ هذا العنوان لاستخدامه لاحقًا",
-        "label_field": "اسم العنوان",
-        "label_placeholder": "مثال: المنزل، المعرض",
-        "save_failed_toast": "تعذّر حفظ هذا العنوان، لكن تم نشر إعلانك بنجاح"
-      }
-    },
-    "errors": {
-      "saved_address_label_required": "يرجى تسمية هذا العنوان"
     }
   },
   "savedAddresses": {

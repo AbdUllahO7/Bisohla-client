@@ -2138,7 +2138,14 @@
     "wizard": {
       "contact_number": "Contact number",
       "contact_prefilled": "Pre-filled from your profile",
-      "save_as_profile_number": "Save as my profile number"
+      "save_as_profile_number": "Save as my profile number",
+      "saved_address": {
+        "choose_button": "Choose from saved addresses",
+        "save_checkbox": "Save this address for next time",
+        "label_field": "Address label",
+        "label_placeholder": "e.g. Home, Showroom",
+        "save_failed_toast": "Couldn't save this address, but your listing was published"
+      }
     },
     "card": {
       "installments_from": "from {amount}/month"
@@ -2148,10 +2155,19 @@
       "installments_summary_plans_one": "1 plan",
       "installments_summary_plans_other": "{count} plans",
       "installments_title": "Installment plans",
-      "installments_subtitle": "Offered by the seller. Agree the terms directly with them."
+      "installments_subtitle": "Offered by the seller. Agree the terms directly with them.",
+      "view_seller": "View profile",
+      "contact_seller": "Contact seller",
+      "id_chip": {
+        "copied_toast": "Listing ID copied",
+        "a11y_label": "Copy listing ID {id}"
+      }
     },
     "filters": {
-      "installments_only_label": "Installments available"
+      "installments_only_label": "Installments available",
+      "seller_label": "Seller",
+      "seller_placeholder": "Any seller",
+      "seller_clear_a11y": "Clear the selected seller"
     },
     "preview": {
       "pending_badge": "Pending review",
@@ -2160,7 +2176,8 @@
     "errors": {
       "contact_number_required": "Phone number is required",
       "contact_number_invalid": "This is not a valid phone number for the selected country",
-      "reference_proposal_generic": "We couldn't submit one of your suggested values. Please review your listing and try again."
+      "reference_proposal_generic": "We couldn't submit one of your suggested values. Please review your listing and try again.",
+      "saved_address_label_required": "Please name this address"
     }
   },
   "profile": {
@@ -2280,33 +2297,6 @@
       "empty_title": "No sellers yet",
       "error_title": "Could not load sellers",
       "error_cta": "Try again"
-    }
-  },
-  "listing": {
-    "filters": {
-      "seller_label": "Seller",
-      "seller_placeholder": "Any seller",
-      "seller_clear_a11y": "Clear the selected seller"
-    },
-    "detail": {
-      "view_seller": "View profile",
-      "contact_seller": "Contact seller",
-      "id_chip": {
-        "copied_toast": "Listing ID copied",
-        "a11y_label": "Copy listing ID {id}"
-      }
-    },
-    "wizard": {
-      "saved_address": {
-        "choose_button": "Choose from saved addresses",
-        "save_checkbox": "Save this address for next time",
-        "label_field": "Address label",
-        "label_placeholder": "e.g. Home, Showroom",
-        "save_failed_toast": "Couldn't save this address, but your listing was published"
-      }
-    },
-    "errors": {
-      "saved_address_label_required": "Please name this address"
     }
   },
   "savedAddresses": {

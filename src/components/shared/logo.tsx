@@ -46,7 +46,7 @@ const Logo = ({
         width={width || 120}
         height={height || 30}
         priority
-        className="h-auto w-auto max-h-8 sm:max-h-9 object-contain"
+        className=" object-contain"
         onError={() => {
           if (imgSrc !== FALLBACK_LOGO) {
             setImgSrc(FALLBACK_LOGO);
