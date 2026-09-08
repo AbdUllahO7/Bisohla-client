@@ -2290,7 +2290,11 @@
     },
     "detail": {
       "view_seller": "View profile",
-      "contact_seller": "Contact seller"
+      "contact_seller": "Contact seller",
+      "id_chip": {
+        "copied_toast": "Listing ID copied",
+        "a11y_label": "Copy listing ID {id}"
+      }
     },
     "wizard": {
       "saved_address": {
@@ -2350,6 +2354,17 @@
     "select_hint": "Uses this address for this listing",
     "picker_empty_title": "No saved addresses yet",
     "picker_empty_body": "Save an address from Profile › Saved addresses to reuse it here"
+  },
+  "search": {
+    "direct_open": {
+      "title": "Found listing {id}",
+      "subtitle": "This listing is in {typeName} — outside your current search",
+      "button": "Open listing"
+    },
+    "seller_matches": {
+      "title": "Sellers",
+      "no_type_listings": "This seller has no listings in this category right now"
+    }
   }
 }
 

@@ -15,6 +15,7 @@ import { SaveStatus } from '@/core/entities/enums/cars.enums';
 import { SelectUserDto } from '@/core/entities/models/users/users.dto';
 import SellerInfoCard from './SellerInfoCard';
 import ContactRevealButtons from './ContactRevealButtons';
+import ListingIdCopyChip from '@/components/web/ProductsPage/ListingIdCopyChip';
 import { useSession } from '@/core/infrastructure-adapters/use-actions/auth/use-session';
 
 interface ProductHeaderProps {
@@ -229,13 +230,20 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
         <div className="w-full gap-4 flex-col ">
           {/* Mobile: Title (if needed) */}
           {productName && (
-            <Text
-              variant="h4"
-              className="font-bold text-center w-full text-[#2C3C39] dark:text-zinc-100 line-clamp-3"
-              as="h1"
-            >
-              {productName}
-            </Text>
+            <div className="space-y-2 text-center w-full">
+              <Text
+                variant="h4"
+                className="font-bold text-center w-full text-[#2C3C39] dark:text-zinc-100 line-clamp-3"
+                as="h1"
+              >
+                {productName}
+              </Text>
+              {productId && (
+                <div className="flex justify-center">
+                  <ListingIdCopyChip id={productId} />
+                </div>
+              )}
+            </div>
           )}
 
           {/* Seller Info Card */}
@@ -345,7 +353,7 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
       {/* Desktop Layout (>= md) */}
       <div className="hidden md:block w-full">
         {/* Product Title Row - Standalone Above */}
-        <Box className="w-full py-3 border-b dark:border-zinc-800 flex items-center">
+        <Box className="w-full py-3 border-b dark:border-zinc-800 flex items-center justify-between gap-4">
           <Text
             variant="h5"
             className="font-bold text-start text-[#2C3C39] dark:text-zinc-100"
@@ -353,6 +361,11 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
           >
             {productName}
           </Text>
+          {productId && (
+            <div className="shrink-0">
+              <ListingIdCopyChip id={productId} />
+            </div>
+          )}
         </Box>
 
         {/* Main Header Row - User Info + Actions */}

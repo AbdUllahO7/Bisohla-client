@@ -20,6 +20,9 @@ import { Bell } from 'lucide-react';
 import { getGovernorateOptions, getCityOptions } from '@/components/web/ProductsPage/addProducts/StepOne/utils';
 import { useAdSlot } from '@/hooks/use-ad-slot';
 import { normalizeListingToCarDto } from '@/utils/listing-normalization';
+import SellerMatchStrip from '@/components/web/ProductsPage/SellerMatchStrip';
+import DirectOpenListingCard from '@/components/web/ProductsPage/DirectOpenListingCard';
+import { useSearchSellerMatches } from '@/hooks/use-search-seller-matches';
 
 interface AllCarListingsProps {
   pageSize?: number;
@@ -46,7 +49,12 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
   const [isMobile, setIsMobile] = useState(false);
   const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
   const session = useSession();
-  const { filters, listingTypes } = useFilters();
+  const { filters, listingTypes, committedSearchText } = useFilters();
+  const effectiveSearchTerm: string =
+    typeof externalQueryParams?.searchTerm === 'string'
+      ? externalQueryParams.searchTerm
+      : (committedSearchText || '');
+  const { data: sellerMatches, isLoading: isSellerMatchesLoading } = useSearchSellerMatches(effectiveSearchTerm);
   const currentListingType = useMemo(() => 
     listingTypes.find(t => t.id === filters.listingTypeId),
   [listingTypes, filters.listingTypeId]);
@@ -282,6 +290,25 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
           <Box className="w-full py-4" variant="center">
             <Text className="text-red-500">{t('allCars.error')}</Text>
           </Box>
+        )}
+
+        {/* Seller-match strip — sibling of the results list in both empty and populated states */}
+        {!isLoading && !error && (
+          <SellerMatchStrip
+            sellers={sellerMatches}
+            isLoading={isSellerMatchesLoading}
+            totalListingsCount={paginationInfo.totalItems}
+          />
+        )}
+
+        {/* Cross-type direct-open card above empty state when search term is #ID */}
+        {!isLoading && !error && carListings.length === 0 && (
+          <DirectOpenListingCard
+            searchTerm={effectiveSearchTerm}
+            currentPage={currentPage}
+            isSearchLoading={isLoading}
+            totalItems={paginationInfo.totalItems}
+          />
         )}
 
         {!isLoading && !error && carListings.length === 0 && (

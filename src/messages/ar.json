@@ -2256,7 +2256,11 @@
     },
     "detail": {
       "view_seller": "عرض الملف الشخصي",
-      "contact_seller": "تواصل مع البائع"
+      "contact_seller": "تواصل مع البائع",
+      "id_chip": {
+        "copied_toast": "تم نسخ رقم الإعلان",
+        "a11y_label": "نسخ رقم الإعلان {id}"
+      }
     },
     "wizard": {
       "saved_address": {
@@ -2316,6 +2320,17 @@
     "select_hint": "استخدام هذا العنوان في هذا الإعلان",
     "picker_empty_title": "لا توجد عناوين محفوظة بعد",
     "picker_empty_body": "احفظ عنوانًا من الملف الشخصي ‹ العناوين المحفوظة لاستخدامه هنا"
+  },
+  "search": {
+    "direct_open": {
+      "title": "تم العثور على الإعلان {id}",
+      "subtitle": "هذا الإعلان ضمن {typeName} — خارج نطاق بحثك الحالي",
+      "button": "فتح الإعلان"
+    },
+    "seller_matches": {
+      "title": "البائعون",
+      "no_type_listings": "لا توجد لدى هذا البائع إعلانات في هذا القسم حالياً"
+    }
   }
 }
 

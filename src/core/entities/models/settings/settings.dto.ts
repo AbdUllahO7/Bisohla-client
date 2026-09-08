@@ -187,6 +187,11 @@ export interface ListingsSettings {
     compare_max_count?: number;
     featured_listings_limit?: number;
   };
+  search?: {
+    seller_suggestions_enabled?: boolean;
+    seller_suggestions_count?: number;
+    seller_suggestions_min_term_length?: number;
+  };
 }
 
 // Main settings structure combining all sections

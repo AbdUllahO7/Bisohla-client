@@ -156,7 +156,7 @@ const MobileProductClient = ({
             // so never offer a reveal for one — an inline number still works.
             contactAvailable={isLegacyCar ? false : carData.contactAvailable}
               isLoading={false}
-              productId={carData.id}
+              productId={isLegacyCar ? undefined : (rawListing?.id || carData.id)}
               isMarkedFavorite={favoriteStatus}
               isAuthenticated={isAuthenticated}
               onFavoriteToggle={handleFavoriteToggle}
@@ -248,7 +248,7 @@ const MobileProductClient = ({
             // so never offer a reveal for one — an inline number still works.
             contactAvailable={isLegacyCar ? false : carData.contactAvailable}
               isLoading={false}
-              productId={carData.id}
+              productId={isLegacyCar ? undefined : (rawListing?.id || carData.id)}
               isMarkedFavorite={favoriteStatus}
               isAuthenticated={isAuthenticated}
               onFavoriteToggle={handleFavoriteToggle}
