@@ -9,10 +9,12 @@ const FALLBACK_LOGO = '/assets/images/logo/bishola.png';
 
 const Logo = ({
   className,
+  imageClassName,
   width,
   height,
 }: {
   className?: string;
+  imageClassName?: string;
   width?: number;
   height?: number;
 }) => {
@@ -29,24 +31,32 @@ const Logo = ({
 
   if (isLoading) {
     return (
-      <div className="flex items-center">
-        <div className="h-6 w-28 bg-gray-200 dark:bg-zinc-800 rounded animate-pulse"></div>
+      <div className={cn('flex items-center', className)}>
+        <div className="h-9 sm:h-10 md:h-11 w-32 sm:w-40 bg-gray-200 dark:bg-zinc-800 rounded animate-pulse"></div>
       </div>
     );
   }
 
+  const isCustomSize = width !== undefined || height !== undefined;
+  const defaultWidth = width || 270;
+  const defaultHeight = height || 82;
+
   return (
     <div
-      className={cn('flex cursor-pointer items-center', className)}
+      className={cn('flex cursor-pointer items-center flex-shrink-0', className)}
       onClick={() => router.push('/')}
     >
       <Image
         src={imgSrc || FALLBACK_LOGO}
         alt="Bishola Logo"
-        width={width || 120}
-        height={height || 30}
+        width={defaultWidth}
+        height={defaultHeight}
         priority
-        className=" object-contain"
+        className={cn(
+          'object-contain transition-all',
+          !isCustomSize && 'h-9 sm:h-10 md:h-11 w-auto max-w-[200px]',
+          imageClassName
+        )}
         onError={() => {
           if (imgSrc !== FALLBACK_LOGO) {
             setImgSrc(FALLBACK_LOGO);

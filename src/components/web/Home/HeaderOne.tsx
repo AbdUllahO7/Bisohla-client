@@ -55,7 +55,7 @@ const HeaderOne = () => {
       <Box className="flex justify-between items-center py-3  w-full px-4 border-b border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-950">
         {/* Logo Skeleton */}
         <div className="flex items-center">
-          <div className="h-5 w-24 bg-gray-200 dark:bg-zinc-800 rounded animate-pulse sm:h-6 sm:w-28"></div>
+          <div className="h-9 sm:h-10 md:h-11 w-32 sm:w-40 bg-gray-200 dark:bg-zinc-800 rounded animate-pulse"></div>
         </div>
 
         {/* Right side skeleton */}
