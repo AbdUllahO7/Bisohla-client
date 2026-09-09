@@ -478,7 +478,7 @@ export const GoogleMapPicker: React.FC<GoogleMapPickerProps> = ({
 
   return (
     <div
-      className="rounded-2xl overflow-hidden border border-slate-200 dark:border-zinc-800 shadow-sm bg-white dark:bg-zinc-900"
+      className="rounded-2xl overflow-hidden border border-slate-200 dark:border-zinc-800 shadow-sm bg-white dark:bg-zinc-900 relative isolate z-0"
       style={{ height }}
     >
       {step === 'confirm' && pendingResult ? (
