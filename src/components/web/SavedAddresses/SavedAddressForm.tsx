@@ -176,7 +176,12 @@ export const SavedAddressForm: React.FC<SavedAddressFormProps> = ({ addressId })
       form.setValue('address', normAddress, { shouldValidate: true, shouldDirty: true });
     }
 
-    form.trigger(['governorate', 'city']);
+    setTimeout(() => {
+      if (normCity) {
+        form.setValue('city', normCity as string, { shouldValidate: true, shouldDirty: true });
+      }
+      form.trigger(['governorate', 'city', 'address']);
+    }, 50);
   };
 
   const onSubmit = async (values: SavedAddressFormData) => {
@@ -388,102 +393,116 @@ export const SavedAddressForm: React.FC<SavedAddressFormProps> = ({ addressId })
             <FormField
               control={form.control}
               name="governorate"
-              render={({ field }) => (
-                <FormItem>
-                  <div className="flex items-center justify-between">
-                    <FormLabel className="font-bold text-slate-700 dark:text-zinc-200 text-sm">
-                      {t('savedAddresses.form.governorate')}
-                      <span className="text-rose-500 ms-1">*</span>
-                    </FormLabel>
-                    {isGovLocked && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          // Allow changing governorate by clearing the detected lock
-                          form.setValue('detectedGovernorate', null);
-                        }}
-                        className="text-xs font-semibold text-primary hover:underline"
-                      >
-                        {t('savedAddresses.form.governorate_change_on_map')}
-                      </button>
-                    )}
-                  </div>
-                  <Select
-                    disabled={false}
-                    onValueChange={(val) => {
-                      field.onChange(val);
-                      form.setValue('detectedGovernorate', val);
-                      form.setValue('city', '');
-                    }}
-                    value={field.value || ''}
-                    dir={direction}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="h-11 rounded-xl bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800">
-                        <SelectValue
-                          placeholder={t('savedAddresses.form.governorate_required')}
-                        />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent dir={direction} className="max-h-64">
-                      {governorateOptions.map((opt) => (
-                        <SelectItem key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+              render={({ field }) => {
+                const selectedGovOption = governorateOptions.find((opt) => opt.value === field.value);
+                return (
+                  <FormItem>
+                    <div className="flex items-center justify-between">
+                      <FormLabel className="font-bold text-slate-700 dark:text-zinc-200 text-sm">
+                        {t('savedAddresses.form.governorate')}
+                        <span className="text-rose-500 ms-1">*</span>
+                      </FormLabel>
+                      {isGovLocked && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            // Allow changing governorate by clearing the detected lock
+                            form.setValue('detectedGovernorate', null);
+                          }}
+                          className="text-xs font-semibold text-primary hover:underline"
+                        >
+                          {t('savedAddresses.form.governorate_change_on_map')}
+                        </button>
+                      )}
+                    </div>
+                    <Select
+                      key={`gov-${field.value}`}
+                      disabled={false}
+                      onValueChange={(val) => {
+                        field.onChange(val);
+                        form.setValue('detectedGovernorate', val);
+                        if (form.getValues('governorate') !== val) {
+                          form.setValue('city', '');
+                        }
+                      }}
+                      value={field.value || ''}
+                      dir={direction}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="h-11 rounded-xl bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800">
+                          <SelectValue
+                            placeholder={t('savedAddresses.form.governorate_required')}
+                          >
+                            {selectedGovOption ? selectedGovOption.label : undefined}
+                          </SelectValue>
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent dir={direction} className="max-h-64">
+                        {governorateOptions.map((opt) => (
+                          <SelectItem key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
 
-                  {/* Governorate Hint */}
-                  {isGovLocked ? (
-                    <FormDescription className="text-xs text-slate-500 dark:text-zinc-400">
-                      {t('savedAddresses.form.governorate_pin_locked')}
-                    </FormDescription>
-                  ) : currentLat != null ? (
-                    <FormDescription className="text-xs text-amber-600 dark:text-amber-400">
-                      {t('savedAddresses.form.governorate_pin_undetected')}
-                    </FormDescription>
-                  ) : null}
+                    {/* Governorate Hint */}
+                    {isGovLocked ? (
+                      <FormDescription className="text-xs text-slate-500 dark:text-zinc-400">
+                        {t('savedAddresses.form.governorate_pin_locked')}
+                      </FormDescription>
+                    ) : currentLat != null ? (
+                      <FormDescription className="text-xs text-amber-600 dark:text-amber-400">
+                        {t('savedAddresses.form.governorate_pin_undetected')}
+                      </FormDescription>
+                    ) : null}
 
-                  <FormMessage />
-                </FormItem>
-              )}
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
             />
 
             {/* City Field */}
             <FormField
               control={form.control}
               name="city"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="font-bold text-slate-700 dark:text-zinc-200 text-sm">
-                    {t('savedAddresses.form.city')}
-                    <span className="text-rose-500 ms-1">*</span>
-                  </FormLabel>
-                  <Select
-                    disabled={!selectedGov || cityOptions.length === 0}
-                    onValueChange={field.onChange}
-                    value={field.value || ''}
-                    dir={direction}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="h-11 rounded-xl bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800">
-                        <SelectValue
-                          placeholder={t('savedAddresses.form.city_required')}
-                        />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent dir={direction} className="max-h-64">
-                      {cityOptions.map((opt) => (
-                        <SelectItem key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
+              render={({ field }) => {
+                const selectedCityOption = cityOptions.find((opt) => opt.value === field.value);
+                return (
+                  <FormItem>
+                    <FormLabel className="font-bold text-slate-700 dark:text-zinc-200 text-sm">
+                      {t('savedAddresses.form.city')}
+                      <span className="text-rose-500 ms-1">*</span>
+                    </FormLabel>
+                    <Select
+                      key={`city-${field.value}-${cityOptions.length}`}
+                      disabled={!selectedGov || cityOptions.length === 0}
+                      onValueChange={field.onChange}
+                      value={field.value || ''}
+                      dir={direction}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="h-11 rounded-xl bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800">
+                          <SelectValue
+                            placeholder={t('savedAddresses.form.city_required')}
+                          >
+                            {selectedCityOption ? selectedCityOption.label : undefined}
+                          </SelectValue>
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent dir={direction} className="max-h-64">
+                        {cityOptions.map((opt) => (
+                          <SelectItem key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
             />
           </div>
 

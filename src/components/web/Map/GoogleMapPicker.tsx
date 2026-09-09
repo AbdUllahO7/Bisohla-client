@@ -64,9 +64,18 @@ const MapCentreTracker: React.FC<{
       const centre = (map as any).getCenter();
       if (centre) onCentreChange(centre.lat(), centre.lng());
     });
+    const clickListener = (map as any).addListener('click', (e: any) => {
+      if (e.latLng) {
+        (map as any).panTo(e.latLng);
+        onCentreChange(e.latLng.lat(), e.latLng.lng());
+      }
+    });
     return () => {
       if (listener && (window as any).google?.maps?.event) {
         (window as any).google.maps.event.removeListener(listener);
+      }
+      if (clickListener && (window as any).google?.maps?.event) {
+        (window as any).google.maps.event.removeListener(clickListener);
       }
     };
   }, [map, onCentreChange]);
@@ -115,6 +124,11 @@ const LeafletMap: React.FC<{
         const c = map.getCenter();
         onCentreChange(c.lat, c.lng);
       });
+
+      map.on('click', (e: any) => {
+        map.panTo(e.latlng, { animate: true });
+        onCentreChange(e.latlng.lat, e.latlng.lng);
+      });
     };
 
     init();
@@ -128,6 +142,15 @@ const LeafletMap: React.FC<{
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (mapRef.current && initialLat != null && initialLng != null) {
+      const center = mapRef.current.getCenter();
+      if (Math.abs(center.lat - initialLat) > 0.0001 || Math.abs(center.lng - initialLng) > 0.0001) {
+        mapRef.current.setView([initialLat, initialLng], mapRef.current.getZoom(), { animate: true });
+      }
+    }
+  }, [initialLat, initialLng]);
 
   return <div ref={containerRef} className="w-full h-full" />;
 };
@@ -298,19 +321,19 @@ const MapBody: React.FC<{
           />
         )}
 
-        {/* Fixed centre pin — exactly like mobile: tip points at the coord */}
+        {/* Fixed centre pin — placed above all map tiles & controls */}
         <div
           className="absolute inset-0 flex items-center justify-center pointer-events-none"
-          style={{ zIndex: 10 }}
+          style={{ zIndex: 1200 }}
         >
-          <div className="relative flex flex-col items-center" style={{ transform: 'translateY(-50%)' }}>
-            {/* Drop shadow below pin */}
-            <div className="w-5 h-1.5 rounded-full bg-black/20 dark:bg-black/40 blur-sm mt-0.5 order-2" />
-            <MapPin
-              className="w-10 h-10 text-primary drop-shadow-lg order-1"
-              fill="currentColor"
-              style={{ filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.35))' }}
-            />
+          <div className="relative flex flex-col items-center select-none" style={{ transform: 'translateY(-50%)' }}>
+            {/* Drop shadow / target dot below pin */}
+            <div className="w-6 h-2 rounded-full bg-black/40 blur-[1px] mt-0.5 order-2" />
+            <div className="relative order-1">
+              <MapPin
+                className="w-11 h-11 text-primary drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)] fill-primary stroke-white stroke-[2]"
+              />
+            </div>
           </div>
         </div>
       </div>
