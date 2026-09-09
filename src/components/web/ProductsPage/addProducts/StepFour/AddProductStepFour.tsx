@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from "react"
+import dynamic from "next/dynamic"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format } from "date-fns"
-import { CalendarIcon, FileText, Phone, DollarSign, MapPin, Sliders, CheckCircle2, Award, Info, Bookmark } from "lucide-react"
+import { CalendarIcon, FileText, Phone, DollarSign, MapPin, Sliders, CheckCircle2, Award, Info, Bookmark, Loader2 } from "lucide-react"
 import { Calendar } from "@/components/ui/calendar"
 import { useTranslations, useLocale } from "next-intl"
 
@@ -29,7 +30,8 @@ import {
   normalizeGovernorate,
   normalizeCity,
   normalizeAddress,
-  cleanArabic
+  cleanArabic,
+  stripArabicNoise
 } from "@/core/entities/enums/syria.enums"
 import {
   getContactErrorMessage,
@@ -62,6 +64,18 @@ import { assemblePhone, splitPhone, repairPhone } from "@/core/lib/phone/phone.u
 import InstallmentsCard from "./InstallmentsCard"
 import { ListingInstallmentOption, ListingInstallmentsMode } from "@/core/entities/models/listings/installments.dto"
 import { EDIT_STORAGE_KEYS, getStorageKey, STORAGE_KEYS } from "../Main/hooks/useLocalStorage"
+import { reverseGeocode } from "@/utils/reverseGeocode"
+import type { LocationPickerResult } from "@/components/web/Map/GoogleMapPicker"
+import { matchGovernorate, matchCity, getNearestSyriaCity, resolveCityValue } from "@/utils/geocodeToSyria"
+
+const GoogleMapPicker = dynamic(() => import('@/components/web/Map/GoogleMapPicker'), {
+  ssr: false,
+  loading: () => (
+    <div className="h-64 w-full rounded-xl border border-slate-200 dark:border-zinc-800 overflow-hidden shadow-md bg-slate-100 dark:bg-zinc-900 flex items-center justify-center">
+      <Loader2 className="w-6 h-6 animate-spin text-primary" />
+    </div>
+  ),
+})
 
 // Simplified EnumSelect component without internal state tracking
 interface EnumSelectProps {
@@ -100,7 +114,9 @@ const EnumSelect = ({
       control={control}
       name={name}
       render={({ field }) => {
-        const rawVal = field.value !== undefined && field.value !== null ? String(field.value) : (value !== undefined && value !== null ? String(value) : "");
+        const rawVal = (field.value !== undefined && field.value !== null && String(field.value) !== "")
+          ? String(field.value)
+          : (value !== undefined && value !== null ? String(value) : "");
         let selectValue = "";
         if (rawVal) {
           const directMatch = options.find((opt) => opt.value === rawVal);
@@ -108,20 +124,27 @@ const EnumSelect = ({
             selectValue = directMatch.value;
           } else {
             const cleanRaw = cleanArabic(rawVal);
+            const strippedRaw = stripArabicNoise(rawVal);
             const noSpaceRaw = cleanRaw.replace(/\s+/g, '');
             const fuzzyMatch = options.find((opt) =>
               opt.value.toLowerCase() === rawVal.toLowerCase() ||
               opt.label.toLowerCase() === rawVal.toLowerCase() ||
               cleanArabic(opt.label) === cleanRaw ||
               cleanArabic(opt.value) === cleanRaw ||
+              stripArabicNoise(opt.label) === strippedRaw ||
+              stripArabicNoise(opt.value) === strippedRaw ||
               cleanArabic(opt.label).replace(/\s+/g, '') === noSpaceRaw ||
-              opt.value.replace(/[-_\s]/g, '').toLowerCase() === rawVal.replace(/[-_\s]/g, '').toLowerCase()
+              opt.value.replace(/[-_\s]/g, '').toLowerCase() === rawVal.replace(/[-_\s]/g, '').toLowerCase() ||
+              (strippedRaw.length >= 3 && stripArabicNoise(opt.label).includes(strippedRaw)) ||
+              (strippedRaw.length >= 3 && strippedRaw.includes(stripArabicNoise(opt.label)))
             );
             if (fuzzyMatch) {
               selectValue = fuzzyMatch.value;
             }
           }
         }
+
+        const selectedOption = options.find((opt) => opt.value === selectValue);
 
         return (
           <FormItem className={`text-primary ${className}`}>
@@ -133,6 +156,7 @@ const EnumSelect = ({
               {headerAction}
             </div>
             <Select
+              key={`${name}-${selectValue}-${options.length}`}
               disabled={disabled}
               onValueChange={(val) => {
                 field.onChange(val);
@@ -140,12 +164,14 @@ const EnumSelect = ({
                   onChange(val);
                 }
               }}
-              value={selectValue}
+              value={selectValue || undefined}
               dir={`${isRtl ? "rtl" : "ltr"}`}
             >
               <FormControl>
                 <SelectTrigger className="h-11 border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 dark:text-white disabled:opacity-85 disabled:bg-slate-50 dark:disabled:bg-zinc-850">
-                  <SelectValue placeholder={placeholder} dir={`${isRtl ? "rtl" : "ltr"}`} />
+                  <SelectValue placeholder={placeholder} dir={`${isRtl ? "rtl" : "ltr"}`}>
+                    {selectedOption ? selectedOption.label : undefined}
+                  </SelectValue>
                 </SelectTrigger>
               </FormControl>
               <SelectContent
@@ -190,9 +216,14 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
   const [pinPosition, setPinPosition] = useState<{ x: number; y: number } | null>(null);
   const mapRef = useRef<HTMLDivElement>(null);
   const [gpsCoords, setGpsCoords] = useState<{ lat: number; lng: number }>({ lat: 33.5138, lng: 36.2765 });
+  const [isGeocoding, setIsGeocoding] = useState(false);
+  // Initial map coords for edit mode pre-seeding
+  const [mapInitLat, setMapInitLat] = useState<number | null>(null);
+  const [mapInitLng, setMapInitLng] = useState<number | null>(null);
 
   const tListing = useTranslations("listing");
-  const { getListingsSettings } = useSettings();
+  const { getListingsSettings, getGoogleMapsApiKey } = useSettings();
+  const googleMapsApiKey = getGoogleMapsApiKey();
   const isSavedAddressesEnabled =
     getListingsSettings()?.location?.saved_addresses_enabled ?? true;
 
@@ -286,147 +317,54 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
     }
   }, [listingTypePolicy]);
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
+  // Handle confirmed location from GoogleMapPicker (after user reviews and confirms)
+  const handleLocationConfirm = (result: LocationPickerResult) => {
+    const lat = result.latitude;
+    const lng = result.longitude;
+    setGpsCoords({ lat, lng });
+    form.setValue("latitude", lat, { shouldValidate: true, shouldDirty: true });
+    form.setValue("longitude", lng, { shouldValidate: true, shouldDirty: true });
 
-    let mapInstance: any = null;
-    let markerInstance: any = null;
+    const normGov = normalizeGovernorate(result.governorate) || matchGovernorate(result.governorate) || result.governorate || '';
+    const normCity = resolveCityValue(result.city, normGov, lat, lng) || result.city || '';
+    const normAddress = normalizeAddress(result.address) || result.address || '';
 
-    const loadLeaflet = () => {
-      if ((window as any).L) {
-        initLeafletMap();
-        return;
+    if (normGov) {
+      form.setValue("governorate", normGov as any, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+      form.setValue("detectedGovernorate", normGov, { shouldValidate: true, shouldDirty: true });
+    } else {
+      form.setValue("detectedGovernorate", null, { shouldValidate: true, shouldDirty: true });
+    }
+
+    if (normCity) {
+      form.setValue("city", normCity as any, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+    }
+
+    if (normAddress) {
+      form.setValue("address", normAddress, { shouldValidate: true, shouldDirty: true });
+    }
+
+    // Small delay so governorate is committed before city Select renders options
+    setTimeout(() => {
+      if (normCity) {
+        form.setValue("city", normCity as any, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
       }
+      form.trigger(["governorate", "city", "address"]);
+    }, 50);
 
-      // Load Leaflet CSS dynamically
-      const link = document.createElement("link");
-      link.rel = "stylesheet";
-      link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
-      document.head.appendChild(link);
-
-      // Load Leaflet JS dynamically
-      const script = document.createElement("script");
-      script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
-      script.async = true;
-      script.onload = () => {
-        initLeafletMap();
-      };
-      document.head.appendChild(script);
+    const currentDraft = loadAdInfoData() || defaultAdInfoData;
+    const nextDraft: AdInformationFormData = {
+      ...currentDraft,
+      governorate: normGov || '',
+      city: normCity || '',
+      address: normAddress || '',
+      latitude: lat,
+      longitude: lng,
+      detectedGovernorate: normGov || null,
     };
-
-    const initLeafletMap = () => {
-      const L = (window as any).L;
-      if (!mapRef.current || !L) return;
-
-      const savedLat = form.getValues('latitude');
-      const savedLng = form.getValues('longitude');
-      const defaultLatLng = savedLat != null && savedLng != null
-        ? [savedLat, savedLng]
-        : [33.5138, 36.2765]; // Damascus
-
-      // Initialize Leaflet map instance
-      mapInstance = L.map(mapRef.current).setView(defaultLatLng, savedLat != null ? 14 : 13);
-
-      // Add high-performance OpenStreetMap tiles
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: '&copy; OpenStreetMap contributors'
-      }).addTo(mapInstance);
-
-      // Create interactive draggable marker pin
-      markerInstance = L.marker(defaultLatLng, { draggable: true }).addTo(mapInstance);
-
-      mapInstanceRef.current = mapInstance;
-      markerInstanceRef.current = markerInstance;
-
-      // Move marker on map click
-      mapInstance.on("click", (e: any) => {
-        const { lat, lng } = e.latlng;
-        markerInstance.setLatLng([lat, lng]);
-        updateAddressFromCoords(lat, lng);
-      });
-
-      // Move marker on dragend
-      markerInstance.on("dragend", () => {
-        const { lat, lng } = markerInstance.getLatLng();
-        updateAddressFromCoords(lat, lng);
-      });
-    };
-
-    const updateAddressFromCoords = (lat: number, lng: number) => {
-      setGpsCoords({ lat, lng });
-      form.setValue("latitude", lat, { shouldValidate: true, shouldDirty: true });
-      form.setValue("longitude", lng, { shouldValidate: true, shouldDirty: true });
-      
-      // Query Nominatim in Arabic to get standard Syrian governorate and city names
-      fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=ar`)
-        .then(res => res.json())
-        .then(data => {
-          if (data) {
-            const displayName = data.display_name || "";
-            const addressObj = data.address || {};
-            
-            // Join everything to get a single, unified text to search for Arabic words
-            const fullText = [
-              displayName,
-              ...Object.values(addressObj).map(v => String(v))
-            ].join(" ");
-            
-            // 1. Match Governorate (المحافظة)
-            let matchedGov: string | null = null;
-            for (const [govKey, govArabic] of Object.entries(SyriaGovernorate_ARABIC_NAMES)) {
-              if (fullText.includes(govArabic)) {
-                matchedGov = govKey;
-                break;
-              }
-            }
-            
-            // 2. Match City (المدينة)
-            let matchedCity: string | null = null;
-            for (const [cityKey, cityArabic] of Object.entries(SyriaCity_ARABIC_NAMES)) {
-              if (fullText.includes(cityArabic)) {
-                matchedCity = cityKey;
-                break;
-              }
-            }
-            
-            // Set values and trigger form validation updates
-            if (matchedGov) {
-              form.setValue("governorate", matchedGov as any, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
-              form.setValue("detectedGovernorate", matchedGov, { shouldValidate: true, shouldDirty: true });
-            } else {
-              form.setValue("detectedGovernorate", null, { shouldValidate: true, shouldDirty: true });
-            }
-            
-            if (matchedCity) {
-              form.setValue("city", matchedCity as any, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
-            }
-
-            // Force form to re-validate fields immediately to clear any error messages
-            form.trigger(["governorate", "city"]);
-
-            // 3. Set Detailed Address
-            if (displayName) {
-              form.setValue("address", displayName, { shouldValidate: true, shouldDirty: true });
-            }
-          } else {
-            form.setValue("detectedGovernorate", null, { shouldValidate: true, shouldDirty: true });
-            form.setValue("address", `${direction === "rtl" ? "موقع محدد" : "Selected location"} (${lat.toFixed(5)}, ${lng.toFixed(5)})`);
-          }
-        })
-        .catch(() => {
-          form.setValue("detectedGovernorate", null, { shouldValidate: true, shouldDirty: true });
-          form.setValue("address", `${direction === "rtl" ? "موقع محدد" : "Selected location"} (${lat.toFixed(5)}, ${lng.toFixed(5)})`);
-        });
-    };
-
-    loadLeaflet();
-
-    return () => {
-      if (mapInstance) {
-        mapInstance.remove();
-      }
-    };
-  }, [direction]);
+    saveAdInfoData(nextDraft);
+    previousFormData.current = nextDraft;
+  };
 
   const t = useTranslations("addProduct.enteredData");
   const { profile } = useProfile();
@@ -450,72 +388,85 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
   });
 
   const applyAddressToForm = (address: UserAddress) => {
-    const lat = address.latitude;
-    const lng = address.longitude;
+    const lat = address.latitude != null && !isNaN(Number(address.latitude)) ? Number(address.latitude) : null;
+    const lng = address.longitude != null && !isNaN(Number(address.longitude)) ? Number(address.longitude) : null;
+
+    const normGov = normalizeGovernorate(address.governorate) || matchGovernorate(address.governorate) || address.governorate || '';
+    const normCity = resolveCityValue(address.city, normGov, lat, lng) || address.city || '';
+    const normAddress = normalizeAddress(address.address) || address.address || '';
 
     if (lat != null && lng != null) {
       form.setValue("latitude", lat, { shouldValidate: true, shouldDirty: true });
       form.setValue("longitude", lng, { shouldValidate: true, shouldDirty: true });
-      form.setValue("detectedGovernorate", address.governorate, { shouldValidate: true, shouldDirty: true });
+      form.setValue("detectedGovernorate", normGov || address.governorate || null, { shouldValidate: true, shouldDirty: true });
       setGpsCoords({ lat, lng });
 
       if (mapInstanceRef.current && markerInstanceRef.current) {
         mapInstanceRef.current.setView([lat, lng], 14);
         markerInstanceRef.current.setLatLng([lat, lng]);
       }
+    } else {
+      form.setValue("latitude", undefined as any, { shouldValidate: true, shouldDirty: true });
+      form.setValue("longitude", undefined as any, { shouldValidate: true, shouldDirty: true });
+      form.setValue("detectedGovernorate", null, { shouldValidate: true, shouldDirty: true });
     }
 
-    if (address.governorate != null) {
-      form.setValue("governorate", address.governorate as any, { shouldValidate: true, shouldDirty: true });
+    if (normGov) {
+      form.setValue("governorate", normGov as any, { shouldValidate: true, shouldDirty: true });
     }
-    if (address.city != null) {
-      form.setValue("city", address.city as any, { shouldValidate: true, shouldDirty: true });
+    if (normCity) {
+      form.setValue("city", normCity as any, { shouldValidate: true, shouldDirty: true });
     }
-    if (address.address != null) {
-      form.setValue("address", address.address, { shouldValidate: true, shouldDirty: true });
-    }
+    form.setValue("address", normAddress || '', { shouldValidate: true, shouldDirty: true });
 
-    form.trigger(["governorate", "city", "address"]);
+    setTimeout(() => {
+      if (normCity) {
+        form.setValue("city", normCity as any, { shouldValidate: true, shouldDirty: true });
+      }
+      form.trigger(["governorate", "city", "address"]);
+    }, 50);
 
     // Persist to draft in localStorage
     const currentDraft = loadAdInfoData() || defaultAdInfoData;
-    saveAdInfoData({
+    const nextDraft: AdInformationFormData = {
       ...currentDraft,
-      governorate: address.governorate || '',
-      city: address.city || '',
-      address: address.address || '',
-      latitude: lat,
-      longitude: lng,
-      detectedGovernorate: address.governorate,
-    });
+      governorate: normGov || '',
+      city: normCity || '',
+      address: normAddress || '',
+      latitude: lat ?? undefined,
+      longitude: lng ?? undefined,
+      detectedGovernorate: normGov || null,
+    };
+    saveAdInfoData(nextDraft);
+    previousFormData.current = nextDraft;
   };
 
-  // Auto-prefill from default saved address (one-shot ABSENT gate)
+  // Auto-prefill from default saved address (one-shot ABSENT gate mirroring mobile useSavedAddressWizardBinding)
   useEffect(() => {
-    if (
-      !isSavedAddressesEnabled ||
-      isEditMode ||
-      autoPrefillDoneRef.current ||
-      isLoadingSavedAddresses ||
-      !savedAddressesResponse?.data
-    ) {
-      return;
-    }
+    if (autoPrefillDoneRef.current) return;
+    if (!isSavedAddressesEnabled || isEditMode) return;
+    if (isLoadingSavedAddresses || !savedAddressesResponse?.data) return;
 
+    autoPrefillDoneRef.current = true;
+
+    // Guard: check if form already has an existing location (persisted draft or user input)
     const currentGov = form.getValues('governorate');
     const currentCity = form.getValues('city');
-    const currentAddr = form.getValues('address');
+    const currentAddress = form.getValues('address');
+    const currentLat = form.getValues('latitude');
+    const hasExistingLocation = Boolean(
+      (currentGov && currentGov.trim() !== '') ||
+      (currentCity && currentCity.trim() !== '') ||
+      (currentAddress && currentAddress.trim() !== '') ||
+      currentLat != null
+    );
 
-    if (currentGov || currentCity || currentAddr) {
-      autoPrefillDoneRef.current = true;
-      return;
-    }
+    if (hasExistingLocation) return;
 
     const defaultAddress = savedAddressesResponse.data.find((a) => a.isDefault);
-    if (defaultAddress) {
-      autoPrefillDoneRef.current = true;
-      applyAddressToForm(defaultAddress);
-    }
+    if (!defaultAddress) return;
+
+    applyAddressToForm(defaultAddress);
   }, [isSavedAddressesEnabled, isEditMode, isLoadingSavedAddresses, savedAddressesResponse]);
 
   // Check whether current location matches an already saved address
@@ -646,11 +597,11 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
       ? mapApiEnumToFormEnum(editData.currency, Currency)
       : editData.currency || Currency.USD;
 
-    const normGov = normalizeGovernorate(editData.governorate);
-    const normCity = normalizeCity(editData.city, normGov);
-    const normAddress = normalizeAddress(editData.address);
     const lat = editData.latitude != null && !isNaN(Number(editData.latitude)) ? Number(editData.latitude) : undefined;
     const lng = editData.longitude != null && !isNaN(Number(editData.longitude)) ? Number(editData.longitude) : undefined;
+    const normGov = normalizeGovernorate(editData.governorate) || matchGovernorate(editData.governorate) || '';
+    const normCity = resolveCityValue(editData.city, normGov, lat, lng);
+    const normAddress = normalizeAddress(editData.address);
 
     setListingTypeValue(mappedListingType);
     setSaveStatusValue(mappedSaveStatus);
@@ -663,10 +614,8 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
 
     if (lat !== undefined && lng !== undefined) {
       setGpsCoords({ lat, lng });
-      if (mapInstanceRef.current && markerInstanceRef.current) {
-        markerInstanceRef.current.setLatLng([lat, lng]);
-        mapInstanceRef.current.setView([lat, lng], 14);
-      }
+      setMapInitLat(lat);
+      setMapInitLng(lng);
     }
 
     const processedData: AdInformationFormData = {
@@ -694,16 +643,21 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
     form.reset(processedData);
     previousFormData.current = { ...processedData };
 
-    if (processedData.governorate) {
-      form.setValue("governorate", processedData.governorate, { shouldValidate: true, shouldDirty: false });
-    }
-    if (processedData.city) {
-      form.setValue("city", processedData.city, { shouldValidate: true, shouldDirty: false });
-    }
-    if (processedData.address) {
-      form.setValue("address", processedData.address, { shouldValidate: true, shouldDirty: false });
-    }
-    form.clearErrors(["governorate", "city", "address"]);
+    // Delay setValue calls so Select components have time to re-render their options
+    // after form.reset() before we try to set the selected value.
+    setTimeout(() => {
+      if (processedData.governorate) {
+        form.setValue("governorate", processedData.governorate, { shouldValidate: true, shouldDirty: false });
+        form.setValue("detectedGovernorate", processedData.governorate, { shouldValidate: false });
+      }
+      if (processedData.city) {
+        form.setValue("city", processedData.city, { shouldValidate: true, shouldDirty: false });
+      }
+      if (processedData.address) {
+        form.setValue("address", processedData.address, { shouldValidate: true, shouldDirty: false });
+      }
+      form.clearErrors(["governorate", "city", "address"]);
+    }, 100);
     saveAdInfoData(processedData as any);
 
     const isValid = checkFormValidity(processedData);
@@ -745,8 +699,9 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
     } catch (e) {}
 
     // Robust extraction of location fields across all possible sources
+    // Use || (not ??) so empty strings fall through to the next candidate
     const rawGov =
-      savedData?.governorate ||
+      (savedData?.governorate && savedData.governorate !== '' ? savedData.governorate : null) ||
       stepTwoData?.governorate ||
       listing?.governorate ||
       listing?.locationGovernorate ||
@@ -759,10 +714,11 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
       (listing?.translations as any)?.ar?.governorate ||
       (listing?.translations as any)?.en?.governorate ||
       stepTwoData?.__attributeValuesMap?.governorate ||
-      stepTwoData?.__attributeValuesMap?.['محافظة'];
+      stepTwoData?.__attributeValuesMap?.['محافظة'] ||
+      null;
 
     const rawCity =
-      savedData?.city ||
+      (savedData?.city && savedData.city !== '' ? savedData.city : null) ||
       stepTwoData?.city ||
       listing?.city ||
       listing?.locationCity ||
@@ -775,7 +731,8 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
       (listing?.translations as any)?.ar?.city ||
       (listing?.translations as any)?.en?.city ||
       stepTwoData?.__attributeValuesMap?.city ||
-      stepTwoData?.__attributeValuesMap?.['مدينة'];
+      stepTwoData?.__attributeValuesMap?.['مدينة'] ||
+      null;
 
     const rawAddress =
       savedData?.address ||
@@ -810,14 +767,21 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
       listing?.location?.lng ??
       listing?.details?.longitude;
 
-    const normGov = normalizeGovernorate(rawGov);
-    const normCity = normalizeCity(rawCity, normGov);
-    const normAddress = normalizeAddress(rawAddress);
+
     const numLat = rawLat != null && !isNaN(Number(rawLat)) ? Number(rawLat) : undefined;
     const numLng = rawLng != null && !isNaN(Number(rawLng)) ? Number(rawLng) : undefined;
 
-    // 2. Fallback to initialData if localStorage is empty or missing address fields in edit mode
-    if (isEditMode && listing && (!isActuallySaved || !savedData?.governorate || !savedData?.city || !savedData?.address) && !editModeDataApplied.current) {
+    const normGov = normalizeGovernorate(rawGov) || matchGovernorate(rawGov) || '';
+    const normCity = resolveCityValue(rawCity, normGov, numLat, numLng);
+    const normAddress = normalizeAddress(rawAddress);
+
+
+    // Helper: is this a real SyriaCity enum value?
+    const isValidCity = (v: any) => !!v && (Object.values(SyriaCity) as string[]).includes(v);
+
+    // 2. Fallback to initialData if localStorage is empty or missing valid location fields in edit mode
+    // NOTE: we check governorate/city validity, but NOT address — address can legitimately be null
+    if (isEditMode && listing && (!isActuallySaved || !savedData?.governorate || !isValidCity(savedData?.city)) && !editModeDataApplied.current) {
       const itemTitle =
         savedData?.title ||
         listing.title ||
@@ -865,7 +829,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
       return;
     }
 
-    // 3. Apply savedData if available
+    // 3. Apply savedData if available — but only if it has valid gov/city
     if (isActuallySaved && !editModeDataApplied.current) {
       let phoneOnly = savedData.contactNumber || "";
       let extractedCountryCode = savedData.countryDialCode || "+963";
@@ -891,22 +855,25 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
 
       if (lat !== undefined && lng !== undefined) {
         setGpsCoords({ lat, lng });
-        if (mapInstanceRef.current && markerInstanceRef.current) {
-          markerInstanceRef.current.setLatLng([lat, lng]);
-          mapInstanceRef.current.setView([lat, lng], 14);
-        }
+        setMapInitLat(lat);
+        setMapInitLng(lng);
       }
+
+      // Prefer normGov/normCity from listing data if savedData has empty strings
+      const resolvedGov = normGov || savedData.governorate || '';
+      const resolvedCity = (isValidCity(savedData.city) ? savedData.city : normCity) || resolveCityValue(savedData.city || rawCity, resolvedGov, lat, lng);
+      const resolvedAddress = normAddress || savedData.address || '';
 
       const mergedData = {
         ...savedData,
         countryDialCode: extractedCountryCode,
         contactNumber: phoneOnly,
-        governorate: normGov || savedData.governorate || '',
-        city: normCity || savedData.city || '',
-        address: normAddress || savedData.address || '',
+        governorate: resolvedGov,
+        city: resolvedCity,
+        address: resolvedAddress,
         latitude: lat,
         longitude: lng,
-        detectedGovernorate: normGov || (savedData as any).detectedGovernorate || null,
+        detectedGovernorate: resolvedGov || (savedData as any).detectedGovernorate || null,
         installmentsAvailable: Boolean(savedData.installmentsAvailable),
         installmentPlans: savedData.installmentPlans || []
       };
@@ -914,16 +881,21 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
       form.reset(mergedData);
       previousFormData.current = mergedData;
 
-      if (mergedData.governorate) {
-        form.setValue("governorate", mergedData.governorate, { shouldValidate: true, shouldDirty: false });
-      }
-      if (mergedData.city) {
-        form.setValue("city", mergedData.city, { shouldValidate: true, shouldDirty: false });
-      }
-      if (mergedData.address) {
-        form.setValue("address", mergedData.address, { shouldValidate: true, shouldDirty: false });
-      }
-      form.clearErrors(["governorate", "city", "address"]);
+      // Explicit setValue calls with small delay to ensure Select components re-render
+      setTimeout(() => {
+        if (mergedData.governorate) {
+          form.setValue("governorate", mergedData.governorate, { shouldValidate: true, shouldDirty: false });
+          form.setValue("detectedGovernorate", mergedData.governorate, { shouldValidate: false });
+        }
+        if (mergedData.city) {
+          form.setValue("city", mergedData.city, { shouldValidate: true, shouldDirty: false });
+        }
+        if (mergedData.address) {
+          form.setValue("address", mergedData.address, { shouldValidate: true, shouldDirty: false });
+        }
+        form.clearErrors(["governorate", "city", "address"]);
+      }, 100);
+
       saveAdInfoData(mergedData as any);
 
       const isValid = checkFormValidity(mergedData);
@@ -1380,7 +1352,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
 
                     const detectedGov = form.watch("detectedGovernorate");
                     const currentGov = form.watch("governorate");
-                    const isGovLocked = Boolean(!isEditMode && detectedGov && currentGov);
+                    const isGovLocked = Boolean(detectedGov && currentGov);
 
                     return (
                       <EnumSelect
@@ -1418,8 +1390,11 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                           ) : null
                         }
                         onChange={(val) => {
-                          form.setValue("city", "");
+                          if (form.getValues("governorate") !== val) {
+                            form.setValue("city", "");
+                          }
                         }}
+                        value={form.watch("governorate")}
                         isRtl={direction === "rtl"}
                       />
                     );
@@ -1445,6 +1420,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                         placeholder={direction === "rtl" ? "اختر المدينة" : "Select City"}
                         required={true}
                         disabled={!selectedGov}
+                        value={form.watch("city")}
                         isRtl={direction === "rtl"}
                       />
                     );
@@ -1506,11 +1482,14 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                           </div>
                         )}
 
-                        {/* Real Google Map Canvas container */}
-                        <div 
-                          ref={mapRef}
-                          style={{ zIndex: 1 }}
-                          className="relative h-64 w-full rounded-xl border border-slate-200 dark:border-zinc-800 overflow-hidden shadow-md bg-slate-100 dark:bg-zinc-900 transition-all hover:border-emerald-500/50 !z-[1]"
+                        {/* Google Maps Picker — same two-step UX as the mobile app */}
+                        <GoogleMapPicker
+                          apiKey={googleMapsApiKey}
+                          initialLat={mapInitLat}
+                          initialLng={mapInitLng}
+                          onConfirm={handleLocationConfirm}
+                          locale={locale === 'ar' ? 'ar' : 'en'}
+                          height="420px"
                         />
                       </div>
 

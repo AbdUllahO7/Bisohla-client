@@ -6,6 +6,7 @@ import { ListingTypeRefItemDto } from '@/core/entities/models/listing-type-refs/
 import { STORAGE_KEYS, getStorageKey } from './useLocalStorage';
 import { ProposeReferenceResult } from '@/core/entities/models/listings/reference-proposal.dto';
 import { normalizeGovernorate, normalizeCity, normalizeAddress } from '@/core/entities/enums/syria.enums';
+import { resolveCityValue } from '@/utils/geocodeToSyria';
 
 export const useDynamicForm = (
   attributes: FormAttributeDto[],
@@ -125,7 +126,7 @@ export const useDynamicForm = (
           } else if (slugLower === 'governorate' || slugLower === 'محافظة') {
             editValue = normalizeGovernorate(initialData?.governorate || (initialData as any)?.location?.governorate || apiAttributeMap['governorate'] || apiAttributeMapById[attr.id]);
           } else if (slugLower === 'city' || slugLower === 'مدينة') {
-            editValue = normalizeCity(initialData?.city || (initialData as any)?.location?.city || apiAttributeMap['city'] || apiAttributeMapById[attr.id], initial['governorate']);
+            editValue = resolveCityValue(initialData?.city || (initialData as any)?.location?.city || apiAttributeMap['city'] || apiAttributeMapById[attr.id], initial['governorate']);
           } else if (slugLower === 'address' || slugLower === 'العنوان' || slugLower === 'detailed_address') {
             editValue = normalizeAddress(initialData?.address || (initialData as any)?.location?.address || apiAttributeMap['address'] || apiAttributeMapById[attr.id]);
           } else {
@@ -150,7 +151,7 @@ export const useDynamicForm = (
         if (slugLower === 'governorate' || slugLower === 'محافظة') {
           initial[attr.slug] = normalizeGovernorate(editValue);
         } else if (slugLower === 'city' || slugLower === 'مدينة') {
-          initial[attr.slug] = normalizeCity(editValue, initial['governorate']);
+          initial[attr.slug] = resolveCityValue(editValue, initial['governorate']);
         } else {
           initial[attr.slug] = (attr.type === 'reference' || attr.type === 'select')
             ? String(editValue)

@@ -50,11 +50,27 @@ import {
 import {
   SyriaGovernorate,
   SyriaGovernorate_ARABIC_NAMES,
-  SyriaCity,
   SyriaCity_ARABIC_NAMES,
   SyriaGovernorate_TO_CITIES,
+  normalizeGovernorate,
+  normalizeCity,
+  normalizeAddress,
 } from '@/core/entities/enums/syria.enums';
+import { matchGovernorate, resolveCityValue } from '@/utils/geocodeToSyria';
 import { cn } from '@/lib/utils';
+import dynamic from 'next/dynamic';
+import type { LocationPickerResult } from '@/components/web/Map/GoogleMapPicker';
+import { reverseGeocode } from '@/utils/reverseGeocode';
+import { useSettings } from '@/providers/settings.provider';
+
+const GoogleMapPicker = dynamic(() => import('@/components/web/Map/GoogleMapPicker'), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full bg-slate-100 dark:bg-zinc-900 rounded-2xl border border-slate-200 dark:border-zinc-800 flex items-center justify-center" style={{ height: '420px' }}>
+      <Loader2 className="w-6 h-6 animate-spin text-primary" />
+    </div>
+  ),
+});
 
 interface SavedAddressFormProps {
   addressId?: number;
@@ -66,6 +82,8 @@ export const SavedAddressForm: React.FC<SavedAddressFormProps> = ({ addressId })
   const direction = useDirection();
   const t = useTranslations();
   const { toast } = useToast();
+  const { getGoogleMapsApiKey } = useSettings();
+  const googleMapsApiKey = getGoogleMapsApiKey();
 
   const isEdit = Boolean(addressId);
 
@@ -77,13 +95,12 @@ export const SavedAddressForm: React.FC<SavedAddressFormProps> = ({ addressId })
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [rootError, setRootError] = useState<string | null>(null);
-  const [isGeocoding, setIsGeocoding] = useState(false);
   const [notFound, setNotFound] = useState(false);
 
-  // Map references
-  const mapContainerRef = useRef<HTMLDivElement>(null);
-  const mapInstanceRef = useRef<any>(null);
-  const markerInstanceRef = useRef<any>(null);
+  // Track initial map coordinates to pass to GoogleMapPicker
+  const [mapInitLat, setMapInitLat] = useState<number | null>(null);
+  const [mapInitLng, setMapInitLng] = useState<number | null>(null);
+
   const hasInitializedRef = useRef(false);
 
   const form = useForm<SavedAddressFormData>({
@@ -104,30 +121,30 @@ export const SavedAddressForm: React.FC<SavedAddressFormProps> = ({ addressId })
   const selectedGov = form.watch('governorate');
   const detectedGov = form.watch('detectedGovernorate');
 
-  // Find address from cache once
+  // Load existing address data in edit mode
   useEffect(() => {
     if (isEdit && !hasInitializedRef.current && addressesResponse?.data) {
       const address = addressesResponse.data.find((a) => a.id === addressId);
       if (address) {
         hasInitializedRef.current = true;
-        // Legacy repair: if lat exists, repair detectedGovernorate
-        const detected = address.latitude != null ? address.governorate : null;
+        const normGov = normalizeGovernorate(address.governorate) || matchGovernorate(address.governorate) || address.governorate || '';
+        const normCity = resolveCityValue(address.city, normGov, address.latitude, address.longitude);
+        const normAddress = normalizeAddress(address.address);
+        const detected = address.latitude != null ? normGov : null;
 
         form.reset({
           label: address.label || '',
-          governorate: address.governorate || '',
-          city: address.city || '',
-          address: address.address || '',
+          governorate: normGov,
+          city: normCity,
+          address: normAddress,
           latitude: address.latitude,
           longitude: address.longitude,
           detectedGovernorate: detected,
         });
 
-        if (mapInstanceRef.current && address.latitude && address.longitude) {
-          mapInstanceRef.current.setView([address.latitude, address.longitude], 14);
-          if (markerInstanceRef.current) {
-            markerInstanceRef.current.setLatLng([address.latitude, address.longitude]);
-          }
+        if (address.latitude && address.longitude) {
+          setMapInitLat(address.latitude);
+          setMapInitLng(address.longitude);
         }
       } else if (!isLoadingList) {
         setNotFound(true);
@@ -135,152 +152,31 @@ export const SavedAddressForm: React.FC<SavedAddressFormProps> = ({ addressId })
     }
   }, [isEdit, addressId, addressesResponse, isLoadingList, form]);
 
-  // Leaflet map setup
-  useEffect(() => {
-    let isMounted = true;
+  // Handle confirmed location from the GoogleMapPicker (called after user reviews and confirms)
+  const handleLocationConfirm = (result: LocationPickerResult) => {
+    form.setValue('latitude', result.latitude, { shouldValidate: true, shouldDirty: true });
+    form.setValue('longitude', result.longitude, { shouldValidate: true, shouldDirty: true });
 
-    const initMap = async () => {
-      if (typeof window === 'undefined' || !mapContainerRef.current || mapInstanceRef.current) {
-        return;
-      }
+    const normGov = normalizeGovernorate(result.governorate) || matchGovernorate(result.governorate) || result.governorate || '';
+    const normCity = resolveCityValue(result.city, normGov, result.latitude, result.longitude);
+    const normAddress = normalizeAddress(result.address);
 
-      // Dynamically import Leaflet
-      const L = await import('leaflet');
-      // Import leaflet CSS
-      if (!document.getElementById('leaflet-css')) {
-        const link = document.createElement('link');
-        link.id = 'leaflet-css';
-        link.rel = 'stylesheet';
-        link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-        document.head.appendChild(link);
-      }
-
-      if (!isMounted || !mapContainerRef.current) return;
-
-      const initialLat = form.getValues('latitude') || 33.5138;
-      const initialLng = form.getValues('longitude') || 36.2765;
-
-      const map = L.map(mapContainerRef.current, {
-        center: [initialLat, initialLng],
-        zoom: form.getValues('latitude') ? 14 : 11,
-      });
-
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors',
-      }).addTo(map);
-
-      // Custom marker icon fix for Leaflet
-      const defaultIcon = L.icon({
-        iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-        iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-        popupAnchor: [1, -34],
-        shadowSize: [41, 41],
-      });
-
-      const marker = L.marker([initialLat, initialLng], {
-        draggable: true,
-        icon: defaultIcon,
-      }).addTo(map);
-
-      mapInstanceRef.current = map;
-      markerInstanceRef.current = marker;
-
-      // Handle map clicks
-      map.on('click', (e: any) => {
-        const { lat, lng } = e.latlng;
-        marker.setLatLng([lat, lng]);
-        handleCoordsChange(lat, lng);
-      });
-
-      // Handle marker drag
-      marker.on('dragend', () => {
-        const { lat, lng } = marker.getLatLng();
-        handleCoordsChange(lat, lng);
-      });
-    };
-
-    initMap();
-
-    return () => {
-      isMounted = false;
-      if (mapInstanceRef.current) {
-        mapInstanceRef.current.remove();
-        mapInstanceRef.current = null;
-      }
-    };
-  }, []);
-
-  // Reverse geocode coords to resolve governorate & city
-  const handleCoordsChange = async (lat: number, lng: number) => {
-    form.setValue('latitude', lat, { shouldValidate: true, shouldDirty: true });
-    form.setValue('longitude', lng, { shouldValidate: true, shouldDirty: true });
-
-    setIsGeocoding(true);
-    try {
-      const res = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=ar`
-      );
-      const data = await res.json();
-
-      if (data) {
-        const displayName = data.display_name || '';
-        const addressObj = data.address || {};
-        const fullText = [
-          displayName,
-          ...Object.values(addressObj).map((v) => String(v)),
-        ].join(' ');
-
-        // Match Governorate
-        let matchedGov: string | null = null;
-        for (const [govKey, govArabic] of Object.entries(SyriaGovernorate_ARABIC_NAMES)) {
-          if (fullText.includes(govArabic)) {
-            matchedGov = govKey;
-            break;
-          }
-        }
-
-        // Match City
-        let matchedCity: string | null = null;
-        for (const [cityKey, cityArabic] of Object.entries(SyriaCity_ARABIC_NAMES)) {
-          if (fullText.includes(cityArabic)) {
-            matchedCity = cityKey;
-            break;
-          }
-        }
-
-        if (matchedGov) {
-          form.setValue('detectedGovernorate', matchedGov);
-          form.setValue('governorate', matchedGov, {
-            shouldValidate: true,
-            shouldDirty: true,
-          });
-        } else {
-          form.setValue('detectedGovernorate', null);
-        }
-
-        if (matchedCity) {
-          form.setValue('city', matchedCity, {
-            shouldValidate: true,
-            shouldDirty: true,
-          });
-        }
-
-        if (displayName && !form.getValues('address')) {
-          form.setValue('address', displayName, {
-            shouldValidate: true,
-            shouldDirty: true,
-          });
-        }
-      }
-    } catch {
+    if (normGov) {
+      form.setValue('governorate', normGov, { shouldValidate: true, shouldDirty: true });
+      form.setValue('detectedGovernorate', normGov, { shouldValidate: true, shouldDirty: true });
+    } else {
       form.setValue('detectedGovernorate', null);
-    } finally {
-      setIsGeocoding(false);
-      form.trigger(['governorate', 'city']);
     }
+
+    if (normCity) {
+      form.setValue('city', normCity as string, { shouldValidate: true, shouldDirty: true });
+    }
+
+    if (normAddress && !form.getValues('address')) {
+      form.setValue('address', normAddress, { shouldValidate: true, shouldDirty: true });
+    }
+
+    form.trigger(['governorate', 'city']);
   };
 
   const onSubmit = async (values: SavedAddressFormData) => {
@@ -341,7 +237,6 @@ export const SavedAddressForm: React.FC<SavedAddressFormProps> = ({ addressId })
         setIsDeleteDialogOpen(false);
         const promoted = res.data?.promotedDefault;
         if (promoted?.label) {
-          // Bidi isolation for label
           const safeLabel = `\u2066${promoted.label}\u2069`;
           toast({
             title: t('savedAddresses.delete_success_promoted_toast', {
@@ -449,6 +344,7 @@ export const SavedAddressForm: React.FC<SavedAddressFormProps> = ({ addressId })
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+
           {/* 1. Map Pin FIRST */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
@@ -456,30 +352,34 @@ export const SavedAddressForm: React.FC<SavedAddressFormProps> = ({ addressId })
                 <MapPin className="w-4 h-4 text-primary" />
                 <span>{t('savedAddresses.form.pick_on_map')}</span>
               </label>
-              {isGeocoding && (
-                <span className="text-xs text-primary flex items-center gap-1.5 font-medium animate-pulse">
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  <span>{direction === 'rtl' ? 'جارٍ تحديد المحافظة...' : 'Detecting area...'}</span>
-                </span>
-              )}
             </div>
 
-            <div className="relative rounded-2xl overflow-hidden border border-slate-200 dark:border-zinc-800 shadow-sm">
-              <div
-                ref={mapContainerRef}
-                className="w-full h-64 bg-slate-100 dark:bg-zinc-900 z-0"
-              />
-              <div className="absolute bottom-2 end-2 z-10 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-sm px-3 py-1.5 rounded-xl border border-slate-200/60 dark:border-zinc-800 text-[11px] font-medium text-slate-600 dark:text-zinc-300 shadow-sm flex items-center gap-1.5 pointer-events-none">
-                <Navigation className="w-3 h-3 text-primary" />
-                <span>
-                  {currentLat && currentLng
-                    ? `${currentLat.toFixed(4)}, ${currentLng.toFixed(4)}`
-                    : direction === 'rtl'
-                    ? 'انقر على الخريطة لتحديد الموقع'
-                    : 'Click map to place pin'}
-                </span>
+
+            {/* Google Maps / Leaflet picker */}
+            <GoogleMapPicker
+              apiKey={googleMapsApiKey}
+              initialLat={mapInitLat}
+              initialLng={mapInitLng}
+              onConfirm={handleLocationConfirm}
+              locale={locale === 'ar' ? 'ar' : 'en'}
+              height="420px"
+            />
+
+            {/* Coordinates badge */}
+            {(currentLat || currentLng) && (
+              <div className="flex justify-end">
+                <div className="bg-white/90 dark:bg-zinc-900/90 backdrop-blur-sm px-3 py-1.5 rounded-xl border border-slate-200/60 dark:border-zinc-800 text-[11px] font-medium text-slate-600 dark:text-zinc-300 shadow-sm flex items-center gap-1.5 pointer-events-none">
+                  <Navigation className="w-3 h-3 text-primary" />
+                  <span>
+                    {currentLat && currentLng
+                      ? `${currentLat.toFixed(4)}, ${currentLng.toFixed(4)}`
+                      : direction === 'rtl'
+                      ? 'انقر على الخريطة لتحديد الموقع'
+                      : 'Click map to place pin'}
+                  </span>
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* 2. Governorate and City */}
@@ -499,10 +399,8 @@ export const SavedAddressForm: React.FC<SavedAddressFormProps> = ({ addressId })
                       <button
                         type="button"
                         onClick={() => {
-                          mapContainerRef.current?.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'center',
-                          });
+                          // Allow changing governorate by clearing the detected lock
+                          form.setValue('detectedGovernorate', null);
                         }}
                         className="text-xs font-semibold text-primary hover:underline"
                       >
@@ -511,16 +409,17 @@ export const SavedAddressForm: React.FC<SavedAddressFormProps> = ({ addressId })
                     )}
                   </div>
                   <Select
-                    disabled={isGovLocked}
+                    disabled={false}
                     onValueChange={(val) => {
                       field.onChange(val);
+                      form.setValue('detectedGovernorate', val);
                       form.setValue('city', '');
                     }}
                     value={field.value || ''}
                     dir={direction}
                   >
                     <FormControl>
-                      <SelectTrigger className="h-11 rounded-xl bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 disabled:opacity-85 disabled:bg-slate-50 dark:disabled:bg-zinc-800/60">
+                      <SelectTrigger className="h-11 rounded-xl bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800">
                         <SelectValue
                           placeholder={t('savedAddresses.form.governorate_required')}
                         />

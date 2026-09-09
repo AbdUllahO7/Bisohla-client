@@ -12,6 +12,8 @@ import {
 import { useGetListingById } from '@/core/infrastructure-adapters/use-actions/users/listing.user.use-actions';
 import { splitPhone } from '@/core/lib/phone/phone.util';
 import { normalizeGovernorate, normalizeCity, normalizeAddress } from '@/core/entities/enums/syria.enums';
+import { matchGovernorate, matchCity, getNearestSyriaCity, resolveCityValue } from '@/utils/geocodeToSyria';
+import { SyriaGovernorate, SyriaCity } from '@/core/entities/enums/syria.enums';
 
 const EditProductPage = () => {
   const { id } = useParams();
@@ -116,48 +118,65 @@ const EditProductPage = () => {
       }
 
       // Robust extraction of location fields with fallbacks
+      // Use || (not ??) so empty strings fall through to the next candidate
       const rawGov =
-        listing.governorate ??
-        listing.locationGovernorate ??
-        (listing as any).location?.governorate ??
-        (listing as any).details?.governorate ??
-        (listing as any).addressInfo?.governorate ??
-        (listing as any).address?.governorate ??
-        (listing as any).rawListing?.governorate ??
-        (listing as any).carListing?.governorate ??
-        (listing.translations as any)?.ar?.governorate ??
-        (listing.translations as any)?.en?.governorate ??
-        attributeValuesMap['governorate'] ??
-        attributeValuesMap['محافظة'];
+        listing.governorate ||
+        listing.locationGovernorate ||
+        (listing as any).location?.governorate ||
+        (listing as any).details?.governorate ||
+        (listing as any).addressInfo?.governorate ||
+        (listing as any).address?.governorate ||
+        (listing as any).rawListing?.governorate ||
+        (listing as any).carListing?.governorate ||
+        (listing.translations as any)?.ar?.governorate ||
+        (listing.translations as any)?.en?.governorate ||
+        attributeValuesMap['governorate'] ||
+        attributeValuesMap['محافظة'] ||
+        null;
 
       const rawCity =
-        listing.city ??
-        listing.locationCity ??
-        (listing as any).location?.city ??
-        (listing as any).details?.city ??
-        (listing as any).addressInfo?.city ??
-        (listing as any).address?.city ??
-        (listing as any).rawListing?.city ??
-        (listing as any).carListing?.city ??
-        (listing.translations as any)?.ar?.city ??
-        (listing.translations as any)?.en?.city ??
-        attributeValuesMap['city'] ??
-        attributeValuesMap['مدينة'];
+        listing.city ||
+        listing.locationCity ||
+        (listing as any).location?.city ||
+        (listing as any).details?.city ||
+        (listing as any).addressInfo?.city ||
+        (listing as any).address?.city ||
+        (listing as any).rawListing?.city ||
+        (listing as any).carListing?.city ||
+        (listing.translations as any)?.ar?.city ||
+        (listing.translations as any)?.en?.city ||
+        attributeValuesMap['city'] ||
+        attributeValuesMap['مدينة'] ||
+        null;
 
-      const rawAddress =
-        listing.address ??
-        listing.detailedAddress ??
-        (listing as any).location?.address ??
-        (listing as any).location?.detailedAddress ??
-        (listing as any).details?.address ??
-        (listing as any).addressInfo?.address ??
-        (listing as any).rawListing?.address ??
-        (listing as any).carListing?.address ??
-        (listing.translations as any)?.ar?.address ??
-        (listing.translations as any)?.en?.address ??
-        attributeValuesMap['address'] ??
-        attributeValuesMap['العنوان'] ??
-        attributeValuesMap['detailed_address'];
+      const rawAddress = (() => {
+        // Safely extract a string-only address across all known field paths.
+        // If a field is an object (e.g. { ar: '...', en: '...' }) we unwrap it.
+        const extractStr = (val: any): string | null | undefined => {
+          if (val == null) return null;
+          if (typeof val === 'string') return val.trim() || null;
+          if (typeof val === 'object') {
+            const s = val.address || val.detailedAddress || val.ar || val.en || val.title || val.name;
+            return typeof s === 'string' ? s.trim() || null : null;
+          }
+          return null;
+        };
+        return (
+          extractStr(listing.address) ??
+          extractStr(listing.detailedAddress) ??
+          extractStr((listing as any).location?.address) ??
+          extractStr((listing as any).location?.detailedAddress) ??
+          extractStr((listing as any).details?.address) ??
+          extractStr((listing as any).addressInfo?.address) ??
+          extractStr((listing as any).rawListing?.address) ??
+          extractStr((listing as any).carListing?.address) ??
+          extractStr((listing.translations as any)?.ar?.address) ??
+          extractStr((listing.translations as any)?.en?.address) ??
+          extractStr(attributeValuesMap['address']) ??
+          extractStr(attributeValuesMap['العنوان']) ??
+          extractStr(attributeValuesMap['detailed_address'])
+        );
+      })();
 
       const rawLat =
         (listing as any).latitude ??
@@ -176,11 +195,13 @@ const EditProductPage = () => {
         (listing as any).details?.longitude ??
         null;
 
-      const normGov = normalizeGovernorate(rawGov);
-      const normCity = normalizeCity(rawCity, normGov);
-      const normAddress = normalizeAddress(rawAddress);
+      const normGov = normalizeGovernorate(rawGov) || matchGovernorate(rawGov) || '';
+
       const numLat = rawLat != null && !isNaN(Number(rawLat)) ? Number(rawLat) : null;
       const numLng = rawLng != null && !isNaN(Number(rawLng)) ? Number(rawLng) : null;
+
+      const normCity = resolveCityValue(rawCity, normGov, numLat, numLng);
+      const normAddress = normalizeAddress(rawAddress) || rawAddress || '';
 
       // Merge direct attributes fallback from listing object
       const stepTwoData = {
@@ -195,6 +216,7 @@ const EditProductPage = () => {
         trim: listing.trimId || listing.trim?.id || attributeValuesMap.trim || null,
         currency: listing.currency || 'USD',
         __attributeMap__: attributeMetaMap,
+        __attributeValuesMap: attributeValuesMap,
         __proposals__: proposalsMap,
       };
 

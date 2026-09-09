@@ -289,6 +289,12 @@ export enum SyriaCity {
   AL_RUHAYBAH = 'Al-Ruhaybah',
   AL_DUMAYR = 'Al-Dumayr',
   AQRABA = 'Aqraba',
+  QUDSAYA = 'Qudsaya',
+  AL_HAMEH = 'Al-Hameh',
+  SAHNAYA = 'Sahnaya',
+  ASHRAFIYAT_SAHNAYA = 'Ashrafiyat Sahnaya',
+  JDAIDAT_ARTOUZ = 'Jdaidat Artouz',
+  MUADAMIYAT_AL_SHAM = 'Muadamiyat al-Sham',
 }
 
 /**
@@ -315,6 +321,10 @@ export const SyriaGovernorate_TO_CITIES: Record<SyriaGovernorate, SyriaCity[]> =
       SyriaCity.SAQBA,
       SyriaCity.ARBIN,
       SyriaCity.ZAMALKA,
+      SyriaCity.QUDSAYA,
+      SyriaCity.AL_HAMEH,
+      SyriaCity.SAHNAYA,
+      SyriaCity.JDAIDAT_ARTOUZ,
     ],
     [SyriaGovernorate.ALEPPO]: [
       SyriaCity.ALEPPO,
@@ -546,6 +556,21 @@ export const SyriaGovernorate_TO_CITIES: Record<SyriaGovernorate, SyriaCity[]> =
     ],
     [SyriaGovernorate.DAMASCUS_COUNTRYSIDE]: [
       SyriaCity.AL_TALL,
+      SyriaCity.DOUMA,
+      SyriaCity.HARASTA,
+      SyriaCity.DARAYYA,
+      SyriaCity.JARAMANA,
+      SyriaCity.SAYYIDAH_ZAYNAB,
+      SyriaCity.KAFR_BATNA,
+      SyriaCity.SAQBA,
+      SyriaCity.ARBIN,
+      SyriaCity.ZAMALKA,
+      SyriaCity.QUDSAYA,
+      SyriaCity.AL_HAMEH,
+      SyriaCity.SAHNAYA,
+      SyriaCity.ASHRAFIYAT_SAHNAYA,
+      SyriaCity.JDAIDAT_ARTOUZ,
+      SyriaCity.MUADAMIYAT_AL_SHAM,
       SyriaCity.YABROUD,
       SyriaCity.AN_NABK,
       SyriaCity.QATANA,
@@ -678,7 +703,7 @@ export const SyriaCity_ARABIC_NAMES: Record<SyriaCity, string> = {
   [SyriaCity.AL_HAFFA]: 'الحفة',
   [SyriaCity.QARDAHA]: 'القرداحة',
   [SyriaCity.KASAB]: 'كسب',
-  [SyriaCity.SALMA]: 'صلنفة',
+  [SyriaCity.SALMA]: 'سلمى',
   [SyriaCity.BEIT_YASHOUT]: 'بيت ياشوط',
   [SyriaCity.AIN_AL_BAYDA]: 'عين البيضاء',
   [SyriaCity.BASIT]: 'باسيط',
@@ -856,6 +881,12 @@ export const SyriaCity_ARABIC_NAMES: Record<SyriaCity, string> = {
   [SyriaCity.AL_RUHAYBAH]: 'الرحيبة',
   [SyriaCity.AL_DUMAYR]: 'الضمير',
   [SyriaCity.AQRABA]: 'عقربا',
+  [SyriaCity.QUDSAYA]: 'قدسيا',
+  [SyriaCity.AL_HAMEH]: 'الهامة',
+  [SyriaCity.SAHNAYA]: 'صحنايا',
+  [SyriaCity.ASHRAFIYAT_SAHNAYA]: 'أشرفية صحنايا',
+  [SyriaCity.JDAIDAT_ARTOUZ]: 'جديدة عرطوز',
+  [SyriaCity.MUADAMIYAT_AL_SHAM]: 'معضمية الشام',
 };
 
 /**
@@ -934,13 +965,26 @@ export const getBilingualCitiesBySyriaGovernorate = (
 export function cleanArabic(text: string): string {
   if (!text) return '';
   return String(text)
-    .replace(/[أإآ]/g, 'ا')
+    .replace(/[أإآٱ]/g, 'ا')
     .replace(/ة/g, 'ه')
     .replace(/ى/g, 'ي')
-    .replace(/[\u064B-\u065F\u0670]/g, '') // Remove tashkeel/diacritics
+    .replace(/[\u064B-\u065F\u0670ـ]/g, '') // Remove tashkeel/diacritics/tatweel
     .replace(/[-_\s']+/g, ' ')
     .trim()
     .toLowerCase();
+}
+
+/**
+ * Strips Arabic definite article (ال), administrative noise, and non-alphanumeric noise
+ */
+export function stripArabicNoise(text: string): string {
+  if (!text) return '';
+  let cleaned = cleanArabic(text);
+  // Remove administrative noise words
+  cleaned = cleaned.replace(/\b(محافظه|منطقه|ناحيه|مدينه|ريف)\b/g, ' ').trim();
+  // Strip leading "ال" from individual words or beginning of text
+  cleaned = cleaned.replace(/^ال/g, '').replace(/\s+ال/g, ' ').replace(/\s+/g, ' ').trim();
+  return cleaned;
 }
 
 /**
@@ -951,6 +995,8 @@ export function normalizeGovernorate(raw: any): string {
   if (!raw && raw !== 0) return '';
   if (typeof raw === 'object') {
     raw =
+      raw.governorate ||
+      raw.locationGovernorate ||
       raw.name ||
       raw.label ||
       raw.value ||
@@ -971,7 +1017,8 @@ export function normalizeGovernorate(raw: any): string {
   for (const val of Object.values(SyriaGovernorate)) {
     if (
       val.toLowerCase() === lowerStr ||
-      val.replace(/[-\s_]+/g, ' ').toLowerCase() === cleanStr
+      val.replace(/[-\s_]+/g, ' ').toLowerCase() === cleanStr ||
+      val.replace(/[-\s_]+/g, '').toLowerCase() === lowerStr.replace(/[-\s_]+/g, '')
     ) {
       return val;
     }
@@ -985,8 +1032,10 @@ export function normalizeGovernorate(raw: any): string {
     }
   }
 
-  // 3. Match with Arabic names using cleanArabic
+  // 3. Match with Arabic names
   const cleanedInput = cleanArabic(str);
+  const strippedInput = stripArabicNoise(str);
+  const noSpaceInput = cleanedInput.replace(/\s+/g, '');
 
   // 3a. Exact match on cleaned Arabic names
   for (const [val, arName] of Object.entries(SyriaGovernorate_ARABIC_NAMES)) {
@@ -995,36 +1044,49 @@ export function normalizeGovernorate(raw: any): string {
     }
   }
 
-  // 3b. Match with spaces stripped (e.g. "ديرالزور" vs "دير الزور", "ريفدمشق" vs "ريف دمشق")
-  const noSpaceInput = cleanedInput.replace(/\s+/g, '');
+  // 3b. Match with noise / definite article "ال" stripped
+  for (const [val, arName] of Object.entries(SyriaGovernorate_ARABIC_NAMES)) {
+    if (stripArabicNoise(arName) === strippedInput) {
+      return val;
+    }
+  }
+
+  // 3c. Match with spaces stripped (e.g. "ديرالزور" vs "دير الزور", "ريفدمشق" vs "ريف دمشق")
   for (const [val, arName] of Object.entries(SyriaGovernorate_ARABIC_NAMES)) {
     if (cleanArabic(arName).replace(/\s+/g, '') === noSpaceInput) {
       return val;
     }
   }
 
-  // 3c. Substring matching (sorted by length descending so longer Arabic names match first, e.g. "ريف دمشق" before "دمشق")
+  // 3d. Substring matching (sorted by length descending so longer Arabic names match first, e.g. "ريف دمشق" before "دمشق")
   const sortedArabic = Object.entries(SyriaGovernorate_ARABIC_NAMES).sort(
     (a, b) => b[1].length - a[1].length,
   );
   for (const [val, arName] of sortedArabic) {
     const cleanAr = cleanArabic(arName);
-    if (cleanedInput.includes(cleanAr) || cleanAr.includes(cleanedInput)) {
+    const strippedAr = stripArabicNoise(arName);
+    if (
+      cleanedInput.includes(cleanAr) ||
+      (cleanAr.length >= 4 && cleanAr.includes(cleanedInput)) ||
+      (strippedAr.length >= 4 && strippedInput.includes(strippedAr))
+    ) {
       return val;
     }
   }
 
-  return str;
+  return '';
 }
 
 /**
  * Normalizes any city representation (key, value, lowercase, Arabic, object)
- * to standard SyriaCity enum value
+ * to standard SyriaCity enum value, optionally scoped to a governorate
  */
-export function normalizeCity(raw: any, _gov?: string): string {
+export function normalizeCity(raw: any, gov?: string): string {
   if (!raw && raw !== 0) return '';
   if (typeof raw === 'object') {
     raw =
+      raw.city ||
+      raw.locationCity ||
       raw.name ||
       raw.label ||
       raw.value ||
@@ -1039,56 +1101,92 @@ export function normalizeCity(raw: any, _gov?: string): string {
   const str = String(raw).trim();
   if (!str) return '';
 
-  // 1. Direct match with enum values
+  const govEnum = gov ? (normalizeGovernorate(gov) as SyriaGovernorate) : undefined;
+  const scopedCities = govEnum && SyriaGovernorate_TO_CITIES[govEnum]
+    ? SyriaGovernorate_TO_CITIES[govEnum]
+    : Object.values(SyriaCity);
+
   const lowerStr = str.toLowerCase();
   const cleanStr = lowerStr.replace(/[-_\s']+/g, ' ');
-  for (const val of Object.values(SyriaCity)) {
+  const strippedStr = lowerStr.replace(/^al[\s-_]/, '').replace(/[-_\s']+/g, ' ');
+
+  // 1. Direct match with enum values in scope
+  for (const val of scopedCities) {
+    const valLower = val.toLowerCase();
+    const valClean = valLower.replace(/[-_\s']+/g, ' ');
+    const valStripped = valLower.replace(/^al[\s-_]/, '').replace(/[-_\s']+/g, ' ');
     if (
-      val.toLowerCase() === lowerStr ||
-      val.replace(/[-_\s']+/g, ' ').toLowerCase() === cleanStr
+      valLower === lowerStr ||
+      valClean === cleanStr ||
+      valStripped === strippedStr ||
+      valLower.replace(/[-_\s']+/g, '') === lowerStr.replace(/[-_\s']+/g, '')
     ) {
       return val;
     }
   }
 
-  // 2. Match with enum keys
+  // 2. Match with enum keys in scope
   const normKey = str.toUpperCase().replace(/[-\s']+/g, '_');
   for (const [k, val] of Object.entries(SyriaCity)) {
-    if (k.toUpperCase() === normKey) {
+    if (scopedCities.includes(val) && k.toUpperCase() === normKey) {
       return val;
     }
   }
 
-  // 3. Match with Arabic names using cleanArabic
+  // 3. Match with Arabic names
   const cleanedInput = cleanArabic(str);
+  const strippedInput = stripArabicNoise(str);
+  const noSpaceInput = cleanedInput.replace(/\s+/g, '');
 
   // 3a. Exact match on cleaned Arabic names
-  for (const [val, arName] of Object.entries(SyriaCity_ARABIC_NAMES)) {
-    if (cleanArabic(arName) === cleanedInput) {
+  for (const val of scopedCities) {
+    const arName = SyriaCity_ARABIC_NAMES[val];
+    if (arName && cleanArabic(arName) === cleanedInput) {
       return val;
     }
   }
 
-  // 3b. Match with spaces stripped
-  const noSpaceInput = cleanedInput.replace(/\s+/g, '');
-  for (const [val, arName] of Object.entries(SyriaCity_ARABIC_NAMES)) {
-    if (cleanArabic(arName).replace(/\s+/g, '') === noSpaceInput) {
+  // 3b. Match with noise / definite article "ال" stripped
+  for (const val of scopedCities) {
+    const arName = SyriaCity_ARABIC_NAMES[val];
+    if (arName && stripArabicNoise(arName) === strippedInput) {
       return val;
     }
   }
 
-  // 3c. Substring match (sorted by length descending)
-  const sortedCities = Object.entries(SyriaCity_ARABIC_NAMES).sort(
-    (a, b) => b[1].length - a[1].length,
-  );
-  for (const [val, arName] of sortedCities) {
+  // 3c. Match with spaces stripped
+  for (const val of scopedCities) {
+    const arName = SyriaCity_ARABIC_NAMES[val];
+    if (arName && cleanArabic(arName).replace(/\s+/g, '') === noSpaceInput) {
+      return val;
+    }
+  }
+
+  // 3d. Substring match within scoped cities (sorted by length descending)
+  const scopedArabic = scopedCities
+    .map((c) => [c, SyriaCity_ARABIC_NAMES[c] || ''] as [SyriaCity, string])
+    .filter(([, ar]) => Boolean(ar))
+    .sort((a, b) => b[1].length - a[1].length);
+
+  for (const [val, arName] of scopedArabic) {
     const cleanAr = cleanArabic(arName);
-    if (cleanedInput.includes(cleanAr) || cleanAr.includes(cleanedInput)) {
+    const strippedAr = stripArabicNoise(arName);
+    if (
+      cleanedInput.includes(cleanAr) ||
+      (cleanAr.length >= 4 && cleanAr.includes(cleanedInput)) ||
+      (strippedAr.length >= 4 && strippedInput.includes(strippedAr))
+    ) {
       return val;
     }
   }
 
-  return str;
+  // If no match in scoped cities, and we searched a restricted scope, try global search as fallback
+  if (govEnum && scopedCities.length < Object.values(SyriaCity).length) {
+    const globalMatch = normalizeCity(str);
+    if (globalMatch) return globalMatch;
+  }
+
+  return '';
 }
 
 /**

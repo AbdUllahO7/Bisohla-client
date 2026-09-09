@@ -4,6 +4,7 @@ import { EDIT_STORAGE_KEYS, STORAGE_KEYS } from "../Main/hooks/useLocalStorage";
 import { Currency } from "@/core/entities/enums/currency.enum";
 import { assemblePhone, splitPhone } from "@/core/lib/phone/phone.util";
 import { normalizeGovernorate, normalizeCity, normalizeAddress } from "@/core/entities/enums/syria.enums";
+import { resolveCityValue } from "@/utils/geocodeToSyria";
 
 // Extended interface for localStorage (includes frontend-only fields)
 export interface AdInformationStorageData extends AdInformationFormData {
@@ -51,8 +52,9 @@ export const parsePhoneNumber = (contactNumber: string): { countryCode: string; 
  */
 export const isEditMode = (): boolean => {
     if (typeof window === "undefined") return false;
-    return !!localStorage.getItem(STORAGE_KEYS.EDIT_MODE_FLAG) ||
-           (typeof window !== "undefined" && window.location.pathname.toLowerCase().includes('/edit'));
+    const pathname = window.location.pathname.toLowerCase();
+    const isEditRoute = pathname.includes('/edit') || pathname.includes('/editproduct');
+    return isEditRoute && !!localStorage.getItem(STORAGE_KEYS.EDIT_MODE_FLAG);
 };
 
 /**
@@ -120,8 +122,8 @@ export const ensureEnumValues = (data: any): AdInformationStorageData => {
             result.detectedGovernorate = result.governorate;
         }
     }
-    if (data.city) {
-        result.city = normalizeCity(data.city, result.governorate);
+    if (result.governorate || data.city) {
+        result.city = resolveCityValue(data.city, result.governorate, data.latitude, data.longitude);
     }
     if (data.address) {
         result.address = normalizeAddress(data.address);
@@ -182,8 +184,9 @@ export const loadAdInfoData = (): AdInformationStorageData => {
 export const saveAdInfoData = (data: AdInformationStorageData): void => {
     try {
         if (typeof window !== "undefined") {
+            const normalizedData = ensureEnumValues(data);
             const storageKey = getAdInfoStorageKey();
-            localStorage.setItem(storageKey, JSON.stringify(data));
+            localStorage.setItem(storageKey, JSON.stringify(normalizedData));
         }
     } catch (e) {
         console.error(`Failed to save ad information to ${getAdInfoStorageKey()}:`, e);
@@ -216,8 +219,9 @@ export const autoSaveAdInfoData = (
                 rentType: data.rentType !== undefined ? data.rentType : existingData.rentType
             };
 
+            const normalizedData = ensureEnumValues(updatedData);
             const storageKey = getAdInfoStorageKey();
-            localStorage.setItem(storageKey, JSON.stringify(updatedData));
+            localStorage.setItem(storageKey, JSON.stringify(normalizedData));
         }
     } catch (e) {
         console.error(`Failed to auto-save ad information to ${getAdInfoStorageKey()}:`, e);
