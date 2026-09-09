@@ -186,7 +186,8 @@ const Steps: React.FC<StepsProps> = ({ isEditMode = false, carId, initialData })
     }
     
     return () => {
-      if (!window.location.pathname.includes('/edit')) {
+      const pathname = (typeof window !== 'undefined' ? window.location.pathname : '').toLowerCase();
+      if (!pathname.includes('/edit')) {
         localStorage.removeItem(STORAGE_KEYS.EDIT_MODE_FLAG);
       }
     };

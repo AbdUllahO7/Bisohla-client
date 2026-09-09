@@ -16,6 +16,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 interface RegisterLegalConsentProps {
   error?: unknown;
   defaultChecked?: boolean;
+  
 }
 
 const DocumentPreviewModal = ({
@@ -61,7 +62,10 @@ const DocumentPreviewModal = ({
           )}
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto py-4 pr-1 text-sm text-gray-700 dark:text-zinc-300 leading-relaxed">
+        <div
+          className="flex-1 overflow-y-auto py-4 pr-1 text-sm text-gray-700 dark:text-zinc-300 leading-relaxed"
+          dir={isRTL ? 'rtl' : 'ltr'}
+        >
           {isLoading ? (
             <div className="space-y-3">
               <Skeleton className="h-4 w-full" />
@@ -72,7 +76,8 @@ const DocumentPreviewModal = ({
             </div>
           ) : doc?.contentHtml ? (
             <div
-              className="rich-text-content space-y-4"
+              className={`rich-text-content space-y-4 ${isRTL ? 'text-right' : 'text-left'}`}
+              style={{ direction: isRTL ? 'rtl' : 'ltr', textAlign: isRTL ? 'right' : 'left' }}
               dangerouslySetInnerHTML={{ __html: doc.contentHtml }}
             />
           ) : (

@@ -3,6 +3,7 @@ import { AdInformationFormData } from "./schema";
 import { EDIT_STORAGE_KEYS, STORAGE_KEYS } from "../Main/hooks/useLocalStorage";
 import { Currency } from "@/core/entities/enums/currency.enum";
 import { assemblePhone, splitPhone } from "@/core/lib/phone/phone.util";
+import { normalizeGovernorate, normalizeCity, normalizeAddress } from "@/core/entities/enums/syria.enums";
 
 // Extended interface for localStorage (includes frontend-only fields)
 export interface AdInformationStorageData extends AdInformationFormData {
@@ -50,7 +51,8 @@ export const parsePhoneNumber = (contactNumber: string): { countryCode: string; 
  */
 export const isEditMode = (): boolean => {
     if (typeof window === "undefined") return false;
-    return !!localStorage.getItem(STORAGE_KEYS.EDIT_MODE_FLAG);
+    return !!localStorage.getItem(STORAGE_KEYS.EDIT_MODE_FLAG) ||
+           (typeof window !== "undefined" && window.location.pathname.toLowerCase().includes('/edit'));
 };
 
 /**
@@ -109,6 +111,20 @@ export const ensureEnumValues = (data: any): AdInformationStorageData => {
                 }
             }
         }
+    }
+
+    // Handle governorate & city & address normalization
+    if (data.governorate) {
+        result.governorate = normalizeGovernorate(data.governorate);
+        if (!result.detectedGovernorate) {
+            result.detectedGovernorate = result.governorate;
+        }
+    }
+    if (data.city) {
+        result.city = normalizeCity(data.city, result.governorate);
+    }
+    if (data.address) {
+        result.address = normalizeAddress(data.address);
     }
 
     return result as AdInformationStorageData;

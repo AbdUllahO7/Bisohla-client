@@ -14,6 +14,7 @@ import {
 
 import { cn } from "@/lib/utils"
 import { Label } from "@/components/ui/label"
+import { useTranslations } from "next-intl"
 
 const Form = FormProvider
 
@@ -147,7 +148,23 @@ const FormMessage = React.forwardRef<
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, children, ...props }, ref) => {
   const { error, formMessageId } = useFormField()
-  const body = error ? String(error?.message) : children
+  let t: any = null
+  try {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    t = useTranslations()
+  } catch {
+    // Graceful fallback if outside next-intl provider
+  }
+
+  let body = error ? String(error?.message) : children
+
+  if (t && typeof body === "string" && body.includes(".") && !body.includes(" ")) {
+    try {
+      body = t(body)
+    } catch {
+      // Keep raw string if translation fails
+    }
+  }
 
   if (!body) {
     return null

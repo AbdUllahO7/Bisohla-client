@@ -50,7 +50,10 @@ export default function CookiePreferencesDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-xl max-h-[85vh] flex flex-col p-6 rounded-2xl sm:rounded-3xl">
+      <DialogContent
+        dir={isRTL ? 'rtl' : 'ltr'}
+        className="max-w-xl max-h-[85vh] flex flex-col p-6 rounded-2xl sm:rounded-3xl"
+      >
         <DialogHeader className="pb-3 border-b border-gray-100 dark:border-zinc-800 text-start">
           <DialogTitle className="text-xl font-bold text-gray-900 dark:text-zinc-100">
             {t('preferencesTitle')}
@@ -63,9 +66,9 @@ export default function CookiePreferencesDialog({
         <div className="flex-1 overflow-y-auto py-3 space-y-4 text-start">
           {/* Necessary Cookies */}
           <div className="p-4 rounded-xl bg-gray-50 dark:bg-zinc-800/60 border border-gray-200 dark:border-zinc-700/60 flex items-start justify-between gap-4">
-            <div className="space-y-1">
+            <div className="space-y-1 flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-[#ABDE3B]" />
+                <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-[#ABDE3B] shrink-0" />
                 <h4 className="font-semibold text-sm text-gray-900 dark:text-zinc-100">
                   {t('necessaryTitle')}
                 </h4>
@@ -77,14 +80,14 @@ export default function CookiePreferencesDialog({
                 {t('necessaryDescription')}
               </p>
             </div>
-            <Switch checked disabled className="data-[state=checked]:bg-emerald-600" />
+            <Switch checked disabled className="data-[state=checked]:bg-emerald-600 shrink-0 mt-0.5" />
           </div>
 
           {/* Preferences Cookies */}
           <div className="p-4 rounded-xl bg-gray-50 dark:bg-zinc-800/60 border border-gray-200 dark:border-zinc-700/60 flex items-start justify-between gap-4">
-            <div className="space-y-1">
+            <div className="space-y-1 flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                <Sliders className="w-5 h-5 text-gray-700 dark:text-zinc-300" />
+                <Sliders className="w-5 h-5 text-gray-700 dark:text-zinc-300 shrink-0" />
                 <h4 className="font-semibold text-sm text-gray-900 dark:text-zinc-100">
                   {t('functionalTitle')}
                 </h4>
@@ -96,15 +99,15 @@ export default function CookiePreferencesDialog({
             <Switch
               checked={Boolean(categories.preferences)}
               onCheckedChange={() => handleToggle('preferences')}
-              className="data-[state=checked]:bg-emerald-600"
+              className="data-[state=checked]:bg-emerald-600 shrink-0 mt-0.5"
             />
           </div>
 
           {/* Analytics Cookies */}
           <div className="p-4 rounded-xl bg-gray-50 dark:bg-zinc-800/60 border border-gray-200 dark:border-zinc-700/60 flex items-start justify-between gap-4">
-            <div className="space-y-1">
+            <div className="space-y-1 flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                <BarChart3 className="w-5 h-5 text-gray-700 dark:text-zinc-300" />
+                <BarChart3 className="w-5 h-5 text-gray-700 dark:text-zinc-300 shrink-0" />
                 <h4 className="font-semibold text-sm text-gray-900 dark:text-zinc-100">
                   {t('analyticsTitle')}
                 </h4>
@@ -116,15 +119,15 @@ export default function CookiePreferencesDialog({
             <Switch
               checked={Boolean(categories.analytics)}
               onCheckedChange={() => handleToggle('analytics')}
-              className="data-[state=checked]:bg-emerald-600"
+              className="data-[state=checked]:bg-emerald-600 shrink-0 mt-0.5"
             />
           </div>
 
           {/* Marketing Cookies */}
           <div className="p-4 rounded-xl bg-gray-50 dark:bg-zinc-800/60 border border-gray-200 dark:border-zinc-700/60 flex items-start justify-between gap-4">
-            <div className="space-y-1">
+            <div className="space-y-1 flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                <Megaphone className="w-5 h-5 text-gray-700 dark:text-zinc-300" />
+                <Megaphone className="w-5 h-5 text-gray-700 dark:text-zinc-300 shrink-0" />
                 <h4 className="font-semibold text-sm text-gray-900 dark:text-zinc-100">
                   {t('marketingTitle')}
                 </h4>
@@ -136,7 +139,7 @@ export default function CookiePreferencesDialog({
             <Switch
               checked={Boolean(categories.marketing)}
               onCheckedChange={() => handleToggle('marketing')}
-              className="data-[state=checked]:bg-emerald-600"
+              className="data-[state=checked]:bg-emerald-600 shrink-0 mt-0.5"
             />
           </div>
         </div>

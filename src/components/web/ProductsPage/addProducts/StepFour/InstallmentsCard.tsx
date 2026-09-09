@@ -25,6 +25,7 @@ interface InstallmentsCardProps {
     installmentsMode?: InstallmentsMode;
     installmentOptions?: ListingInstallmentOption[];
   } | null;
+  installmentsEnabled?: boolean;
   listingOfferType?: string;
   available?: boolean;
   plans?: InstallmentPlanInputDto[];
@@ -43,6 +44,7 @@ interface InstallmentsCardProps {
 export const InstallmentsCard: React.FC<InstallmentsCardProps> = ({
   form,
   listingTypePolicy,
+  installmentsEnabled,
   listingOfferType = 'for_sale',
   available,
   plans,
@@ -62,7 +64,10 @@ export const InstallmentsCard: React.FC<InstallmentsCardProps> = ({
   const t = useTranslations('installments');
 
   // Policy resolution
-  const policyInstallmentsEnabled = listingTypePolicy?.installmentsEnabled ?? true;
+  const policyInstallmentsEnabled =
+    installmentsEnabled !== undefined
+      ? installmentsEnabled
+      : (listingTypePolicy?.installmentsEnabled ?? true);
   const effectiveMode = installmentsMode || listingTypePolicy?.installmentsMode || 'free';
   const effectiveOptions = installmentOptions || listingTypePolicy?.installmentOptions || [];
 
@@ -102,8 +107,8 @@ export const InstallmentsCard: React.FC<InstallmentsCardProps> = ({
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogInitialView, setDialogInitialView] = useState<'list' | 'add'>('list');
 
-  // Don't render for rent offers
-  if (listingOfferType === 'for_rent') {
+  // Don't render for rent offers or when installments are disabled in policy
+  if (listingOfferType === 'for_rent' || !policyInstallmentsEnabled) {
     return null;
   }
 
@@ -119,17 +124,16 @@ export const InstallmentsCard: React.FC<InstallmentsCardProps> = ({
   };
 
   const handleToggle = (checked: boolean) => {
-    if (!policyInstallmentsEnabled) return;
     if (checked) {
+      // Turning ON: if no plans exist yet, auto-open Add dialog
       if (currentPlans.length === 0) {
         setDialogInitialView('add');
         setDialogOpen(true);
       } else {
         handlePlansChange(currentPlans, true);
-        setDialogInitialView('list');
-        setDialogOpen(true);
       }
     } else {
+      // Turning OFF: keep plans in state, set available to false
       handlePlansChange(currentPlans, false);
     }
   };
@@ -151,9 +155,9 @@ export const InstallmentsCard: React.FC<InstallmentsCardProps> = ({
     <>
       <Card
         className={cn(
-          'overflow-hidden rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm transition-all',
-          error && 'border-red-400 dark:border-red-900',
-          className,
+          'w-full border-slate-200 dark:border-zinc-800 shadow-sm transition-all duration-200',
+          formError && 'border-red-500 dark:border-red-500',
+          className
         )}
         dir={isArabic ? 'rtl' : 'ltr'}
       >
@@ -178,18 +182,9 @@ export const InstallmentsCard: React.FC<InstallmentsCardProps> = ({
             <Switch
               checked={currentAvailable}
               onCheckedChange={handleToggle}
-              disabled={!policyInstallmentsEnabled}
               className="data-[state=checked]:bg-[#198341]"
             />
           </div>
-
-          {!policyInstallmentsEnabled && (
-            <div className="pt-2 border-t border-amber-200 dark:border-amber-900/50">
-              <p className="text-xs font-semibold text-amber-600 dark:text-amber-400">
-                {t('policy_disabled', { defaultValue: 'Installments are not enabled for this category policy.' })}
-              </p>
-            </div>
-          )}
 
           {/* Body based on 4 states */}
           {/* State 1: Off, no plans -> Nothing rendered below */}

@@ -927,3 +927,189 @@ export const getBilingualCitiesBySyriaGovernorate = (
     label: useArabic ? SyriaCity_ARABIC_NAMES[city] : city.replace(/-/g, ' '),
   }));
 };
+
+/**
+ * Cleans and standardizes Arabic text for lenient matching
+ */
+export function cleanArabic(text: string): string {
+  if (!text) return '';
+  return String(text)
+    .replace(/[أإآ]/g, 'ا')
+    .replace(/ة/g, 'ه')
+    .replace(/ى/g, 'ي')
+    .replace(/[\u064B-\u065F\u0670]/g, '') // Remove tashkeel/diacritics
+    .replace(/[-_\s']+/g, ' ')
+    .trim()
+    .toLowerCase();
+}
+
+/**
+ * Normalizes any governorate representation (key, value, lowercase, Arabic, object)
+ * to standard SyriaGovernorate enum value
+ */
+export function normalizeGovernorate(raw: any): string {
+  if (!raw && raw !== 0) return '';
+  if (typeof raw === 'object') {
+    raw =
+      raw.name ||
+      raw.label ||
+      raw.value ||
+      raw.ar ||
+      raw.en ||
+      raw.title ||
+      (typeof raw.name === 'object' ? raw.name.ar || raw.name.en : '') ||
+      (typeof raw.nameTranslations === 'object' ? raw.nameTranslations.ar || raw.nameTranslations.en : '') ||
+      Object.values(raw).find((v) => typeof v === 'string' && v.trim()) ||
+      '';
+  }
+  const str = String(raw).trim();
+  if (!str) return '';
+
+  // 1. Direct match with enum values (case-insensitive & hyphen-lenient)
+  const lowerStr = str.toLowerCase();
+  const cleanStr = lowerStr.replace(/[-\s_]+/g, ' ');
+  for (const val of Object.values(SyriaGovernorate)) {
+    if (
+      val.toLowerCase() === lowerStr ||
+      val.replace(/[-\s_]+/g, ' ').toLowerCase() === cleanStr
+    ) {
+      return val;
+    }
+  }
+
+  // 2. Match with enum keys (e.g. DAMASCUS_COUNTRYSIDE, AL_HASAKAH)
+  const normKey = str.toUpperCase().replace(/[-\s]+/g, '_');
+  for (const [k, val] of Object.entries(SyriaGovernorate)) {
+    if (k.toUpperCase() === normKey) {
+      return val;
+    }
+  }
+
+  // 3. Match with Arabic names using cleanArabic
+  const cleanedInput = cleanArabic(str);
+
+  // 3a. Exact match on cleaned Arabic names
+  for (const [val, arName] of Object.entries(SyriaGovernorate_ARABIC_NAMES)) {
+    if (cleanArabic(arName) === cleanedInput) {
+      return val;
+    }
+  }
+
+  // 3b. Match with spaces stripped (e.g. "ديرالزور" vs "دير الزور", "ريفدمشق" vs "ريف دمشق")
+  const noSpaceInput = cleanedInput.replace(/\s+/g, '');
+  for (const [val, arName] of Object.entries(SyriaGovernorate_ARABIC_NAMES)) {
+    if (cleanArabic(arName).replace(/\s+/g, '') === noSpaceInput) {
+      return val;
+    }
+  }
+
+  // 3c. Substring matching (sorted by length descending so longer Arabic names match first, e.g. "ريف دمشق" before "دمشق")
+  const sortedArabic = Object.entries(SyriaGovernorate_ARABIC_NAMES).sort(
+    (a, b) => b[1].length - a[1].length,
+  );
+  for (const [val, arName] of sortedArabic) {
+    const cleanAr = cleanArabic(arName);
+    if (cleanedInput.includes(cleanAr) || cleanAr.includes(cleanedInput)) {
+      return val;
+    }
+  }
+
+  return str;
+}
+
+/**
+ * Normalizes any city representation (key, value, lowercase, Arabic, object)
+ * to standard SyriaCity enum value
+ */
+export function normalizeCity(raw: any, _gov?: string): string {
+  if (!raw && raw !== 0) return '';
+  if (typeof raw === 'object') {
+    raw =
+      raw.name ||
+      raw.label ||
+      raw.value ||
+      raw.ar ||
+      raw.en ||
+      raw.title ||
+      (typeof raw.name === 'object' ? raw.name.ar || raw.name.en : '') ||
+      (typeof raw.nameTranslations === 'object' ? raw.nameTranslations.ar || raw.nameTranslations.en : '') ||
+      Object.values(raw).find((v) => typeof v === 'string' && v.trim()) ||
+      '';
+  }
+  const str = String(raw).trim();
+  if (!str) return '';
+
+  // 1. Direct match with enum values
+  const lowerStr = str.toLowerCase();
+  const cleanStr = lowerStr.replace(/[-_\s']+/g, ' ');
+  for (const val of Object.values(SyriaCity)) {
+    if (
+      val.toLowerCase() === lowerStr ||
+      val.replace(/[-_\s']+/g, ' ').toLowerCase() === cleanStr
+    ) {
+      return val;
+    }
+  }
+
+  // 2. Match with enum keys
+  const normKey = str.toUpperCase().replace(/[-\s']+/g, '_');
+  for (const [k, val] of Object.entries(SyriaCity)) {
+    if (k.toUpperCase() === normKey) {
+      return val;
+    }
+  }
+
+  // 3. Match with Arabic names using cleanArabic
+  const cleanedInput = cleanArabic(str);
+
+  // 3a. Exact match on cleaned Arabic names
+  for (const [val, arName] of Object.entries(SyriaCity_ARABIC_NAMES)) {
+    if (cleanArabic(arName) === cleanedInput) {
+      return val;
+    }
+  }
+
+  // 3b. Match with spaces stripped
+  const noSpaceInput = cleanedInput.replace(/\s+/g, '');
+  for (const [val, arName] of Object.entries(SyriaCity_ARABIC_NAMES)) {
+    if (cleanArabic(arName).replace(/\s+/g, '') === noSpaceInput) {
+      return val;
+    }
+  }
+
+  // 3c. Substring match (sorted by length descending)
+  const sortedCities = Object.entries(SyriaCity_ARABIC_NAMES).sort(
+    (a, b) => b[1].length - a[1].length,
+  );
+  for (const [val, arName] of sortedCities) {
+    const cleanAr = cleanArabic(arName);
+    if (cleanedInput.includes(cleanAr) || cleanAr.includes(cleanedInput)) {
+      return val;
+    }
+  }
+
+  return str;
+}
+
+/**
+ * Normalizes address string from string or bilingual object
+ */
+export function normalizeAddress(raw: any): string {
+  if (!raw && raw !== 0) return '';
+  if (typeof raw === 'string') return raw.trim();
+  if (typeof raw === 'object') {
+    const val =
+      raw.address ||
+      raw.detailedAddress ||
+      raw.ar ||
+      raw.en ||
+      raw.title ||
+      raw.name ||
+      Object.values(raw).find((v) => typeof v === 'string' && v.trim()) ||
+      '';
+    return typeof val === 'string' ? val.trim() : String(val).trim();
+  }
+  return String(raw).trim();
+}
+
+

@@ -1,3 +1,5 @@
+'use client';
+
 import React, {
   useCallback,
   useState,
@@ -6,6 +8,7 @@ import React, {
   useEffect,
   useRef,
 } from 'react';
+import { useTranslations, useLocale } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
@@ -101,6 +104,9 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
     },
     ref,
   ) => {
+    const t = useTranslations('imageUploader');
+    const locale = useLocale();
+    const isRtl = locale === 'ar';
     const queryClient = useQueryClient();
     const [isDragging, setIsDragging] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -356,7 +362,7 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
                 ? {
                     ...f,
                     status: 'error',
-                    error: err instanceof Error ? err.message : 'Upload failed',
+                    error: err instanceof Error ? err.message : t('uploadFailed'),
                     progress: 0,
                   }
                 : f,
@@ -379,6 +385,7 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
       startProgressAnimation,
       queryClient,
       folder,
+      t,
     ]);
 
     const handleImageChange = useCallback(
@@ -389,17 +396,19 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
         const validFiles = newFiles.filter((file) => {
           if (!acceptedFileTypes.includes(file.type)) {
             setError(
-              `Invalid file type. Accepted types: ${acceptedFileTypes
-                .map((type) =>
-                  type.replace('image/', '.').replace('application/', '.'),
-                )
-                .join(', ')}`,
+              t('invalidFileType', {
+                types: acceptedFileTypes
+                  .map((type) =>
+                    type.replace('image/', '.').replace('application/', '.'),
+                  )
+                  .join(', '),
+              }),
             );
             return false;
           }
 
           if (file.size > maxSizeInMB * 1024 * 1024) {
-            setError(`File size must be less than ${maxSizeInMB}MB`);
+            setError(t('maxSizeExceeded', { size: maxSizeInMB }));
             return false;
           }
 
@@ -407,7 +416,7 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
         });
 
         if (imageUrls.length + validFiles.length > maxImages) {
-          setError(`Maximum ${maxImages} images allowed`);
+          setError(t('maxImagesAllowed', { count: maxImages }));
           return;
         }
 
@@ -450,6 +459,7 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
         maxSizeInMB,
         setDisableForm,
         imageUrls.length,
+        t,
       ],
     );
 
@@ -535,7 +545,7 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
         selectedPreviousImages.findIndex((f) => f.id === file.id) === -1 &&
         imageUrls.length + selectedPreviousImages.length >= maxImages
       ) {
-        setError(`Maximum ${maxImages} images allowed`);
+        setError(t('maxImagesAllowed', { count: maxImages }));
         return;
       }
 
@@ -643,14 +653,14 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
               className="flex items-center gap-1 border-0 text-white font-bold data-[state=active]:text-primary"
             >
               <Upload className="h-4 w-4" />
-              <span>Upload New</span>
+              <span>{t('uploadNew')}</span>
             </TabsTrigger>
             <TabsTrigger
               value="previous"
               className="flex items-center gap-1 text-white font-bold data-[state=active]:text-primary"
             >
               <History className="h-4 w-4" />
-              <span>Previous Uploads</span>
+              <span>{t('previousUploads')}</span>
             </TabsTrigger>
           </TabsList>
 
@@ -697,12 +707,13 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
                       >
                         <Loader2 className="h-12 w-12 text-primary animate-spin" />
                         <p className="text-sm text-center mt-2">
-                          Uploading{' '}
-                          {uploadCounts.uploading + uploadCounts.pending} files
+                          {t('uploadingCount', {
+                            count: uploadCounts.uploading + uploadCounts.pending,
+                          })}
                           {uploadCounts.success > 0 &&
-                            `, ${uploadCounts.success} completed`}
+                            `, ${t('completedCount', { count: uploadCounts.success })}`}
                           {uploadCounts.error > 0 &&
-                            `, ${uploadCounts.error} failed`}
+                            `, ${t('failedCount', { count: uploadCounts.error })}`}
                         </p>
                       </motion.div>
                     ) : (
@@ -720,7 +731,7 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
                   </AnimatePresence>
                   <div className="text-center">
                     <p className="text-sm text-muted-foreground">
-                      Drag & drop files here, or
+                      {t('dragDropFiles')}
                     </p>
                     <label htmlFor={`${name}-input`} className="cursor-pointer">
                       <motion.div
@@ -741,8 +752,8 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
                             htmlFor={`${name}-input`}
                             className="cursor-pointer"
                           >
-                            <ImagePlus className="w-4 h-4 mr-2" />
-                            Select Files
+                            <ImagePlus className={cn('w-4 h-4', isRtl ? 'ml-2' : 'mr-2')} />
+                            {t('selectFiles')}
                           </Label>
                         </Button>
                       </motion.div>
@@ -758,8 +769,7 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
                     </label>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Maximum {maxImages} {maxImages === 1 ? 'file' : 'files'}, up
-                    to {maxSizeInMB}MB each
+                    {t('maxFilesHint', { count: maxImages, size: maxSizeInMB })}
                   </p>
                 </div>
               </motion.div>
@@ -774,7 +784,7 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
                     transition={{ duration: 0.3 }}
                     className="w-full mt-4"
                   >
-                    <h3 className="text-sm font-medium mb-2">Upload Queue</h3>
+                    <h3 className="text-sm font-medium mb-2">{t('uploadQueue')}</h3>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -798,7 +808,7 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
                 <>
                   <div className="mb-4 flex justify-between items-center">
                     <h3 className="text-sm font-medium text-primary">
-                      Your Previous Uploads
+                      {t('yourPreviousUploads')}
                     </h3>
                     <AnimatePresence>
                       {selectedPreviousImages.length > 0 && (
@@ -813,7 +823,7 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
                             onClick={applySelectedPreviousImages}
                             className="text-xs bg-primary text-white hover:bg-primary/90"
                           >
-                            Use Selected ({selectedPreviousImages.length})
+                            {t('useSelected', { count: selectedPreviousImages.length })}
                           </Button>
                         </motion.div>
                       )}
@@ -860,7 +870,7 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
                                             initial={{ scale: 0, opacity: 0 }}
                                             animate={{ scale: 1, opacity: 1 }}
                                             exit={{ scale: 0, opacity: 0 }}
-                                            className="absolute -top-2 -right-2 bg-primary text-primary-foreground rounded-full h-6 w-6 flex items-center justify-center shadow-md"
+                                            className="absolute -top-2 -right-2 rtl:-right-auto rtl:-left-2 bg-primary text-primary-foreground rounded-full h-6 w-6 flex items-center justify-center shadow-md"
                                           >
                                             <CheckCircle2 className="h-4 w-4" />
                                           </motion.div>
@@ -872,12 +882,12 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
                                     </div>
                                     <div className="text-xs text-muted-foreground flex justify-between mt-1">
                                       <span>
-                                        {formatBytes(file.uploadSize)}
+                                        {formatBytes(file.uploadSize, 2, isRtl)}
                                       </span>
                                       <span>
                                         {new Date(
                                           file.createdAt,
-                                        ).toLocaleDateString()}
+                                        ).toLocaleDateString(locale)}
                                       </span>
                                     </div>
                                   </CardContent>
@@ -898,7 +908,7 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
                 >
                   <History className="h-12 w-12 text-muted-foreground mb-4" />
                   <p className="text-muted-foreground">
-                    No previous uploads found
+                    {t('noPreviousUploads')}
                   </p>
                 </motion.div>
               )}
@@ -916,7 +926,7 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
                 transition={{ duration: 0.3 }}
                 className="mt-6 mb-2"
               >
-                <h3 className="text-sm font-medium">Selected Images</h3>
+                <h3 className="text-sm font-medium">{t('selectedImages')}</h3>
                 <div
                   className={cn(
                     'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4 w-full',
@@ -926,7 +936,6 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
                   <AnimatePresence>
                     {imageUrls.map((preview, index) => {
                       const isCover = index === 0;
-                      const isRtl = typeof document !== 'undefined' && document.documentElement.dir === 'rtl';
                       return (
                         <div
                           key={`${index}-${preview.substring(0, 20)}`}
@@ -960,12 +969,12 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
                               <CardContent className="p-0">
                                 <div className="relative aspect-square">
                                   {isCover && (
-                                    <span className="absolute top-2 left-2 z-10 inline-flex items-center gap-1 bg-gradient-to-r from-amber-500 via-amber-600 to-yellow-500 text-white font-bold text-[10px] px-2 py-0.5 rounded-full shadow-md select-none animate-pulse">
+                                    <span className="absolute top-2 start-2 z-10 inline-flex items-center gap-1 bg-gradient-to-r from-amber-500 via-amber-600 to-yellow-500 text-white font-bold text-[10px] px-2 py-0.5 rounded-full shadow-md select-none animate-pulse">
                                       <Sparkles className="w-3.5 h-3.5 text-white" />
-                                      <span>{isRtl ? "صورة الغلاف" : "Main Cover"}</span>
+                                      <span>{t('mainCover')}</span>
                                     </span>
                                   )}
-                                  {renderPreview(preview, `Preview ${index + 1}`)}
+                                  {renderPreview(preview, t('previewAlt', { number: index + 1 }))}
                                   <div
                                     className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-200"
                                     onClick={() => setSelectedImageIndex(index)}
@@ -973,7 +982,7 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
                                   <Button
                                     variant="destructive"
                                     size="icon"
-                                    className="absolute top-2 right-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity duration-200 shadow-lg"
+                                    className="absolute top-2 end-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity duration-200 shadow-lg"
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       removeImage(index);
@@ -1007,7 +1016,7 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
             onKeyDown={handleKeyDown}
           >
             <DialogHeader>
-              <DialogTitle className="sr-only">Image Preview</DialogTitle>
+              <DialogTitle className="sr-only">{t('imagePreview')}</DialogTitle>
             </DialogHeader>
             {selectedImageIndex !== null && imageUrls.length > 0 && (
               <motion.div
@@ -1019,7 +1028,7 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
                 <div className="relative w-full h-full flex items-center justify-center">
                   <Image
                     src={imageUrls[selectedImageIndex]}
-                    alt={`Full preview ${selectedImageIndex + 1}`}
+                    alt={t('fullPreviewAlt', { number: selectedImageIndex + 1 })}
                     className="object-contain"
                     fill
                     quality={100}
@@ -1031,7 +1040,7 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
                     <motion.div
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
-                      className="absolute left-4"
+                      className="absolute start-4"
                     >
                       <Button
                         variant="ghost"
@@ -1039,14 +1048,14 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
                         className="text-white hover:bg-white/20 rounded-full h-10 w-10"
                         onClick={handlePrevImage}
                       >
-                        <ChevronLeft className="h-8 w-8" />
+                        <ChevronLeft className="h-8 w-8 rtl:rotate-180" />
                       </Button>
                     </motion.div>
 
                     <motion.div
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
-                      className="absolute right-4"
+                      className="absolute end-4"
                     >
                       <Button
                         variant="ghost"
@@ -1054,7 +1063,7 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
                         className="text-white hover:bg-white/20 rounded-full h-10 w-10"
                         onClick={handleNextImage}
                       >
-                        <ChevronRight className="h-8 w-8" />
+                        <ChevronRight className="h-8 w-8 rtl:rotate-180" />
                       </Button>
                     </motion.div>
                   </>
@@ -1063,7 +1072,7 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
                 <motion.div
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
-                  className="absolute top-4 right-4"
+                  className="absolute top-4 end-4"
                 >
                   <Button
                     variant="ghost"
@@ -1084,12 +1093,14 @@ const ImageUploader = forwardRef<ImageUploaderRef, ImageUploaderProps>(
 );
 
 // Utility functions if not available in your project
-const formatBytes = (bytes: number, decimals = 2) => {
-  if (bytes === 0) return '0 Bytes';
+const formatBytes = (bytes: number, decimals = 2, isRtl = false) => {
+  if (bytes === 0) return isRtl ? '0 بايت' : '0 Bytes';
 
   const k = 1024;
   const dm = decimals < 0 ? 0 : decimals;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+  const sizes = isRtl
+    ? ['بايت', 'ك.ب', 'م.ب', 'ج.ب', 'ت.ب']
+    : ['Bytes', 'KB', 'MB', 'GB', 'TB'];
 
   const i = Math.floor(Math.log(bytes) / Math.log(k));
 

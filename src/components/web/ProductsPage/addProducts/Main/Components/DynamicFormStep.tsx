@@ -13,6 +13,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { useLocale, useTranslations } from 'next-intl';
+import { useSettings } from '@/providers/settings.provider';
 import DynamicSectionHeader from './DynamicSectionHeader';
 import SelectableList from '../../StepOne/SelectableList';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -27,7 +28,9 @@ import {
   SyriaGovernorate, 
   SyriaGovernorate_ARABIC_NAMES, 
   SyriaCity_ARABIC_NAMES, 
-  SyriaGovernorate_TO_CITIES 
+  SyriaGovernorate_TO_CITIES,
+  normalizeGovernorate,
+  normalizeCity,
 } from '@/core/entities/enums/syria.enums';
 import CarBlueprint from '../../../product/CarBlueprint';
 import MotorcycleBlueprint from '../../../product/MotorcycleBlueprint';
@@ -392,12 +395,45 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
     }
   };
 
-  const canProposeFor = (attr: any) => {
+  const { getListingsSettings } = useSettings();
+  const proposalsSettings = getListingsSettings()?.reference_proposals;
+  const isProposalsEnabled = proposalsSettings?.enabled ?? true;
+  const maxProposalsPerListing = proposalsSettings?.max_per_listing ?? 5;
+  const allowChainedProposals = proposalsSettings?.allow_chained_proposals ?? true;
+  const minNameLength = proposalsSettings?.min_name_length ?? 2;
+  const maxNameLength = proposalsSettings?.max_name_length ?? 120;
+
+  const shouldAllowPropose = (attr: any) => {
+    // 1. Settings gate: if reference proposals feature is disabled globally, hide all propose affordances
+    if (!isProposalsEnabled) return false;
+
+    // 2. Must be a reference attribute with an active catalogue reference group
     if (attr.type !== 'reference' || !attr.referenceGroupId) return false;
+
+    // 3. Exclude location virtual fields
     const slug = (attr.slug || '').toLowerCase();
     if (slug === 'governorate' || slug === 'city' || slug === 'محافظة' || slug === 'مدينة') return false;
+
+    // 4. Max proposals per listing cap
+    const currentProposalsCount = Object.keys(proposals || {}).filter(k => !!proposals[k as any]?.name).length;
+    const thisAttrHasProposal = !!proposals[attr.id]?.name;
+    if (!thisAttrHasProposal && currentProposalsCount >= maxProposalsPerListing) {
+      return false;
+    }
+
+    // 5. Chained proposals rule: if parent holds a proposal but chained proposals are disallowed, cannot propose child
+    if (attr.dependsOnAttributeId) {
+      const parentAttr = attributes.find(a => a.id === attr.dependsOnAttributeId);
+      const parentHasProposal = parentAttr ? !!proposals[parentAttr.id]?.name : false;
+      if (parentHasProposal && !allowChainedProposals) {
+        return false;
+      }
+    }
+
     return true;
   };
+
+  const canProposeFor = shouldAllowPropose;
 
   const getEmptyDescription = (attr: any) => {
     if (attr.dependsOnAttributeId) {
@@ -491,7 +527,7 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
                       : gov.replace(/-/g, ' ')
                   }));
                 } else if (isCity) {
-                  const selectedGov = formData['governorate'] as SyriaGovernorate;
+                  const selectedGov = normalizeGovernorate(formData['governorate'] || formData['محافظة']) as SyriaGovernorate;
                   const cityList = selectedGov && SyriaGovernorate_TO_CITIES[selectedGov] 
                     ? SyriaGovernorate_TO_CITIES[selectedGov] 
                     : [];
@@ -507,13 +543,20 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
                   })) || [];
                 }
 
+                const rawVal = formData[attr.slug];
+                const selectedValue = isGovernorate
+                  ? (normalizeGovernorate(rawVal) || '')
+                  : isCity
+                  ? (normalizeCity(rawVal, normalizeGovernorate(formData['governorate'] || formData['محافظة'])) || '')
+                  : (rawVal?.toString() || '');
+
                 return (
                   <SelectableList
                     key={attr.id}
                     title={getTranslation(attr.name)}
                     type={isGovernorate ? "governorate" : isCity ? "city" : "marka"} // marka is generic for reference logic
                     options={options}
-                    selectedValue={formData[attr.slug]?.toString() || ""}
+                    selectedValue={selectedValue}
                     direction={isArabic ? 'rtl' : 'ltr'}
                     onSelect={(type, val) => handleFieldChange(attr.slug, val)}
                     required={attr.isRequired}
@@ -994,6 +1037,8 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
             return parentVal && !isNaN(Number(parentVal)) ? Number(parentVal) : null;
           })()}
           initialName={proposeDialogState.initialSearch}
+          minNameLength={minNameLength}
+          maxNameLength={maxNameLength}
           onResolve={handleResolveProposal}
         />
       )}

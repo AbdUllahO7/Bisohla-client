@@ -7,6 +7,14 @@ import { useSettings } from '@/providers/settings.provider';
 
 const FALLBACK_LOGO = '/assets/images/logo/bishola.png';
 
+const getOptimizedLogoSrc = (url: string | undefined | null) => {
+  if (!url) return FALLBACK_LOGO;
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return `/api/logo?url=${encodeURIComponent(url)}`;
+  }
+  return url;
+};
+
 const Logo = ({
   className,
   imageClassName,
@@ -21,25 +29,25 @@ const Logo = ({
   const router = useRouter();
   const { getLogo, isLoading } = useSettings();
   const logoUrl = getLogo();
-  const [imgSrc, setImgSrc] = useState<string>(logoUrl || FALLBACK_LOGO);
+  const [imgSrc, setImgSrc] = useState<string>(() => getOptimizedLogoSrc(logoUrl));
 
   useEffect(() => {
     if (logoUrl) {
-      setImgSrc(logoUrl);
+      setImgSrc(getOptimizedLogoSrc(logoUrl));
     }
   }, [logoUrl]);
 
   if (isLoading) {
     return (
-      <div className={cn('flex items-center', className)}>
-        <div className="h-9 sm:h-10 md:h-11 w-32 sm:w-40 bg-gray-200 dark:bg-zinc-800 rounded animate-pulse"></div>
+      <div className={cn('flex items-center flex-shrink-0', className)}>
+        <div className="h-9 sm:h-10 md:h-11 w-32 sm:w-44 bg-gray-200 dark:bg-zinc-800 rounded animate-pulse"></div>
       </div>
     );
   }
 
   const isCustomSize = width !== undefined || height !== undefined;
-  const defaultWidth = width || 270;
-  const defaultHeight = height || 82;
+  const defaultWidth = width || 240;
+  const defaultHeight = height || 60;
 
   return (
     <div
@@ -53,12 +61,14 @@ const Logo = ({
         height={defaultHeight}
         priority
         className={cn(
-          'object-contain transition-all',
-          !isCustomSize && 'h-9 sm:h-10 md:h-11 w-auto max-w-[200px]',
+          'object-contain transition-all duration-200',
+          !isCustomSize && 'h-9 sm:h-10 md:h-11 w-auto max-w-[180px] sm:max-w-[200px] md:max-w-[240px]',
           imageClassName
         )}
         onError={() => {
-          if (imgSrc !== FALLBACK_LOGO) {
+          if (imgSrc.startsWith('/api/logo') && logoUrl) {
+            setImgSrc(logoUrl);
+          } else if (imgSrc !== FALLBACK_LOGO) {
             setImgSrc(FALLBACK_LOGO);
           }
         }}

@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { format } from "date-fns"
 import { CalendarIcon, FileText, Phone, DollarSign, MapPin, Sliders, CheckCircle2, Award, Info, Bookmark } from "lucide-react"
 import { Calendar } from "@/components/ui/calendar"
-import { useTranslations } from "next-intl"
+import { useTranslations, useLocale } from "next-intl"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -17,7 +17,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
 
 import { ListingType, RentType, SaveStatus, getListingTypeOptions, getRentTypeOptions, getSaveStatusOptions } from "@/core/entities/enums/cars.enums"
-import { adInformationSchema, type AdInformationFormData } from "./schema"
+import { getAdInformationSchema, adInformationSchema, type AdInformationFormData } from "./schema"
 import type { AddProductStepFourProps, AdInfoState } from "./types"
 import SelectableList from "../StepOne/SelectableList"
 import { 
@@ -25,7 +25,11 @@ import {
   SyriaGovernorate_ARABIC_NAMES, 
   SyriaCity, 
   SyriaCity_ARABIC_NAMES, 
-  SyriaGovernorate_TO_CITIES 
+  SyriaGovernorate_TO_CITIES,
+  normalizeGovernorate,
+  normalizeCity,
+  normalizeAddress,
+  cleanArabic
 } from "@/core/entities/enums/syria.enums"
 import {
   getContactErrorMessage,
@@ -95,52 +99,77 @@ const EnumSelect = ({
     <FormField
       control={control}
       name={name}
-      render={({ field }) => (
-        <FormItem className={`text-primary ${className}`}>
-          <div className="flex items-center justify-between gap-2">
-            <FormLabel className="text-primary dark:text-white">
-              {label}
-              {required && <span className="text-red-500">*</span>}
-            </FormLabel>
-            {headerAction}
-          </div>
-          <Select
-            disabled={disabled}
-            onValueChange={(val) => {
-              field.onChange(val);
-              if (onChange) {
-                onChange(val);
-              }
-            }}
-            value={field.value || value || ""}
-            dir={`${isRtl ? "rtl" : "ltr"}`}
-          >
-            <FormControl>
-              <SelectTrigger className="h-11 border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 dark:text-white disabled:opacity-85 disabled:bg-slate-50 dark:disabled:bg-zinc-850">
-                <SelectValue placeholder={placeholder} dir={`${isRtl ? "rtl" : "ltr"}`} />
-              </SelectTrigger>
-            </FormControl>
-            <SelectContent
-              className="bg-white dark:bg-zinc-900 shadow-2xl text-primary dark:text-white border dark:border-zinc-800 !z-[99999]"
-              dir={`${isRtl ? "rtl" : "ltr"}`}
-              position="popper"
-              sideOffset={4}
-              style={{
-                zIndex: 99999,
-                position: 'fixed'
+      render={({ field }) => {
+        const rawVal = field.value !== undefined && field.value !== null ? String(field.value) : (value !== undefined && value !== null ? String(value) : "");
+        let selectValue = "";
+        if (rawVal) {
+          const directMatch = options.find((opt) => opt.value === rawVal);
+          if (directMatch) {
+            selectValue = directMatch.value;
+          } else {
+            const cleanRaw = cleanArabic(rawVal);
+            const noSpaceRaw = cleanRaw.replace(/\s+/g, '');
+            const fuzzyMatch = options.find((opt) =>
+              opt.value.toLowerCase() === rawVal.toLowerCase() ||
+              opt.label.toLowerCase() === rawVal.toLowerCase() ||
+              cleanArabic(opt.label) === cleanRaw ||
+              cleanArabic(opt.value) === cleanRaw ||
+              cleanArabic(opt.label).replace(/\s+/g, '') === noSpaceRaw ||
+              opt.value.replace(/[-_\s]/g, '').toLowerCase() === rawVal.replace(/[-_\s]/g, '').toLowerCase()
+            );
+            if (fuzzyMatch) {
+              selectValue = fuzzyMatch.value;
+            }
+          }
+        }
+
+        return (
+          <FormItem className={`text-primary ${className}`}>
+            <div className="flex items-center justify-between gap-2">
+              <FormLabel className="text-primary dark:text-white">
+                {label}
+                {required && <span className="text-red-500">*</span>}
+              </FormLabel>
+              {headerAction}
+            </div>
+            <Select
+              disabled={disabled}
+              onValueChange={(val) => {
+                field.onChange(val);
+                if (onChange) {
+                  onChange(val);
+                }
               }}
+              value={selectValue}
+              dir={`${isRtl ? "rtl" : "ltr"}`}
             >
-              {options.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {hint && <div className="mt-1">{hint}</div>}
-          <FormMessage />
-        </FormItem>
-      )}
+              <FormControl>
+                <SelectTrigger className="h-11 border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 dark:text-white disabled:opacity-85 disabled:bg-slate-50 dark:disabled:bg-zinc-850">
+                  <SelectValue placeholder={placeholder} dir={`${isRtl ? "rtl" : "ltr"}`} />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent
+                className="bg-white dark:bg-zinc-900 shadow-2xl text-primary dark:text-white border dark:border-zinc-800 !z-[99999]"
+                dir={`${isRtl ? "rtl" : "ltr"}`}
+                position="popper"
+                sideOffset={4}
+                style={{
+                  zIndex: 99999,
+                  position: 'fixed'
+                }}
+              >
+                {options.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {hint && <div className="mt-1">{hint}</div>}
+            <FormMessage />
+          </FormItem>
+        );
+      }}
     />
   );
 };
@@ -150,8 +179,10 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
   isEditMode = false,
   initialData = null
 }) => {
+  const locale = useLocale();
+  const isRtl = locale === "ar";
   const [showRentType, setShowRentType] = useState(false);
-  const [direction, setDirection] = useState<string>("ltr");
+  const [direction, setDirection] = useState<string>(isRtl ? "rtl" : "ltr");
   const previousFormData = useRef<AdInformationFormData | null>(null);
   const prevValidState = useRef<boolean | null>(null);
   const editModeDataApplied = useRef<boolean>(false);
@@ -186,7 +217,26 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
     installmentsEnabled?: boolean;
     installmentsMode?: ListingInstallmentsMode;
     installmentOptions?: ListingInstallmentOption[];
-  } | null>(null);
+  } | null>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const stepOneKey = getStorageKey('STEP_ONE', isEditMode);
+        const stepOneRaw = localStorage.getItem(stepOneKey) || localStorage.getItem(STORAGE_KEYS.STEP_ONE);
+        if (stepOneRaw) {
+          const parsed = JSON.parse(stepOneRaw);
+          return {
+            rentEnabled: parsed.rentEnabled,
+            installmentsEnabled: parsed.installmentsEnabled,
+            installmentsMode: parsed.installmentsMode,
+            installmentOptions: parsed.installmentOptions,
+          };
+        }
+      } catch (e) {
+        // ignore
+      }
+    }
+    return null;
+  });
 
   useEffect(() => {
     countryDialCodeRef.current = countryDialCodeValue;
@@ -394,7 +444,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
 
   // Initialize form with temporary default values
   const form = useForm<AdInformationFormData>({
-    resolver: zodResolver(adInformationSchema),
+    resolver: zodResolver(getAdInformationSchema(isRtl)),
     defaultValues: defaultAdInfoData,
     mode: "onChange",
   });
@@ -485,6 +535,12 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
     if (matchingSavedAddress && form.getValues('saveAsSavedAddress')) {
       form.setValue('saveAsSavedAddress', false);
       form.setValue('savedAddressLabel', '');
+      const cur = loadAdInfoData();
+      saveAdInfoData({
+        ...cur,
+        saveAsSavedAddress: false,
+        savedAddressLabel: '',
+      });
     }
   }, [matchingSavedAddress]);
   // Helper function to map API enums to form enums
@@ -590,6 +646,12 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
       ? mapApiEnumToFormEnum(editData.currency, Currency)
       : editData.currency || Currency.USD;
 
+    const normGov = normalizeGovernorate(editData.governorate);
+    const normCity = normalizeCity(editData.city, normGov);
+    const normAddress = normalizeAddress(editData.address);
+    const lat = editData.latitude != null && !isNaN(Number(editData.latitude)) ? Number(editData.latitude) : undefined;
+    const lng = editData.longitude != null && !isNaN(Number(editData.longitude)) ? Number(editData.longitude) : undefined;
+
     setListingTypeValue(mappedListingType);
     setSaveStatusValue(mappedSaveStatus);
     setCurrencyValue(mappedCurrency);
@@ -599,6 +661,14 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
     setCountryDialCodeValue(extractedCountryCode);
     countryDialCodeRef.current = extractedCountryCode;
 
+    if (lat !== undefined && lng !== undefined) {
+      setGpsCoords({ lat, lng });
+      if (mapInstanceRef.current && markerInstanceRef.current) {
+        markerInstanceRef.current.setLatLng([lat, lng]);
+        mapInstanceRef.current.setView([lat, lng], 14);
+      }
+    }
+
     const processedData: AdInformationFormData = {
       ...editData,
       countryDialCode: extractedCountryCode,
@@ -607,6 +677,12 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
       saveStatus: mappedSaveStatus,
       rentType: mappedRentType,
       currency: mappedCurrency,
+      governorate: normGov || editData.governorate || '',
+      city: normCity || editData.city || '',
+      address: normAddress || editData.address || '',
+      latitude: lat,
+      longitude: lng,
+      detectedGovernorate: normGov || (editData as any).detectedGovernorate || null,
       installmentsAvailable: Boolean(editData.installmentsAvailable),
       installmentPlans: editData.installmentPlans || []
     };
@@ -617,6 +693,18 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
 
     form.reset(processedData);
     previousFormData.current = { ...processedData };
+
+    if (processedData.governorate) {
+      form.setValue("governorate", processedData.governorate, { shouldValidate: true, shouldDirty: false });
+    }
+    if (processedData.city) {
+      form.setValue("city", processedData.city, { shouldValidate: true, shouldDirty: false });
+    }
+    if (processedData.address) {
+      form.setValue("address", processedData.address, { shouldValidate: true, shouldDirty: false });
+    }
+    form.clearErrors(["governorate", "city", "address"]);
+    saveAdInfoData(processedData as any);
 
     const isValid = checkFormValidity(processedData);
     prevValidState.current = isValid;
@@ -638,39 +726,143 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
     const savedData = loadAdInfoData();
     const isActuallySaved = !!localStorage.getItem(getAdInfoStorageKey());
 
-    // 2. Fallback to initialData if localStorage is empty and we are in edit mode
-    if (!isActuallySaved && isEditMode && initialData && !editModeDataApplied.current) {
-      // Find listing object (handle both direct listing or data[0] wrapper)
-      const listing = initialData.data?.[0] || (initialData.id ? initialData : null);
-      
-      if (listing) {
-        const formData: AdInformationFormData = {
-          title: listing.title || '',
-          description: listing.description || '',
-          price: listing.price?.toString() || '',
-          countryDialCode: '+963',
-          contactNumber: listing.contactNumber || '',
-          listingType: listing.listingOfferType || listing.listingType || ListingType.FOR_SALE,
-          rentType: listing.rentType || null,
-          installmentsAvailable: Boolean(listing.installmentsAvailable),
-          installmentPlans: Array.isArray(listing.installmentPlans)
-            ? listing.installmentPlans.map((p: any) => ({
-                months: Number(p.months),
-                downPayment: p.downPayment !== null && p.downPayment !== undefined ? p.downPayment.toString() : '',
-                monthlyAmount: p.monthlyAmount !== null && p.monthlyAmount !== undefined ? p.monthlyAmount.toString() : '',
-                noteTranslations: p.noteTranslations || (p.note ? { en: p.note, ar: p.note } : undefined),
-              }))
-            : [],
-          saveStatus: listing.saveStatus || SaveStatus.PUBLISHED,
-          publicationDate: listing.publishedAt ? new Date(listing.publishedAt) : new Date(),
-          currency: listing.currency || Currency.USD,
-          governorate: listing.governorate || '',
-          city: listing.city || '',
-          address: listing.address || ''
-        };
-        applyEditData(formData);
-        return;
-      }
+    // Extract listing object from initialData if available
+    const listing = initialData
+      ? (initialData.data?.[0] ||
+         (initialData.data as any)?.listing ||
+         (initialData.data as any)?.rawListing ||
+         (initialData.data as any)?.carListing ||
+         initialData.data ||
+         (initialData.id ? initialData : null))
+      : null;
+
+    // Also get stepTwoData from localStorage if available
+    let stepTwoData: any = null;
+    try {
+      const stepTwoKey = getStorageKey('STEP_TWO', isEditMode);
+      const raw = localStorage.getItem(stepTwoKey);
+      if (raw) stepTwoData = JSON.parse(raw);
+    } catch (e) {}
+
+    // Robust extraction of location fields across all possible sources
+    const rawGov =
+      savedData?.governorate ||
+      stepTwoData?.governorate ||
+      listing?.governorate ||
+      listing?.locationGovernorate ||
+      listing?.location?.governorate ||
+      listing?.details?.governorate ||
+      listing?.addressInfo?.governorate ||
+      listing?.address?.governorate ||
+      (listing as any)?.rawListing?.governorate ||
+      (listing as any)?.carListing?.governorate ||
+      (listing?.translations as any)?.ar?.governorate ||
+      (listing?.translations as any)?.en?.governorate ||
+      stepTwoData?.__attributeValuesMap?.governorate ||
+      stepTwoData?.__attributeValuesMap?.['محافظة'];
+
+    const rawCity =
+      savedData?.city ||
+      stepTwoData?.city ||
+      listing?.city ||
+      listing?.locationCity ||
+      listing?.location?.city ||
+      listing?.details?.city ||
+      listing?.addressInfo?.city ||
+      listing?.address?.city ||
+      (listing as any)?.rawListing?.city ||
+      (listing as any)?.carListing?.city ||
+      (listing?.translations as any)?.ar?.city ||
+      (listing?.translations as any)?.en?.city ||
+      stepTwoData?.__attributeValuesMap?.city ||
+      stepTwoData?.__attributeValuesMap?.['مدينة'];
+
+    const rawAddress =
+      savedData?.address ||
+      stepTwoData?.address ||
+      listing?.address ||
+      listing?.detailedAddress ||
+      listing?.location?.address ||
+      listing?.location?.detailedAddress ||
+      listing?.details?.address ||
+      listing?.addressInfo?.address ||
+      (listing as any)?.rawListing?.address ||
+      (listing as any)?.carListing?.address ||
+      (listing?.translations as any)?.ar?.address ||
+      (listing?.translations as any)?.en?.address;
+
+    const rawLat =
+      savedData?.latitude ??
+      stepTwoData?.latitude ??
+      listing?.latitude ??
+      listing?.lat ??
+      listing?.location?.latitude ??
+      listing?.location?.lat ??
+      listing?.details?.latitude;
+
+    const rawLng =
+      savedData?.longitude ??
+      stepTwoData?.longitude ??
+      listing?.longitude ??
+      listing?.lng ??
+      listing?.lon ??
+      listing?.location?.longitude ??
+      listing?.location?.lng ??
+      listing?.details?.longitude;
+
+    const normGov = normalizeGovernorate(rawGov);
+    const normCity = normalizeCity(rawCity, normGov);
+    const normAddress = normalizeAddress(rawAddress);
+    const numLat = rawLat != null && !isNaN(Number(rawLat)) ? Number(rawLat) : undefined;
+    const numLng = rawLng != null && !isNaN(Number(rawLng)) ? Number(rawLng) : undefined;
+
+    // 2. Fallback to initialData if localStorage is empty or missing address fields in edit mode
+    if (isEditMode && listing && (!isActuallySaved || !savedData?.governorate || !savedData?.city || !savedData?.address) && !editModeDataApplied.current) {
+      const itemTitle =
+        savedData?.title ||
+        listing.title ||
+        (listing.translations as any)?.ar?.title ||
+        (listing.translations as any)?.en?.title ||
+        (listing.translations as any)?.[0]?.title ||
+        '';
+
+      const itemDescription =
+        savedData?.description ||
+        listing.description ||
+        (listing.translations as any)?.ar?.description ||
+        (listing.translations as any)?.en?.description ||
+        (listing.translations as any)?.[0]?.description ||
+        '';
+
+      const formData: AdInformationFormData = {
+        title: itemTitle,
+        description: itemDescription,
+        price: savedData?.price || (listing.price !== null && listing.price !== undefined ? listing.price.toString() : ''),
+        countryDialCode: savedData?.countryDialCode || '+963',
+        contactNumber: savedData?.contactNumber || listing.contactNumber || '',
+        listingType: savedData?.listingType || listing.listingOfferType || listing.listingType || ListingType.FOR_SALE,
+        rentType: savedData?.rentType || listing.rentType || null,
+        installmentsAvailable: savedData?.installmentsAvailable !== undefined ? Boolean(savedData.installmentsAvailable) : Boolean(listing.installmentsAvailable),
+        installmentPlans: savedData?.installmentPlans || (Array.isArray(listing.installmentPlans)
+          ? listing.installmentPlans.map((p: any) => ({
+              months: Number(p.months),
+              downPayment: p.downPayment !== null && p.downPayment !== undefined ? p.downPayment.toString() : '',
+              monthlyAmount: p.monthlyAmount !== null && p.monthlyAmount !== undefined ? p.monthlyAmount.toString() : '',
+              noteTranslations: p.noteTranslations || (p.note ? { en: p.note, ar: p.note } : undefined),
+            }))
+          : []),
+        saveStatus: savedData?.saveStatus || listing.saveStatus || SaveStatus.PUBLISHED,
+        publicationDate: savedData?.publicationDate || (listing.publishedAt ? new Date(listing.publishedAt) : new Date()),
+        currency: savedData?.currency || listing.currency || Currency.USD,
+        governorate: normGov || savedData?.governorate || '',
+        city: normCity || savedData?.city || '',
+        address: normAddress || savedData?.address || '',
+        latitude: numLat ?? (savedData?.latitude != null ? Number(savedData.latitude) : undefined),
+        longitude: numLng ?? (savedData?.longitude != null ? Number(savedData.longitude) : undefined),
+        detectedGovernorate: normGov || null,
+      };
+      applyEditData(formData);
+      return;
     }
 
     // 3. Apply savedData if available
@@ -683,7 +875,10 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
         extractedCountryCode = dialCode;
         phoneOnly = localNumber;
       }
-      
+
+      const lat = savedData.latitude != null && !isNaN(Number(savedData.latitude)) ? Number(savedData.latitude) : numLat;
+      const lng = savedData.longitude != null && !isNaN(Number(savedData.longitude)) ? Number(savedData.longitude) : numLng;
+
       setListingTypeValue(savedData.listingType || ListingType.FOR_SALE);
       if (savedData.listingType === ListingType.FOR_RENT) {
         setShowRentType(true);
@@ -694,22 +889,50 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
       setCountryDialCodeValue(extractedCountryCode);
       countryDialCodeRef.current = extractedCountryCode;
 
-      form.reset({
+      if (lat !== undefined && lng !== undefined) {
+        setGpsCoords({ lat, lng });
+        if (mapInstanceRef.current && markerInstanceRef.current) {
+          markerInstanceRef.current.setLatLng([lat, lng]);
+          mapInstanceRef.current.setView([lat, lng], 14);
+        }
+      }
+
+      const mergedData = {
         ...savedData,
         countryDialCode: extractedCountryCode,
         contactNumber: phoneOnly,
+        governorate: normGov || savedData.governorate || '',
+        city: normCity || savedData.city || '',
+        address: normAddress || savedData.address || '',
+        latitude: lat,
+        longitude: lng,
+        detectedGovernorate: normGov || (savedData as any).detectedGovernorate || null,
         installmentsAvailable: Boolean(savedData.installmentsAvailable),
         installmentPlans: savedData.installmentPlans || []
-      });
-      previousFormData.current = savedData;
+      };
 
-      const isValid = checkFormValidity(savedData);
+      form.reset(mergedData);
+      previousFormData.current = mergedData;
+
+      if (mergedData.governorate) {
+        form.setValue("governorate", mergedData.governorate, { shouldValidate: true, shouldDirty: false });
+      }
+      if (mergedData.city) {
+        form.setValue("city", mergedData.city, { shouldValidate: true, shouldDirty: false });
+      }
+      if (mergedData.address) {
+        form.setValue("address", mergedData.address, { shouldValidate: true, shouldDirty: false });
+      }
+      form.clearErrors(["governorate", "city", "address"]);
+      saveAdInfoData(mergedData as any);
+
+      const isValid = checkFormValidity(mergedData);
       prevValidState.current = isValid;
 
       if (onValidationChange) {
         onValidationChange(isValid);
       }
-      
+
       editModeDataApplied.current = true;
     }
   }, [isEditMode, initialData]);
@@ -974,7 +1197,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                 </div>
               </div>
 
-              {/* 2. Contact & Pricing Section */}
+              {/* 2. Listing Type, Pricing & Contact Section */}
               <div className="p-5 sm:p-6 rounded-2xl border border-slate-100 dark:border-zinc-800 bg-slate-50/30 dark:bg-zinc-900/30 hover:bg-slate-50/50 dark:hover:bg-zinc-900/50 transition-all duration-300 space-y-6">
                 <div className="flex items-center gap-2.5 pb-2 border-b border-slate-100 dark:border-zinc-800">
                   <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-600">
@@ -982,17 +1205,91 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                   </div>
                   <div>
                     <h3 className="text-lg font-bold text-slate-800 dark:text-white">
-                      {direction === "rtl" ? "الاتصال والتسعير" : "Contact & Pricing"}
+                      {direction === "rtl" ? "نوع الإعلان والتسعير والاتصال" : "Listing Type, Pricing & Contact"}
                     </h3>
                     <p className="text-xs text-slate-400 dark:text-zinc-400">
-                      {direction === "rtl" ? "حدد السعر المناسب وتفاصيل الاتصال" : "Set your price, currency, and primary contact number"}
+                      {direction === "rtl" ? "حدد نوع العرض والسعر والعملة وتفاصيل الاتصال" : "Specify listing type, price, currency, and contact details"}
                     </p>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {/* Listing Type (For Sale / For Rent / etc.) */}
+                  <EnumSelect
+                    name="listingType"
+                    control={form.control}
+                    label={t("stepFour.adType")}
+                    options={listingTypeOptions}
+                    placeholder={t("stepFour.adType")}
+                    required={true}
+                    onChange={handleListingTypeChange}
+                    value={listingTypeValue}
+                    isRtl={direction === "rtl"}
+                  />
+
+                  {/* Rent Type (conditionally rendered when FOR_RENT) */}
+                  {showRentType && (
+                    <EnumSelect
+                      name="rentType"
+                      control={form.control}
+                      label={t("stepFour.rentType")}
+                      options={rentTypeOptions}
+                      placeholder={t("stepFour.rentType")}
+                      required={true}
+                      onChange={handleRentTypeChange}
+                      value={rentTypeValue?.toString() || ""}
+                      isRtl={direction === "rtl"}
+                    />
+                  )}
+
+                  {/* Price field */}
+                  <FormField
+                    control={form.control}
+                    name="price"
+                    render={({ field }) => (
+                      <FormItem className="text-primary">
+                        <FormLabel className="text-slate-700 dark:text-white font-semibold flex items-center gap-1 text-sm">
+                          {form.watch("listingType") === ListingType.FOR_RENT
+                            ? (direction === "rtl" ? "سعر الإيجار" : "Rental Price")
+                            : t("stepFour.price", { defaultValue: "Price" })}
+                          <span className="text-rose-500">*</span>
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            type="text"
+                            placeholder={
+                              form.watch("listingType") === ListingType.FOR_RENT
+                                ? (direction === "rtl" ? "أدخل سعر الإيجار" : "Enter rental price")
+                                : t("stepFour.price", { defaultValue: "Enter price" })
+                            }
+                            className="h-11 rounded-xl border-slate-200 dark:border-zinc-800 focus-visible:ring-primary focus-visible:border-primary bg-white dark:bg-zinc-950 dark:text-white shadow-sm transition-all"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage className="text-xs text-rose-500 font-medium" />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Currency field */}
+                  <EnumSelect
+                    name="currency"
+                    control={form.control}
+                    label={t("stepFour.currencyLabel")}
+                    options={currencyOptions}
+                    placeholder={t("stepFour.currencyLabel")}
+                    required={true}
+                    onChange={handleCurrencyChange}
+                    value={currencyValue}
+                    isRtl={direction === "rtl"}
+                    className="rounded-xl"
+                  />
+
                   {/* PhoneField for contact number */}
-                  <div className="sm:col-span-2 lg:col-span-1">
+                  <div className={cn(
+                    "sm:col-span-2",
+                    showRentType ? "lg:col-span-2" : "lg:col-span-2"
+                  )}>
                     <FormField
                       control={form.control}
                       name="contactNumber"
@@ -1028,43 +1325,6 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                       )}
                     />
                   </div>
-
-                  {/* Price field */}
-                  <FormField
-                    control={form.control}
-                    name="price"
-                    render={({ field }) => (
-                      <FormItem className="text-primary">
-                        <FormLabel className="text-slate-700 dark:text-white font-semibold flex items-center gap-1 text-sm">
-                          {t("stepFour.price", { defaultValue: "Price" })}
-                          <span className="text-rose-500">*</span>
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            type="text"
-                            placeholder={t("stepFour.price", { defaultValue: "Enter price" })}
-                            className="h-11 rounded-xl border-slate-200 dark:border-zinc-800 focus-visible:ring-primary focus-visible:border-primary bg-white dark:bg-zinc-950 dark:text-white shadow-sm transition-all"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage className="text-xs text-rose-500 font-medium" />
-                      </FormItem>
-                    )}
-                  />
-
-                  {/* Currency field */}
-                  <EnumSelect
-                    name="currency"
-                    control={form.control}
-                    label={t("stepFour.currencyLabel")}
-                    options={currencyOptions}
-                    placeholder={t("stepFour.currencyLabel")}
-                    required={true}
-                    onChange={handleCurrencyChange}
-                    value={currencyValue}
-                    isRtl={direction === "rtl"}
-                    className="rounded-xl"
-                  />
                 </div>
 
                 {/* Installments Section */}
@@ -1119,7 +1379,8 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                     }));
 
                     const detectedGov = form.watch("detectedGovernorate");
-                    const isGovLocked = Boolean(detectedGov);
+                    const currentGov = form.watch("governorate");
+                    const isGovLocked = Boolean(!isEditMode && detectedGov && currentGov);
 
                     return (
                       <EnumSelect
@@ -1165,7 +1426,8 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                   })()}
 
                   {(() => {
-                    const selectedGov = form.watch("governorate") as SyriaGovernorate;
+                    const rawGov = form.watch("governorate");
+                    const selectedGov = (normalizeGovernorate(rawGov) || rawGov) as SyriaGovernorate;
                     const cityList = selectedGov && SyriaGovernorate_TO_CITIES[selectedGov]
                       ? SyriaGovernorate_TO_CITIES[selectedGov]
                       : [];
@@ -1182,6 +1444,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                         options={cityOptions}
                         placeholder={direction === "rtl" ? "اختر المدينة" : "Select City"}
                         required={true}
+                        disabled={!selectedGov}
                         isRtl={direction === "rtl"}
                       />
                     );
@@ -1264,9 +1527,27 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                         id="saveAsSavedAddress"
                         checked={form.watch('saveAsSavedAddress')}
                         onCheckedChange={(checked) => {
-                          form.setValue('saveAsSavedAddress', Boolean(checked), {
+                          const isChecked = Boolean(checked);
+                          form.setValue('saveAsSavedAddress', isChecked, {
                             shouldValidate: true,
                             shouldDirty: true,
+                          });
+                          let currentLabel = form.getValues('savedAddressLabel');
+                          if (isChecked && (!currentLabel || !currentLabel.trim())) {
+                            currentLabel =
+                              form.getValues('address')?.trim() ||
+                              [form.getValues('governorate'), form.getValues('city')].filter(Boolean).join(' - ') ||
+                              (direction === 'rtl' ? 'عنوان محفوظ' : 'Saved Address');
+                            form.setValue('savedAddressLabel', currentLabel, {
+                              shouldValidate: true,
+                              shouldDirty: true,
+                            });
+                          }
+                          const cur = loadAdInfoData();
+                          saveAdInfoData({
+                            ...cur,
+                            saveAsSavedAddress: isChecked,
+                            savedAddressLabel: isChecked ? (currentLabel || '') : '',
                           });
                         }}
                       />
@@ -1294,6 +1575,14 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                                 className="h-10 rounded-xl bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 text-sm"
                                 {...field}
                                 value={field.value || ''}
+                                onChange={(e) => {
+                                  field.onChange(e);
+                                  const cur = loadAdInfoData();
+                                  saveAdInfoData({
+                                    ...cur,
+                                    savedAddressLabel: e.target.value,
+                                  });
+                                }}
                               />
                             </FormControl>
                             <FormMessage />
@@ -1306,48 +1595,23 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
               </div>
 
               {/* 4. Listing Configuration Section */}
+              {/* 4. Publication & Status Settings Section */}
               <div className="p-5 sm:p-6 rounded-2xl border border-slate-100 dark:border-zinc-800 bg-slate-50/30 dark:bg-zinc-900/30 hover:bg-slate-50/50 dark:hover:bg-zinc-900/50 transition-all duration-300 space-y-6">
                 <div className="flex items-center gap-2.5 pb-2 border-b border-slate-100 dark:border-zinc-800">
-                  <div className="p-2 rounded-lg bg-amber-500/10 text-amber-600">
-                    <Sliders className="w-5 h-5" />
+                  <div className="p-2 rounded-lg bg-indigo-500/10 text-indigo-600">
+                    <CalendarIcon className="w-5 h-5" />
                   </div>
                   <div>
                     <h3 className="text-lg font-bold text-slate-800 dark:text-white">
-                      {direction === "rtl" ? "تكوين الإعلان" : "Listing Configuration"}
+                      {direction === "rtl" ? "إعدادات وحالة النشر" : "Publication & Status Settings"}
                     </h3>
                     <p className="text-xs text-slate-400 dark:text-zinc-400">
-                      {direction === "rtl" ? "اختر نوع النشر وحالة الحفظ" : "Choose your listing type and save status"}
+                      {direction === "rtl" ? "حدد حالة الحفظ وتاريخ ووقت النشر" : "Choose save status and publication schedule"}
                     </p>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                  <EnumSelect
-                    name="listingType"
-                    control={form.control}
-                    label={t("stepFour.adType")}
-                    options={listingTypeOptions}
-                    placeholder={t("stepFour.adType")}
-                    required={true}
-                    onChange={handleListingTypeChange}
-                    value={listingTypeValue}
-                    isRtl={direction === "rtl"}
-                  />
-
-                  {showRentType && (
-                    <EnumSelect
-                      name="rentType"
-                      control={form.control}
-                      label={t("stepFour.rentType")}
-                      options={rentTypeOptions}
-                      placeholder={t("stepFour.rentType")}
-                      required={true}
-                      onChange={handleRentTypeChange}
-                      value={rentTypeValue?.toString() || ""}
-                      isRtl={direction === "rtl"}
-                    />
-                  )}
-
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <EnumSelect
                     name="saveStatus"
                     control={form.control}
@@ -1359,26 +1623,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                     value={saveStatusValue}
                     isRtl={direction === "rtl"}
                   />
-                </div>
-              </div>
 
-              {/* 5. Publication Settings Section */}
-              <div className="p-5 sm:p-6 rounded-2xl border border-slate-100 dark:border-zinc-800 bg-slate-50/30 dark:bg-zinc-900/30 hover:bg-slate-50/50 dark:hover:bg-zinc-900/50 transition-all duration-300 space-y-6">
-                <div className="flex items-center gap-2.5 pb-2 border-b border-slate-100 dark:border-zinc-800">
-                  <div className="p-2 rounded-lg bg-indigo-500/10 text-indigo-600">
-                    <CalendarIcon className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-slate-800 dark:text-white">
-                      {direction === "rtl" ? "جدولة النشر" : "Publication Settings"}
-                    </h3>
-                    <p className="text-xs text-slate-400 dark:text-zinc-400">
-                      {direction === "rtl" ? "حدد تاريخ ووقت النشر التلقائي" : "Schedule when your listing goes live"}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <FormField
                     control={form.control}
                     name="publicationDate"

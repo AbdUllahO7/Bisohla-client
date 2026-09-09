@@ -11,10 +11,13 @@ import {
   setClientConsentCookie,
 } from '@/core/lib/web/cookie-consent';
 
+import { useLegalDocuments } from '@/core/infrastructure-adapters/use-actions/legal/legal.use-actions';
+
 interface CookieConsentContextType {
   consent: CookieConsentPayload | null;
   categories: CookieConsentCategories;
   hasAnswered: boolean;
+  activePolicyVersion: number;
   isPreferencesOpen: boolean;
   openPreferences: () => void;
   closePreferences: () => void;
@@ -50,6 +53,12 @@ export const CookieConsentProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isLoaded, setIsLoaded] = useState(false);
   const [isPreferencesOpen, setIsPreferencesOpen] = useState(false);
 
+  const { data: legalDocsResponse } = useLegalDocuments();
+  const cookiePolicyDoc = legalDocsResponse?.data?.find(
+    (doc) => doc.kind === 'cookie_policy' || doc.slug === 'cookie-policy'
+  );
+  const activePolicyVersion = cookiePolicyDoc?.version ?? 1;
+
   useEffect(() => {
     const existing = getClientConsentCookie();
     if (existing) {
@@ -59,10 +68,18 @@ export const CookieConsentProvider: React.FC<{ children: React.ReactNode }> = ({
     setIsLoaded(true);
   }, []);
 
+  // Determine if the user's recorded consent matches or exceeds the active published version
+  const isConsentOutdated = Boolean(
+    consent &&
+    cookiePolicyDoc &&
+    typeof consent.pol === 'number' &&
+    consent.pol < activePolicyVersion
+  );
+
   const savePreferences = (customCategories: CookieConsentCategories) => {
     const payload = generateConsentPayload(
       customCategories,
-      1,
+      activePolicyVersion,
       consent?.id,
     );
     setClientConsentCookie(payload);
@@ -87,7 +104,8 @@ export const CookieConsentProvider: React.FC<{ children: React.ReactNode }> = ({
       value={{
         consent,
         categories,
-        hasAnswered: isLoaded && consent !== null,
+        hasAnswered: isLoaded && consent !== null && !isConsentOutdated,
+        activePolicyVersion,
         isPreferencesOpen,
         openPreferences: () => setIsPreferencesOpen(true),
         closePreferences: () => setIsPreferencesOpen(false),

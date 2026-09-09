@@ -70,6 +70,8 @@
       "createSaleAd": "Create a sale ad",
       "createAccount": "Create Account",
       "privacyPolicy": "Privacy policy",
+      "termsOfService": "Terms of Service",
+      "cookiePolicy": "Cookie Policy",
       "adCreationPolicy": "Advertisement creation policy",
       "dataProtectionPolicy": "Data Protection Policy",
       "homePage": "Home Page",
@@ -1939,6 +1941,9 @@
       "overview_section": "Overview",
       "highlights_section": "Highlights",
       "recent_activity_section": "Recent Activity",
+      "trends_section": "Trends & Analytics",
+      "failed_to_load": "Failed to load statistics",
+      "try_again": "Try again",
       "hero_title": "Total Views",
       "hero_delta_label": "vs previous period",
       "total_listings": "Total Listings",
@@ -1979,7 +1984,8 @@
         "contacts": "Contacts Trend",
         "shares": "Shares Trend",
         "details_viewed": "Detail Views Trend",
-        "duration": "View Duration Trend"
+        "duration": "View Duration Trend",
+        "detailsViewed": "Detail Views Trend"
       },
       "granularity": {
         "daily": "Daily",
@@ -2355,6 +2361,30 @@
       "title": "Sellers",
       "no_type_listings": "This seller has no listings in this category right now"
     }
+  },
+  "imageUploader": {
+    "uploadNew": "Upload New",
+    "previousUploads": "Previous Uploads",
+    "dragDropFiles": "Drag & drop files here, or",
+    "selectFiles": "Select Files",
+    "maxFilesHint": "Maximum {count} files, up to {size}MB each",
+    "uploadingCount": "Uploading {count} files",
+    "completedCount": "{count} completed",
+    "failedCount": "{count} failed",
+    "uploadQueue": "Upload Queue",
+    "yourPreviousUploads": "Your Previous Uploads",
+    "useSelected": "Use Selected ({count})",
+    "noPreviousUploads": "No previous uploads found",
+    "selectedImages": "Selected Images",
+    "mainCover": "Main Cover",
+    "imagePreview": "Image Preview",
+    "previewAlt": "Preview {number}",
+    "fullPreviewAlt": "Full preview {number}",
+    "invalidFileType": "Invalid file type. Accepted types: {types}",
+    "maxSizeExceeded": "File size must be less than {size}MB",
+    "maxImagesAllowed": "Maximum {count} images allowed",
+    "uploadFailed": "Upload failed",
+    "bytes": "Bytes"
   }
 }
 

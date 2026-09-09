@@ -4,6 +4,7 @@ import { createListing, updateListing } from '@/core/infrastructure-adapters/act
 import { CreateListingDto, UpdateListingDto, AttributeValue, AttributeMeta } from '@/core/entities/models/listings/create-listing.dto';
 import { InstallmentPlanInputDto } from '@/core/entities/models/listings/installments.dto';
 import { RentType } from '@/core/entities/enums/cars.enums';
+import { normalizeGovernorate, normalizeCity, normalizeAddress } from '@/core/entities/enums/syria.enums';
 import {
   STORAGE_KEYS,
   getAllFormData,
@@ -11,6 +12,7 @@ import {
 } from './useLocalStorage';
 import { useToast } from '@/hooks/use-toast';
 import { useLocale, useTranslations } from 'next-intl';
+import { useQueryClient } from '@tanstack/react-query';
 import { createUserAddress } from '@/core/infrastructure-adapters/actions/users/saved-address.actions';
 
 // Format error message for display
@@ -92,6 +94,7 @@ const buildAttributeValue = (
 export const useSubmitForm = () => {
   const router = useRouter();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showErrorDialog, setShowErrorDialog] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -146,7 +149,8 @@ export const useSubmitForm = () => {
       const publicationStatus: string = storedData4?.saveStatus === 'published' ? 'published' : 'draft';
       const publishedAt: string | null = storedData4?.publishedAt || storedData4?.publicationDate || null;
 
-      const installmentsAvailable: boolean = listingOfferType === 'for_sale' ? Boolean(storedData4?.installmentsAvailable) : false;
+      const isInstallmentsPolicyEnabled = storedData1?.installmentsEnabled !== false;
+      const installmentsAvailable: boolean = (listingOfferType === 'for_sale' && isInstallmentsPolicyEnabled) ? Boolean(storedData4?.installmentsAvailable) : false;
       let installmentPlans: InstallmentPlanInputDto[] | undefined = undefined;
 
       if (listingOfferType === 'for_sale' && installmentsAvailable && Array.isArray(storedData4?.installmentPlans) && storedData4.installmentPlans.length > 0) {
@@ -165,11 +169,18 @@ export const useSubmitForm = () => {
       //    (governorate, city, address are injected with negative IDs so they
       //     won't appear in __attributeMap__, we handle them separately)
       // ─────────────────────────────────────────────────────────────────────
-      const governorate: string | null = storedData4?.governorate || storedData2?.governorate || null;
-      const city: string | null = storedData4?.city || storedData2?.city || null;
-      const address: string | null = storedData4?.address || storedData2?.address || null;
-      const latitude: number | null = storedData4?.latitude != null ? Number(storedData4.latitude) : null;
-      const longitude: number | null = storedData4?.longitude != null ? Number(storedData4.longitude) : null;
+      const rawGov = storedData4?.governorate || storedData2?.governorate;
+      const rawCity = storedData4?.city || storedData2?.city;
+      const rawAddress = storedData4?.address || storedData2?.address;
+      const governorate: string | null = normalizeGovernorate(rawGov) || rawGov || null;
+      const city: string | null = normalizeCity(rawCity, governorate || undefined) || rawCity || null;
+      const address: string | null = normalizeAddress(rawAddress) || rawAddress || null;
+      const latitude: number | null = storedData4?.latitude != null && !isNaN(Number(storedData4.latitude))
+        ? Number(storedData4.latitude)
+        : (storedData2?.latitude != null && !isNaN(Number(storedData2.latitude)) ? Number(storedData2.latitude) : null);
+      const longitude: number | null = storedData4?.longitude != null && !isNaN(Number(storedData4.longitude))
+        ? Number(storedData4.longitude)
+        : (storedData2?.longitude != null && !isNaN(Number(storedData2.longitude)) ? Number(storedData2.longitude) : null);
       const saveAsSavedAddress = Boolean(storedData4?.saveAsSavedAddress);
       const savedAddressLabel = storedData4?.savedAddressLabel;
 
@@ -241,6 +252,8 @@ export const useSubmitForm = () => {
           governorate,
           city,
           address,
+          latitude,
+          longitude,
           contactNumber,
           publicationStatus,
           publishedAt,
@@ -261,6 +274,8 @@ export const useSubmitForm = () => {
           governorate,
           city,
           address,
+          latitude,
+          longitude,
           contactNumber,
           publicationStatus,
           publishedAt,
@@ -275,30 +290,41 @@ export const useSubmitForm = () => {
       }
 
       if (response.success) {
-        // If "Save this address for next time" was selected, create unawaited per §5.4(c)
-        if (!isEditMode && saveAsSavedAddress && savedAddressLabel?.trim()) {
-          createUserAddress({
-            label: savedAddressLabel.trim(),
-            governorate: governorate || undefined,
-            city: city || undefined,
-            address: address || undefined,
-            latitude: latitude != null && !isNaN(latitude) ? latitude : undefined,
-            longitude: longitude != null && !isNaN(longitude) ? longitude : undefined,
-          })
-            .then((addrRes) => {
-              if (!addrRes.success) {
-                toast({
-                  variant: 'destructive',
-                  title: tListing('wizard.saved_address.save_failed_toast'),
-                });
-              }
-            })
-            .catch(() => {
+        // If "Save this address for next time" was selected, save in both create and edit modes
+        if (saveAsSavedAddress && (governorate || city || address)) {
+          const fallbackLabel =
+            address?.trim() ||
+            [governorate, city].filter(Boolean).join(' - ') ||
+            (locale === 'ar' ? 'عنوان محفوظ' : 'Saved Address');
+          const finalLabel = (savedAddressLabel?.trim() || fallbackLabel).slice(0, 100);
+
+          try {
+            const addrRes = await createUserAddress({
+              label: finalLabel,
+              governorate: governorate || undefined,
+              city: city || undefined,
+              address: address ? address.slice(0, 500) : undefined,
+              latitude: latitude != null && !isNaN(latitude) ? latitude : undefined,
+              longitude: longitude != null && !isNaN(longitude) ? longitude : undefined,
+            });
+
+            if (addrRes?.success) {
+              await queryClient.invalidateQueries({ queryKey: ['user-addresses'] });
+            } else {
+              console.error('[useSubmitForm] createUserAddress failed:', addrRes);
               toast({
                 variant: 'destructive',
                 title: tListing('wizard.saved_address.save_failed_toast'),
+                description: addrRes?.message,
               });
+            }
+          } catch (addrErr) {
+            console.error('[useSubmitForm] createUserAddress exception:', addrErr);
+            toast({
+              variant: 'destructive',
+              title: tListing('wizard.saved_address.save_failed_toast'),
             });
+          }
         }
 
         toast({
@@ -345,7 +371,7 @@ export const useSubmitForm = () => {
     } finally {
       setIsSubmitting(false);
     }
-  }, [router, toast, locale, tListing]);
+  }, [router, toast, locale, tListing, queryClient]);
 
   return {
     isSubmitting,
