@@ -179,14 +179,17 @@ const Steps: React.FC<StepsProps> = ({ isEditMode = false, carId, initialData })
     localStorage.removeItem(STORAGE_KEYS.STEP_TWO);
   };
 
-  // Set edit mode flag in localStorage on component mount if in edit mode
+  // Set edit mode flag in localStorage on component mount if in edit mode, or clear it if creating
   useEffect(() => {
     if (isEditMode && carId) {
       localStorage.setItem(STORAGE_KEYS.EDIT_MODE_FLAG, carId.toString());
+    } else if (!isEditMode) {
+      localStorage.removeItem(STORAGE_KEYS.EDIT_MODE_FLAG);
     }
     
     return () => {
-      if (!window.location.pathname.includes('/edit')) {
+      const pathname = (typeof window !== 'undefined' ? window.location.pathname : '').toLowerCase();
+      if (!pathname.includes('/edit')) {
         localStorage.removeItem(STORAGE_KEYS.EDIT_MODE_FLAG);
       }
     };

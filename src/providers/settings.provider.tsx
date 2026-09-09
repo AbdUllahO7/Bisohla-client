@@ -15,6 +15,7 @@ import {
   SettingsField,
   SettingsFieldValue,
   ListingsSettings,
+  ReferenceProposalsSettings,
   MapSettings,
 } from '@/core/entities/models/settings/settings.dto';
 
@@ -42,6 +43,7 @@ interface SettingsContextType {
   getSEOSettings: () => SEOSettings | undefined;
   getThirdPartyIntegrations: () => ThirdPartyIntegrations | undefined;
   getListingsSettings: () => ListingsSettings | undefined;
+  getReferenceProposalsSettings: () => ReferenceProposalsSettings | undefined;
 
   // Specific commonly-used settings
   getLogo: () => string;
@@ -131,6 +133,7 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
   const getSEOSettings = () => settings.seo_settings;
   const getThirdPartyIntegrations = () => settings.third_party_integrations;
   const getListingsSettings = () => settings.listings_settings;
+  const getReferenceProposalsSettings = () => settings.listings_settings?.reference_proposals;
 
   // Specific getters
   const getSocialLinks = () => settings.general?.social_links;
@@ -369,6 +372,7 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
     getSEOSettings,
     getThirdPartyIntegrations,
     getListingsSettings,
+    getReferenceProposalsSettings,
     getLogo,
     getAppLogo,
     getCopyrightMessage,

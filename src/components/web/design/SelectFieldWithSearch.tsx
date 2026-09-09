@@ -60,13 +60,44 @@ const SelectFieldWithSearch: React.FC<SelectFieldWithSearchProps> = ({
   const [open, setOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
 
-  // Filter options based on search term
-  const filteredOptions = useMemo(() => {
-    if (!searchTerm.trim()) return options
-    return options.filter((option) =>
-      option.label.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  }, [options, searchTerm])
+  // Find selected options
+  const selectedOptions = useMemo(() => {
+    if (isMulti) {
+      const vals = Array.isArray(value) ? value.map(String) : (value ? [String(value)] : []);
+      return options.filter((opt) => vals.includes(String(opt.value)));
+    }
+    if (!value && value !== '0') return [];
+    const found = options.find((opt) => String(opt.value) === String(value));
+    return found ? [found] : [];
+  }, [options, value, isMulti]);
+
+  // Filter options based on search term, ensuring selected options remain visible
+  const { displayOptions, hasSearchMatches } = useMemo(() => {
+    const trimmed = searchTerm.trim().toLowerCase();
+    if (!trimmed) {
+      return { displayOptions: options, hasSearchMatches: true };
+    }
+
+    const matches = options.filter((option) =>
+      option.label.toLowerCase().includes(trimmed)
+    );
+    const hasMatches = matches.length > 0;
+
+    if (selectedOptions.length > 0) {
+      const selectedIds = new Set(selectedOptions.map((opt) => String(opt.value)));
+      const otherMatches = matches.filter((opt) => !selectedIds.has(String(opt.value)));
+
+      return {
+        displayOptions: [...selectedOptions, ...otherMatches],
+        hasSearchMatches: hasMatches,
+      };
+    }
+
+    return {
+      displayOptions: matches,
+      hasSearchMatches: hasMatches,
+    };
+  }, [options, searchTerm, selectedOptions]);
 
   // Find the selected option label or joined labels for multi-select
   const selectedOptionLabel = useMemo(() => {
@@ -193,7 +224,7 @@ const SelectFieldWithSearch: React.FC<SelectFieldWithSearchProps> = ({
               </div>
             </div>
 
-            <Command className="bg-transparent border-none">
+            <Command shouldFilter={false} className="bg-transparent border-none">
               <CommandList 
                 className={cn(
                   "max-h-[280px] overflow-auto bg-transparent p-2",
@@ -227,10 +258,10 @@ const SelectFieldWithSearch: React.FC<SelectFieldWithSearchProps> = ({
                 </CommandEmpty>
 
                 <CommandGroup className="p-0">
-                  {filteredOptions.map((option) => {
+                  {displayOptions.map((option) => {
                     const isSelected = isMulti
-                      ? (Array.isArray(value) ? value : (value ? [value] : [])).includes(option.value)
-                      : value === option.value;
+                      ? (Array.isArray(value) ? value.map(String) : (value ? [String(value)] : [])).includes(String(option.value))
+                      : String(value) === String(option.value);
                     return (
                       <CommandItem
                         key={option.value}
@@ -243,8 +274,13 @@ const SelectFieldWithSearch: React.FC<SelectFieldWithSearchProps> = ({
                             : "bg-white dark:bg-zinc-900 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-zinc-800/80 hover:border-slate-100"
                         )}
                       >
-                        <div className="flex items-center gap-2 overflow-hidden">
+                        <div className="flex items-center gap-2 overflow-hidden flex-1">
                           <span className="font-semibold text-xs truncate">{option.label}</span>
+                          {isSelected && searchTerm.trim() && (
+                            <span className="text-[10px] bg-white/20 text-white px-2 py-0.5 rounded-full font-medium shrink-0">
+                              {isRtl ? "المحدد" : "Selected"}
+                            </span>
+                          )}
                         </div>
                         {isSelected ? (
                           <Check className="h-3.5 w-3.5 text-white" />
@@ -260,11 +296,39 @@ const SelectFieldWithSearch: React.FC<SelectFieldWithSearchProps> = ({
                     );
                   })}
                 </CommandGroup>
+
+                {/* When user searched and no other items matched */}
+                {searchTerm.trim() && !hasSearchMatches && displayOptions.length > 0 && (
+                  <div className="py-4 px-3 text-center border-t border-slate-100 dark:border-zinc-800 mt-1">
+                    <p className="text-xs font-semibold text-slate-600 dark:text-zinc-300">
+                      {isRtl ? "لا توجد خيارات مطابقة أخرى" : "No other matching options found"}
+                    </p>
+                    {emptyDescription && (
+                      <p className="text-[11px] text-slate-400 dark:text-zinc-500 mt-1 max-w-xs mx-auto leading-relaxed">
+                        {emptyDescription}
+                      </p>
+                    )}
+                    {onProposeClick && (
+                      <div className="mt-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={handleOpenPropose}
+                          className="rounded-xl text-xs font-bold border-primary/30 text-primary hover:bg-primary/10 gap-1.5 h-8 shadow-none"
+                        >
+                          <PlusCircle className="w-3.5 h-3.5" />
+                          <span>{proposeCtaLabel || (isRtl ? "اقترح قيمة جديدة" : "Suggest new value")}</span>
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                )}
               </CommandList>
             </Command>
 
-            {/* Ghost propose CTA in list footer when options are present */}
-            {filteredOptions.length > 0 && onProposeClick && (
+            {/* Ghost propose CTA in list footer when options are present and not already showing the no-matches block */}
+            {displayOptions.length > 0 && onProposeClick && !(!hasSearchMatches && searchTerm.trim()) && (
               <div className="p-2 border-t border-slate-100 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-900/50">
                 <Button
                   type="button"

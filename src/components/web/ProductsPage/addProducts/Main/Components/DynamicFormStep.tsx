@@ -13,6 +13,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { useLocale, useTranslations } from 'next-intl';
+import { useSettings } from '@/providers/settings.provider';
+import { useReferenceProposalGate } from '@/hooks/useReferenceProposalGate';
 import DynamicSectionHeader from './DynamicSectionHeader';
 import SelectableList from '../../StepOne/SelectableList';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -27,8 +29,11 @@ import {
   SyriaGovernorate, 
   SyriaGovernorate_ARABIC_NAMES, 
   SyriaCity_ARABIC_NAMES, 
-  SyriaGovernorate_TO_CITIES 
+  SyriaGovernorate_TO_CITIES,
+  normalizeGovernorate,
+  normalizeCity,
 } from '@/core/entities/enums/syria.enums';
+import { resolveCityValue } from '@/utils/geocodeToSyria';
 import CarBlueprint from '../../../product/CarBlueprint';
 import MotorcycleBlueprint from '../../../product/MotorcycleBlueprint';
 
@@ -392,12 +397,7 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
     }
   };
 
-  const canProposeFor = (attr: any) => {
-    if (attr.type !== 'reference' || !attr.referenceGroupId) return false;
-    const slug = (attr.slug || '').toLowerCase();
-    if (slug === 'governorate' || slug === 'city' || slug === 'محافظة' || slug === 'مدينة') return false;
-    return true;
-  };
+  const { minNameLength, maxNameLength, canProposeFor } = useReferenceProposalGate(proposals);
 
   const getEmptyDescription = (attr: any) => {
     if (attr.dependsOnAttributeId) {
@@ -491,7 +491,7 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
                       : gov.replace(/-/g, ' ')
                   }));
                 } else if (isCity) {
-                  const selectedGov = formData['governorate'] as SyriaGovernorate;
+                  const selectedGov = normalizeGovernorate(formData['governorate'] || formData['محافظة']) as SyriaGovernorate;
                   const cityList = selectedGov && SyriaGovernorate_TO_CITIES[selectedGov] 
                     ? SyriaGovernorate_TO_CITIES[selectedGov] 
                     : [];
@@ -507,19 +507,33 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
                   })) || [];
                 }
 
+                const rawVal = formData[attr.slug];
+                const selectedValue = isGovernorate
+                  ? (normalizeGovernorate(rawVal) || '')
+                  : isCity
+                  ? (resolveCityValue(rawVal, normalizeGovernorate(formData['governorate'] || formData['محافظة'])) || '')
+                  : (rawVal?.toString() || '');
+
+                const parentReferenceItemId = (() => {
+                  if (!attr.dependsOnAttributeId) return null;
+                  const parentAttr = attributes.find(a => a.id === attr.dependsOnAttributeId);
+                  const parentVal = parentAttr ? formData[parentAttr.slug] : null;
+                  return parentVal && !isNaN(Number(parentVal)) ? Number(parentVal) : null;
+                })();
+
                 return (
                   <SelectableList
                     key={attr.id}
                     title={getTranslation(attr.name)}
                     type={isGovernorate ? "governorate" : isCity ? "city" : "marka"} // marka is generic for reference logic
                     options={options}
-                    selectedValue={formData[attr.slug]?.toString() || ""}
+                    selectedValue={selectedValue}
                     direction={isArabic ? 'rtl' : 'ltr'}
                     onSelect={(type, val) => handleFieldChange(attr.slug, val)}
                     required={attr.isRequired}
                     pendingProposalName={proposals[attr.id]?.name}
                     onClearProposal={() => handleClearProposal(attr.id)}
-                    onProposeClick={canProposeFor(attr) ? (currentSearch) => handleOpenPropose(attr, currentSearch) : undefined}
+                    onProposeClick={canProposeFor(attr, parentReferenceItemId) ? (currentSearch) => handleOpenPropose(attr, currentSearch) : undefined}
                     proposeCtaLabel={tProp('propose_cta', { attribute: getTranslation(attr.name) })}
                     emptyDescription={getEmptyDescription(attr)}
                   />
@@ -994,6 +1008,8 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
             return parentVal && !isNaN(Number(parentVal)) ? Number(parentVal) : null;
           })()}
           initialName={proposeDialogState.initialSearch}
+          minNameLength={minNameLength}
+          maxNameLength={maxNameLength}
           onResolve={handleResolveProposal}
         />
       )}

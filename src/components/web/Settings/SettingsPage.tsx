@@ -294,7 +294,7 @@ export function SettingsPage() {
 
             {/* Privacy Policy */}
             <Link
-              href="/Privacypolicy"
+              href="/legal/privacy-policy"
               className="w-full flex items-center justify-between p-4 text-xs text-gray-600 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-800/40 transition-colors group"
             >
               <div className="flex items-center gap-3">

@@ -172,6 +172,17 @@ export interface MapSettings {
   api_key?: string;
 }
 
+export interface ReferenceProposalsSettings {
+  enabled?: boolean;
+  max_per_listing?: number;
+  min_name_length?: number;
+  max_name_length?: number;
+  allow_chained_proposals?: boolean;
+  max_pending_per_user?: number;
+  duplicate_match_threshold?: number;
+  notify_admins?: boolean;
+}
+
 export interface ListingsSettings {
   images?: {
     min_images_per_listing?: number;
@@ -196,6 +207,7 @@ export interface ListingsSettings {
     seller_suggestions_count?: number;
     seller_suggestions_min_term_length?: number;
   };
+  reference_proposals?: ReferenceProposalsSettings;
 }
 
 // Main settings structure combining all sections

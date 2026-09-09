@@ -5,6 +5,8 @@ import { getInjection } from '@/di/container';
 import { ListingTypeRefItemDto } from '@/core/entities/models/listing-type-refs/listing-type-refs.dto';
 import { STORAGE_KEYS, getStorageKey } from './useLocalStorage';
 import { ProposeReferenceResult } from '@/core/entities/models/listings/reference-proposal.dto';
+import { normalizeGovernorate, normalizeCity, normalizeAddress } from '@/core/entities/enums/syria.enums';
+import { resolveCityValue } from '@/utils/geocodeToSyria';
 
 export const useDynamicForm = (
   attributes: FormAttributeDto[],
@@ -39,12 +41,13 @@ export const useDynamicForm = (
 
     // Parse attributeValues from initialData if available (Generic Listing API)
     const apiAttributeMap: Record<string, any> = {};
+    const apiAttributeMapById: Record<number, any> = {};
     const initialProposals: Record<number, { name: string }> = { ...savedProposals };
 
     if (initialData?.attributeValues && Array.isArray(initialData.attributeValues)) {
       initialData.attributeValues.forEach((av: any) => {
-        const slug = av.attribute?.slug;
-        const attrId = av.attributeId || av.attribute?.id;
+        const slug = av.attribute?.slug || av.slug;
+        const attrId = av.attributeId || av.attribute?.id || av.id;
 
         // Checked FIRST per §7.9: pending proposal is the attribute's real answer
         if (av.refItemProposal != null && av.refItemProposal.status === 'pending') {
@@ -54,7 +57,7 @@ export const useDynamicForm = (
           if (slug) {
             apiAttributeMap[slug] = ''; // Mutually exclusive with referenceItemId
           }
-        } else if (slug) {
+        } else {
           // Normalize value from different possible value fields
           let val = null;
           if (av.referenceItemId !== null && av.referenceItemId !== undefined) val = String(av.referenceItemId);
@@ -64,7 +67,8 @@ export const useDynamicForm = (
           else if (av.valueText !== null && av.valueText !== undefined) val = av.valueText;
           else if (av.valueDate !== null && av.valueDate !== undefined) val = av.valueDate;
           
-          apiAttributeMap[slug] = val;
+          if (slug) apiAttributeMap[slug] = val;
+          if (attrId) apiAttributeMapById[attrId] = val;
         }
       });
     }
@@ -76,8 +80,8 @@ export const useDynamicForm = (
       let editValue = savedValue;
       
       if (editValue === undefined || editValue === null || editValue === '') {
-        // Fallback to API attribute map (flattened list)
-        editValue = apiAttributeMap[attr.slug];
+        // Fallback to API attribute map (flattened list by slug or by id)
+        editValue = apiAttributeMap[attr.slug] ?? apiAttributeMapById[attr.id];
         
         if (editValue === undefined || editValue === null || editValue === '') {
           const slugLower = (attr.slug || '').toLowerCase();
@@ -94,7 +98,8 @@ export const useDynamicForm = (
               apiAttributeMap['make'] ||
               apiAttributeMap['marka'] ||
               apiAttributeMap['brand'] ||
-              apiAttributeMap['car_make'];
+              apiAttributeMap['car_make'] ||
+              apiAttributeMapById[attr.id];
           } else if (slugLower === 'model' || slugLower === 'car_model' || slugLower === 'carmodel') {
             editValue =
               initialData?.modelId ||
@@ -105,7 +110,8 @@ export const useDynamicForm = (
               initialData?.details?.carModelId ||
               initialData?.details?.model?.id ||
               apiAttributeMap['model'] ||
-              apiAttributeMap['car_model'];
+              apiAttributeMap['car_model'] ||
+              apiAttributeMapById[attr.id];
           } else if (slugLower === 'trim' || slugLower === 'car_trim' || slugLower === 'cartrim') {
             editValue =
               initialData?.trimId ||
@@ -115,11 +121,14 @@ export const useDynamicForm = (
               initialData?.details?.trimId ||
               initialData?.details?.trim?.id ||
               apiAttributeMap['trim'] ||
-              apiAttributeMap['car_trim'];
+              apiAttributeMap['car_trim'] ||
+              apiAttributeMapById[attr.id];
           } else if (slugLower === 'governorate' || slugLower === 'محافظة') {
-            editValue = initialData?.governorate || apiAttributeMap['governorate'];
+            editValue = normalizeGovernorate(initialData?.governorate || (initialData as any)?.location?.governorate || apiAttributeMap['governorate'] || apiAttributeMapById[attr.id]);
           } else if (slugLower === 'city' || slugLower === 'مدينة') {
-            editValue = initialData?.city || apiAttributeMap['city'];
+            editValue = resolveCityValue(initialData?.city || (initialData as any)?.location?.city || apiAttributeMap['city'] || apiAttributeMapById[attr.id], initial['governorate']);
+          } else if (slugLower === 'address' || slugLower === 'العنوان' || slugLower === 'detailed_address') {
+            editValue = normalizeAddress(initialData?.address || (initialData as any)?.location?.address || apiAttributeMap['address'] || apiAttributeMapById[attr.id]);
           } else {
             editValue = initialData?.details?.[attr.slug] ?? initialData?.[attr.slug];
             if (editValue === undefined || editValue === null) {
@@ -138,9 +147,16 @@ export const useDynamicForm = (
       if (initialProposals[attr.id]?.name) {
         initial[attr.slug] = '';
       } else if (editValue !== undefined && editValue !== null && editValue !== '') {
-        initial[attr.slug] = (attr.type === 'reference' || attr.type === 'select')
-          ? String(editValue)
-          : editValue;
+        const slugLower = (attr.slug || '').toLowerCase();
+        if (slugLower === 'governorate' || slugLower === 'محافظة') {
+          initial[attr.slug] = normalizeGovernorate(editValue);
+        } else if (slugLower === 'city' || slugLower === 'مدينة') {
+          initial[attr.slug] = resolveCityValue(editValue, initial['governorate']);
+        } else {
+          initial[attr.slug] = (attr.type === 'reference' || attr.type === 'select')
+            ? String(editValue)
+            : editValue;
+        }
       } else {
         initial[attr.slug] = (attr.type === 'repeating_group' || attr.type === 'color_multi_selection') ? [] : '';
       }

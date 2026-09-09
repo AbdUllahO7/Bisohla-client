@@ -11,6 +11,9 @@ import {
 } from '@/components/web/ProductsPage/addProducts/Main/hooks/useLocalStorage';
 import { useGetListingById } from '@/core/infrastructure-adapters/use-actions/users/listing.user.use-actions';
 import { splitPhone } from '@/core/lib/phone/phone.util';
+import { normalizeGovernorate, normalizeCity, normalizeAddress } from '@/core/entities/enums/syria.enums';
+import { matchGovernorate, matchCity, getNearestSyriaCity, resolveCityValue } from '@/utils/geocodeToSyria';
+import { SyriaGovernorate, SyriaCity } from '@/core/entities/enums/syria.enums';
 
 const EditProductPage = () => {
   const { id } = useParams();
@@ -26,7 +29,17 @@ const EditProductPage = () => {
       // Clear existing edit-mode data to prevent stale values
       clearFormData(true);
 
-      const listing = data.data;
+      const rawListing = Array.isArray(data.data)
+        ? data.data[0]
+        : ((data.data as any)?.listing ||
+           (data.data as any)?.rawListing ||
+           (data.data as any)?.carListing ||
+           (data.data as any)?.data ||
+           data.data);
+
+      const listing = rawListing || {};
+
+      if (!listing || (!listing.id && !listing.listingTypeId && !listing.title)) return;
 
       const typeId =
         listing.listingTypeId ||
@@ -50,51 +63,160 @@ const EditProductPage = () => {
 
       if (listing.attributeValues && Array.isArray(listing.attributeValues)) {
         listing.attributeValues.forEach((av: any) => {
-          const slug = av.attribute?.slug;
+          const slug = av.attribute?.slug || av.slug;
           const attrId = av.attribute?.id || av.attributeId;
-          if (slug && attrId) {
-            attributeMetaMap[slug] = {
-              id: attrId,
-              type: av.attribute?.type,
-            };
-
-            if (av.refItemProposal && av.refItemProposal.status === 'pending') {
+          
+          if (av.refItemProposal && av.refItemProposal.status === 'pending') {
+            if (attrId) {
               proposalsMap[attrId] = {
                 name: av.refItemProposal.submittedName,
                 status: 'pending',
               };
+            }
+            if (slug) {
+              attributeMetaMap[slug] = {
+                id: attrId,
+                type: av.attribute?.type,
+              };
               attributeValuesMap[slug] = null;
-            } else {
-              let val = null;
-              if (av.referenceItemId !== null && av.referenceItemId !== undefined)
-                val = av.referenceItemId;
-              else if (av.valueNumber !== null && av.valueNumber !== undefined)
-                val = Number(av.valueNumber);
-              else if (av.valueJson !== null && av.valueJson !== undefined)
-                val = av.valueJson;
-              else if (av.valueBoolean !== null && av.valueBoolean !== undefined)
-                val = av.valueBoolean;
-              else if (av.valueText !== null && av.valueText !== undefined)
-                val = av.valueText;
-              else if (av.valueDate !== null && av.valueDate !== undefined)
-                val = av.valueDate;
+            }
+          } else {
+            let val = null;
+            if (
+              av.referenceItem &&
+              (slug === 'governorate' || slug === 'محافظة' || slug === 'city' || slug === 'مدينة')
+            ) {
+              val =
+                typeof av.referenceItem.name === 'object'
+                  ? (av.referenceItem.name.ar || av.referenceItem.name.en)
+                  : av.referenceItem.name ||
+                    av.referenceItem.nameTranslations?.ar ||
+                    av.referenceItem.nameTranslations?.en ||
+                    av.valueText;
+            } else if (av.referenceItemId !== null && av.referenceItemId !== undefined)
+              val = String(av.referenceItemId);
+            else if (av.valueNumber !== null && av.valueNumber !== undefined)
+              val = Number(av.valueNumber);
+            else if (av.valueJson !== null && av.valueJson !== undefined)
+              val = av.valueJson;
+            else if (av.valueBoolean !== null && av.valueBoolean !== undefined)
+              val = av.valueBoolean;
+            else if (av.valueText !== null && av.valueText !== undefined)
+              val = av.valueText;
+            else if (av.valueDate !== null && av.valueDate !== undefined)
+              val = av.valueDate;
+
+            if (slug) {
+              attributeMetaMap[slug] = {
+                id: attrId,
+                type: av.attribute?.type,
+              };
               attributeValuesMap[slug] = val;
             }
           }
         });
       }
 
+      // Robust extraction of location fields with fallbacks
+      // Use || (not ??) so empty strings fall through to the next candidate
+      const rawGov =
+        listing.governorate ||
+        listing.locationGovernorate ||
+        (listing as any).location?.governorate ||
+        (listing as any).details?.governorate ||
+        (listing as any).addressInfo?.governorate ||
+        (listing as any).address?.governorate ||
+        (listing as any).rawListing?.governorate ||
+        (listing as any).carListing?.governorate ||
+        (listing.translations as any)?.ar?.governorate ||
+        (listing.translations as any)?.en?.governorate ||
+        attributeValuesMap['governorate'] ||
+        attributeValuesMap['محافظة'] ||
+        null;
+
+      const rawCity =
+        listing.city ||
+        listing.locationCity ||
+        (listing as any).location?.city ||
+        (listing as any).details?.city ||
+        (listing as any).addressInfo?.city ||
+        (listing as any).address?.city ||
+        (listing as any).rawListing?.city ||
+        (listing as any).carListing?.city ||
+        (listing.translations as any)?.ar?.city ||
+        (listing.translations as any)?.en?.city ||
+        attributeValuesMap['city'] ||
+        attributeValuesMap['مدينة'] ||
+        null;
+
+      const rawAddress = (() => {
+        // Safely extract a string-only address across all known field paths.
+        // If a field is an object (e.g. { ar: '...', en: '...' }) we unwrap it.
+        const extractStr = (val: any): string | null | undefined => {
+          if (val == null) return null;
+          if (typeof val === 'string') return val.trim() || null;
+          if (typeof val === 'object') {
+            const s = val.address || val.detailedAddress || val.ar || val.en || val.title || val.name;
+            return typeof s === 'string' ? s.trim() || null : null;
+          }
+          return null;
+        };
+        return (
+          extractStr(listing.address) ??
+          extractStr(listing.detailedAddress) ??
+          extractStr((listing as any).location?.address) ??
+          extractStr((listing as any).location?.detailedAddress) ??
+          extractStr((listing as any).details?.address) ??
+          extractStr((listing as any).addressInfo?.address) ??
+          extractStr((listing as any).rawListing?.address) ??
+          extractStr((listing as any).carListing?.address) ??
+          extractStr((listing.translations as any)?.ar?.address) ??
+          extractStr((listing.translations as any)?.en?.address) ??
+          extractStr(attributeValuesMap['address']) ??
+          extractStr(attributeValuesMap['العنوان']) ??
+          extractStr(attributeValuesMap['detailed_address'])
+        );
+      })();
+
+      const rawLat =
+        (listing as any).latitude ??
+        (listing as any).lat ??
+        (listing as any).location?.latitude ??
+        (listing as any).location?.lat ??
+        (listing as any).details?.latitude ??
+        null;
+
+      const rawLng =
+        (listing as any).longitude ??
+        (listing as any).lng ??
+        (listing as any).lon ??
+        (listing as any).location?.longitude ??
+        (listing as any).location?.lng ??
+        (listing as any).details?.longitude ??
+        null;
+
+      const normGov = normalizeGovernorate(rawGov) || matchGovernorate(rawGov) || '';
+
+      const numLat = rawLat != null && !isNaN(Number(rawLat)) ? Number(rawLat) : null;
+      const numLng = rawLng != null && !isNaN(Number(rawLng)) ? Number(rawLng) : null;
+
+      const normCity = resolveCityValue(rawCity, normGov, numLat, numLng);
+      const normAddress = normalizeAddress(rawAddress) || rawAddress || '';
+
       // Merge direct attributes fallback from listing object
       const stepTwoData = {
         ...attributeValuesMap,
-        governorate: listing.governorate || null,
-        city: listing.city || null,
-        address: listing.address || null,
+        governorate: normGov || null,
+        city: normCity || null,
+        address: normAddress || null,
+        latitude: numLat,
+        longitude: numLng,
         make: listing.makeId || listing.make?.id || attributeValuesMap.make || null,
         model: listing.modelId || listing.model?.id || attributeValuesMap.model || null,
         trim: listing.trimId || listing.trim?.id || attributeValuesMap.trim || null,
         currency: listing.currency || 'USD',
         __attributeMap__: attributeMetaMap,
+        __attributeValuesMap: attributeValuesMap,
         __proposals__: proposalsMap,
       };
 
@@ -154,9 +276,12 @@ const EditProductPage = () => {
           ? new Date(listing.publishedAt).toISOString()
           : new Date().toISOString(),
         currency: listing.currency || 'USD',
-        governorate: listing.governorate || '',
-        city: listing.city || '',
-        address: listing.address || '',
+        governorate: normGov,
+        city: normCity,
+        address: normAddress,
+        latitude: numLat,
+        longitude: numLng,
+        detectedGovernorate: normGov || null,
       };
 
       try {
@@ -193,10 +318,8 @@ const EditProductPage = () => {
   // Clean up function to remove edit mode flag when component unmounts
   useEffect(() => {
     return () => {
-      if (
-        !window.location.pathname.includes('/EditProduct') &&
-        !window.location.pathname.includes('/edit')
-      ) {
+      const pathname = (typeof window !== 'undefined' ? window.location.pathname : '').toLowerCase();
+      if (!pathname.includes('/edit')) {
         localStorage.removeItem(STORAGE_KEYS.EDIT_MODE_FLAG);
         clearFormData(true);
       }

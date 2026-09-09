@@ -161,7 +161,7 @@ export default async function LegalDocumentPage({ params }: LegalPageProps) {
         />
 
         <div className="relative max-w-5xl mx-auto px-4 sm:px-6 md:px-8 text-white">
-          <div className="space-y-4">
+          <div className={`space-y-4 ${isRTL ? 'text-right' : 'text-left'}`}>
             <div
               className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full backdrop-blur-sm"
               style={{ backgroundColor: 'rgba(171, 222, 59, 0.2)' }}
@@ -222,12 +222,68 @@ export default async function LegalDocumentPage({ params }: LegalPageProps) {
         ) : (
           <div className="bg-white dark:bg-zinc-900/80 backdrop-blur-md rounded-3xl shadow-xl p-6 sm:p-10 md:p-14 border border-gray-100 dark:border-zinc-800">
             <div
-              className="rich-text-content ql-editor legal-document-content text-gray-800 dark:text-zinc-200 leading-relaxed space-y-6"
-              style={{ overflowY: 'visible', padding: 0 }}
+              className={`rich-text-content ql-editor legal-document-content text-gray-800 dark:text-zinc-200 leading-relaxed space-y-6 ${
+                isRTL ? 'ql-direction-rtl text-right' : 'text-left'
+              }`}
+              dir={isRTL ? 'rtl' : 'ltr'}
+              style={{
+                overflowY: 'visible',
+                padding: 0,
+                direction: isRTL ? 'rtl' : 'ltr',
+                textAlign: isRTL ? 'right' : 'left',
+              }}
               dangerouslySetInnerHTML={{ __html: contentHtml }}
             />
           </div>
         )}
+
+        <style>{`
+          .legal-document-content.ql-editor {
+            border: none !important;
+            padding: 0 !important;
+          }
+          [dir="rtl"] .legal-document-content,
+          [dir="rtl"] .legal-document-content.ql-editor,
+          .legal-document-content[dir="rtl"] {
+            direction: rtl !important;
+            text-align: right !important;
+          }
+          [dir="rtl"] .legal-document-content p,
+          [dir="rtl"] .legal-document-content h1,
+          [dir="rtl"] .legal-document-content h2,
+          [dir="rtl"] .legal-document-content h3,
+          [dir="rtl"] .legal-document-content h4,
+          [dir="rtl"] .legal-document-content h5,
+          [dir="rtl"] .legal-document-content h6,
+          [dir="rtl"] .legal-document-content li,
+          [dir="rtl"] .legal-document-content div,
+          [dir="rtl"] .legal-document-content span,
+          [dir="rtl"] .legal-document-content blockquote {
+            direction: rtl !important;
+            text-align: right !important;
+          }
+          [dir="rtl"] .legal-document-content .ql-align-center {
+            text-align: center !important;
+          }
+          [dir="rtl"] .legal-document-content .ql-align-right {
+            text-align: right !important;
+          }
+          [dir="rtl"] .legal-document-content .ql-align-left {
+            text-align: left !important;
+          }
+          [dir="rtl"] .legal-document-content ul,
+          [dir="rtl"] .legal-document-content ol {
+            padding-right: 2em !important;
+            padding-left: 0 !important;
+            direction: rtl !important;
+          }
+          [dir="ltr"] .legal-document-content,
+          [dir="ltr"] .legal-document-content.ql-editor,
+          .legal-document-content[dir="ltr"] {
+            direction: ltr !important;
+            text-align: left !important;
+          }
+        `}</style>
 
         {/* Brand Footer */}
         <div className="mt-16 pt-8 border-t border-gray-200 dark:border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-4">

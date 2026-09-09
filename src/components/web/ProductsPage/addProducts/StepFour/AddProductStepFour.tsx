@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from "react"
+import dynamic from "next/dynamic"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format } from "date-fns"
-import { CalendarIcon, FileText, Phone, DollarSign, MapPin, Sliders, CheckCircle2, Award, Info, Bookmark } from "lucide-react"
+import { CalendarIcon, FileText, Phone, DollarSign, MapPin, Sliders, CheckCircle2, Award, Info, Bookmark, Loader2 } from "lucide-react"
 import { Calendar } from "@/components/ui/calendar"
-import { useTranslations } from "next-intl"
+import { useTranslations, useLocale } from "next-intl"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -17,7 +18,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
 
 import { ListingType, RentType, SaveStatus, getListingTypeOptions, getRentTypeOptions, getSaveStatusOptions } from "@/core/entities/enums/cars.enums"
-import { adInformationSchema, type AdInformationFormData } from "./schema"
+import { getAdInformationSchema, adInformationSchema, type AdInformationFormData } from "./schema"
 import type { AddProductStepFourProps, AdInfoState } from "./types"
 import SelectableList from "../StepOne/SelectableList"
 import { 
@@ -25,7 +26,12 @@ import {
   SyriaGovernorate_ARABIC_NAMES, 
   SyriaCity, 
   SyriaCity_ARABIC_NAMES, 
-  SyriaGovernorate_TO_CITIES 
+  SyriaGovernorate_TO_CITIES,
+  normalizeGovernorate,
+  normalizeCity,
+  normalizeAddress,
+  cleanArabic,
+  stripArabicNoise
 } from "@/core/entities/enums/syria.enums"
 import {
   getContactErrorMessage,
@@ -58,6 +64,18 @@ import { assemblePhone, splitPhone, repairPhone } from "@/core/lib/phone/phone.u
 import InstallmentsCard from "./InstallmentsCard"
 import { ListingInstallmentOption, ListingInstallmentsMode } from "@/core/entities/models/listings/installments.dto"
 import { EDIT_STORAGE_KEYS, getStorageKey, STORAGE_KEYS } from "../Main/hooks/useLocalStorage"
+import { reverseGeocode } from "@/utils/reverseGeocode"
+import type { LocationPickerResult } from "@/components/web/Map/GoogleMapPicker"
+import { matchGovernorate, matchCity, getNearestSyriaCity, resolveCityValue } from "@/utils/geocodeToSyria"
+
+const GoogleMapPicker = dynamic(() => import('@/components/web/Map/GoogleMapPicker'), {
+  ssr: false,
+  loading: () => (
+    <div className="h-64 w-full rounded-xl border border-slate-200 dark:border-zinc-800 overflow-hidden shadow-md bg-slate-100 dark:bg-zinc-900 flex items-center justify-center">
+      <Loader2 className="w-6 h-6 animate-spin text-primary" />
+    </div>
+  ),
+})
 
 // Simplified EnumSelect component without internal state tracking
 interface EnumSelectProps {
@@ -95,52 +113,89 @@ const EnumSelect = ({
     <FormField
       control={control}
       name={name}
-      render={({ field }) => (
-        <FormItem className={`text-primary ${className}`}>
-          <div className="flex items-center justify-between gap-2">
-            <FormLabel className="text-primary dark:text-white">
-              {label}
-              {required && <span className="text-red-500">*</span>}
-            </FormLabel>
-            {headerAction}
-          </div>
-          <Select
-            disabled={disabled}
-            onValueChange={(val) => {
-              field.onChange(val);
-              if (onChange) {
-                onChange(val);
-              }
-            }}
-            value={field.value || value || ""}
-            dir={`${isRtl ? "rtl" : "ltr"}`}
-          >
-            <FormControl>
-              <SelectTrigger className="h-11 border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 dark:text-white disabled:opacity-85 disabled:bg-slate-50 dark:disabled:bg-zinc-850">
-                <SelectValue placeholder={placeholder} dir={`${isRtl ? "rtl" : "ltr"}`} />
-              </SelectTrigger>
-            </FormControl>
-            <SelectContent
-              className="bg-white dark:bg-zinc-900 shadow-2xl text-primary dark:text-white border dark:border-zinc-800 !z-[99999]"
-              dir={`${isRtl ? "rtl" : "ltr"}`}
-              position="popper"
-              sideOffset={4}
-              style={{
-                zIndex: 99999,
-                position: 'fixed'
+      render={({ field }) => {
+        const rawVal = (field.value !== undefined && field.value !== null && String(field.value) !== "")
+          ? String(field.value)
+          : (value !== undefined && value !== null ? String(value) : "");
+        let selectValue = "";
+        if (rawVal) {
+          const directMatch = options.find((opt) => opt.value === rawVal);
+          if (directMatch) {
+            selectValue = directMatch.value;
+          } else {
+            const cleanRaw = cleanArabic(rawVal);
+            const strippedRaw = stripArabicNoise(rawVal);
+            const noSpaceRaw = cleanRaw.replace(/\s+/g, '');
+            const fuzzyMatch = options.find((opt) =>
+              opt.value.toLowerCase() === rawVal.toLowerCase() ||
+              opt.label.toLowerCase() === rawVal.toLowerCase() ||
+              cleanArabic(opt.label) === cleanRaw ||
+              cleanArabic(opt.value) === cleanRaw ||
+              stripArabicNoise(opt.label) === strippedRaw ||
+              stripArabicNoise(opt.value) === strippedRaw ||
+              cleanArabic(opt.label).replace(/\s+/g, '') === noSpaceRaw ||
+              opt.value.replace(/[-_\s]/g, '').toLowerCase() === rawVal.replace(/[-_\s]/g, '').toLowerCase() ||
+              (strippedRaw.length >= 3 && stripArabicNoise(opt.label).includes(strippedRaw)) ||
+              (strippedRaw.length >= 3 && strippedRaw.includes(stripArabicNoise(opt.label)))
+            );
+            if (fuzzyMatch) {
+              selectValue = fuzzyMatch.value;
+            }
+          }
+        }
+
+        const selectedOption = options.find((opt) => opt.value === selectValue);
+
+        return (
+          <FormItem className={`text-primary ${className}`}>
+            <div className="flex items-center justify-between gap-2">
+              <FormLabel className="text-primary dark:text-white">
+                {label}
+                {required && <span className="text-red-500">*</span>}
+              </FormLabel>
+              {headerAction}
+            </div>
+            <Select
+              key={`${name}-${selectValue}-${options.length}`}
+              disabled={disabled}
+              onValueChange={(val) => {
+                field.onChange(val);
+                if (onChange) {
+                  onChange(val);
+                }
               }}
+              value={selectValue || undefined}
+              dir={`${isRtl ? "rtl" : "ltr"}`}
             >
-              {options.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {hint && <div className="mt-1">{hint}</div>}
-          <FormMessage />
-        </FormItem>
-      )}
+              <FormControl>
+                <SelectTrigger className="h-11 border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 dark:text-white disabled:opacity-85 disabled:bg-slate-50 dark:disabled:bg-zinc-850">
+                  <SelectValue placeholder={placeholder} dir={`${isRtl ? "rtl" : "ltr"}`}>
+                    {selectedOption ? selectedOption.label : undefined}
+                  </SelectValue>
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent
+                className="bg-white dark:bg-zinc-900 shadow-2xl text-primary dark:text-white border dark:border-zinc-800 !z-[99999]"
+                dir={`${isRtl ? "rtl" : "ltr"}`}
+                position="popper"
+                sideOffset={4}
+                style={{
+                  zIndex: 99999,
+                  position: 'fixed'
+                }}
+              >
+                {options.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {hint && <div className="mt-1">{hint}</div>}
+            <FormMessage />
+          </FormItem>
+        );
+      }}
     />
   );
 };
@@ -150,8 +205,10 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
   isEditMode = false,
   initialData = null
 }) => {
+  const locale = useLocale();
+  const isRtl = locale === "ar";
   const [showRentType, setShowRentType] = useState(false);
-  const [direction, setDirection] = useState<string>("ltr");
+  const [direction, setDirection] = useState<string>(isRtl ? "rtl" : "ltr");
   const previousFormData = useRef<AdInformationFormData | null>(null);
   const prevValidState = useRef<boolean | null>(null);
   const editModeDataApplied = useRef<boolean>(false);
@@ -159,9 +216,14 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
   const [pinPosition, setPinPosition] = useState<{ x: number; y: number } | null>(null);
   const mapRef = useRef<HTMLDivElement>(null);
   const [gpsCoords, setGpsCoords] = useState<{ lat: number; lng: number }>({ lat: 33.5138, lng: 36.2765 });
+  const [isGeocoding, setIsGeocoding] = useState(false);
+  // Initial map coords for edit mode pre-seeding
+  const [mapInitLat, setMapInitLat] = useState<number | null>(null);
+  const [mapInitLng, setMapInitLng] = useState<number | null>(null);
 
   const tListing = useTranslations("listing");
-  const { getListingsSettings } = useSettings();
+  const { getListingsSettings, getGoogleMapsApiKey } = useSettings();
+  const googleMapsApiKey = getGoogleMapsApiKey();
   const isSavedAddressesEnabled =
     getListingsSettings()?.location?.saved_addresses_enabled ?? true;
 
@@ -186,7 +248,26 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
     installmentsEnabled?: boolean;
     installmentsMode?: ListingInstallmentsMode;
     installmentOptions?: ListingInstallmentOption[];
-  } | null>(null);
+  } | null>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const stepOneKey = getStorageKey('STEP_ONE', isEditMode);
+        const stepOneRaw = localStorage.getItem(stepOneKey) || localStorage.getItem(STORAGE_KEYS.STEP_ONE);
+        if (stepOneRaw) {
+          const parsed = JSON.parse(stepOneRaw);
+          return {
+            rentEnabled: parsed.rentEnabled,
+            installmentsEnabled: parsed.installmentsEnabled,
+            installmentsMode: parsed.installmentsMode,
+            installmentOptions: parsed.installmentOptions,
+          };
+        }
+      } catch (e) {
+        // ignore
+      }
+    }
+    return null;
+  });
 
   useEffect(() => {
     countryDialCodeRef.current = countryDialCodeValue;
@@ -236,147 +317,54 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
     }
   }, [listingTypePolicy]);
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
+  // Handle confirmed location from GoogleMapPicker (after user reviews and confirms)
+  const handleLocationConfirm = (result: LocationPickerResult) => {
+    const lat = result.latitude;
+    const lng = result.longitude;
+    setGpsCoords({ lat, lng });
+    form.setValue("latitude", lat, { shouldValidate: true, shouldDirty: true });
+    form.setValue("longitude", lng, { shouldValidate: true, shouldDirty: true });
 
-    let mapInstance: any = null;
-    let markerInstance: any = null;
+    const normGov = normalizeGovernorate(result.governorate) || matchGovernorate(result.governorate) || result.governorate || '';
+    const normCity = resolveCityValue(result.city, normGov, lat, lng) || result.city || '';
+    const normAddress = normalizeAddress(result.address) || result.address || '';
 
-    const loadLeaflet = () => {
-      if ((window as any).L) {
-        initLeafletMap();
-        return;
+    if (normGov) {
+      form.setValue("governorate", normGov as any, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+      form.setValue("detectedGovernorate", normGov, { shouldValidate: true, shouldDirty: true });
+    } else {
+      form.setValue("detectedGovernorate", null, { shouldValidate: true, shouldDirty: true });
+    }
+
+    if (normCity) {
+      form.setValue("city", normCity as any, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+    }
+
+    if (normAddress) {
+      form.setValue("address", normAddress, { shouldValidate: true, shouldDirty: true });
+    }
+
+    // Small delay so governorate is committed before city Select renders options
+    setTimeout(() => {
+      if (normCity) {
+        form.setValue("city", normCity as any, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
       }
+      form.trigger(["governorate", "city", "address"]);
+    }, 50);
 
-      // Load Leaflet CSS dynamically
-      const link = document.createElement("link");
-      link.rel = "stylesheet";
-      link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
-      document.head.appendChild(link);
-
-      // Load Leaflet JS dynamically
-      const script = document.createElement("script");
-      script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
-      script.async = true;
-      script.onload = () => {
-        initLeafletMap();
-      };
-      document.head.appendChild(script);
+    const currentDraft = loadAdInfoData() || defaultAdInfoData;
+    const nextDraft: AdInformationFormData = {
+      ...currentDraft,
+      governorate: normGov || '',
+      city: normCity || '',
+      address: normAddress || '',
+      latitude: lat,
+      longitude: lng,
+      detectedGovernorate: normGov || null,
     };
-
-    const initLeafletMap = () => {
-      const L = (window as any).L;
-      if (!mapRef.current || !L) return;
-
-      const savedLat = form.getValues('latitude');
-      const savedLng = form.getValues('longitude');
-      const defaultLatLng = savedLat != null && savedLng != null
-        ? [savedLat, savedLng]
-        : [33.5138, 36.2765]; // Damascus
-
-      // Initialize Leaflet map instance
-      mapInstance = L.map(mapRef.current).setView(defaultLatLng, savedLat != null ? 14 : 13);
-
-      // Add high-performance OpenStreetMap tiles
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: '&copy; OpenStreetMap contributors'
-      }).addTo(mapInstance);
-
-      // Create interactive draggable marker pin
-      markerInstance = L.marker(defaultLatLng, { draggable: true }).addTo(mapInstance);
-
-      mapInstanceRef.current = mapInstance;
-      markerInstanceRef.current = markerInstance;
-
-      // Move marker on map click
-      mapInstance.on("click", (e: any) => {
-        const { lat, lng } = e.latlng;
-        markerInstance.setLatLng([lat, lng]);
-        updateAddressFromCoords(lat, lng);
-      });
-
-      // Move marker on dragend
-      markerInstance.on("dragend", () => {
-        const { lat, lng } = markerInstance.getLatLng();
-        updateAddressFromCoords(lat, lng);
-      });
-    };
-
-    const updateAddressFromCoords = (lat: number, lng: number) => {
-      setGpsCoords({ lat, lng });
-      form.setValue("latitude", lat, { shouldValidate: true, shouldDirty: true });
-      form.setValue("longitude", lng, { shouldValidate: true, shouldDirty: true });
-      
-      // Query Nominatim in Arabic to get standard Syrian governorate and city names
-      fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=ar`)
-        .then(res => res.json())
-        .then(data => {
-          if (data) {
-            const displayName = data.display_name || "";
-            const addressObj = data.address || {};
-            
-            // Join everything to get a single, unified text to search for Arabic words
-            const fullText = [
-              displayName,
-              ...Object.values(addressObj).map(v => String(v))
-            ].join(" ");
-            
-            // 1. Match Governorate (المحافظة)
-            let matchedGov: string | null = null;
-            for (const [govKey, govArabic] of Object.entries(SyriaGovernorate_ARABIC_NAMES)) {
-              if (fullText.includes(govArabic)) {
-                matchedGov = govKey;
-                break;
-              }
-            }
-            
-            // 2. Match City (المدينة)
-            let matchedCity: string | null = null;
-            for (const [cityKey, cityArabic] of Object.entries(SyriaCity_ARABIC_NAMES)) {
-              if (fullText.includes(cityArabic)) {
-                matchedCity = cityKey;
-                break;
-              }
-            }
-            
-            // Set values and trigger form validation updates
-            if (matchedGov) {
-              form.setValue("governorate", matchedGov as any, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
-              form.setValue("detectedGovernorate", matchedGov, { shouldValidate: true, shouldDirty: true });
-            } else {
-              form.setValue("detectedGovernorate", null, { shouldValidate: true, shouldDirty: true });
-            }
-            
-            if (matchedCity) {
-              form.setValue("city", matchedCity as any, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
-            }
-
-            // Force form to re-validate fields immediately to clear any error messages
-            form.trigger(["governorate", "city"]);
-
-            // 3. Set Detailed Address
-            if (displayName) {
-              form.setValue("address", displayName, { shouldValidate: true, shouldDirty: true });
-            }
-          } else {
-            form.setValue("detectedGovernorate", null, { shouldValidate: true, shouldDirty: true });
-            form.setValue("address", `${direction === "rtl" ? "موقع محدد" : "Selected location"} (${lat.toFixed(5)}, ${lng.toFixed(5)})`);
-          }
-        })
-        .catch(() => {
-          form.setValue("detectedGovernorate", null, { shouldValidate: true, shouldDirty: true });
-          form.setValue("address", `${direction === "rtl" ? "موقع محدد" : "Selected location"} (${lat.toFixed(5)}, ${lng.toFixed(5)})`);
-        });
-    };
-
-    loadLeaflet();
-
-    return () => {
-      if (mapInstance) {
-        mapInstance.remove();
-      }
-    };
-  }, [direction]);
+    saveAdInfoData(nextDraft);
+    previousFormData.current = nextDraft;
+  };
 
   const t = useTranslations("addProduct.enteredData");
   const { profile } = useProfile();
@@ -394,78 +382,91 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
 
   // Initialize form with temporary default values
   const form = useForm<AdInformationFormData>({
-    resolver: zodResolver(adInformationSchema),
+    resolver: zodResolver(getAdInformationSchema(isRtl)),
     defaultValues: defaultAdInfoData,
     mode: "onChange",
   });
 
   const applyAddressToForm = (address: UserAddress) => {
-    const lat = address.latitude;
-    const lng = address.longitude;
+    const lat = address.latitude != null && !isNaN(Number(address.latitude)) ? Number(address.latitude) : null;
+    const lng = address.longitude != null && !isNaN(Number(address.longitude)) ? Number(address.longitude) : null;
+
+    const normGov = normalizeGovernorate(address.governorate) || matchGovernorate(address.governorate) || address.governorate || '';
+    const normCity = resolveCityValue(address.city, normGov, lat, lng) || address.city || '';
+    const normAddress = normalizeAddress(address.address) || address.address || '';
 
     if (lat != null && lng != null) {
       form.setValue("latitude", lat, { shouldValidate: true, shouldDirty: true });
       form.setValue("longitude", lng, { shouldValidate: true, shouldDirty: true });
-      form.setValue("detectedGovernorate", address.governorate, { shouldValidate: true, shouldDirty: true });
+      form.setValue("detectedGovernorate", normGov || address.governorate || null, { shouldValidate: true, shouldDirty: true });
       setGpsCoords({ lat, lng });
 
       if (mapInstanceRef.current && markerInstanceRef.current) {
         mapInstanceRef.current.setView([lat, lng], 14);
         markerInstanceRef.current.setLatLng([lat, lng]);
       }
+    } else {
+      form.setValue("latitude", undefined as any, { shouldValidate: true, shouldDirty: true });
+      form.setValue("longitude", undefined as any, { shouldValidate: true, shouldDirty: true });
+      form.setValue("detectedGovernorate", null, { shouldValidate: true, shouldDirty: true });
     }
 
-    if (address.governorate != null) {
-      form.setValue("governorate", address.governorate as any, { shouldValidate: true, shouldDirty: true });
+    if (normGov) {
+      form.setValue("governorate", normGov as any, { shouldValidate: true, shouldDirty: true });
     }
-    if (address.city != null) {
-      form.setValue("city", address.city as any, { shouldValidate: true, shouldDirty: true });
+    if (normCity) {
+      form.setValue("city", normCity as any, { shouldValidate: true, shouldDirty: true });
     }
-    if (address.address != null) {
-      form.setValue("address", address.address, { shouldValidate: true, shouldDirty: true });
-    }
+    form.setValue("address", normAddress || '', { shouldValidate: true, shouldDirty: true });
 
-    form.trigger(["governorate", "city", "address"]);
+    setTimeout(() => {
+      if (normCity) {
+        form.setValue("city", normCity as any, { shouldValidate: true, shouldDirty: true });
+      }
+      form.trigger(["governorate", "city", "address"]);
+    }, 50);
 
     // Persist to draft in localStorage
     const currentDraft = loadAdInfoData() || defaultAdInfoData;
-    saveAdInfoData({
+    const nextDraft: AdInformationFormData = {
       ...currentDraft,
-      governorate: address.governorate || '',
-      city: address.city || '',
-      address: address.address || '',
-      latitude: lat,
-      longitude: lng,
-      detectedGovernorate: address.governorate,
-    });
+      governorate: normGov || '',
+      city: normCity || '',
+      address: normAddress || '',
+      latitude: lat ?? undefined,
+      longitude: lng ?? undefined,
+      detectedGovernorate: normGov || null,
+    };
+    saveAdInfoData(nextDraft);
+    previousFormData.current = nextDraft;
   };
 
-  // Auto-prefill from default saved address (one-shot ABSENT gate)
+  // Auto-prefill from default saved address (one-shot ABSENT gate mirroring mobile useSavedAddressWizardBinding)
   useEffect(() => {
-    if (
-      !isSavedAddressesEnabled ||
-      isEditMode ||
-      autoPrefillDoneRef.current ||
-      isLoadingSavedAddresses ||
-      !savedAddressesResponse?.data
-    ) {
-      return;
-    }
+    if (autoPrefillDoneRef.current) return;
+    if (!isSavedAddressesEnabled || isEditMode) return;
+    if (isLoadingSavedAddresses || !savedAddressesResponse?.data) return;
 
+    autoPrefillDoneRef.current = true;
+
+    // Guard: check if form already has an existing location (persisted draft or user input)
     const currentGov = form.getValues('governorate');
     const currentCity = form.getValues('city');
-    const currentAddr = form.getValues('address');
+    const currentAddress = form.getValues('address');
+    const currentLat = form.getValues('latitude');
+    const hasExistingLocation = Boolean(
+      (currentGov && currentGov.trim() !== '') ||
+      (currentCity && currentCity.trim() !== '') ||
+      (currentAddress && currentAddress.trim() !== '') ||
+      currentLat != null
+    );
 
-    if (currentGov || currentCity || currentAddr) {
-      autoPrefillDoneRef.current = true;
-      return;
-    }
+    if (hasExistingLocation) return;
 
     const defaultAddress = savedAddressesResponse.data.find((a) => a.isDefault);
-    if (defaultAddress) {
-      autoPrefillDoneRef.current = true;
-      applyAddressToForm(defaultAddress);
-    }
+    if (!defaultAddress) return;
+
+    applyAddressToForm(defaultAddress);
   }, [isSavedAddressesEnabled, isEditMode, isLoadingSavedAddresses, savedAddressesResponse]);
 
   // Check whether current location matches an already saved address
@@ -485,6 +486,12 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
     if (matchingSavedAddress && form.getValues('saveAsSavedAddress')) {
       form.setValue('saveAsSavedAddress', false);
       form.setValue('savedAddressLabel', '');
+      const cur = loadAdInfoData();
+      saveAdInfoData({
+        ...cur,
+        saveAsSavedAddress: false,
+        savedAddressLabel: '',
+      });
     }
   }, [matchingSavedAddress]);
   // Helper function to map API enums to form enums
@@ -590,6 +597,12 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
       ? mapApiEnumToFormEnum(editData.currency, Currency)
       : editData.currency || Currency.USD;
 
+    const lat = editData.latitude != null && !isNaN(Number(editData.latitude)) ? Number(editData.latitude) : undefined;
+    const lng = editData.longitude != null && !isNaN(Number(editData.longitude)) ? Number(editData.longitude) : undefined;
+    const normGov = normalizeGovernorate(editData.governorate) || matchGovernorate(editData.governorate) || '';
+    const normCity = resolveCityValue(editData.city, normGov, lat, lng);
+    const normAddress = normalizeAddress(editData.address);
+
     setListingTypeValue(mappedListingType);
     setSaveStatusValue(mappedSaveStatus);
     setCurrencyValue(mappedCurrency);
@@ -599,6 +612,12 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
     setCountryDialCodeValue(extractedCountryCode);
     countryDialCodeRef.current = extractedCountryCode;
 
+    if (lat !== undefined && lng !== undefined) {
+      setGpsCoords({ lat, lng });
+      setMapInitLat(lat);
+      setMapInitLng(lng);
+    }
+
     const processedData: AdInformationFormData = {
       ...editData,
       countryDialCode: extractedCountryCode,
@@ -607,6 +626,12 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
       saveStatus: mappedSaveStatus,
       rentType: mappedRentType,
       currency: mappedCurrency,
+      governorate: normGov || editData.governorate || '',
+      city: normCity || editData.city || '',
+      address: normAddress || editData.address || '',
+      latitude: lat,
+      longitude: lng,
+      detectedGovernorate: normGov || (editData as any).detectedGovernorate || null,
       installmentsAvailable: Boolean(editData.installmentsAvailable),
       installmentPlans: editData.installmentPlans || []
     };
@@ -617,6 +642,23 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
 
     form.reset(processedData);
     previousFormData.current = { ...processedData };
+
+    // Delay setValue calls so Select components have time to re-render their options
+    // after form.reset() before we try to set the selected value.
+    setTimeout(() => {
+      if (processedData.governorate) {
+        form.setValue("governorate", processedData.governorate, { shouldValidate: true, shouldDirty: false });
+        form.setValue("detectedGovernorate", processedData.governorate, { shouldValidate: false });
+      }
+      if (processedData.city) {
+        form.setValue("city", processedData.city, { shouldValidate: true, shouldDirty: false });
+      }
+      if (processedData.address) {
+        form.setValue("address", processedData.address, { shouldValidate: true, shouldDirty: false });
+      }
+      form.clearErrors(["governorate", "city", "address"]);
+    }, 100);
+    saveAdInfoData(processedData as any);
 
     const isValid = checkFormValidity(processedData);
     prevValidState.current = isValid;
@@ -638,42 +680,156 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
     const savedData = loadAdInfoData();
     const isActuallySaved = !!localStorage.getItem(getAdInfoStorageKey());
 
-    // 2. Fallback to initialData if localStorage is empty and we are in edit mode
-    if (!isActuallySaved && isEditMode && initialData && !editModeDataApplied.current) {
-      // Find listing object (handle both direct listing or data[0] wrapper)
-      const listing = initialData.data?.[0] || (initialData.id ? initialData : null);
-      
-      if (listing) {
-        const formData: AdInformationFormData = {
-          title: listing.title || '',
-          description: listing.description || '',
-          price: listing.price?.toString() || '',
-          countryDialCode: '+963',
-          contactNumber: listing.contactNumber || '',
-          listingType: listing.listingOfferType || listing.listingType || ListingType.FOR_SALE,
-          rentType: listing.rentType || null,
-          installmentsAvailable: Boolean(listing.installmentsAvailable),
-          installmentPlans: Array.isArray(listing.installmentPlans)
-            ? listing.installmentPlans.map((p: any) => ({
-                months: Number(p.months),
-                downPayment: p.downPayment !== null && p.downPayment !== undefined ? p.downPayment.toString() : '',
-                monthlyAmount: p.monthlyAmount !== null && p.monthlyAmount !== undefined ? p.monthlyAmount.toString() : '',
-                noteTranslations: p.noteTranslations || (p.note ? { en: p.note, ar: p.note } : undefined),
-              }))
-            : [],
-          saveStatus: listing.saveStatus || SaveStatus.PUBLISHED,
-          publicationDate: listing.publishedAt ? new Date(listing.publishedAt) : new Date(),
-          currency: listing.currency || Currency.USD,
-          governorate: listing.governorate || '',
-          city: listing.city || '',
-          address: listing.address || ''
-        };
-        applyEditData(formData);
-        return;
-      }
+    // Extract listing object from initialData if available
+    const listing = initialData
+      ? (initialData.data?.[0] ||
+         (initialData.data as any)?.listing ||
+         (initialData.data as any)?.rawListing ||
+         (initialData.data as any)?.carListing ||
+         initialData.data ||
+         (initialData.id ? initialData : null))
+      : null;
+
+    // Also get stepTwoData from localStorage if available
+    let stepTwoData: any = null;
+    try {
+      const stepTwoKey = getStorageKey('STEP_TWO', isEditMode);
+      const raw = localStorage.getItem(stepTwoKey);
+      if (raw) stepTwoData = JSON.parse(raw);
+    } catch (e) {}
+
+    // Robust extraction of location fields across all possible sources
+    // Use || (not ??) so empty strings fall through to the next candidate
+    const rawGov =
+      (savedData?.governorate && savedData.governorate !== '' ? savedData.governorate : null) ||
+      stepTwoData?.governorate ||
+      listing?.governorate ||
+      listing?.locationGovernorate ||
+      listing?.location?.governorate ||
+      listing?.details?.governorate ||
+      listing?.addressInfo?.governorate ||
+      listing?.address?.governorate ||
+      (listing as any)?.rawListing?.governorate ||
+      (listing as any)?.carListing?.governorate ||
+      (listing?.translations as any)?.ar?.governorate ||
+      (listing?.translations as any)?.en?.governorate ||
+      stepTwoData?.__attributeValuesMap?.governorate ||
+      stepTwoData?.__attributeValuesMap?.['محافظة'] ||
+      null;
+
+    const rawCity =
+      (savedData?.city && savedData.city !== '' ? savedData.city : null) ||
+      stepTwoData?.city ||
+      listing?.city ||
+      listing?.locationCity ||
+      listing?.location?.city ||
+      listing?.details?.city ||
+      listing?.addressInfo?.city ||
+      listing?.address?.city ||
+      (listing as any)?.rawListing?.city ||
+      (listing as any)?.carListing?.city ||
+      (listing?.translations as any)?.ar?.city ||
+      (listing?.translations as any)?.en?.city ||
+      stepTwoData?.__attributeValuesMap?.city ||
+      stepTwoData?.__attributeValuesMap?.['مدينة'] ||
+      null;
+
+    const rawAddress =
+      savedData?.address ||
+      stepTwoData?.address ||
+      listing?.address ||
+      listing?.detailedAddress ||
+      listing?.location?.address ||
+      listing?.location?.detailedAddress ||
+      listing?.details?.address ||
+      listing?.addressInfo?.address ||
+      (listing as any)?.rawListing?.address ||
+      (listing as any)?.carListing?.address ||
+      (listing?.translations as any)?.ar?.address ||
+      (listing?.translations as any)?.en?.address;
+
+    const rawLat =
+      savedData?.latitude ??
+      stepTwoData?.latitude ??
+      listing?.latitude ??
+      listing?.lat ??
+      listing?.location?.latitude ??
+      listing?.location?.lat ??
+      listing?.details?.latitude;
+
+    const rawLng =
+      savedData?.longitude ??
+      stepTwoData?.longitude ??
+      listing?.longitude ??
+      listing?.lng ??
+      listing?.lon ??
+      listing?.location?.longitude ??
+      listing?.location?.lng ??
+      listing?.details?.longitude;
+
+
+    const numLat = rawLat != null && !isNaN(Number(rawLat)) ? Number(rawLat) : undefined;
+    const numLng = rawLng != null && !isNaN(Number(rawLng)) ? Number(rawLng) : undefined;
+
+    const normGov = normalizeGovernorate(rawGov) || matchGovernorate(rawGov) || '';
+    const normCity = resolveCityValue(rawCity, normGov, numLat, numLng);
+    const normAddress = normalizeAddress(rawAddress);
+
+
+    // Helper: is this a real SyriaCity enum value?
+    const isValidCity = (v: any) => !!v && (Object.values(SyriaCity) as string[]).includes(v);
+
+    // 2. Fallback to initialData if localStorage is empty or missing valid location fields in edit mode
+    // NOTE: we check governorate/city validity, but NOT address — address can legitimately be null
+    if (isEditMode && listing && (!isActuallySaved || !savedData?.governorate || !isValidCity(savedData?.city)) && !editModeDataApplied.current) {
+      const itemTitle =
+        savedData?.title ||
+        listing.title ||
+        (listing.translations as any)?.ar?.title ||
+        (listing.translations as any)?.en?.title ||
+        (listing.translations as any)?.[0]?.title ||
+        '';
+
+      const itemDescription =
+        savedData?.description ||
+        listing.description ||
+        (listing.translations as any)?.ar?.description ||
+        (listing.translations as any)?.en?.description ||
+        (listing.translations as any)?.[0]?.description ||
+        '';
+
+      const formData: AdInformationFormData = {
+        title: itemTitle,
+        description: itemDescription,
+        price: savedData?.price || (listing.price !== null && listing.price !== undefined ? listing.price.toString() : ''),
+        countryDialCode: savedData?.countryDialCode || '+963',
+        contactNumber: savedData?.contactNumber || listing.contactNumber || '',
+        listingType: savedData?.listingType || listing.listingOfferType || listing.listingType || ListingType.FOR_SALE,
+        rentType: savedData?.rentType || listing.rentType || null,
+        installmentsAvailable: savedData?.installmentsAvailable !== undefined ? Boolean(savedData.installmentsAvailable) : Boolean(listing.installmentsAvailable),
+        installmentPlans: savedData?.installmentPlans || (Array.isArray(listing.installmentPlans)
+          ? listing.installmentPlans.map((p: any) => ({
+              months: Number(p.months),
+              downPayment: p.downPayment !== null && p.downPayment !== undefined ? p.downPayment.toString() : '',
+              monthlyAmount: p.monthlyAmount !== null && p.monthlyAmount !== undefined ? p.monthlyAmount.toString() : '',
+              noteTranslations: p.noteTranslations || (p.note ? { en: p.note, ar: p.note } : undefined),
+            }))
+          : []),
+        saveStatus: savedData?.saveStatus || listing.saveStatus || SaveStatus.PUBLISHED,
+        publicationDate: savedData?.publicationDate || (listing.publishedAt ? new Date(listing.publishedAt) : new Date()),
+        currency: savedData?.currency || listing.currency || Currency.USD,
+        governorate: normGov || savedData?.governorate || '',
+        city: normCity || savedData?.city || '',
+        address: normAddress || savedData?.address || '',
+        latitude: numLat ?? (savedData?.latitude != null ? Number(savedData.latitude) : undefined),
+        longitude: numLng ?? (savedData?.longitude != null ? Number(savedData.longitude) : undefined),
+        detectedGovernorate: normGov || null,
+      };
+      applyEditData(formData);
+      return;
     }
 
-    // 3. Apply savedData if available
+    // 3. Apply savedData if available — but only if it has valid gov/city
     if (isActuallySaved && !editModeDataApplied.current) {
       let phoneOnly = savedData.contactNumber || "";
       let extractedCountryCode = savedData.countryDialCode || "+963";
@@ -683,7 +839,10 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
         extractedCountryCode = dialCode;
         phoneOnly = localNumber;
       }
-      
+
+      const lat = savedData.latitude != null && !isNaN(Number(savedData.latitude)) ? Number(savedData.latitude) : numLat;
+      const lng = savedData.longitude != null && !isNaN(Number(savedData.longitude)) ? Number(savedData.longitude) : numLng;
+
       setListingTypeValue(savedData.listingType || ListingType.FOR_SALE);
       if (savedData.listingType === ListingType.FOR_RENT) {
         setShowRentType(true);
@@ -694,22 +853,58 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
       setCountryDialCodeValue(extractedCountryCode);
       countryDialCodeRef.current = extractedCountryCode;
 
-      form.reset({
+      if (lat !== undefined && lng !== undefined) {
+        setGpsCoords({ lat, lng });
+        setMapInitLat(lat);
+        setMapInitLng(lng);
+      }
+
+      // Prefer normGov/normCity from listing data if savedData has empty strings
+      const resolvedGov = normGov || savedData.governorate || '';
+      const resolvedCity = (isValidCity(savedData.city) ? savedData.city : normCity) || resolveCityValue(savedData.city || rawCity, resolvedGov, lat, lng);
+      const resolvedAddress = normAddress || savedData.address || '';
+
+      const mergedData = {
         ...savedData,
         countryDialCode: extractedCountryCode,
         contactNumber: phoneOnly,
+        governorate: resolvedGov,
+        city: resolvedCity,
+        address: resolvedAddress,
+        latitude: lat,
+        longitude: lng,
+        detectedGovernorate: resolvedGov || (savedData as any).detectedGovernorate || null,
         installmentsAvailable: Boolean(savedData.installmentsAvailable),
         installmentPlans: savedData.installmentPlans || []
-      });
-      previousFormData.current = savedData;
+      };
 
-      const isValid = checkFormValidity(savedData);
+      form.reset(mergedData);
+      previousFormData.current = mergedData;
+
+      // Explicit setValue calls with small delay to ensure Select components re-render
+      setTimeout(() => {
+        if (mergedData.governorate) {
+          form.setValue("governorate", mergedData.governorate, { shouldValidate: true, shouldDirty: false });
+          form.setValue("detectedGovernorate", mergedData.governorate, { shouldValidate: false });
+        }
+        if (mergedData.city) {
+          form.setValue("city", mergedData.city, { shouldValidate: true, shouldDirty: false });
+        }
+        if (mergedData.address) {
+          form.setValue("address", mergedData.address, { shouldValidate: true, shouldDirty: false });
+        }
+        form.clearErrors(["governorate", "city", "address"]);
+      }, 100);
+
+      saveAdInfoData(mergedData as any);
+
+      const isValid = checkFormValidity(mergedData);
       prevValidState.current = isValid;
 
       if (onValidationChange) {
         onValidationChange(isValid);
       }
-      
+
       editModeDataApplied.current = true;
     }
   }, [isEditMode, initialData]);
@@ -974,7 +1169,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                 </div>
               </div>
 
-              {/* 2. Contact & Pricing Section */}
+              {/* 2. Listing Type, Pricing & Contact Section */}
               <div className="p-5 sm:p-6 rounded-2xl border border-slate-100 dark:border-zinc-800 bg-slate-50/30 dark:bg-zinc-900/30 hover:bg-slate-50/50 dark:hover:bg-zinc-900/50 transition-all duration-300 space-y-6">
                 <div className="flex items-center gap-2.5 pb-2 border-b border-slate-100 dark:border-zinc-800">
                   <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-600">
@@ -982,17 +1177,91 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                   </div>
                   <div>
                     <h3 className="text-lg font-bold text-slate-800 dark:text-white">
-                      {direction === "rtl" ? "الاتصال والتسعير" : "Contact & Pricing"}
+                      {direction === "rtl" ? "نوع الإعلان والتسعير والاتصال" : "Listing Type, Pricing & Contact"}
                     </h3>
                     <p className="text-xs text-slate-400 dark:text-zinc-400">
-                      {direction === "rtl" ? "حدد السعر المناسب وتفاصيل الاتصال" : "Set your price, currency, and primary contact number"}
+                      {direction === "rtl" ? "حدد نوع العرض والسعر والعملة وتفاصيل الاتصال" : "Specify listing type, price, currency, and contact details"}
                     </p>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {/* Listing Type (For Sale / For Rent / etc.) */}
+                  <EnumSelect
+                    name="listingType"
+                    control={form.control}
+                    label={t("stepFour.adType")}
+                    options={listingTypeOptions}
+                    placeholder={t("stepFour.adType")}
+                    required={true}
+                    onChange={handleListingTypeChange}
+                    value={listingTypeValue}
+                    isRtl={direction === "rtl"}
+                  />
+
+                  {/* Rent Type (conditionally rendered when FOR_RENT) */}
+                  {showRentType && (
+                    <EnumSelect
+                      name="rentType"
+                      control={form.control}
+                      label={t("stepFour.rentType")}
+                      options={rentTypeOptions}
+                      placeholder={t("stepFour.rentType")}
+                      required={true}
+                      onChange={handleRentTypeChange}
+                      value={rentTypeValue?.toString() || ""}
+                      isRtl={direction === "rtl"}
+                    />
+                  )}
+
+                  {/* Price field */}
+                  <FormField
+                    control={form.control}
+                    name="price"
+                    render={({ field }) => (
+                      <FormItem className="text-primary">
+                        <FormLabel className="text-slate-700 dark:text-white font-semibold flex items-center gap-1 text-sm">
+                          {form.watch("listingType") === ListingType.FOR_RENT
+                            ? (direction === "rtl" ? "سعر الإيجار" : "Rental Price")
+                            : t("stepFour.price", { defaultValue: "Price" })}
+                          <span className="text-rose-500">*</span>
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            type="text"
+                            placeholder={
+                              form.watch("listingType") === ListingType.FOR_RENT
+                                ? (direction === "rtl" ? "أدخل سعر الإيجار" : "Enter rental price")
+                                : t("stepFour.price", { defaultValue: "Enter price" })
+                            }
+                            className="h-11 rounded-xl border-slate-200 dark:border-zinc-800 focus-visible:ring-primary focus-visible:border-primary bg-white dark:bg-zinc-950 dark:text-white shadow-sm transition-all"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage className="text-xs text-rose-500 font-medium" />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Currency field */}
+                  <EnumSelect
+                    name="currency"
+                    control={form.control}
+                    label={t("stepFour.currencyLabel")}
+                    options={currencyOptions}
+                    placeholder={t("stepFour.currencyLabel")}
+                    required={true}
+                    onChange={handleCurrencyChange}
+                    value={currencyValue}
+                    isRtl={direction === "rtl"}
+                    className="rounded-xl"
+                  />
+
                   {/* PhoneField for contact number */}
-                  <div className="sm:col-span-2 lg:col-span-1">
+                  <div className={cn(
+                    "sm:col-span-2",
+                    showRentType ? "lg:col-span-2" : "lg:col-span-2"
+                  )}>
                     <FormField
                       control={form.control}
                       name="contactNumber"
@@ -1028,43 +1297,6 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                       )}
                     />
                   </div>
-
-                  {/* Price field */}
-                  <FormField
-                    control={form.control}
-                    name="price"
-                    render={({ field }) => (
-                      <FormItem className="text-primary">
-                        <FormLabel className="text-slate-700 dark:text-white font-semibold flex items-center gap-1 text-sm">
-                          {t("stepFour.price", { defaultValue: "Price" })}
-                          <span className="text-rose-500">*</span>
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            type="text"
-                            placeholder={t("stepFour.price", { defaultValue: "Enter price" })}
-                            className="h-11 rounded-xl border-slate-200 dark:border-zinc-800 focus-visible:ring-primary focus-visible:border-primary bg-white dark:bg-zinc-950 dark:text-white shadow-sm transition-all"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage className="text-xs text-rose-500 font-medium" />
-                      </FormItem>
-                    )}
-                  />
-
-                  {/* Currency field */}
-                  <EnumSelect
-                    name="currency"
-                    control={form.control}
-                    label={t("stepFour.currencyLabel")}
-                    options={currencyOptions}
-                    placeholder={t("stepFour.currencyLabel")}
-                    required={true}
-                    onChange={handleCurrencyChange}
-                    value={currencyValue}
-                    isRtl={direction === "rtl"}
-                    className="rounded-xl"
-                  />
                 </div>
 
                 {/* Installments Section */}
@@ -1119,7 +1351,8 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                     }));
 
                     const detectedGov = form.watch("detectedGovernorate");
-                    const isGovLocked = Boolean(detectedGov);
+                    const currentGov = form.watch("governorate");
+                    const isGovLocked = Boolean(detectedGov && currentGov);
 
                     return (
                       <EnumSelect
@@ -1157,15 +1390,19 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                           ) : null
                         }
                         onChange={(val) => {
-                          form.setValue("city", "");
+                          if (form.getValues("governorate") !== val) {
+                            form.setValue("city", "");
+                          }
                         }}
+                        value={form.watch("governorate")}
                         isRtl={direction === "rtl"}
                       />
                     );
                   })()}
 
                   {(() => {
-                    const selectedGov = form.watch("governorate") as SyriaGovernorate;
+                    const rawGov = form.watch("governorate");
+                    const selectedGov = (normalizeGovernorate(rawGov) || rawGov) as SyriaGovernorate;
                     const cityList = selectedGov && SyriaGovernorate_TO_CITIES[selectedGov]
                       ? SyriaGovernorate_TO_CITIES[selectedGov]
                       : [];
@@ -1182,6 +1419,8 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                         options={cityOptions}
                         placeholder={direction === "rtl" ? "اختر المدينة" : "Select City"}
                         required={true}
+                        disabled={!selectedGov}
+                        value={form.watch("city")}
                         isRtl={direction === "rtl"}
                       />
                     );
@@ -1243,11 +1482,14 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                           </div>
                         )}
 
-                        {/* Real Google Map Canvas container */}
-                        <div 
-                          ref={mapRef}
-                          style={{ zIndex: 1 }}
-                          className="relative h-64 w-full rounded-xl border border-slate-200 dark:border-zinc-800 overflow-hidden shadow-md bg-slate-100 dark:bg-zinc-900 transition-all hover:border-emerald-500/50 !z-[1]"
+                        {/* Google Maps Picker — same two-step UX as the mobile app */}
+                        <GoogleMapPicker
+                          apiKey={googleMapsApiKey}
+                          initialLat={mapInitLat}
+                          initialLng={mapInitLng}
+                          onConfirm={handleLocationConfirm}
+                          locale={locale === 'ar' ? 'ar' : 'en'}
+                          height="420px"
                         />
                       </div>
 
@@ -1264,9 +1506,27 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                         id="saveAsSavedAddress"
                         checked={form.watch('saveAsSavedAddress')}
                         onCheckedChange={(checked) => {
-                          form.setValue('saveAsSavedAddress', Boolean(checked), {
+                          const isChecked = Boolean(checked);
+                          form.setValue('saveAsSavedAddress', isChecked, {
                             shouldValidate: true,
                             shouldDirty: true,
+                          });
+                          let currentLabel = form.getValues('savedAddressLabel');
+                          if (isChecked && (!currentLabel || !currentLabel.trim())) {
+                            currentLabel =
+                              form.getValues('address')?.trim() ||
+                              [form.getValues('governorate'), form.getValues('city')].filter(Boolean).join(' - ') ||
+                              (direction === 'rtl' ? 'عنوان محفوظ' : 'Saved Address');
+                            form.setValue('savedAddressLabel', currentLabel, {
+                              shouldValidate: true,
+                              shouldDirty: true,
+                            });
+                          }
+                          const cur = loadAdInfoData();
+                          saveAdInfoData({
+                            ...cur,
+                            saveAsSavedAddress: isChecked,
+                            savedAddressLabel: isChecked ? (currentLabel || '') : '',
                           });
                         }}
                       />
@@ -1294,6 +1554,14 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                                 className="h-10 rounded-xl bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 text-sm"
                                 {...field}
                                 value={field.value || ''}
+                                onChange={(e) => {
+                                  field.onChange(e);
+                                  const cur = loadAdInfoData();
+                                  saveAdInfoData({
+                                    ...cur,
+                                    savedAddressLabel: e.target.value,
+                                  });
+                                }}
                               />
                             </FormControl>
                             <FormMessage />
@@ -1306,48 +1574,23 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
               </div>
 
               {/* 4. Listing Configuration Section */}
+              {/* 4. Publication & Status Settings Section */}
               <div className="p-5 sm:p-6 rounded-2xl border border-slate-100 dark:border-zinc-800 bg-slate-50/30 dark:bg-zinc-900/30 hover:bg-slate-50/50 dark:hover:bg-zinc-900/50 transition-all duration-300 space-y-6">
                 <div className="flex items-center gap-2.5 pb-2 border-b border-slate-100 dark:border-zinc-800">
-                  <div className="p-2 rounded-lg bg-amber-500/10 text-amber-600">
-                    <Sliders className="w-5 h-5" />
+                  <div className="p-2 rounded-lg bg-indigo-500/10 text-indigo-600">
+                    <CalendarIcon className="w-5 h-5" />
                   </div>
                   <div>
                     <h3 className="text-lg font-bold text-slate-800 dark:text-white">
-                      {direction === "rtl" ? "تكوين الإعلان" : "Listing Configuration"}
+                      {direction === "rtl" ? "إعدادات وحالة النشر" : "Publication & Status Settings"}
                     </h3>
                     <p className="text-xs text-slate-400 dark:text-zinc-400">
-                      {direction === "rtl" ? "اختر نوع النشر وحالة الحفظ" : "Choose your listing type and save status"}
+                      {direction === "rtl" ? "حدد حالة الحفظ وتاريخ ووقت النشر" : "Choose save status and publication schedule"}
                     </p>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                  <EnumSelect
-                    name="listingType"
-                    control={form.control}
-                    label={t("stepFour.adType")}
-                    options={listingTypeOptions}
-                    placeholder={t("stepFour.adType")}
-                    required={true}
-                    onChange={handleListingTypeChange}
-                    value={listingTypeValue}
-                    isRtl={direction === "rtl"}
-                  />
-
-                  {showRentType && (
-                    <EnumSelect
-                      name="rentType"
-                      control={form.control}
-                      label={t("stepFour.rentType")}
-                      options={rentTypeOptions}
-                      placeholder={t("stepFour.rentType")}
-                      required={true}
-                      onChange={handleRentTypeChange}
-                      value={rentTypeValue?.toString() || ""}
-                      isRtl={direction === "rtl"}
-                    />
-                  )}
-
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <EnumSelect
                     name="saveStatus"
                     control={form.control}
@@ -1359,26 +1602,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                     value={saveStatusValue}
                     isRtl={direction === "rtl"}
                   />
-                </div>
-              </div>
 
-              {/* 5. Publication Settings Section */}
-              <div className="p-5 sm:p-6 rounded-2xl border border-slate-100 dark:border-zinc-800 bg-slate-50/30 dark:bg-zinc-900/30 hover:bg-slate-50/50 dark:hover:bg-zinc-900/50 transition-all duration-300 space-y-6">
-                <div className="flex items-center gap-2.5 pb-2 border-b border-slate-100 dark:border-zinc-800">
-                  <div className="p-2 rounded-lg bg-indigo-500/10 text-indigo-600">
-                    <CalendarIcon className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-slate-800 dark:text-white">
-                      {direction === "rtl" ? "جدولة النشر" : "Publication Settings"}
-                    </h3>
-                    <p className="text-xs text-slate-400 dark:text-zinc-400">
-                      {direction === "rtl" ? "حدد تاريخ ووقت النشر التلقائي" : "Schedule when your listing goes live"}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <FormField
                     control={form.control}
                     name="publicationDate"

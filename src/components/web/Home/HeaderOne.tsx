@@ -52,16 +52,16 @@ const HeaderOne = () => {
   // Show loading state during hydration or session loading
   if (!isClient || isLoading) {
     return (
-      <Box className="flex justify-between items-center py-3  w-full px-4 border-b border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+      <Box className="flex justify-between items-center py-2 w-full px-4 container border-b border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-950">
         {/* Logo Skeleton */}
-        <div className="flex items-center">
-          <div className="h-9 sm:h-10 md:h-11 w-32 sm:w-40 bg-gray-200 dark:bg-zinc-800 rounded animate-pulse"></div>
+        <div className="flex items-center flex-shrink-0">
+          <div className="h-9 sm:h-10 md:h-11 w-32 sm:w-44 bg-gray-200 dark:bg-zinc-800 rounded animate-pulse"></div>
         </div>
 
         {/* Right side skeleton */}
-        <div className="flex items-center gap-2  justify-start w-full container">
+        <div className="flex items-center gap-2 justify-start w-full">
           {/* Desktop skeleton */}
-          <div className="hidden md:flex items-center gap-3 justify-end  w-full">
+          <div className="hidden md:flex items-center gap-3 justify-end w-full">
             <div className="h-9 w-32 bg-gray-200 dark:bg-zinc-800 rounded-full animate-pulse"></div>
             <div className="h-9 w-24 bg-gray-200 dark:bg-zinc-800 rounded-full animate-pulse"></div>
             <div className="h-9 w-9 bg-gray-200 dark:bg-zinc-800 rounded-full animate-pulse"></div>
@@ -69,7 +69,7 @@ const HeaderOne = () => {
           </div>
 
           {/* Mobile skeleton */}
-          <div className="flex md:hidden items-center gap-2 justify-start container  w-full">
+          <div className="flex md:hidden items-center gap-2 justify-end w-full">
             <div className="h-9 w-9 bg-gray-200 dark:bg-zinc-800 rounded-full animate-pulse"></div>
             <div className="h-9 w-9 bg-gray-200 dark:bg-zinc-800 rounded-full animate-pulse"></div>
             <div className="h-9 w-16 bg-gray-200 dark:bg-zinc-800 rounded-full animate-pulse"></div>
@@ -82,9 +82,12 @@ const HeaderOne = () => {
 
   return (
     <>
-      <Box className="flex justify-between items-center py-1 w-full px-4 container border-b border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+      <Box className="flex justify-between items-center py-2 w-full px-4 container border-b border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-950">
         {/* Logo */}
-        <Logo className="" />
+        <Logo
+          className="flex-shrink-0"
+          imageClassName="h-9 sm:h-10 md:h-11 w-auto max-w-[170px] sm:max-w-[200px] md:max-w-[240px]"
+        />
 
         {/* Desktop Actions - Hidden on mobile */}
         <div className="hidden md:flex items-center gap-3">

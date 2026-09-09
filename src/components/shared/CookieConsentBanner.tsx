@@ -67,15 +67,7 @@ export default function CookieConsentBanner() {
           </div>
 
           <div className="flex flex-wrap items-center gap-2 w-full md:w-auto justify-end flex-shrink-0">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={openPreferences}
-              className="text-xs rounded-xl flex-1 sm:flex-initial"
-            >
-              {t('customize')}
-            </Button>
+           
             <Button
               type="button"
               variant="ghost"

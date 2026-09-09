@@ -100,10 +100,28 @@ export default async function PrivacyPolicyLegacyRedirectPage({
         {aboutHtml ? (
           <div className="bg-white dark:bg-zinc-900/80 backdrop-blur-md rounded-3xl shadow-xl p-6 sm:p-10 md:p-14 border border-gray-100 dark:border-zinc-800">
             <div
-              className="rich-text-content ql-editor text-gray-800 dark:text-zinc-200 leading-relaxed space-y-6"
-              style={{ overflowY: 'visible', padding: 0 }}
+              className={`rich-text-content ql-editor text-gray-800 dark:text-zinc-200 leading-relaxed space-y-6 ${
+                isRTL ? 'ql-direction-rtl text-right' : 'text-left'
+              }`}
+              dir={isRTL ? 'rtl' : 'ltr'}
+              style={{
+                overflowY: 'visible',
+                padding: 0,
+                direction: isRTL ? 'rtl' : 'ltr',
+                textAlign: isRTL ? 'right' : 'left',
+              }}
               dangerouslySetInnerHTML={{ __html: aboutHtml }}
             />
+            <style>{`
+              [dir="rtl"] .rich-text-content,
+              [dir="rtl"] .rich-text-content * {
+                direction: rtl !important;
+                text-align: right !important;
+              }
+              [dir="rtl"] .rich-text-content .ql-align-center {
+                text-align: center !important;
+              }
+            `}</style>
           </div>
         ) : (
           <div className="bg-gray-50 dark:bg-zinc-900/50 border border-gray-200 dark:border-zinc-800 rounded-3xl p-10 md:p-16 text-center space-y-4 shadow-sm">

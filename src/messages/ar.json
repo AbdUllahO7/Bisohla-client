@@ -70,6 +70,8 @@
       "createSaleAd": "أنشىء إعلان بيع",
       "createAccount": "أنشىء حساب",
       "privacyPolicy": "سياسة الخصوصية",
+      "termsOfService": "شروط الخدمة",
+      "cookiePolicy": "سياسة ملفات تعريف الارتباط",
       "adCreationPolicy": "سياسة انشاء الاعلان",
       "dataProtectionPolicy": "سياسية حماية البيانات",
       "homePage": "الصفحة الرئيسية",
@@ -1901,6 +1903,9 @@
       "overview_section": "نظرة عامة",
       "highlights_section": "أبرز الإحصائيات",
       "recent_activity_section": "النشاط الأخير",
+      "trends_section": "الاتجاهات والتحليلات",
+      "failed_to_load": "فشل تحميل الإحصائيات",
+      "try_again": "إعادة المحاولة",
       "hero_title": "إجمالي المشاهدات",
       "hero_delta_label": "مقارنة بالفترة السابقة",
       "total_listings": "إجمالي الإعلانات",
@@ -1941,7 +1946,8 @@
         "contacts": "اتجاه الاتصالات",
         "shares": "اتجاه المشاركات",
         "details_viewed": "اتجاه مشاهدات التفاصيل",
-        "duration": "اتجاه وقت المشاهدة"
+        "duration": "اتجاه وقت المشاهدة",
+        "detailsViewed": "اتجاه مشاهدات التفاصيل"
       },
       "granularity": {
         "daily": "يومي",
@@ -2321,6 +2327,30 @@
       "title": "البائعون",
       "no_type_listings": "لا توجد لدى هذا البائع إعلانات في هذا القسم حالياً"
     }
+  },
+  "imageUploader": {
+    "uploadNew": "رفع جديد",
+    "previousUploads": "الملفات السابقة",
+    "dragDropFiles": "اسحب وأفلت الملفات هنا، أو",
+    "selectFiles": "اختر الملفات",
+    "maxFilesHint": "الحد الأقصى {count} ملفات، حتى {size} ميغابايت لكل ملف",
+    "uploadingCount": "جارٍ رفع {count} من الملفات",
+    "completedCount": "تم اكتمال {count}",
+    "failedCount": "فشل {count}",
+    "uploadQueue": "قائمة الرفع",
+    "yourPreviousUploads": "ملفاتك المرفوعة سابقاً",
+    "useSelected": "استخدام المحدد ({count})",
+    "noPreviousUploads": "لم يتم العثور على ملفات سابقة",
+    "selectedImages": "الصور المحددة",
+    "mainCover": "صورة الغلاف",
+    "imagePreview": "معاينة الصورة",
+    "previewAlt": "معاينة {number}",
+    "fullPreviewAlt": "معاينة كاملة {number}",
+    "invalidFileType": "نوع الملف غير صالح. الأنواع المقبولة: {types}",
+    "maxSizeExceeded": "يجب أن يكون حجم الملف أقل من {size} ميغابايت",
+    "maxImagesAllowed": "الحد الأقصى المسموح به هو {count} صور",
+    "uploadFailed": "فشل الرفع",
+    "bytes": "بايت"
   }
 }
 

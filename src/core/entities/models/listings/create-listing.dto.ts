@@ -30,6 +30,8 @@ export interface CreateListingDto {
   governorate?: string | null;
   city?: string | null;
   address?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
   contactNumber?: string | null;
   publicationStatus?: string;     // "draft" | "published"
   publishedAt?: string | null;
@@ -49,6 +51,8 @@ export interface UpdateListingDto {
   governorate?: string | null;
   city?: string | null;
   address?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
   contactNumber?: string | null;
   publicationStatus?: string;
   publishedAt?: string | null;
