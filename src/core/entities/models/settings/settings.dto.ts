@@ -157,6 +157,16 @@ export interface ThirdPartyIntegrations {
     api_key?: string;
     apiKey?: string;
   };
+  google_geocoding?: {
+    enabled?: boolean;
+    api_key?: string;
+    apiKey?: string;
+  };
+  geocoding?: {
+    enabled?: boolean;
+    api_key?: string;
+    apiKey?: string;
+  };
   cloudflare_turnstile?: {
     enabled?: boolean;
     site_key?: string;
@@ -192,6 +202,9 @@ export interface ListingsSettings {
   };
   location?: {
     geocoding_provider?: string;
+    geocoding_api_key?: string;
+    api_key?: string;
+    apiKey?: string;
     require_coordinates?: boolean;
     saved_addresses_enabled?: boolean;
     max_saved_addresses_per_user?: number;
