@@ -222,8 +222,8 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
   const [mapInitLng, setMapInitLng] = useState<number | null>(null);
 
   const tListing = useTranslations("listing");
-  const { getListingsSettings, getGoogleMapsApiKey } = useSettings();
-  const googleMapsApiKey = getGoogleMapsApiKey();
+  const { getListingsSettings, getGoogleMapsApiKey, getGoogleGeocodingApiKey } = useSettings();
+  const googleMapsApiKey = getGoogleGeocodingApiKey() || getGoogleMapsApiKey();
   const isSavedAddressesEnabled =
     getListingsSettings()?.location?.saved_addresses_enabled ?? true;
 

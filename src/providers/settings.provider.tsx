@@ -56,6 +56,7 @@ interface SettingsContextType {
   isMapEnabled: () => boolean;
   getMapSettings: () => MapSettings | undefined;
   getGoogleMapsApiKey: () => string | undefined;
+  getGoogleGeocodingApiKey: () => string | undefined;
 }
 
 const SettingsContext = createContext<SettingsContextType | undefined>(
@@ -68,6 +69,7 @@ interface SettingsProviderProps {
 
 export function SettingsProvider({ children }: SettingsProviderProps) {
   const { data: settingsResponse, isLoading, error } = usePublicSettings();
+    console.log('settingsResponse',settingsResponse)
 
   const locale = useLocale();
 
@@ -303,7 +305,8 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
       }
     }
 
-    return false;
+    // Default to true (matches mobile v2: settings?.listings_settings?.map?.enabled ?? true)
+    return true;
   };
 
   const getMapSettings = (): MapSettings | undefined => {
@@ -327,39 +330,91 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
     return undefined;
   };
 
-  const getGoogleMapsApiKey = (): string | undefined => {
-    const key =
-      settings.third_party_integrations?.google_maps?.api_key ||
-      settings.third_party_integrations?.google_maps?.apiKey ||
-      settings.listings_settings?.map?.api_key;
-    if (key && typeof key === 'string' && key.trim() !== '') {
-      return key.trim();
+  const resolveApiKey = (preferredKeyType: 'geocoding' | 'maps' = 'maps'): string | undefined => {
+    // 1. Check environment variables
+    const envGeocodingKey = process.env.NEXT_PUBLIC_GOOGLE_GEOCODING_API_KEY;
+    const envMapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+    const envMapKey = process.env.NEXT_PUBLIC_MAP_API_KEY;
+    
+    if (preferredKeyType === 'geocoding' && envGeocodingKey && envGeocodingKey.trim() !== '') {
+      return envGeocodingKey.trim();
+    }
+    if (envMapsKey && envMapsKey.trim() !== '') {
+      return envMapsKey.trim();
+    }
+    if (envGeocodingKey && envGeocodingKey.trim() !== '') {
+      return envGeocodingKey.trim();
+    }
+    if (envMapKey && envMapKey.trim() !== '') {
+      return envMapKey.trim();
     }
 
+    // 2. Check localized settings object
+    const tp = settings.third_party_integrations;
+    const ls = settings.listings_settings;
+    const keyCandidates = [
+      tp?.google_geocoding?.api_key,
+      tp?.google_geocoding?.apiKey,
+      tp?.geocoding?.api_key,
+      tp?.geocoding?.apiKey,
+      tp?.google_maps?.api_key,
+      tp?.google_maps?.apiKey,
+      ls?.location?.geocoding_api_key,
+      ls?.location?.api_key,
+      ls?.location?.apiKey,
+      ls?.map?.api_key,
+    ];
+
+    for (const cand of keyCandidates) {
+      if (cand && typeof cand === 'string' && cand.trim() !== '') {
+        return cand.trim();
+      }
+    }
+
+    // 3. Check raw response across locales (locale, ar, en) or root object
     const rawData = settingsResponse?.data as Record<string, unknown> | undefined;
     if (rawData) {
-      const rawLocale = rawData[locale] as Record<string, unknown> | undefined;
-      const rawAr = rawData['ar'] as Record<string, unknown> | undefined;
-      const rawEn = rawData['en'] as Record<string, unknown> | undefined;
-      const rawThirdParty = rawData['third_party_integrations'] as Record<string, unknown> | undefined;
+      const candidates = [
+        rawData[locale],
+        rawData['ar'],
+        rawData['en'],
+        rawData,
+      ] as (Record<string, unknown> | undefined)[];
 
-      const rawKey =
-        ((rawLocale?.third_party_integrations as Record<string, unknown> | undefined)?.google_maps as Record<string, unknown> | undefined)?.api_key ||
-        ((rawLocale?.third_party_integrations as Record<string, unknown> | undefined)?.google_maps as Record<string, unknown> | undefined)?.apiKey ||
-        ((rawAr?.third_party_integrations as Record<string, unknown> | undefined)?.google_maps as Record<string, unknown> | undefined)?.api_key ||
-        ((rawAr?.third_party_integrations as Record<string, unknown> | undefined)?.google_maps as Record<string, unknown> | undefined)?.apiKey ||
-        ((rawEn?.third_party_integrations as Record<string, unknown> | undefined)?.google_maps as Record<string, unknown> | undefined)?.api_key ||
-        ((rawEn?.third_party_integrations as Record<string, unknown> | undefined)?.google_maps as Record<string, unknown> | undefined)?.apiKey ||
-        (rawThirdParty?.google_maps as Record<string, unknown> | undefined)?.api_key ||
-        (rawThirdParty?.google_maps as Record<string, unknown> | undefined)?.apiKey;
+      for (const root of candidates) {
+        if (!root || typeof root !== 'object') continue;
+        const rawTp = (root.third_party_integrations || root) as Record<string, unknown> | undefined;
+        const rawLs = (root.listings_settings || root) as Record<string, unknown> | undefined;
+        const rawGeneral = (root.general || root) as Record<string, unknown> | undefined;
 
-      if (typeof rawKey === 'string' && rawKey.trim() !== '') {
-        return rawKey.trim();
+        const rawCandidates = [
+          (rawTp?.google_geocoding as Record<string, unknown> | undefined)?.api_key,
+          (rawTp?.google_geocoding as Record<string, unknown> | undefined)?.apiKey,
+          (rawTp?.geocoding as Record<string, unknown> | undefined)?.api_key,
+          (rawTp?.geocoding as Record<string, unknown> | undefined)?.apiKey,
+          (rawTp?.google_maps as Record<string, unknown> | undefined)?.api_key,
+          (rawTp?.google_maps as Record<string, unknown> | undefined)?.apiKey,
+          (rawLs?.location as Record<string, unknown> | undefined)?.geocoding_api_key,
+          (rawLs?.location as Record<string, unknown> | undefined)?.api_key,
+          (rawLs?.location as Record<string, unknown> | undefined)?.apiKey,
+          (rawLs?.map as Record<string, unknown> | undefined)?.api_key,
+          rawGeneral?.google_maps_api_key,
+          rawGeneral?.google_geocoding_api_key,
+        ];
+
+        for (const rawVal of rawCandidates) {
+          if (typeof rawVal === 'string' && rawVal.trim() !== '') {
+            return rawVal.trim();
+          }
+        }
       }
     }
 
     return undefined;
   };
+
+  const getGoogleMapsApiKey = (): string | undefined => resolveApiKey('maps');
+  const getGoogleGeocodingApiKey = (): string | undefined => resolveApiKey('geocoding');
 
   const contextValue: SettingsContextType = {
     settings,
@@ -381,6 +436,7 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
     isMapEnabled,
     getMapSettings,
     getGoogleMapsApiKey,
+    getGoogleGeocodingApiKey,
   };
 
   return (

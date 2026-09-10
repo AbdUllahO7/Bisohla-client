@@ -82,8 +82,8 @@ export const SavedAddressForm: React.FC<SavedAddressFormProps> = ({ addressId })
   const direction = useDirection();
   const t = useTranslations();
   const { toast } = useToast();
-  const { getGoogleMapsApiKey } = useSettings();
-  const googleMapsApiKey = getGoogleMapsApiKey();
+  const { getGoogleMapsApiKey, getGoogleGeocodingApiKey } = useSettings();
+  const googleMapsApiKey = getGoogleGeocodingApiKey() || getGoogleMapsApiKey();
 
   const isEdit = Boolean(addressId);
 
