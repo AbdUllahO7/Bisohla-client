@@ -14,6 +14,7 @@ import {
   BarChart3,
   MapPin,
   Loader2,
+  X,
 } from 'lucide-react';
 import { useSettings } from '@/providers/settings.provider';
 import {
@@ -28,6 +29,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
 import { Link } from '@/i18n/routing';
 import { usePathname } from 'next/navigation';
 import { useSession } from '@/hooks/auth/use-session';
@@ -43,9 +45,10 @@ export function DashboardSidebar() {
   const session = useSession();
   const direction = useDirection();
   const { profile } = useProfileContext();
-  const { state } = useSidebar();
+  const { state, isMobile, setOpenMobile } = useSidebar();
 
-  const isCollapsed = state === 'collapsed';
+  // On mobile, the sidebar is NEVER in collapsed icon mode — it is always a full drawer
+  const isCollapsed = !isMobile && state === 'collapsed';
 
   // Initialize client-side state
   useEffect(() => {
@@ -186,17 +189,42 @@ export function DashboardSidebar() {
       collapsible="icon"
     >
       {/* Header */}
-      <SidebarHeader className="border-b border-sidebar-border p-2">
-        <div className="flex items-center gap-2">
-          {!isCollapsed ? (
-            <>
-              <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary-light flex-shrink-0">
+      <SidebarHeader className="border-b border-sidebar-border p-3">
+        <div className="flex items-center justify-between gap-2 w-full">
+          <div className="flex items-center gap-2.5 overflow-hidden">
+            {!isCollapsed ? (
+              <>
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-light flex-shrink-0 shadow-xs">
+                  <Image
+                    src="/assets/images/logo/bisholaLogo2.jpg"
+                    alt="Logo"
+                    width={24}
+                    height={24}
+                    className="h-5 w-auto rounded"
+                    priority
+                    onError={(e) => {
+                      console.error('Failed to load logo image');
+                      e.currentTarget.style.display = 'none';
+                    }}
+                  />
+                </div>
+                <div className="flex flex-col overflow-hidden">
+                  <span className="text-base font-bold text-sidebar-foreground truncate">
+                    {direction === 'ltr' ? 'Bishola' : 'بسهولة'}
+                  </span>
+                  <span className="text-[11px] text-sidebar-foreground/70 truncate">
+                    {direction === 'ltr' ? 'Dashboard' : 'لوحة التحكم'}
+                  </span>
+                </div>
+              </>
+            ) : (
+              <div className="relative mx-auto">
                 <Image
                   src="/assets/images/logo/bisholaLogo2.jpg"
                   alt="Logo"
-                  width={24}
-                  height={24}
-                  className="h-5 w-auto sm:h-6"
+                  width={36}
+                  height={36}
+                  className="rounded-md transition-transform duration-300 hover:scale-105"
                   priority
                   onError={(e) => {
                     console.error('Failed to load logo image');
@@ -204,33 +232,20 @@ export function DashboardSidebar() {
                   }}
                 />
               </div>
-              <div className="flex flex-col overflow-hidden">
-                <span className="text-lg font-bold text-sidebar-foreground truncate">
-                  {direction === 'ltr' ? 'Bishola' : 'بسهولة'}
-                </span>
-                <span className="text-xs text-sidebar-foreground/70 truncate">
-                  {direction === 'ltr' ? 'Dashboard' : 'لوحة التحكم'}
-                </span>
-              </div>
-            </>
-          ) : (
-            // Option 3: Full width button-like design
-            <div className="relative">
-              <Image
-                src="/assets/images/logo/bisholaLogo2.jpg"
-                alt="Logo"
-                width={48}
-                height={48}
-                className=" rounded-md transition-transform duration-300 group-hover:scale-110"
-                priority
-                onError={(e) => {
-                  console.error('Failed to load logo image');
-                  e.currentTarget.style.display = 'none';
-                }}
-              />
-              {/* Optional: Add a subtle glow effect */}
-              <div className="absolute inset-0 rounded-xl bg-primary-foreground/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            </div>
+            )}
+          </div>
+
+          {/* Close button for mobile drawer */}
+          {isMobile && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 rounded-lg text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground flex-shrink-0"
+              onClick={() => setOpenMobile(false)}
+              aria-label="Close sidebar"
+            >
+              <X className="h-4 w-4" />
+            </Button>
           )}
         </div>
       </SidebarHeader>
@@ -245,18 +260,24 @@ export function DashboardSidebar() {
               </h2>
             </div>
           )}
-          <SidebarMenu className=''>
+          <SidebarMenu className="">
             {navItems.map(({ href, icon: Icon, label }) => (
               <SidebarMenuItem key={href}>
                 <SidebarMenuButton
                   asChild
-                  className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 ${isActiveRoute(href)
-                    ? 'bg-primary-light text-black shadow-sm '
-                    : 'text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
-                    }`}
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
+                    isActiveRoute(href)
+                      ? 'bg-primary-light text-black shadow-sm font-semibold'
+                      : 'text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                  }`}
                   tooltip={isCollapsed ? label : undefined}
                 >
-                  <Link href={href}>
+                  <Link
+                    href={href}
+                    onClick={() => {
+                      if (isMobile) setOpenMobile(false);
+                    }}
+                  >
                     <Icon className="h-4 w-4 flex-shrink-0" />
                     {!isCollapsed && (
                       <span className="font-medium truncate">{label}</span>
@@ -269,7 +290,7 @@ export function DashboardSidebar() {
         </div>
 
         {/* Secondary Navigation */}
-        <div className="space-y-2 mt-8">
+        <div className="space-y-2 mt-6">
           {!isCollapsed && (
             <div className="px-3 py-2">
               <h2 className="text-xs font-semibold text-sidebar-foreground/40 uppercase tracking-wider">
@@ -282,10 +303,15 @@ export function DashboardSidebar() {
               <SidebarMenuItem key={href}>
                 <SidebarMenuButton
                   asChild
-                  className="flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                   tooltip={isCollapsed ? label : undefined}
                 >
-                  <Link href={href}>
+                  <Link
+                    href={href}
+                    onClick={() => {
+                      if (isMobile) setOpenMobile(false);
+                    }}
+                  >
                     <Icon className="h-4 w-4 flex-shrink-0" />
                     {!isCollapsed && (
                       <span className="font-medium truncate">{label}</span>
@@ -300,7 +326,7 @@ export function DashboardSidebar() {
               <SidebarMenuButton
                 onClick={handleLogout}
                 disabled={isLoggingOut}
-                className="flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 text-destructive hover:bg-destructive/10 hover:text-destructive cursor-pointer disabled:opacity-60"
+                className="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-destructive hover:bg-destructive/10 hover:text-destructive cursor-pointer disabled:opacity-60"
                 tooltip={isCollapsed ? (direction === 'ltr' ? 'Sign Out' : 'تسجيل الخروج') : undefined}
               >
                 {isLoggingOut ? (
@@ -320,47 +346,46 @@ export function DashboardSidebar() {
       </SidebarContent>
 
       {/* Footer */}
-      <SidebarFooter className="border-t border-sidebar-border p-4 bg-transparent">
+      <SidebarFooter className="border-t border-sidebar-border p-3 bg-sidebar mt-auto">
         {isClient && (
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 w-full">
             {!isCollapsed ? (
               <>
-                <Avatar className="h-10 w-10 border-2 border-primary-foreground/20 flex-shrink-0">
+                <Avatar className="h-9 w-9 border-2 border-primary-foreground/20 flex-shrink-0">
                   {profile?.profileUrl ? (
                     <AvatarImage src={profile.profileUrl} alt="Profile" />
                   ) : (
                     <AvatarImage
-                      src="/placeholder.svg?height=40&width=40"
+                      src="/placeholder.svg?height=36&width=36"
                       alt="Profile"
                     />
                   )}
-                  <AvatarFallback className="bg-primary-light text-white text-sm font-medium">
-                    {getInitials(profile?.name || session.user.name || '')}
+                  <AvatarFallback className="bg-primary-light text-white text-xs font-semibold">
+                    {getInitials(profile?.name || session.user?.name || '')}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-sidebar-foreground truncate">
-                    {profile?.name || session.user.name || 'User'}
+                  <p className="text-sm font-semibold text-sidebar-foreground truncate">
+                    {profile?.name || session.user?.name || 'User'}
                   </p>
-                  <p className="text-xs text-sidebar-foreground/70 truncate">
+                  <p className="text-xs text-sidebar-foreground/60 truncate">
                     {profile?.email || ''}
                   </p>
                 </div>
               </>
             ) : (
-              // Fixed: Centered avatar with proper container
               <div className="w-full flex justify-center">
-                <Avatar className="h-10 w-10 border-2 border-primary-foreground/20 hover:border-primary-foreground/40 transition-all duration-300 hover:scale-105">
+                <Avatar className="h-8 w-8 border-2 border-primary-foreground/20 hover:border-primary-foreground/40 transition-all duration-300 hover:scale-105">
                   {profile?.profileUrl ? (
                     <AvatarImage src={profile.profileUrl} alt="Profile" />
                   ) : (
                     <AvatarImage
-                      src="/placeholder.svg?height=40&width=40"
+                      src="/placeholder.svg?height=32&width=32"
                       alt="Profile"
                     />
                   )}
-                  <AvatarFallback className="bg-primary-light text-white text-sm font-medium">
-                    {getInitials(profile?.name || session.user.name || '')}
+                  <AvatarFallback className="bg-primary-light text-white text-xs font-semibold">
+                    {getInitials(profile?.name || session.user?.name || '')}
                   </AvatarFallback>
                 </Avatar>
               </div>
