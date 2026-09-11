@@ -12,13 +12,13 @@ import { useLocaleQuery } from '../common/use-locale-query';
 const SETTINGS_CACHE_TIME = 60 * 60 * 1000;
 
 /**
- * Main hook to get all public settings with smart caching
+ * Main hook to get all public settings with smart caching and SSR hydration support
  */
-export const usePublicSettings = () => {
+export const usePublicSettings = (initialData?: ApiResponse<any>) => {
   const locale = useLocale();
 
   return useLocaleQuery<ApiResponse<Settings>, Error>({
-    queryKey: ['settings', 'public', locale],
+    queryKey: ['settings', 'public'],
     queryFn: async () => {
       const res = await getPublicSettings();
       if (!res.success) {
@@ -26,6 +26,7 @@ export const usePublicSettings = () => {
       }
       return res;
     },
+    initialData: initialData?.success ? (initialData as ApiResponse<Settings>) : undefined,
     staleTime: SETTINGS_CACHE_TIME,
     gcTime: SETTINGS_CACHE_TIME * 2,
     refetchOnWindowFocus: false,
@@ -62,4 +63,3 @@ export const useSetting = (path: string, defaultValue: unknown = null): unknown 
 
   return value !== undefined ? value : defaultValue;
 };
-

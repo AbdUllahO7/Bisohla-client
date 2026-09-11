@@ -87,10 +87,13 @@ export const logoutAction = async (): Promise<void> => {
   const authController = getInjection('IAuthController');
 
   try {
-    // Call your logout API if you have one
-    await authController.signOut?.();
+    // Call logout API with a 2s timeout so slow network/backend never blocks logout
+    await Promise.race([
+      authController.signOut?.(),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Logout API timeout')), 2000)),
+    ]);
   } catch (error) {
-    console.error('Logout API error:', error);
+    console.error('Logout API error / timeout:', error);
   }
 
   // Delete the session cookie unconditionally

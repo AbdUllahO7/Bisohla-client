@@ -9,11 +9,16 @@ import { SettingsProvider } from './settings.provider';
 import { ProfileProvider } from './profile.provider';
 import { LegalGateProvider } from './legal-gate.provider';
 import { CookieConsentProvider } from './cookie-consent.provider';
+import { ApiResponse } from '@/core/entities/api/success.response';
 
-const GlobalProvider = ({ children }: PropsWithChildren) => {
+interface GlobalProviderProps extends PropsWithChildren {
+  initialSettings?: ApiResponse<any>;
+}
+
+const GlobalProvider = ({ children, initialSettings }: GlobalProviderProps) => {
   return (
     <QueryProvider>
-      <SettingsProvider>
+      <SettingsProvider initialSettings={initialSettings}>
         <ProfileProvider>
           <LegalGateProvider>
             <CookieConsentProvider>

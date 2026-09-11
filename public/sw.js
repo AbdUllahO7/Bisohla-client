@@ -1,6 +1,5 @@
-const CACHE_NAME = 'bishola-pwa-cache-v1';
+const CACHE_NAME = 'bishola-pwa-cache-v2';
 const STATIC_ASSETS = [
-  '/',
   '/favicon.ico',
   '/assets/icons/apple-icon.png',
   '/assets/icons/001-car.png',
@@ -35,8 +34,19 @@ self.addEventListener('fetch', (event) => {
   const req = event.request;
   const url = new URL(req.url);
 
-  // Bypass API requests and non-GET requests to prevent caching issues
-  if (req.method !== 'GET' || url.pathname.startsWith('/api') || url.pathname.includes('/listing-favorites')) {
+  // 1. Never intercept navigation requests - let Next.js middleware and locale redirects execute naturally
+  if (req.mode === 'navigate') {
+    return;
+  }
+
+  // 2. Bypass API requests, non-GET requests, and auth/action endpoints
+  if (
+    req.method !== 'GET' ||
+    url.pathname.startsWith('/api') ||
+    url.pathname.includes('/listing-favorites') ||
+    url.hostname === 'localhost' ||
+    url.hostname === '127.0.0.1'
+  ) {
     return;
   }
 
@@ -44,9 +54,9 @@ self.addEventListener('fetch', (event) => {
     caches.match(req).then((cachedResponse) => {
       if (cachedResponse) {
         // Fetch static assets in background to keep them updated
-        if (url.pathname.startsWith('/_next') || url.pathname.startsWith('/assets')) {
+        if (url.pathname.startsWith('/_next/static') || url.pathname.startsWith('/assets')) {
           fetch(req).then((networkResponse) => {
-            if (networkResponse.status === 200) {
+            if (networkResponse && networkResponse.status === 200 && !networkResponse.redirected) {
               caches.open(CACHE_NAME).then((cache) => cache.put(req, networkResponse));
             }
           }).catch(() => { /* ignore offline errors */ });
@@ -56,16 +66,18 @@ self.addEventListener('fetch', (event) => {
 
       return fetch(req)
         .then((networkResponse) => {
-          // Cache successful responses of next.js assets and normal images
+          // Only cache successful, non-redirected static assets
           if (
+            networkResponse &&
             networkResponse.status === 200 &&
-            (url.pathname.startsWith('/_next') ||
+            !networkResponse.redirected &&
+            (url.pathname.startsWith('/_next/static') ||
              url.pathname.startsWith('/assets') ||
-             url.pathname.endsWith('.js') ||
-             url.pathname.endsWith('.css') ||
              url.pathname.endsWith('.png') ||
              url.pathname.endsWith('.jpg') ||
-             url.pathname.endsWith('.jpeg'))
+             url.pathname.endsWith('.jpeg') ||
+             url.pathname.endsWith('.svg') ||
+             url.pathname.endsWith('.webp'))
           ) {
             const responseToCache = networkResponse.clone();
             caches.open(CACHE_NAME).then((cache) => {
@@ -75,10 +87,6 @@ self.addEventListener('fetch', (event) => {
           return networkResponse;
         })
         .catch(() => {
-          // Offline fallback
-          if (req.mode === 'navigate') {
-            return caches.match('/');
-          }
           return new Response('Offline', { status: 503, statusText: 'Offline' });
         });
     })

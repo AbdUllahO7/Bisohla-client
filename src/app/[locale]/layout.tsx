@@ -13,6 +13,7 @@ import SmartAppBanner from '@/components/shared/SmartAppBanner';
 import CookieConsentBanner from '@/components/shared/CookieConsentBanner';
 import AppDownloadModalProvider from '@/providers/AppDownloadModalProvider';
 import { Toaster } from '@/components/ui/toaster';
+import { getPublicSettings } from '@/core/infrastructure-adapters/actions/settings/settings.actions';
 
 const cairo = Cairo({
   subsets: ['latin'],
@@ -32,7 +33,10 @@ export default async function RootLayout({
   }
 
   initConfigs();
-  const messages = await getMessages();
+  const [messages, settingsRes] = await Promise.all([
+    getMessages(),
+    getPublicSettings(),
+  ]);
 
   return (
     <html
@@ -64,13 +68,21 @@ export default async function RootLayout({
           dangerouslySetInnerHTML={{
             __html: `
               if ('serviceWorker' in navigator) {
-                window.addEventListener('load', function() {
-                  navigator.serviceWorker.register('/sw.js').then(function(reg) {
-                    console.log('Service Worker registered with scope: ', reg.scope);
-                  }).catch(function(err) {
-                    console.error('Service Worker registration failed: ', err);
+                if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                  navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                    for (let registration of registrations) {
+                      registration.unregister();
+                    }
                   });
-                });
+                } else {
+                  window.addEventListener('load', function() {
+                    navigator.serviceWorker.register('/sw.js').then(function(reg) {
+                      console.log('Service Worker registered with scope: ', reg.scope);
+                    }).catch(function(err) {
+                      console.error('Service Worker registration failed: ', err);
+                    });
+                  });
+                }
               }
             `,
           }}
@@ -78,7 +90,7 @@ export default async function RootLayout({
       </head>
       <body className={`bg-white dark:bg-background text-primary dark:text-foreground ${cairo.className}`}>
         <NextIntlClientProvider messages={messages}>
-          <GlobalProvider>
+          <GlobalProvider initialSettings={settingsRes}>
             <NextTopLoader color="#2C3C39" height={4} showSpinner={false} />
 
             <AppDeepLink />

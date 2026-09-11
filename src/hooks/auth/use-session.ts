@@ -40,12 +40,19 @@ export const useSession = (): SessionReturnType => {
   });
 
   const invalidateSession = () => {
+    queryClient.setQueryData(['session'], null);
+    queryClient.setQueryData(['check-auth-user'], null);
     queryClient.invalidateQueries({ queryKey: ['session'] });
     queryClient.invalidateQueries({ queryKey: ['check-auth-user'] });
     queryClient.removeQueries({ queryKey: ['session'] });
+    queryClient.removeQueries({ queryKey: ['check-auth-user'] });
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('logout-success'));
+      window.dispatchEvent(new CustomEvent('session-invalidated'));
+    }
   };
 
-  // Listen for storage events (useful when login happens in another tab)
+  // Listen for storage and custom logout events
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'session' || e.key === 'accessToken' || e.key?.includes('auth')) {
@@ -53,8 +60,21 @@ export const useSession = (): SessionReturnType => {
       }
     };
 
+    const handleCustomLogout = () => {
+      queryClient.setQueryData(['session'], null);
+      queryClient.setQueryData(['check-auth-user'], null);
+      queryClient.invalidateQueries({ queryKey: ['session'] });
+      queryClient.invalidateQueries({ queryKey: ['check-auth-user'] });
+    };
+
     window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    window.addEventListener('logout-success', handleCustomLogout);
+    window.addEventListener('session-invalidated', handleCustomLogout);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('logout-success', handleCustomLogout);
+      window.removeEventListener('session-invalidated', handleCustomLogout);
+    };
   }, [queryClient]);
 
   const defaultSession = {

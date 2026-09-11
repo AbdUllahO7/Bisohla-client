@@ -1,41 +1,117 @@
 "use client"
 
-import React, { useState, useMemo, useEffect } from "react"
+import React, { useState, useMemo, useEffect, useRef, useCallback } from "react"
 import Box from "@/components/ui/box"
 import Text from "@/components/ui/text"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Input } from "@/components/ui/input"
-import { Search, X, ChevronRight, Clock, PlusCircle, Check } from "lucide-react"
+import { Search, X, ChevronRight, Clock, PlusCircle, Check, Loader2 } from "lucide-react"
 import Image from "next/image"
+import { useDebounce } from "@/hooks/use-debounce"
 
-// Option interface to use instead of directly using SelectCarMakeDto
-interface Option {
-  value: string
-  label: string
-  logoUrl?: string | null // Handle both undefined and null cases
+export interface Option {
+  value: any
+  label: any
+  logoUrl?: string | null
+  keywords?: string[]
 }
 
-interface SelectableListProps {
+const toStr = (val: any): string => {
+  if (val === null || val === undefined) return ""
+  if (typeof val === "string") return val
+  if (typeof val === "number" || typeof val === "boolean") return String(val)
+  if (typeof val === "object") {
+    if (typeof val.ar === "string") return val.ar
+    if (typeof val.en === "string") return val.en
+    if (val.ar && typeof val.ar === "object") {
+      if (typeof val.ar.name === "string") return val.ar.name
+      if (typeof val.ar.label === "string") return val.ar.label
+      if (typeof val.ar.value === "string") return val.ar.value
+    }
+    if (val.en && typeof val.en === "object") {
+      if (typeof val.en.name === "string") return val.en.name
+      if (typeof val.en.label === "string") return val.en.label
+      if (typeof val.en.value === "string") return val.en.value
+    }
+    if (typeof val.name === "string") return val.name
+    if (typeof val.label === "string") return val.label
+    if (typeof val.value === "string") return val.value
+    if (val.name && typeof val.name === "object") return toStr(val.name)
+    if (val.label && typeof val.label === "object") return toStr(val.label)
+    if (Array.isArray(val) && val.length > 0) return toStr(val[0])
+    return ""
+  }
+  return String(val)
+}
+
+const normalizeArabic = (text: string): string => {
+  return text
+    .replace(/[\u064B-\u065F\u0670]/g, "") // Remove Tashkeel
+    .replace(/[أإآٱ]/g, "ا")
+    .replace(/ة/g, "ه")
+    .replace(/[يىئ]/g, "ي")
+    .replace(/ؤ/g, "و")
+    .toLowerCase()
+    .trim()
+}
+
+const checkMatch = (targetText: any, term: string): boolean => {
+  if (!targetText || !term) return false
+  const str = toStr(targetText).toLowerCase().trim()
+  const rawTerm = term.toLowerCase().trim()
+  if (!rawTerm) return true
+  if (str.includes(rawTerm)) return true
+  const normStr = normalizeArabic(str)
+  const normTerm = normalizeArabic(rawTerm)
+  if (normStr.includes(normTerm)) return true
+  return false
+}
+
+const matchesOption = (opt: Option | null | undefined, term: string): boolean => {
+  if (!opt || !term) return false
+  if (checkMatch(opt.label, term)) return true
+  if (checkMatch(opt.value, term)) return true
+  if (Array.isArray(opt.keywords)) {
+    for (const kw of opt.keywords) {
+      if (checkMatch(kw, term)) return true
+    }
+  }
+  return false
+}
+
+export interface SelectableListProps {
   title: string
   type: string
-  options: Option[]
+  options?: Option[]
   selectedValue: string
-  direction: string // Changed to string to accept any string value
-  onSelect: (type: any, value: string) => void
+  selectedOption?: Option | null
+  direction: string
+  onSelect: (type: any, value: string, option?: Option) => void
   required?: boolean
   pendingProposalName?: string | null
   onClearProposal?: () => void
   onProposeClick?: (currentSearch: string) => void
   proposeCtaLabel?: string
   emptyDescription?: string
+  fetchOptions?: (params: {
+    searchTerm?: string
+    page: number
+    pageSize?: number
+  }) => Promise<{
+    options: Option[]
+    hasMore: boolean
+    total?: number
+  }>
+  dependencyKey?: any
 }
 
 const SelectableList: React.FC<SelectableListProps> = ({
   title,
   type,
-  options,
+  options = [],
   selectedValue,
+  selectedOption: propSelectedOption,
   direction,
   onSelect,
   required = true,
@@ -44,110 +120,406 @@ const SelectableList: React.FC<SelectableListProps> = ({
   onProposeClick,
   proposeCtaLabel,
   emptyDescription,
+  fetchOptions,
+  dependencyKey,
 }) => {
   // State for search input
   const [searchTerm, setSearchTerm] = useState("")
+  const debouncedSearch = useDebounce(searchTerm, 250)
 
   // Ensure direction is always a valid value for components that expect "rtl" | "ltr"
   const safeDirection = direction === "rtl" || direction === "ltr" ? direction : "ltr"
   const isRTL = safeDirection === "rtl"
 
+  const isServerMode = Boolean(fetchOptions)
+
+  // Server-side pagination states
+  const [serverOptions, setServerOptions] = useState<Option[]>([])
+  const [page, setPage] = useState(1)
+  const [hasMore, setHasMore] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
+  const sentinelRef = useRef<HTMLDivElement | null>(null)
+  const activeRequestIdRef = useRef(0)
+
   // Cache the last known selected option so it never disappears while options are loading or updating
-  const [lastKnownSelectedOption, setLastKnownSelectedOption] = useState<Option | null>(null);
+  const [lastKnownSelectedOption, setLastKnownSelectedOption] = useState<Option | null>(
+    propSelectedOption
+      ? {
+          ...propSelectedOption,
+          value: toStr(propSelectedOption.value),
+          label: toStr(propSelectedOption.label),
+        }
+      : null
+  )
+
+  useEffect(() => {
+    if (propSelectedOption && toStr(propSelectedOption.label)) {
+      setLastKnownSelectedOption({
+        ...propSelectedOption,
+        value: toStr(propSelectedOption.value),
+        label: toStr(propSelectedOption.label),
+      })
+    }
+  }, [propSelectedOption])
+
+  // Fetch initial/search page 1 when in server mode
+  useEffect(() => {
+    if (!fetchOptions) return
+
+    const currentReqId = ++activeRequestIdRef.current
+    setIsLoading(true)
+    setPage(1)
+
+    fetchOptions({
+      searchTerm: debouncedSearch.trim() || undefined,
+      page: 1,
+      pageSize: 30,
+    })
+      .then((res) => {
+        if (currentReqId !== activeRequestIdRef.current) return
+        setServerOptions(res?.options || [])
+        setHasMore(Boolean(res?.hasMore))
+        setIsLoading(false)
+      })
+      .catch((err) => {
+        if (currentReqId !== activeRequestIdRef.current) return
+        console.error("Failed to fetch options for", title, err)
+        setServerOptions([])
+        setHasMore(false)
+        setIsLoading(false)
+      })
+  }, [debouncedSearch, dependencyKey, fetchOptions, title])
+
+  // Function to load subsequent pages
+  const loadMore = useCallback(() => {
+    if (!fetchOptions || !hasMore || isLoading || isLoadingMore) return
+
+    const nextPage = page + 1
+    const currentReqId = activeRequestIdRef.current
+    setIsLoadingMore(true)
+
+    fetchOptions({
+      searchTerm: debouncedSearch.trim() || undefined,
+      page: nextPage,
+      pageSize: 30,
+    })
+      .then((res) => {
+        if (currentReqId !== activeRequestIdRef.current) return
+        const newItems = res?.options || []
+        setServerOptions((prev) => {
+          const existingKeys = new Set(prev.map((i) => toStr(i.value)))
+          const uniqueNew = newItems.filter((i) => !existingKeys.has(toStr(i.value)))
+          return [...prev, ...uniqueNew]
+        })
+        setPage(nextPage)
+        setHasMore(Boolean(res?.hasMore))
+        setIsLoadingMore(false)
+      })
+      .catch((err) => {
+        if (currentReqId !== activeRequestIdRef.current) return
+        console.error("Failed to load more options for", title, err)
+        setIsLoadingMore(false)
+      })
+  }, [fetchOptions, hasMore, isLoading, isLoadingMore, page, debouncedSearch, title])
+
+  // Attach IntersectionObserver to the bottom sentinel for infinite scroll
+  useEffect(() => {
+    const sentinel = sentinelRef.current
+    if (!sentinel || !hasMore || isLoading || isLoadingMore || !fetchOptions) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          loadMore()
+        }
+      },
+      { rootMargin: "120px" }
+    )
+
+    observer.observe(sentinel)
+    return () => observer.disconnect()
+  }, [hasMore, isLoading, isLoadingMore, loadMore, fetchOptions])
+
+  // Determine base list of options (server list if server mode, else client options)
+  const baseOptions = useMemo(() => {
+    if (isServerMode) {
+      return serverOptions
+    }
+    return options
+  }, [isServerMode, serverOptions, options])
+
+  const isPureDigits = useCallback((str: string) => /^\d+$/.test(str.trim()), [])
 
   // Selected option if present (matching by value, or by label as fallback)
   const selectedOption = useMemo(() => {
-    if (!selectedValue && selectedValue !== "0") return null;
-    const target = String(selectedValue).trim().toLowerCase();
-    const found = options.find((opt) => {
-      const valStr = String(opt.value).trim().toLowerCase();
-      const labelStr = opt.label.trim().toLowerCase();
-      return valStr === target || labelStr === target;
-    });
+    if (!selectedValue && selectedValue !== "0") return null
+    const target = toStr(selectedValue).trim().toLowerCase()
+    if (!target) return null
 
-    if (found) return found;
-
-    if (lastKnownSelectedOption) {
-      const cachedValStr = String(lastKnownSelectedOption.value).trim().toLowerCase();
-      const cachedLabelStr = lastKnownSelectedOption.label.trim().toLowerCase();
-      if (cachedValStr === target || cachedLabelStr === target) {
-        return lastKnownSelectedOption;
+    // 0. If selectedOption prop is directly provided and has a valid label
+    if (propSelectedOption) {
+      const pVal = toStr(propSelectedOption.value).trim().toLowerCase()
+      const pLabel = toStr(propSelectedOption.label).trim()
+      if ((pVal === target || (pLabel && pLabel.toLowerCase() === target)) && pLabel && !isPureDigits(pLabel)) {
+        return {
+          ...propSelectedOption,
+          value: toStr(propSelectedOption.value),
+          label: pLabel,
+        }
       }
     }
 
-    // If selectedValue is a readable label but not found in options yet (e.g. from listing details)
-    if (isNaN(Number(selectedValue)) && selectedValue.trim()) {
-      return { value: selectedValue, label: selectedValue };
+    // 1. Search in current base options
+    const foundInBase = baseOptions.find((opt) => {
+      const valStr = toStr(opt.value).trim().toLowerCase()
+      const labelStr = toStr(opt.label).trim().toLowerCase()
+      return valStr === target || (labelStr && labelStr === target)
+    })
+    if (foundInBase && toStr(foundInBase.label) && !isPureDigits(toStr(foundInBase.label))) {
+      return {
+        ...foundInBase,
+        value: toStr(foundInBase.value),
+        label: toStr(foundInBase.label),
+      }
     }
 
-    return null;
-  }, [options, selectedValue, lastKnownSelectedOption]);
+    // 2. Search in initial options if different
+    if (options && options.length > 0) {
+      const foundInProps = options.find((opt) => {
+        const valStr = toStr(opt.value).trim().toLowerCase()
+        const labelStr = toStr(opt.label).trim().toLowerCase()
+        return valStr === target || (labelStr && labelStr === target)
+      })
+      if (foundInProps && toStr(foundInProps.label) && !isPureDigits(toStr(foundInProps.label))) {
+        return {
+          ...foundInProps,
+          value: toStr(foundInProps.value),
+          label: toStr(foundInProps.label),
+        }
+      }
+    }
+
+    // 3. Fallback to cached last known option if it has a real name (not just numeric ID)
+    if (lastKnownSelectedOption) {
+      const cachedValStr = toStr(lastKnownSelectedOption.value).trim().toLowerCase()
+      const cachedLabelStr = toStr(lastKnownSelectedOption.label).trim()
+      if (
+        (cachedValStr === target || (cachedLabelStr && cachedLabelStr.toLowerCase() === target)) &&
+        cachedLabelStr &&
+        !isPureDigits(cachedLabelStr)
+      ) {
+        return lastKnownSelectedOption
+      }
+    }
+
+    // 4. If propSelectedOption was provided and has a non-numeric label
+    if (propSelectedOption && toStr(propSelectedOption.label) && !isPureDigits(toStr(propSelectedOption.label))) {
+      return {
+        ...propSelectedOption,
+        value: toStr(propSelectedOption.value),
+        label: toStr(propSelectedOption.label),
+      }
+    }
+
+    // 5. If selectedValue is a textual name (not purely numeric ID)
+    const valStr = toStr(selectedValue).trim()
+    if (valStr) {
+      if (!isPureDigits(valStr)) {
+        return { value: valStr, label: valStr }
+      }
+      if (lastKnownSelectedOption && toStr(lastKnownSelectedOption.value) === valStr && !isPureDigits(toStr(lastKnownSelectedOption.label))) {
+        return lastKnownSelectedOption
+      }
+      return { value: valStr, label: "" }
+    }
+
+    return null
+  }, [baseOptions, options, selectedValue, lastKnownSelectedOption, propSelectedOption, isPureDigits])
 
   useEffect(() => {
-    if (selectedOption && (!lastKnownSelectedOption || String(lastKnownSelectedOption.value) !== String(selectedOption.value))) {
-      setLastKnownSelectedOption(selectedOption);
+    if (
+      selectedOption &&
+      toStr(selectedOption.label).trim() &&
+      !isPureDigits(toStr(selectedOption.label).trim()) &&
+      (!lastKnownSelectedOption ||
+        toStr(lastKnownSelectedOption.value) !== toStr(selectedOption.value) ||
+        toStr(lastKnownSelectedOption.label) !== toStr(selectedOption.label))
+    ) {
+      setLastKnownSelectedOption(selectedOption)
     }
-  }, [selectedOption, lastKnownSelectedOption]);
+  }, [selectedOption, lastKnownSelectedOption, isPureDigits])
 
-  // Filter options based on search term, ensuring selectedOption is ALWAYS on top!
+  // If selectedValue exists and label is still missing or numeric, fetch it directly
+  useEffect(() => {
+    if (!fetchOptions || !selectedValue) return
+    const sVal = toStr(selectedValue).trim()
+    if (!sVal) return
+
+    const hasValidLabel =
+      selectedOption &&
+      toStr(selectedOption.label).trim() &&
+      !isPureDigits(toStr(selectedOption.label).trim())
+
+    if (!hasValidLabel) {
+      fetchOptions({
+        searchTerm: sVal,
+        page: 1,
+        pageSize: 10,
+      })
+        .then((res) => {
+          if (res?.options && res.options.length > 0) {
+            const match =
+              res.options.find(
+                (o) =>
+                  toStr(o.value) === sVal ||
+                  toStr(o.label).toLowerCase() === sVal.toLowerCase()
+              ) || res.options[0]
+            if (
+              match &&
+              toStr(match.label).trim() &&
+              !isPureDigits(toStr(match.label).trim())
+            ) {
+              setLastKnownSelectedOption({
+                ...match,
+                value: toStr(match.value),
+                label: toStr(match.label),
+              })
+            }
+          }
+        })
+        .catch((err) => {
+          console.warn("Failed to fetch label for selected item ID:", sVal, err)
+        })
+    }
+  }, [selectedValue, fetchOptions, selectedOption, isPureDigits])
+
+  // Compute display options
   const { displayOptions, hasSearchMatches } = useMemo(() => {
-    const trimmed = searchTerm.trim().toLowerCase();
+    const sTerm = searchTerm.trim()
 
-    // 1. If NO search term:
-    if (!trimmed) {
+    // A. Server mode: backend has already filtered by searchTerm
+    if (isServerMode) {
+      const hasMatches = baseOptions.length > 0
+
       if (selectedOption) {
-        // ALWAYS put the selected option at the very top!
-        const others = options.filter(
-          (opt) => String(opt.value) !== String(selectedOption.value)
-        );
-        return { displayOptions: [selectedOption, ...others], hasSearchMatches: true };
+        // ALWAYS keep selected option pinned at the top!
+        const selVal = toStr(selectedOption.value)
+        const others = baseOptions.filter(
+          (opt) => toStr(opt.value) !== selVal
+        )
+        
+        // If searching, check if selectedOption matches search term
+        if (sTerm) {
+          const selectedMatches = matchesOption(selectedOption, sTerm)
+          if (selectedMatches) {
+            return {
+              displayOptions: [selectedOption, ...others],
+              hasSearchMatches: true,
+            }
+          }
+          return {
+            displayOptions: others,
+            hasSearchMatches: hasMatches,
+          }
+        }
+
+        return {
+          displayOptions: [selectedOption, ...others],
+          hasSearchMatches: true,
+        }
       }
-      return { displayOptions: options, hasSearchMatches: true };
+
+      return {
+        displayOptions: baseOptions,
+        hasSearchMatches: hasMatches,
+      }
     }
 
-    // 2. If user searched:
-    const matches = options.filter((option) =>
-      option.label.toLowerCase().includes(trimmed)
-    );
-    const hasMatches = matches.length > 0;
+    // B. Client mode: filter in-memory options
+    if (!sTerm) {
+      if (selectedOption) {
+        const selVal = toStr(selectedOption.value)
+        const others = baseOptions.filter(
+          (opt) => toStr(opt.value) !== selVal
+        )
+        return { displayOptions: [selectedOption, ...others], hasSearchMatches: true }
+      }
+      return { displayOptions: baseOptions, hasSearchMatches: true }
+    }
+
+    const matches = baseOptions.filter((option) =>
+      matchesOption(option, sTerm)
+    )
+    const hasMatches = matches.length > 0
 
     if (selectedOption) {
-      // Keep selected option at the very top, even when searching!
-      // Filter out duplicate from matches
+      const selVal = toStr(selectedOption.value)
+      const selectedMatches = matchesOption(selectedOption, sTerm)
       const otherMatches = matches.filter(
-        (opt) => String(opt.value) !== String(selectedOption.value)
-      );
+        (opt) => toStr(opt.value) !== selVal
+      )
+      if (selectedMatches) {
+        return {
+          displayOptions: [selectedOption, ...otherMatches],
+          hasSearchMatches: true,
+        }
+      }
       return {
-        displayOptions: [selectedOption, ...otherMatches],
+        displayOptions: otherMatches,
         hasSearchMatches: hasMatches,
-      };
+      }
     }
 
     return {
       displayOptions: matches,
       hasSearchMatches: hasMatches,
-    };
-  }, [options, searchTerm, selectedOption]);
+    }
+  }, [isServerMode, baseOptions, searchTerm, selectedOption])
 
   // Clear search
   const handleClearSearch = () => {
     setSearchTerm("")
   }
 
-  // Placeholder text based on direction
-  const searchPlaceholder = safeDirection === "ltr" ? `Search ${title.toLowerCase()}...` : `بحث ${title}...`
+  // Handle option click
+  const handleSelectOption = (option: Option) => {
+    const optVal = toStr(option.value)
+    const optLabel = toStr(option.label)
+    console.log(`%c[Bishola] 🟢 Clicked ${title}:`, 'color: #198341; font-weight: bold;', {
+      title,
+      type,
+      value: optVal,
+      label: optLabel,
+      option,
+    })
+    setLastKnownSelectedOption({
+      ...option,
+      value: optVal,
+      label: optLabel,
+    })
+    onSelect(type, optVal, option)
+  }
 
-  // Check if this is a car make type (should show logos)
-  const shouldShowLogo = type === "marka"
-  const hasActiveProposal = !!pendingProposalName && (!selectedValue || selectedValue === "");
+  // Placeholder text based on direction
+  const searchPlaceholder =
+    safeDirection === "ltr" ? `Search ${title.toLowerCase()}...` : `بحث ${title}...`
+
+  // Check if options have logos (dynamic for any reference group / listing type)
+  const shouldShowLogo = useMemo(() => {
+    return displayOptions.some((opt) => Boolean(opt.logoUrl))
+  }, [displayOptions])
+  const hasActiveProposal = !!pendingProposalName && (!selectedValue || selectedValue === "")
 
   return (
     <Box className="min-w-[280px] px-6 py-6" variant="column">
       {/* Enhanced Header */}
       <Box variant="row" className="flex items-center justify-between pb-4 mb-2">
         <div className="flex items-center">
-          <Text className="text-[#1a2b28] dark:text-white font-bold text-2xl tracking-tight">{title}</Text>
-          {required && <Text className="text-red-500 ml-2 text-xl">*</Text>}
+          <Text className="text-[#1a2b28] dark:text-white font-bold text-2xl tracking-tight">
+            {title}
+          </Text>
+          {required && <Text className="text-red-500 ml-2 rtl:ml-0 rtl:mr-2 text-xl">*</Text>}
         </div>
         {hasActiveProposal ? (
           <div className="flex items-center gap-1.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50 px-2.5 py-1 rounded-full">
@@ -157,7 +529,7 @@ const SelectableList: React.FC<SelectableListProps> = ({
             </span>
           </div>
         ) : required && !selectedValue ? (
-          <div className="ml-auto">
+          <div className="ml-auto rtl:ml-0 rtl:mr-auto">
             <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-50 dark:bg-red-950/20 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900/30">
               {safeDirection === "ltr" ? "Required" : "مطلوب"}
             </span>
@@ -192,8 +564,8 @@ const SelectableList: React.FC<SelectableListProps> = ({
       <Box
         variant="column"
         className={`min-w-[280px] max-w-[280px] bg-white dark:bg-zinc-900 border-2 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 ${
-          !selectedValue && !hasActiveProposal && required 
-            ? "border-red-300 dark:border-red-900 shadow-red-100 dark:shadow-none" 
+          !selectedValue && !hasActiveProposal && required
+            ? "border-red-300 dark:border-red-900 shadow-red-100 dark:shadow-none"
             : hasActiveProposal
             ? "border-amber-300 dark:border-amber-700/60"
             : "border-[#198341]/20 dark:border-zinc-800 hover:border-[#198341]/40 dark:hover:border-zinc-700"
@@ -214,18 +586,26 @@ const SelectableList: React.FC<SelectableListProps> = ({
                 ${safeDirection === "rtl" ? "text-right" : "text-left"}`}
               dir={safeDirection}
             />
-            
+
             {/* Search Icon */}
             <div
-              className={`absolute ${safeDirection === "rtl" ? "right-4" : "left-4"} top-1/2 transform -translate-y-1/2`}
+              className={`absolute ${
+                safeDirection === "rtl" ? "right-4" : "left-4"
+              } top-1/2 transform -translate-y-1/2`}
             >
-              <Search size={18} className="text-[#198341]" />
+              {isLoading ? (
+                <Loader2 size={18} className="text-[#198341] animate-spin" />
+              ) : (
+                <Search size={18} className="text-[#198341]" />
+              )}
             </div>
 
             {/* Clear Button */}
             {searchTerm && (
               <div
-                className={`absolute ${safeDirection === "rtl" ? "left-4" : "right-4"} top-1/2 transform -translate-y-1/2`}
+                className={`absolute ${
+                  safeDirection === "rtl" ? "left-4" : "right-4"
+                } top-1/2 transform -translate-y-1/2`}
               >
                 <Button
                   type="button"
@@ -247,53 +627,84 @@ const SelectableList: React.FC<SelectableListProps> = ({
           dir={safeDirection}
         >
           <Box variant="column" className="w-full p-2">
-            {displayOptions && displayOptions.length > 0 ? (
+            {isLoading && displayOptions.length === 0 ? (
+              /* Loading Skeletons on initial load / full search */
+              <div className="space-y-2 p-1">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <div
+                    key={i}
+                    className="w-full h-12 rounded-xl bg-gray-100 dark:bg-zinc-800 animate-pulse flex items-center px-4 gap-3"
+                  >
+                    {shouldShowLogo && (
+                      <div className="w-8 h-8 rounded-lg bg-gray-200 dark:bg-zinc-700 shrink-0" />
+                    )}
+                    <div className="h-4 bg-gray-200 dark:bg-zinc-700 rounded-md flex-1" />
+                  </div>
+                ))}
+              </div>
+            ) : displayOptions && displayOptions.length > 0 ? (
               <>
                 {displayOptions.map((option, index) => {
+                  const optVal = toStr(option.value)
+                  const optLabel = toStr(option.label)
                   const isSelected = selectedOption
-                    ? String(option.value) === String(selectedOption.value)
-                    : (String(selectedValue) === String(option.value) || option.label.trim().toLowerCase() === String(selectedValue).trim().toLowerCase());
+                    ? optVal === toStr(selectedOption.value)
+                    : toStr(selectedValue) === optVal ||
+                      (optLabel && optLabel.trim().toLowerCase() === toStr(selectedValue).trim().toLowerCase())
 
                   return (
-                    <React.Fragment key={option.value}>
+                    <React.Fragment key={`${optVal}_${index}`}>
                       <Button
                         type="button"
-                        onClick={() => onSelect(type, option.value)}
+                        onClick={() => handleSelectOption(option)}
                         className={`w-full py-4 px-4 mb-1 text-[#2C3C39] dark:text-zinc-200 bg-white dark:bg-zinc-900 font-medium text-left
                           hover:bg-gradient-to-r hover:from-[#ABDE3B]/10 hover:to-[#198341]/5 dark:hover:from-[#ABDE3B]/20 dark:hover:to-[#198341]/10
                           hover:text-[#1a2b28] dark:hover:text-white hover:shadow-md hover:scale-[1.02]
                           transition-all duration-300 rounded-xl border border-transparent
                           hover:border-[#198341]/20 dark:hover:border-[#198341]/40 group
-                          ${isSelected
-                            ? "bg-gradient-to-r from-[#198341] to-[#2C3C39] text-white shadow-lg scale-[1.02] border-[#198341]" 
-                            : "hover:border-gray-200 dark:hover:border-zinc-800"
+                          ${
+                            isSelected
+                              ? "bg-gradient-to-r from-[#198341] to-[#2C3C39] text-white shadow-lg scale-[1.02] border-[#198341]"
+                              : "hover:border-gray-200 dark:hover:border-zinc-800"
                           } 
                           ${shouldShowLogo ? "flex items-center justify-between" : ""}`}
                       >
-                        <div className={`flex items-center ${shouldShowLogo ? "flex-1" : "w-full"} ${safeDirection === "ltr" ? "text-left" : "text-right"}`}>
+                        <div
+                          className={`flex items-center ${
+                            shouldShowLogo ? "flex-1" : "w-full"
+                          } ${safeDirection === "ltr" ? "text-left" : "text-right"}`}
+                        >
                           {/* Logo for car makes */}
                           {shouldShowLogo && option.logoUrl && (
                             <div className="flex-shrink-0 mr-3 rtl:mr-0 rtl:ml-3">
-                              <div className={`w-8 h-8 rounded-lg p-1 shadow-sm transition-all duration-300 ${
-                                isSelected ? "bg-white/20" : "bg-gray-100 dark:bg-zinc-800 group-hover:bg-white dark:group-hover:bg-zinc-750 group-hover:shadow-md"
-                              }`}>
+                              <div
+                                className={`w-8 h-8 rounded-lg p-1 shadow-sm transition-all duration-300 ${
+                                  isSelected
+                                    ? "bg-white/20"
+                                    : "bg-gray-100 dark:bg-zinc-800 group-hover:bg-white dark:group-hover:bg-zinc-750 group-hover:shadow-md"
+                                }`}
+                              >
                                 <Image
-                                  alt={`${option.label} logo`}
+                                  alt={`${optLabel} logo`}
                                   src={option.logoUrl}
                                   width={32}
                                   height={32}
                                   className="object-contain w-full h-full"
                                   onError={(e) => {
-                                    const target = e.target as HTMLImageElement;
-                                    target.style.display = 'none';
+                                    const target = e.target as HTMLImageElement
+                                    target.style.display = "none"
                                   }}
                                 />
                               </div>
                             </div>
                           )}
-                          
+
                           <span className="flex-1 truncate">
-                            {option.label}
+                            {optLabel && !isPureDigits(optLabel)
+                              ? optLabel
+                              : (lastKnownSelectedOption && toStr(lastKnownSelectedOption.value) === optVal && toStr(lastKnownSelectedOption.label) && !isPureDigits(toStr(lastKnownSelectedOption.label))
+                                  ? toStr(lastKnownSelectedOption.label)
+                                  : (isLoading || isServerMode ? (isRTL ? "جاري التحميل..." : "Loading...") : optLabel))}
                           </span>
 
                           {/* Selected badge whenever this item is selected */}
@@ -306,14 +717,14 @@ const SelectableList: React.FC<SelectableListProps> = ({
 
                         {/* Arrow or Check indicator */}
                         {isSelected ? (
-                          <Check 
-                            size={16} 
-                            className="ml-2 rtl:ml-0 rtl:mr-2 text-white shrink-0" 
+                          <Check
+                            size={16}
+                            className="ml-2 rtl:ml-0 rtl:mr-2 text-white shrink-0"
                           />
                         ) : (
-                          <ChevronRight 
-                            size={16} 
-                            className="ml-2 rtl:ml-0 rtl:mr-2 text-gray-400 group-hover:text-[#198341] group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-all duration-300 shrink-0" 
+                          <ChevronRight
+                            size={16}
+                            className="ml-2 rtl:ml-0 rtl:mr-2 text-gray-400 group-hover:text-[#198341] group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-all duration-300 shrink-0"
                           />
                         )}
                       </Button>
@@ -323,14 +734,33 @@ const SelectableList: React.FC<SelectableListProps> = ({
                         <div className="flex items-center gap-2 my-2 px-1">
                           <div className="h-px bg-gray-200 dark:bg-zinc-800 flex-1" />
                           <span className="text-[10px] text-gray-400 dark:text-zinc-500 font-medium select-none">
-                            {searchTerm.trim() ? (isRTL ? "نتائج البحث" : "Search results") : (isRTL ? "خيارات أخرى" : "All options")}
+                            {searchTerm.trim()
+                              ? isRTL
+                                ? "نتائج البحث"
+                                : "Search results"
+                              : isRTL
+                              ? "خيارات أخرى"
+                              : "All options"}
                           </span>
                           <div className="h-px bg-gray-200 dark:bg-zinc-800 flex-1" />
                         </div>
                       )}
                     </React.Fragment>
-                  );
+                  )
                 })}
+
+                {/* Loading More Spinner at list bottom */}
+                {isLoadingMore && (
+                  <div className="flex items-center justify-center gap-2 py-3 text-xs text-[#198341] font-semibold">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>{isRTL ? "جاري تحميل المزيد..." : "Loading more..."}</span>
+                  </div>
+                )}
+
+                {/* Bottom Sentinel for Infinite Scroll */}
+                {isServerMode && hasMore && (
+                  <div ref={sentinelRef} className="h-4 w-full" aria-hidden="true" />
+                )}
 
                 {/* When user searched and no other items matched */}
                 {searchTerm.trim() && !hasSearchMatches && (
@@ -355,7 +785,9 @@ const SelectableList: React.FC<SelectableListProps> = ({
                         className="mt-2 rounded-xl text-xs font-bold border-primary/40 text-primary hover:bg-primary/10 gap-1.5 h-8 shadow-none"
                       >
                         <PlusCircle className="w-3.5 h-3.5" />
-                        <span>{proposeCtaLabel || (isRTL ? "اقترح قيمة جديدة" : "Suggest new value")}</span>
+                        <span>
+                          {proposeCtaLabel || (isRTL ? "اقترح قيمة جديدة" : "Suggest new value")}
+                        </span>
                       </Button>
                     )}
                   </div>
@@ -368,8 +800,12 @@ const SelectableList: React.FC<SelectableListProps> = ({
                 </div>
                 <Text className="text-gray-600 dark:text-zinc-300 text-xs font-semibold mb-1">
                   {searchTerm
-                    ? isRTL ? "لا توجد خيارات مطابقة" : "No matching options found"
-                    : isRTL ? "لا توجد خيارات متاحة" : "No options available"}
+                    ? isRTL
+                      ? "لا توجد خيارات مطابقة"
+                      : "No matching options found"
+                    : isRTL
+                    ? "لا توجد خيارات متاحة"
+                    : "No options available"}
                 </Text>
                 {emptyDescription && (
                   <Text className="text-gray-400 dark:text-zinc-500 text-[11px] max-w-[200px] leading-relaxed mb-3">
@@ -385,27 +821,35 @@ const SelectableList: React.FC<SelectableListProps> = ({
                     className="mt-2 rounded-xl text-xs font-bold border-primary/40 text-primary hover:bg-primary/10 gap-1.5 h-8 shadow-none"
                   >
                     <PlusCircle className="w-3.5 h-3.5" />
-                    <span>{proposeCtaLabel || (isRTL ? "اقترح قيمة جديدة" : "Suggest new value")}</span>
+                    <span>
+                      {proposeCtaLabel || (isRTL ? "اقترح قيمة جديدة" : "Suggest new value")}
+                    </span>
                   </Button>
                 )}
               </div>
             )}
 
             {/* List footer propose CTA when options exist and not already showing the no-matches propose block */}
-            {displayOptions && displayOptions.length > 0 && onProposeClick && !(!hasSearchMatches && searchTerm.trim()) && (
-              <div className="pt-2 mt-1 border-t border-slate-100 dark:border-zinc-800">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onProposeClick(searchTerm)}
-                  className="w-full justify-center text-xs font-semibold text-primary hover:bg-primary/10 rounded-xl h-8 gap-1.5"
-                >
-                  <PlusCircle className="w-3.5 h-3.5" />
-                  <span>{proposeCtaLabel || (isRTL ? "لم تجد طلبك؟ اقترحه" : "Can't find it? Suggest it")}</span>
-                </Button>
-              </div>
-            )}
+            {displayOptions &&
+              displayOptions.length > 0 &&
+              onProposeClick &&
+              !(!hasSearchMatches && searchTerm.trim()) && (
+                <div className="pt-2 mt-1 border-t border-slate-100 dark:border-zinc-800">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onProposeClick(searchTerm)}
+                    className="w-full justify-center text-xs font-semibold text-primary hover:bg-primary/10 rounded-xl h-8 gap-1.5"
+                  >
+                    <PlusCircle className="w-3.5 h-3.5" />
+                    <span>
+                      {proposeCtaLabel ||
+                        (isRTL ? "لم تجد طلبك؟ اقترحه" : "Can't find it? Suggest it")}
+                    </span>
+                  </Button>
+                </div>
+              )}
           </Box>
         </ScrollArea>
       </Box>

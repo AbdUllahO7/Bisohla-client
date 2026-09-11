@@ -96,10 +96,15 @@ export function DashboardHeader({
   // Handle logout
   const handleLogout = async () => {
     try {
+      invalidateSession();
       await logoutAction();
-    } catch (error) {
+    } catch (error: any) {
+      if (error?.message?.includes('NEXT_REDIRECT') || error?.digest?.includes('NEXT_REDIRECT')) {
+        return;
+      }
       console.error('Logout error:', error);
-      router.push('/');
+    } finally {
+      window.location.href = `/${direction === 'ltr' ? 'en' : 'ar'}`;
     }
   };
 
