@@ -72,20 +72,23 @@ export function SettingsPage() {
   const handleLogout = async () => {
     setIsLoggingOut(true);
     try {
+      session.invalidateSession();
       await logoutAction();
       toast({
         title: locale === 'ar' ? 'تم تسجيل الخروج' : 'Signed out successfully',
       });
-      router.push('/');
-    } catch {
-      toast({
-        title: locale === 'ar' ? 'خطأ' : 'Error',
-        description: locale === 'ar' ? 'فشل تسجيل الخروج' : 'Failed to sign out',
-        variant: 'destructive',
-      });
+    } catch (error: any) {
+      if (!error?.message?.includes('NEXT_REDIRECT') && !error?.digest?.includes('NEXT_REDIRECT')) {
+        toast({
+          title: locale === 'ar' ? 'خطأ' : 'Error',
+          description: locale === 'ar' ? 'فشل تسجيل الخروج' : 'Failed to sign out',
+          variant: 'destructive',
+        });
+      }
     } finally {
       setIsLoggingOut(false);
       setIsLogoutDialogOpen(false);
+      window.location.href = `/${locale}`;
     }
   };
 

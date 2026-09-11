@@ -13,6 +13,7 @@ import {
   LogOut,
   BarChart3,
   MapPin,
+  Loader2,
 } from 'lucide-react';
 import { useSettings } from '@/providers/settings.provider';
 import {
@@ -38,6 +39,7 @@ import { logoutAction } from '@/app/[locale]/auth/actions';
 export function DashboardSidebar() {
   const pathname = usePathname();
   const [isClient, setIsClient] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const session = useSession();
   const direction = useDirection();
   const { profile } = useProfileContext();
@@ -51,11 +53,18 @@ export function DashboardSidebar() {
   }, []);
 
   const handleLogout = async () => {
+    if (isLoggingOut) return;
+    setIsLoggingOut(true);
     try {
-      window.dispatchEvent(new CustomEvent('logout-success'));
+      session.invalidateSession();
       await logoutAction();
-    } catch (error) {
+    } catch (error: any) {
+      if (error?.message?.includes('NEXT_REDIRECT') || error?.digest?.includes('NEXT_REDIRECT')) {
+        return;
+      }
       console.error('Logout error:', error);
+    } finally {
+      window.location.href = `/${direction === 'ltr' ? 'en' : 'ar'}`;
     }
   };
 
@@ -290,10 +299,15 @@ export function DashboardSidebar() {
             <SidebarMenuItem>
               <SidebarMenuButton
                 onClick={handleLogout}
-                className="flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 text-destructive hover:bg-destructive/10 hover:text-destructive cursor-pointer"
+                disabled={isLoggingOut}
+                className="flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 text-destructive hover:bg-destructive/10 hover:text-destructive cursor-pointer disabled:opacity-60"
                 tooltip={isCollapsed ? (direction === 'ltr' ? 'Sign Out' : 'تسجيل الخروج') : undefined}
               >
-                <LogOut className="h-4 w-4 flex-shrink-0" />
+                {isLoggingOut ? (
+                  <Loader2 className="h-4 w-4 flex-shrink-0 animate-spin" />
+                ) : (
+                  <LogOut className="h-4 w-4 flex-shrink-0" />
+                )}
                 {!isCollapsed && (
                   <span className="font-medium truncate">
                     {direction === 'ltr' ? 'Sign Out' : 'تسجيل الخروج'}

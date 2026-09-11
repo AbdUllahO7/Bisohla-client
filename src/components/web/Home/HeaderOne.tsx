@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import Box from '@/components/ui/box';
 import LocaleSwitcher from '@/components/locale/LocaleSwitcher';
 import { Link } from '@/i18n/routing';
-import { UserCheck2Icon, LogOut, Plus, Menu, X } from 'lucide-react';
+import { UserCheck2Icon, LogOut, Plus, Menu, X, Loader2 } from 'lucide-react';
 import NotificationDropdown from './NotificationDropdown';
 import { useRouter } from 'next/navigation';
 import { useSession } from '@/hooks/auth/use-session';
@@ -19,10 +19,11 @@ const HeaderOne = () => {
   const t = useTranslations('homePage');
   const locale = useLocale();
   const isRTL = locale === 'ar';
-  const { user, isLoading } = useSession();
+  const { user, isLoading, invalidateSession } = useSession();
   const router = useRouter();
   const [isClient, setIsClient] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   // Determine if user is authenticated
   const isAuthenticated = !!user?.id;
@@ -34,11 +35,18 @@ const HeaderOne = () => {
 
   // Handle logout
   const handleLogout = async () => {
+    if (isLoggingOut) return;
+    setIsLoggingOut(true);
     try {
+      invalidateSession();
       await logoutAction();
-    } catch (error) {
+    } catch (error: any) {
+      if (error?.message?.includes('NEXT_REDIRECT') || error?.digest?.includes('NEXT_REDIRECT')) {
+        return;
+      }
       console.error('Logout error:', error);
-      router.push('/');
+    } finally {
+      window.location.href = `/${locale}`;
     }
   };
 
@@ -134,11 +142,16 @@ const HeaderOne = () => {
               </Link>
               <Button
                 variant="outline"
-                className="text-red-600 bg-transparent rounded-full h-8 px-3 border border-red-300 text-xs sm:text-sm font-medium flex items-center gap-1.5 hover:bg-red-50 dark:text-red-400 dark:border-red-950 dark:hover:bg-red-950"
+                className="text-red-600 bg-transparent rounded-full h-8 px-3 border border-red-300 text-xs sm:text-sm font-medium flex items-center gap-1.5 hover:bg-red-50 dark:text-red-400 dark:border-red-950 dark:hover:bg-red-950 disabled:opacity-60"
                 size="sm"
                 onClick={handleLogout}
+                disabled={isLoggingOut}
               >
-                <LogOut className="w-3.5 h-3.5" />
+                {isLoggingOut ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-red-600" />
+                ) : (
+                  <LogOut className="w-3.5 h-3.5" />
+                )}
                 <span className="whitespace-nowrap">
                   {t('headerOne.logoutButton')}
                 </span>
@@ -343,13 +356,18 @@ const HeaderOne = () => {
                     {/* Logout Button */}
                     <Button
                       variant="outline"
-                      className="w-full text-red-600 bg-transparent rounded-xl h-11 border border-red-300 dark:border-red-950 text-sm font-medium flex items-center justify-center gap-2 hover:bg-red-50 dark:hover:bg-red-950"
+                      className="w-full text-red-600 bg-transparent rounded-xl h-11 border border-red-300 dark:border-red-950 text-sm font-medium flex items-center justify-center gap-2 hover:bg-red-50 dark:hover:bg-red-950 disabled:opacity-60"
+                      disabled={isLoggingOut}
                       onClick={() => {
                         setShowMobileMenu(false);
                         handleLogout();
                       }}
                     >
-                      <LogOut className="w-4.5 h-4.5" />
+                      {isLoggingOut ? (
+                        <Loader2 className="w-4.5 h-4.5 animate-spin text-red-600" />
+                      ) : (
+                        <LogOut className="w-4.5 h-4.5" />
+                      )}
                       <span>{t('headerOne.logoutButton')}</span>
                     </Button>
                   </div>
