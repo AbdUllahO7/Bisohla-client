@@ -77,3 +77,38 @@ export const getGovernorateCountsAction = async (): Promise<ApiResponse<any>> =>
   return await repo.getGovernorateCounts();
 };
 
+export const getBatchListingsAction = async (
+  ids: number[],
+  params?: QueryParams
+): Promise<ApiResponse<any[]>> => {
+  if (!ids || ids.length === 0) {
+    return {
+      success: true,
+      data: [],
+      message: 'No IDs provided',
+    } as any;
+  }
+
+  const repo = getInjection('IListingsVisitorRepo');
+  try {
+    const uniqueIds = Array.from(new Set(ids));
+    const results = await Promise.all(
+      uniqueIds.map((id) => repo.getListingById(id, params))
+    );
+    const listings = results
+      .map((res) => (res.success && res.data ? res.data : null))
+      .filter(Boolean);
+
+    return {
+      success: true,
+      data: listings,
+    } as ApiResponse<any[]>;
+  } catch (error: any) {
+    return {
+      success: false,
+      message: error.message || 'Failed to fetch batch listings',
+      data: [],
+    } as any;
+  }
+};
+

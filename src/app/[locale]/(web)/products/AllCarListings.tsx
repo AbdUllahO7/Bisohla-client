@@ -8,7 +8,6 @@ import Pagination from '@/components/shared/Pagination';
 import { QueryParams } from '@/core/entities/api/api';
 import AdsSectionProduct from '@/components/web/ProductsPage/product/AdsSectionProduct';
 import AllCarListingsSkeleton from '@/components/web/design/AllCarListingsSkeleton';
-import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.actions';
 import { useSession } from '@/hooks/auth/use-session';
 import { RentProductCard } from '@/components/web/design/RentProductCard';
 import { RentProductListCard } from '@/components/web/design/rent-product-list-product';
@@ -42,13 +41,13 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
   const locale = useLocale();
   const isArabic = locale === 'ar';
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [favoriteStatuses, setFavoriteStatuses] = useState<
     Record<number, boolean>
   >({});
   const [isMobile, setIsMobile] = useState(false);
   const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
   const session = useSession();
+  const isAuthenticated = !!session.user?.id;
   const { filters, listingTypes, committedSearchText } = useFilters();
   const effectiveSearchTerm: string =
     typeof externalQueryParams?.searchTerm === 'string'
@@ -87,21 +86,6 @@ const AllCarListings: React.FC<AllCarListingsProps> = ({
     }),
     [currentPage, pageSize, externalQueryParams, session.user?.id],
   );
-
-  // Verify authentication status on component mount
-  useEffect(() => {
-    const verifyAuth = async () => {
-      try {
-        const authResponse = await checkAuth();
-        setIsAuthenticated(authResponse.success);
-      } catch (error) {
-        console.error('Auth check failed:', error);
-        setIsAuthenticated(false);
-      }
-    };
-
-    verifyAuth();
-  }, []);
 
   // Reset to page 1 when filters change (except when page itself changes)
   useEffect(() => {

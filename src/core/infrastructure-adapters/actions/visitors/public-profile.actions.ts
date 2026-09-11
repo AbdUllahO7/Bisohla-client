@@ -51,6 +51,10 @@ export const getTopSellers = async (
   const result = await getReq({
     url: '/public/profile/v2/top-sellers',
     params: Object.keys(params).length > 0 ? params : undefined,
+    next: {
+      revalidate: 300,
+      tags: ['top-sellers'],
+    },
   });
 
   return result;

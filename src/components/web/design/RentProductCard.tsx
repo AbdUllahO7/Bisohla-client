@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState, useMemo, useRef } from 'react';
+import React, { useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import Text from '@/components/ui/text';
 import {
   Card,
@@ -46,7 +46,7 @@ const TRANSLATION_KEYS: Record<string, Set<string>> = {
   condition: new Set(['new', 'used', 'certified_pre_owned'])
 };
 
-export const RentProductCard: React.FC<RentProductCardProps> = ({
+const RentProductCardComponent: React.FC<RentProductCardProps> = ({
   car,
   onFavoriteToggle,
   enableViewTracking = true,
@@ -306,7 +306,7 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
     }
   }, [car.id, car.title, car.price, car.listingOfferType, car.make?.name, imageSrc, car.slug]);
 
-  const handleFavoriteClick = async (e: React.MouseEvent) => {
+  const handleFavoriteClick = useCallback(async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -353,18 +353,30 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
     } finally {
       setIsProcessing(false);
     }
-  };
+  }, [isAuthenticated, isProcessing, car.id, favoriteStatus, onFavoriteToggle]);
+
+  const handleCompareClick = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (isCompared) {
+      removeFromCompare(car.id);
+    } else {
+      addToCompare(car.id);
+    }
+  }, [isCompared, removeFromCompare, addToCompare, car.id]);
 
   const isSold = car.saveStatus === SaveStatus.SOLD || car.publicationStatus === 'sold';
   
   const maxVisibleAttributes = 5;
-  const visibleDetails = footerDetails.slice(0, maxVisibleAttributes);
+  const visibleDetails = useMemo(() => footerDetails.slice(0, maxVisibleAttributes), [footerDetails]);
   const remainingCount = footerDetails.length - maxVisibleAttributes;
 
   const isRent = (car.listingType || car.listingOfferType) === 'for_rent';
-  const badgeText = isRent
-    ? (locale === 'ar' ? 'إيجار' : 'Rent')
-    : (locale === 'ar' ? 'بيع' : 'Sale');
+  const badgeText = useMemo(() => {
+    return isRent
+      ? (locale === 'ar' ? 'إيجار' : 'Rent')
+      : (locale === 'ar' ? 'بيع' : 'Sale');
+  }, [isRent, locale]);
 
   return (
     <motion.div
@@ -405,15 +417,7 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
         {/* Compare Toggle */}
         <Button
           className={`absolute top-12 right-2 bg-white dark:bg-zinc-800 p-2 rounded-full shadow-md z-50 transition-all duration-200 hover:bg-gray-100 dark:hover:bg-zinc-700 active:scale-90`}
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            if (isCompared) {
-              removeFromCompare(car.id);
-            } else {
-              addToCompare(car.id);
-            }
-          }}
+          onClick={handleCompareClick}
           title={isCompared ? 'Remove from compare' : 'Add to compare'}
         >
           <Scale
@@ -554,3 +558,6 @@ export const RentProductCard: React.FC<RentProductCardProps> = ({
     </motion.div>
   );
 };
+
+export const RentProductCard = React.memo(RentProductCardComponent);
+

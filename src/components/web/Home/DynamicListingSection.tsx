@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useMemo } from 'react';
 import Box from '@/components/ui/box';
 import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
@@ -25,7 +25,29 @@ const iconMap = {
   car: CarFrontIcon,
 };
 
-const DynamicListingSection: React.FC<DynamicListingSectionProps> = ({
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.5,
+      ease: 'easeOut',
+    },
+  },
+};
+
+const DynamicListingSectionComponent: React.FC<DynamicListingSectionProps> = ({
   listings,
   title,
   showMoreLink = 'products',
@@ -36,31 +58,38 @@ const DynamicListingSection: React.FC<DynamicListingSectionProps> = ({
   const Icon = iconMap[iconName] || CarFrontIcon;
   const { adsData, isLoadingAds, allowPlaceholders, dismissable, rotationStrategy } = useAdSlot(adSlotName || '');
 
+  const hasAd = Boolean(adSlotName && (adsData.length > 0 || allowPlaceholders !== false));
+  const priceWord = useMemo(() => t('latestOffers.price'), [t]);
+  const showMoreText = useMemo(() => t('latestOffers.showMore'), [t]);
+
+  const gridItems = useMemo(() => {
+    if (!listings || listings.length === 0) return [];
+
+    const items: Array<{ type: 'product'; data: SelectCarListingDto } | { type: 'ad'; baseAdIndex: number }> = [];
+    let adIndexCounter = 0;
+    const displayLimit = 10; // 9 products + 1 ad = 10 slots
+
+    listings.slice(0, 9).forEach((listing, index) => {
+      items.push({ type: 'product', data: listing });
+
+      // Inject ad at index 3 (4th position) if we should show ads
+      if (hasAd && index === 3) {
+        items.push({ type: 'ad', baseAdIndex: adIndexCounter });
+        adIndexCounter++;
+      }
+    });
+
+    // Ensure at least one ad is shown if requested and we have items but didn't reach index 3
+    if (hasAd && items.length > 0 && items.length < 4) {
+      items.push({ type: 'ad', baseAdIndex: adIndexCounter });
+    }
+
+    return items.slice(0, displayLimit);
+  }, [listings, hasAd]);
+
   if (!listings || listings.length === 0) {
     return null;
   }
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.5,
-        ease: 'easeOut',
-      },
-    },
-  };
 
   return (
     <div className="relative overflow-hidden py-16 w-full">
@@ -98,7 +127,7 @@ const DynamicListingSection: React.FC<DynamicListingSectionProps> = ({
               title={title}
               icon={Icon}
               showMoreLink={showMoreLink}
-              showMoreText={t('latestOffers.showMore')}
+              showMoreText={showMoreText}
             />
           </div>
 
@@ -109,69 +138,46 @@ const DynamicListingSection: React.FC<DynamicListingSectionProps> = ({
             whileInView="visible"
             viewport={{ once: true, margin: '-50px' }}
           >
-            {(() => {
-              const items: any[] = [];
-              let adIndexCounter = 0;
-              const displayLimit = 10; // 9 products + 1 ad = 10 slots
-              const showPlaceholder = allowPlaceholders !== false;
-              const hasAd = adSlotName && (adsData.length > 0 || showPlaceholder);
-
-              listings.slice(0, 9).forEach((listing, index) => {
-                items.push({ type: 'product', data: listing });
-
-                // Inject ad at index 3 (4th position) if we should show ads
-                if (hasAd && index === 3) {
-                  items.push({ type: 'ad', baseAdIndex: adIndexCounter });
-                  adIndexCounter++;
-                }
-              });
-
-              // Ensure at least one ad is shown if requested and we have items but didn't reach index 3
-              if (hasAd && items.length > 0 && items.length < 4) {
-                items.push({ type: 'ad', baseAdIndex: adIndexCounter });
+            {gridItems.map((item, i) => {
+              if (item.type === 'product') {
+                return (
+                  <motion.div key={`product-${item.data.id}`} variants={itemVariants}>
+                    <RentProductCard
+                      car={item.data as any}
+                      priceWord={priceWord}
+                    />
+                  </motion.div>
+                );
+              } else {
+                const currentAdIndex = (item.baseAdIndex >= 0 && adsData.length > 0) ? item.baseAdIndex % adsData.length : item.baseAdIndex;
+                return (
+                  <motion.div
+                    key={`ad-slot-${i}`}
+                    className="w-full h-full flex flex-col rounded-lg relative"
+                    variants={itemVariants}
+                    whileHover={{
+                      y: -10,
+                      transition: { duration: 0.3, ease: 'easeOut' }
+                    }}
+                  >
+                    <AdSpace
+                      name={adSlotName!}
+                      className="w-full h-full"
+                      wrapperClassName="w-full h-full min-h-[395px] flex flex-col items-stretch"
+                      fallbackContent={<CardAds isRent={false} />}
+                      isClosable={false}
+                      adsData={adsData}
+                      isLoadingAds={isLoadingAds}
+                      adIndex={currentAdIndex}
+                      allowPlaceholders={allowPlaceholders}
+                      dismissable={dismissable}
+                      rotationStrategy={rotationStrategy}
+                      layout="card"
+                    />
+                  </motion.div>
+                );
               }
-
-              return items.slice(0, displayLimit).map((item, i) => {
-                if (item.type === 'product') {
-                  return (
-                    <motion.div key={`product-${item.data.id}`} variants={itemVariants}>
-                      <RentProductCard
-                        car={item.data as any}
-                        priceWord={t('latestOffers.price')}
-                      />
-                    </motion.div>
-                  );
-                } else {
-                  const currentAdIndex = (item.baseAdIndex >= 0 && adsData.length > 0) ? item.baseAdIndex % adsData.length : item.baseAdIndex;
-                  return (
-                    <motion.div
-                      key={`ad-slot-${i}`}
-                      className="w-full h-full flex flex-col rounded-lg relative"
-                      variants={itemVariants}
-                      whileHover={{
-                        y: -10,
-                        transition: { duration: 0.3, ease: 'easeOut' }
-                      }}
-                    >
-                      <AdSpace
-                        name={adSlotName!}
-                        className="w-full h-full"
-                        wrapperClassName="w-full h-full min-h-[395px] flex flex-col items-stretch"
-                        fallbackContent={<CardAds isRent={false} />}
-                        isClosable={false}
-                        adsData={adsData}
-                        isLoadingAds={isLoadingAds}
-                        adIndex={currentAdIndex}
-                        allowPlaceholders={allowPlaceholders}
-                        dismissable={dismissable}
-                        rotationStrategy={rotationStrategy}
-                        layout="card"
-                      />
-                    </motion.div>
-                  );
-                }
-              });
-            })()}
+            })}
           </motion.div>
         </Box>
       </Box>
@@ -194,4 +200,6 @@ const DynamicListingSection: React.FC<DynamicListingSectionProps> = ({
   );
 };
 
+const DynamicListingSection = React.memo(DynamicListingSectionComponent);
 export default DynamicListingSection;
+

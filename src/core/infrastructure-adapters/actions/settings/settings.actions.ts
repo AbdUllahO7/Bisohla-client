@@ -11,6 +11,10 @@ export const getPublicSettings = async (): Promise<ApiResponse<any>> => {
   try {
     const res = await getReq({
       url: '/settings/public',
+      next: {
+        revalidate: 3600,
+        tags: ['settings', 'public-settings'],
+      },
     });
 
     return res;

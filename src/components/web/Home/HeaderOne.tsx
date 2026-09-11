@@ -19,7 +19,7 @@ const HeaderOne = () => {
   const t = useTranslations('homePage');
   const locale = useLocale();
   const isRTL = locale === 'ar';
-  const { user, isLoading, refetchSession } = useSession();
+  const { user, isLoading } = useSession();
   const router = useRouter();
   const [isClient, setIsClient] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
@@ -31,13 +31,6 @@ const HeaderOne = () => {
   useEffect(() => {
     setIsClient(true);
   }, []);
-
-  // Refetch session on component mount and when route changes
-  useEffect(() => {
-    if (isClient) {
-      refetchSession();
-    }
-  }, [isClient, refetchSession]);
 
   // Handle logout
   const handleLogout = async () => {
