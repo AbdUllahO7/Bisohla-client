@@ -36,7 +36,6 @@ export function runPhoneTests(): { passed: number; failed: number; errors: strin
     }
   }
 
-  console.log(`Phone validation & repair tests: ${passed} passed, ${failed} failed.`);
   if (failed > 0) {
     console.error('Errors:', errors);
     process.exit(1);

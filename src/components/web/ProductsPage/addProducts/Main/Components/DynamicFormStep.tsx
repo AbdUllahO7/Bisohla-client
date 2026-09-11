@@ -14,7 +14,6 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { useLocale, useTranslations } from 'next-intl';
-import { useSettings } from '@/providers/settings.provider';
 import { useReferenceProposalGate } from '@/hooks/useReferenceProposalGate';
 import DynamicSectionHeader from './DynamicSectionHeader';
 import SelectableList from '../../StepOne/SelectableList';
@@ -38,136 +37,6 @@ import { extractIsTrimRequired, isTrimAttribute, isMakeAttribute, isModelAttribu
 import { searchFuzzyReferenceItems } from '@/core/infrastructure-adapters/actions/visitors/reference-proposal.actions';
 import CarBlueprint from '../../../product/CarBlueprint';
 import MotorcycleBlueprint from '../../../product/MotorcycleBlueprint';
-
-// Common brand aliases mapping (Arabic, English, and phonetic transliterations)
-const BRAND_ALIASES: Record<string, string[]> = {
-  kupa: ['cupra', 'كوبرا'],
-  cupa: ['cupra', 'كوبرا'],
-  kupra: ['cupra', 'كوبرا'],
-  cupra: ['كوبرا', 'cupra'],
-  'كوبرا': ['cupra', 'كوبرا'],
-  bmw: ['بي ام دبليو', 'بي ام', 'bmw'],
-  'بي ام': ['bmw', 'بي ام دبليو'],
-  'بي ام دبليو': ['bmw', 'بي ام'],
-  'بيم': ['bmw', 'بي ام دبليو'],
-  mercedes: ['مرسيدس', 'benz', 'مرسيدس بنز'],
-  'مرسيدس': ['mercedes', 'benz'],
-  'بنز': ['mercedes', 'مرسيدس'],
-  volkswagen: ['فولكس فاجن', 'فولكس واجن', 'فولكس', 'vw'],
-  'فولكس': ['volkswagen', 'vw', 'فولكس فاجن'],
-  'فوكس': ['volkswagen', 'vw', 'فولكس فاجن'],
-  vw: ['volkswagen', 'فولكس فاجن'],
-  audi: ['اودي', 'أودي'],
-  'اودي': ['audi', 'أودي'],
-  'أودي': ['audi', 'اودي'],
-  toyota: ['تويوتا'],
-  'تويوتا': ['toyota'],
-  'تيوتا': ['toyota', 'تويوتا'],
-  hyundai: ['هيونداي', 'هونداي'],
-  'هيونداي': ['hyundai', 'هونداي'],
-  'هونداي': ['hyundai', 'هيونداي'],
-  kia: ['كيا'],
-  'كيا': ['kia'],
-  honda: ['هوندا'],
-  'هوندا': ['honda'],
-  nissan: ['نيسان'],
-  'نيسان': ['nissan'],
-  chevrolet: ['شفروليه', 'شيفروليه', 'chevy'],
-  chevy: ['chevrolet', 'شفروليه'],
-  'شفروليه': ['chevrolet', 'chevy'],
-  'شيفروليه': ['chevrolet', 'chevy'],
-  'شفر': ['chevrolet', 'شفروليه'],
-  mitsubishi: ['ميتسوبيشي', 'متسوبيشي'],
-  'ميتسوبيشي': ['mitsubishi', 'متسوبيشي'],
-  'متسوبيشي': ['mitsubishi', 'ميتسوبيشي'],
-  peugeot: ['بيجو'],
-  'بيجو': ['peugeot'],
-  renault: ['رينو'],
-  'رينو': ['renault'],
-  porsche: ['بورش', 'بورشه'],
-  'بورش': ['porsche', 'بورشه'],
-  'بورشه': ['porsche', 'بورش'],
-  skoda: ['سكودا', 'اشكودا'],
-  'سكودا': ['skoda'],
-  suzuki: ['سوزوكي'],
-  'سوزوكي': ['suzuki'],
-  mazda: ['مازدا'],
-  'مازدا': ['mazda'],
-  jeep: ['جيب'],
-  'جيب': ['jeep'],
-  landrover: ['لاند روفر', 'رينج روفر', 'range rover'],
-  'land rover': ['لاند روفر', 'رينج روفر', 'range rover'],
-  'range rover': ['رينج روفر', 'لاند روفر', 'land rover'],
-  'لاند روفر': ['land rover', 'range rover'],
-  'رينج روفر': ['range rover', 'land rover'],
-  'رينج': ['range rover', 'land rover'],
-  infiniti: ['انفينيتي', 'انفنتي'],
-  'انفينيتي': ['infiniti'],
-  'انفنتي': ['infiniti'],
-  lexus: ['لكزس', 'لكسس'],
-  'لكزس': ['lexus'],
-  cadillac: ['كاديلاك'],
-  'كاديلاك': ['cadillac'],
-  dodge: ['دودج'],
-  'دودج': ['dodge'],
-  chrysler: ['كرايسلر'],
-  'كرايسلر': ['chrysler'],
-  gmc: ['جمس', 'جي ام سي'],
-  'جمس': ['gmc'],
-  ford: ['فورد'],
-  'فورد': ['ford'],
-  fiat: ['فيات'],
-  'فيات': ['fiat'],
-  chery: ['شيري'],
-  'شيري': ['chery'],
-  geely: ['جيلي'],
-  'جيلي': ['geely'],
-  byd: ['بي واي دي', 'بي وايدي'],
-  'بي واي دي': ['byd'],
-  changan: ['شانجان', 'تشانجان'],
-  'شانجان': ['changan'],
-  haval: ['هافال'],
-  'هافال': ['haval'],
-  mg: ['ام جي', 'امجي'],
-  'ام جي': ['mg'],
-  tesla: ['تسلا', 'تيسلا'],
-  'تسلا': ['tesla'],
-  subaru: ['سوبارو'],
-  'سوبارو': ['subaru'],
-  volvo: ['فولفو'],
-  'فولفو': ['volvo'],
-  seat: ['سيات'],
-  'سيات': ['seat'],
-  opel: ['اوبل', 'أوبل'],
-  'اوبل': ['opel'],
-  'alfa romeo': ['الفا روميو', 'ألفا روميو'],
-  'الفا روميو': ['alfa romeo'],
-  jaguar: ['جاكوار', 'جغوار'],
-  'جاكوار': ['jaguar'],
-  ferrari: ['فيراري'],
-  'فيراري': ['ferrari'],
-  lamborghini: ['لامبورغيني', 'لامبورجيني'],
-  'لامبورغيني': ['lamborghini'],
-  bentley: ['بنتلي'],
-  'بنتلي': ['bentley'],
-  'rolls royce': ['رولز رويس'],
-  'رولز رويس': ['rolls royce'],
-  'aston martin': ['استون مارتن', 'أستون مارتن'],
-  maserati: ['مازيراتى', 'مازيراتي'],
-  'مازيراتي': ['maserati'],
-  genesis: ['جينيسيس', 'جينسس'],
-  'جينيسيس': ['genesis'],
-  isuzu: ['ايسوزو', 'إيسوزو'],
-  'ايسوزو': ['isuzu'],
-  jetour: ['جيتور'],
-  'جيتور': ['jetour'],
-  exeed: ['اكسيد', 'إكسيد'],
-  'اكسيد': ['exeed'],
-  tank: ['تانك'],
-  'تانك': ['tank'],
-  zeekr: ['زيكر'],
-  'زيكر': ['zeekr'],
-};
 
 // --- Sub-components for specialized rendering ---
 
@@ -686,18 +555,8 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
       const isTrimShown = trimAttr ? shouldShowField(trimAttr) : false;
 
       console.group('%c[Bishola] 🚗 Car Make & Trim Status', 'color: #198341; font-weight: bold; font-size: 13px;');
-      console.log('📌 Selected Make ID:', selectedMakeId);
-      console.log('📦 Selected Make Item:', selectedMakeItem);
-      console.log('🏷️ Make Metadata:', selectedMakeItem?.metadata);
-      console.log('⚙️ isTrimRequired on Make:', trimReqOnMake);
-      if (selectedModelId) {
-        console.log('📌 Selected Model ID:', selectedModelId);
-        console.log('📦 Selected Model Item:', selectedModelItem);
-        console.log('🏷️ Model Metadata:', selectedModelItem?.metadata);
-        console.log('⚙️ isTrimRequired on Model:', trimReqOnModel);
-      }
-      console.log('👀 Trim Attribute in Schema:', trimAttr);
-      console.log('✨ Trim Field Visible (shouldShowField):', isTrimShown);
+    
+     
       console.groupEnd();
     }
   }, [formData, refItemsMap, referenceOptions, attributes]);
@@ -872,45 +731,24 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
 
                             let rawItems = (res.success && res.data?.data) ? [...res.data.data] : [];
 
-                            // 2. If user searched and standard query returned 0 items on page 1, try brand aliases and fuzzy search
+                            // 2. If user searched and standard query returned 0 items on page 1, try fuzzy search
                             if (sTerm && sTerm.length >= 2 && rawItems.length === 0 && (params.page || 1) === 1) {
-                              const lowerSearch = sTerm.toLowerCase();
-                              const aliases = BRAND_ALIASES[lowerSearch] || [];
-
-                              // Try brand aliases
-                              for (const alias of aliases) {
-                                if (rawItems.length > 0) break;
-                                const aliasRes = await controller.getItemsByGroupId(
-                                  attr.referenceGroupId!,
-                                  parentReferenceItemId ? Number(parentReferenceItemId) : undefined,
-                                  params.pageSize || 30,
-                                  alias,
-                                  1
-                                );
-                                if (aliasRes.success && aliasRes.data?.data && aliasRes.data.data.length > 0) {
-                                  rawItems = [...aliasRes.data.data];
+                              try {
+                                const fuzzyRes = await searchFuzzyReferenceItems(attr.referenceGroupId!, {
+                                  searchTerm: sTerm,
+                                  parentItemId: parentReferenceItemId ? Number(parentReferenceItemId) : undefined,
+                                });
+                                if (fuzzyRes && fuzzyRes.success && Array.isArray(fuzzyRes.data) && fuzzyRes.data.length > 0) {
+                                  rawItems = fuzzyRes.data.map((fItem: any) => ({
+                                    id: fItem.id,
+                                    name: fItem.label,
+                                    translations: fItem.translations || { [locale]: { name: fItem.label } },
+                                    metadata: fItem.metadata,
+                                    logoUrl: fItem.logoUrl || fItem.iconUrl,
+                                  })) as any;
                                 }
-                              }
-
-                              // Try fuzzy search endpoint
-                              if (rawItems.length === 0) {
-                                try {
-                                  const fuzzyRes = await searchFuzzyReferenceItems(attr.referenceGroupId!, {
-                                    searchTerm: sTerm,
-                                    parentItemId: parentReferenceItemId ? Number(parentReferenceItemId) : undefined,
-                                  });
-                                  if (fuzzyRes && fuzzyRes.success && Array.isArray(fuzzyRes.data) && fuzzyRes.data.length > 0) {
-                                    rawItems = fuzzyRes.data.map((fItem: any) => ({
-                                      id: fItem.id,
-                                      name: fItem.label,
-                                      translations: fItem.translations || { [locale]: { name: fItem.label } },
-                                      metadata: fItem.metadata,
-                                      logoUrl: fItem.logoUrl || fItem.iconUrl,
-                                    })) as any;
-                                  }
-                                } catch (err) {
-                                  console.warn('Fuzzy search fallback failed for:', sTerm, err);
-                                }
+                              } catch (err) {
+                                console.warn('Fuzzy search fallback failed for:', sTerm, err);
                               }
                             }
 
@@ -927,9 +765,6 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
                                   item.label || '',
                                   item.slug || '',
                                   ...(Array.isArray(item.translations) ? item.translations.map((t: any) => t.name) : []),
-                                  ...(BRAND_ALIASES[typeof item.name === 'string' ? item.name.toLowerCase() : ''] || []),
-                                  ...(BRAND_ALIASES[item.name?.en?.toLowerCase() || ''] || []),
-                                  ...(BRAND_ALIASES[item.name?.ar?.toLowerCase() || ''] || []),
                                 ].filter(Boolean),
                               }));
                               return {

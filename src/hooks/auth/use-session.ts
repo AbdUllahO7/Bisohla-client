@@ -31,10 +31,10 @@ export const useSession = (): SessionReturnType => {
   } = useQuery({
     queryKey: ['session'],
     queryFn: getUserSession,
-    staleTime: 5 * 60 * 1000, // 5 minutes fresh cache
+    staleTime: 10 * 1000, // 10 seconds fresh cache
     gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
-    refetchOnMount: false, // Prevent request storms across component instances
-    refetchOnWindowFocus: false,
+    refetchOnMount: true, // Always re-check session when mounting so header updates immediately
+    refetchOnWindowFocus: true,
     refetchOnReconnect: true,
     retry: 1,
   });
@@ -44,6 +44,7 @@ export const useSession = (): SessionReturnType => {
     queryClient.setQueryData(['check-auth-user'], null);
     queryClient.invalidateQueries({ queryKey: ['session'] });
     queryClient.invalidateQueries({ queryKey: ['check-auth-user'] });
+    queryClient.invalidateQueries({ queryKey: ['profile'] });
     queryClient.removeQueries({ queryKey: ['session'] });
     queryClient.removeQueries({ queryKey: ['check-auth-user'] });
     if (typeof window !== 'undefined') {
@@ -52,7 +53,7 @@ export const useSession = (): SessionReturnType => {
     }
   };
 
-  // Listen for storage and custom logout events
+  // Listen for storage, login, and custom logout events
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'session' || e.key === 'accessToken' || e.key?.includes('auth')) {
@@ -65,17 +66,30 @@ export const useSession = (): SessionReturnType => {
       queryClient.setQueryData(['check-auth-user'], null);
       queryClient.invalidateQueries({ queryKey: ['session'] });
       queryClient.invalidateQueries({ queryKey: ['check-auth-user'] });
+      queryClient.invalidateQueries({ queryKey: ['profile'] });
+    };
+
+    const handleAuthUpdated = () => {
+      queryClient.invalidateQueries({ queryKey: ['session'] });
+      queryClient.invalidateQueries({ queryKey: ['profile'] });
+      refetchSession();
     };
 
     window.addEventListener('storage', handleStorageChange);
     window.addEventListener('logout-success', handleCustomLogout);
     window.addEventListener('session-invalidated', handleCustomLogout);
+    window.addEventListener('login-success', handleAuthUpdated);
+    window.addEventListener('session-updated', handleAuthUpdated);
+    window.addEventListener('auth-changed', handleAuthUpdated);
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('logout-success', handleCustomLogout);
       window.removeEventListener('session-invalidated', handleCustomLogout);
+      window.removeEventListener('login-success', handleAuthUpdated);
+      window.removeEventListener('session-updated', handleAuthUpdated);
+      window.removeEventListener('auth-changed', handleAuthUpdated);
     };
-  }, [queryClient]);
+  }, [queryClient, refetchSession]);
 
   const defaultSession = {
     user: {

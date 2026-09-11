@@ -1,7 +1,6 @@
-// components/dashboard/DashboardSidebarImproved.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Heart,
   Home,
@@ -15,6 +14,8 @@ import {
   MapPin,
   Loader2,
   X,
+  Plus,
+  Search,
 } from 'lucide-react';
 import { useSettings } from '@/providers/settings.provider';
 import {
@@ -30,18 +31,23 @@ import {
 } from '@/components/ui/sidebar';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Link } from '@/i18n/routing';
+import { Input } from '@/components/ui/input';
+import { Link, useRouter } from '@/i18n/routing';
 import { usePathname } from 'next/navigation';
 import { useSession } from '@/hooks/auth/use-session';
 import { useDirection } from '@/hooks/use-direction';
 import { useProfileContext } from '@/providers/profile.provider';
 import Image from 'next/image';
 import { logoutAction } from '@/app/[locale]/auth/actions';
+import ThemeToggle from '@/components/shared/ThemeToggle';
+import LocaleSwitcher from '@/components/locale/LocaleSwitcher';
 
 export function DashboardSidebar() {
   const pathname = usePathname();
   const [isClient, setIsClient] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [mobileSearchQuery, setMobileSearchQuery] = useState('');
+  const router = useRouter();
   const session = useSession();
   const direction = useDirection();
   const { profile } = useProfileContext();
@@ -54,6 +60,14 @@ export function DashboardSidebar() {
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  const handleMobileSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (mobileSearchQuery.trim()) {
+      setOpenMobile(false);
+      router.push(`/products?search=${encodeURIComponent(mobileSearchQuery.trim())}`);
+    }
+  };
 
   const handleLogout = async () => {
     if (isLoggingOut) return;
@@ -251,7 +265,41 @@ export function DashboardSidebar() {
       </SidebarHeader>
 
       {/* Content */}
-      <SidebarContent className="px-2 py-4 overflow-y-auto">
+      <SidebarContent className="px-2 py-3 overflow-y-auto">
+        {/* Mobile Quick Actions (Add Listing + Search) */}
+        {isMobile && (
+          <div className="p-2 mb-2 space-y-2 border-b border-sidebar-border">
+            {/* Add Listing Button */}
+            <Link
+              href="/products/AddProducts"
+              onClick={() => setOpenMobile(false)}
+              className="block w-full"
+            >
+              <Button className="w-full bg-primary hover:bg-primary-light text-white font-semibold h-11 rounded-xl flex items-center justify-center gap-2 shadow-sm">
+                <Plus className="h-4 w-4" />
+                <span>{direction === 'ltr' ? 'Add Listing' : 'إضافة إعلان'}</span>
+              </Button>
+            </Link>
+
+            {/* Quick Search */}
+            <form onSubmit={handleMobileSearch} className="relative w-full">
+              <Input
+                placeholder={direction === 'ltr' ? 'Search cars...' : 'البحث عن السيارات...'}
+                value={mobileSearchQuery}
+                onChange={(e) => setMobileSearchQuery(e.target.value)}
+                className="w-full pl-9 rtl:pl-3 rtl:pr-9 bg-sidebar-accent/50 dark:bg-zinc-850/50 text-sm h-10 rounded-xl border border-sidebar-border"
+              />
+              <button
+                type="submit"
+                className="absolute right-3 rtl:right-auto rtl:left-3 top-1/2 -translate-y-1/2 text-sidebar-foreground/60 hover:text-sidebar-foreground p-1"
+                aria-label="Search"
+              >
+                <Search className="h-4 w-4" />
+              </button>
+            </form>
+          </div>
+        )}
+
         <div className="space-y-2">
           {!isCollapsed && (
             <div className="px-3 py-2">
@@ -346,7 +394,20 @@ export function DashboardSidebar() {
       </SidebarContent>
 
       {/* Footer */}
-      <SidebarFooter className="border-t border-sidebar-border p-3 bg-sidebar mt-auto">
+      <SidebarFooter className="border-t border-sidebar-border p-3 bg-sidebar mt-auto space-y-2">
+        {/* Language & Theme Controls on Mobile */}
+        {isMobile && (
+          <div className="flex items-center justify-between gap-2 pb-2 border-b border-sidebar-border/60">
+            <span className="text-xs font-medium text-sidebar-foreground/70">
+              {direction === 'ltr' ? 'Appearance & Language' : 'المظهر واللغة'}
+            </span>
+            <div className="flex items-center gap-2">
+              <ThemeToggle />
+              <LocaleSwitcher />
+            </div>
+          </div>
+        )}
+
         {isClient && (
           <div className="flex items-center gap-3 w-full">
             {!isCollapsed ? (

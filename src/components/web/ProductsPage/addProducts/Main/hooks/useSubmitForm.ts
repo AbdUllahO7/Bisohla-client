@@ -227,9 +227,6 @@ export const useSubmitForm = () => {
         }
       }
 
-      console.log("[useSubmitForm] proposals in STEP_TWO:", proposals);
-      console.log("[useSubmitForm] generated attributeValues:", attributeValues);
-
       const bodyHasReferenceProposal = attributeValues.some(av => !!av.proposedReferenceName);
 
       // ─────────────────────────────────────────────────────────────────────
@@ -285,7 +282,6 @@ export const useSubmitForm = () => {
           installmentsAvailable,
           installmentPlans,
         };
-        console.log("createDto", createDto);
         response = await createListing(createDto);
       }
 

@@ -9,6 +9,7 @@ import { UserCheck2Icon, LogOut, Plus, Menu, X, Loader2 } from 'lucide-react';
 import NotificationDropdown from './NotificationDropdown';
 import { useRouter } from 'next/navigation';
 import { useSession } from '@/hooks/auth/use-session';
+import { useProfileContext } from '@/providers/profile.provider';
 import { useTranslations, useLocale } from 'next-intl';
 import { useEffect, useState } from 'react';
 import { logoutAction } from '@/app/[locale]/auth/actions';
@@ -19,14 +20,19 @@ const HeaderOne = () => {
   const t = useTranslations('homePage');
   const locale = useLocale();
   const isRTL = locale === 'ar';
-  const { user, isLoading, invalidateSession } = useSession();
+  const { user, isLoading: isSessionLoading, invalidateSession } = useSession();
+  const { profile, isLoading: isProfileLoading } = useProfileContext();
   const router = useRouter();
   const [isClient, setIsClient] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  // Determine if user is authenticated
-  const isAuthenticated = !!user?.id;
+  // Determine if user is authenticated via session or profile
+  const isAuthenticated = Boolean(
+    (user && user.id && user.id > 0) || (profile && profile.id && profile.id > 0)
+  );
+  const displayName = user?.name || profile?.name || t('headerOne.profileButton');
+  const isLoading = isSessionLoading && isProfileLoading;
 
   // Ensure client-side rendering
   useEffect(() => {
@@ -135,7 +141,7 @@ const HeaderOne = () => {
                   size="sm"
                 >
                   <span className="whitespace-nowrap truncate max-w-[120px]">
-                    {user?.name || t('headerOne.profileButton')}
+                    {displayName}
                   </span>
                   <UserCheck2Icon className="w-3.5 h-3.5" />
                 </Button>
@@ -209,7 +215,7 @@ const HeaderOne = () => {
                 >
                   <UserCheck2Icon className="w-3 h-3" />
                   <span className="whitespace-nowrap max-w-[65px] truncate">
-                    {user?.name || t('headerOne.profileButton')}
+                    {displayName}
                   </span>
                 </Button>
               </Link>
@@ -333,7 +339,7 @@ const HeaderOne = () => {
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-gray-900 dark:text-zinc-100 truncate">
-                            {user?.name || t('headerOne.profileButton')}
+                            {displayName}
                           </p>
                         </div>
                       </div>
