@@ -33,6 +33,7 @@ import {
 } from '@/core/infrastructure-adapters/use-actions/users/car-alert.user.use-actions';
 import { getGovernorateOptions, getCityOptions } from '@/components/web/ProductsPage/addProducts/StepOne/utils';
 import { extractIsTrimRequired, isTrimAttribute, isMakeAttribute, isModelAttribute } from '@/utils/trim-helpers';
+import { searchFuzzyReferenceItems } from '@/core/infrastructure-adapters/actions/visitors/reference-proposal.actions';
 
 interface AlertFormModalProps {
   open: boolean;
@@ -310,17 +311,41 @@ export function AlertFormModal({
   const fetchRefItems = useCallback(
     async (groupId: number, parentId?: number, params?: any) => {
       const controller = getInjection('IListingTypeRefsRepoController');
+      const sTerm = params?.searchTerm?.trim();
+      const page = params?.page || 1;
+      const pageSize = params?.pageSize || 30;
+
       const res = await controller.getItemsByGroupId(
         groupId,
         parentId,
-        params?.pageSize || 50,
-        params?.searchTerm || undefined,
-        params?.page || 1,
-        locale,
-        params?.searchKey || 'name',
+        pageSize,
+        sTerm || undefined,
+        page,
       );
-      if (res.success && res.data && Array.isArray(res.data.data)) {
-        const rawItems = res.data.data;
+
+      let rawItems = (res.success && res.data?.data) ? [...res.data.data] : [];
+
+      if (sTerm && sTerm.length >= 2 && rawItems.length === 0 && page === 1) {
+        try {
+          const fuzzyRes = await searchFuzzyReferenceItems(groupId, {
+            searchTerm: sTerm,
+            parentItemId: parentId,
+          });
+          if (fuzzyRes && fuzzyRes.success && Array.isArray(fuzzyRes.data) && fuzzyRes.data.length > 0) {
+            rawItems = fuzzyRes.data.map((fItem: any) => ({
+              id: fItem.id,
+              name: fItem.label,
+              translations: fItem.translations || { [locale]: { name: fItem.label } },
+              metadata: fItem.metadata,
+              logoUrl: fItem.logoUrl || fItem.iconUrl,
+            })) as any;
+          }
+        } catch (err) {
+          console.warn('Fuzzy search fallback failed for:', sTerm, err);
+        }
+      }
+
+      if (rawItems.length > 0) {
         setRefItemsMap((prev) => {
           const next = { ...prev };
           rawItems.forEach((item: any) => {
@@ -328,12 +353,23 @@ export function AlertFormModal({
           });
           return next;
         });
-        res.data.data = rawItems.map((item: any) => ({
-          ...item,
-          name: getTranslation(item.translations) || getTranslation(item.name) || item.name,
-        }));
       }
-      return res;
+
+      return {
+        ...res,
+        data: {
+          currentPage: page,
+          totalPages: res.data?.totalPages || 1,
+          pageSize,
+          totalItems: res.data?.totalItems || rawItems.length,
+          hasNextPage: !!res.data?.hasNextPage,
+          hasPreviousPage: !!res.data?.hasPreviousPage,
+          data: rawItems.map((item: any) => ({
+            ...item,
+            name: getTranslation(item.translations) || getTranslation(item.name) || item.name || item.label || '',
+          })),
+        },
+      };
     },
     [getTranslation, locale],
   );

@@ -243,9 +243,9 @@ export function DashboardHeader({
       className="sticky top-0 z-40 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
       dir={direction}
     >
-      <div className="flex h-16 items-center px-4 gap-4">
+      <div className="flex h-16 items-center px-3 sm:px-4 justify-between gap-2 sm:gap-4">
         {/* Left side */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4 shrink-0">
           {/* Desktop sidebar toggle */}
           {!isMobile && (
             <Button
@@ -268,24 +268,24 @@ export function DashboardHeader({
             <Button
               variant="ghost"
               size="icon"
-              className="md:hidden"
+              className="md:hidden h-10 w-10 p-0"
               onClick={toggleSidebar}
             >
-              <Menu className="h-5 w-5" />
+              <Menu className="h-6 w-6" />
               <span className="sr-only">Toggle menu</span>
             </Button>
           )}
 
           {/* Dashboard title */}
           <div className="flex items-center gap-2">
-            <h1 className="text-lg font-semibold text-foreground hidden sm:block">
+            <h1 className="text-base sm:text-lg font-semibold text-foreground hidden sm:block">
               {direction === 'ltr' ? 'Dashboard' : 'لوحة التحكم'}
             </h1>
           </div>
         </div>
 
-        {/* Center - Enhanced Search bar with loading */}
-        <div className="flex-1 flex justify-center max-w-md mx-auto relative">
+        {/* Center - Enhanced Search bar with loading (Desktop only, mobile has it in sidebar) */}
+        <div className="hidden md:flex flex-1 justify-center max-w-md mx-auto relative">
           <form onSubmit={handleSearch} className="w-full relative">
             <div className="relative">
               {/* Search Input */}
@@ -361,9 +361,9 @@ export function DashboardHeader({
         </div>
 
         {/* Right side actions */}
-        <div className="flex items-center gap-2">
-          {/* Add Listing Button */}
-          <Link href="/products/AddProducts">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          {/* Add Listing Button (Desktop only) */}
+          <Link href="/products/AddProducts" className="hidden md:inline-flex">
             <Button
               size="sm"
               className="bg-primary hover:bg-primary-light text-white"
@@ -379,71 +379,19 @@ export function DashboardHeader({
           {/* Notifications */}
           {isAuthenticated && <NotificationDropdown />}
 
-          {/* Theme Toggle */}
-          <ThemeToggle />
+          {/* Theme Toggle (Desktop only) */}
+          <div className="hidden md:flex">
+            <ThemeToggle />
+          </div>
 
-          {/* Language Switcher */}
-          <LocaleSwitcher />
-              {/* this code make a rendier error  */}
-          {/* User Menu */}
-        {/*   {isAuthenticated && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="relative h-8 w-8 rounded-full"
-                  disabled={isSearching}
-                >
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage
-                      src={profile?.profileUrl || '/placeholder.svg'}
-                      alt={profile?.name || ''}
-                      referrerPolicy="no-referrer"
-                    />
-                    <AvatarFallback className="bg-primary/10 text-primary">
-                      {getUserInitials(profile?.name || user?.name || '')}
-                    </AvatarFallback>
-                  </Avatar>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end" forceMount>
-                <DropdownMenuLabel className="font-normal">
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">
-                      {profile?.name || user?.name}
-                    </p>
-                    <p className="text-xs leading-none text-muted-foreground">
-                      {profile?.email}
-                    </p>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <Link href="/userProfile">
-                  <DropdownMenuItem>
-                    <User className="mr-2 rtl:mr-0 rtl:ml-2 h-4 w-4" />
-                    <span>
-                      {direction === 'ltr' ? 'Profile' : 'الملف الشخصي'}
-                    </span>
-                  </DropdownMenuItem>
-                </Link>
-                <Link href="/">
-                  <DropdownMenuItem>
-                    <Home className="mr-2 rtl:mr-0 rtl:ml-2 h-4 w-4" />
-                    <span>{direction === 'ltr' ? 'Home' : 'الرئيسية'}</span>
-                  </DropdownMenuItem>
-                </Link>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout}>
-                  <LogOut className="mr-2 rtl:mr-0 rtl:ml-2 h-4 w-4" />
-                  <span>
-                    {direction === 'ltr' ? 'Log out' : 'تسجيل الخروج'}
-                  </span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )} */}
+          {/* Language Switcher (Desktop only) */}
+          <div className="hidden md:flex">
+            <LocaleSwitcher />
+          </div>
+
+          {/* Logo */}
+          <Logo className="shrink-0" />
         </div>
-        <Logo />
       </div>
     </header>
   );

@@ -17,9 +17,10 @@ import { getAuthReq, getReq, postAuthReq } from '@/core/lib/api';
 export const getLegalDocuments = async (): Promise<
   ApiResponse<LegalDocumentListItemDto[]>
 > => {
-  return getReq({
+  const res = await getReq({
     url: '/legal/documents',
   });
+  return res as ApiResponse<LegalDocumentListItemDto[]>;
 };
 
 /**
@@ -28,9 +29,10 @@ export const getLegalDocuments = async (): Promise<
 export const getLegalDocumentByKind = async (
   kind: string,
 ): Promise<ApiResponse<LegalDocumentDetailDto>> => {
-  return getReq({
+  const res = await getReq({
     url: `/legal/documents/${kind}`,
   });
+  return res as ApiResponse<LegalDocumentDetailDto>;
 };
 
 /**
@@ -40,9 +42,10 @@ export const getLegalDocumentVersion = async (
   kind: string,
   version: number,
 ): Promise<ApiResponse<LegalDocumentDetailDto>> => {
-  return getReq({
+  const res = await getReq({
     url: `/legal/documents/${kind}/versions/${version}`,
   });
+  return res as ApiResponse<LegalDocumentDetailDto>;
 };
 
 /**
@@ -51,9 +54,10 @@ export const getLegalDocumentVersion = async (
 export const getPendingLegalDocuments = async (): Promise<
   ApiResponse<PendingLegalResponseDto>
 > => {
-  return getAuthReq({
+  const res = await getAuthReq({
     url: '/legal/pending',
   });
+  return res as ApiResponse<PendingLegalResponseDto>;
 };
 
 /**

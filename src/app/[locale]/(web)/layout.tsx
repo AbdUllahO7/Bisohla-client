@@ -100,7 +100,6 @@ const WebLayout = async ({
 
           {/* Footer */}
           <Footer />
-          <ChatbotWidget />
 
           {/* Bottom Navigation for Mobile */}
           <BottomNavigation />

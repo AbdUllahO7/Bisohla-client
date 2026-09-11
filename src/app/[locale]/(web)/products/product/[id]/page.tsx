@@ -187,7 +187,6 @@ const ProductPage = async ({ params, searchParams }: ProductPageProps) => {
     const locale = await getLocale();
 
     const { carResponse, rawListing, isLegacyCar } = await fetchCarData(id, isProfileView, locale, session?.user?.id);
-    console.log("carResponse",carResponse)
     if (!carResponse.success || !carResponse.data) {
       notFound();
     }

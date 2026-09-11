@@ -248,7 +248,16 @@ const FilterContent = React.memo(
       
       const normalizedSlug = slug.toLowerCase().replace(/_/g, '');
       return dynamicOptions.filterSchema.sections.some((s: any) => 
-        s.attributes.some((a: any) => a.slug.toLowerCase().replace(/_/g, '') === normalizedSlug)
+        s.attributes.some((a: any) => {
+          const aSlug = (a.slug || '').toLowerCase().replace(/_/g, '');
+          if (normalizedSlug === 'make') {
+            return aSlug === 'make' || aSlug === 'marka' || aSlug === 'brand' || aSlug === 'branda' || aSlug === 'carmake';
+          }
+          if (normalizedSlug === 'year') {
+            return aSlug === 'year' || aSlug === 'madeyear' || aSlug === 'caryear';
+          }
+          return aSlug === normalizedSlug;
+        })
       );
     };
 

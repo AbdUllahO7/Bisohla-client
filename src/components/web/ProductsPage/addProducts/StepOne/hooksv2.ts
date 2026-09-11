@@ -14,12 +14,36 @@ import {
 } from './utils';
 import { loadSelections, saveSelections } from './StorageUtils';
 import { STORAGE_KEYS } from '../Main/hooks/useLocalStorage';
+import {
+  isMakeAttribute,
+  isModelAttribute,
+  isTrimAttribute,
+  extractIsTrimRequired,
+} from '@/utils/trim-helpers';
+import { isValidImageUrl } from '@/components/web/ProductsPage/nested-car-filter';
 
 // Translation helper for ref items
 const translateName = (item: ListingTypeRefItemDto, locale: string) => {
-  if (!item.name) return "";
+  if (!item) return '';
+  if (item.translations && typeof item.translations === 'object') {
+    const loc =
+      item.translations[locale] ||
+      item.translations['ar'] ||
+      item.translations['en'];
+    if (loc && typeof loc === 'object' && loc.name) return loc.name;
+    if (typeof loc === 'string') return loc;
+  }
+  if (!item.name) return '';
   if (typeof item.name === 'string') return item.name;
-  return item.name[locale] || item.name['en'] || item.name['ar'] || "";
+  if (typeof item.name === 'object' && item.name !== null) {
+    return (
+      (item.name as any)[locale] ||
+      (item.name as any)['ar'] ||
+      (item.name as any)['en'] ||
+      ''
+    );
+  }
+  return String(item.name);
 };
 
 /**
@@ -118,12 +142,12 @@ export const useProductStepOne = (
           let trimFound = false;
 
           for (const [slug, attr] of Object.entries(attrs)) {
-            const lowSlug = slug.toLowerCase();
-            if (lowSlug === 'make' || lowSlug === 'branda') {
+            const attrWithSlug = { ...attr, slug: (attr as any).slug || slug };
+            if (isMakeAttribute(attrWithSlug)) {
               newGroupIds.make = attr.referenceGroupId || 0;
-            } else if (lowSlug === 'model') {
+            } else if (isModelAttribute(attrWithSlug)) {
               newGroupIds.model = attr.referenceGroupId || 0;
-            } else if (lowSlug === 'trim') {
+            } else if (isTrimAttribute(attrWithSlug)) {
               newGroupIds.trim = attr.referenceGroupId || 0;
               trimFound = true;
             }
@@ -132,7 +156,7 @@ export const useProductStepOne = (
           setIsTrimInSchema(trimFound);
         }
       } catch (err) {
-        console.error("Failed to fetch schema in hooksv2", err);
+        console.error('Failed to fetch schema in hooksv2', err);
       }
     };
     fetchSchema();
@@ -157,23 +181,29 @@ export const useProductStepOne = (
   // Create fetch functions for infinite scroll dropdowns
   const fetchCarMakes = useCallback(
     async (params: QueryParams) => {
-      if (!groupIds.make) return { success: true, data: { data: [], total: 0, page: 1, pageSize: params.pageSize || 10 } };
+      if (!groupIds.make) return { success: true, data: { data: [], total: 0, page: 1, pageSize: params.pageSize || 30 } };
       const controller = getInjection('IListingTypeRefsRepoController');
       const res = await controller.getItemsByGroupId(
         groupIds.make,
         undefined,
-        params.pageSize,
+        params.pageSize || 30,
         params.searchTerm as string,
-        params.page,
+        params.page || 1,
         locale,
         params.searchKey,
       );
       if (res.success && res.data) {
-        // Map names for the UI
-        res.data.data = res.data.data.map(item => ({
-          ...item,
-          name: translateName(item, locale)
-        } as any));
+        // Map names and metadata for the UI
+        res.data.data = (res.data.data as any[]).map((item) => {
+          const rawLogo = item.logoUrl || item.iconUrl;
+          const validLogo = typeof rawLogo === 'string' && isValidImageUrl(rawLogo) ? rawLogo.trim() : null;
+          return {
+            ...item,
+            name: translateName(item, locale),
+            logoUrl: validLogo,
+            isCarTrimRequired: extractIsTrimRequired(item) ?? false,
+          };
+        });
       }
       return res;
     },
@@ -189,15 +219,15 @@ export const useProductStepOne = (
         makeId;
 
       if (!groupIds.model || !resolvedMakeId)
-        return { success: true, data: { data: [], total: 0, page: 1, pageSize: params.pageSize || 10 } };
+        return { success: true, data: { data: [], total: 0, page: 1, pageSize: params.pageSize || 30 } };
 
       const controller = getInjection('IListingTypeRefsRepoController');
       const res = await controller.getItemsByGroupId(
         groupIds.model,
         Number(resolvedMakeId),
-        params.pageSize,
+        params.pageSize || 30,
         params.searchTerm as string,
-        params.page,
+        params.page || 1,
         locale,
         params.searchKey,
       );
@@ -205,8 +235,8 @@ export const useProductStepOne = (
         res.data.data = res.data.data.map((item) => ({
           ...item,
           name: translateName(item, locale),
-          // NestedCarFilter reads 'makeId' off each item — attach it
           makeId: resolvedMakeId,
+          isCarTrimRequired: extractIsTrimRequired(item) ?? false,
         } as any));
       }
       return res;
@@ -222,15 +252,15 @@ export const useProductStepOne = (
         modelId;
 
       if (!groupIds.trim || !resolvedModelId)
-        return { success: true, data: { data: [], total: 0, page: 1, pageSize: params.pageSize || 10 } };
+        return { success: true, data: { data: [], total: 0, page: 1, pageSize: params.pageSize || 30 } };
 
       const controller = getInjection('IListingTypeRefsRepoController');
       const res = await controller.getItemsByGroupId(
         groupIds.trim,
         Number(resolvedModelId),
-        params.pageSize,
+        params.pageSize || 30,
         params.searchTerm as string,
-        params.page,
+        params.page || 1,
         locale,
         params.searchKey,
       );

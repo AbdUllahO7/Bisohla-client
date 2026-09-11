@@ -40,6 +40,8 @@ export interface PendingLegalItemDto {
   effectiveAt: string | null;
   title: string | null;
   summary: string | null;
+  requiresAcceptance?: boolean;
+  isMaterialChange?: boolean;
 }
 
 export interface PendingLegalResponseDto {

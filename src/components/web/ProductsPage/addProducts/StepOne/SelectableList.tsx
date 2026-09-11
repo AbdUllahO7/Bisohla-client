@@ -402,86 +402,42 @@ const SelectableList: React.FC<SelectableListProps> = ({
     }
   }, [selectedValue, fetchOptions, selectedOption])
 
-  // Compute display options
-  const { displayOptions, hasSearchMatches } = useMemo(() => {
+  // Check if selected option should be visibly pinned (always stays on top when selected)
+  const isPinnedVisible = useMemo(() => {
+    if (!selectedOption) return false
+    return Boolean(toStr(selectedOption.value).trim() || toStr(selectedOption.label).trim())
+  }, [selectedOption])
+
+  // Compute other options (excluding selectedOption to avoid duplicate in scroll area)
+  const { scrollableOptions, hasSearchMatches } = useMemo(() => {
     const sTerm = searchTerm.trim()
+    const selVal = selectedOption ? toStr(selectedOption.value) : null
 
-    // A. Server mode: backend has already filtered by searchTerm
+    // Filter out selected option from the scrollable list so it only lives in the pinned section
+    const unselectedBase = baseOptions.filter((opt) => toStr(opt.value) !== selVal)
+
     if (isServerMode) {
-      const hasMatches = baseOptions.length > 0
-
-      if (selectedOption) {
-        // ALWAYS keep selected option pinned at the top!
-        const selVal = toStr(selectedOption.value)
-        const others = baseOptions.filter(
-          (opt) => toStr(opt.value) !== selVal
-        )
-        
-        // If searching, check if selectedOption matches search term
-        if (sTerm) {
-          const selectedMatches = matchesOption(selectedOption, sTerm)
-          if (selectedMatches) {
-            return {
-              displayOptions: [selectedOption, ...others],
-              hasSearchMatches: true,
-            }
-          }
-          return {
-            displayOptions: others,
-            hasSearchMatches: hasMatches,
-          }
-        }
-
-        return {
-          displayOptions: [selectedOption, ...others],
-          hasSearchMatches: true,
-        }
-      }
-
+      const hasMatches = unselectedBase.length > 0
       return {
-        displayOptions: baseOptions,
-        hasSearchMatches: hasMatches,
+        scrollableOptions: unselectedBase,
+        hasSearchMatches: Boolean(hasMatches),
       }
     }
 
-    // B. Client mode: filter in-memory options
+    // Client mode
     if (!sTerm) {
-      if (selectedOption) {
-        const selVal = toStr(selectedOption.value)
-        const others = baseOptions.filter(
-          (opt) => toStr(opt.value) !== selVal
-        )
-        return { displayOptions: [selectedOption, ...others], hasSearchMatches: true }
+      return {
+        scrollableOptions: unselectedBase,
+        hasSearchMatches: true,
       }
-      return { displayOptions: baseOptions, hasSearchMatches: true }
     }
 
-    const matches = baseOptions.filter((option) =>
-      matchesOption(option, sTerm)
-    )
+    const matches = unselectedBase.filter((option) => matchesOption(option, sTerm))
     const hasMatches = matches.length > 0
 
-    if (selectedOption) {
-      const selVal = toStr(selectedOption.value)
-      const selectedMatches = matchesOption(selectedOption, sTerm)
-      const otherMatches = matches.filter(
-        (opt) => toStr(opt.value) !== selVal
-      )
-      if (selectedMatches) {
-        return {
-          displayOptions: [selectedOption, ...otherMatches],
-          hasSearchMatches: true,
-        }
-      }
-      return {
-        displayOptions: otherMatches,
-        hasSearchMatches: hasMatches,
-      }
-    }
-
     return {
-      displayOptions: matches,
-      hasSearchMatches: hasMatches,
+      scrollableOptions: matches,
+      hasSearchMatches: Boolean(hasMatches),
     }
   }, [isServerMode, baseOptions, searchTerm, selectedOption])
 
@@ -494,13 +450,7 @@ const SelectableList: React.FC<SelectableListProps> = ({
   const handleSelectOption = (option: Option) => {
     const optVal = toStr(option.value)
     const optLabel = toStr(option.label)
-    console.log(`%c[Bishola] 🟢 Clicked ${title}:`, 'color: #198341; font-weight: bold;', {
-      title,
-      type,
-      value: optVal,
-      label: optLabel,
-      option,
-    })
+
     setLastKnownSelectedOption({
       ...option,
       value: optVal,
@@ -515,8 +465,11 @@ const SelectableList: React.FC<SelectableListProps> = ({
 
   // Check if options have logos (dynamic for any reference group / listing type)
   const shouldShowLogo = useMemo(() => {
-    return displayOptions.some((opt) => Boolean(opt.logoUrl))
-  }, [displayOptions])
+    return (
+      (selectedOption && Boolean(selectedOption.logoUrl)) ||
+      scrollableOptions.some((opt) => Boolean(opt.logoUrl))
+    )
+  }, [selectedOption, scrollableOptions])
   const hasActiveProposal = !!pendingProposalName && (!selectedValue || selectedValue === "")
 
   return (
@@ -601,7 +554,7 @@ const SelectableList: React.FC<SelectableListProps> = ({
                 safeDirection === "rtl" ? "right-4" : "left-4"
               } top-1/2 transform -translate-y-1/2`}
             >
-              {isLoading ? (
+              {isLoading && scrollableOptions.length === 0 && !selectedOption ? (
                 <Loader2 size={18} className="text-[#198341] animate-spin" />
               ) : (
                 <Search size={18} className="text-[#198341]" />
@@ -629,13 +582,88 @@ const SelectableList: React.FC<SelectableListProps> = ({
           </Box>
         </div>
 
-        {/* Enhanced Options List */}
+        {/* Pinned Selected Option (Always stays on top when scrolling) */}
+        {isPinnedVisible && selectedOption && (
+          <div className="p-2 pb-1 bg-white dark:bg-zinc-900 border-b border-gray-100 dark:border-zinc-800 shrink-0">
+            <Button
+              type="button"
+              onClick={() => handleSelectOption(selectedOption)}
+              className={`w-full py-4 px-4 text-white font-medium text-left
+                bg-gradient-to-r from-[#198341] to-[#2C3C39] shadow-lg scale-[1.02] border border-[#198341]
+                hover:shadow-xl transition-all duration-300 rounded-xl group
+                ${shouldShowLogo ? "flex items-center justify-between" : ""}`}
+            >
+              <div
+                className={`flex items-center ${
+                  shouldShowLogo ? "flex-1" : "w-full"
+                } ${safeDirection === "ltr" ? "text-left" : "text-right"}`}
+              >
+                {/* Logo for car makes */}
+                {shouldShowLogo && selectedOption.logoUrl && (
+                  <div className="flex-shrink-0 mr-3 rtl:mr-0 rtl:ml-3">
+                    <div className="w-8 h-8 rounded-lg p-1 bg-white/20 shadow-sm">
+                      <Image
+                        alt={`${toStr(selectedOption.label)} logo`}
+                        src={selectedOption.logoUrl}
+                        width={32}
+                        height={32}
+                        className="object-contain w-full h-full"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement
+                          target.style.display = "none"
+                        }}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <span className="flex-1 truncate">
+                  {toStr(selectedOption.label) ||
+                    (lastKnownSelectedOption?.label ? toStr(lastKnownSelectedOption.label) : "") ||
+                    toStr(selectedOption.value)}
+                </span>
+
+                {/* Selected badge */}
+                <span className="text-[10px] bg-white/20 text-white px-2 py-0.5 rounded-full font-medium shrink-0 mx-2">
+                  {isRTL ? "المحدد" : "Selected"}
+                </span>
+              </div>
+
+              {/* Check indicator */}
+              <Check
+                size={16}
+                className="ml-2 rtl:ml-0 rtl:mr-2 text-white shrink-0"
+              />
+            </Button>
+
+            {/* Divider below pinned selected item */}
+            {(scrollableOptions.length > 0 || isLoading) && (
+              <div className="flex items-center gap-2 mt-2 px-1">
+                <div className="h-px bg-gray-200 dark:bg-zinc-800 flex-1" />
+                <span className="text-[10px] text-gray-400 dark:text-zinc-500 font-medium select-none">
+                  {searchTerm.trim()
+                    ? isRTL
+                      ? "نتائج البحث"
+                      : "Search results"
+                    : isRTL
+                    ? "خيارات أخرى"
+                    : "All options"}
+                </span>
+                <div className="h-px bg-gray-200 dark:bg-zinc-800 flex-1" />
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Enhanced Scrollable Options List */}
         <ScrollArea
-          className="h-[280px] w-full overflow-y-auto scrollbar-thin scrollbar-thumb-[#198341]/60 scrollbar-track-gray-100 dark:scrollbar-track-zinc-800 scrollbar-thumb-rounded-full scrollbar-track-rounded-full"
+          className={`${
+            isPinnedVisible && selectedOption ? "h-[210px]" : "h-[280px]"
+          } w-full overflow-y-auto scrollbar-thin scrollbar-thumb-[#198341]/60 scrollbar-track-gray-100 dark:scrollbar-track-zinc-800 scrollbar-thumb-rounded-full scrollbar-track-rounded-full`}
           dir={safeDirection}
         >
           <Box variant="column" className="w-full p-2">
-            {isLoading && displayOptions.length === 0 ? (
+            {isLoading && scrollableOptions.length === 0 && !selectedOption ? (
               /* Loading Skeletons on initial load / full search */
               <div className="space-y-2 p-1">
                 {[1, 2, 3, 4, 5].map((i) => (
@@ -650,15 +678,11 @@ const SelectableList: React.FC<SelectableListProps> = ({
                   </div>
                 ))}
               </div>
-            ) : displayOptions && displayOptions.length > 0 ? (
+            ) : scrollableOptions && scrollableOptions.length > 0 ? (
               <>
-                {displayOptions.map((option, index) => {
+                {scrollableOptions.map((option, index) => {
                   const optVal = toStr(option.value)
                   const optLabel = toStr(option.label)
-                  const isSelected = selectedOption
-                    ? optVal === toStr(selectedOption.value)
-                    : toStr(selectedValue) === optVal ||
-                      (optLabel && optLabel.trim().toLowerCase() === toStr(selectedValue).trim().toLowerCase())
 
                   return (
                     <React.Fragment key={`${optVal}_${index}`}>
@@ -669,12 +693,7 @@ const SelectableList: React.FC<SelectableListProps> = ({
                           hover:bg-gradient-to-r hover:from-[#ABDE3B]/10 hover:to-[#198341]/5 dark:hover:from-[#ABDE3B]/20 dark:hover:to-[#198341]/10
                           hover:text-[#1a2b28] dark:hover:text-white hover:shadow-md hover:scale-[1.02]
                           transition-all duration-300 rounded-xl border border-transparent
-                          hover:border-[#198341]/20 dark:hover:border-[#198341]/40 group
-                          ${
-                            isSelected
-                              ? "bg-gradient-to-r from-[#198341] to-[#2C3C39] text-white shadow-lg scale-[1.02] border-[#198341]"
-                              : "hover:border-gray-200 dark:hover:border-zinc-800"
-                          } 
+                          hover:border-[#198341]/20 dark:hover:border-[#198341]/40 group hover:border-gray-200 dark:hover:border-zinc-800
                           ${shouldShowLogo ? "flex items-center justify-between" : ""}`}
                       >
                         <div
@@ -685,13 +704,7 @@ const SelectableList: React.FC<SelectableListProps> = ({
                           {/* Logo for car makes */}
                           {shouldShowLogo && option.logoUrl && (
                             <div className="flex-shrink-0 mr-3 rtl:mr-0 rtl:ml-3">
-                              <div
-                                className={`w-8 h-8 rounded-lg p-1 shadow-sm transition-all duration-300 ${
-                                  isSelected
-                                    ? "bg-white/20"
-                                    : "bg-gray-100 dark:bg-zinc-800 group-hover:bg-white dark:group-hover:bg-zinc-750 group-hover:shadow-md"
-                                }`}
-                              >
+                              <div className="w-8 h-8 rounded-lg p-1 shadow-sm transition-all duration-300 bg-gray-100 dark:bg-zinc-800 group-hover:bg-white dark:group-hover:bg-zinc-750 group-hover:shadow-md">
                                 <Image
                                   alt={`${optLabel} logo`}
                                   src={option.logoUrl}
@@ -708,50 +721,16 @@ const SelectableList: React.FC<SelectableListProps> = ({
                           )}
 
                           <span className="flex-1 truncate">
-                            {optLabel ||
-                              (isSelected && lastKnownSelectedOption?.label ? toStr(lastKnownSelectedOption.label) : "") ||
-                              (isSelected && isLoading ? (isRTL ? "جاري التحميل..." : "Loading...") : "") ||
-                              optVal}
+                            {optLabel || optVal}
                           </span>
-
-                          {/* Selected badge whenever this item is selected */}
-                          {isSelected && (
-                            <span className="text-[10px] bg-white/20 text-white px-2 py-0.5 rounded-full font-medium shrink-0 mx-2">
-                              {isRTL ? "المحدد" : "Selected"}
-                            </span>
-                          )}
                         </div>
 
-                        {/* Arrow or Check indicator */}
-                        {isSelected ? (
-                          <Check
-                            size={16}
-                            className="ml-2 rtl:ml-0 rtl:mr-2 text-white shrink-0"
-                          />
-                        ) : (
-                          <ChevronRight
-                            size={16}
-                            className="ml-2 rtl:ml-0 rtl:mr-2 text-gray-400 group-hover:text-[#198341] group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-all duration-300 shrink-0"
-                          />
-                        )}
+                        {/* Arrow indicator */}
+                        <ChevronRight
+                          size={16}
+                          className="ml-2 rtl:ml-0 rtl:mr-2 text-gray-400 group-hover:text-[#198341] group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-all duration-300 shrink-0"
+                        />
                       </Button>
-
-                      {/* Divider after pinned selected item if there are other options */}
-                      {index === 0 && isSelected && displayOptions.length > 1 && (
-                        <div className="flex items-center gap-2 my-2 px-1">
-                          <div className="h-px bg-gray-200 dark:bg-zinc-800 flex-1" />
-                          <span className="text-[10px] text-gray-400 dark:text-zinc-500 font-medium select-none">
-                            {searchTerm.trim()
-                              ? isRTL
-                                ? "نتائج البحث"
-                                : "Search results"
-                              : isRTL
-                              ? "خيارات أخرى"
-                              : "All options"}
-                          </span>
-                          <div className="h-px bg-gray-200 dark:bg-zinc-800 flex-1" />
-                        </div>
-                      )}
                     </React.Fragment>
                   )
                 })}
@@ -837,8 +816,8 @@ const SelectableList: React.FC<SelectableListProps> = ({
             )}
 
             {/* List footer propose CTA when options exist and not already showing the no-matches propose block */}
-            {displayOptions &&
-              displayOptions.length > 0 &&
+            {scrollableOptions &&
+              scrollableOptions.length > 0 &&
               onProposeClick &&
               !(!hasSearchMatches && searchTerm.trim()) && (
                 <div className="pt-2 mt-1 border-t border-slate-100 dark:border-zinc-800">
