@@ -272,6 +272,12 @@ export const useDynamicForm = (
 
   // Helper to evaluate valueDependency for an attribute
   const evaluateValueDependency = useCallback((attr: FormAttributeDto, currentData: Record<string, any>): boolean => {
+    const slug = (attr.slug || "").toLowerCase();
+    const isTrim = slug === 'trim' || slug === 'car_trim' || slug === 'cartrim';
+    if (isTrim && !attr.isRequired && !(attr as any).required) {
+      return false;
+    }
+
     const valDep = (attr as any).valueDependency;
     if (!valDep) return true;
     const { op, value, refAttributeSlug } = valDep;

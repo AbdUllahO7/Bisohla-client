@@ -288,9 +288,10 @@ const SelectableList: React.FC<SelectableListProps> = ({
   const searchPlaceholder =
     safeDirection === "ltr" ? `Search ${title.toLowerCase()}...` : `بحث ${title}...`
 
-  // Check if this is a car make type (should show logos)
-  const shouldShowLogo =
-    type === "marka" || type === "make" || type === "car_make" || type === "brand"
+  // Check if options have logos (dynamic for any reference group / listing type)
+  const shouldShowLogo = useMemo(() => {
+    return displayOptions.some((opt) => Boolean(opt.logoUrl))
+  }, [displayOptions])
   const hasActiveProposal = !!pendingProposalName && (!selectedValue || selectedValue === "")
 
   return (

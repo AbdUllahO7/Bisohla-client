@@ -426,6 +426,14 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
   };
 
   const shouldShowField = (attr: any) => {
+    const slug = (attr.slug || "").toLowerCase();
+    const isTrim = slug === 'trim' || slug === 'car_trim' || slug === 'cartrim';
+    
+    // Trim should ONLY appear if explicitly configured as required from the dashboard schema
+    if (isTrim && !attr.isRequired && !(attr as any).required) {
+      return false;
+    }
+
     const valDep = attr.valueDependency;
     if (!valDep) return true;
     const { op, value, refAttributeSlug } = valDep;
