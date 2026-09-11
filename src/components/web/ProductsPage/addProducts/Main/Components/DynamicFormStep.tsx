@@ -6,6 +6,7 @@ import { useDynamicForm } from '../hooks/useDynamicForm';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import { getInjection } from '@/di/container';
 import ProposeReferenceDialog from '../../ProposeReferenceDialog';
 import { ProposeReferenceResult } from '@/core/entities/models/listings/reference-proposal.dto';
 
@@ -31,7 +32,6 @@ import {
   SyriaCity_ARABIC_NAMES, 
   SyriaGovernorate_TO_CITIES,
   normalizeGovernorate,
-  normalizeCity,
 } from '@/core/entities/enums/syria.enums';
 import { resolveCityValue } from '@/utils/geocodeToSyria';
 import CarBlueprint from '../../../product/CarBlueprint';
@@ -481,6 +481,8 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
                 const isGovernorate = slug === 'governorate' || slug === 'محافظة';
                 const isCity = slug === 'city' || slug === 'مدينة';
 
+                const isReference = attr.type === 'reference' || !!attr.referenceGroupId;
+
                 // Get options based on type
                 let options: { value: string; label: string; logoUrl?: string | null }[] = [];
                 if (isGovernorate) {
@@ -521,6 +523,11 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
                   return parentVal && !isNaN(Number(parentVal)) ? Number(parentVal) : null;
                 })();
 
+                const parentHasProposal = (() => {
+                  if (!attr.dependsOnAttributeId) return false;
+                  return !!proposals[attr.dependsOnAttributeId]?.name;
+                })();
+
                 return (
                   <SelectableList
                     key={attr.id}
@@ -536,6 +543,38 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
                     onProposeClick={canProposeFor(attr, parentReferenceItemId) ? (currentSearch) => handleOpenPropose(attr, currentSearch) : undefined}
                     proposeCtaLabel={tProp('propose_cta', { attribute: getTranslation(attr.name) })}
                     emptyDescription={getEmptyDescription(attr)}
+                    fetchOptions={
+                      isReference && attr.referenceGroupId
+                        ? async (params) => {
+                            if (attr.dependsOnAttributeId && (!parentReferenceItemId || parentHasProposal)) {
+                              return { options: [], hasMore: false, total: 0 };
+                            }
+                            const controller = getInjection('IListingTypeRefsRepoController');
+                            const res = await controller.getItemsByGroupId(
+                              attr.referenceGroupId!,
+                              parentReferenceItemId ? Number(parentReferenceItemId) : undefined,
+                              params.pageSize || 30,
+                              params.searchTerm?.trim() || undefined,
+                              params.page || 1,
+                              locale
+                            );
+                            if (res.success && res.data) {
+                              const items = (res.data.data || []).map((item: any) => ({
+                                value: item.id.toString(),
+                                label: getTranslation(item.name),
+                                logoUrl: item.logoUrl || item.iconUrl,
+                              }));
+                              return {
+                                options: items,
+                                hasMore: !!res.data.hasNextPage,
+                                total: res.data.totalItems,
+                              };
+                            }
+                            return { options: [], hasMore: false, total: 0 };
+                          }
+                        : undefined
+                    }
+                    dependencyKey={`${attr.referenceGroupId}_${parentReferenceItemId}_${parentHasProposal}`}
                   />
                 );
               })}
@@ -692,6 +731,33 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
                           isRtl={isArabic}
                           SelectTriggerStyle="h-11 border-gray-300 dark:border-zinc-800 focus:border-[#198341]"
                           isMulti={isMulti}
+                          fetchOptions={
+                            attr.referenceGroupId
+                              ? async (params) => {
+                                  const controller = getInjection('IListingTypeRefsRepoController');
+                                  const res = await controller.getItemsByGroupId(
+                                    attr.referenceGroupId!,
+                                    undefined,
+                                    params.pageSize || 30,
+                                    params.searchTerm?.trim() || undefined,
+                                    params.page || 1,
+                                    locale
+                                  );
+                                  if (res.success && res.data) {
+                                    return {
+                                      options: (res.data.data || []).map((item: any) => ({
+                                        value: item.id.toString(),
+                                        label: getTranslation(item.name),
+                                      })),
+                                      hasMore: !!res.data.hasNextPage,
+                                      total: res.data.totalItems,
+                                    };
+                                  }
+                                  return { options: [], hasMore: false, total: 0 };
+                                }
+                              : undefined
+                          }
+                          dependencyKey={attr.referenceGroupId}
                         />
                       );
                     }

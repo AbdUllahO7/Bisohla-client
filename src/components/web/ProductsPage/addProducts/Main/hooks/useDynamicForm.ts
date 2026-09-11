@@ -43,11 +43,16 @@ export const useDynamicForm = (
     const apiAttributeMap: Record<string, any> = {};
     const apiAttributeMapById: Record<number, any> = {};
     const initialProposals: Record<number, { name: string }> = { ...savedProposals };
+    const initialRefOptions: Record<number, ListingTypeRefItemDto[]> = {};
 
     if (initialData?.attributeValues && Array.isArray(initialData.attributeValues)) {
       initialData.attributeValues.forEach((av: any) => {
         const slug = av.attribute?.slug || av.slug;
         const attrId = av.attributeId || av.attribute?.id || av.id;
+
+        if (av.referenceItem && attrId) {
+          initialRefOptions[attrId] = [av.referenceItem];
+        }
 
         // Checked FIRST per §7.9: pending proposal is the attribute's real answer
         if (av.refItemProposal != null && av.refItemProposal.status === 'pending') {
@@ -71,6 +76,10 @@ export const useDynamicForm = (
           if (attrId) apiAttributeMapById[attrId] = val;
         }
       });
+    }
+
+    if (Object.keys(initialRefOptions).length > 0) {
+      setReferenceOptions(prev => ({ ...initialRefOptions, ...prev }));
     }
 
     const initial: Record<string, any> = {};
