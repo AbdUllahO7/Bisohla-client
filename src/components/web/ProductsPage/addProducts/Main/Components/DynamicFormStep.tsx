@@ -835,7 +835,7 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
                     selectedOption={selectedOptionProp}
                     direction={isArabic ? 'rtl' : 'ltr'}
                     onSelect={(type, val, optionObj) => {
-                      if (optionObj && optionObj.label && !isDigitsOnly(optionObj.label)) {
+                      if (optionObj && optionObj.label) {
                         registerRefItems([{
                           id: isNaN(Number(val)) ? val : Number(val),
                           name: optionObj.label,

@@ -22,24 +22,36 @@ const toStr = (val: any): string => {
   if (typeof val === "string") return val
   if (typeof val === "number" || typeof val === "boolean") return String(val)
   if (typeof val === "object") {
-    if (typeof val.ar === "string") return val.ar
-    if (typeof val.en === "string") return val.en
+    if (typeof val.ar === "string" && val.ar.trim()) return val.ar
+    if (typeof val.en === "string" && val.en.trim()) return val.en
     if (val.ar && typeof val.ar === "object") {
-      if (typeof val.ar.name === "string") return val.ar.name
-      if (typeof val.ar.label === "string") return val.ar.label
-      if (typeof val.ar.value === "string") return val.ar.value
+      if (typeof val.ar.name === "string" && val.ar.name.trim()) return val.ar.name
+      if (typeof val.ar.label === "string" && val.ar.label.trim()) return val.ar.label
+      if (typeof val.ar.value === "string" && val.ar.value.trim()) return val.ar.value
     }
     if (val.en && typeof val.en === "object") {
-      if (typeof val.en.name === "string") return val.en.name
-      if (typeof val.en.label === "string") return val.en.label
-      if (typeof val.en.value === "string") return val.en.value
+      if (typeof val.en.name === "string" && val.en.name.trim()) return val.en.name
+      if (typeof val.en.label === "string" && val.en.label.trim()) return val.en.label
+      if (typeof val.en.value === "string" && val.en.value.trim()) return val.en.value
     }
-    if (typeof val.name === "string") return val.name
-    if (typeof val.label === "string") return val.label
-    if (typeof val.value === "string") return val.value
-    if (val.name && typeof val.name === "object") return toStr(val.name)
-    if (val.label && typeof val.label === "object") return toStr(val.label)
-    if (Array.isArray(val) && val.length > 0) return toStr(val[0])
+    if (typeof val.name === "string" && val.name.trim()) return val.name
+    if (typeof val.label === "string" && val.label.trim()) return val.label
+    if (typeof val.value === "string" && val.value.trim()) return val.value
+    if (val.name && typeof val.name === "object") {
+      const res = toStr(val.name)
+      if (res) return res
+    }
+    if (val.label && typeof val.label === "object") {
+      const res = toStr(val.label)
+      if (res) return res
+    }
+    if (Array.isArray(val) && val.length > 0) {
+      for (const item of val) {
+        const s = toStr(item)
+        if (s) return s
+      }
+      return ""
+    }
     return ""
   }
   return String(val)
@@ -261,11 +273,11 @@ const SelectableList: React.FC<SelectableListProps> = ({
     if (propSelectedOption) {
       const pVal = toStr(propSelectedOption.value).trim().toLowerCase()
       const pLabel = toStr(propSelectedOption.label).trim()
-      if ((pVal === target || (pLabel && pLabel.toLowerCase() === target)) && pLabel && !isPureDigits(pLabel)) {
+      if (pVal === target || (pLabel && pLabel.toLowerCase() === target)) {
         return {
           ...propSelectedOption,
           value: toStr(propSelectedOption.value),
-          label: pLabel,
+          label: pLabel || toStr(propSelectedOption.value),
         }
       }
     }
@@ -276,7 +288,7 @@ const SelectableList: React.FC<SelectableListProps> = ({
       const labelStr = toStr(opt.label).trim().toLowerCase()
       return valStr === target || (labelStr && labelStr === target)
     })
-    if (foundInBase && toStr(foundInBase.label) && !isPureDigits(toStr(foundInBase.label))) {
+    if (foundInBase && toStr(foundInBase.label)) {
       return {
         ...foundInBase,
         value: toStr(foundInBase.value),
@@ -291,7 +303,7 @@ const SelectableList: React.FC<SelectableListProps> = ({
         const labelStr = toStr(opt.label).trim().toLowerCase()
         return valStr === target || (labelStr && labelStr === target)
       })
-      if (foundInProps && toStr(foundInProps.label) && !isPureDigits(toStr(foundInProps.label))) {
+      if (foundInProps && toStr(foundInProps.label)) {
         return {
           ...foundInProps,
           value: toStr(foundInProps.value),
@@ -300,21 +312,20 @@ const SelectableList: React.FC<SelectableListProps> = ({
       }
     }
 
-    // 3. Fallback to cached last known option if it has a real name (not just numeric ID)
+    // 3. Fallback to cached last known option if it has a real name
     if (lastKnownSelectedOption) {
       const cachedValStr = toStr(lastKnownSelectedOption.value).trim().toLowerCase()
       const cachedLabelStr = toStr(lastKnownSelectedOption.label).trim()
       if (
         (cachedValStr === target || (cachedLabelStr && cachedLabelStr.toLowerCase() === target)) &&
-        cachedLabelStr &&
-        !isPureDigits(cachedLabelStr)
+        cachedLabelStr
       ) {
         return lastKnownSelectedOption
       }
     }
 
-    // 4. If propSelectedOption was provided and has a non-numeric label
-    if (propSelectedOption && toStr(propSelectedOption.label) && !isPureDigits(toStr(propSelectedOption.label))) {
+    // 4. If propSelectedOption was provided and has a label
+    if (propSelectedOption && toStr(propSelectedOption.label).trim()) {
       return {
         ...propSelectedOption,
         value: toStr(propSelectedOption.value),
@@ -325,11 +336,11 @@ const SelectableList: React.FC<SelectableListProps> = ({
     // 5. If selectedValue is a textual name (not purely numeric ID)
     const valStr = toStr(selectedValue).trim()
     if (valStr) {
+      if (lastKnownSelectedOption && toStr(lastKnownSelectedOption.value) === valStr && toStr(lastKnownSelectedOption.label).trim()) {
+        return lastKnownSelectedOption
+      }
       if (!isPureDigits(valStr)) {
         return { value: valStr, label: valStr }
-      }
-      if (lastKnownSelectedOption && toStr(lastKnownSelectedOption.value) === valStr && !isPureDigits(toStr(lastKnownSelectedOption.label))) {
-        return lastKnownSelectedOption
       }
       return { value: valStr, label: "" }
     }
@@ -341,16 +352,15 @@ const SelectableList: React.FC<SelectableListProps> = ({
     if (
       selectedOption &&
       toStr(selectedOption.label).trim() &&
-      !isPureDigits(toStr(selectedOption.label).trim()) &&
       (!lastKnownSelectedOption ||
         toStr(lastKnownSelectedOption.value) !== toStr(selectedOption.value) ||
         toStr(lastKnownSelectedOption.label) !== toStr(selectedOption.label))
     ) {
       setLastKnownSelectedOption(selectedOption)
     }
-  }, [selectedOption, lastKnownSelectedOption, isPureDigits])
+  }, [selectedOption, lastKnownSelectedOption])
 
-  // If selectedValue exists and label is still missing or numeric, fetch it directly
+  // If selectedValue exists and label is still missing or empty, fetch it directly
   useEffect(() => {
     if (!fetchOptions || !selectedValue) return
     const sVal = toStr(selectedValue).trim()
@@ -358,8 +368,7 @@ const SelectableList: React.FC<SelectableListProps> = ({
 
     const hasValidLabel =
       selectedOption &&
-      toStr(selectedOption.label).trim() &&
-      !isPureDigits(toStr(selectedOption.label).trim())
+      toStr(selectedOption.label).trim().length > 0
 
     if (!hasValidLabel) {
       fetchOptions({
@@ -377,8 +386,7 @@ const SelectableList: React.FC<SelectableListProps> = ({
               ) || res.options[0]
             if (
               match &&
-              toStr(match.label).trim() &&
-              !isPureDigits(toStr(match.label).trim())
+              toStr(match.label).trim()
             ) {
               setLastKnownSelectedOption({
                 ...match,
@@ -392,7 +400,7 @@ const SelectableList: React.FC<SelectableListProps> = ({
           console.warn("Failed to fetch label for selected item ID:", sVal, err)
         })
     }
-  }, [selectedValue, fetchOptions, selectedOption, isPureDigits])
+  }, [selectedValue, fetchOptions, selectedOption])
 
   // Compute display options
   const { displayOptions, hasSearchMatches } = useMemo(() => {
@@ -700,11 +708,10 @@ const SelectableList: React.FC<SelectableListProps> = ({
                           )}
 
                           <span className="flex-1 truncate">
-                            {optLabel && !isPureDigits(optLabel)
-                              ? optLabel
-                              : (lastKnownSelectedOption && toStr(lastKnownSelectedOption.value) === optVal && toStr(lastKnownSelectedOption.label) && !isPureDigits(toStr(lastKnownSelectedOption.label))
-                                  ? toStr(lastKnownSelectedOption.label)
-                                  : (isLoading || isServerMode ? (isRTL ? "جاري التحميل..." : "Loading...") : optLabel))}
+                            {optLabel ||
+                              (isSelected && lastKnownSelectedOption?.label ? toStr(lastKnownSelectedOption.label) : "") ||
+                              (isSelected && isLoading ? (isRTL ? "جاري التحميل..." : "Loading...") : "") ||
+                              optVal}
                           </span>
 
                           {/* Selected badge whenever this item is selected */}
