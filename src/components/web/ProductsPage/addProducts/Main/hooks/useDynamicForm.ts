@@ -5,8 +5,10 @@ import { getInjection } from '@/di/container';
 import { ListingTypeRefItemDto } from '@/core/entities/models/listing-type-refs/listing-type-refs.dto';
 import { STORAGE_KEYS, getStorageKey } from './useLocalStorage';
 import { ProposeReferenceResult } from '@/core/entities/models/listings/reference-proposal.dto';
+import { searchFuzzyReferenceItems } from '@/core/infrastructure-adapters/actions/visitors/reference-proposal.actions';
 import { normalizeGovernorate, normalizeCity, normalizeAddress } from '@/core/entities/enums/syria.enums';
 import { resolveCityValue } from '@/utils/geocodeToSyria';
+import { extractIsTrimRequired, isTrimAttribute, isMakeAttribute, isModelAttribute } from '@/utils/trim-helpers';
 
 export const useDynamicForm = (
   attributes: FormAttributeDto[],
@@ -17,6 +19,25 @@ export const useDynamicForm = (
   const [proposals, setProposals] = useState<Record<number, { name: string }>>({});
   const [referenceOptions, setReferenceOptions] = useState<Record<number, ListingTypeRefItemDto[]>>({});
   const [loadingOptions, setLoadingOptions] = useState<Record<number, boolean>>({});
+  const [refItemsMap, setRefItemsMap] = useState<Record<string, ListingTypeRefItemDto>>({});
+
+  const registerRefItems = useCallback((items: ListingTypeRefItemDto[]) => {
+    if (!items || !items.length) return;
+    setRefItemsMap(prev => {
+      let changed = false;
+      const next = { ...prev };
+      items.forEach(item => {
+        if (item && item.id) {
+          const idStr = String(item.id);
+          if (!next[idStr] || JSON.stringify(next[idStr].metadata) !== JSON.stringify(item.metadata)) {
+            next[idStr] = item;
+            changed = true;
+          }
+        }
+      });
+      return changed ? next : prev;
+    });
+  }, []);
 
   // Flag to know if it's the first render to avoid over-writing localStorage with defaults
   const isInitialized = useRef(false);
@@ -38,6 +59,10 @@ export const useDynamicForm = (
     }
 
     const savedProposals: Record<number, { name: string }> = savedData.__proposals__ || {};
+    const savedRefItems: Record<string, ListingTypeRefItemDto> = savedData.__refItems__ || {};
+    if (savedRefItems && Object.keys(savedRefItems).length > 0) {
+      registerRefItems(Object.values(savedRefItems));
+    }
 
     // Parse attributeValues from initialData if available (Generic Listing API)
     const apiAttributeMap: Record<string, any> = {};
@@ -46,12 +71,14 @@ export const useDynamicForm = (
     const initialRefOptions: Record<number, ListingTypeRefItemDto[]> = {};
 
     if (initialData?.attributeValues && Array.isArray(initialData.attributeValues)) {
+      const initialItems: ListingTypeRefItemDto[] = [];
       initialData.attributeValues.forEach((av: any) => {
         const slug = av.attribute?.slug || av.slug;
         const attrId = av.attributeId || av.attribute?.id || av.id;
 
         if (av.referenceItem && attrId) {
           initialRefOptions[attrId] = [av.referenceItem];
+          initialItems.push(av.referenceItem);
         }
 
         // Checked FIRST per §7.9: pending proposal is the attribute's real answer
@@ -76,6 +103,10 @@ export const useDynamicForm = (
           if (attrId) apiAttributeMapById[attrId] = val;
         }
       });
+
+      if (initialItems.length > 0) {
+        registerRefItems(initialItems);
+      }
     }
 
     if (Object.keys(initialRefOptions).length > 0) {
@@ -218,11 +249,12 @@ export const useDynamicForm = (
       ...currentStoredData,
       ...formData,
       __attributeMap__: currentAttrMap,
-      __proposals__: mergedProposals
+      __proposals__: mergedProposals,
+      __refItems__: { ...(currentStoredData.__refItems__ || {}), ...refItemsMap }
     };
 
     localStorage.setItem(storageKey, JSON.stringify(updatedData));
-  }, [formData, proposals, attributes]);
+  }, [formData, proposals, attributes, refItemsMap]);
 
   // Function to fetch reference options
   const fetchOptions = useCallback(async (attr: FormAttributeDto, parentItemId?: number) => {
@@ -231,17 +263,18 @@ export const useDynamicForm = (
     setLoadingOptions(prev => ({ ...prev, [attr.id]: true }));
     try {
       const controller = getInjection('IListingTypeRefsRepoController');
-      const response = await controller.getItemsByGroupId(attr.referenceGroupId, parentItemId, 1000);
+      const response = await controller.getItemsByGroupId(attr.referenceGroupId, parentItemId, 100);
       if (response.success && response.data) {
         const options = response.data.data;
         setReferenceOptions(prev => ({ ...prev, [attr.id]: options }));
+        registerRefItems(options);
       }
     } catch (error) {
       console.error(`Failed to fetch options for attribute ${attr.id}`, error);
     } finally {
       setLoadingOptions(prev => ({ ...prev, [attr.id]: false }));
     }
-  }, []);
+  }, [registerRefItems]);
 
   // Effect to fetch initial independent reference options
   useEffect(() => {
@@ -270,11 +303,84 @@ export const useDynamicForm = (
     });
   }, [formData, proposals, attributes, fetchOptions]);
 
+  // Effect to fetch metadata for any selected reference ID not yet in refItemsMap
+  useEffect(() => {
+    attributes.forEach(async (attr) => {
+      if (attr.referenceGroupId) {
+        const selectedId = formData[attr.slug];
+        if (selectedId && !refItemsMap[String(selectedId)]) {
+          try {
+            const controller = getInjection('IListingTypeRefsRepoController');
+            const parentAttr = attr.dependsOnAttributeId ? attributes.find(a => a.id === attr.dependsOnAttributeId) : null;
+            const parentVal = parentAttr ? formData[parentAttr.slug] : undefined;
+            
+            // 1. Try querying by ID
+            const res = await controller.getItemsByGroupId(
+              attr.referenceGroupId,
+              parentVal ? Number(parentVal) : undefined,
+              10,
+              String(selectedId),
+              1,
+              undefined,
+              'id'
+            );
+            if (res.success && res.data?.data && res.data.data.length > 0) {
+              registerRefItems(res.data.data);
+            } else {
+              // 2. Try fuzzy search
+              const fuzzyRes = await searchFuzzyReferenceItems(attr.referenceGroupId, {
+                searchTerm: String(selectedId),
+                parentItemId: parentVal ? Number(parentVal) : undefined,
+              });
+              if (fuzzyRes.success && Array.isArray(fuzzyRes.data) && fuzzyRes.data.length > 0) {
+                registerRefItems(fuzzyRes.data.map((fItem: any) => ({
+                  id: fItem.id,
+                  name: fItem.label,
+                  translations: fItem.translations || { ar: { name: fItem.label }, en: { name: fItem.label } },
+                  metadata: fItem.metadata,
+                  logoUrl: fItem.logoUrl || fItem.iconUrl,
+                })) as any);
+              }
+            }
+          } catch (e) {
+            console.error('Failed to fetch ref item for selected id', selectedId, e);
+          }
+        }
+      }
+    });
+  }, [formData, attributes, refItemsMap, registerRefItems]);
+
   // Helper to evaluate valueDependency for an attribute
   const evaluateValueDependency = useCallback((attr: FormAttributeDto, currentData: Record<string, any>): boolean => {
-    const slug = (attr.slug || "").toLowerCase();
-    const isTrim = slug === 'trim' || slug === 'car_trim' || slug === 'cartrim';
-    if (isTrim && !attr.isRequired && !(attr as any).required) {
+    const isTrim = isTrimAttribute(attr);
+
+    if (isTrim) {
+      // 1. If explicitly required globally on schema attribute
+      if (attr.isRequired || (attr as any).required) return true;
+
+      // 2. Check if selected make or model has isCarTrimRequired in metadata or property
+      const makeAttr = attributes.find(a => isMakeAttribute(a));
+      const selectedMakeId = makeAttr ? currentData[makeAttr.slug] : null;
+      const selectedMakeItem = selectedMakeId
+        ? (refItemsMap[String(selectedMakeId)] || referenceOptions[makeAttr?.id || 0]?.find((m: any) => String(m.id) === String(selectedMakeId)))
+        : null;
+
+      const modelAttr = attributes.find(a => isModelAttribute(a));
+      const selectedModelId = modelAttr ? currentData[modelAttr.slug] : null;
+      const selectedModelItem = selectedModelId
+        ? (refItemsMap[String(selectedModelId)] || referenceOptions[modelAttr?.id || 0]?.find((m: any) => String(m.id) === String(selectedModelId)))
+        : null;
+
+      const trimReqOnModel = extractIsTrimRequired(selectedModelItem);
+      if (trimReqOnModel !== undefined) return trimReqOnModel;
+
+      const trimReqOnMake = extractIsTrimRequired(selectedMakeItem);
+      if (trimReqOnMake !== undefined) return trimReqOnMake;
+
+      if (referenceOptions[attr.id] && referenceOptions[attr.id].length > 0) {
+        return true;
+      }
+
       return false;
     }
 
@@ -309,7 +415,7 @@ export const useDynamicForm = (
     }
 
     return !conditionMet;
-  }, []);
+  }, [attributes, referenceOptions]);
 
   // Standard field change handler
   const handleFieldChange = useCallback((slug: string, value: any) => {
@@ -455,11 +561,18 @@ export const useDynamicForm = (
 
   useEffect(() => {
     const isValid = attributes.every(attr => {
-      // If the field is hidden by valueDependency, it should NOT be required for validation!
+      // If the field is hidden by valueDependency or trim rule, it should NOT be required for validation!
       const isShown = evaluateValueDependency(attr, formData);
       if (!isShown) return true;
 
-      if (attr.isRequired || (attr as any).required) {
+      const isTrim = isTrimAttribute(attr);
+      const isTrimReq = isTrim
+        ? (extractIsTrimRequired(refItemsMap[String(formData[attributes.find(a => isModelAttribute(a))?.slug || ''])]) ??
+           extractIsTrimRequired(refItemsMap[String(formData[attributes.find(a => isMakeAttribute(a))?.slug || ''])]) ??
+           attr.isRequired)
+        : (attr.isRequired || (attr as any).required);
+
+      if (isTrimReq) {
         // §7.7 (1): A proposal counts as filled for reference attributes
         const hasProposal = !!proposals[attr.id]?.name;
         if (attr.type === 'reference' && hasProposal) {
@@ -479,13 +592,15 @@ export const useDynamicForm = (
       lastValidRef.current = isValid;
       onValidationChangeRef.current(isValid);
     }
-  }, [formData, proposals, attributes, evaluateValueDependency]);
+  }, [formData, proposals, attributes, evaluateValueDependency, refItemsMap]);
 
   return {
     formData,
     proposals,
     referenceOptions,
     loadingOptions,
+    refItemsMap,
+    registerRefItems,
     handleFieldChange,
     handleSetProposal,
     handleClearProposal,

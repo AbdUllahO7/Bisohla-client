@@ -40,14 +40,14 @@ const Logo = ({
   if (isLoading) {
     return (
       <div className={cn('flex items-center flex-shrink-0', className)}>
-        <div className="h-9 sm:h-10 md:h-11 w-32 sm:w-44 bg-gray-200 dark:bg-zinc-800 rounded animate-pulse"></div>
+        <div className="h-6 sm:h-7 md:h-8 w-20 sm:w-24 md:w-28 bg-gray-200 dark:bg-zinc-800 rounded animate-pulse"></div>
       </div>
     );
   }
 
   const isCustomSize = width !== undefined || height !== undefined;
-  const defaultWidth = width || 240;
-  const defaultHeight = height || 60;
+  const defaultWidth = width || 135;
+  const defaultHeight = height || 32;
 
   return (
     <div
@@ -62,7 +62,7 @@ const Logo = ({
         priority
         className={cn(
           'object-contain transition-all duration-200',
-          !isCustomSize && 'h-9 sm:h-10 md:h-11 w-auto max-w-[180px] sm:max-w-[200px] md:max-w-[240px]',
+          !isCustomSize && 'h-6 sm:h-7 md:h-8 w-auto max-w-[85px] sm:max-w-[105px] md:max-w-[130px]',
           imageClassName
         )}
         onError={() => {

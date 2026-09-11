@@ -100,14 +100,14 @@ export const getAllFormData = (
     const stepThreeKey = getStorageKey('STEP_THREE', isEditMode);
     const stepFourKey = getStorageKey('STEP_FOUR', isEditMode);
     
-    // Get the data from localStorage
-    const data1 = localStorage.getItem(stepOneKey);
-    const data2 = localStorage.getItem(stepTwoKey);
-    const data3 = localStorage.getItem(stepThreeKey);
-    const data4 = localStorage.getItem(stepFourKey);
+    // Get the data from localStorage with fallbacks
+    const data1 = localStorage.getItem(stepOneKey) || localStorage.getItem(STORAGE_KEYS.STEP_ONE) || localStorage.getItem(EDIT_STORAGE_KEYS.STEP_ONE);
+    const data2 = localStorage.getItem(stepTwoKey) || localStorage.getItem(STORAGE_KEYS.STEP_TWO) || localStorage.getItem(EDIT_STORAGE_KEYS.STEP_TWO) || '{}';
+    const data3 = localStorage.getItem(stepThreeKey) || localStorage.getItem(STORAGE_KEYS.STEP_THREE) || localStorage.getItem(EDIT_STORAGE_KEYS.STEP_THREE) || '{"coverImage":[]}';
+    const data4 = localStorage.getItem(stepFourKey) || localStorage.getItem(STORAGE_KEYS.STEP_FOUR) || localStorage.getItem(EDIT_STORAGE_KEYS.STEP_FOUR);
     
-    // Check if we have all required data
-    if (!data1 || !data2 || !data3 || !data4) {
+    // Check if we have essential data (step 1 and step 4)
+    if (!data1 || !data4) {
       console.error('Missing required data in localStorage', {
         stepOne: !!data1,
         stepTwo: !!data2,
@@ -119,10 +119,10 @@ export const getAllFormData = (
     
     // Parse and return the data
     return {
-      stepOne: JSON.parse(data1),
-      stepTwo: JSON.parse(data2),
-      stepThree: JSON.parse(data3),
-      stepFour: JSON.parse(data4)
+      stepOne: data1 ? JSON.parse(data1) : {},
+      stepTwo: data2 ? JSON.parse(data2) : {},
+      stepThree: data3 ? JSON.parse(data3) : { coverImage: [] },
+      stepFour: data4 ? JSON.parse(data4) : {}
     };
   } catch (error) {
     console.error('Error getting form data:', error);

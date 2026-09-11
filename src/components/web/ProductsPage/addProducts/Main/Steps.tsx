@@ -344,7 +344,7 @@ const Steps: React.FC<StepsProps> = ({ isEditMode = false, carId, initialData })
                   handleNext={handleNext} 
                   direction={direction} 
                   step="typeSelection"
-                  isNextDisabled={!selectedType || isSubmitting}
+                  isNextDisabled={!selectedType || isSubmitting || loadingSchema || dynamicSteps.length <= 1}
                   requiredFieldsMessage={requiredFieldsMessage}
                 >
                   <AddProductTypeSelection 

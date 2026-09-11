@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ListingTypeFormSchemaDto, SectionDto } from '@/core/entities/models/listing-types/listing-types.dto';
 import Text from '@/components/ui/text';
 import { useDynamicForm } from '../hooks/useDynamicForm';
@@ -34,8 +34,140 @@ import {
   normalizeGovernorate,
 } from '@/core/entities/enums/syria.enums';
 import { resolveCityValue } from '@/utils/geocodeToSyria';
+import { extractIsTrimRequired, isTrimAttribute, isMakeAttribute, isModelAttribute } from '@/utils/trim-helpers';
+import { searchFuzzyReferenceItems } from '@/core/infrastructure-adapters/actions/visitors/reference-proposal.actions';
 import CarBlueprint from '../../../product/CarBlueprint';
 import MotorcycleBlueprint from '../../../product/MotorcycleBlueprint';
+
+// Common brand aliases mapping (Arabic, English, and phonetic transliterations)
+const BRAND_ALIASES: Record<string, string[]> = {
+  kupa: ['cupra', 'كوبرا'],
+  cupa: ['cupra', 'كوبرا'],
+  kupra: ['cupra', 'كوبرا'],
+  cupra: ['كوبرا', 'cupra'],
+  'كوبرا': ['cupra', 'كوبرا'],
+  bmw: ['بي ام دبليو', 'بي ام', 'bmw'],
+  'بي ام': ['bmw', 'بي ام دبليو'],
+  'بي ام دبليو': ['bmw', 'بي ام'],
+  'بيم': ['bmw', 'بي ام دبليو'],
+  mercedes: ['مرسيدس', 'benz', 'مرسيدس بنز'],
+  'مرسيدس': ['mercedes', 'benz'],
+  'بنز': ['mercedes', 'مرسيدس'],
+  volkswagen: ['فولكس فاجن', 'فولكس واجن', 'فولكس', 'vw'],
+  'فولكس': ['volkswagen', 'vw', 'فولكس فاجن'],
+  'فوكس': ['volkswagen', 'vw', 'فولكس فاجن'],
+  vw: ['volkswagen', 'فولكس فاجن'],
+  audi: ['اودي', 'أودي'],
+  'اودي': ['audi', 'أودي'],
+  'أودي': ['audi', 'اودي'],
+  toyota: ['تويوتا'],
+  'تويوتا': ['toyota'],
+  'تيوتا': ['toyota', 'تويوتا'],
+  hyundai: ['هيونداي', 'هونداي'],
+  'هيونداي': ['hyundai', 'هونداي'],
+  'هونداي': ['hyundai', 'هيونداي'],
+  kia: ['كيا'],
+  'كيا': ['kia'],
+  honda: ['هوندا'],
+  'هوندا': ['honda'],
+  nissan: ['نيسان'],
+  'نيسان': ['nissan'],
+  chevrolet: ['شفروليه', 'شيفروليه', 'chevy'],
+  chevy: ['chevrolet', 'شفروليه'],
+  'شفروليه': ['chevrolet', 'chevy'],
+  'شيفروليه': ['chevrolet', 'chevy'],
+  'شفر': ['chevrolet', 'شفروليه'],
+  mitsubishi: ['ميتسوبيشي', 'متسوبيشي'],
+  'ميتسوبيشي': ['mitsubishi', 'متسوبيشي'],
+  'متسوبيشي': ['mitsubishi', 'ميتسوبيشي'],
+  peugeot: ['بيجو'],
+  'بيجو': ['peugeot'],
+  renault: ['رينو'],
+  'رينو': ['renault'],
+  porsche: ['بورش', 'بورشه'],
+  'بورش': ['porsche', 'بورشه'],
+  'بورشه': ['porsche', 'بورش'],
+  skoda: ['سكودا', 'اشكودا'],
+  'سكودا': ['skoda'],
+  suzuki: ['سوزوكي'],
+  'سوزوكي': ['suzuki'],
+  mazda: ['مازدا'],
+  'مازدا': ['mazda'],
+  jeep: ['جيب'],
+  'جيب': ['jeep'],
+  landrover: ['لاند روفر', 'رينج روفر', 'range rover'],
+  'land rover': ['لاند روفر', 'رينج روفر', 'range rover'],
+  'range rover': ['رينج روفر', 'لاند روفر', 'land rover'],
+  'لاند روفر': ['land rover', 'range rover'],
+  'رينج روفر': ['range rover', 'land rover'],
+  'رينج': ['range rover', 'land rover'],
+  infiniti: ['انفينيتي', 'انفنتي'],
+  'انفينيتي': ['infiniti'],
+  'انفنتي': ['infiniti'],
+  lexus: ['لكزس', 'لكسس'],
+  'لكزس': ['lexus'],
+  cadillac: ['كاديلاك'],
+  'كاديلاك': ['cadillac'],
+  dodge: ['دودج'],
+  'دودج': ['dodge'],
+  chrysler: ['كرايسلر'],
+  'كرايسلر': ['chrysler'],
+  gmc: ['جمس', 'جي ام سي'],
+  'جمس': ['gmc'],
+  ford: ['فورد'],
+  'فورد': ['ford'],
+  fiat: ['فيات'],
+  'فيات': ['fiat'],
+  chery: ['شيري'],
+  'شيري': ['chery'],
+  geely: ['جيلي'],
+  'جيلي': ['geely'],
+  byd: ['بي واي دي', 'بي وايدي'],
+  'بي واي دي': ['byd'],
+  changan: ['شانجان', 'تشانجان'],
+  'شانجان': ['changan'],
+  haval: ['هافال'],
+  'هافال': ['haval'],
+  mg: ['ام جي', 'امجي'],
+  'ام جي': ['mg'],
+  tesla: ['تسلا', 'تيسلا'],
+  'تسلا': ['tesla'],
+  subaru: ['سوبارو'],
+  'سوبارو': ['subaru'],
+  volvo: ['فولفو'],
+  'فولفو': ['volvo'],
+  seat: ['سيات'],
+  'سيات': ['seat'],
+  opel: ['اوبل', 'أوبل'],
+  'اوبل': ['opel'],
+  'alfa romeo': ['الفا روميو', 'ألفا روميو'],
+  'الفا روميو': ['alfa romeo'],
+  jaguar: ['جاكوار', 'جغوار'],
+  'جاكوار': ['jaguar'],
+  ferrari: ['فيراري'],
+  'فيراري': ['ferrari'],
+  lamborghini: ['لامبورغيني', 'لامبورجيني'],
+  'لامبورغيني': ['lamborghini'],
+  bentley: ['بنتلي'],
+  'بنتلي': ['bentley'],
+  'rolls royce': ['رولز رويس'],
+  'رولز رويس': ['rolls royce'],
+  'aston martin': ['استون مارتن', 'أستون مارتن'],
+  maserati: ['مازيراتى', 'مازيراتي'],
+  'مازيراتي': ['maserati'],
+  genesis: ['جينيسيس', 'جينسس'],
+  'جينيسيس': ['genesis'],
+  isuzu: ['ايسوزو', 'إيسوزو'],
+  'ايسوزو': ['isuzu'],
+  jetour: ['جيتور'],
+  'جيتور': ['jetour'],
+  exeed: ['اكسيد', 'إكسيد'],
+  'اكسيد': ['exeed'],
+  tank: ['تانك'],
+  'تانك': ['tank'],
+  zeekr: ['زيكر'],
+  'زيكر': ['zeekr'],
+};
 
 // --- Sub-components for specialized rendering ---
 
@@ -326,14 +458,51 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
   const isArabic = locale === 'ar';
   const t = useTranslations('addProduct.enteredData.stepTwo'); // Match the nested path in ar.json
 
-  // Helper to extract translation from objects like { ar: "...", en: "..." }
-  const getTranslation = (val: any) => {
+  // Helper to extract translation from objects like { ar: "...", en: "..." } or { ar: { name: "..." } } or array
+  const getTranslation = (val: any): string => {
     if (!val) return "";
     if (typeof val === 'string') return val;
-    if (typeof val === 'object') {
-      return val[locale] || val['en'] || val['ar'] || JSON.stringify(val);
+    if (typeof val === 'number') return String(val);
+    if (Array.isArray(val)) {
+      const locMatch = val.find((item: any) => item?.locale === locale);
+      if (locMatch) {
+        if (typeof locMatch === 'string') return locMatch;
+        if (typeof locMatch?.name === 'string') return locMatch.name;
+        if (typeof locMatch?.label === 'string') return locMatch.label;
+        if (typeof locMatch?.value === 'string') return locMatch.value;
+        if (locMatch.name && typeof locMatch.name === 'object') return getTranslation(locMatch.name);
+      }
+      const fallback = val.find((item: any) => item?.locale === 'ar' || item?.locale === 'en') || val[0];
+      if (fallback) {
+        if (typeof fallback === 'string') return fallback;
+        if (typeof fallback?.name === 'string') return fallback.name;
+        if (typeof fallback?.label === 'string') return fallback.label;
+        if (typeof fallback?.value === 'string') return fallback.value;
+        if (fallback.name && typeof fallback.name === 'object') return getTranslation(fallback.name);
+      }
+      return "";
     }
-    return String(val);
+    if (typeof val === 'object') {
+      const locVal = val[locale] ?? val['ar'] ?? val['en'];
+      if (typeof locVal === 'string') return locVal;
+      if (locVal && typeof locVal === 'object') {
+        if (typeof locVal.name === 'string') return locVal.name;
+        if (typeof locVal.label === 'string') return locVal.label;
+        if (typeof locVal.value === 'string') return locVal.value;
+        if (locVal.name && typeof locVal.name === 'object') return getTranslation(locVal.name);
+      }
+      if (typeof val.name === 'string') return val.name;
+      if (val.name && typeof val.name === 'object') {
+        const innerLoc = val.name[locale] ?? val.name['ar'] ?? val.name['en'];
+        if (typeof innerLoc === 'string') return innerLoc;
+        if (innerLoc && typeof innerLoc === 'object') return getTranslation(innerLoc);
+      }
+      if (typeof val.label === 'string') return val.label;
+      if (typeof val.value === 'string') return val.value;
+      if (val.label && typeof val.label === 'object') return getTranslation(val.label);
+      return "";
+    }
+    return "";
   };
 
   // Inject location fields if they are missing from the "Vehicle Information" section
@@ -364,6 +533,8 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
     proposals,
     referenceOptions, 
     loadingOptions, 
+    refItemsMap,
+    registerRefItems,
     handleFieldChange,
     handleSetProposal,
     handleClearProposal,
@@ -426,11 +597,35 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
   };
 
   const shouldShowField = (attr: any) => {
-    const slug = (attr.slug || "").toLowerCase();
-    const isTrim = slug === 'trim' || slug === 'car_trim' || slug === 'cartrim';
-    
-    // Trim should ONLY appear if explicitly configured as required from the dashboard schema
-    if (isTrim && !attr.isRequired && !(attr as any).required) {
+    const isTrim = isTrimAttribute(attr);
+
+    if (isTrim) {
+      // 1. If explicitly required globally on schema attribute
+      if (attr.isRequired || (attr as any).required) return true;
+
+      // 2. Check if selected make or model has isCarTrimRequired in metadata or property
+      const makeAttr = attributes.find(a => isMakeAttribute(a));
+      const selectedMakeId = makeAttr ? formData[makeAttr.slug] : null;
+      const selectedMakeItem = selectedMakeId
+        ? (refItemsMap[String(selectedMakeId)] || referenceOptions[makeAttr?.id || 0]?.find((m: any) => String(m.id) === String(selectedMakeId)))
+        : null;
+
+      const modelAttr = attributes.find(a => isModelAttribute(a));
+      const selectedModelId = modelAttr ? formData[modelAttr.slug] : null;
+      const selectedModelItem = selectedModelId
+        ? (refItemsMap[String(selectedModelId)] || referenceOptions[modelAttr?.id || 0]?.find((m: any) => String(m.id) === String(selectedModelId)))
+        : null;
+
+      const trimReqOnModel = extractIsTrimRequired(selectedModelItem);
+      if (trimReqOnModel !== undefined) return trimReqOnModel;
+
+      const trimReqOnMake = extractIsTrimRequired(selectedMakeItem);
+      if (trimReqOnMake !== undefined) return trimReqOnMake;
+
+      if (referenceOptions[attr.id] && referenceOptions[attr.id].length > 0) {
+        return true;
+      }
+
       return false;
     }
 
@@ -473,6 +668,40 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
     return !conditionMet;
   };
 
+  // Debug log for inspecting selected make and trim status in browser console
+  useEffect(() => {
+    const makeAttr = attributes.find(a => isMakeAttribute(a));
+    const modelAttr = attributes.find(a => isModelAttribute(a));
+    const trimAttr = attributes.find(a => isTrimAttribute(a));
+
+    const selectedMakeId = makeAttr ? formData[makeAttr.slug] : null;
+    const selectedModelId = modelAttr ? formData[modelAttr.slug] : null;
+
+    if (selectedMakeId) {
+      const selectedMakeItem = refItemsMap[String(selectedMakeId)] || referenceOptions[makeAttr?.id || 0]?.find((m: any) => String(m.id) === String(selectedMakeId));
+      const selectedModelItem = selectedModelId ? (refItemsMap[String(selectedModelId)] || referenceOptions[modelAttr?.id || 0]?.find((m: any) => String(m.id) === String(selectedModelId))) : null;
+
+      const trimReqOnMake = extractIsTrimRequired(selectedMakeItem);
+      const trimReqOnModel = extractIsTrimRequired(selectedModelItem);
+      const isTrimShown = trimAttr ? shouldShowField(trimAttr) : false;
+
+      console.group('%c[Bishola] 🚗 Car Make & Trim Status', 'color: #198341; font-weight: bold; font-size: 13px;');
+      console.log('📌 Selected Make ID:', selectedMakeId);
+      console.log('📦 Selected Make Item:', selectedMakeItem);
+      console.log('🏷️ Make Metadata:', selectedMakeItem?.metadata);
+      console.log('⚙️ isTrimRequired on Make:', trimReqOnMake);
+      if (selectedModelId) {
+        console.log('📌 Selected Model ID:', selectedModelId);
+        console.log('📦 Selected Model Item:', selectedModelItem);
+        console.log('🏷️ Model Metadata:', selectedModelItem?.metadata);
+        console.log('⚙️ isTrimRequired on Model:', trimReqOnModel);
+      }
+      console.log('👀 Trim Attribute in Schema:', trimAttr);
+      console.log('✨ Trim Field Visible (shouldShowField):', isTrimShown);
+      console.groupEnd();
+    }
+  }, [formData, refItemsMap, referenceOptions, attributes]);
+
   return (
     <div className="space-y-8" dir={isArabic ? "rtl" : "ltr"}>
       <DynamicSectionHeader title={getTranslation(section.name)} />
@@ -492,13 +721,18 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
                 const isReference = attr.type === 'reference' || !!attr.referenceGroupId;
 
                 // Get options based on type
-                let options: { value: string; label: string; logoUrl?: string | null }[] = [];
+                let options: { value: string; label: string; logoUrl?: string | null; keywords?: string[] }[] = [];
                 if (isGovernorate) {
                   options = Object.values(SyriaGovernorate).map((gov) => ({
                     value: gov,
                     label: isArabic 
                       ? SyriaGovernorate_ARABIC_NAMES[gov] 
-                      : gov.replace(/-/g, ' ')
+                      : gov.replace(/-/g, ' '),
+                    keywords: [
+                      SyriaGovernorate_ARABIC_NAMES[gov] || '',
+                      gov.replace(/-/g, ' '),
+                      gov,
+                    ].filter(Boolean),
                   }));
                 } else if (isCity) {
                   const selectedGov = normalizeGovernorate(formData['governorate'] || formData['محافظة']) as SyriaGovernorate;
@@ -507,13 +741,26 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
                     : [];
                   options = cityList.map(city => ({
                     value: city,
-                    label: isArabic ? SyriaCity_ARABIC_NAMES[city] : city.replace(/-/g, ' ')
+                    label: isArabic ? SyriaCity_ARABIC_NAMES[city] : city.replace(/-/g, ' '),
+                    keywords: [
+                      SyriaCity_ARABIC_NAMES[city] || '',
+                      city.replace(/-/g, ' '),
+                      city,
+                    ].filter(Boolean),
                   }));
                 } else {
                   options = referenceOptions[attr.id]?.map(opt => ({
                     value: opt.id.toString(),
                     label: getTranslation(opt.name),
-                    logoUrl: opt.logoUrl || opt.iconUrl
+                    logoUrl: opt.logoUrl || opt.iconUrl,
+                    keywords: [
+                      typeof opt.name === 'string' ? opt.name : '',
+                      (opt.name as any)?.ar || (opt.translations as any)?.ar?.name || '',
+                      (opt.name as any)?.en || (opt.translations as any)?.en?.name || '',
+                      (opt as any).label || '',
+                      (opt as any).slug || '',
+                      ...(Array.isArray(opt.translations) ? opt.translations.map((t: any) => t.name) : []),
+                    ].filter(Boolean),
                   })) || [];
                 }
 
@@ -536,6 +783,48 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
                   return !!proposals[attr.dependsOnAttributeId]?.name;
                 })();
 
+                const isTrim = isTrimAttribute(attr);
+                const isTrimReq = isTrim
+                  ? (extractIsTrimRequired(refItemsMap[String(formData[attributes.find(a => isModelAttribute(a))?.slug || ''])]) ??
+                     extractIsTrimRequired(refItemsMap[String(formData[attributes.find(a => isMakeAttribute(a))?.slug || ''])]) ??
+                     attr.isRequired)
+                  : attr.isRequired;
+
+                const selectedRef = selectedValue && isReference
+                  ? (refItemsMap[selectedValue] || referenceOptions[attr.id]?.find((o: any) => String(o.id) === String(selectedValue)))
+                  : null;
+
+                const isDigitsOnly = (str: string) => /^\d+$/.test(str.trim());
+
+                const refLabel = selectedRef
+                  ? (getTranslation(selectedRef.translations) ||
+                     getTranslation(selectedRef.name) ||
+                     (selectedRef as any).label ||
+                     (selectedRef as any).title ||
+                     (typeof selectedRef.name === 'string' ? selectedRef.name : '') ||
+                     (selectedRef as any).slug ||
+                     '')
+                  : '';
+
+                const selectedOptionProp = selectedRef
+                  ? {
+                      value: String(selectedValue),
+                      label: refLabel || (!isDigitsOnly(String(selectedValue)) ? String(selectedValue) : ''),
+                      logoUrl: selectedRef.logoUrl || selectedRef.iconUrl,
+                      keywords: [
+                        typeof selectedRef.name === 'string' ? selectedRef.name : '',
+                        (selectedRef.name as any)?.ar || (selectedRef.translations as any)?.ar?.name || '',
+                        (selectedRef.name as any)?.en || (selectedRef.translations as any)?.en?.name || '',
+                        (selectedRef as any).label || '',
+                        (selectedRef as any).slug || '',
+                      ].filter(Boolean),
+                    }
+                  : (selectedValue && (isGovernorate || isCity)
+                      ? options.find(o => String(o.value) === String(selectedValue)) || null
+                      : (selectedValue && !isDigitsOnly(String(selectedValue))
+                          ? { value: String(selectedValue), label: String(selectedValue) }
+                          : null));
+
                 return (
                   <SelectableList
                     key={attr.id}
@@ -543,9 +832,21 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
                     type={isGovernorate ? "governorate" : isCity ? "city" : "marka"} // marka is generic for reference logic
                     options={options}
                     selectedValue={selectedValue}
+                    selectedOption={selectedOptionProp}
                     direction={isArabic ? 'rtl' : 'ltr'}
-                    onSelect={(type, val) => handleFieldChange(attr.slug, val)}
-                    required={attr.isRequired}
+                    onSelect={(type, val, optionObj) => {
+                      if (optionObj && optionObj.label && !isDigitsOnly(optionObj.label)) {
+                        registerRefItems([{
+                          id: isNaN(Number(val)) ? val : Number(val),
+                          name: optionObj.label,
+                          translations: { [locale]: { name: optionObj.label } },
+                          logoUrl: optionObj.logoUrl,
+                          metadata: (optionObj as any).metadata,
+                        } as any]);
+                      }
+                      handleFieldChange(attr.slug, val);
+                    }}
+                    required={isTrimReq}
                     pendingProposalName={proposals[attr.id]?.name}
                     onClearProposal={() => handleClearProposal(attr.id)}
                     onProposeClick={canProposeFor(attr, parentReferenceItemId) ? (currentSearch) => handleOpenPropose(attr, currentSearch) : undefined}
@@ -558,24 +859,83 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
                               return { options: [], hasMore: false, total: 0 };
                             }
                             const controller = getInjection('IListingTypeRefsRepoController');
+                            const sTerm = params.searchTerm?.trim();
+
+                            // 1. Fetch from standard endpoint without locale restriction to search Arabic & English
                             const res = await controller.getItemsByGroupId(
                               attr.referenceGroupId!,
                               parentReferenceItemId ? Number(parentReferenceItemId) : undefined,
                               params.pageSize || 30,
-                              params.searchTerm?.trim() || undefined,
-                              params.page || 1,
-                              locale
+                              sTerm || undefined,
+                              params.page || 1
                             );
-                            if (res.success && res.data) {
-                              const items = (res.data.data || []).map((item: any) => ({
+
+                            let rawItems = (res.success && res.data?.data) ? [...res.data.data] : [];
+
+                            // 2. If user searched and standard query returned 0 items on page 1, try brand aliases and fuzzy search
+                            if (sTerm && sTerm.length >= 2 && rawItems.length === 0 && (params.page || 1) === 1) {
+                              const lowerSearch = sTerm.toLowerCase();
+                              const aliases = BRAND_ALIASES[lowerSearch] || [];
+
+                              // Try brand aliases
+                              for (const alias of aliases) {
+                                if (rawItems.length > 0) break;
+                                const aliasRes = await controller.getItemsByGroupId(
+                                  attr.referenceGroupId!,
+                                  parentReferenceItemId ? Number(parentReferenceItemId) : undefined,
+                                  params.pageSize || 30,
+                                  alias,
+                                  1
+                                );
+                                if (aliasRes.success && aliasRes.data?.data && aliasRes.data.data.length > 0) {
+                                  rawItems = [...aliasRes.data.data];
+                                }
+                              }
+
+                              // Try fuzzy search endpoint
+                              if (rawItems.length === 0) {
+                                try {
+                                  const fuzzyRes = await searchFuzzyReferenceItems(attr.referenceGroupId!, {
+                                    searchTerm: sTerm,
+                                    parentItemId: parentReferenceItemId ? Number(parentReferenceItemId) : undefined,
+                                  });
+                                  if (fuzzyRes && fuzzyRes.success && Array.isArray(fuzzyRes.data) && fuzzyRes.data.length > 0) {
+                                    rawItems = fuzzyRes.data.map((fItem: any) => ({
+                                      id: fItem.id,
+                                      name: fItem.label,
+                                      translations: fItem.translations || { [locale]: { name: fItem.label } },
+                                      metadata: fItem.metadata,
+                                      logoUrl: fItem.logoUrl || fItem.iconUrl,
+                                    })) as any;
+                                  }
+                                } catch (err) {
+                                  console.warn('Fuzzy search fallback failed for:', sTerm, err);
+                                }
+                              }
+                            }
+
+                            if (rawItems.length > 0) {
+                              registerRefItems(rawItems);
+                              const items = rawItems.map((item: any) => ({
                                 value: item.id.toString(),
-                                label: getTranslation(item.name),
+                                label: getTranslation(item.translations) || getTranslation(item.name) || item.name || item.label || '',
                                 logoUrl: item.logoUrl || item.iconUrl,
+                                keywords: [
+                                  typeof item.name === 'string' ? item.name : '',
+                                  item.name?.ar || item.translations?.ar?.name || '',
+                                  item.name?.en || item.translations?.en?.name || '',
+                                  item.label || '',
+                                  item.slug || '',
+                                  ...(Array.isArray(item.translations) ? item.translations.map((t: any) => t.name) : []),
+                                  ...(BRAND_ALIASES[typeof item.name === 'string' ? item.name.toLowerCase() : ''] || []),
+                                  ...(BRAND_ALIASES[item.name?.en?.toLowerCase() || ''] || []),
+                                  ...(BRAND_ALIASES[item.name?.ar?.toLowerCase() || ''] || []),
+                                ].filter(Boolean),
                               }));
                               return {
                                 options: items,
-                                hasMore: !!res.data.hasNextPage,
-                                total: res.data.totalItems,
+                                hasMore: !!res.data?.hasNextPage,
+                                total: res.data?.totalItems || items.length,
                               };
                             }
                             return { options: [], hasMore: false, total: 0 };
@@ -748,14 +1108,15 @@ const DynamicFormStep: React.FC<DynamicFormStepProps> = ({
                                     undefined,
                                     params.pageSize || 30,
                                     params.searchTerm?.trim() || undefined,
-                                    params.page || 1,
-                                    locale
+                                    params.page || 1
                                   );
                                   if (res.success && res.data) {
+                                    const rawItems = res.data.data || [];
+                                    registerRefItems(rawItems);
                                     return {
-                                      options: (res.data.data || []).map((item: any) => ({
+                                      options: rawItems.map((item: any) => ({
                                         value: item.id.toString(),
-                                        label: getTranslation(item.name),
+                                        label: getTranslation(item.translations) || getTranslation(item.name) || item.name || '',
                                       })),
                                       hasMore: !!res.data.hasNextPage,
                                       total: res.data.totalItems,

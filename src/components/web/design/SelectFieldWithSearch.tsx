@@ -83,8 +83,25 @@ const SelectFieldWithSearch: React.FC<SelectFieldWithSearchProps> = ({
   const sentinelRef = useRef<HTMLDivElement | null>(null)
   const activeRequestIdRef = useRef(0)
 
-  // Last known selected options cache
-  const [lastKnownSelected, setLastKnownSelected] = useState<Array<{ value: string; label: string }>>([])
+  // Last known selected options cache via Ref (prevents circular re-render loops)
+  const knownOptionsMapRef = useRef<Map<string, { value: string; label: string }>>(new Map())
+
+  // Keep known options map updated from props and server options
+  useEffect(() => {
+    if (options && options.length > 0) {
+      options.forEach((opt) => {
+        knownOptionsMapRef.current.set(String(opt.value).trim().toLowerCase(), opt)
+      })
+    }
+  }, [options])
+
+  useEffect(() => {
+    if (serverOptions && serverOptions.length > 0) {
+      serverOptions.forEach((opt) => {
+        knownOptionsMapRef.current.set(String(opt.value).trim().toLowerCase(), opt)
+      })
+    }
+  }, [serverOptions])
 
   // Fetch page 1 when open, or when debouncedSearch/dependencyKey changes
   useEffect(() => {
@@ -194,6 +211,7 @@ const SelectFieldWithSearch: React.FC<SelectFieldWithSearchProps> = ({
       )
       if (matchInBase) {
         found.push(matchInBase)
+        knownOptionsMapRef.current.set(vLower, matchInBase)
         return
       }
 
@@ -202,12 +220,11 @@ const SelectFieldWithSearch: React.FC<SelectFieldWithSearchProps> = ({
       )
       if (matchInProps) {
         found.push(matchInProps)
+        knownOptionsMapRef.current.set(vLower, matchInProps)
         return
       }
 
-      const matchInCache = lastKnownSelected.find(
-        (opt) => String(opt.value).trim().toLowerCase() === vLower || opt.label.trim().toLowerCase() === vLower
-      )
+      const matchInCache = knownOptionsMapRef.current.get(vLower)
       if (matchInCache) {
         found.push(matchInCache)
         return
@@ -219,13 +236,7 @@ const SelectFieldWithSearch: React.FC<SelectFieldWithSearchProps> = ({
     })
 
     return found
-  }, [baseOptions, options, lastKnownSelected, value, isMulti])
-
-  useEffect(() => {
-    if (selectedOptions.length > 0) {
-      setLastKnownSelected(selectedOptions)
-    }
-  }, [selectedOptions])
+  }, [baseOptions, options, value, isMulti])
 
   // Filter options based on search term, ensuring selected options remain visible
   const { displayOptions, hasSearchMatches } = useMemo(() => {
@@ -294,7 +305,7 @@ const SelectFieldWithSearch: React.FC<SelectFieldWithSearchProps> = ({
   const handleSelect = (selectedValue: string) => {
     const clickedOpt = baseOptions.find((opt) => String(opt.value) === String(selectedValue))
     if (clickedOpt) {
-      setLastKnownSelected((prev) => [...prev.filter((p) => String(p.value) !== String(selectedValue)), clickedOpt])
+      knownOptionsMapRef.current.set(String(clickedOpt.value).trim().toLowerCase(), clickedOpt)
     }
 
     if (isMulti) {

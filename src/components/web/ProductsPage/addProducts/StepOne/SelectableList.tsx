@@ -11,9 +11,73 @@ import Image from "next/image"
 import { useDebounce } from "@/hooks/use-debounce"
 
 export interface Option {
-  value: string
-  label: string
+  value: any
+  label: any
   logoUrl?: string | null
+  keywords?: string[]
+}
+
+const toStr = (val: any): string => {
+  if (val === null || val === undefined) return ""
+  if (typeof val === "string") return val
+  if (typeof val === "number" || typeof val === "boolean") return String(val)
+  if (typeof val === "object") {
+    if (typeof val.ar === "string") return val.ar
+    if (typeof val.en === "string") return val.en
+    if (val.ar && typeof val.ar === "object") {
+      if (typeof val.ar.name === "string") return val.ar.name
+      if (typeof val.ar.label === "string") return val.ar.label
+      if (typeof val.ar.value === "string") return val.ar.value
+    }
+    if (val.en && typeof val.en === "object") {
+      if (typeof val.en.name === "string") return val.en.name
+      if (typeof val.en.label === "string") return val.en.label
+      if (typeof val.en.value === "string") return val.en.value
+    }
+    if (typeof val.name === "string") return val.name
+    if (typeof val.label === "string") return val.label
+    if (typeof val.value === "string") return val.value
+    if (val.name && typeof val.name === "object") return toStr(val.name)
+    if (val.label && typeof val.label === "object") return toStr(val.label)
+    if (Array.isArray(val) && val.length > 0) return toStr(val[0])
+    return ""
+  }
+  return String(val)
+}
+
+const normalizeArabic = (text: string): string => {
+  return text
+    .replace(/[\u064B-\u065F\u0670]/g, "") // Remove Tashkeel
+    .replace(/[أإآٱ]/g, "ا")
+    .replace(/ة/g, "ه")
+    .replace(/[يىئ]/g, "ي")
+    .replace(/ؤ/g, "و")
+    .toLowerCase()
+    .trim()
+}
+
+const checkMatch = (targetText: any, term: string): boolean => {
+  if (!targetText || !term) return false
+  const str = toStr(targetText).toLowerCase().trim()
+  const rawTerm = term.toLowerCase().trim()
+  if (!rawTerm) return true
+  if (str.includes(rawTerm)) return true
+  const normStr = normalizeArabic(str)
+  const normTerm = normalizeArabic(rawTerm)
+  if (normStr.includes(normTerm)) return true
+  return false
+}
+
+const matchesOption = (opt: Option | null | undefined, term: string): boolean => {
+  if (!opt || !term) return false
+  if (checkMatch(opt.label, term)) return true
+  if (checkMatch(opt.value, term)) return true
+  if (Array.isArray(opt.keywords)) {
+    for (const kw of opt.keywords) {
+      if (checkMatch(kw, term)) return true
+    }
+  }
+  return false
 }
 
 export interface SelectableListProps {
@@ -21,8 +85,9 @@ export interface SelectableListProps {
   type: string
   options?: Option[]
   selectedValue: string
+  selectedOption?: Option | null
   direction: string
-  onSelect: (type: any, value: string) => void
+  onSelect: (type: any, value: string, option?: Option) => void
   required?: boolean
   pendingProposalName?: string | null
   onClearProposal?: () => void
@@ -46,6 +111,7 @@ const SelectableList: React.FC<SelectableListProps> = ({
   type,
   options = [],
   selectedValue,
+  selectedOption: propSelectedOption,
   direction,
   onSelect,
   required = true,
@@ -59,7 +125,7 @@ const SelectableList: React.FC<SelectableListProps> = ({
 }) => {
   // State for search input
   const [searchTerm, setSearchTerm] = useState("")
-  const debouncedSearch = useDebounce(searchTerm, 300)
+  const debouncedSearch = useDebounce(searchTerm, 250)
 
   // Ensure direction is always a valid value for components that expect "rtl" | "ltr"
   const safeDirection = direction === "rtl" || direction === "ltr" ? direction : "ltr"
@@ -77,7 +143,25 @@ const SelectableList: React.FC<SelectableListProps> = ({
   const activeRequestIdRef = useRef(0)
 
   // Cache the last known selected option so it never disappears while options are loading or updating
-  const [lastKnownSelectedOption, setLastKnownSelectedOption] = useState<Option | null>(null)
+  const [lastKnownSelectedOption, setLastKnownSelectedOption] = useState<Option | null>(
+    propSelectedOption
+      ? {
+          ...propSelectedOption,
+          value: toStr(propSelectedOption.value),
+          label: toStr(propSelectedOption.label),
+        }
+      : null
+  )
+
+  useEffect(() => {
+    if (propSelectedOption && toStr(propSelectedOption.label)) {
+      setLastKnownSelectedOption({
+        ...propSelectedOption,
+        value: toStr(propSelectedOption.value),
+        label: toStr(propSelectedOption.label),
+      })
+    }
+  }, [propSelectedOption])
 
   // Fetch initial/search page 1 when in server mode
   useEffect(() => {
@@ -124,8 +208,8 @@ const SelectableList: React.FC<SelectableListProps> = ({
         if (currentReqId !== activeRequestIdRef.current) return
         const newItems = res?.options || []
         setServerOptions((prev) => {
-          const existingKeys = new Set(prev.map((i) => String(i.value)))
-          const uniqueNew = newItems.filter((i) => !existingKeys.has(String(i.value)))
+          const existingKeys = new Set(prev.map((i) => toStr(i.value)))
+          const uniqueNew = newItems.filter((i) => !existingKeys.has(toStr(i.value)))
           return [...prev, ...uniqueNew]
         })
         setPage(nextPage)
@@ -165,71 +249,184 @@ const SelectableList: React.FC<SelectableListProps> = ({
     return options
   }, [isServerMode, serverOptions, options])
 
+  const isPureDigits = useCallback((str: string) => /^\d+$/.test(str.trim()), [])
+
   // Selected option if present (matching by value, or by label as fallback)
   const selectedOption = useMemo(() => {
     if (!selectedValue && selectedValue !== "0") return null
-    const target = String(selectedValue).trim().toLowerCase()
+    const target = toStr(selectedValue).trim().toLowerCase()
+    if (!target) return null
+
+    // 0. If selectedOption prop is directly provided and has a valid label
+    if (propSelectedOption) {
+      const pVal = toStr(propSelectedOption.value).trim().toLowerCase()
+      const pLabel = toStr(propSelectedOption.label).trim()
+      if ((pVal === target || (pLabel && pLabel.toLowerCase() === target)) && pLabel && !isPureDigits(pLabel)) {
+        return {
+          ...propSelectedOption,
+          value: toStr(propSelectedOption.value),
+          label: pLabel,
+        }
+      }
+    }
 
     // 1. Search in current base options
     const foundInBase = baseOptions.find((opt) => {
-      const valStr = String(opt.value).trim().toLowerCase()
-      const labelStr = opt.label.trim().toLowerCase()
-      return valStr === target || labelStr === target
+      const valStr = toStr(opt.value).trim().toLowerCase()
+      const labelStr = toStr(opt.label).trim().toLowerCase()
+      return valStr === target || (labelStr && labelStr === target)
     })
-    if (foundInBase) return foundInBase
+    if (foundInBase && toStr(foundInBase.label) && !isPureDigits(toStr(foundInBase.label))) {
+      return {
+        ...foundInBase,
+        value: toStr(foundInBase.value),
+        label: toStr(foundInBase.label),
+      }
+    }
 
     // 2. Search in initial options if different
     if (options && options.length > 0) {
       const foundInProps = options.find((opt) => {
-        const valStr = String(opt.value).trim().toLowerCase()
-        const labelStr = opt.label.trim().toLowerCase()
-        return valStr === target || labelStr === target
+        const valStr = toStr(opt.value).trim().toLowerCase()
+        const labelStr = toStr(opt.label).trim().toLowerCase()
+        return valStr === target || (labelStr && labelStr === target)
       })
-      if (foundInProps) return foundInProps
+      if (foundInProps && toStr(foundInProps.label) && !isPureDigits(toStr(foundInProps.label))) {
+        return {
+          ...foundInProps,
+          value: toStr(foundInProps.value),
+          label: toStr(foundInProps.label),
+        }
+      }
     }
 
-    // 3. Fallback to cached last known option
+    // 3. Fallback to cached last known option if it has a real name (not just numeric ID)
     if (lastKnownSelectedOption) {
-      const cachedValStr = String(lastKnownSelectedOption.value).trim().toLowerCase()
-      const cachedLabelStr = lastKnownSelectedOption.label.trim().toLowerCase()
-      if (cachedValStr === target || cachedLabelStr === target) {
+      const cachedValStr = toStr(lastKnownSelectedOption.value).trim().toLowerCase()
+      const cachedLabelStr = toStr(lastKnownSelectedOption.label).trim()
+      if (
+        (cachedValStr === target || (cachedLabelStr && cachedLabelStr.toLowerCase() === target)) &&
+        cachedLabelStr &&
+        !isPureDigits(cachedLabelStr)
+      ) {
         return lastKnownSelectedOption
       }
     }
 
-    // 4. If selectedValue is a readable label but not found yet
-    if (isNaN(Number(selectedValue)) && selectedValue.trim()) {
-      return { value: selectedValue, label: selectedValue }
+    // 4. If propSelectedOption was provided and has a non-numeric label
+    if (propSelectedOption && toStr(propSelectedOption.label) && !isPureDigits(toStr(propSelectedOption.label))) {
+      return {
+        ...propSelectedOption,
+        value: toStr(propSelectedOption.value),
+        label: toStr(propSelectedOption.label),
+      }
+    }
+
+    // 5. If selectedValue is a textual name (not purely numeric ID)
+    const valStr = toStr(selectedValue).trim()
+    if (valStr) {
+      if (!isPureDigits(valStr)) {
+        return { value: valStr, label: valStr }
+      }
+      if (lastKnownSelectedOption && toStr(lastKnownSelectedOption.value) === valStr && !isPureDigits(toStr(lastKnownSelectedOption.label))) {
+        return lastKnownSelectedOption
+      }
+      return { value: valStr, label: "" }
     }
 
     return null
-  }, [baseOptions, options, selectedValue, lastKnownSelectedOption])
+  }, [baseOptions, options, selectedValue, lastKnownSelectedOption, propSelectedOption, isPureDigits])
 
   useEffect(() => {
     if (
       selectedOption &&
+      toStr(selectedOption.label).trim() &&
+      !isPureDigits(toStr(selectedOption.label).trim()) &&
       (!lastKnownSelectedOption ||
-        String(lastKnownSelectedOption.value) !== String(selectedOption.value) ||
-        lastKnownSelectedOption.label !== selectedOption.label)
+        toStr(lastKnownSelectedOption.value) !== toStr(selectedOption.value) ||
+        toStr(lastKnownSelectedOption.label) !== toStr(selectedOption.label))
     ) {
       setLastKnownSelectedOption(selectedOption)
     }
-  }, [selectedOption, lastKnownSelectedOption])
+  }, [selectedOption, lastKnownSelectedOption, isPureDigits])
+
+  // If selectedValue exists and label is still missing or numeric, fetch it directly
+  useEffect(() => {
+    if (!fetchOptions || !selectedValue) return
+    const sVal = toStr(selectedValue).trim()
+    if (!sVal) return
+
+    const hasValidLabel =
+      selectedOption &&
+      toStr(selectedOption.label).trim() &&
+      !isPureDigits(toStr(selectedOption.label).trim())
+
+    if (!hasValidLabel) {
+      fetchOptions({
+        searchTerm: sVal,
+        page: 1,
+        pageSize: 10,
+      })
+        .then((res) => {
+          if (res?.options && res.options.length > 0) {
+            const match =
+              res.options.find(
+                (o) =>
+                  toStr(o.value) === sVal ||
+                  toStr(o.label).toLowerCase() === sVal.toLowerCase()
+              ) || res.options[0]
+            if (
+              match &&
+              toStr(match.label).trim() &&
+              !isPureDigits(toStr(match.label).trim())
+            ) {
+              setLastKnownSelectedOption({
+                ...match,
+                value: toStr(match.value),
+                label: toStr(match.label),
+              })
+            }
+          }
+        })
+        .catch((err) => {
+          console.warn("Failed to fetch label for selected item ID:", sVal, err)
+        })
+    }
+  }, [selectedValue, fetchOptions, selectedOption, isPureDigits])
 
   // Compute display options
   const { displayOptions, hasSearchMatches } = useMemo(() => {
+    const sTerm = searchTerm.trim()
+
     // A. Server mode: backend has already filtered by searchTerm
     if (isServerMode) {
       const hasMatches = baseOptions.length > 0
 
       if (selectedOption) {
         // ALWAYS keep selected option pinned at the top!
+        const selVal = toStr(selectedOption.value)
         const others = baseOptions.filter(
-          (opt) => String(opt.value) !== String(selectedOption.value)
+          (opt) => toStr(opt.value) !== selVal
         )
+        
+        // If searching, check if selectedOption matches search term
+        if (sTerm) {
+          const selectedMatches = matchesOption(selectedOption, sTerm)
+          if (selectedMatches) {
+            return {
+              displayOptions: [selectedOption, ...others],
+              hasSearchMatches: true,
+            }
+          }
+          return {
+            displayOptions: others,
+            hasSearchMatches: hasMatches,
+          }
+        }
+
         return {
           displayOptions: [selectedOption, ...others],
-          hasSearchMatches: hasMatches,
+          hasSearchMatches: true,
         }
       }
 
@@ -240,12 +437,11 @@ const SelectableList: React.FC<SelectableListProps> = ({
     }
 
     // B. Client mode: filter in-memory options
-    const trimmed = searchTerm.trim().toLowerCase()
-
-    if (!trimmed) {
+    if (!sTerm) {
       if (selectedOption) {
+        const selVal = toStr(selectedOption.value)
         const others = baseOptions.filter(
-          (opt) => String(opt.value) !== String(selectedOption.value)
+          (opt) => toStr(opt.value) !== selVal
         )
         return { displayOptions: [selectedOption, ...others], hasSearchMatches: true }
       }
@@ -253,16 +449,24 @@ const SelectableList: React.FC<SelectableListProps> = ({
     }
 
     const matches = baseOptions.filter((option) =>
-      option.label.toLowerCase().includes(trimmed)
+      matchesOption(option, sTerm)
     )
     const hasMatches = matches.length > 0
 
     if (selectedOption) {
+      const selVal = toStr(selectedOption.value)
+      const selectedMatches = matchesOption(selectedOption, sTerm)
       const otherMatches = matches.filter(
-        (opt) => String(opt.value) !== String(selectedOption.value)
+        (opt) => toStr(opt.value) !== selVal
       )
+      if (selectedMatches) {
+        return {
+          displayOptions: [selectedOption, ...otherMatches],
+          hasSearchMatches: true,
+        }
+      }
       return {
-        displayOptions: [selectedOption, ...otherMatches],
+        displayOptions: otherMatches,
         hasSearchMatches: hasMatches,
       }
     }
@@ -280,8 +484,21 @@ const SelectableList: React.FC<SelectableListProps> = ({
 
   // Handle option click
   const handleSelectOption = (option: Option) => {
-    setLastKnownSelectedOption(option)
-    onSelect(type, option.value)
+    const optVal = toStr(option.value)
+    const optLabel = toStr(option.label)
+    console.log(`%c[Bishola] 🟢 Clicked ${title}:`, 'color: #198341; font-weight: bold;', {
+      title,
+      type,
+      value: optVal,
+      label: optLabel,
+      option,
+    })
+    setLastKnownSelectedOption({
+      ...option,
+      value: optVal,
+      label: optLabel,
+    })
+    onSelect(type, optVal, option)
   }
 
   // Placeholder text based on direction
@@ -428,13 +645,15 @@ const SelectableList: React.FC<SelectableListProps> = ({
             ) : displayOptions && displayOptions.length > 0 ? (
               <>
                 {displayOptions.map((option, index) => {
+                  const optVal = toStr(option.value)
+                  const optLabel = toStr(option.label)
                   const isSelected = selectedOption
-                    ? String(option.value) === String(selectedOption.value)
-                    : String(selectedValue) === String(option.value) ||
-                      option.label.trim().toLowerCase() === String(selectedValue).trim().toLowerCase()
+                    ? optVal === toStr(selectedOption.value)
+                    : toStr(selectedValue) === optVal ||
+                      (optLabel && optLabel.trim().toLowerCase() === toStr(selectedValue).trim().toLowerCase())
 
                   return (
-                    <React.Fragment key={option.value}>
+                    <React.Fragment key={`${optVal}_${index}`}>
                       <Button
                         type="button"
                         onClick={() => handleSelectOption(option)}
@@ -466,7 +685,7 @@ const SelectableList: React.FC<SelectableListProps> = ({
                                 }`}
                               >
                                 <Image
-                                  alt={`${option.label} logo`}
+                                  alt={`${optLabel} logo`}
                                   src={option.logoUrl}
                                   width={32}
                                   height={32}
@@ -480,7 +699,13 @@ const SelectableList: React.FC<SelectableListProps> = ({
                             </div>
                           )}
 
-                          <span className="flex-1 truncate">{option.label}</span>
+                          <span className="flex-1 truncate">
+                            {optLabel && !isPureDigits(optLabel)
+                              ? optLabel
+                              : (lastKnownSelectedOption && toStr(lastKnownSelectedOption.value) === optVal && toStr(lastKnownSelectedOption.label) && !isPureDigits(toStr(lastKnownSelectedOption.label))
+                                  ? toStr(lastKnownSelectedOption.label)
+                                  : (isLoading || isServerMode ? (isRTL ? "جاري التحميل..." : "Loading...") : optLabel))}
+                          </span>
 
                           {/* Selected badge whenever this item is selected */}
                           {isSelected && (

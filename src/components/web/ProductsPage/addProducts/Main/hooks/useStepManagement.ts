@@ -207,8 +207,9 @@ export const useStepManagement = (isEditMode = false, steps: string[] = ["produc
       return;
     }
     
-    // If we're on the last step, submit the form
-    if (currentIndex === steps.length - 1) {
+    // If we're on the last step (adsInfo), submit the form
+    const isLastStep = currentStep === 'adsInfo' || (steps.includes('adsInfo') && currentIndex === steps.length - 1);
+    if (isLastStep) {
       submitForm();
       return;
     }

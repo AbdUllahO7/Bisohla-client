@@ -63,17 +63,20 @@ const SettingsContext = createContext<SettingsContextType | undefined>(
   undefined,
 );
 
+import { ApiResponse } from '@/core/entities/api/success.response';
+
 interface SettingsProviderProps {
   children: ReactNode;
+  initialSettings?: ApiResponse<any>;
 }
 
-export function SettingsProvider({ children }: SettingsProviderProps) {
-  const { data: settingsResponse, isLoading, error } = usePublicSettings();
+export function SettingsProvider({ children, initialSettings }: SettingsProviderProps) {
+  const { data: settingsResponse, isLoading: queryLoading, error } = usePublicSettings(initialSettings);
 
   const locale = useLocale();
 
   const settings = useMemo(() => {
-    const data = settingsResponse?.data;
+    const data = settingsResponse?.data || initialSettings?.data;
     if (!data) return {} as SettingsData;
 
     // 1. Direct match for current locale
@@ -98,7 +101,10 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
     }
 
     return {} as SettingsData;
-  }, [settingsResponse, locale]);
+  }, [settingsResponse, initialSettings, locale]);
+
+  const hasData = Boolean(initialSettings?.data || settingsResponse?.data);
+  const isLoading = Boolean(queryLoading && !hasData);
 
   // Type-safe getSetting function
   const getSetting = <

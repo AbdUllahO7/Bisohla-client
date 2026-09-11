@@ -32,6 +32,7 @@ import {
 } from '@/core/entities/models/listing-types/listing-types.dto';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { extractIsTrimRequired, isTrimAttribute, isMakeAttribute, isModelAttribute } from '@/utils/trim-helpers';
 
 interface CarAlertModalProps {
   open: boolean;
@@ -74,20 +75,59 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
   const [schema, setSchema] = useState<ListingTypeAlertFormSchemaDto | null>(null);
   const [isLoadingSchema, setIsLoadingSchema] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [refItemsMap, setRefItemsMap] = useState<Record<string, ListingTypeRefItemDto>>({});
   const locale = useLocale();
   const tModal = useTranslations('carAlertModal');
 
   const { toast } = useToast();
 
   // Translation helper
-  const getTranslation = useCallback((val: any) => {
-    if (!val) return '';
-    if (typeof val === 'string') return val;
-    if (typeof val === 'object') {
-      return val[locale] || val['en'] || val['ar'] || JSON.stringify(val);
-    }
-    return String(val);
-  }, [locale]);
+  const getTranslation = useCallback(
+    (val: any): string => {
+      if (!val) return '';
+      if (typeof val === 'string') return val;
+      if (Array.isArray(val)) {
+        const locMatch = val.find((item: any) => item?.locale === locale);
+        if (locMatch) {
+          if (typeof locMatch === 'string') return locMatch;
+          if (typeof locMatch?.name === 'string') return locMatch.name;
+          if (typeof locMatch?.value === 'string') return locMatch.value;
+        }
+        const fallback =
+          val.find((item: any) => item?.locale === 'ar' || item?.locale === 'en') || val[0];
+        if (fallback) {
+          if (typeof fallback === 'string') return fallback;
+          if (typeof fallback?.name === 'string') return fallback.name;
+          if (typeof fallback?.value === 'string') return fallback.value;
+        }
+        return '';
+      }
+      if (typeof val === 'object') {
+        const locVal = val[locale] ?? val['ar'] ?? val['en'];
+        if (typeof locVal === 'string') return locVal;
+        if (locVal && typeof locVal === 'object') {
+          if (typeof locVal.name === 'string') return locVal.name;
+          if (typeof locVal.label === 'string') return locVal.label;
+          if (typeof locVal.value === 'string') return locVal.value;
+        }
+        if (typeof val.name === 'string') return val.name;
+        if (val.name && typeof val.name === 'object') {
+          const innerLoc = val.name[locale] ?? val.name['ar'] ?? val.name['en'];
+          if (typeof innerLoc === 'string') return innerLoc;
+        }
+        if (typeof val.label === 'string') return val.label;
+        if (typeof val.value === 'string') return val.value;
+        for (const k of Object.keys(val)) {
+          const prop = val[k];
+          if (typeof prop === 'string') return prop;
+          if (prop && typeof prop === 'object' && typeof prop.name === 'string') return prop.name;
+        }
+        return '';
+      }
+      return String(val);
+    },
+    [locale],
+  );
 
   // Fetch schema when modal opens
   useEffect(() => {
@@ -209,21 +249,21 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
       const res = await createCarAlert(payload);
       if (res.success) {
         toast({
-          title: t('allCars.alertCreated'),
-          description: t('allCars.alertCreatedDesc'),
+          title: tModal('alertCreated'),
+          description: tModal('willNotify'),
         });
         onOpenChange(false);
       } else {
         toast({
-          title: t('allCars.alertFailed'),
-          description: res.message || t('allCars.alertFailedDesc'),
+          title: tModal('creationError'),
+          description: res.message || tModal('failedCreate'),
           variant: 'destructive',
         });
       }
     } catch (error) {
       toast({
-        title: t('allCars.alertError'),
-        description: t('allCars.alertErrorDesc'),
+        title: isArabic ? 'خطأ' : 'Error',
+        description: tModal('unexpectedError'),
         variant: 'destructive',
       });
     } finally {
@@ -236,20 +276,59 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
   }, [formData.governorate, getCityOptions]);
 
   // Generic fetch for ServerSelect
-  const fetchRefItems = useCallback(async (groupId: number, parentId?: number, params?: any) => {
-    const controller = getInjection('IListingTypeRefsRepoController');
-    const res = await controller.getItemsByGroupId(groupId, parentId, params?.pageSize || 100);
-    if (res.success && res.data) {
-      // Translate names for UI
-      res.data.data = res.data.data.map((item: any) => ({
-        ...item,
-        name: getTranslation(item.name)
-      }));
-    }
-    return res;
-  }, [getTranslation]);
+  const fetchRefItems = useCallback(
+    async (groupId: number, parentId?: number, params?: any) => {
+      const controller = getInjection('IListingTypeRefsRepoController');
+      const res = await controller.getItemsByGroupId(
+        groupId,
+        parentId,
+        params?.pageSize || 50,
+        params?.searchTerm || undefined,
+        params?.page || 1,
+        locale,
+        params?.searchKey || 'name',
+      );
+      if (res.success && res.data && Array.isArray(res.data.data)) {
+        const rawItems = res.data.data;
+        setRefItemsMap((prev) => {
+          const next = { ...prev };
+          rawItems.forEach((item: any) => {
+            if (item?.id) next[String(item.id)] = item;
+          });
+          return next;
+        });
+        // Translate names for UI
+        res.data.data = rawItems.map((item: any) => ({
+          ...item,
+          name: getTranslation(item.translations) || getTranslation(item.name) || item.name,
+        }));
+      }
+      return res;
+    },
+    [getTranslation, locale],
+  );
 
   const renderAttribute = (attr: FormAttributeDto) => {
+    const isTrim = isTrimAttribute(attr);
+    if (isTrim && !attr.isRequired && !(attr as any).required) {
+      const allAttrs = schema?.sections.flatMap((s) => s.attributes) || [];
+      const makeAttr = allAttrs.find((a) => isMakeAttribute(a));
+      const modelAttr = allAttrs.find((a) => isModelAttribute(a));
+      const selectedMakeId = makeAttr ? formData[makeAttr.slug] : null;
+      const selectedModelId = modelAttr ? formData[modelAttr.slug] : null;
+
+      const selectedMakeItem = selectedMakeId ? refItemsMap[String(selectedMakeId)] : null;
+      const selectedModelItem = selectedModelId ? refItemsMap[String(selectedModelId)] : null;
+
+      const trimReqOnModel = extractIsTrimRequired(selectedModelItem);
+      const trimReqOnMake = extractIsTrimRequired(selectedMakeItem);
+
+      const isTrimReq = trimReqOnModel ?? trimReqOnMake ?? false;
+      if (!isTrimReq) {
+        return null;
+      }
+    }
+
     const label = getTranslation(attr.name);
     const hint = getTranslation(attr.hint);
     const type = attr.type.toLowerCase();
