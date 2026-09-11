@@ -13,6 +13,10 @@ export class ListingsVisitorRepo implements IListingsVisitorRepo {
     const res = await getReq<any, PaginationInfo<ListingDto>>({
       url: '/listings-visitor/featured',
       params: { typeId, ...params },
+      next: {
+        revalidate: 180,
+        tags: ['featured-listings'],
+      },
     });
     return res;
   }
@@ -23,6 +27,10 @@ export class ListingsVisitorRepo implements IListingsVisitorRepo {
     const res = await getReq<any, PaginationInfo<ListingDto>>({
       url: '/listings-visitor/trending',
       params,
+      next: {
+        revalidate: 180,
+        tags: ['trending-listings'],
+      },
     });
     return res;
   }
@@ -34,6 +42,10 @@ export class ListingsVisitorRepo implements IListingsVisitorRepo {
     const res = await getReq<any, PaginationInfo<ListingDto>>({
       url: `/listings-visitor/${listingTypeId}/search`,
       params,
+      next: {
+        revalidate: 120,
+        tags: ['search-listings'],
+      },
     });
     return res;
   }

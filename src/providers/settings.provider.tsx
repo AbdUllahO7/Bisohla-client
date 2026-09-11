@@ -69,7 +69,6 @@ interface SettingsProviderProps {
 
 export function SettingsProvider({ children }: SettingsProviderProps) {
   const { data: settingsResponse, isLoading, error } = usePublicSettings();
-    console.log('settingsResponse',settingsResponse)
 
   const locale = useLocale();
 

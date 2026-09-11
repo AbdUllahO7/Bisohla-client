@@ -758,9 +758,27 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
     });
     newFilters.attributes = attributes;
 
-    // Update state
-    setFilters((prev) => ({ ...prev, ...newFilters }));
-    setSearchState((prev) => ({ ...prev, ...newSearchState }));
+    // Update state only if values actually changed
+    setFilters((prev) => {
+      let hasChanges = false;
+      for (const key in newFilters) {
+        if ((newFilters as any)[key] !== (prev as any)[key]) {
+          hasChanges = true;
+          break;
+        }
+      }
+      return hasChanges ? { ...prev, ...newFilters } : prev;
+    });
+
+    setSearchState((prev) => {
+      if (
+        newSearchState.searchText !== undefined &&
+        prev.searchText !== newSearchState.searchText
+      ) {
+        return { ...prev, ...newSearchState };
+      }
+      return prev;
+    });
 
     // Reset the flag after a short delay
     setTimeout(() => {
@@ -881,8 +899,20 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
     }
   }, [debouncedFiltersForUrl, debouncedSearchForUrl, updateUrl]);
 
+  // Stable dependency key for reference group fetching
+  const referenceDepsKey = useMemo(() => {
+    const primaryBrand = filters.selectedBrands[0] || '';
+    const relevantAttributes = Object.entries(filters.attributes || {})
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([k, v]) => `${k}:${v}`)
+      .join('|');
+    return `${filters.listingTypeId}_${primaryBrand}_${relevantAttributes}`;
+  }, [filters.listingTypeId, filters.selectedBrands, filters.attributes]);
+
   // Fetch filter schema when listingTypeId changes OR if it's missing
   useEffect(() => {
+    let isCancelled = false;
+
     const fetchSchemaAndOptions = async () => {
       if (!filters.listingTypeId) return;
       
@@ -895,78 +925,95 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
         let currentSchema = filterSchema;
         if (!currentSchema || currentSchema.listingTypeId !== filters.listingTypeId) {
           const res = await listingTypesController.getFilterSchema(filters.listingTypeId);
-          if (res.success && res.data) {
+          if (res.success && res.data && !isCancelled) {
             currentSchema = { ...res.data, listingTypeId: filters.listingTypeId };
             setFilterSchema(currentSchema);
-            // Reset options when schema changes to avoid showing stale options
             setDynamicOptions({});
           }
         }
 
-        // 2. Fetch Reference Options based on current schema
-        if (currentSchema) {
+        // 2. Fetch Reference Options in parallel based on current schema
+        if (currentSchema && !isCancelled) {
           const allAttributes = currentSchema.sections.flatMap((s: any) => s.attributes);
           const referenceAttrs = allAttributes.filter((a: any) => a.type === 'reference' && a.referenceGroupId);
           
           if (referenceAttrs.length > 0) {
-            const newOptions: Record<string, any[]> = { ...dynamicOptions };
-            let hasChanges = false;
-
-            for (const attr of referenceAttrs) {
-              let parentItemId: number | undefined = undefined;
-              
-              if (attr.dependsOnAttributeId) {
-                const parentAttr = allAttributes.find((a: any) => a.id === attr.dependsOnAttributeId);
-                if (parentAttr) {
-                  const parentValue = filters.attributes[parentAttr.slug] || 
-                                     (parentAttr.slug === 'make' ? filters.selectedBrands[0] : undefined) ||
-                                     (parentAttr.slug === 'marka' ? filters.selectedBrands[0] : undefined);
-                  
-                  if (parentValue) {
-                    parentItemId = Number(parentValue);
-                  } else {
-                    // Skip fetching if parent is required but not selected
-                    if (newOptions[attr.slug]?.length !== 0) {
-                      newOptions[attr.slug] = [];
-                      hasChanges = true;
+            const results = await Promise.all(
+              referenceAttrs.map(async (attr: any) => {
+                let parentItemId: number | undefined = undefined;
+                
+                if (attr.dependsOnAttributeId) {
+                  const parentAttr = allAttributes.find((a: any) => a.id === attr.dependsOnAttributeId);
+                  if (parentAttr) {
+                    const parentValue = filters.attributes[parentAttr.slug] || 
+                                       (parentAttr.slug === 'make' ? filters.selectedBrands[0] : undefined) ||
+                                       (parentAttr.slug === 'marka' ? filters.selectedBrands[0] : undefined);
+                    
+                    if (parentValue) {
+                      parentItemId = Number(parentValue);
+                    } else {
+                      // Skip fetching if parent is required but not selected
+                      return { slug: attr.slug, formatted: [] as any[] };
                     }
-                    continue;
                   }
                 }
-              }
 
-              // Only fetch if we don't have these options yet or parent changed
-              // (Simplification: we fetch if it's a dependent field or if options are empty)
-              const res = await refsController.getItemsByGroupId(attr.referenceGroupId, parentItemId, 100);
-              
-              if (res.success && res.data) {
-                const items = Array.isArray(res.data) ? res.data : (res.data.data || []);
-                const formatted = items.map((item: any) => ({
-                  value: String(item.id),
-                  label: (typeof item.name === 'object' 
-                    ? (item.name['ar'] || item.name['en'] || item.id) // Default to Arabic/English for labels in provider
-                    : (item.name || item.id))
-                }));
-                
-                newOptions[attr.slug] = formatted;
-                hasChanges = true;
-              }
-            }
+                try {
+                  const res = await refsController.getItemsByGroupId(attr.referenceGroupId, parentItemId, 100);
+                  if (res.success && res.data) {
+                    const items = Array.isArray(res.data) ? res.data : (res.data.data || []);
+                    const formatted = items.map((item: any) => ({
+                      value: String(item.id),
+                      label: (typeof item.name === 'object' 
+                        ? (item.name['ar'] || item.name['en'] || item.id)
+                        : (item.name || item.id))
+                    }));
+                    return { slug: attr.slug, formatted };
+                  }
+                } catch (e) {
+                  console.warn(`Failed to fetch reference group ${attr.referenceGroupId}:`, e);
+                }
+                return { slug: attr.slug, formatted: null };
+              })
+            );
 
-            if (hasChanges) {
-              setDynamicOptions(newOptions);
+            if (!isCancelled) {
+              setDynamicOptions((prev) => {
+                const updated = { ...prev };
+                let hasChanges = false;
+                for (const { slug, formatted } of results) {
+                  if (formatted !== null) {
+                    const prevOptions = prev[slug];
+                    if (
+                      !prevOptions ||
+                      prevOptions.length !== formatted.length ||
+                      JSON.stringify(prevOptions) !== JSON.stringify(formatted)
+                    ) {
+                      updated[slug] = formatted;
+                      hasChanges = true;
+                    }
+                  }
+                }
+                return hasChanges ? updated : prev;
+              });
             }
           }
         }
       } catch (error) {
         console.error('Failed in fetchSchemaAndOptions:', error);
       } finally {
-        setIsLoading(false);
+        if (!isCancelled) {
+          setIsLoading(false);
+        }
       }
     };
 
     fetchSchemaAndOptions();
-  }, [filters.listingTypeId, filters.selectedBrands, filters.attributes, filterSchema?.listingTypeId]);
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [filters.listingTypeId, referenceDepsKey, filterSchema?.listingTypeId]);
 
   // Fetch all listing types (categories)
   useEffect(() => {

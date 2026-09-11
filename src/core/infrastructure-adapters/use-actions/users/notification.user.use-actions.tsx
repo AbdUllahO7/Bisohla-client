@@ -21,24 +21,35 @@ import { useLocaleQuery } from '../common/use-locale-query';
 
 export const useGetAuthUserMyNotifications = (
   params: NotificationFilterOptions,
+  options?: { enabled?: boolean },
 ) => {
   const session = useSession();
   const { user } = session;
+  const isAuth = Boolean(user?.id && user.id > 0);
 
   return useLocaleQuery<PaginatedResponse<Notification>>({
     queryKey: ['auth-user-my-notifications', user.id, params],
     queryFn: async () => await getAuthUserMyNotifications(params),
     staleTime: 0,
     refetchOnWindowFocus: false,
+    enabled: isAuth && (options?.enabled ?? true),
   });
 };
 
-export const useGetAuthUserMyNotificationById = (id: number) => {
+export const useGetAuthUserMyNotificationById = (
+  id: number,
+  options?: { enabled?: boolean },
+) => {
+  const session = useSession();
+  const { user } = session;
+  const isAuth = Boolean(user?.id && user.id > 0);
+
   return useLocaleQuery<ApiResponse<Notification>>({
     queryKey: ['auth-user-my-notifications', id],
     queryFn: async () => await getAuthUserMyNotificationById(id),
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
+    enabled: isAuth && Boolean(id) && (options?.enabled ?? true),
   });
 };
 

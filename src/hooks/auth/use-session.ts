@@ -31,10 +31,10 @@ export const useSession = (): SessionReturnType => {
   } = useQuery({
     queryKey: ['session'],
     queryFn: getUserSession,
-    staleTime: 0,
-    gcTime: 5 * 60 * 1000, // Keep in cache for 5 minutes
-    refetchOnMount: 'always',
-    refetchOnWindowFocus: true,
+    staleTime: 5 * 60 * 1000, // 5 minutes fresh cache
+    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
+    refetchOnMount: false, // Prevent request storms across component instances
+    refetchOnWindowFocus: false,
     refetchOnReconnect: true,
     retry: 1,
   });
@@ -44,11 +44,6 @@ export const useSession = (): SessionReturnType => {
     queryClient.invalidateQueries({ queryKey: ['check-auth-user'] });
     queryClient.removeQueries({ queryKey: ['session'] });
   };
-
-  // Listen for route changes and refetch session
-  useEffect(() => {
-    refetchSession();
-  }, [pathname, refetchSession]);
 
   // Listen for storage events (useful when login happens in another tab)
   useEffect(() => {
@@ -61,18 +56,6 @@ export const useSession = (): SessionReturnType => {
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
   }, [queryClient]);
-
-  // Listen for visibility change to refetch when user returns to tab
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        refetchSession();
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [refetchSession]);
 
   const defaultSession = {
     user: {
