@@ -1,11 +1,9 @@
 'use client';
 
 import type React from 'react';
-import { useMemo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { GenericAttributeValue } from '@/core/entities/models/listings/generic-listing.dto';
-import { resolveAttributeValue } from '@/utils/listing-normalization';
+import type { SimpleDisplayRow } from '@/lib/listing-attributes/attribute-sections/attribute-sections';
 import {
   Hash,
   Type,
@@ -13,15 +11,14 @@ import {
   Calendar,
   List,
   BookOpen,
-  Tag,
   Palette,
 } from 'lucide-react';
 
 import { useTranslations } from 'next-intl';
 
 interface AttributeGridProps {
-  attributeValues: GenericAttributeValue[];
-  locale?: string;
+  /** Schema-ordered rows from `buildListingAttributeSections`; unfilled rows render `—`. */
+  rows: SimpleDisplayRow[];
   isLoading?: boolean;
 }
 
@@ -49,39 +46,18 @@ const getAttributeIcon = (type: string) => {
   }
 };
 
-const AttributeGrid: React.FC<AttributeGridProps> = ({
-  attributeValues,
-  locale = 'en',
-  isLoading = false,
-}) => {
+const AttributeGrid: React.FC<AttributeGridProps> = ({ rows, isLoading = false }) => {
   const tPreview = useTranslations('listing.preview');
-
-  /** Filter out attributes with no resolvable value and build display items */
-  const displayItems = useMemo(() => {
-    if (!attributeValues?.length) return [];
-    return attributeValues
-      .map((av) => ({
-        key: av.id,
-        label: av.attribute.name,
-        hint: av.attribute.hint,
-        type: av.attribute.type,
-        slug: av.attribute.slug,
-        value: resolveAttributeValue(av, locale),
-        isPendingProposal: av.refItemProposal?.status === 'pending',
-      }))
-      .filter((item) => 
-        item.value !== '' && 
-        item.slug !== 'damages' && 
-        item.slug !== 'damage' && 
-        item.slug !== 'additional_features' && 
-        item.slug !== 'additional-features' && 
-        item.slug !== 'features' && 
-        !item.label.toLowerCase().includes('additional feature') &&
-        !item.label.includes('الميزات الإضافية') &&
-        !item.label.includes('المميزات الإضافية') &&
-        (item.type as string) !== 'repeating_group'
-      );
-  }, [attributeValues, locale]);
+  const displayItems = rows.map((row) => ({
+    key: row.attributeId,
+    label: row.label,
+    hint: row.hint,
+    type: row.type,
+    iconUrl: row.iconUrl,
+    value: row.value,
+    swatch: row.swatch,
+    isPendingProposal: row.isPendingProposal,
+  }));
 
   if (isLoading) {
     return (
@@ -140,7 +116,12 @@ const AttributeGrid: React.FC<AttributeGridProps> = ({
         <CardContent className="flex flex-row items-center h-full p-0 gap-3 relative z-10">
           {/* Icon */}
           <div className="relative flex-shrink-0 w-8 h-8 bg-gradient-to-br from-[#198341]/10 to-[#ABDE3B]/10 rounded-lg flex items-center justify-center text-[#198341] group-hover:from-[#198341]/20 group-hover:to-[#ABDE3B]/20 group-hover:scale-110 transition-all duration-300">
-            {getAttributeIcon(item.type)}
+            {item.iconUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={item.iconUrl} alt="" className="w-4 h-4 object-contain" />
+            ) : (
+              getAttributeIcon(item.type)
+            )}
           </div>
 
           {/* Label + Value */}
@@ -152,6 +133,9 @@ const AttributeGrid: React.FC<AttributeGridProps> = ({
               )}
             </span>
             <div className="flex items-center gap-1.5 flex-wrap">
+              {item.swatch && (
+                <span className="w-3.5 h-3.5 rounded-full border border-gray-300 dark:border-zinc-700 shadow-sm shrink-0" style={{ backgroundColor: item.swatch }} />
+              )}
               <span className="text-secondary-text dark:text-zinc-400 text-xs sm:text-sm font-cairo font-medium line-clamp-1">
                 {item.value || '—'}
               </span>

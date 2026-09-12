@@ -8,14 +8,38 @@ import { QueryParams } from '@/core/entities/api/api';
 import { UserFavoriteListing, ToggleFavoriteListingDto, ToggleFavoriteListingResponse, CreateFavoriteListingDto } from '@/core/entities/models/listings/users-favorites-listings.zod.dto';
 
 /**
- * Create a new listing via POST /my-listings
+ * Create a new listing via POST /my-listings.
+ * `idempotencyKey` is minted once per submission attempt; re-sending it returns the
+ * listing already created instead of a duplicate (see `getSubmissionStatus`).
  */
 export const createListing = async (
   dto: CreateListingDto,
+  idempotencyKey?: string,
 ): Promise<ApiResponse<ListingDto>> => {
   const res = await postAuthReq<CreateListingDto, ListingDto>({
     url: '/my-listings',
     body: dto,
+    headers: idempotencyKey ? { 'x-idempotency-key': idempotencyKey } : undefined,
+    timeout: 60000,
+  });
+  return res;
+};
+
+export type ListingSubmissionStatus =
+  | { status: 'completed'; listing: ListingDto }
+  | { status: 'in_progress' }
+  | { status: 'not_found' }
+  | { status: 'unavailable' };
+
+/**
+ * Resolve an ambiguous create (timeout / dropped connection) via GET /my-listings/submissions/:key
+ */
+export const getSubmissionStatus = async (
+  idempotencyKey: string,
+): Promise<ApiResponse<ListingSubmissionStatus>> => {
+  const res = await getAuthReq<Record<string, never>, ListingSubmissionStatus>({
+    url: `/my-listings/submissions/${encodeURIComponent(idempotencyKey)}`,
+    cache: 'no-store',
   });
   return res;
 };

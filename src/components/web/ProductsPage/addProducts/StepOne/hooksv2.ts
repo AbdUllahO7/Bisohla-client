@@ -10,10 +10,22 @@ import {
   getGovernorateOptions,
   getCityOptions,
   getYearOptions,
-  validateForm,
 } from './utils';
+
+// Legacy search-sidebar validator (the wizard no longer uses this hook).
+const validateForm = (selectedOptions: SelectedOptions, isCarTrimRequired: boolean = false): boolean => {
+  const isTrimValid = isCarTrimRequired ? Boolean(selectedOptions.trim) : true;
+  return Boolean(
+    selectedOptions.marka &&
+      selectedOptions.model &&
+      isTrimValid &&
+      selectedOptions.year &&
+      selectedOptions.governorate &&
+      selectedOptions.city &&
+      selectedOptions.address,
+  );
+};
 import { loadSelections, saveSelections } from './StorageUtils';
-import { STORAGE_KEYS } from '../Main/hooks/useLocalStorage';
 import {
   isMakeAttribute,
   isModelAttribute,
@@ -118,7 +130,8 @@ export const useProductStepOne = (
   const listingTypeId = useMemo(() => {
     if (externalListingTypeId) return Number(externalListingTypeId);
     if (typeof window === 'undefined') return 1;
-    const stored = localStorage.getItem(STORAGE_KEYS.STEP_ONE);
+    // Legacy search-sidebar hook (not the wizard); the wizard no longer writes this key.
+    const stored = localStorage.getItem('addProduct_stepOne_selections');
     if (stored) {
       try {
         const parsed = JSON.parse(stored);

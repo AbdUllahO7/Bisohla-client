@@ -668,7 +668,11 @@
       "dateOfAds": "تاريخ الاعلان",
       "gaz": "الوقود",
       "bodyType": "نوع الهيكل",
-      "modelYear": "سنة الصنع"
+      "modelYear": "سنة الصنع",
+      "adType": "نوع الإعلان",
+      "condition": "الحالة",
+      "location": "الموقع",
+      "listingType": "الفئة"
     },
     "tabs": {
       "adsInfo": "معلومات الاعلان",
@@ -883,14 +887,19 @@
       "contactViaButtons": "استخدم زر الاتصال أو واتساب في الأعلى"
     },
     "contactUnavailable": "تعذّر الحصول على الرقم",
-    "contactUnavailableHint": "تعذّر تحميل رقم البائع الآن. يرجى المحاولة بعد قليل."
+    "contactUnavailableHint": "تعذّر تحميل رقم البائع الآن. يرجى المحاولة بعد قليل.",
+    "sections": {
+      "yes": "نعم",
+      "no": "لا",
+      "item_title": "العنصر {index}"
+    }
   },
   "addProduct": {
     "steps": {
-      "carType": "نوع الفئة",
-      "carInfo": "معلومات الإعلان",
-      "carImages": "صور الإعلان",
-      "adsDetails": "تفاصيل الاعلان"
+      "carType": "نوع الإعلان",
+      "carInfo": "التفاصيل",
+      "carImages": "الصور",
+      "adsDetails": "تفاصيل الإعلان"
     },
     "typeSelection": {
       "title": "اختر الفئة",
@@ -1194,8 +1203,49 @@
             "monthly": "شهري",
             "yearly": "سنوي"
           }
+        },
+        "condition": "الحالة",
+        "condition_options": {
+          "new": "جديد",
+          "used": "مستعمل",
+          "certified_pre_owned": "مستعمل معتمد"
         }
       }
+    },
+    "wizard": {
+      "draft_restored": "🔄 تم استعادة مسودتك المحفوظة تلقائياً!",
+      "step_locked": "يجب إكمال الخطوات السابقة أولاً",
+      "listing_fallback": "إعلان",
+      "required_fields": "يرجى تحديد جميع الحقول المطلوبة قبل المتابعة",
+      "title_edit": "تعديل {category}",
+      "title_create": "إضافة {category} جديد",
+      "completion_status": "نسبة الإنجاز",
+      "step_of": "الخطوة {current} من {total}",
+      "schema_error": "تعذّر تحميل نموذج هذا النوع من الإعلانات.",
+      "retry": "إعادة المحاولة",
+      "images_hint": "أضف {count} صور على الأقل",
+      "confirming": "جارٍ التأكيد…",
+      "moderation_notice": "ستتم مراجعة إعلانك قبل نشره.",
+      "error_title": "حدث خطأ!",
+      "error_description": "حدث خطأ أثناء نشر إعلانك. يرجى التحقق من التفاصيل أدناه والمحاولة مرة أخرى.",
+      "try_again": "حاول مرة أخرى",
+      "load_error": "حدث خطأ أثناء تحميل الإعلان. يرجى المحاولة مرة أخرى أو التواصل مع الدعم.",
+      "go_back": "العودة"
+    },
+    "damageMatrix": {
+      "section_name": "اسم القسم",
+      "click_car_panel": "انقر على أي جزء من هيكل السيارة لتحديد الأضرار",
+      "click_motorcycle_panel": "انقر على أي جزء من هيكل الدراجة النارية لتحديد الأضرار",
+      "select_type": "اختر نوع الضرر المكتشف:",
+      "clear_damage": "إزالة هذا الضرر",
+      "no_section_selected": "لم يتم تحديد أي جزء",
+      "empty_car": "انقر على أي جزء من هيكل السيارة في النموذج للبدء.",
+      "empty_motorcycle": "انقر على أي جزء من هيكل الدراجة النارية في النموذج للبدء."
+    },
+    "repeatingGroup": {
+      "item_title": "العنصر {index}",
+      "remove": "إزالة",
+      "add": "إضافة عنصر"
     }
   },
   "adminPage": {
@@ -2122,7 +2172,17 @@
         "label_field": "اسم العنوان",
         "label_placeholder": "مثال: المنزل، المعرض",
         "save_failed_toast": "تعذّر حفظ هذا العنوان، لكن تم نشر إعلانك بنجاح"
-      }
+      },
+      "submit_error_title": "خطأ",
+      "schema_not_loaded": "نموذج الإعلان غير جاهز بعد. يرجى الانتظار قليلاً ثم المحاولة مجدداً.",
+      "images_uploading": "يرجى الانتظار حتى ينتهي رفع الصور.",
+      "images_min": "أضف {count} صور على الأقل قبل النشر.",
+      "common_fields_incomplete": "يرجى إكمال خطوة تفاصيل الإعلان.",
+      "save_phone_failed": "تم حفظ إعلانك، لكن تعذّر تحديث رقم هاتف ملفك الشخصي.",
+      "updated_title": "✅ تم تحديث الإعلان بنجاح!",
+      "created_title": "✅ تم إنشاء الإعلان بنجاح!",
+      "submit_unconfirmed_title": "تعذّر تأكيد إرسال إعلانك",
+      "submit_unconfirmed": "انقطع الاتصال أثناء النشر. تحقق من إعلاناتي قبل الإرسال مجدداً — قد يكون الإعلان موجوداً بالفعل."
     },
     "card": {
       "installments_from": "من {amount} شهرياً"
@@ -2154,7 +2214,9 @@
       "contact_number_required": "رقم الهاتف مطلوب",
       "contact_number_invalid": "هذا ليس رقم هاتف صالحاً للدولة المختارة",
       "reference_proposal_generic": "تعذر إرسال إحدى القيم المقترحة. يرجى مراجعة الإعلان والمحاولة مرة أخرى.",
-      "saved_address_label_required": "يرجى تسمية هذا العنوان"
+      "saved_address_label_required": "يرجى تسمية هذا العنوان",
+      "submit_failed": "تعذّر إرسال إعلانك. يرجى المحاولة مرة أخرى.",
+      "conflict": "تم تعديل هذا الإعلان من مكان آخر. أعد تحميل الصفحة وحاول مجدداً."
     }
   },
   "profile": {
@@ -2191,7 +2253,21 @@
     "parent_pending_description": "القيمة التي اقترحتها لـ«{parent}» ما تزال قيد المراجعة، لذا لا توجد خيارات مرتبطة بها بعد.",
     "parent_unset_description": "اختر «{parent}» أولًا لعرض الخيارات المتاحة هنا.",
     "options_empty_title": "لا توجد خيارات متاحة",
-    "options_empty_description": "لا توجد خيارات للاختيار من بينها هنا."
+    "options_empty_description": "لا توجد خيارات للاختيار من بينها هنا.",
+    "range_min": "الحد الأدنى",
+    "range_max": "الحد الأعلى",
+    "locale_en": "الإنجليزية",
+    "locale_ar": "العربية",
+    "errors": {
+      "required": "هذا الحقل مطلوب",
+      "min_length": "النص قصير جداً",
+      "max_length": "النص طويل جداً",
+      "regex": "التنسيق غير صالح",
+      "min": "القيمة أقل من المسموح",
+      "max": "القيمة أكبر من المسموح",
+      "repeating_child_required": "يجب تعبئة الحقول المطلوبة في كل عنصر",
+      "missing_list": "يرجى تعبئة الحقول المطلوبة: {fields}"
+    }
   },
   "installments": {
     "months_zero": "بدون أشهر",
@@ -2362,4 +2438,3 @@
     "bytes": "بايت"
   }
 }
-

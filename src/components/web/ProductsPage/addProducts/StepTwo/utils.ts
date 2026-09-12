@@ -2,21 +2,20 @@
 import { SelectFeatureDto, CarListingFeature } from "@/core/entities/models/cars/cars.dto";
 import { Feature, GroupedFeatures, CarInfoState } from "./types";
 import { FeatureCategory } from "@/core/entities/enums/cars.enums";
-import { EDIT_STORAGE_KEYS, STORAGE_KEYS } from "../Main/hooks/useLocalStorage";
 
 /**
  * Checks if the application is in edit mode
  */
 export const isEditMode = (): boolean => {
     if (typeof window === "undefined") return false;
-    return !!localStorage.getItem(STORAGE_KEYS.EDIT_MODE_FLAG);
+    return !!localStorage.getItem("edit_car_listing_id");
 };
 
 /**
  * Gets the appropriate storage key based on edit mode
  */
 export const getCarInfoStorageKey = (): string => {
-    return isEditMode() ? EDIT_STORAGE_KEYS.STEP_TWO : STORAGE_KEYS.STEP_TWO;
+    return isEditMode() ? "addProduct_stepTwo_data_edit" : "addProduct_stepTwo_data";
 };
 
 /**

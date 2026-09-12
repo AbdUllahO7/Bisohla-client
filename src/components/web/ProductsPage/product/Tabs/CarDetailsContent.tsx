@@ -3,32 +3,25 @@
 import React, { JSX, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import {
-  Car,
   Phone,
-  DollarSign,
   Info,
-  Settings,
-  Bookmark,
   MessageSquare,
   MapPin,
-  Key,
-  Hash,
   ChevronDown,
   ChevronUp,
-  Palette,
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 
 interface CarDetailsContentProps {
   data: any;
-  type?: 'car' | 'ads' | 'contact' | 'description';
+  type?: 'contact' | 'description';
   isLoading?: boolean;
 }
 
 const CarDetailsContent: React.FC<CarDetailsContentProps> = ({
   data,
-  type = 'car',
+  type = 'contact',
   isLoading = false,
 }) => {
   const t = useTranslations('product.CarDetailsContent');
@@ -52,69 +45,6 @@ const CarDetailsContent: React.FC<CarDetailsContentProps> = ({
     longText?: boolean;
     key?: string;
   };
-
-  // Car technical details
-  const carDetails: DetailItem[] = [
-    {
-      label: t('title'),
-      value: data?.title || '-',
-      icon: <Car className="w-4 h-4" />,
-    },
-    {
-      label: t('price'),
-      value: data?.price ? `${data?.price} ${data?.currency || ''}` : '-',
-      icon: <DollarSign className="w-4 h-4" />,
-    },
-    {
-      label: t('currency'),
-      value: data?.currency || '-',
-      icon: <Bookmark className="w-4 h-4" />,
-    },
-  ];
-
-  // Ad basic information
-  const adsDetails: DetailItem[] = [
-    {
-      label: t('engineSize'),
-      value: data?.details?.engineSize || '-',
-      icon: <Settings className="w-4 h-4" />,
-    },
-    {
-      label: t('enginePower'),
-      value: data?.details?.enginePower || '-',
-      icon: <Settings className="w-4 h-4" />,
-    },
-    {
-      label: t('doors'),
-      value: data?.details?.doors || '-',
-      icon: <Hash className="w-4 h-4" />,
-    },
-    {
-      label: t('colorExterior'),
-      value: data?.details?.colorExterior || '-',
-      icon: <Palette className="w-4 h-4" />,
-    },
-    {
-      label: t('colorInterior'),
-      value: data?.details?.colorInterior || '-',
-      icon: <Palette className="w-4 h-4" />,
-    },
-    {
-      label: t('plateNumber'),
-      value: data?.details?.plateNumber || '-',
-      icon: <Hash className="w-4 h-4" />,
-    },
-    {
-      label: t('vin'),
-      value: data?.details?.vin || '-',
-      icon: <Key className="w-4 h-4" />,
-    },
-    {
-      label: t('vehicleCondition.label'),
-      value: data?.condition ? t(`vehicleCondition.${data?.condition}`) : '-',
-      icon: <Settings className="w-4 h-4" />,
-    },
-  ];
 
   // Contact and location information
   const contactDetails: DetailItem[] = [
@@ -170,16 +100,11 @@ const CarDetailsContent: React.FC<CarDetailsContentProps> = ({
   // Select which details to show based on type
   const getDetailsToShow = () => {
     switch (type) {
-      case 'car':
-        return carDetails;
-      case 'ads':
-        return adsDetails;
-      case 'contact':
-        return contactDetails;
       case 'description':
         return descriptionDetails;
+      case 'contact':
       default:
-        return carDetails;
+        return contactDetails;
     }
   };
 
@@ -190,16 +115,11 @@ const CarDetailsContent: React.FC<CarDetailsContentProps> = ({
   // Get skeleton count based on type
   const getSkeletonCount = () => {
     switch (type) {
-      case 'car':
-        return { regular: 6, long: 0 };
-      case 'ads':
-        return { regular: 3, long: 0 };
-      case 'contact':
-        return { regular: 3, long: 1 };
       case 'description':
         return { regular: 0, long: 2 };
+      case 'contact':
       default:
-        return { regular: 6, long: 0 };
+        return { regular: 3, long: 1 };
     }
   };
 

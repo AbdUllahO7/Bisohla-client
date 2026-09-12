@@ -659,7 +659,11 @@
       "adsNumber": "Ads Number",
       "dateOfAds": "Date Of Ads",
       "gaz": "Energy Source",
-      "bodyType": "Type"
+      "bodyType": "Type",
+      "adType": "Ad Type",
+      "condition": "Condition",
+      "location": "Location",
+      "listingType": "Category"
     },
     "tabs": {
       "adsInfo": "Ads Info",
@@ -849,7 +853,12 @@
       "contactViaButtons": "Use the Call or WhatsApp button above"
     },
     "contactUnavailable": "Couldn't get the number",
-    "contactUnavailableHint": "The seller's number couldn't be loaded just now. Please try again in a moment."
+    "contactUnavailableHint": "The seller's number couldn't be loaded just now. Please try again in a moment.",
+    "sections": {
+      "yes": "Yes",
+      "no": "No",
+      "item_title": "Item {index}"
+    }
   },
   "adminPage": {
     "general": {
@@ -948,9 +957,9 @@
   },
   "addProduct": {
     "steps": {
-      "carType": "Category",
-      "carInfo": "Information",
-      "carImages": "Images",
+      "carType": "Listing type",
+      "carInfo": "Details",
+      "carImages": "Photos",
       "adsDetails": "Ad Details"
     },
     "typeSelection": {
@@ -1260,8 +1269,49 @@
             "monthly": "Monthly",
             "yearly": "Yearly"
           }
+        },
+        "condition": "Condition",
+        "condition_options": {
+          "new": "New",
+          "used": "Used",
+          "certified_pre_owned": "Certified pre-owned"
         }
       }
+    },
+    "wizard": {
+      "draft_restored": "🔄 Your saved draft has been automatically restored!",
+      "step_locked": "Please complete previous steps first",
+      "listing_fallback": "Listing",
+      "required_fields": "Please select all required fields before proceeding",
+      "title_edit": "Edit {category} Listing",
+      "title_create": "Add New {category} Listing",
+      "completion_status": "Completion Status",
+      "step_of": "Step {current} of {total}",
+      "schema_error": "We couldn't load this listing type's form.",
+      "retry": "Retry",
+      "images_hint": "Add at least {count} photos",
+      "confirming": "Confirming…",
+      "moderation_notice": "Your listing will be reviewed before it is published.",
+      "error_title": "Error Occurred!",
+      "error_description": "An error occurred while publishing your listing. Please check the details below and try again.",
+      "try_again": "Try Again",
+      "load_error": "Error loading listing. Please try again or contact support.",
+      "go_back": "Go Back"
+    },
+    "damageMatrix": {
+      "section_name": "Section Name",
+      "click_car_panel": "Click on any car panel to mark damage",
+      "click_motorcycle_panel": "Click on any motorcycle panel to mark damage",
+      "select_type": "Select type of damage detected:",
+      "clear_damage": "Clear Damage",
+      "no_section_selected": "No section selected",
+      "empty_car": "Click on any car panel in the model to start marking.",
+      "empty_motorcycle": "Click on any motorcycle panel in the model to start marking."
+    },
+    "repeatingGroup": {
+      "item_title": "Item {index}",
+      "remove": "Remove",
+      "add": "Add item"
     }
   },
   "UserProfile": {
@@ -2152,7 +2202,17 @@
         "label_field": "Address label",
         "label_placeholder": "e.g. Home, Showroom",
         "save_failed_toast": "Couldn't save this address, but your listing was published"
-      }
+      },
+      "submit_error_title": "Error",
+      "schema_not_loaded": "The listing form isn't ready yet. Please wait a moment and try again.",
+      "images_uploading": "Please wait until your photos finish uploading.",
+      "images_min": "Add at least {count} photos before publishing.",
+      "common_fields_incomplete": "Please complete the ad details step.",
+      "save_phone_failed": "Your listing was saved, but we couldn't update your profile phone number.",
+      "updated_title": "✅ Your listing has been updated!",
+      "created_title": "✅ Your listing has been created!",
+      "submit_unconfirmed_title": "We couldn't confirm your submission",
+      "submit_unconfirmed": "Your connection dropped while publishing. Check My Listings before submitting again — it may already be there."
     },
     "card": {
       "installments_from": "from {amount}/month"
@@ -2184,7 +2244,9 @@
       "contact_number_required": "Phone number is required",
       "contact_number_invalid": "This is not a valid phone number for the selected country",
       "reference_proposal_generic": "We couldn't submit one of your suggested values. Please review your listing and try again.",
-      "saved_address_label_required": "Please name this address"
+      "saved_address_label_required": "Please name this address",
+      "submit_failed": "We couldn't submit your listing. Please try again.",
+      "conflict": "This listing was changed elsewhere. Reload the page and try again."
     }
   },
   "profile": {
@@ -2221,7 +2283,21 @@
     "parent_pending_description": "The value you suggested for \"{parent}\" is still under review, so nothing is listed under it yet.",
     "parent_unset_description": "Choose \"{parent}\" first to see the options available here.",
     "options_empty_title": "No options available",
-    "options_empty_description": "There are no options to choose from here."
+    "options_empty_description": "There are no options to choose from here.",
+    "range_min": "Min",
+    "range_max": "Max",
+    "locale_en": "English",
+    "locale_ar": "Arabic",
+    "errors": {
+      "required": "This field is required",
+      "min_length": "Too short",
+      "max_length": "Too long",
+      "regex": "Invalid format",
+      "min": "Value is too low",
+      "max": "Value is too high",
+      "repeating_child_required": "Every item needs its required fields filled",
+      "missing_list": "Please fill the required fields: {fields}"
+    }
   },
   "installments": {
     "months_one": "{count} month",
@@ -2388,4 +2464,3 @@
     "bytes": "Bytes"
   }
 }
-

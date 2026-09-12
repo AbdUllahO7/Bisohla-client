@@ -2,8 +2,8 @@
 // Generic listing API types for POST /my-listings and PATCH /my-listings/{id}
 
 export interface ListingTranslations {
-  en?: { title: string; description: string; story?: string | null };
-  ar?: { title: string; description: string; story?: string | null };
+  en?: { title: string; description: string | null; story?: string | null };
+  ar?: { title: string; description: string | null; story?: string | null };
 }
 
 export interface AttributeValue {
@@ -11,6 +11,7 @@ export interface AttributeValue {
   valueText?: string;
   valueNumber?: number;
   valueBoolean?: boolean;
+  valueDate?: string;
   valueJson?: any;
   valueTextTranslations?: { en?: string; ar?: string };
   referenceItemId?: number | null;
@@ -33,11 +34,14 @@ export interface CreateListingDto {
   latitude?: number | null;
   longitude?: number | null;
   contactNumber?: string | null;
-  publicationStatus?: string;     // "draft" | "published"
+  showOnMap?: boolean;
+  condition?: string | null;
+  publicationStatus?: string;     // "draft" | "published" | "sold"
   publishedAt?: string | null;
   translations: ListingTranslations;
   attributeValues: AttributeValue[];
   images?: string[];
+  primaryImageIndex?: number;
 }
 
 export interface UpdateListingDto {
@@ -54,24 +58,14 @@ export interface UpdateListingDto {
   latitude?: number | null;
   longitude?: number | null;
   contactNumber?: string | null;
+  showOnMap?: boolean;
+  condition?: string | null;
   publicationStatus?: string;
   publishedAt?: string | null;
   translations?: ListingTranslations;
   attributeValues?: AttributeValue[];
   images?: string[];
+  primaryImageIndex?: number;
+  /** Optimistic lock from the owner detail; a mismatch is a 409. */
+  version?: number;
 }
-
-// Metadata saved alongside form values in localStorage so we can
-// resolve attribute IDs at submission time.
-export interface AttributeMeta {
-  id: number;
-  type: string;  // 'text' | 'number' | 'select' | 'reference' | 'textarea' | 'boolean' | 'repeating_group' | etc.
-}
-
-// Shape stored in localStorage STEP_TWO
-export interface StepTwoStorage {
-  [slug: string]: any;
-  __attributeMap__?: Record<string, AttributeMeta>;
-  __proposals__?: Record<number, { name: string; status: 'pending' }>;
-}
-

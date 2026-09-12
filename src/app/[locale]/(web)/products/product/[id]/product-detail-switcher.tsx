@@ -7,15 +7,12 @@ import MobileProductClient from './mobile-product-client';
 import { ApiResponse } from '@/core/entities/api/success.response';
 import { SelectCarListingDto } from '@/core/entities/models/cars/cars.dto';
 import { GenericListingDto } from '@/core/entities/models/listings/generic-listing.dto';
+import type { DisplaySection } from '@/lib/listing-attributes/attribute-sections/attribute-sections';
 
 interface ProductDetailSwitcherProps {
   carDataRes: ApiResponse<SelectCarListingDto>;
   rawListing?: GenericListingDto | null;
-  /**
-   * True when the data came from the legacy car endpoint, whose ids belong to a
-   * different table than the listing-types reveal endpoint — see `product-client`.
-   */
-  isLegacyCar?: boolean;
+  attributeSections: DisplaySection[];
   isAuthenticated: boolean;
   locale: string;
   isProfileView: boolean;
@@ -24,7 +21,7 @@ interface ProductDetailSwitcherProps {
 export default function ProductDetailSwitcher({
   carDataRes,
   rawListing,
-  isLegacyCar,
+  attributeSections,
   isAuthenticated,
   locale,
   isProfileView,
@@ -43,7 +40,7 @@ export default function ProductDetailSwitcher({
       <ProductClient
         carDataRes={carDataRes}
         rawListing={rawListing}
-        isLegacyCar={isLegacyCar}
+        attributeSections={attributeSections}
         isAuthenticated={isAuthenticated}
         locale={locale}
         isProfileView={isProfileView}
@@ -55,7 +52,7 @@ export default function ProductDetailSwitcher({
     <MobileProductClient
       carDataRes={carDataRes}
       rawListing={rawListing}
-      isLegacyCar={isLegacyCar}
+      attributeSections={attributeSections}
       isAuthenticated={isAuthenticated}
       locale={locale}
       isProfileView={isProfileView}
@@ -64,7 +61,7 @@ export default function ProductDetailSwitcher({
     <ProductClient
       carDataRes={carDataRes}
       rawListing={rawListing}
-      isLegacyCar={isLegacyCar}
+      attributeSections={attributeSections}
       isAuthenticated={isAuthenticated}
       locale={locale}
       isProfileView={isProfileView}
