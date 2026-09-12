@@ -326,7 +326,7 @@ const MyProductsFilter: React.FC<MyProductsFilterProps> = ({
                             </SelectTrigger>
                             <SelectContent className="bg-white dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-200">
                               <SelectItem value="all">{isRTL ? 'الكل' : 'All'}</SelectItem>
-                              {attr.options.map((opt: any) => (
+                              {(attr.options ?? []).map((opt: any) => (
                                 <SelectItem key={String(opt.id)} value={String(opt.id)}>
                                   {opt.label[localeKey] || opt.label['en'] || opt.id}
                                 </SelectItem>

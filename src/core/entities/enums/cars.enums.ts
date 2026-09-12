@@ -299,7 +299,10 @@ export function getSaveStatusOptions(t: any): SelectOption[] {
       value: SaveStatus.DRAFT,
       label: t('stepFour.saveStatusOptions.draft', { defaultValue: 'Draft' }),
     },
-
+    {
+      value: SaveStatus.SOLD,
+      label: t('stepFour.saveStatusOptions.sold', { defaultValue: 'Sold' }),
+    },
   ];
   return sortOptionsAlphabetically(options);
 }

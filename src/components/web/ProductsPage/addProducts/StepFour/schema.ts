@@ -1,4 +1,5 @@
 import { ListingType, RentType, SaveStatus } from "@/core/entities/enums/cars.enums"
+import { LISTING_CONDITIONS } from "@/core/entities/enums/listing-condition.enum"
 import { Currency } from "@/core/entities/enums/currency.enum"
 import { isPhoneFieldValid } from "@/core/lib/phone/phone.schema"
 import { z } from "zod"
@@ -23,13 +24,8 @@ export const getAdInformationSchema = (isRtl: boolean = false) =>
             title: z
                 .string()
                 .trim()
-                .min(1, isRtl ? "العنوان مطلوب" : "Title is required")
-                .min(3, isRtl ? "يجب أن يكون العنوان 3 أحرف على الأقل" : "Title must be at least 3 characters"),
-            description: z
-                .string()
-                .trim()
-                .min(1, isRtl ? "الوصف مطلوب" : "Description is required")
-                .min(10, isRtl ? "يجب أن يكون الوصف 10 أحرف على الأقل" : "Description must be at least 10 characters"),
+                .min(1, isRtl ? "العنوان مطلوب" : "Title is required"),
+            description: z.string().trim().optional().default(""),
             price: z
                 .string()
                 .trim()
@@ -47,12 +43,16 @@ export const getAdInformationSchema = (isRtl: boolean = false) =>
             contactNumber: z.string().min(1, isRtl ? "رقم الهاتف مطلوب" : "Phone number is required"),
             listingType: z.nativeEnum(ListingType),
             rentType: z.nativeEnum(RentType).nullable().optional(),
+            condition: z.enum(LISTING_CONDITIONS, {
+                errorMap: () => ({ message: isRtl ? "حالة السلعة مطلوبة" : "Condition is required" }),
+            }),
+            saveAsProfileNumber: z.boolean().default(false).optional(),
             publicationDate: z.date(),
             saveStatus: z.nativeEnum(SaveStatus).default(SaveStatus.PUBLISHED),
             currency: z.nativeEnum(Currency).default(Currency.USD),
             governorate: z.string().min(1, isRtl ? "المحافظة مطلوبة" : "Governorate is required"),
             city: z.string().min(1, isRtl ? "المدينة مطلوبة" : "City is required"),
-            address: z.string().min(1, isRtl ? "العنوان التفصيلي مطلوب" : "Detailed address is required"),
+            address: z.string().optional().default(""),
             latitude: z.number().nullable().optional(),
             longitude: z.number().nullable().optional(),
             detectedGovernorate: z.string().nullable().optional(),
@@ -69,6 +69,10 @@ export const getAdInformationSchema = (isRtl: boolean = false) =>
         }, {
             message: isRtl ? "يرجى تسمية هذا العنوان" : "Please name this address",
             path: ["savedAddressLabel"]
+        })
+        .refine((d) => d.listingType !== ListingType.FOR_RENT || !!d.rentType, {
+            message: isRtl ? "نوع الإيجار مطلوب" : "Rent type is required",
+            path: ["rentType"]
         })
         .refine((d) => isPhoneFieldValid(d.contactNumber, d.countryDialCode), {
             message: isRtl ? "هذا ليس رقم هاتف صالحاً للدولة المختارة" : "This is not a valid phone number for the selected country",

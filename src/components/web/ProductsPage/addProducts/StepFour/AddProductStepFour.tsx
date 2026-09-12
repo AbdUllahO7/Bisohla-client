@@ -24,11 +24,9 @@ import SelectableList from "../StepOne/SelectableList"
 import { 
   SyriaGovernorate, 
   SyriaGovernorate_ARABIC_NAMES, 
-  SyriaCity, 
   SyriaCity_ARABIC_NAMES, 
   SyriaGovernorate_TO_CITIES,
   normalizeGovernorate,
-  normalizeCity,
   normalizeAddress,
   cleanArabic,
   stripArabicNoise
@@ -44,13 +42,13 @@ import {
 } from "./validationUtils"
 import {
   autoSaveAdInfoData,
-  combinePhoneNumber,
   defaultAdInfoData,
-  getAdInfoStorageKey,
+  hasSavedAdInfoData,
   loadAdInfoData,
-  parsePhoneNumber,
   saveAdInfoData
 } from "./storageUtils"
+import { commonFieldsStore } from "../Main/context/common-fields.store"
+import { getListingConditionOptions } from "@/core/entities/enums/listing-condition.enum"
 import Text from "@/components/ui/text"
 import { Currency, getCurrencyOptions } from "@/core/entities/enums/currency.enum"
 import { useProfile } from "@/providers/profile.provider"
@@ -63,10 +61,8 @@ import PhoneField from "@/components/forms/phone-field"
 import { assemblePhone, splitPhone, repairPhone } from "@/core/lib/phone/phone.util"
 import InstallmentsCard from "./InstallmentsCard"
 import { ListingInstallmentOption, ListingInstallmentsMode } from "@/core/entities/models/listings/installments.dto"
-import { EDIT_STORAGE_KEYS, getStorageKey, STORAGE_KEYS } from "../Main/hooks/useLocalStorage"
-import { reverseGeocode } from "@/utils/reverseGeocode"
 import type { LocationPickerResult } from "@/components/web/Map/GoogleMapPicker"
-import { matchGovernorate, matchCity, getNearestSyriaCity, resolveCityValue } from "@/utils/geocodeToSyria"
+import { matchGovernorate, resolveCityValue } from "@/utils/geocodeToSyria"
 
 const GoogleMapPicker = dynamic(() => import('@/components/web/Map/GoogleMapPicker'), {
   ssr: false,
@@ -203,7 +199,6 @@ const EnumSelect = ({
 const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
   onValidationChange,
   isEditMode = false,
-  initialData = null
 }) => {
   const locale = useLocale();
   const isRtl = locale === "ar";
@@ -248,49 +243,18 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
     installmentsEnabled?: boolean;
     installmentsMode?: ListingInstallmentsMode;
     installmentOptions?: ListingInstallmentOption[];
-  } | null>(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const stepOneKey = getStorageKey('STEP_ONE', isEditMode);
-        const stepOneRaw = localStorage.getItem(stepOneKey) || localStorage.getItem(STORAGE_KEYS.STEP_ONE);
-        if (stepOneRaw) {
-          const parsed = JSON.parse(stepOneRaw);
-          return {
-            rentEnabled: parsed.rentEnabled,
-            installmentsEnabled: parsed.installmentsEnabled,
-            installmentsMode: parsed.installmentsMode,
-            installmentOptions: parsed.installmentOptions,
-          };
-        }
-      } catch (e) {
-        // ignore
-      }
-    }
-    return null;
-  });
+  } | null>(() => commonFieldsStore.getPolicy());
 
   useEffect(() => {
     countryDialCodeRef.current = countryDialCodeValue;
   }, [countryDialCodeValue]);
 
+  // The listing type's policy lives in the wizard state; follow it (an admin may change it mid-draft).
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const stepOneKey = getStorageKey('STEP_ONE', isEditMode);
-    const stepOneRaw = localStorage.getItem(stepOneKey) || localStorage.getItem(STORAGE_KEYS.STEP_ONE);
-    if (stepOneRaw) {
-      try {
-        const parsed = JSON.parse(stepOneRaw);
-        setListingTypePolicy({
-          rentEnabled: parsed.rentEnabled,
-          installmentsEnabled: parsed.installmentsEnabled,
-          installmentsMode: parsed.installmentsMode,
-          installmentOptions: parsed.installmentOptions,
-        });
-      } catch (e) {
-        console.error("Failed to parse STEP_ONE policy in StepFour", e);
-      }
-    }
-  }, [isEditMode]);
+    const sync = () => setListingTypePolicy(commonFieldsStore.getPolicy());
+    sync();
+    return commonFieldsStore.subscribe(sync);
+  }, []);
 
   // §7.5 Policy clamp — run whenever the policy resolves (e.g. admin disabled installments after draft was saved)
   useEffect(() => {
@@ -378,6 +342,9 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
   });
   const rentTypeOptions = getRentTypeOptions(t);
   const saveStatusOptions = getSaveStatusOptions(t);
+  const conditionOptions = getListingConditionOptions((key) => t(`stepFour.${key}`));
+  const [conditionValue, setConditionValue] = useState<string>("");
+  const [phonePrefilledFromProfile, setPhonePrefilledFromProfile] = useState(false);
   const currencyOptions = getCurrencyOptions(t);
 
   // Initialize form with temporary default values
@@ -426,7 +393,6 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
       form.trigger(["governorate", "city", "address"]);
     }, 50);
 
-    // Persist to draft in localStorage
     const currentDraft = loadAdInfoData() || defaultAdInfoData;
     const nextDraft: AdInformationFormData = {
       ...currentDraft,
@@ -535,17 +501,17 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
         ? (data.rentType || rentTypeValue)
         : null;
 
+      const condition = data.condition || conditionValue;
       let isValid = Boolean(
         data.title &&
-        data.description &&
         data.contactNumber &&
         listingType &&
         saveStatus &&
+        condition &&
         data.price &&
         currency &&
         data.governorate &&
-        data.city &&
-        data.address
+        data.city
       );
 
       if (listingType === ListingType.FOR_RENT && !rentType) {
@@ -569,46 +535,34 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
     }
   };
 
-  // Apply edit data once
-  const applyEditData = (editData: AdInformationFormData) => {
-    if (editModeDataApplied.current) return;
-    let phoneOnly = editData.contactNumber || "";
-    let extractedCountryCode = editData.countryDialCode || countryDialCodeValue;
+  // Initialize from the wizard state (hydrated edit, restored draft, or a previous visit to this step)
+  useEffect(() => {
+    const htmlDir = document.documentElement.dir || "ltr";
+    setDirection(htmlDir);
+    window.scrollTo(0, 0);
 
-    if (editData.contactNumber && (editData.contactNumber.startsWith('+') || !editData.countryDialCode)) {
-      const { dialCode, localNumber } = splitPhone(editData.contactNumber);
+    if (!hasSavedAdInfoData() || editModeDataApplied.current) return;
+    const savedData = loadAdInfoData();
+
+    let phoneOnly = savedData.contactNumber || "";
+    let extractedCountryCode = savedData.countryDialCode || "+963";
+    if (savedData.contactNumber && (savedData.contactNumber.startsWith('+') || !savedData.countryDialCode)) {
+      const { dialCode, localNumber } = splitPhone(savedData.contactNumber);
       extractedCountryCode = dialCode;
       phoneOnly = localNumber;
     }
 
-    const mappedListingType = typeof editData.listingType === 'string'
-      ? mapApiEnumToFormEnum(editData.listingType, ListingType)
-      : editData.listingType;
+    const lat = savedData.latitude != null && !isNaN(Number(savedData.latitude)) ? Number(savedData.latitude) : undefined;
+    const lng = savedData.longitude != null && !isNaN(Number(savedData.longitude)) ? Number(savedData.longitude) : undefined;
 
-    const mappedSaveStatus = typeof editData.saveStatus === 'string'
-      ? mapApiEnumToFormEnum(editData.saveStatus, SaveStatus)
-      : editData.saveStatus;
-
-    const mappedRentType = editData.rentType && typeof editData.rentType === 'string'
-      ? mapApiEnumToFormEnum(editData.rentType, RentType)
-      : editData.rentType;
-
-    const mappedCurrency = typeof editData.currency === 'string'
-      ? mapApiEnumToFormEnum(editData.currency, Currency)
-      : editData.currency || Currency.USD;
-
-    const lat = editData.latitude != null && !isNaN(Number(editData.latitude)) ? Number(editData.latitude) : undefined;
-    const lng = editData.longitude != null && !isNaN(Number(editData.longitude)) ? Number(editData.longitude) : undefined;
-    const normGov = normalizeGovernorate(editData.governorate) || matchGovernorate(editData.governorate) || '';
-    const normCity = resolveCityValue(editData.city, normGov, lat, lng);
-    const normAddress = normalizeAddress(editData.address);
-
-    setListingTypeValue(mappedListingType);
-    setSaveStatusValue(mappedSaveStatus);
-    setCurrencyValue(mappedCurrency);
-    if (mappedRentType) {
-      setRentTypeValue(mappedRentType);
+    setListingTypeValue(savedData.listingType || ListingType.FOR_SALE);
+    if (savedData.listingType === ListingType.FOR_RENT) {
+      setShowRentType(true);
     }
+    setSaveStatusValue(savedData.saveStatus || SaveStatus.PUBLISHED);
+    setRentTypeValue(savedData.rentType || null);
+    setCurrencyValue(savedData.currency || Currency.USD);
+    setConditionValue(savedData.condition || "");
     setCountryDialCodeValue(extractedCountryCode);
     countryDialCodeRef.current = extractedCountryCode;
 
@@ -618,296 +572,51 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
       setMapInitLng(lng);
     }
 
-    const processedData: AdInformationFormData = {
-      ...editData,
+    const resolvedGov = normalizeGovernorate(savedData.governorate) || matchGovernorate(savedData.governorate) || savedData.governorate || '';
+    const resolvedCity = resolveCityValue(savedData.city, resolvedGov, lat, lng) || savedData.city || '';
+    const resolvedAddress = normalizeAddress(savedData.address) || savedData.address || '';
+
+    const mergedData = {
+      ...savedData,
       countryDialCode: extractedCountryCode,
       contactNumber: phoneOnly,
-      listingType: mappedListingType,
-      saveStatus: mappedSaveStatus,
-      rentType: mappedRentType,
-      currency: mappedCurrency,
-      governorate: normGov || editData.governorate || '',
-      city: normCity || editData.city || '',
-      address: normAddress || editData.address || '',
+      governorate: resolvedGov,
+      city: resolvedCity,
+      address: resolvedAddress,
       latitude: lat,
       longitude: lng,
-      detectedGovernorate: normGov || (editData as any).detectedGovernorate || null,
-      installmentsAvailable: Boolean(editData.installmentsAvailable),
-      installmentPlans: editData.installmentPlans || []
+      detectedGovernorate: resolvedGov || (savedData as any).detectedGovernorate || null,
+      installmentsAvailable: Boolean(savedData.installmentsAvailable),
+      installmentPlans: savedData.installmentPlans || []
     };
 
-    if (mappedListingType === ListingType.FOR_RENT) {
-      setShowRentType(true);
-    }
+    form.reset(mergedData);
+    previousFormData.current = mergedData;
 
-    form.reset(processedData);
-    previousFormData.current = { ...processedData };
-
-    // Delay setValue calls so Select components have time to re-render their options
-    // after form.reset() before we try to set the selected value.
+    // Explicit setValue calls with small delay to ensure Select components re-render
     setTimeout(() => {
-      if (processedData.governorate) {
-        form.setValue("governorate", processedData.governorate, { shouldValidate: true, shouldDirty: false });
-        form.setValue("detectedGovernorate", processedData.governorate, { shouldValidate: false });
+      if (mergedData.governorate) {
+        form.setValue("governorate", mergedData.governorate, { shouldValidate: true, shouldDirty: false });
+        form.setValue("detectedGovernorate", mergedData.governorate, { shouldValidate: false });
       }
-      if (processedData.city) {
-        form.setValue("city", processedData.city, { shouldValidate: true, shouldDirty: false });
+      if (mergedData.city) {
+        form.setValue("city", mergedData.city, { shouldValidate: true, shouldDirty: false });
       }
-      if (processedData.address) {
-        form.setValue("address", processedData.address, { shouldValidate: true, shouldDirty: false });
+      if (mergedData.address) {
+        form.setValue("address", mergedData.address, { shouldValidate: true, shouldDirty: false });
       }
       form.clearErrors(["governorate", "city", "address"]);
     }, 100);
-    saveAdInfoData(processedData as any);
 
-    const isValid = checkFormValidity(processedData);
+    const isValid = checkFormValidity(mergedData);
     prevValidState.current = isValid;
-
-    if (onValidationChange && isValid !== undefined) {
+    if (onValidationChange) {
       onValidationChange(isValid);
     }
 
     editModeDataApplied.current = true;
-  };
-
-  // Initialize data on mount
-  useEffect(() => {
-    const htmlDir = document.documentElement.dir || "ltr";
-    setDirection(htmlDir);
-    window.scrollTo(0, 0);
-
-    // 1. Try to load from localStorage (respects edit mode)
-    const savedData = loadAdInfoData();
-    const isActuallySaved = !!localStorage.getItem(getAdInfoStorageKey());
-
-    // Extract listing object from initialData if available
-    const listing = initialData
-      ? (initialData.data?.[0] ||
-         (initialData.data as any)?.listing ||
-         (initialData.data as any)?.rawListing ||
-         (initialData.data as any)?.carListing ||
-         initialData.data ||
-         (initialData.id ? initialData : null))
-      : null;
-
-    // Also get stepTwoData from localStorage if available
-    let stepTwoData: any = null;
-    try {
-      const stepTwoKey = getStorageKey('STEP_TWO', isEditMode);
-      const raw = localStorage.getItem(stepTwoKey);
-      if (raw) stepTwoData = JSON.parse(raw);
-    } catch (e) {}
-
-    // Robust extraction of location fields across all possible sources
-    // Use || (not ??) so empty strings fall through to the next candidate
-    const rawGov =
-      (savedData?.governorate && savedData.governorate !== '' ? savedData.governorate : null) ||
-      stepTwoData?.governorate ||
-      listing?.governorate ||
-      listing?.locationGovernorate ||
-      listing?.location?.governorate ||
-      listing?.details?.governorate ||
-      listing?.addressInfo?.governorate ||
-      listing?.address?.governorate ||
-      (listing as any)?.rawListing?.governorate ||
-      (listing as any)?.carListing?.governorate ||
-      (listing?.translations as any)?.ar?.governorate ||
-      (listing?.translations as any)?.en?.governorate ||
-      stepTwoData?.__attributeValuesMap?.governorate ||
-      stepTwoData?.__attributeValuesMap?.['محافظة'] ||
-      null;
-
-    const rawCity =
-      (savedData?.city && savedData.city !== '' ? savedData.city : null) ||
-      stepTwoData?.city ||
-      listing?.city ||
-      listing?.locationCity ||
-      listing?.location?.city ||
-      listing?.details?.city ||
-      listing?.addressInfo?.city ||
-      listing?.address?.city ||
-      (listing as any)?.rawListing?.city ||
-      (listing as any)?.carListing?.city ||
-      (listing?.translations as any)?.ar?.city ||
-      (listing?.translations as any)?.en?.city ||
-      stepTwoData?.__attributeValuesMap?.city ||
-      stepTwoData?.__attributeValuesMap?.['مدينة'] ||
-      null;
-
-    const rawAddress =
-      savedData?.address ||
-      stepTwoData?.address ||
-      listing?.address ||
-      listing?.detailedAddress ||
-      listing?.location?.address ||
-      listing?.location?.detailedAddress ||
-      listing?.details?.address ||
-      listing?.addressInfo?.address ||
-      (listing as any)?.rawListing?.address ||
-      (listing as any)?.carListing?.address ||
-      (listing?.translations as any)?.ar?.address ||
-      (listing?.translations as any)?.en?.address;
-
-    const rawLat =
-      savedData?.latitude ??
-      stepTwoData?.latitude ??
-      listing?.latitude ??
-      listing?.lat ??
-      listing?.location?.latitude ??
-      listing?.location?.lat ??
-      listing?.details?.latitude;
-
-    const rawLng =
-      savedData?.longitude ??
-      stepTwoData?.longitude ??
-      listing?.longitude ??
-      listing?.lng ??
-      listing?.lon ??
-      listing?.location?.longitude ??
-      listing?.location?.lng ??
-      listing?.details?.longitude;
-
-
-    const numLat = rawLat != null && !isNaN(Number(rawLat)) ? Number(rawLat) : undefined;
-    const numLng = rawLng != null && !isNaN(Number(rawLng)) ? Number(rawLng) : undefined;
-
-    const normGov = normalizeGovernorate(rawGov) || matchGovernorate(rawGov) || '';
-    const normCity = resolveCityValue(rawCity, normGov, numLat, numLng);
-    const normAddress = normalizeAddress(rawAddress);
-
-
-    // Helper: is this a real SyriaCity enum value?
-    const isValidCity = (v: any) => !!v && (Object.values(SyriaCity) as string[]).includes(v);
-
-    // 2. Fallback to initialData if localStorage is empty or missing valid location fields in edit mode
-    // NOTE: we check governorate/city validity, but NOT address — address can legitimately be null
-    if (isEditMode && listing && (!isActuallySaved || !savedData?.governorate || !isValidCity(savedData?.city)) && !editModeDataApplied.current) {
-      const itemTitle =
-        savedData?.title ||
-        listing.title ||
-        (listing.translations as any)?.ar?.title ||
-        (listing.translations as any)?.en?.title ||
-        (listing.translations as any)?.[0]?.title ||
-        '';
-
-      const itemDescription =
-        savedData?.description ||
-        listing.description ||
-        (listing.translations as any)?.ar?.description ||
-        (listing.translations as any)?.en?.description ||
-        (listing.translations as any)?.[0]?.description ||
-        '';
-
-      const formData: AdInformationFormData = {
-        title: itemTitle,
-        description: itemDescription,
-        price: savedData?.price || (listing.price !== null && listing.price !== undefined ? listing.price.toString() : ''),
-        countryDialCode: savedData?.countryDialCode || '+963',
-        contactNumber: savedData?.contactNumber || listing.contactNumber || '',
-        listingType: savedData?.listingType || listing.listingOfferType || listing.listingType || ListingType.FOR_SALE,
-        rentType: savedData?.rentType || listing.rentType || null,
-        installmentsAvailable: savedData?.installmentsAvailable !== undefined ? Boolean(savedData.installmentsAvailable) : Boolean(listing.installmentsAvailable),
-        installmentPlans: savedData?.installmentPlans || (Array.isArray(listing.installmentPlans)
-          ? listing.installmentPlans.map((p: any) => ({
-              months: Number(p.months),
-              downPayment: p.downPayment !== null && p.downPayment !== undefined ? p.downPayment.toString() : '',
-              monthlyAmount: p.monthlyAmount !== null && p.monthlyAmount !== undefined ? p.monthlyAmount.toString() : '',
-              noteTranslations: p.noteTranslations || (p.note ? { en: p.note, ar: p.note } : undefined),
-            }))
-          : []),
-        saveStatus: savedData?.saveStatus || listing.saveStatus || SaveStatus.PUBLISHED,
-        publicationDate: savedData?.publicationDate || (listing.publishedAt ? new Date(listing.publishedAt) : new Date()),
-        currency: savedData?.currency || listing.currency || Currency.USD,
-        governorate: normGov || savedData?.governorate || '',
-        city: normCity || savedData?.city || '',
-        address: normAddress || savedData?.address || '',
-        latitude: numLat ?? (savedData?.latitude != null ? Number(savedData.latitude) : undefined),
-        longitude: numLng ?? (savedData?.longitude != null ? Number(savedData.longitude) : undefined),
-        detectedGovernorate: normGov || null,
-      };
-      applyEditData(formData);
-      return;
-    }
-
-    // 3. Apply savedData if available — but only if it has valid gov/city
-    if (isActuallySaved && !editModeDataApplied.current) {
-      let phoneOnly = savedData.contactNumber || "";
-      let extractedCountryCode = savedData.countryDialCode || "+963";
-
-      if (savedData.contactNumber && (savedData.contactNumber.startsWith('+') || !savedData.countryDialCode)) {
-        const { dialCode, localNumber } = splitPhone(savedData.contactNumber);
-        extractedCountryCode = dialCode;
-        phoneOnly = localNumber;
-      }
-
-      const lat = savedData.latitude != null && !isNaN(Number(savedData.latitude)) ? Number(savedData.latitude) : numLat;
-      const lng = savedData.longitude != null && !isNaN(Number(savedData.longitude)) ? Number(savedData.longitude) : numLng;
-
-      setListingTypeValue(savedData.listingType || ListingType.FOR_SALE);
-      if (savedData.listingType === ListingType.FOR_RENT) {
-        setShowRentType(true);
-      }
-      setSaveStatusValue(savedData.saveStatus || SaveStatus.PUBLISHED);
-      setRentTypeValue(savedData.rentType || null);
-      setCurrencyValue(savedData.currency || Currency.USD);
-      setCountryDialCodeValue(extractedCountryCode);
-      countryDialCodeRef.current = extractedCountryCode;
-
-      if (lat !== undefined && lng !== undefined) {
-        setGpsCoords({ lat, lng });
-        setMapInitLat(lat);
-        setMapInitLng(lng);
-      }
-
-      // Prefer normGov/normCity from listing data if savedData has empty strings
-      const resolvedGov = normGov || savedData.governorate || '';
-      const resolvedCity = (isValidCity(savedData.city) ? savedData.city : normCity) || resolveCityValue(savedData.city || rawCity, resolvedGov, lat, lng);
-      const resolvedAddress = normAddress || savedData.address || '';
-
-      const mergedData = {
-        ...savedData,
-        countryDialCode: extractedCountryCode,
-        contactNumber: phoneOnly,
-        governorate: resolvedGov,
-        city: resolvedCity,
-        address: resolvedAddress,
-        latitude: lat,
-        longitude: lng,
-        detectedGovernorate: resolvedGov || (savedData as any).detectedGovernorate || null,
-        installmentsAvailable: Boolean(savedData.installmentsAvailable),
-        installmentPlans: savedData.installmentPlans || []
-      };
-
-      form.reset(mergedData);
-      previousFormData.current = mergedData;
-
-      // Explicit setValue calls with small delay to ensure Select components re-render
-      setTimeout(() => {
-        if (mergedData.governorate) {
-          form.setValue("governorate", mergedData.governorate, { shouldValidate: true, shouldDirty: false });
-          form.setValue("detectedGovernorate", mergedData.governorate, { shouldValidate: false });
-        }
-        if (mergedData.city) {
-          form.setValue("city", mergedData.city, { shouldValidate: true, shouldDirty: false });
-        }
-        if (mergedData.address) {
-          form.setValue("address", mergedData.address, { shouldValidate: true, shouldDirty: false });
-        }
-        form.clearErrors(["governorate", "city", "address"]);
-      }, 100);
-
-      saveAdInfoData(mergedData as any);
-
-      const isValid = checkFormValidity(mergedData);
-      prevValidState.current = isValid;
-
-      if (onValidationChange) {
-        onValidationChange(isValid);
-      }
-
-      editModeDataApplied.current = true;
-    }
-  }, [isEditMode, initialData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEditMode]);
 
   // Auto-fill phone number from profile if empty
   useEffect(() => {
@@ -922,6 +631,8 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
         countryDialCodeRef.current = dialCode;
         form.setValue("countryDialCode", dialCode, { shouldDirty: true });
         form.setValue("contactNumber", localNumber, { shouldValidate: true, shouldDirty: true });
+        form.setValue("saveAsProfileNumber", false);
+        setPhonePrefilledFromProfile(true);
         form.trigger("contactNumber");
       }
     }
@@ -957,6 +668,10 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
     setCurrencyValue(currency);
   };
 
+  const handleConditionChange = (value: string) => {
+    setConditionValue(value);
+  };
+
   const autoSaveTimeout = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -979,6 +694,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
           listingType: formValues.listingType || listingTypeValue || ListingType.FOR_SALE,
           saveStatus: formValues.saveStatus || saveStatusValue || SaveStatus.PUBLISHED,
           currency: formValues.currency || currencyValue || Currency.USD,
+          condition: (formValues.condition || conditionValue || undefined) as AdInformationFormData["condition"],
           rentType: formValues.listingType === ListingType.FOR_RENT 
             ? (formValues.rentType || rentTypeValue)
             : null,
@@ -1007,7 +723,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
       subscription.unsubscribe();
       if (autoSaveTimeout.current) clearTimeout(autoSaveTimeout.current);
     };
-  }, [form, onValidationChange, listingTypeValue, saveStatusValue, currencyValue, rentTypeValue]);
+  }, [form, onValidationChange, listingTypeValue, saveStatusValue, currencyValue, rentTypeValue, conditionValue]);
 
   const onSubmit = (data: AdInformationFormData) => {
     const fullContactNumber = assemblePhone(data.countryDialCode || "+963", data.contactNumber) || "";
@@ -1153,7 +869,6 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                       <FormItem className="text-primary">
                         <FormLabel className="text-slate-700 dark:text-white font-semibold flex items-center gap-1 text-sm">
                           {t("stepFour.adDescription")}
-                          <span className="text-rose-500">*</span>
                         </FormLabel>
                         <FormControl>
                           <Textarea
@@ -1213,6 +928,19 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                       isRtl={direction === "rtl"}
                     />
                   )}
+
+                  {/* Condition */}
+                  <EnumSelect
+                    name="condition"
+                    control={form.control}
+                    label={t("stepFour.condition")}
+                    options={conditionOptions}
+                    placeholder={t("stepFour.condition")}
+                    required={true}
+                    onChange={handleConditionChange}
+                    value={conditionValue}
+                    isRtl={direction === "rtl"}
+                  />
 
                   {/* Price field */}
                   <FormField
@@ -1296,6 +1024,21 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                         />
                       )}
                     />
+                    {!phonePrefilledFromProfile && !isEditMode && (
+                      <div className="flex items-center gap-2.5 mt-3">
+                        <Checkbox
+                          id="saveAsProfileNumber"
+                          checked={Boolean(form.watch('saveAsProfileNumber'))}
+                          onCheckedChange={(checked) => form.setValue('saveAsProfileNumber', Boolean(checked), { shouldDirty: true })}
+                        />
+                        <label htmlFor="saveAsProfileNumber" className="text-sm font-medium text-slate-700 dark:text-zinc-300 cursor-pointer select-none">
+                          {tListing('wizard.save_as_profile_number')}
+                        </label>
+                      </div>
+                    )}
+                    {phonePrefilledFromProfile && (
+                      <p className="text-xs text-slate-400 dark:text-zinc-500 mt-2">{tListing('wizard.contact_prefilled')}</p>
+                    )}
                   </div>
                 </div>
 
@@ -1603,6 +1346,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                     isRtl={direction === "rtl"}
                   />
 
+                  {(form.watch("saveStatus") || saveStatusValue) === SaveStatus.PUBLISHED && (
                   <FormField
                     control={form.control}
                     name="publicationDate"
@@ -1644,6 +1388,7 @@ const AddProductStepFour: React.FC<AddProductStepFourProps> = ({
                       </FormItem>
                     )}
                   />
+                  )}
                 </div>
               </div>
             </form>

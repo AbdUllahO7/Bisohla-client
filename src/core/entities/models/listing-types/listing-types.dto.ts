@@ -63,11 +63,39 @@ export interface TranslationDto {
   [key: string]: any;
 }
 
+/** Backend `listing-type-attribute.zod.dto.ts:19-27` — the stored value is always the option `id`. */
+export interface FormAttributeOptionDto {
+  id: string;
+  label: { en: string; ar: string };
+  color?: string | null;
+}
+
+export interface FormAttributeValidationRules {
+  min?: number;
+  max?: number;
+  regex?: string;
+  minLength?: number;
+  maxLength?: number;
+}
+
+/** Child is required iff the parent's selected ref item has `metadata[key] === true` (any key when array). */
+export interface ConditionallyRequiredWhen {
+  refAttributeSlug: string;
+  metadataKey: string | string[];
+}
+
+/** When the rule evaluates TRUE against `refAttributeSlug`'s value the attribute is hidden. */
+export interface ValueDependencyShape {
+  refAttributeSlug: string;
+  op: 'eq' | 'neq' | 'in' | 'nin';
+  value: string | string[];
+}
+
 export interface FormAttributeDto {
   id: number;
   listingTypeId: number;
   versionId: number;
-  sectionId: number;
+  sectionId: number | null;
   slug: string;
   name: string;
   hint: string | null;
@@ -81,9 +109,11 @@ export interface FormAttributeDto {
   referenceGroupId: number | null;
   dependsOnAttributeId: number | null;
   groupAttributeId: number | null;
-  options: any | null;
-  validationRules: any | null;
-  conditionallyRequiredWhen: any | null;
+  options: FormAttributeOptionDto[] | null;
+  validationRules: FormAttributeValidationRules | null;
+  conditionallyRequiredWhen: ConditionallyRequiredWhen | null;
+  valueDependency?: ValueDependencyShape | null;
+  iconUrl?: string | null;
   createdAt: string;
   updatedAt: string;
   translations: TranslationDto[];

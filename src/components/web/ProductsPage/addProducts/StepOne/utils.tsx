@@ -58,21 +58,3 @@ export const getYearOptions = (t: (key: string) => string): Option[] => {
     label: year.toString(),
   }));
 };
-
-/**
- * Validates if the form is completely filled
- */export const validateForm = (
-  selectedOptions: SelectedOptions,
-  isCarTrimRequired: boolean = false,
-): boolean => {
-  const isTrimValid = isCarTrimRequired ? Boolean(selectedOptions.trim) : true;
-  return Boolean(
-    selectedOptions.marka &&
-    selectedOptions.model &&
-    isTrimValid &&
-    selectedOptions.year &&
-    selectedOptions.governorate &&
-    selectedOptions.city &&
-    selectedOptions.address,
-  );
-};

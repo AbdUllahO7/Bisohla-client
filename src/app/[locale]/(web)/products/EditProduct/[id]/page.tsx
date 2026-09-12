@@ -1,349 +1,180 @@
 'use client';
-import Box from '@/components/ui/box';
-import { useParams, useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
-import Steps from '@/components/web/ProductsPage/addProducts/Main/Steps';
+import { useParams } from 'next/navigation';
+import { useLocale, useTranslations } from 'next-intl';
+import { useRouter } from '@/i18n/routing';
+import Box from '@/components/ui/box';
 import { Skeleton } from '@/components/ui/skeleton';
-import {
-  EDIT_STORAGE_KEYS,
-  STORAGE_KEYS,
-  clearFormData,
-} from '@/components/web/ProductsPage/addProducts/Main/hooks/useLocalStorage';
+import Steps from '@/components/web/ProductsPage/addProducts/Main/Steps';
+import type { HydratePayload } from '@/components/web/ProductsPage/addProducts/Main/context/listing-wizard.types';
+import { defaultAdInfoData } from '@/components/web/ProductsPage/addProducts/StepFour/storageUtils';
+import { ListingType, SaveStatus } from '@/core/entities/enums/cars.enums';
+import { Currency } from '@/core/entities/enums/currency.enum';
+import type { ListingDto } from '@/core/entities/models/listings/listings.dto';
+import { getInjection } from '@/di/container';
 import { useGetListingById } from '@/core/infrastructure-adapters/use-actions/users/listing.user.use-actions';
+import { getReferenceItemsByIds } from '@/core/infrastructure-adapters/actions/visitors/listing-type-refs.actions';
 import { splitPhone } from '@/core/lib/phone/phone.util';
-import { normalizeGovernorate, normalizeCity, normalizeAddress } from '@/core/entities/enums/syria.enums';
-import { matchGovernorate, matchCity, getNearestSyriaCity, resolveCityValue } from '@/utils/geocodeToSyria';
-import { SyriaGovernorate, SyriaCity } from '@/core/entities/enums/syria.enums';
+import {
+  collectParentLookups,
+  hydrateFromDetail,
+  synthesizeMetadataForUnresolvedParents,
+} from '@/lib/listing-attributes/attribute-hydration/attribute-hydration';
+import { flattenActiveAttributes } from '@/lib/listing-attributes/attribute-validator/attribute-validator';
+
+interface OwnerListingType {
+  id: number;
+  slug: string;
+  name: string;
+  rentEnabled?: boolean;
+  installmentsEnabled?: boolean;
+  installmentsMode?: 'free' | 'catalog';
+}
+
+/** GET /my-listings/:id — `listingType` is an object here, unlike the list card's string. */
+type OwnerListing = Omit<ListingDto, 'listingType'> & {
+  version?: number;
+  condition?: string | null;
+  latitude?: number | string | null;
+  longitude?: number | string | null;
+  listingType?: OwnerListingType | string | null;
+};
+
+const unwrap = (data: unknown): OwnerListing | null => {
+  if (!data) return null;
+  const d = data as Record<string, unknown>;
+  const raw = Array.isArray(d) ? d[0] : (d.listing ?? d.rawListing ?? d.data ?? d);
+  return raw && typeof raw === 'object' && 'id' in (raw as object) ? (raw as OwnerListing) : null;
+};
+
+/**
+ * Owner detail → wizard state. Attribute values hydrate by id; every
+ * `conditionallyRequiredWhen` parent's metadata is resolved by id (the detail's
+ * `referenceItem` carries none), and catalog-mode types fetch their installment options.
+ */
+const buildHydration = async (listing: OwnerListing, locale: string): Promise<HydratePayload> => {
+  const controller = getInjection('IListingTypesRepoController');
+  const typeMeta: OwnerListingType | null = typeof listing.listingType === 'object' && listing.listingType ? listing.listingType : null;
+  const listingTypeId = listing.listingTypeId || typeMeta?.id || 0;
+
+  const [schemaRes, catalogRes] = await Promise.all([
+    controller.getFormSchema(listingTypeId),
+    typeMeta?.installmentsMode === 'catalog' && typeMeta.slug ? controller.getListingTypeBySlug(typeMeta.slug) : Promise.resolve(null),
+  ]);
+  const sections = schemaRes.success && schemaRes.data ? schemaRes.data.sections : [];
+  const allAttributes = flattenActiveAttributes(sections.filter((s) => s.isActive !== false));
+
+  const hydrated = hydrateFromDetail(listing.attributeValues ?? []);
+
+  const lookups = collectParentLookups(allAttributes, hydrated.values);
+  const failedGroups = new Set<number>();
+  let snapshots = { ...hydrated.snapshots };
+  await Promise.all(
+    Object.entries(lookups).map(async ([groupIdStr, ids]) => {
+      const groupId = Number(groupIdStr);
+      const fetchOnce = () => getReferenceItemsByIds(groupId, ids);
+      let res = await fetchOnce().catch(() => null);
+      if (!res?.success) res = await fetchOnce().catch(() => null);
+      if (!res?.success || !res.data) {
+        failedGroups.add(groupId);
+        return;
+      }
+      const byId = new Map(res.data.map((item) => [item.id, item]));
+      for (const [attrIdStr, snap] of Object.entries(snapshots)) {
+        if (!snap || !byId.has(snap.id)) continue;
+        const item = byId.get(snap.id)!;
+        const name = (item.translations as Record<string, { name?: string }> | undefined)?.[locale]?.name || item.name || snap.name;
+        snapshots[Number(attrIdStr)] = { ...snap, name, metadata: item.metadata ?? null };
+      }
+    }),
+  );
+  if (failedGroups.size > 0) {
+    snapshots = synthesizeMetadataForUnresolvedParents(allAttributes, hydrated.values, snapshots, failedGroups);
+  }
+
+  const translations = (listing.translations ?? {}) as Record<string, { title?: string; description?: string | null }>;
+  const current = translations[locale] ?? translations.ar ?? translations.en ?? {};
+  const { dialCode, localNumber } = splitPhone(listing.contactNumber || '');
+  const plans = Array.isArray(listing.installmentPlans) ? listing.installmentPlans : [];
+
+  return {
+    listingType: {
+      id: listingTypeId,
+      slug: typeMeta?.slug ?? '',
+      name: typeMeta?.name ?? '',
+      rentEnabled: typeMeta?.rentEnabled,
+      installmentsEnabled: typeMeta?.installmentsEnabled,
+      installmentsMode: typeMeta?.installmentsMode,
+      installmentOptions: catalogRes?.success ? catalogRes.data?.installmentOptions : undefined,
+    },
+    attributeValues: hydrated.values,
+    referenceSnapshots: snapshots,
+    proposals: hydrated.proposals,
+    images: (listing.images ?? [])
+      .slice()
+      .sort((a, b) => Number(b.isPrimary) - Number(a.isPrimary))
+      .map((img) => (typeof img === 'string' ? img : img.url))
+      .filter(Boolean),
+    version: listing.version ?? null,
+    commonFields: {
+      ...defaultAdInfoData,
+      title: current.title || listing.title || '',
+      description: current.description || listing.description || '',
+      price: listing.price != null ? String(listing.price) : '',
+      countryDialCode: dialCode || '+963',
+      contactNumber: localNumber || '',
+      listingType: (listing.listingOfferType as ListingType) || ListingType.FOR_SALE,
+      rentType: (listing.rentType as never) ?? null,
+      condition: (listing.condition as never) ?? defaultAdInfoData.condition,
+      publicationDate: listing.publishedAt ? new Date(listing.publishedAt) : new Date(),
+      saveStatus: (listing.publicationStatus as SaveStatus) || SaveStatus.PUBLISHED,
+      currency: (listing.currency as Currency) || Currency.USD,
+      governorate: listing.governorate || '',
+      city: listing.city || '',
+      address: listing.address || '',
+      latitude: listing.latitude != null && !Number.isNaN(Number(listing.latitude)) ? Number(listing.latitude) : null,
+      longitude: listing.longitude != null && !Number.isNaN(Number(listing.longitude)) ? Number(listing.longitude) : null,
+      detectedGovernorate: listing.governorate || null,
+      installmentsAvailable: Boolean(listing.installmentsAvailable),
+      installmentPlans: plans.map((p) => ({
+        months: Number(p.months),
+        downPayment: Number(p.downPayment ?? 0),
+        monthlyAmount: Number(p.monthlyAmount ?? 0),
+        noteTranslations: p.noteTranslations ?? null,
+        displayOrder: p.displayOrder,
+      })),
+    },
+  };
+};
 
 const EditProductPage = () => {
   const { id } = useParams();
   const router = useRouter();
-  const [isInitialized, setIsInitialized] = useState(false);
+  const locale = useLocale();
+  const t = useTranslations('addProduct.wizard');
+  const listingId = Number(id);
+  const { data, isLoading, error } = useGetListingById(listingId);
+  const [hydration, setHydration] = useState<HydratePayload | null>(null);
+  const [hydrationError, setHydrationError] = useState<string | null>(null);
 
-  // Fetch generic listing data
-  const { data, isLoading, error } = useGetListingById(Number(id));
-
-  // Prepare data and initialize local storage on component mount
   useEffect(() => {
-    if (data && data.data && !isInitialized) {
-      // Clear existing edit-mode data to prevent stale values
-      clearFormData(true);
-
-      const rawListing = Array.isArray(data.data)
-        ? data.data[0]
-        : ((data.data as any)?.listing ||
-           (data.data as any)?.rawListing ||
-           (data.data as any)?.carListing ||
-           (data.data as any)?.data ||
-           data.data);
-
-      const listing = rawListing || {};
-
-      if (!listing || (!listing.id && !listing.listingTypeId && !listing.title)) return;
-
-      const typeId =
-        listing.listingTypeId ||
-        (listing as any).typeId ||
-        (listing as any).listingType?.id ||
-        1;
-
-      const stepOneData = {
-        id: typeId,
-        name: (listing as any).listingType?.name || (listing as any).listingType || 'Listing',
-        rentEnabled: (listing as any).listingType?.rentEnabled,
-        installmentsEnabled: (listing as any).listingType?.installmentsEnabled,
-        installmentsMode: (listing as any).listingType?.installmentsMode,
-        installmentOptions: (listing as any).listingType?.installmentOptions,
-      };
-
-      // Initialize stepTwoData with flattened attribute values and their metadata
-      const attributeValuesMap: Record<string, any> = {};
-      const attributeMetaMap: Record<string, any> = {};
-      const proposalsMap: Record<number, { name: string; status: 'pending' }> = {};
-
-      if (listing.attributeValues && Array.isArray(listing.attributeValues)) {
-        listing.attributeValues.forEach((av: any) => {
-          const slug = av.attribute?.slug || av.slug;
-          const attrId = av.attribute?.id || av.attributeId;
-          
-          if (av.refItemProposal && av.refItemProposal.status === 'pending') {
-            if (attrId) {
-              proposalsMap[attrId] = {
-                name: av.refItemProposal.submittedName,
-                status: 'pending',
-              };
-            }
-            if (slug) {
-              attributeMetaMap[slug] = {
-                id: attrId,
-                type: av.attribute?.type,
-              };
-              attributeValuesMap[slug] = null;
-            }
-          } else {
-            let val = null;
-            if (
-              av.referenceItem &&
-              (slug === 'governorate' || slug === 'محافظة' || slug === 'city' || slug === 'مدينة')
-            ) {
-              val =
-                typeof av.referenceItem.name === 'object'
-                  ? (av.referenceItem.name.ar || av.referenceItem.name.en)
-                  : av.referenceItem.name ||
-                    av.referenceItem.nameTranslations?.ar ||
-                    av.referenceItem.nameTranslations?.en ||
-                    av.valueText;
-            } else if (av.referenceItemId !== null && av.referenceItemId !== undefined)
-              val = String(av.referenceItemId);
-            else if (av.valueNumber !== null && av.valueNumber !== undefined)
-              val = Number(av.valueNumber);
-            else if (av.valueJson !== null && av.valueJson !== undefined)
-              val = av.valueJson;
-            else if (av.valueBoolean !== null && av.valueBoolean !== undefined)
-              val = av.valueBoolean;
-            else if (av.valueText !== null && av.valueText !== undefined)
-              val = av.valueText;
-            else if (av.valueDate !== null && av.valueDate !== undefined)
-              val = av.valueDate;
-
-            if (slug) {
-              attributeMetaMap[slug] = {
-                id: attrId,
-                type: av.attribute?.type,
-              };
-              attributeValuesMap[slug] = val;
-            }
-          }
-        });
-      }
-
-      // Robust extraction of location fields with fallbacks
-      // Use || (not ??) so empty strings fall through to the next candidate
-      const rawGov =
-        listing.governorate ||
-        listing.locationGovernorate ||
-        (listing as any).location?.governorate ||
-        (listing as any).details?.governorate ||
-        (listing as any).addressInfo?.governorate ||
-        (listing as any).address?.governorate ||
-        (listing as any).rawListing?.governorate ||
-        (listing as any).carListing?.governorate ||
-        (listing.translations as any)?.ar?.governorate ||
-        (listing.translations as any)?.en?.governorate ||
-        attributeValuesMap['governorate'] ||
-        attributeValuesMap['محافظة'] ||
-        null;
-
-      const rawCity =
-        listing.city ||
-        listing.locationCity ||
-        (listing as any).location?.city ||
-        (listing as any).details?.city ||
-        (listing as any).addressInfo?.city ||
-        (listing as any).address?.city ||
-        (listing as any).rawListing?.city ||
-        (listing as any).carListing?.city ||
-        (listing.translations as any)?.ar?.city ||
-        (listing.translations as any)?.en?.city ||
-        attributeValuesMap['city'] ||
-        attributeValuesMap['مدينة'] ||
-        null;
-
-      const rawAddress = (() => {
-        // Safely extract a string-only address across all known field paths.
-        // If a field is an object (e.g. { ar: '...', en: '...' }) we unwrap it.
-        const extractStr = (val: any): string | null | undefined => {
-          if (val == null) return null;
-          if (typeof val === 'string') return val.trim() || null;
-          if (typeof val === 'object') {
-            const s = val.address || val.detailedAddress || val.ar || val.en || val.title || val.name;
-            return typeof s === 'string' ? s.trim() || null : null;
-          }
-          return null;
-        };
-        return (
-          extractStr(listing.address) ??
-          extractStr(listing.detailedAddress) ??
-          extractStr((listing as any).location?.address) ??
-          extractStr((listing as any).location?.detailedAddress) ??
-          extractStr((listing as any).details?.address) ??
-          extractStr((listing as any).addressInfo?.address) ??
-          extractStr((listing as any).rawListing?.address) ??
-          extractStr((listing as any).carListing?.address) ??
-          extractStr((listing.translations as any)?.ar?.address) ??
-          extractStr((listing.translations as any)?.en?.address) ??
-          extractStr(attributeValuesMap['address']) ??
-          extractStr(attributeValuesMap['العنوان']) ??
-          extractStr(attributeValuesMap['detailed_address'])
-        );
-      })();
-
-      const rawLat =
-        (listing as any).latitude ??
-        (listing as any).lat ??
-        (listing as any).location?.latitude ??
-        (listing as any).location?.lat ??
-        (listing as any).details?.latitude ??
-        null;
-
-      const rawLng =
-        (listing as any).longitude ??
-        (listing as any).lng ??
-        (listing as any).lon ??
-        (listing as any).location?.longitude ??
-        (listing as any).location?.lng ??
-        (listing as any).details?.longitude ??
-        null;
-
-      const normGov = normalizeGovernorate(rawGov) || matchGovernorate(rawGov) || '';
-
-      const numLat = rawLat != null && !isNaN(Number(rawLat)) ? Number(rawLat) : null;
-      const numLng = rawLng != null && !isNaN(Number(rawLng)) ? Number(rawLng) : null;
-
-      const normCity = resolveCityValue(rawCity, normGov, numLat, numLng);
-      const normAddress = normalizeAddress(rawAddress) || rawAddress || '';
-
-      // Merge direct attributes fallback from listing object
-      const stepTwoData = {
-        ...attributeValuesMap,
-        governorate: normGov || null,
-        city: normCity || null,
-        address: normAddress || null,
-        latitude: numLat,
-        longitude: numLng,
-        make: listing.makeId || listing.make?.id || attributeValuesMap.make || null,
-        model: listing.modelId || listing.model?.id || attributeValuesMap.model || null,
-        trim: listing.trimId || listing.trim?.id || attributeValuesMap.trim || null,
-        currency: listing.currency || 'USD',
-        __attributeMap__: attributeMetaMap,
-        __attributeValuesMap: attributeValuesMap,
-        __proposals__: proposalsMap,
-      };
-
-      // Normalize images
-      const rawImgs = listing.images || [];
-      const imageUrls: string[] = rawImgs
-        .map((img: any) =>
-          typeof img === 'string' ? img : img.url || img.imageUrl,
-        )
-        .filter(Boolean);
-
-      if (imageUrls.length === 0 && listing.primaryImage) {
-        imageUrls.push(listing.primaryImage);
-      }
-
-      const stepThreeData = {
-        coverImage: imageUrls,
-        sectionStatus: transformDamagesToSectionStatus(listing.damages || []),
-      };
-
-      const itemTitle =
-        listing.title ||
-        (listing.translations as any)?.ar?.title ||
-        (listing.translations as any)?.en?.title ||
-        (listing.translations as any)?.[0]?.title ||
-        '';
-
-      const itemDescription =
-        listing.description ||
-        (listing.translations as any)?.ar?.description ||
-        (listing.translations as any)?.en?.description ||
-        (listing.translations as any)?.[0]?.description ||
-        '';
-
-      const stepFourData = {
-        title: itemTitle,
-        description: itemDescription,
-        price:
-          listing.price !== null && listing.price !== undefined
-            ? listing.price.toString()
-            : '',
-        saveStatus: listing.saveStatus || 'PUBLISHED',
-        listingType: listing.listingOfferType || listing.listingType || 'for_sale',
-        rentType: listing.rentType || null,
-        installmentsAvailable: Boolean(listing.installmentsAvailable),
-        installmentPlans: Array.isArray(listing.installmentPlans)
-          ? listing.installmentPlans.map((p: any) => ({
-              months: Number(p.months),
-              downPayment: p.downPayment !== null && p.downPayment !== undefined ? p.downPayment.toString() : '',
-              monthlyAmount: p.monthlyAmount !== null && p.monthlyAmount !== undefined ? p.monthlyAmount.toString() : '',
-              noteTranslations: p.noteTranslations || (p.note ? { en: p.note, ar: p.note } : undefined),
-            }))
-          : [],
-        countryDialCode: splitPhone(listing.contactNumber).dialCode,
-        contactNumber: splitPhone(listing.contactNumber).localNumber,
-        publicationDate: listing.publishedAt
-          ? new Date(listing.publishedAt).toISOString()
-          : new Date().toISOString(),
-        currency: listing.currency || 'USD',
-        governorate: normGov,
-        city: normCity,
-        address: normAddress,
-        latitude: numLat,
-        longitude: numLng,
-        detectedGovernorate: normGov || null,
-      };
-
-      try {
-        // Store data in localStorage with edit-specific keys
-        localStorage.setItem(
-          EDIT_STORAGE_KEYS.STEP_ONE,
-          JSON.stringify(stepOneData),
-        );
-        localStorage.setItem(
-          EDIT_STORAGE_KEYS.STEP_TWO,
-          JSON.stringify(stepTwoData),
-        );
-        localStorage.setItem(
-          EDIT_STORAGE_KEYS.STEP_THREE,
-          JSON.stringify(stepThreeData),
-        );
-        localStorage.setItem(
-          EDIT_STORAGE_KEYS.STEP_FOUR,
-          JSON.stringify(stepFourData),
-        );
-
-        // Set edit mode flag
-        if (id) {
-          localStorage.setItem(STORAGE_KEYS.EDIT_MODE_FLAG, id.toString());
-        }
-
-        setIsInitialized(true);
-      } catch (err) {
-        console.error('Error setting local storage for edit mode:', err);
-      }
-    }
-  }, [data, id, isInitialized]);
-
-  // Clean up function to remove edit mode flag when component unmounts
-  useEffect(() => {
+    if (!data?.data || hydration) return;
+    const listing = unwrap(data.data);
+    if (!listing) return;
+    let cancelled = false;
+    buildHydration(listing, locale)
+      .then((payload) => {
+        if (!cancelled) setHydration(payload);
+      })
+      .catch((e: unknown) => {
+        if (!cancelled) setHydrationError(e instanceof Error ? e.message : String(e));
+      });
     return () => {
-      const pathname = (typeof window !== 'undefined' ? window.location.pathname : '').toLowerCase();
-      if (!pathname.includes('/edit')) {
-        localStorage.removeItem(STORAGE_KEYS.EDIT_MODE_FLAG);
-        clearFormData(true);
-      }
+      cancelled = true;
     };
-  }, []);
+  }, [data, hydration, locale]);
 
-  // Helper function to transform damages from API format to section status format
-  function transformDamagesToSectionStatus(
-    damages: any[],
-  ): Record<string, any> {
-    const sectionStatus: Record<string, any> = {};
-    damages?.forEach((damage) => {
-      if (damage.damageZone && damage.damageType) {
-        sectionStatus[damage.damageZone] = {
-          status: damage.damageType,
-          description: damage.description || '',
-        };
-      }
-    });
-    return sectionStatus;
-  }
-
-  // Show loading state
-  if (isLoading) {
+  if (isLoading || (data?.data && !hydration && !hydrationError)) {
     return (
       <Box variant="column" className="mt-[50px] bg-background">
         <Box className="w-full mt-10 p-6" variant="column">
@@ -356,19 +187,14 @@ const EditProductPage = () => {
     );
   }
 
-  // Show error state
-  if (error || !data) {
+  if (error || !data?.data || hydrationError) {
     return (
       <Box variant="column" className="mt-[50px] bg-background">
         <Box className="w-full mt-10 p-6" variant="column">
           <div className="p-4 bg-red-50 text-red-600 rounded-md">
-            {error?.message ||
-              'Error loading listing. Please try again or contact support.'}
-            <button
-              onClick={() => router.back()}
-              className="mt-4 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 block"
-            >
-              Go Back
+            {error?.message || hydrationError || t('load_error')}
+            <button onClick={() => router.back()} className="mt-4 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 block">
+              {t('go_back')}
             </button>
           </div>
         </Box>
@@ -379,13 +205,7 @@ const EditProductPage = () => {
   return (
     <Box variant="column" className="mt-[50px] bg-background">
       <Box className="w-full mt-10" variant="column">
-        {isInitialized && (
-          <Steps
-            isEditMode={true}
-            carId={Number(id)}
-            initialData={data.data}
-          />
-        )}
+        <Steps isEditMode={true} listingId={listingId} initialHydration={hydration} />
       </Box>
     </Box>
   );

@@ -1,12 +1,12 @@
 import { ListingType, RentType, SaveStatus } from "@/core/entities/enums/cars.enums";
 import { AdInformationFormData } from "./schema";
-import { EDIT_STORAGE_KEYS, STORAGE_KEYS } from "../Main/hooks/useLocalStorage";
 import { Currency } from "@/core/entities/enums/currency.enum";
 import { assemblePhone, splitPhone } from "@/core/lib/phone/phone.util";
-import { normalizeGovernorate, normalizeCity, normalizeAddress } from "@/core/entities/enums/syria.enums";
+import { normalizeGovernorate, normalizeAddress } from "@/core/entities/enums/syria.enums";
 import { resolveCityValue } from "@/utils/geocodeToSyria";
+import { commonFieldsStore } from "../Main/context/common-fields.store";
 
-// Extended interface for localStorage (includes frontend-only fields)
+// Extended interface for the wizard state (includes frontend-only fields)
 export interface AdInformationStorageData extends AdInformationFormData {
     countryCode?: string; // Legacy field
 }
@@ -20,6 +20,9 @@ export const defaultAdInfoData: AdInformationStorageData = {
     contactNumber: "",
     listingType: ListingType.FOR_SALE,
     rentType: null,
+    // Required, but never pre-picked: the seller must state the condition (mobile parity).
+    condition: "" as AdInformationFormData["condition"],
+    saveAsProfileNumber: false,
     publicationDate: new Date(),
     saveStatus: SaveStatus.PUBLISHED,
     currency: Currency.USD,
@@ -47,22 +50,7 @@ export const parsePhoneNumber = (contactNumber: string): { countryCode: string; 
     };
 };
 
-/**
- * Checks if the application is in edit mode
- */
-export const isEditMode = (): boolean => {
-    if (typeof window === "undefined") return false;
-    const pathname = window.location.pathname.toLowerCase();
-    const isEditRoute = pathname.includes('/edit') || pathname.includes('/editproduct');
-    return isEditRoute && !!localStorage.getItem(STORAGE_KEYS.EDIT_MODE_FLAG);
-};
-
-/**
- * Gets the appropriate storage key based on edit mode
- */
-export const getAdInfoStorageKey = (): string => {
-    return isEditMode() ? EDIT_STORAGE_KEYS.STEP_FOUR : STORAGE_KEYS.STEP_FOUR;
-};
+export const isEditMode = (): boolean => commonFieldsStore.getMode() === 'edit';
 
 /**
  * Ensure enum values are preserved during serialization/deserialization
@@ -115,6 +103,10 @@ export const ensureEnumValues = (data: any): AdInformationStorageData => {
         }
     }
 
+    if (data.rentType && !Object.values(RentType).includes(data.rentType as RentType)) {
+        result.rentType = null;
+    }
+
     // Handle governorate & city & address normalization
     if (data.governorate) {
         result.governorate = normalizeGovernorate(data.governorate);
@@ -133,116 +125,60 @@ export const ensureEnumValues = (data: any): AdInformationStorageData => {
 };
 
 /**
- * Loads saved ad information data from localStorage with edit mode awareness
+ * Loads the common fields from the wizard state (seeded by hydrate / draft restore).
  */
 export const loadAdInfoData = (): AdInformationStorageData => {
-    try {
-        if (typeof window === "undefined") {
-            return defaultAdInfoData;
-        }
+    const saved = commonFieldsStore.get();
+    if (!saved) return defaultAdInfoData;
 
-        const storageKey = getAdInfoStorageKey();
-        const savedData = localStorage.getItem(storageKey);
-
-        if (savedData) {
-            const parsedData = JSON.parse(savedData);
-
-            // Convert string date back to Date object
-            if (parsedData.publicationDate) {
-                parsedData.publicationDate = new Date(parsedData.publicationDate);
-            }
-
-            // Set defaults if not present
-            if (!parsedData.saveStatus) {
-                parsedData.saveStatus = SaveStatus.PUBLISHED;
-            }
-            if (!parsedData.currency) {
-                parsedData.currency = Currency.USD;
-            }
-
-            if (parsedData.contactNumber && !parsedData.countryDialCode) {
-                const { dialCode } = splitPhone(parsedData.contactNumber);
-                parsedData.countryDialCode = dialCode;
-            } else if (!parsedData.countryDialCode) {
-                parsedData.countryDialCode = "+963";
-            }
-
-            return ensureEnumValues(parsedData);
-        }
-
-        return defaultAdInfoData;
-    } catch (e) {
-        console.error(`Failed to load saved ad information from ${getAdInfoStorageKey()}:`, e);
-        return defaultAdInfoData;
+    const parsedData: any = { ...saved };
+    if (parsedData.publicationDate && !(parsedData.publicationDate instanceof Date)) {
+        parsedData.publicationDate = new Date(parsedData.publicationDate);
     }
+    if (!parsedData.saveStatus) parsedData.saveStatus = SaveStatus.PUBLISHED;
+    if (!parsedData.currency) parsedData.currency = Currency.USD;
+
+    if (parsedData.contactNumber && !parsedData.countryDialCode) {
+        const { dialCode } = splitPhone(parsedData.contactNumber);
+        parsedData.countryDialCode = dialCode;
+    } else if (!parsedData.countryDialCode) {
+        parsedData.countryDialCode = "+963";
+    }
+
+    return ensureEnumValues(parsedData);
 };
 
+/** True once the wizard holds common fields (hydrated edit, restored draft, or the seller's edits). */
+export const hasSavedAdInfoData = (): boolean => commonFieldsStore.has();
+
 /**
- * Saves ad information data to localStorage with edit mode awareness
- * contactNumber will contain the full phone number with country code
+ * Writes the common fields into the wizard state.
  */
 export const saveAdInfoData = (data: AdInformationStorageData): void => {
-    try {
-        if (typeof window !== "undefined") {
-            const normalizedData = ensureEnumValues(data);
-            const storageKey = getAdInfoStorageKey();
-            localStorage.setItem(storageKey, JSON.stringify(normalizedData));
-        }
-    } catch (e) {
-        console.error(`Failed to save ad information to ${getAdInfoStorageKey()}:`, e);
-    }
+    commonFieldsStore.set(ensureEnumValues(data));
 };
 
 /**
- * Automatically saves form data as it changes with edit mode awareness
+ * Merges a partial change into the wizard state (debounced by the caller).
  */
 export const autoSaveAdInfoData = (
     data: Partial<AdInformationStorageData>,
     previousData?: Partial<AdInformationStorageData>
 ): void => {
-    if (previousData &&
-        JSON.stringify(data) === JSON.stringify(previousData)) {
+    if (previousData && JSON.stringify(data) === JSON.stringify(previousData)) {
         return;
     }
 
-    try {
-        if (typeof window !== "undefined") {
-            const existingData = loadAdInfoData();
-
-            const updatedData = {
-                ...existingData,
-                ...data,
-                listingType: data.listingType || existingData.listingType,
-                saveStatus: data.saveStatus || existingData.saveStatus,
-                currency: data.currency || existingData.currency,
-                countryCode: data.countryCode || existingData.countryCode,
-                rentType: data.rentType !== undefined ? data.rentType : existingData.rentType
-            };
-
-            const normalizedData = ensureEnumValues(updatedData);
-            const storageKey = getAdInfoStorageKey();
-            localStorage.setItem(storageKey, JSON.stringify(normalizedData));
-        }
-    } catch (e) {
-        console.error(`Failed to auto-save ad information to ${getAdInfoStorageKey()}:`, e);
-    }
-};
-
-/**
- * Custom hook to use ad information with edit mode awareness
- */
-export const useAdInfoData = () => {
-    const isCurrentEditMode = isEditMode();
-    const storageKey = getAdInfoStorageKey();
-
-    return {
-        loadData: loadAdInfoData,
-        saveData: saveAdInfoData,
-        autoSaveData: autoSaveAdInfoData,
-        isEditMode: isCurrentEditMode,
-        storageKey,
-        // Helper functions
-        combinePhoneNumber,
-        parsePhoneNumber
+    const existingData = loadAdInfoData();
+    const updatedData = {
+        ...existingData,
+        ...data,
+        listingType: data.listingType || existingData.listingType,
+        saveStatus: data.saveStatus || existingData.saveStatus,
+        currency: data.currency || existingData.currency,
+        countryCode: data.countryCode || existingData.countryCode,
+        rentType: data.rentType !== undefined ? data.rentType : existingData.rentType
     };
+
+    commonFieldsStore.set(ensureEnumValues(updatedData));
 };

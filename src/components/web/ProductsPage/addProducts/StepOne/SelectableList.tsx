@@ -15,6 +15,8 @@ export interface Option {
   label: any
   logoUrl?: string | null
   keywords?: string[]
+  /** Reference-item metadata, forwarded on select so `conditionallyRequiredWhen` can read it. */
+  metadata?: Record<string, unknown> | null
 }
 
 const toStr = (val: any): string => {
