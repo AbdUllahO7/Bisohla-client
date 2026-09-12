@@ -166,14 +166,40 @@ const SelectableList: React.FC<SelectableListProps> = ({
   )
 
   useEffect(() => {
-    if (propSelectedOption && toStr(propSelectedOption.label)) {
-      setLastKnownSelectedOption({
-        ...propSelectedOption,
-        value: toStr(propSelectedOption.value),
-        label: toStr(propSelectedOption.label),
+    if (!selectedValue) {
+      setLastKnownSelectedOption(null)
+      return
+    }
+    if (propSelectedOption && toStr(propSelectedOption.label).trim()) {
+      const pVal = toStr(propSelectedOption.value)
+      const pLab = toStr(propSelectedOption.label)
+      setLastKnownSelectedOption((prev) => {
+        if (prev && toStr(prev.value) === pVal && toStr(prev.label) === pLab) return prev
+        return {
+          ...propSelectedOption,
+          value: pVal,
+          label: pLab,
+        }
+      })
+    } else {
+      setLastKnownSelectedOption((prev) => {
+        if (prev && toStr(prev.value) !== toStr(selectedValue)) {
+          return null
+        }
+        return prev
       })
     }
-  }, [propSelectedOption])
+  }, [propSelectedOption, selectedValue])
+
+  const prevDepKeyRef = useRef(dependencyKey)
+  useEffect(() => {
+    if (prevDepKeyRef.current !== undefined && prevDepKeyRef.current !== dependencyKey) {
+      prevDepKeyRef.current = dependencyKey
+      setSearchTerm("")
+    } else {
+      prevDepKeyRef.current = dependencyKey
+    }
+  }, [dependencyKey])
 
   // Fetch initial/search page 1 when in server mode
   useEffect(() => {
@@ -619,7 +645,9 @@ const SelectableList: React.FC<SelectableListProps> = ({
 
                 <span className="flex-1 truncate">
                   {toStr(selectedOption.label) ||
-                    (lastKnownSelectedOption?.label ? toStr(lastKnownSelectedOption.label) : "") ||
+                    (toStr(lastKnownSelectedOption?.value) === toStr(selectedOption.value) && lastKnownSelectedOption?.label
+                      ? toStr(lastKnownSelectedOption.label)
+                      : "") ||
                     toStr(selectedOption.value)}
                 </span>
 

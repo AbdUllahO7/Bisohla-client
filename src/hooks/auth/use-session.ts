@@ -45,8 +45,11 @@ export const useSession = (): SessionReturnType => {
     queryClient.invalidateQueries({ queryKey: ['session'] });
     queryClient.invalidateQueries({ queryKey: ['check-auth-user'] });
     queryClient.invalidateQueries({ queryKey: ['profile'] });
+    queryClient.invalidateQueries({ queryKey: ['legal-pending'] });
+    queryClient.invalidateQueries({ queryKey: ['legal-my-acceptances'] });
     queryClient.removeQueries({ queryKey: ['session'] });
     queryClient.removeQueries({ queryKey: ['check-auth-user'] });
+    queryClient.removeQueries({ queryKey: ['legal-pending'] });
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('logout-success'));
       window.dispatchEvent(new CustomEvent('session-invalidated'));
@@ -67,11 +70,16 @@ export const useSession = (): SessionReturnType => {
       queryClient.invalidateQueries({ queryKey: ['session'] });
       queryClient.invalidateQueries({ queryKey: ['check-auth-user'] });
       queryClient.invalidateQueries({ queryKey: ['profile'] });
+      queryClient.invalidateQueries({ queryKey: ['legal-pending'] });
+      queryClient.invalidateQueries({ queryKey: ['legal-my-acceptances'] });
+      queryClient.removeQueries({ queryKey: ['legal-pending'] });
     };
 
     const handleAuthUpdated = () => {
       queryClient.invalidateQueries({ queryKey: ['session'] });
       queryClient.invalidateQueries({ queryKey: ['profile'] });
+      queryClient.invalidateQueries({ queryKey: ['legal-pending'] });
+      queryClient.invalidateQueries({ queryKey: ['legal-my-acceptances'] });
       refetchSession();
     };
 

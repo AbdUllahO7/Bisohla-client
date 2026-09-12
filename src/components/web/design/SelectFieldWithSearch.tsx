@@ -394,9 +394,9 @@ const SelectFieldWithSearch: React.FC<SelectFieldWithSearchProps> = ({
             </Button>
           </PopoverTrigger>
           <PopoverContent
-            className="bg-white dark:bg-zinc-900 shadow-2xl border border-slate-100 dark:border-zinc-800 p-0 overflow-hidden !z-[99999] rounded-2xl ring-1 ring-black/5 dark:ring-white/10"
+            className="bg-white dark:bg-zinc-900 shadow-2xl border border-slate-100 dark:border-zinc-800 p-0 overflow-hidden !z-[10000000] pointer-events-auto rounded-2xl ring-1 ring-black/5 dark:ring-white/10 min-w-[220px]"
             align="start"
-            style={{ width: "var(--radix-popover-trigger-width)" }}
+            style={{ width: "var(--radix-popover-trigger-width, 100%)" }}
             dir={isRtl ? "rtl" : "ltr"}
           >
             <div className="p-3 bg-gradient-to-r from-gray-50 to-white dark:from-zinc-900 dark:to-zinc-950 border-b border-gray-100 dark:border-zinc-800">

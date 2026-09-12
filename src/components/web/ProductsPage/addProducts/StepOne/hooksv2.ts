@@ -181,12 +181,12 @@ export const useProductStepOne = (
   // Create fetch functions for infinite scroll dropdowns
   const fetchCarMakes = useCallback(
     async (params: QueryParams) => {
-      if (!groupIds.make) return { success: true, data: { data: [], total: 0, page: 1, pageSize: params.pageSize || 30 } };
+      if (!groupIds.make) return { success: true, data: { data: [], total: 0, page: 1, pageSize: params.pageSize || 100 } };
       const controller = getInjection('IListingTypeRefsRepoController');
       const res = await controller.getItemsByGroupId(
         groupIds.make,
         undefined,
-        params.pageSize || 30,
+        params.pageSize || 100,
         params.searchTerm as string,
         params.page || 1,
         locale,
@@ -219,13 +219,13 @@ export const useProductStepOne = (
         makeId;
 
       if (!groupIds.model || !resolvedMakeId)
-        return { success: true, data: { data: [], total: 0, page: 1, pageSize: params.pageSize || 30 } };
+        return { success: true, data: { data: [], total: 0, page: 1, pageSize: params.pageSize || 100 } };
 
       const controller = getInjection('IListingTypeRefsRepoController');
       const res = await controller.getItemsByGroupId(
         groupIds.model,
         Number(resolvedMakeId),
-        params.pageSize || 30,
+        params.pageSize || 100,
         params.searchTerm as string,
         params.page || 1,
         locale,
@@ -252,13 +252,13 @@ export const useProductStepOne = (
         modelId;
 
       if (!groupIds.trim || !resolvedModelId)
-        return { success: true, data: { data: [], total: 0, page: 1, pageSize: params.pageSize || 30 } };
+        return { success: true, data: { data: [], total: 0, page: 1, pageSize: params.pageSize || 100 } };
 
       const controller = getInjection('IListingTypeRefsRepoController');
       const res = await controller.getItemsByGroupId(
         groupIds.trim,
         Number(resolvedModelId),
-        params.pageSize || 30,
+        params.pageSize || 100,
         params.searchTerm as string,
         params.page || 1,
         locale,

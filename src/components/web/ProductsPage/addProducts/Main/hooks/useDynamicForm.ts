@@ -415,7 +415,7 @@ export const useDynamicForm = (
     }
 
     return !conditionMet;
-  }, [attributes, referenceOptions]);
+  }, [attributes, referenceOptions, refItemsMap]);
 
   // Standard field change handler
   const handleFieldChange = useCallback((slug: string, value: any) => {
@@ -459,6 +459,25 @@ export const useDynamicForm = (
       });
     }
   }, [attributes, evaluateValueDependency]);
+
+  // Re-evaluate field visibility whenever refItemsMap changes (e.g. make metadata loaded after selection)
+  // This ensures trim shows/hides correctly as soon as isCarTrimRequired is known
+  useEffect(() => {
+    if (!isInitialized.current) return;
+    setFormData(prev => {
+      const newData = { ...prev };
+      let changed = false;
+      attributes.forEach(attr => {
+        if (!isTrimAttribute(attr)) return; // Only re-evaluate trim fields on refItemsMap change
+        const isShown = evaluateValueDependency(attr, newData);
+        if (!isShown && newData[attr.slug] !== '' && newData[attr.slug] !== undefined) {
+          newData[attr.slug] = attr.type === 'repeating_group' ? [] : '';
+          changed = true;
+        }
+      });
+      return changed ? newData : prev;
+    });
+  }, [refItemsMap, attributes, evaluateValueDependency]);
 
   // Set proposal for a reference attribute
   const handleSetProposal = useCallback((attrId: number, name: string) => {
@@ -524,15 +543,63 @@ export const useDynamicForm = (
     const targetAttr = attributes.find(a => a.id === attrId);
     if (!targetAttr) return;
 
-    // Remove any active proposal for this attribute
+    // Find parent attribute (via dependsOnAttributeId or semantic fallback)
+    let parentAttr: FormAttributeDto | undefined;
+    if (targetAttr.dependsOnAttributeId) {
+      parentAttr = attributes.find(a => a.id === targetAttr.dependsOnAttributeId);
+    }
+    if (!parentAttr && existingItem.parentItemId) {
+      if (isModelAttribute(targetAttr)) {
+        parentAttr = attributes.find(a => isMakeAttribute(a));
+      } else if (isTrimAttribute(targetAttr)) {
+        parentAttr = attributes.find(a => isModelAttribute(a));
+      }
+    }
+
+    // Register ref items so they are immediately available in refItemsMap
+    const itemsToRegister: ListingTypeRefItemDto[] = [
+      {
+        id: existingItem.id,
+        name: existingItem.label,
+        translations: {
+          ar: { name: existingItem.label },
+          en: { name: existingItem.label },
+        },
+        metadata: existingItem.metadata as any,
+      } as any,
+    ];
+
+    if (existingItem.parentItemId && existingItem.parentLabel) {
+      itemsToRegister.push({
+        id: existingItem.parentItemId,
+        name: existingItem.parentLabel,
+        translations: {
+          ar: { name: existingItem.parentLabel },
+          en: { name: existingItem.parentLabel },
+        },
+        metadata: existingItem.parentMetadata as any,
+      } as any);
+    }
+
+    registerRefItems(itemsToRegister);
+
+    // Remove any active proposal for this attribute and cascade
     setProposals(prev => {
       const updated = { ...prev };
       delete updated[attrId];
 
       // If existing item has parentItemId and targetAttr has a parent, also clear parent's proposal
-      if (existingItem.parentItemId && targetAttr.dependsOnAttributeId) {
-        delete updated[targetAttr.dependsOnAttributeId];
+      if (existingItem.parentItemId && parentAttr) {
+        delete updated[parentAttr.id];
       }
+
+      // Cascade clear child proposals
+      attributes.forEach(attr => {
+        if (attr.dependsOnAttributeId === targetAttr.id) {
+          delete updated[attr.id];
+        }
+      });
+
       return updated;
     });
 
@@ -540,16 +607,28 @@ export const useDynamicForm = (
       const newData = { ...prev, [targetAttr.slug]: String(existingItem.id) };
 
       // Re-bind parent if parentItemId is present (§7.5)
-      if (existingItem.parentItemId && targetAttr.dependsOnAttributeId) {
-        const parentAttr = attributes.find(a => a.id === targetAttr.dependsOnAttributeId);
-        if (parentAttr) {
-          newData[parentAttr.slug] = String(existingItem.parentItemId);
-        }
+      if (existingItem.parentItemId && parentAttr) {
+        newData[parentAttr.slug] = String(existingItem.parentItemId);
       }
+
+      // Cascade clear child values
+      attributes.forEach(attr => {
+        if (attr.dependsOnAttributeId === targetAttr.id) {
+          newData[attr.slug] = attr.type === 'repeating_group' ? [] : '';
+        }
+      });
+
+      // Clear values of fields whose valueDependency is met (they become hidden)
+      attributes.forEach(attr => {
+        const isShown = evaluateValueDependency(attr, newData);
+        if (!isShown) {
+          newData[attr.slug] = attr.type === 'repeating_group' ? [] : '';
+        }
+      });
 
       return newData;
     });
-  }, [attributes]);
+  }, [attributes, registerRefItems, evaluateValueDependency]);
 
   // Use refs to avoid infinite loops with unstable parent callbacks
   const onValidationChangeRef = useRef(onValidationChange);

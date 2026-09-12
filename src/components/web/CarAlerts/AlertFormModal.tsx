@@ -501,7 +501,7 @@ export function AlertFormModal({
                           {attrName} {isRequired && <span className="text-red-500">*</span>}
                         </Label>
                         <Select
-                          value={formData[attr.slug] || ''}
+                          value={formData[attr.slug] ? String(formData[attr.slug]) : undefined}
                           onValueChange={(val) => handleChange(attr.slug, val)}
                           disabled={isDisabled}
                         >
@@ -509,11 +509,22 @@ export function AlertFormModal({
                             <SelectValue placeholder={`${tModal('select')} ${attrName}`} />
                           </SelectTrigger>
                           <SelectContent className="bg-white dark:bg-zinc-900">
-                            {attr.options?.map((opt: any) => (
-                              <SelectItem key={String(opt.id || opt.value)} value={String(opt.id || opt.value)}>
-                                {getTranslation(opt.label || opt.name || opt.value)}
-                              </SelectItem>
-                            ))}
+                            {attr.options?.map((opt: any, idx: number) => {
+                              const optVal =
+                                opt.id !== undefined && opt.id !== null
+                                  ? String(opt.id)
+                                  : opt.value !== undefined && opt.value !== null
+                                  ? String(opt.value)
+                                  : typeof opt === 'string'
+                                  ? opt
+                                  : String(idx);
+                              if (!optVal) return null;
+                              return (
+                                <SelectItem key={optVal} value={optVal}>
+                                  {getTranslation(opt.label || opt.name || opt.value || opt)}
+                                </SelectItem>
+                              );
+                            })}
                           </SelectContent>
                         </Select>
                       </div>
