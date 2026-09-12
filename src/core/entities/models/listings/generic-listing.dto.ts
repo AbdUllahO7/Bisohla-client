@@ -29,6 +29,8 @@ export interface GenericAttributeMeta {
   isTranslatable: boolean;
 }
 
+import { RefItemProposal } from './reference-proposal.dto';
+
 export interface GenericAttributeValue {
   id: number;
   attributeId: number;
@@ -41,6 +43,7 @@ export interface GenericAttributeValue {
   valueTextTranslations: Record<string, string> | null;
   referenceItemId: number | null;
   referenceItem: GenericAttributeReferenceItem | null;
+  refItemProposal?: RefItemProposal | null;
 }
 
 export interface GenericListingUser {
@@ -66,6 +69,8 @@ export interface GenericListingType {
   imageUrl?: string | null;
 }
 
+import { ListingInstallmentPlan } from './installments.dto';
+
 export interface GenericListingDto {
   id: number;
   userId: number;
@@ -87,6 +92,9 @@ export interface GenericListingDto {
   condition: string | null;
   isFeatured: boolean;
   isTrend: boolean;
+  installmentsAvailable?: boolean;
+  minMonthlyInstallment?: string | null;
+  installmentPlans?: ListingInstallmentPlan[];
   /**
    * `null` on every public response once seller-contact protection is enabled
    * in backend settings. Check `contactAvailable` before deciding what to do.

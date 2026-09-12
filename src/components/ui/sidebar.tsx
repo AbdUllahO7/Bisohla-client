@@ -208,18 +208,28 @@ const Sidebar = React.forwardRef<
     }
 
     if (isMobile) {
+      const isRTL = (props.dir || side === 'right') === 'rtl' || side === 'right';
+      const mobileSide = isRTL ? 'right' : 'left';
+      const sheetDir = isRTL ? 'rtl' : 'ltr';
+
       return (
-        <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
+        <Sheet open={openMobile} onOpenChange={setOpenMobile}>
           <SheetContent
             data-sidebar="sidebar"
             data-mobile="true"
-            className="w-[--sidebar-width] bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden z-50"
+            dir={sheetDir}
+            side={mobileSide}
+            className={cn(
+              "w-[290px] sm:w-[320px] max-w-[85vw] h-full bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden z-50 overflow-hidden shadow-2xl flex flex-col fixed inset-y-0",
+              isRTL 
+                ? "right-0 left-auto border-l border-sidebar-border" 
+                : "left-0 right-auto border-r border-sidebar-border"
+            )}
             style={
               {
-                '--sidebar-width': SIDEBAR_WIDTH_MOBILE,
+                '--sidebar-width': '290px',
               } as React.CSSProperties
             }
-            side={side}
             title="sidebar-content"
             aria-describedby="sidebar-content"
             aria-description="sidebar-content"
@@ -230,7 +240,7 @@ const Sidebar = React.forwardRef<
                 <SheetDescription>Sidebar</SheetDescription>
               </VisuallyHidden>
             </SheetHeader>
-            <div className="flex h-full w-full flex-col ">{children}</div>
+            <div className="flex h-full w-full flex-col overflow-hidden" dir={sheetDir}>{children}</div>
           </SheetContent>
         </Sheet>
       );

@@ -14,31 +14,40 @@ import { getAdminRole, getUserRole } from './services/permission.service';
 const intlMiddleware = createIntlMiddleware(routing);
 
 async function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl;
+
   // Early return for .well-known paths (universal links)
-  if (req.nextUrl.pathname.startsWith('/.well-known')) {
+  if (pathname.startsWith('/.well-known')) {
+    return NextResponse.next();
+  }
+
+  // Early return for static files, manifest, favicon, robots, sitemap, service worker, assets, etc.
+  if (
+    pathname === '/manifest.json' ||
+    pathname === '/favicon.ico' ||
+    pathname === '/robots.txt' ||
+    pathname === '/sitemap.xml' ||
+    pathname.startsWith('/sitemap') ||
+    pathname === '/sw.js' ||
+    pathname.startsWith('/assets/') ||
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/api') ||
+    pathname.match(/\.(ico|png|jpg|jpeg|svg|webp|gif|css|js|json|xml|txt|webmanifest|woff|woff2|ttf|eot)$/i)
+  ) {
     return NextResponse.next();
   }
 
   // Early return for the /app store-redirect link so next-intl does not
   // localize it (`/app` → `/ar/app`); the route handler owns the response.
   if (
-    req.nextUrl.pathname === '/app' ||
-    req.nextUrl.pathname.startsWith('/app/')
+    pathname === '/app' ||
+    pathname.startsWith('/app/')
   ) {
     return NextResponse.next();
   }
 
-  // Apply intl middleware first to handle localization
+  // Apply intl middleware to handle localization
   const response = await intlMiddleware(req);
-
-  // Early return for assets, api routes, etc.
-  if (
-    req.nextUrl.pathname.match(/\.(ico|png|jpg|jpeg|svg|css|js)$/) ||
-    req.nextUrl.pathname.startsWith('/_next') ||
-    req.nextUrl.pathname.startsWith('/api')
-  ) {
-    return response;
-  }
 
   // Renew the backend tokens here, where cookies are still writable — a Server
   // Component render cannot write them, so this is the only place a page load
@@ -162,6 +171,6 @@ export default middleware;
 // Configure middleware matcher with static values
 export const config = {
   matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico|assets/).*)',
+    '/((?!api|_next/static|_next/image|assets|favicon.ico|robots.txt|sitemap.xml|manifest.json|sw.js|.*\\..*).*)',
   ],
 };

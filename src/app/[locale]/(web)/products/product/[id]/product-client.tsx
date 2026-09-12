@@ -3,12 +3,14 @@
 import { useEffect, useState } from 'react';
 import { cacheListing } from '@/utils/offline-favorites-manager';
 import Box from '@/components/ui/box';
-import ProductBasicInfo from '@/components/web/ProductsPage/product/ProductBasicInfo';
 import ProductHeader from '@/components/web/ProductsPage/product/ProductHeader';
 import ProductImages from '@/components/web/ProductsPage/product/ProductImages';
-import ProductInfo from '@/components/web/ProductsPage/product/ProductInfo';
 import TabsSection from '@/components/web/ProductsPage/product/TabsSection';
 import AttributeGrid from '@/components/web/ProductsPage/product/AttributeGrid';
+import ProductInfo from '@/components/web/ProductsPage/product/ProductInfo/ProductInfo';
+import { useProductInfoRows } from '@/components/web/ProductsPage/product/ProductInfo/useProductInfoRows';
+import { splitQuickSpecs, type DisplaySection } from '@/lib/listing-attributes/attribute-sections/attribute-sections';
+import InstallmentsSummaryRow from '@/components/web/ProductsPage/product/InstallmentsSummaryRow';
 import { ApiResponse } from '@/core/entities/api/success.response';
 import { SelectCarListingDto } from '@/core/entities/models/cars/cars.dto';
 import { GenericListingDto } from '@/core/entities/models/listings/generic-listing.dto';
@@ -19,18 +21,18 @@ import FloatingShareButton from './FloatingShareButton';
 interface ProductClientProps {
   carDataRes: ApiResponse<SelectCarListingDto>;
   rawListing?: GenericListingDto | null;
-  /** Legacy car record — its id is NOT a listing-types id, so no reveal. */
-  isLegacyCar?: boolean;
+  /** Schema-driven read model built server-side (see `buildListingAttributeSections`). */
+  attributeSections: DisplaySection[];
   isAuthenticated: boolean;
   locale: string;
   isProfileView: boolean;
 }
 
-const ProductClient = ({ carDataRes, rawListing, isLegacyCar, isAuthenticated, locale }: ProductClientProps) => {
+const ProductClient = ({ carDataRes, rawListing, attributeSections, isAuthenticated }: ProductClientProps) => {
   const carData = carDataRes.data;
 
-  // Determine if this is a car listing based on raw listing type slug
-  const isCarListing = !rawListing || rawListing?.listingType?.slug === 'cars';
+  const { quickSpecs, sections: detailSections } = splitQuickSpecs(attributeSections);
+  const infoRows = useProductInfoRows(rawListing);
 
   // Use the custom statistics hook
   const { handleContactClick, handleShareClick, isSharePending } =
@@ -130,13 +132,11 @@ const ProductClient = ({ carDataRes, rawListing, isLegacyCar, isAuthenticated, l
             saveStatus={carData.saveStatus as any}
             productName={carData.title}
             ContactNumber={carData.contactNumber?.toString()}
-            // A legacy car id would resolve to an unrelated listing-types listing,
-            // so never offer a reveal for one — an inline number still works.
-            contactAvailable={isLegacyCar ? false : carData.contactAvailable}
+            contactAvailable={carData.contactAvailable}
             price={carData.price?.toString() || ''}
             currency={carData.currency}
             isLoading={false}
-            productId={carData.id}
+            productId={rawListing?.id || carData.id}
             isMarkedFavorite={favoriteStatus}
             isAuthenticated={isAuthenticated}
             onFavoriteToggle={handleFavoriteToggle}
@@ -147,27 +147,20 @@ const ProductClient = ({ carDataRes, rawListing, isLegacyCar, isAuthenticated, l
       </div>
 
       <Box variant="container">
-        {/* Basic info cards — car-specific or generic attribute grid */}
+        {/* Quick specs — first filled attributes of the schema's first section */}
         <Box className="mt-1 w-full mb-3">
-          {isCarListing ? (
-            <ProductBasicInfo
-              isLoading={false}
-              carType={carData.make?.name || ''}
-              model={carData.model?.name || ''}
-              controlType={carData.details?.transmission || ''}
-              distance={carData.details?.mileage?.toString() || ''}
-              modelYear={carData.details?.year?.toString() || ''}
-              gaz={carData.details?.fuelType || ''}
-              bodyType={carData.details?.bodyType || ''}
-            />
-          ) : (
-            <AttributeGrid
-              attributeValues={rawListing?.attributeValues || []}
-              locale={locale}
-              isLoading={false}
-            />
-          )}
+          <AttributeGrid rows={quickSpecs} />
         </Box>
+
+        {/* Installment Plans Summary */}
+        {carData.installmentsAvailable && Array.isArray(carData.installmentPlans) && carData.installmentPlans.length > 0 && carData.saveStatus !== 'sold' && (
+          <div className="w-full mb-3">
+            <InstallmentsSummaryRow
+              plans={carData.installmentPlans}
+              currency={carData.currency || 'USD'}
+            />
+          </div>
+        )}
 
         {/* Images and Info Section */}
         <Box className="w-full">
@@ -175,22 +168,9 @@ const ProductClient = ({ carDataRes, rawListing, isLegacyCar, isAuthenticated, l
             variant="row"
             className="w-full gap-4 items-start justify-start md:flex-wrap xs:flex-wrap xs:justify-center"
           >
-            {/* Show ProductInfo sidebar only for cars */}
-            {isCarListing && (
+            {infoRows.length > 0 && (
               <Box className="xs:w-[90%] lg:w-fit">
-                <ProductInfo
-                  isLoading={false}
-                  carType={carData.make?.name || ''}
-                  model={carData.model?.name || ''}
-                  controlType={carData.details?.transmission || ''}
-                  distance={carData.details?.mileage?.toString() || ''}
-                  modelYear={carData.details?.year?.toString() || ''}
-                  gaz={carData.details?.fuelType || ''}
-                  price={carData.price?.toString() || ''}
-                  currency={carData.currency}
-                  adsNumber={carData.id?.toString() || ''}
-                  adsDate={carData.publishedAt?.toString() || ''}
-                />
+                <ProductInfo isLoading={false} rows={infoRows} />
               </Box>
             )}
 
@@ -205,9 +185,8 @@ const ProductClient = ({ carDataRes, rawListing, isLegacyCar, isAuthenticated, l
           <TabsSection
             data={carDataRes}
             isLoading={false}
-            isCarListing={isCarListing}
-            attributeValues={rawListing?.attributeValues || []}
-            locale={locale}
+            attributeSections={detailSections}
+            listingTypeSlug={rawListing?.listingType?.slug}
           />
         </Box>
       </Box>
@@ -220,9 +199,6 @@ const ProductClient = ({ carDataRes, rawListing, isLegacyCar, isAuthenticated, l
             ? `${carData.price} ${carData.currency || ''}`
             : undefined
         }
-        productMake={isCarListing ? carData.make?.name : undefined}
-        productModel={isCarListing ? carData.model?.name : undefined}
-        productYear={isCarListing ? carData.details?.year?.toString() : undefined}
         onShare={handleShareClick}
         isSharePending={isSharePending}
       />

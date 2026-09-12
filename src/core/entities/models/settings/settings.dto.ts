@@ -118,6 +118,10 @@ export interface AppSettings {
     play_store_url?: string;
     app_store_url?: string;
   };
+  appearance?: {
+    app_logo_light?: string;
+    app_logo_dark?: string;
+  };
   version_control?: {
     app_version?: string;
     min_supported_version?: string;
@@ -153,6 +157,16 @@ export interface ThirdPartyIntegrations {
     api_key?: string;
     apiKey?: string;
   };
+  google_geocoding?: {
+    enabled?: boolean;
+    api_key?: string;
+    apiKey?: string;
+  };
+  geocoding?: {
+    enabled?: boolean;
+    api_key?: string;
+    apiKey?: string;
+  };
   cloudflare_turnstile?: {
     enabled?: boolean;
     site_key?: string;
@@ -168,6 +182,17 @@ export interface MapSettings {
   api_key?: string;
 }
 
+export interface ReferenceProposalsSettings {
+  enabled?: boolean;
+  max_per_listing?: number;
+  min_name_length?: number;
+  max_name_length?: number;
+  allow_chained_proposals?: boolean;
+  max_pending_per_user?: number;
+  duplicate_match_threshold?: number;
+  notify_admins?: boolean;
+}
+
 export interface ListingsSettings {
   images?: {
     min_images_per_listing?: number;
@@ -177,7 +202,12 @@ export interface ListingsSettings {
   };
   location?: {
     geocoding_provider?: string;
+    geocoding_api_key?: string;
+    api_key?: string;
+    apiKey?: string;
     require_coordinates?: boolean;
+    saved_addresses_enabled?: boolean;
+    max_saved_addresses_per_user?: number;
   };
   map?: MapSettings;
   display?: {
@@ -185,6 +215,12 @@ export interface ListingsSettings {
     compare_max_count?: number;
     featured_listings_limit?: number;
   };
+  search?: {
+    seller_suggestions_enabled?: boolean;
+    seller_suggestions_count?: number;
+    seller_suggestions_min_term_length?: number;
+  };
+  reference_proposals?: ReferenceProposalsSettings;
 }
 
 // Main settings structure combining all sections

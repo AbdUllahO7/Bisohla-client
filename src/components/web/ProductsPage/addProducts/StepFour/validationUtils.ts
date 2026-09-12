@@ -1,5 +1,6 @@
 import { ListingType } from "@/core/entities/enums/cars.enums"
 import type { AdInfoState } from "./types"
+import { isValidPhone } from "@/core/lib/phone/phone.util"
 
 /**
  * Validates the title field and returns an error message if invalid
@@ -44,17 +45,14 @@ export const getPriceErrorMessage = (price: string, direction: string): string =
 /**
  * Validates the contact number field and returns an error message if invalid
  */
-export const getContactErrorMessage = (contactNumber: string, direction: string): string => {
+export const getContactErrorMessage = (contactNumber: string, direction: string, countryDialCode: string = "+963"): string => {
   if (!contactNumber.trim()) {
-    return direction === "ltr" ? "Contact number is required" : "رقم الاتصال مطلوب"
+    return direction === "ltr" ? "Phone number is required" : "رقم الهاتف مطلوب"
   }
-  if (contactNumber.trim().length < 10) {
+  if (!isValidPhone(contactNumber, countryDialCode)) {
     return direction === "ltr"
-      ? "Contact number must be at least 10 digits"
-      : "يجب أن يكون رقم الاتصال 10 أرقام على الأقل"
-  }
-  if (contactNumber.trim().length > 20) {
-    return direction === "ltr" ? "Contact number must not exceed 20 digits" : "يجب ألا يتجاوز رقم الاتصال 20 رقمًا"
+      ? "This is not a valid phone number for the selected country"
+      : "هذا ليس رقم هاتف صالحاً للدولة المختارة"
   }
   return ""
 }
@@ -92,16 +90,15 @@ export const getCurrencyErrorMessage = (currency: string, direction: string): st
 /**
  * Validates the entire form and returns a boolean indicating if the form is valid
  */
-export const validateForm = (formData: AdInfoState): boolean => {
+export const validateForm = (formData: AdInfoState, countryDialCode: string = "+963"): boolean => {
   // Basic validation checks
   const isTitleValid = formData.title.trim().length >= 3
   const isDescriptionValid = formData.description.trim().length >= 10
   const isPriceValid = !!formData.price.trim() && !isNaN(Number(formData.price)) && Number(formData.price) > 0
 
-  // Contact number validation, allowing for optional contact (matching the Zod schema)
+  // Contact number validation using canonical libphonenumber validator
   const isContactValid =
-    !formData.contactNumber ||
-    (formData.contactNumber.trim().length >= 10 && formData.contactNumber.trim().length <= 20)
+    !formData.contactNumber || isValidPhone(formData.contactNumber, countryDialCode)
 
   // Listing type validation
   const isListingTypeValid = formData.listingType !== ""

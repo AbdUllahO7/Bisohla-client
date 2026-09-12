@@ -120,7 +120,11 @@ const FloatingProfileShareButton: React.FC<FloatingProfileShareButtonProps> = ({
       try {
         await navigator.share({
           title: profileName,
-          text: `Check out this profile: ${profileName}`,
+          text: tProfile('share_message', {
+            name: profileName,
+            url: shareUrl,
+            defaultValue: `Check out \u2066${profileName}\u2069's listings on Bishola: ${shareUrl}`,
+          }),
           url: shareUrl,
         });
 
@@ -271,6 +275,7 @@ const FloatingProfileShareButton: React.FC<FloatingProfileShareButtonProps> = ({
         {/* Main Floating Button */}
         <Button
           onClick={() => setIsOpen(!isOpen)}
+          aria-label={tProfile('share_a11y', { defaultValue: "Share this seller's profile" })}
           className={`h-14 w-14 rounded-full shadow-2xl bg-gradient-to-br from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white transition-all duration-300 ${
             isOpen ? 'rotate-45 scale-110' : 'hover:scale-110'
           }`}

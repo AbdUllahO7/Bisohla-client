@@ -1,11 +1,13 @@
-'use client'
-import React, { useState, useEffect, useRef } from 'react';
-import { Tabs } from "@/components/ui/tabs";
-import { useLocale } from 'next-intl';
+'use client';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useLocale, useTranslations } from 'next-intl';
+import { Tabs } from '@/components/ui/tabs';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Info } from 'lucide-react';
 import { useSettings } from '@/providers/settings.provider';
-
-// Import components
-import { getRequiredFieldsMessage, getErrorDialogTexts } from './utils';
+import { cn } from '@/lib/utils';
+import type { ListingTypeDto } from '@/core/entities/models/listing-types/listing-types.dto';
+import type { ImageUploaderRef } from '@/components/image-uploader/image-uploader';
 import { StepContent } from './Components/StepContent';
 import AddProductStepFour from '../StepFour/AddProductStepFour';
 import ErrorDialog from './Components/ErrorDialog';
@@ -13,273 +15,142 @@ import { StepTrigger, StepperContainer } from './Components/StepTrigger';
 import AddProductTypeSelection from '../TypeSelection/AddProductTypeSelection';
 import DynamicFormStep from './Components/DynamicFormStep';
 import CarPhotosSection from '../StepThree/CarPhotosSection';
-import { getInjection } from '@/di/container';
-import { ListingTypeDto, ListingTypeFormSchemaDto } from '@/core/entities/models/listing-types/listing-types.dto';
-import { useMemo, useCallback } from 'react';
-import { cn } from '@/lib/utils';
 import { useStepManagement } from './hooks/useStepManagement';
-import { getStorageKey, STORAGE_KEYS } from './hooks/useLocalStorage';
-import { getStepNavigationMessages, showStepNavigationToast } from './utils/stepNavigationUtils';
+import { useListingWizardSubmit } from './hooks/useListingWizardSubmit';
+import { showStepNavigationToast } from './utils/stepNavigationUtils';
+import { ListingWizardProvider, useListingWizard } from './context/listing-wizard.context';
+import { pickListingTypePolicy, type HydratePayload } from './context/listing-wizard.types';
 
-// Props interface for Steps component
+const STEP_TYPE = 'typeSelection';
+const STEP_PHOTOS = 'photos';
+const STEP_ADS_INFO = 'adsInfo';
+const sectionStepId = (sectionId: number) => `section_${sectionId}`;
+
 interface StepsProps {
   isEditMode?: boolean;
-  carId?: number;
-  initialData?: any;
+  listingId?: number | null;
+  /** Edit mode: the fully resolved wizard state (attributes, snapshots, common fields, images). */
+  initialHydration?: HydratePayload | null;
 }
 
-const Steps: React.FC<StepsProps> = ({ isEditMode = false, carId, initialData }) => {
+const Steps: React.FC<StepsProps> = ({ isEditMode = false, listingId = null, initialHydration = null }) => (
+  <ListingWizardProvider mode={isEditMode ? 'edit' : 'create'} listingId={listingId} initialHydration={initialHydration}>
+    <StepsInner isEditMode={isEditMode} />
+  </ListingWizardProvider>
+);
+
+const StepsInner: React.FC<{ isEditMode: boolean }> = ({ isEditMode }) => {
   const locale = useLocale();
   const direction = locale === 'ar' ? 'rtl' : 'ltr';
   const isArabic = direction === 'rtl';
+  const t = useTranslations('addProduct');
+  const tWizard = useTranslations('addProduct.wizard');
 
   const { getListingsSettings } = useSettings();
-  const listingsSettings = getListingsSettings();
-  const minImages = listingsSettings?.images?.min_images_per_listing ?? 5;
-  
-  // Add state for step four validation
-  const [stepFourIsValid, setStepFourIsValid] = useState(false);
+  const minImages = getListingsSettings()?.images?.min_images_per_listing ?? 5;
 
-  // Dynamic Step States
-  const [selectedType, setSelectedType] = useState<ListingTypeDto | null>(null);
-  const [schema, setSchema] = useState<ListingTypeFormSchemaDto | null>(null);
-  const [loadingSchema, setLoadingSchema] = useState(false);
-  
-  const categoryName = useMemo(() => {
-    return selectedType?.name || (isArabic ? 'إعلان' : 'Listing');
-  }, [selectedType, isArabic]);
-  
-  // Photo State
-  const [photos, setPhotos] = useState<string[]>([]);
-  const [photoValidation, setPhotoValidation] = useState(false);
-  const coverImageRef = useRef<any>(null);
-
-  // Fetch schema when type is selected
-  useEffect(() => {
-    if (selectedType) {
-      const fetchSchema = async () => {
-        setLoadingSchema(true);
-        try {
-          const controller = getInjection('IListingTypesRepoController');
-          const res = await controller.getFormSchema(selectedType.id);
-          if (res.success && res.data) {
-            setSchema({ ...res.data, listingTypeId: selectedType.id });
-          }
-        } catch (error) {
-          console.error("Failed to fetch schema", error);
-        } finally {
-          setLoadingSchema(false);
-        }
-      };
-      fetchSchema();
-    }
-  }, [selectedType]);
+  const { state, dispatch, schema, isSchemaLoading, isSchemaError, refetchSchema, draftRestored, draftStep, setCurrentStepForDraft } =
+    useListingWizard();
+  const coverImageRef = useRef<ImageUploaderRef | null>(null);
 
   const dynamicSteps = useMemo(() => {
-    const baseSteps = isEditMode ? [] : ["typeSelection"];
-    if (schema) {
-      const sectionSteps = schema.sections.map(s => `section_${s.id}`);
-      return [...baseSteps, ...sectionSteps, "carPhotos", "adsInfo"];
-    }
+    const baseSteps = isEditMode ? [] : [STEP_TYPE];
+    if (schema) return [...baseSteps, ...schema.sections.filter((s) => s.isActive !== false).map((s) => sectionStepId(s.id)), STEP_PHOTOS, STEP_ADS_INFO];
     return baseSteps;
   }, [schema, isEditMode]);
-  
-  // Use the step management hook with edit mode flag and dynamic steps
+
+  const onStepValidityFailed = useCallback((message: string) => showStepNavigationToast(message, 'warning'), []);
+  const { submit, isSubmitting, phase, showErrorDialog, setShowErrorDialog, errorMessage, handleTryAgain } = useListingWizardSubmit({
+    onStepValidityFailed,
+  });
+
   const {
     steps,
     currentStep,
     setCurrentStep,
-    isSubmitting,
-    showErrorDialog,
-    errorMessage,
     stepValidation,
     validationAttempted,
     handleNext,
     handleBack,
     updateStepValidation,
-    handleTryAgain,
-    setShowErrorDialog,
     isStepAccessible,
     getStepProgress,
-  } = useStepManagement(isEditMode, dynamicSteps);
+  } = useStepManagement(isEditMode, dynamicSteps, submit);
 
-  // Load initial photos from localStorage or initialData
+  useEffect(() => setCurrentStepForDraft(currentStep), [currentStep, setCurrentStepForDraft]);
+
+  // Step validity that the shell owns (type / photos); sections and ads-info report their own.
   useEffect(() => {
-    if (isEditMode && initialData?.images) {
-      const imageUrls = initialData.images.map((img: any) => typeof img === 'string' ? img : img.url);
-      setPhotos(imageUrls);
-      updateStepValidation('carPhotos', imageUrls.length >= minImages);
-    } else {
-      const storageKey = getStorageKey('STEP_THREE', isEditMode);
-      const savedPhotos = localStorage.getItem(storageKey); // Photos were step 3 in old design
-      if (savedPhotos) {
-        try {
-          const parsed = JSON.parse(savedPhotos);
-          if (Array.isArray(parsed.coverImage)) {
-            setPhotos(parsed.coverImage);
-            updateStepValidation('carPhotos', parsed.coverImage.length >= minImages);
-          }
-        } catch (e) {
-          console.error("Failed to parse saved photos", e);
-        }
-      }
-    }
-  }, [isEditMode, initialData, updateStepValidation, minImages]);
-
-  // Save photos to localStorage whenever they change
+    updateStepValidation(STEP_TYPE, state.listingType != null);
+  }, [state.listingType, updateStepValidation]);
   useEffect(() => {
-    if (photos.length > 0) {
-      const storageKey = getStorageKey('STEP_THREE', isEditMode);
-      const current = localStorage.getItem(storageKey);
-      const parsed = current ? JSON.parse(current) : {};
-      localStorage.setItem(storageKey, JSON.stringify({
-        ...parsed,
-        coverImage: photos
-      }));
-    }
-  }, [photos, isEditMode]);
+    updateStepValidation(STEP_PHOTOS, state.images.length >= minImages && !state.isUploadingImages);
+  }, [state.images.length, state.isUploadingImages, minImages, updateStepValidation]);
 
-  // Load initial Listing Type from localStorage or initialData
+  // Draft restored: say so once and reopen the step it was on.
+  const draftJumpDone = useRef(false);
   useEffect(() => {
-    if (isEditMode && initialData) {
-      // Find the listing type from initialData
-      // If we only have ID, we might need to fetch the full object or just set ID
-      // For now, let's assume we can at least set the ID to trigger schema fetch
-      const typeId = initialData.listingTypeId || (initialData.data?.[0]?.listingTypeId);
-      if (typeId && (!selectedType || selectedType.id !== typeId)) {
-        // We set a partial type object, the fetchSchema useEffect will handle the rest
-        setSelectedType({ id: typeId } as any);
-        updateStepValidation('typeSelection', true);
-      }
-    } else if (!isEditMode) {
-      const savedType = localStorage.getItem(STORAGE_KEYS.STEP_ONE);
-      if (savedType) {
-        try {
-          const parsed = JSON.parse(savedType);
-          // Only update if current selectedType is different to prevent loops
-          if (!selectedType || parsed.id !== selectedType.id) {
-            setSelectedType(parsed);
-            updateStepValidation('typeSelection', true);
-          }
-        } catch (e) {
-          console.error("Failed to parse saved type", e);
-        }
-      }
-    }
-  }, [isEditMode, initialData, selectedType, updateStepValidation]);
+    if (!draftRestored || isEditMode || draftJumpDone.current) return;
+    if (draftStep && !steps.includes(draftStep)) return;
+    draftJumpDone.current = true;
+    const timer = setTimeout(() => showStepNavigationToast(tWizard('draft_restored'), 'info'), 1200);
+    if (draftStep) setCurrentStep(draftStep);
+    return () => clearTimeout(timer);
+  }, [draftRestored, draftStep, isEditMode, steps, setCurrentStep, tWizard]);
 
-  const handleTypeSelect = (type: ListingTypeDto) => {
-    setSelectedType(type);
-    updateStepValidation('typeSelection', true);
-    
-    // Persist to localStorage
-    localStorage.setItem(STORAGE_KEYS.STEP_ONE, JSON.stringify(type));
-    
-    // Clear dynamic step data when type changes to prevent schema mismatch
-    localStorage.removeItem(STORAGE_KEYS.STEP_TWO);
-  };
-
-  // Set edit mode flag in localStorage on component mount if in edit mode
+  // Leaving with unsaved edits: the browser's own confirm (reload / close / external link).
   useEffect(() => {
-    if (isEditMode && carId) {
-      localStorage.setItem(STORAGE_KEYS.EDIT_MODE_FLAG, carId.toString());
-    }
-    
-    return () => {
-      if (!window.location.pathname.includes('/edit')) {
-        localStorage.removeItem(STORAGE_KEYS.EDIT_MODE_FLAG);
-      }
+    if (!state.isDirty) return;
+    const guard = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = '';
     };
-  }, [isEditMode, carId]);
+    window.addEventListener('beforeunload', guard);
+    return () => window.removeEventListener('beforeunload', guard);
+  }, [state.isDirty]);
 
-  // Show a beautiful "Draft Restored" toast if we successfully recovered previous progress
-  useEffect(() => {
-    if (!isEditMode) {
-      const hasDraft = localStorage.getItem(STORAGE_KEYS.STEP_ONE) || localStorage.getItem(STORAGE_KEYS.STEP_TWO);
-      if (hasDraft) {
-        const timer = setTimeout(() => {
-          showStepNavigationToast(
-            isArabic 
-              ? "🔄 تم استعادة مسودتك المحفوظة تلقائياً!" 
-              : "🔄 Your saved draft has been automatically restored!",
-            "info"
-          );
-        }, 1200);
-        return () => clearTimeout(timer);
-      }
-    }
-  }, [isEditMode, isArabic]);
+  const handleTypeSelect = (type: ListingTypeDto) => dispatch({ type: 'setListingType', listingType: pickListingTypePolicy(type) });
 
-  // Function to handle direct step navigation
   const handleStepClick = (targetStep: string) => {
-    const success = setCurrentStep(targetStep);
-    
-    if (!success) {
-      const messages = getStepNavigationMessages(isArabic);
-      showStepNavigationToast(messages.stepLocked, 'warning');
-    }
+    if (!setCurrentStep(targetStep)) showStepNavigationToast(tWizard('step_locked'), 'warning');
   };
 
   const stepLabels = useMemo(() => {
     const labels: Record<string, string> = {
-      typeSelection: isArabic ? "فئة الإعلان" : "Ad Category",
-      carPhotos: isArabic ? "صور الإعلان" : "Photos",
-      adsInfo: isArabic ? "معلومات الإعلان" : "Ad Information"
+      [STEP_TYPE]: t('steps.carType'),
+      [STEP_PHOTOS]: t('steps.carImages'),
+      [STEP_ADS_INFO]: t('steps.adsDetails'),
     };
-    schema?.sections.forEach(s => {
-      labels[`section_${s.id}`] = s.name;
+    schema?.sections.forEach((s) => {
+      labels[sectionStepId(s.id)] = s.name;
     });
     return labels;
-  }, [schema, isArabic]);
+  }, [schema, t]);
 
-  // Stabilize validation updates to prevent infinite loops
-  const handleUpdateStepValidation = useCallback((stepId: string, isValid: boolean) => {
-    updateStepValidation(stepId, isValid);
-  }, [updateStepValidation]);
-
-  // Get error dialog text based on locale
-  const errorDialogTexts = getErrorDialogTexts(isArabic);
-  
-  // Get the required fields message
-  const requiredFieldsMessage = getRequiredFieldsMessage(direction);
-
-  // Get progress information
+  const categoryName = state.listingType?.name || tWizard('listing_fallback');
+  const requiredFieldsMessage = tWizard('required_fields');
   const progress = getStepProgress();
 
   return (
     <div className="w-full min-h-screen bg-gray-50 dark:bg-zinc-950">
       <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
-        {/* Header Section */}
         <div className="mb-6 sm:mb-8">
-          {/* Page title & Progress Ring Header Layout */}
-          <div className={cn(
-            "flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8",
-            isArabic && "sm:flex-row-reverse"
-          )}>
+          <div className={cn('flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8', isArabic && 'sm:flex-row-reverse')}>
             <div>
               <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">
-                {isEditMode 
-                  ? (isArabic ? `تعديل ${categoryName}` : `Edit ${categoryName} Listing`) 
-                  : (isArabic ? `إضافة ${categoryName} جديد` : `Add New ${categoryName} Listing`)}
+                {isEditMode ? tWizard('title_edit', { category: categoryName }) : tWizard('title_create', { category: categoryName })}
               </h1>
             </div>
 
-            {/* Interactive Circular Step Progress Ring */}
-            <div className={cn(
-              "flex items-center gap-4 bg-white dark:bg-zinc-900 p-3 px-4 rounded-2xl border border-slate-100 dark:border-zinc-800 shadow-sm transition-all duration-300 hover:shadow-md",
-              isArabic && "sm:flex-row-reverse"
-            )}>
+            <div
+              className={cn(
+                'flex items-center gap-4 bg-white dark:bg-zinc-900 p-3 px-4 rounded-2xl border border-slate-100 dark:border-zinc-800 shadow-sm transition-all duration-300 hover:shadow-md',
+                isArabic && 'sm:flex-row-reverse',
+              )}
+            >
               <div className="relative flex items-center justify-center h-14 w-14">
-                {/* SVG Progress Ring */}
                 <svg className="w-full h-full transform -rotate-90">
-                  <circle
-                    cx="28"
-                    cy="28"
-                    r="23"
-                    className="stroke-slate-100 dark:stroke-zinc-800"
-                    strokeWidth="4"
-                    fill="transparent"
-                  />
+                  <circle cx="28" cy="28" r="23" className="stroke-slate-100 dark:stroke-zinc-800" strokeWidth="4" fill="transparent" />
                   <circle
                     cx="28"
                     cy="28"
@@ -292,33 +163,26 @@ const Steps: React.FC<StepsProps> = ({ isEditMode = false, carId, initialData })
                     strokeLinecap="round"
                   />
                 </svg>
-                <span className="absolute text-xs font-black text-slate-800 dark:text-zinc-200">
-                  {progress.progressPercentage}%
-                </span>
+                <span className="absolute text-xs font-black text-slate-800 dark:text-zinc-200">{progress.progressPercentage}%</span>
               </div>
-              <div className={isArabic ? "text-right" : "text-left"}>
-                <p className="text-[10px] font-extrabold text-emerald-600 tracking-wider uppercase mb-0.5">
-                  {isArabic ? "نسبة الإنجاز" : "Completion Status"}
-                </p>
+              <div className={isArabic ? 'text-right' : 'text-left'}>
+                <p className="text-[10px] font-extrabold text-emerald-600 tracking-wider uppercase mb-0.5">{tWizard('completion_status')}</p>
                 <p className="text-sm font-bold text-slate-800 dark:text-zinc-200">
-                  {isArabic 
-                    ? `الخطوة ${progress.currentStepIndex + 1} من ${progress.totalSteps}` 
-                    : `Step ${progress.currentStepIndex + 1} of ${progress.totalSteps}`}
+                  {tWizard('step_of', { current: progress.currentStepIndex + 1, total: progress.totalSteps })}
                 </p>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-        {/* Steps Navigation */}
         <div className="mb-6 sm:mb-8">
           <StepperContainer>
             {steps.map((step, index) => (
-              <StepTrigger 
+              <StepTrigger
                 key={step}
-                totalSteps={steps.length} 
-                step={step} 
-                index={index} 
+                totalSteps={steps.length}
+                step={step}
+                index={index}
                 currentStep={currentStep}
                 label={stepLabels[step]}
                 stepValidation={stepValidation}
@@ -330,112 +194,106 @@ const Steps: React.FC<StepsProps> = ({ isEditMode = false, carId, initialData })
           </StepperContainer>
         </div>
 
-        {/* Main Content Area */}
         <Tabs value={currentStep} className="w-full">
           <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-sm border dark:border-zinc-800 min-h-[600px]">
-            {/* Step Content */}
             <div className="p-4 sm:p-6 lg:p-8">
-              {currentStep === 'typeSelection' && (
-                <StepContent 
-                  handleBack={handleBack} 
-                  handleNext={handleNext} 
-                  direction={direction} 
-                  step="typeSelection"
-                  isNextDisabled={!selectedType || isSubmitting}
+              {currentStep === STEP_TYPE && (
+                <StepContent
+                  handleBack={handleBack}
+                  handleNext={handleNext}
+                  direction={direction}
+                  step={STEP_TYPE}
+                  isNextDisabled={!state.listingType || isSubmitting || isSchemaLoading || dynamicSteps.length <= 1}
                   requiredFieldsMessage={requiredFieldsMessage}
                 >
-                  <AddProductTypeSelection 
-                    onSelect={handleTypeSelect}
-                    selectedTypeId={selectedType?.id}
-                  />
+                  <AddProductTypeSelection onSelect={handleTypeSelect} selectedTypeId={state.listingType?.id} />
+                  {isSchemaError && (
+                    <Alert variant="destructive" className="mt-6">
+                      <AlertDescription className="flex items-center justify-between gap-3">
+                        <span>{tWizard('schema_error')}</span>
+                        <button type="button" className="underline font-semibold" onClick={refetchSchema}>
+                          {tWizard('retry')}
+                        </button>
+                      </AlertDescription>
+                    </Alert>
+                  )}
                 </StepContent>
               )}
-              
-              {schema?.sections.map((section) => (
-                currentStep === `section_${section.id}` && (
-                  <StepContent 
-                    key={section.id}
-                    handleBack={handleBack} 
-                    handleNext={handleNext} 
-                    direction={direction} 
-                    step={`section_${section.id}`}
-                    isNextDisabled={validationAttempted[`section_${section.id}`] && !stepValidation[`section_${section.id}`] || isSubmitting}
-                    requiredFieldsMessage={requiredFieldsMessage}
-                  >
-                  <DynamicFormStep 
-                    section={section}
-                    schema={schema}
-                    onValidationChange={(isValid) => handleUpdateStepValidation(`section_${section.id}`, isValid)}
-                    isEditMode={isEditMode}
-                    initialData={initialData}
-                  />
-                  </StepContent>
-                )
-              ))}
-              
-              {currentStep === 'carPhotos' && (
-                <StepContent 
-                  handleBack={handleBack} 
-                  handleNext={handleNext} 
-                  direction={direction} 
-                  step="carPhotos"
-                  isNextDisabled={photos.length < minImages || isSubmitting}
+
+              {schema?.sections.map(
+                (section) =>
+                  currentStep === sectionStepId(section.id) && (
+                    <StepContent
+                      key={section.id}
+                      handleBack={handleBack}
+                      handleNext={handleNext}
+                      direction={direction}
+                      step={sectionStepId(section.id)}
+                      isNextDisabled={(validationAttempted[sectionStepId(section.id)] && !stepValidation[sectionStepId(section.id)]) || isSubmitting}
+                      requiredFieldsMessage={requiredFieldsMessage}
+                    >
+                      <DynamicFormStep
+                        section={section}
+                        onValidationChange={(isValid) => updateStepValidation(sectionStepId(section.id), isValid)}
+                        showErrors={Boolean(validationAttempted[sectionStepId(section.id)])}
+                      />
+                    </StepContent>
+                  ),
+              )}
+
+              {currentStep === STEP_PHOTOS && (
+                <StepContent
+                  handleBack={handleBack}
+                  handleNext={handleNext}
+                  direction={direction}
+                  step={STEP_PHOTOS}
+                  isNextDisabled={state.images.length < minImages || state.isUploadingImages || isSubmitting}
                   requiredFieldsMessage={requiredFieldsMessage}
                 >
-                  <CarPhotosSection 
+                  <CarPhotosSection
                     labels={{
-                      coverImage: isArabic ? "صور الإعلان" : "Photos",
-                      oneImage: isArabic ? `يمكنك إدخال ${minImages} صور` : `You can enter ${minImages} images`,
-                      tenImages: "",
-                      tenFiles: ""
+                      coverImage: t('steps.carImages'),
+                      oneImage: tWizard('images_hint', { count: minImages }),
+                      tenImages: '',
+                      tenFiles: '',
                     }}
                     coverImageRef={coverImageRef}
-                    coverImage={photos}
-                    onCoverImageChange={(newPhotos) => {
-                      setPhotos(newPhotos);
-                      const isValid = newPhotos.length >= minImages;
-                      setPhotoValidation(isValid);
-                      updateStepValidation('carPhotos', isValid);
-                    }}
-                    setIsFormDisabled={() => {}}
+                    coverImage={state.images}
+                    onCoverImageChange={(images) => dispatch({ type: 'setImages', images })}
+                    setIsFormDisabled={(disabled) => dispatch({ type: 'setUploadingImages', uploading: disabled })}
                   />
                 </StepContent>
               )}
 
-              {currentStep === 'adsInfo' && (
-                <StepContent 
-                  handleBack={handleBack} 
-                  handleNext={handleNext} 
-                  direction={direction} 
-                  step="adsInfo"
-                  isNextDisabled={!stepFourIsValid || isSubmitting}
+              {currentStep === STEP_ADS_INFO && (
+                <StepContent
+                  handleBack={handleBack}
+                  handleNext={handleNext}
+                  direction={direction}
+                  step={STEP_ADS_INFO}
+                  isNextDisabled={!stepValidation[STEP_ADS_INFO] || isSubmitting}
                   requiredFieldsMessage={requiredFieldsMessage}
                   isLastStep={true}
+                  nextButtonText={phase === 'confirming' ? tWizard('confirming') : undefined}
                 >
-                  <AddProductStepFour   
-                    onValidationChange={(isValid) => {
-                      setStepFourIsValid(isValid);
-                      updateStepValidation('adsInfo', isValid);
-                    }}
-                    isEditMode={isEditMode}
-                    initialData={initialData}
-                  />    
+                  <AddProductStepFour onValidationChange={(isValid) => updateStepValidation(STEP_ADS_INFO, isValid)} isEditMode={isEditMode} />
+                  <Alert className="mt-6 border-emerald-200 dark:border-emerald-900 bg-emerald-50/60 dark:bg-emerald-950/20">
+                    <Info className="h-4 w-4 text-emerald-600" />
+                    <AlertDescription className="text-emerald-800 dark:text-emerald-300">{tWizard('moderation_notice')}</AlertDescription>
+                  </Alert>
                 </StepContent>
               )}
             </div>
-
-     
           </div>
         </Tabs>
 
-        {/* Error Dialog */}
         <ErrorDialog
           open={showErrorDialog}
           onOpenChange={setShowErrorDialog}
-          title={errorDialogTexts.title}
-          description={errorDialogTexts.description}
+          title={tWizard('error_title')}
+          description={tWizard('error_description')}
           errorMessage={errorMessage}
-          tryAgainText={errorDialogTexts.tryAgainText || "Try Again"}
+          tryAgainText={tWizard('try_again')}
           onTryAgain={handleTryAgain}
         />
       </div>

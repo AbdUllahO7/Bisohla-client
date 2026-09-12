@@ -83,6 +83,10 @@ export const resolveAttributeValue = (
   av: GenericAttributeValue,
   locale: string = 'en',
 ): string => {
+  if (av.refItemProposal && av.refItemProposal.submittedName) {
+    return av.refItemProposal.submittedName;
+  }
+
   const { attribute, referenceItem, valueText, valueNumber, valueBoolean, valueDate, valueJson } = av;
 
   const getVal = () => {
@@ -399,6 +403,10 @@ export const normalizeListingToCarDto = (listing: any, locale: string = 'en'): S
     // number" and disables Call / WhatsApp permanently once protection is on.
     contactAvailable: listing.contactAvailable,
 
+    installmentsAvailable: listing.installmentsAvailable,
+    minMonthlyInstallment: listing.minMonthlyInstallment !== null && listing.minMonthlyInstallment !== undefined ? Number(listing.minMonthlyInstallment) : null,
+    installmentPlans: listing.installmentPlans,
+
     governorate: getLocalizedValue(listing.governorate),
     city: getLocalizedValue(listing.city),
     address: getLocalizedValue(listing.address),
@@ -452,9 +460,9 @@ export const normalizeListingToCarDto = (listing: any, locale: string = 'en'): S
           deletedAt: null
         }] : []),
 
-    make: (makeAttr?.referenceItem || listing.make) ? {
+    make: (makeAttr?.referenceItem || makeAttr?.refItemProposal || listing.make) ? {
       id: makeAttr?.referenceItem?.id || listing.make?.id || makeAttr?.referenceItemId || 0,
-      name: getLocalizedValue(makeAttr?.referenceItem?.name || listing.make?.name || ''),
+      name: makeAttr?.refItemProposal?.submittedName || getLocalizedValue(makeAttr?.referenceItem?.name || listing.make?.name || ''),
       logoUrl: makeAttr?.referenceItem?.logoUrl || listing.make?.logoUrl || null,
       description: null,
       isCarTrimRequired: makeAttr?.referenceItem?.metadata?.isCarTrimRequired || listing.make?.metadata?.isCarTrimRequired || false,
@@ -471,10 +479,10 @@ export const normalizeListingToCarDto = (listing: any, locale: string = 'en'): S
       updatedAt: '',
       deletedAt: null
     },
-    model: (modelAttr?.referenceItem || listing.model) ? {
+    model: (modelAttr?.referenceItem || modelAttr?.refItemProposal || listing.model) ? {
       id: modelAttr?.referenceItem?.id || listing.model?.id || modelAttr?.referenceItemId || 0,
       makeId: makeAttr?.referenceItemId || listing.model?.makeId || 0,
-      name: getLocalizedValue(modelAttr?.referenceItem?.name || listing.model?.name || ''),
+      name: modelAttr?.refItemProposal?.submittedName || getLocalizedValue(modelAttr?.referenceItem?.name || listing.model?.name || ''),
       yearStart: null,
       yearEnd: null,
       description: null,
@@ -492,10 +500,10 @@ export const normalizeListingToCarDto = (listing: any, locale: string = 'en'): S
       updatedAt: '',
       deletedAt: null
     },
-    trim: (trimAttr?.referenceItem || listing.trim) ? {
+    trim: (trimAttr?.referenceItem || trimAttr?.refItemProposal || listing.trim) ? {
       id: trimAttr?.referenceItem?.id || listing.trim?.id || trimAttr?.referenceItemId || 0,
       modelId: modelAttr?.referenceItemId || listing.trim?.modelId || 0,
-      name: getLocalizedValue(trimAttr?.referenceItem?.name || listing.trim?.name || ''),
+      name: trimAttr?.refItemProposal?.submittedName || getLocalizedValue(trimAttr?.referenceItem?.name || listing.trim?.name || ''),
       description: null,
       createdAt: trimAttr?.referenceItem?.createdAt || listing.trim?.createdAt || '',
       updatedAt: trimAttr?.referenceItem?.updatedAt || listing.trim?.updatedAt || '',

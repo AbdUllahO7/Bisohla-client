@@ -52,15 +52,3 @@ export interface Damage {
   damageType: string;
   description?: string | null;
 }
-
-// IMPORTANT: Using direct string literals for storage keys
-export const STORAGE_KEY = "addProduct_stepThree_data";
-export const EDIT_STORAGE_KEY = "addProduct_stepThree_data_edit";
-export const EDIT_MODE_FLAG = "edit_car_listing_id";
-
-// Default state
-export const defaultState: CarConditionState = {
-  sectionStatus: {},
-  coverImage: [],
-  
-};

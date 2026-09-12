@@ -57,7 +57,7 @@ export const useGetCityCounts = () =>
 
 export const useCarListingById = (params: QueryParams) =>
   useLocaleQuery<ApiResponse<SelectCarListingDto>>({
-    queryKey: ['visitors-car-listings', params],
+    queryKey: ['visitors-car-listing-by-id', params],
     queryFn: async () => await getCarListingById(params),
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
@@ -65,7 +65,7 @@ export const useCarListingById = (params: QueryParams) =>
 
 export const useCarMakes = (params: QueryParams) =>
   useLocaleQuery<PaginatedResponse<SelectCarMakeDto>>({
-    queryKey: ['visitors-car-listings', params],
+    queryKey: ['visitors-car-makes', params],
     queryFn: async () => await getCarMakes(params),
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
@@ -74,7 +74,7 @@ export const useCarMakes = (params: QueryParams) =>
 
 export const useCarModels = (params: QueryParams) =>
   useLocaleQuery<PaginatedResponse<SelectCarModelDto>>({
-    queryKey: ['visitors-car-listings', params],
+    queryKey: ['visitors-car-models', params],
     queryFn: async () => await getCarModels(params),
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
@@ -83,7 +83,7 @@ export const useCarModels = (params: QueryParams) =>
 
 export const useCarTrims = (params: QueryParams) =>
   useLocaleQuery<PaginatedResponse<SelectCarTrimDto>>({
-    queryKey: ['visitors-car-listings', params],
+    queryKey: ['visitors-car-trims', params],
     queryFn: async () => await getCarTrims(params),
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,

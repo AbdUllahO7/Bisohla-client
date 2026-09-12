@@ -15,6 +15,7 @@ import {
   SettingsField,
   SettingsFieldValue,
   ListingsSettings,
+  ReferenceProposalsSettings,
   MapSettings,
 } from '@/core/entities/models/settings/settings.dto';
 
@@ -42,9 +43,11 @@ interface SettingsContextType {
   getSEOSettings: () => SEOSettings | undefined;
   getThirdPartyIntegrations: () => ThirdPartyIntegrations | undefined;
   getListingsSettings: () => ListingsSettings | undefined;
+  getReferenceProposalsSettings: () => ReferenceProposalsSettings | undefined;
 
   // Specific commonly-used settings
   getLogo: () => string;
+  getAppLogo: () => string;
   getFavicon: () => string;
   getCopyrightMessage: () => string;
   getSocialLinks: () => GeneralSettings['social_links'];
@@ -53,23 +56,27 @@ interface SettingsContextType {
   isMapEnabled: () => boolean;
   getMapSettings: () => MapSettings | undefined;
   getGoogleMapsApiKey: () => string | undefined;
+  getGoogleGeocodingApiKey: () => string | undefined;
 }
 
 const SettingsContext = createContext<SettingsContextType | undefined>(
   undefined,
 );
 
+import { ApiResponse } from '@/core/entities/api/success.response';
+
 interface SettingsProviderProps {
   children: ReactNode;
+  initialSettings?: ApiResponse<any>;
 }
 
-export function SettingsProvider({ children }: SettingsProviderProps) {
-  const { data: settingsResponse, isLoading, error } = usePublicSettings();
+export function SettingsProvider({ children, initialSettings }: SettingsProviderProps) {
+  const { data: settingsResponse, isLoading: queryLoading, error } = usePublicSettings(initialSettings);
 
   const locale = useLocale();
 
   const settings = useMemo(() => {
-    const data = settingsResponse?.data;
+    const data = settingsResponse?.data || initialSettings?.data;
     if (!data) return {} as SettingsData;
 
     // 1. Direct match for current locale
@@ -94,7 +101,10 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
     }
 
     return {} as SettingsData;
-  }, [settingsResponse, locale]);
+  }, [settingsResponse, initialSettings, locale]);
+
+  const hasData = Boolean(initialSettings?.data || settingsResponse?.data);
+  const isLoading = Boolean(queryLoading && !hasData);
 
   // Type-safe getSetting function
   const getSetting = <
@@ -130,6 +140,7 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
   const getSEOSettings = () => settings.seo_settings;
   const getThirdPartyIntegrations = () => settings.third_party_integrations;
   const getListingsSettings = () => settings.listings_settings;
+  const getReferenceProposalsSettings = () => settings.listings_settings?.reference_proposals;
 
   // Specific getters
   const getSocialLinks = () => settings.general?.social_links;
@@ -137,7 +148,12 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
   const getLogo = () => {
     // 1. Try current locale appearance logo
     const appearanceLogo = getSetting('general', 'appearance', 'logo');
-    if (appearanceLogo && typeof appearanceLogo === 'string' && appearanceLogo.trim() !== '') {
+    if (
+      appearanceLogo &&
+      typeof appearanceLogo === 'string' &&
+      !appearanceLogo.includes('dlftfxjqt') &&
+      appearanceLogo.trim() !== ''
+    ) {
       return appearanceLogo.trim();
     }
 
@@ -165,20 +181,94 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
         ((rawEn?.seo_settings as Record<string, unknown> | undefined)?.global_seo as Record<string, unknown> | undefined)?.organization_logo ||
         (rawSeo?.global_seo as Record<string, unknown> | undefined)?.organization_logo;
 
-      if (typeof fallbackLogo === 'string' && fallbackLogo.trim() !== '') {
+      if (
+        typeof fallbackLogo === 'string' &&
+        !fallbackLogo.includes('dlftfxjqt') &&
+        fallbackLogo.trim() !== ''
+      ) {
         return fallbackLogo.trim();
       }
     }
 
-    // 3. Fallback to default asset
+    // 3. Fallback to app_settings appearance if available
+    const appLogo = settings.app_settings?.appearance?.app_logo_light;
+    if (appLogo && typeof appLogo === 'string' && appLogo.trim() !== '') {
+      return appLogo.trim();
+    }
+
+    // 4. Fallback to default asset
     return '/assets/images/logo/bishola.png';
   };
 
+  const getAppLogo = () => {
+    // 1. Try app_settings.appearance.app_logo_light or app_logo_dark from localized settings
+    const appSettings = settings.app_settings;
+    if (
+      appSettings?.appearance?.app_logo_light &&
+      typeof appSettings.appearance.app_logo_light === 'string' &&
+      appSettings.appearance.app_logo_light.trim() !== ''
+    ) {
+      return appSettings.appearance.app_logo_light.trim();
+    }
+    if (
+      appSettings?.appearance?.app_logo_dark &&
+      typeof appSettings.appearance.app_logo_dark === 'string' &&
+      appSettings.appearance.app_logo_dark.trim() !== ''
+    ) {
+      return appSettings.appearance.app_logo_dark.trim();
+    }
+
+    // 2. Try raw response from any locale or root structure
+    const rawData = settingsResponse?.data as Record<string, unknown> | undefined;
+    if (rawData) {
+      const rawLocale = rawData[locale] as Record<string, unknown> | undefined;
+      const rawAr = rawData['ar'] as Record<string, unknown> | undefined;
+      const rawEn = rawData['en'] as Record<string, unknown> | undefined;
+      const rawAppSettings = rawData['app_settings'] as Record<string, unknown> | undefined;
+
+      const getAppLogoFromObj = (obj: Record<string, unknown> | undefined): string | undefined => {
+        const app = obj?.app_settings as Record<string, unknown> | undefined;
+        const appAppearance = app?.appearance as Record<string, unknown> | undefined;
+        const logo = appAppearance?.app_logo_light || appAppearance?.app_logo_dark;
+        return typeof logo === 'string' && logo.trim() !== '' ? logo.trim() : undefined;
+      };
+
+      const fallbackAppLogo =
+        getAppLogoFromObj(rawLocale) ||
+        getAppLogoFromObj(rawAr) ||
+        getAppLogoFromObj(rawEn) ||
+        ((rawAppSettings?.appearance as Record<string, unknown> | undefined)?.app_logo_light as string | undefined) ||
+        ((rawAppSettings?.appearance as Record<string, unknown> | undefined)?.app_logo_dark as string | undefined);
+
+      if (
+        fallbackAppLogo &&
+        typeof fallbackAppLogo === 'string' &&
+        fallbackAppLogo.trim() !== ''
+      ) {
+        return fallbackAppLogo.trim();
+      }
+    }
+
+    // 3. Fallback to getLogo() if valid
+    const generalLogo = getLogo();
+    if (generalLogo && !generalLogo.includes('dlftfxjqt')) {
+      return generalLogo;
+    }
+
+    return '/assets/images/logo/bisholaLogo2.jpg';
+  };
+
   const getFavicon = () => {
-    return (
-      getSetting('general', 'appearance', 'favicon') ||
-      '/assets/images/logo/bisholaLogo2.jpg'
-    );
+    const favicon = getSetting('general', 'appearance', 'favicon');
+    if (
+      favicon &&
+      typeof favicon === 'string' &&
+      !favicon.includes('dlftfxjqt') &&
+      favicon.trim() !== ''
+    ) {
+      return favicon.trim();
+    }
+    return '/assets/images/logo/bisholaLogo2.jpg';
   };
 
   const getCopyrightMessage = () => {
@@ -220,7 +310,8 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
       }
     }
 
-    return false;
+    // Default to true (matches mobile v2: settings?.listings_settings?.map?.enabled ?? true)
+    return true;
   };
 
   const getMapSettings = (): MapSettings | undefined => {
@@ -244,39 +335,91 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
     return undefined;
   };
 
-  const getGoogleMapsApiKey = (): string | undefined => {
-    const key =
-      settings.third_party_integrations?.google_maps?.api_key ||
-      settings.third_party_integrations?.google_maps?.apiKey ||
-      settings.listings_settings?.map?.api_key;
-    if (key && typeof key === 'string' && key.trim() !== '') {
-      return key.trim();
+  const resolveApiKey = (preferredKeyType: 'geocoding' | 'maps' = 'maps'): string | undefined => {
+    // 1. Check environment variables
+    const envGeocodingKey = process.env.NEXT_PUBLIC_GOOGLE_GEOCODING_API_KEY;
+    const envMapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+    const envMapKey = process.env.NEXT_PUBLIC_MAP_API_KEY;
+    
+    if (preferredKeyType === 'geocoding' && envGeocodingKey && envGeocodingKey.trim() !== '') {
+      return envGeocodingKey.trim();
+    }
+    if (envMapsKey && envMapsKey.trim() !== '') {
+      return envMapsKey.trim();
+    }
+    if (envGeocodingKey && envGeocodingKey.trim() !== '') {
+      return envGeocodingKey.trim();
+    }
+    if (envMapKey && envMapKey.trim() !== '') {
+      return envMapKey.trim();
     }
 
+    // 2. Check localized settings object
+    const tp = settings.third_party_integrations;
+    const ls = settings.listings_settings;
+    const keyCandidates = [
+      tp?.google_geocoding?.api_key,
+      tp?.google_geocoding?.apiKey,
+      tp?.geocoding?.api_key,
+      tp?.geocoding?.apiKey,
+      tp?.google_maps?.api_key,
+      tp?.google_maps?.apiKey,
+      ls?.location?.geocoding_api_key,
+      ls?.location?.api_key,
+      ls?.location?.apiKey,
+      ls?.map?.api_key,
+    ];
+
+    for (const cand of keyCandidates) {
+      if (cand && typeof cand === 'string' && cand.trim() !== '') {
+        return cand.trim();
+      }
+    }
+
+    // 3. Check raw response across locales (locale, ar, en) or root object
     const rawData = settingsResponse?.data as Record<string, unknown> | undefined;
     if (rawData) {
-      const rawLocale = rawData[locale] as Record<string, unknown> | undefined;
-      const rawAr = rawData['ar'] as Record<string, unknown> | undefined;
-      const rawEn = rawData['en'] as Record<string, unknown> | undefined;
-      const rawThirdParty = rawData['third_party_integrations'] as Record<string, unknown> | undefined;
+      const candidates = [
+        rawData[locale],
+        rawData['ar'],
+        rawData['en'],
+        rawData,
+      ] as (Record<string, unknown> | undefined)[];
 
-      const rawKey =
-        ((rawLocale?.third_party_integrations as Record<string, unknown> | undefined)?.google_maps as Record<string, unknown> | undefined)?.api_key ||
-        ((rawLocale?.third_party_integrations as Record<string, unknown> | undefined)?.google_maps as Record<string, unknown> | undefined)?.apiKey ||
-        ((rawAr?.third_party_integrations as Record<string, unknown> | undefined)?.google_maps as Record<string, unknown> | undefined)?.api_key ||
-        ((rawAr?.third_party_integrations as Record<string, unknown> | undefined)?.google_maps as Record<string, unknown> | undefined)?.apiKey ||
-        ((rawEn?.third_party_integrations as Record<string, unknown> | undefined)?.google_maps as Record<string, unknown> | undefined)?.api_key ||
-        ((rawEn?.third_party_integrations as Record<string, unknown> | undefined)?.google_maps as Record<string, unknown> | undefined)?.apiKey ||
-        (rawThirdParty?.google_maps as Record<string, unknown> | undefined)?.api_key ||
-        (rawThirdParty?.google_maps as Record<string, unknown> | undefined)?.apiKey;
+      for (const root of candidates) {
+        if (!root || typeof root !== 'object') continue;
+        const rawTp = (root.third_party_integrations || root) as Record<string, unknown> | undefined;
+        const rawLs = (root.listings_settings || root) as Record<string, unknown> | undefined;
+        const rawGeneral = (root.general || root) as Record<string, unknown> | undefined;
 
-      if (typeof rawKey === 'string' && rawKey.trim() !== '') {
-        return rawKey.trim();
+        const rawCandidates = [
+          (rawTp?.google_geocoding as Record<string, unknown> | undefined)?.api_key,
+          (rawTp?.google_geocoding as Record<string, unknown> | undefined)?.apiKey,
+          (rawTp?.geocoding as Record<string, unknown> | undefined)?.api_key,
+          (rawTp?.geocoding as Record<string, unknown> | undefined)?.apiKey,
+          (rawTp?.google_maps as Record<string, unknown> | undefined)?.api_key,
+          (rawTp?.google_maps as Record<string, unknown> | undefined)?.apiKey,
+          (rawLs?.location as Record<string, unknown> | undefined)?.geocoding_api_key,
+          (rawLs?.location as Record<string, unknown> | undefined)?.api_key,
+          (rawLs?.location as Record<string, unknown> | undefined)?.apiKey,
+          (rawLs?.map as Record<string, unknown> | undefined)?.api_key,
+          rawGeneral?.google_maps_api_key,
+          rawGeneral?.google_geocoding_api_key,
+        ];
+
+        for (const rawVal of rawCandidates) {
+          if (typeof rawVal === 'string' && rawVal.trim() !== '') {
+            return rawVal.trim();
+          }
+        }
       }
     }
 
     return undefined;
   };
+
+  const getGoogleMapsApiKey = (): string | undefined => resolveApiKey('maps');
+  const getGoogleGeocodingApiKey = (): string | undefined => resolveApiKey('geocoding');
 
   const contextValue: SettingsContextType = {
     settings,
@@ -289,13 +432,16 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
     getSEOSettings,
     getThirdPartyIntegrations,
     getListingsSettings,
+    getReferenceProposalsSettings,
     getLogo,
+    getAppLogo,
     getCopyrightMessage,
     getSocialLinks,
     getFavicon,
     isMapEnabled,
     getMapSettings,
     getGoogleMapsApiKey,
+    getGoogleGeocodingApiKey,
   };
 
   return (

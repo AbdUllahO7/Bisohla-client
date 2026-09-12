@@ -1,12 +1,14 @@
 import { ListingType, RentType, SaveStatus } from "@/core/entities/enums/cars.enums";
 import { AdInformationFormData } from "./schema";
-import { EDIT_STORAGE_KEYS, STORAGE_KEYS } from "../Main/hooks/useLocalStorage";
 import { Currency } from "@/core/entities/enums/currency.enum";
-import { CountryCode } from "@/core/entities/enums/country-codes.enum";
+import { assemblePhone, splitPhone } from "@/core/lib/phone/phone.util";
+import { normalizeGovernorate, normalizeAddress } from "@/core/entities/enums/syria.enums";
+import { resolveCityValue } from "@/utils/geocodeToSyria";
+import { commonFieldsStore } from "../Main/context/common-fields.store";
 
-// Extended interface for localStorage (includes frontend-only fields)
+// Extended interface for the wizard state (includes frontend-only fields)
 export interface AdInformationStorageData extends AdInformationFormData {
-    countryCode?: CountryCode; // Frontend-only: for UI selector
+    countryCode?: string; // Legacy field
 }
 
 // Default values for the form
@@ -14,81 +16,41 @@ export const defaultAdInfoData: AdInformationStorageData = {
     title: "",
     price: "",
     description: "",
-    contactNumber: "", // Will store full phone with country code
+    countryDialCode: "+963",
+    contactNumber: "",
     listingType: ListingType.FOR_SALE,
     rentType: null,
+    // Required, but never pre-picked: the seller must state the condition (mobile parity).
+    condition: "" as AdInformationFormData["condition"],
+    saveAsProfileNumber: false,
     publicationDate: new Date(),
     saveStatus: SaveStatus.PUBLISHED,
     currency: Currency.USD,
-    countryCode: CountryCode.SY, // Default to Syria (frontend-only)
     governorate: "",
     city: "",
     address: "",
+    latitude: null,
+    longitude: null,
+    detectedGovernorate: null,
+    saveAsSavedAddress: false,
+    savedAddressLabel: "",
+    installmentsAvailable: false,
+    installmentPlans: [],
 };
 
-/**
- * Combines country code and phone number into full format for contactNumber
- * @param countryCode - The country calling code (e.g., "+963")
- * @param phoneNumber - The phone number without country code
- * @returns Full phone number (e.g., "+963 5389370863")
- */
 export const combinePhoneNumber = (countryCode: string, phoneNumber: string): string => {
-    if (!phoneNumber) return "";
-    // Remove any existing + or spaces from phone number
-    const cleanPhone = phoneNumber.replace(/[\s+-]/g, "");
-    return `${countryCode} ${cleanPhone}`;
+    return assemblePhone(countryCode, phoneNumber) || "";
 };
 
-/**
- * Parses contactNumber into country code and phone number for UI
- * @param contactNumber - Complete phone with country code (e.g., "+963 5389370863")
- * @returns Object with countryCode and phoneNumber (without country code)
- */
 export const parsePhoneNumber = (contactNumber: string): { countryCode: string; phoneNumber: string } => {
-    if (!contactNumber) {
-        return { countryCode: CountryCode.SY, phoneNumber: "" };
-    }
-
-    // Clean the input: remove spaces but keep leading +
-    const cleanContact = contactNumber.trim();
-
-    // Sort country codes by length descending to match longest possible prefix first
-    const countryCodes = Object.values(CountryCode).sort((a, b) => b.length - a.length);
-
-    for (const code of countryCodes) {
-        if (cleanContact.startsWith(code)) {
-            const number = cleanContact.slice(code.length).trim();
-            // Remove any other non-digit characters from the number part
-            const cleanNumber = number.replace(/[^\d]/g, "");
-
-            return {
-                countryCode: code as CountryCode,
-                phoneNumber: cleanNumber
-            };
-        }
-    }
-
-    // If no country code matches, default to Syria and clean the whole thing
+    const { dialCode, localNumber } = splitPhone(contactNumber || "");
     return {
-        countryCode: CountryCode.SY,
-        phoneNumber: cleanContact.replace(/[^\d]/g, "")
+        countryCode: dialCode,
+        phoneNumber: localNumber
     };
 };
 
-/**
- * Checks if the application is in edit mode
- */
-export const isEditMode = (): boolean => {
-    if (typeof window === "undefined") return false;
-    return !!localStorage.getItem(STORAGE_KEYS.EDIT_MODE_FLAG);
-};
-
-/**
- * Gets the appropriate storage key based on edit mode
- */
-export const getAdInfoStorageKey = (): string => {
-    return isEditMode() ? EDIT_STORAGE_KEYS.STEP_FOUR : STORAGE_KEYS.STEP_FOUR;
-};
+export const isEditMode = (): boolean => commonFieldsStore.getMode() === 'edit';
 
 /**
  * Ensure enum values are preserved during serialization/deserialization
@@ -141,128 +103,82 @@ export const ensureEnumValues = (data: any): AdInformationStorageData => {
         }
     }
 
-    // Handle countryCode (frontend-only)
-    if (data.countryCode && typeof data.countryCode === 'string') {
-        if (Object.values(CountryCode).includes(data.countryCode as CountryCode)) {
-            result.countryCode = data.countryCode as CountryCode;
-        } else {
-            result.countryCode = CountryCode.SY; // Default to Syria
+    if (data.rentType && !Object.values(RentType).includes(data.rentType as RentType)) {
+        result.rentType = null;
+    }
+
+    // Handle governorate & city & address normalization
+    if (data.governorate) {
+        result.governorate = normalizeGovernorate(data.governorate);
+        if (!result.detectedGovernorate) {
+            result.detectedGovernorate = result.governorate;
         }
+    }
+    if (result.governorate || data.city) {
+        result.city = resolveCityValue(data.city, result.governorate, data.latitude, data.longitude);
+    }
+    if (data.address) {
+        result.address = normalizeAddress(data.address);
     }
 
     return result as AdInformationStorageData;
 };
 
 /**
- * Loads saved ad information data from localStorage with edit mode awareness
+ * Loads the common fields from the wizard state (seeded by hydrate / draft restore).
  */
 export const loadAdInfoData = (): AdInformationStorageData => {
-    try {
-        if (typeof window === "undefined") {
-            return defaultAdInfoData;
-        }
+    const saved = commonFieldsStore.get();
+    if (!saved) return defaultAdInfoData;
 
-        const storageKey = getAdInfoStorageKey();
-        const savedData = localStorage.getItem(storageKey);
-
-        if (savedData) {
-            const parsedData = JSON.parse(savedData);
-
-            // Convert string date back to Date object
-            if (parsedData.publicationDate) {
-                parsedData.publicationDate = new Date(parsedData.publicationDate);
-            }
-
-            // Set defaults if not present
-            if (!parsedData.saveStatus) {
-                parsedData.saveStatus = SaveStatus.PUBLISHED;
-            }
-            if (!parsedData.currency) {
-                parsedData.currency = Currency.USD;
-            }
-
-            // Parse contactNumber to extract countryCode if not present
-            if (parsedData.contactNumber && !parsedData.countryCode) {
-                const { countryCode } = parsePhoneNumber(parsedData.contactNumber);
-                parsedData.countryCode = countryCode;
-            } else if (!parsedData.countryCode) {
-                parsedData.countryCode = CountryCode.SY;
-            }
-
-            return ensureEnumValues(parsedData);
-        }
-
-        return defaultAdInfoData;
-    } catch (e) {
-        console.error(`Failed to load saved ad information from ${getAdInfoStorageKey()}:`, e);
-        return defaultAdInfoData;
+    const parsedData: any = { ...saved };
+    if (parsedData.publicationDate && !(parsedData.publicationDate instanceof Date)) {
+        parsedData.publicationDate = new Date(parsedData.publicationDate);
     }
+    if (!parsedData.saveStatus) parsedData.saveStatus = SaveStatus.PUBLISHED;
+    if (!parsedData.currency) parsedData.currency = Currency.USD;
+
+    if (parsedData.contactNumber && !parsedData.countryDialCode) {
+        const { dialCode } = splitPhone(parsedData.contactNumber);
+        parsedData.countryDialCode = dialCode;
+    } else if (!parsedData.countryDialCode) {
+        parsedData.countryDialCode = "+963";
+    }
+
+    return ensureEnumValues(parsedData);
 };
 
+/** True once the wizard holds common fields (hydrated edit, restored draft, or the seller's edits). */
+export const hasSavedAdInfoData = (): boolean => commonFieldsStore.has();
+
 /**
- * Saves ad information data to localStorage with edit mode awareness
- * contactNumber will contain the full phone number with country code
+ * Writes the common fields into the wizard state.
  */
 export const saveAdInfoData = (data: AdInformationStorageData): void => {
-    try {
-        if (typeof window !== "undefined") {
-            const storageKey = getAdInfoStorageKey();
-            localStorage.setItem(storageKey, JSON.stringify(data));
-        }
-    } catch (e) {
-        console.error(`Failed to save ad information to ${getAdInfoStorageKey()}:`, e);
-    }
+    commonFieldsStore.set(ensureEnumValues(data));
 };
 
 /**
- * Automatically saves form data as it changes with edit mode awareness
+ * Merges a partial change into the wizard state (debounced by the caller).
  */
 export const autoSaveAdInfoData = (
     data: Partial<AdInformationStorageData>,
     previousData?: Partial<AdInformationStorageData>
 ): void => {
-    if (previousData &&
-        JSON.stringify(data) === JSON.stringify(previousData)) {
+    if (previousData && JSON.stringify(data) === JSON.stringify(previousData)) {
         return;
     }
 
-    try {
-        if (typeof window !== "undefined") {
-            const existingData = loadAdInfoData();
-
-            const updatedData = {
-                ...existingData,
-                ...data,
-                listingType: data.listingType || existingData.listingType,
-                saveStatus: data.saveStatus || existingData.saveStatus,
-                currency: data.currency || existingData.currency,
-                countryCode: data.countryCode || existingData.countryCode,
-                rentType: data.rentType !== undefined ? data.rentType : existingData.rentType
-            };
-
-            const storageKey = getAdInfoStorageKey();
-            localStorage.setItem(storageKey, JSON.stringify(updatedData));
-        }
-    } catch (e) {
-        console.error(`Failed to auto-save ad information to ${getAdInfoStorageKey()}:`, e);
-    }
-};
-
-/**
- * Custom hook to use ad information with edit mode awareness
- */
-export const useAdInfoData = () => {
-    const isCurrentEditMode = isEditMode();
-    const storageKey = getAdInfoStorageKey();
-
-    return {
-        loadData: loadAdInfoData,
-        saveData: saveAdInfoData,
-        autoSaveData: autoSaveAdInfoData,
-        isEditMode: isCurrentEditMode,
-        storageKey,
-        // Helper functions
-        combinePhoneNumber,
-        parsePhoneNumber
+    const existingData = loadAdInfoData();
+    const updatedData = {
+        ...existingData,
+        ...data,
+        listingType: data.listingType || existingData.listingType,
+        saveStatus: data.saveStatus || existingData.saveStatus,
+        currency: data.currency || existingData.currency,
+        countryCode: data.countryCode || existingData.countryCode,
+        rentType: data.rentType !== undefined ? data.rentType : existingData.rentType
     };
+
+    commonFieldsStore.set(ensureEnumValues(updatedData));
 };

@@ -49,6 +49,7 @@ import { checkAuth } from '@/core/infrastructure-adapters/actions/auth/auth.acti
 import CarAlertModal from './CarAlertModal';
 import { getCityOptions } from './addProducts/StepOne/utils';
 import { cn } from '@/lib/utils';
+import SellerFilterPicker from './SellerFilterPicker';
 
 // Types for components
 interface FilterOptionDropdownProps {
@@ -239,6 +240,7 @@ const FilterContent = React.memo(
   }: any) => {
     const locale = useLocale();
     const trans = useTranslations('addProduct.enteredData');
+    const tFilter = useTranslations('listing.filters');
 
     const hasAttribute = (slug: string) => {
       if (!filters.listingTypeId) return true;
@@ -246,7 +248,16 @@ const FilterContent = React.memo(
       
       const normalizedSlug = slug.toLowerCase().replace(/_/g, '');
       return dynamicOptions.filterSchema.sections.some((s: any) => 
-        s.attributes.some((a: any) => a.slug.toLowerCase().replace(/_/g, '') === normalizedSlug)
+        s.attributes.some((a: any) => {
+          const aSlug = (a.slug || '').toLowerCase().replace(/_/g, '');
+          if (normalizedSlug === 'make') {
+            return aSlug === 'make' || aSlug === 'marka' || aSlug === 'brand' || aSlug === 'branda' || aSlug === 'carmake';
+          }
+          if (normalizedSlug === 'year') {
+            return aSlug === 'year' || aSlug === 'madeyear' || aSlug === 'caryear';
+          }
+          return aSlug === normalizedSlug;
+        })
       );
     };
 
@@ -318,6 +329,29 @@ const FilterContent = React.memo(
                       name="listingType"
                     />
                   </div>
+                </AccordionContent>
+              </AccordionItem>
+
+              {/* Seller Filter (Common Filter §6.5) */}
+              <AccordionItem
+                value="seller"
+                className={`border border-slate-200 dark:border-zinc-800 rounded-lg overflow-hidden bg-white dark:bg-zinc-900 hover:shadow-sm transition-shadow ${
+                  isMobile ? 'mobile-fade-in' : ''
+                }`}
+                style={isMobile ? { animationDelay: '60ms', animationFillMode: 'both' } : undefined}
+              >
+                <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors duration-200">
+                  <AccordionHeader
+                    title={tFilter('seller_label', { defaultValue: 'Seller' })}
+                    hasActiveFilters={getActiveFiltersCount('seller') > 0}
+                    activeCount={getActiveFiltersCount('seller')}
+                  />
+                </AccordionTrigger>
+                <AccordionContent className="px-4 pb-4 pt-2 bg-slate-50/50 dark:bg-zinc-950/30">
+                  <SellerFilterPicker
+                    selectedSellerId={filters.userId || null}
+                    onSelectSeller={(id) => handleFilterChange('userId', id)}
+                  />
                 </AccordionContent>
               </AccordionItem>
 
@@ -493,6 +527,22 @@ const FilterContent = React.memo(
                       value={filters.currency}
                       name="currency"
                     />
+
+                    {/* Installments Available Filter Toggle */}
+                    {filters.listingType !== 'for_rent' && (
+                      <div className="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-zinc-800">
+                        <Label htmlFor="installmentsAvailableFilter" className="text-xs font-semibold text-slate-700 dark:text-zinc-300 cursor-pointer">
+                          {locale === 'ar' ? 'التقسيط متاح فقط' : 'Installments available only'}
+                        </Label>
+                        <input
+                          id="installmentsAvailableFilter"
+                          type="checkbox"
+                          checked={Boolean(filters.installmentsAvailable)}
+                          onChange={(e) => handleFilterChange('installmentsAvailable', e.target.checked)}
+                          className="h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary accent-[#198341] cursor-pointer"
+                        />
+                      </div>
+                    )}
                   </div>
                 </AccordionContent>
               </AccordionItem>
@@ -1052,6 +1102,8 @@ const ProductsFilter: React.FC<ProductsFilterProps> = React.memo(({ totalResults
     switch (section) {
       case 'listing-type':
         return filters.listingType ? 1 : 0; // ADDED
+      case 'seller':
+        return filters.userId ? 1 : 0;
       case 'address':
         return [filters.governorate, filters.city].filter(Boolean).length;
       case 'car-marka':

@@ -1,1074 +1,154 @@
-'use client';
-
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import { ChevronRight, Shield, Eye, Users, Lock, Bell, FileText, HelpCircle, Sparkles, ArrowRight } from 'lucide-react'
-import { useLocale } from "next-intl"
-import Image from "next/image"
+import { redirect } from '@/i18n/routing';
+import { getLocale, getTranslations } from 'next-intl/server';
+import { getPublicSettings } from '@/core/infrastructure-adapters/actions/settings/settings.actions';
+import Logo from '@/components/shared/logo';
+import { Sparkles, Info } from 'lucide-react';
 import 'quill/dist/quill.snow.css';
-import { usePublicSettings } from "@/core/infrastructure-adapters/use-actions/settings/settings.use-actions"
-import { Skeleton } from "@/components/ui/skeleton"
 
-// Dictionary for translations
-const translations = {
-  en: {
-    meta: {
-      title: 'Privacy Policy | Car Rental & Sales',
-      description:
-        'Our commitment to protecting your privacy and personal information.',
-    },
-    hero: {
-      title: 'Privacy Policy',
-      subtitle: 'Our commitment to protecting your data and privacy',
-      lastUpdated: 'Last updated: May 19, 2025',
-    },
-    sections: {
-      introduction: {
-        title: 'Introduction',
-        content: [
-          'Welcome to our Privacy Policy. This document explains how we collect, use, and protect your personal information when you use our car rental and sales services, both online and offline.',
-          'At Bishola, we are committed to protecting your privacy and ensuring the security of your personal information. This Privacy Policy applies to our website, mobile applications, and all services we offer.',
-        ],
-      },
-      informationCollect: {
-        title: 'Information We Collect',
-        intro: 'We collect the following types of information:',
-        items: [
-          {
-            title: 'Personal Information',
-            description:
-              "Name, email address, phone number, postal address, driver's license information, date of birth, and payment information.",
-          },
-          {
-            title: 'Vehicle Preferences',
-            description:
-              'Information about your vehicle preferences, rental history, and purchase interests.',
-          },
-          {
-            title: 'Usage Data',
-            description:
-              'Information about how you use our website and services, including browsing patterns, clicked links, and interactions with our platform.',
-          },
-          {
-            title: 'Device Information',
-            description:
-              'Information about the device you use to access our services, including IP address, browser type, operating system, and device identifiers.',
-          },
-          {
-            title: 'Location Data',
-            description:
-              'With your consent, we may collect precise location data to provide location-based services.',
-          },
-        ],
-      },
-      informationUse: {
-        title: 'How We Use Your Information',
-        intro: 'We use your information for the following purposes:',
-        items: [
-          'To process and manage your car rentals and purchases',
-          'To verify your identity and eligibility',
-          'To process payments and manage billing',
-          'To communicate about your reservations',
-          'To provide customer support',
-          'To send promotional offers (with consent)',
-          'To improve our services',
-          'To ensure security and prevent fraud',
-          'To comply with legal obligations',
-        ],
-      },
-      informationSharing: {
-        title: 'Information Sharing',
-        intro: 'We may share your information with:',
-        items: [
-          {
-            title: 'Service Providers',
-            description:
-              'Third-party companies that help us operate our business and provide services to you.',
-          },
-          {
-            title: 'Business Partners',
-            description:
-              'Car manufacturers, insurance providers, and other partners with whom we collaborate to provide services.',
-          },
-          {
-            title: 'Legal Authorities',
-            description:
-              'When required by law, court order, or governmental regulation.',
-          },
-          {
-            title: 'Corporate Transactions',
-            description:
-              'In connection with a merger, acquisition, or sale of assets.',
-          },
-        ],
-        footer:
-          'We do not sell your personal information to third parties for their marketing purposes without your explicit consent.',
-      },
-      cookies: {
-        title: 'Cookies',
-        content: [
-          'We use cookies and similar tracking technologies to collect information about your browsing activities. These technologies help us analyze website traffic, customize content, and provide a better user experience.',
-          'You can manage your cookie preferences through your browser settings. However, disabling certain cookies may limit your ability to use some features of our website.',
-        ],
-      },
-      dataSecurity: {
-        title: 'Data Security',
-        content: [
-          'We implement appropriate technical and organizational measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction. However, no method of transmission over the Internet or electronic storage is 100% secure, so we cannot guarantee absolute security.',
-        ],
-      },
-      rights: {
-        title: 'Your Rights and Choices',
-        intro: 'Depending on your location, you may have the following rights:',
-        items: [
-          'Access and receive a copy of your personal information',
-          'Correct inaccurate or incomplete information',
-          'Request deletion of your personal information',
-          'Object to or restrict certain processing activities',
-          'Withdraw consent at any time',
-          'Data portability',
-        ],
-        footer:
-          'To exercise these rights, please contact us using the information provided in the "Contact Us" section below.',
-      },
-      additional: {
-        title: 'Additional Information',
-        children: {
-          title: "Children's Privacy",
-          content:
-            'Our services are not directed to individuals under the age of 18. We do not knowingly collect personal information from children. If you believe we have collected information from a child, please contact us immediately.',
-        },
-        changes: {
-          title: 'Changes to This Privacy Policy',
-          content:
-            'We may update this Privacy Policy from time to time to reflect changes in our practices or legal requirements. We will notify you of any material changes by posting the updated policy on our website and updating the "Last updated" date.',
-        },
-      },
-      contact: {
-        title: "Contact Us",
-        intro: "If you have any questions, concerns, or requests regarding this Privacy Policy or our privacy practices, please contact us at:",
-        company: "Bishola",
-        email: "Email: bishola4h@gmail.com",
-        phone: "Phone: 009053489370863",
-        address: "Address: Turkiye Istanbul",
-      },
-      backToHome: 'Back to Home',
-    },
-  },
-  ar: {
-    meta: {
-      title: 'سياسة الخصوصية | تأجير وبيع السيارات',
-      description: 'التزامنا بحماية خصوصيتك ومعلوماتك الشخصية.',
-    },
-    hero: {
-      title: 'سياسة الخصوصية',
-      subtitle: 'التزامنا بحماية بياناتك وخصوصيتك',
-      lastUpdated: 'آخر تحديث: 19 مايو 2025',
-    },
-    sections: {
-      introduction: {
-        title: 'مقدمة',
-        content: [
-          'مرحبًا بك في سياسة الخصوصية الخاصة بنا. يشرح هذا المستند كيفية جمع واستخدام وحماية معلوماتك الشخصية عند استخدام خدمات تأجير وبيع السيارات لدينا، سواء عبر الإنترنت أو بشكل مباشر.',
-          'في بسهولة، نحن ملتزمون بحماية خصوصيتك وضمان أمن معلوماتك الشخصية. تنطبق سياسة الخصوصية هذه على موقعنا الإلكتروني وتطبيقات الهاتف المحمول وجميع الخدمات التي نقدمها.',
-        ],
-      },
-      informationCollect: {
-        title: 'المعلومات التي نجمعها',
-        intro: 'نحن نجمع الأنواع التالية من المعلومات:',
-        items: [
-          {
-            title: 'المعلومات الشخصية',
-            description:
-              'الاسم، عنوان البريد الإلكتروني، رقم الهاتف، العنوان البريدي، معلومات رخصة القيادة، تاريخ الميلاد، ومعلومات الدفع.',
-          },
-          {
-            title: 'تفضيلات المركبات',
-            description:
-              'معلومات حول تفضيلاتك للمركبات، تاريخ الإيجار، واهتمامات الشراء.',
-          },
-          {
-            title: 'بيانات الاستخدام',
-            description:
-              'معلومات حول كيفية استخدامك لموقعنا وخدماتنا، بما في ذلك أنماط التصفح، والروابط التي تم النقر عليها، والتفاعلات مع منصتنا.',
-          },
-          {
-            title: 'معلومات الجهاز',
-            description:
-              'معلومات حول الجهاز الذي تستخدمه للوصول إلى خدماتنا، بما في ذلك عنوان IP، ونوع المتصفح، ونظام التشغيل، ومعرفات الجهاز.',
-          },
-          {
-            title: 'بيانات الموقع',
-            description:
-              'بموافقتك، قد نجمع بيانات موقع دقيقة لتقديم خدمات تعتمد على الموقع.',
-          },
-        ],
-      },
-      informationUse: {
-        title: 'كيف نستخدم معلوماتك',
-        intro: 'نستخدم معلوماتك للأغراض التالية:',
-        items: [
-          'لمعالجة وإدارة عمليات تأجير وشراء السيارات',
-          'للتحقق من هويتك وأهليتك',
-          'لمعالجة المدفوعات وإدارة الفواتير',
-          'للتواصل بشأن حجوزاتك',
-          'لتقديم دعم العملاء',
-          'لإرسال عروض ترويجية (بموافقتك)',
-          'لتحسين خدماتنا',
-          'لضمان الأمن ومنع الاحتيال',
-          'للامتثال للالتزامات القانونية',
-        ],
-      },
-      informationSharing: {
-        title: 'مشاركة المعلومات',
-        intro: 'قد نشارك معلوماتك مع:',
-        items: [
-          {
-            title: 'مزودي الخدمة',
-            description:
-              'شركات خارجية تساعدنا في تشغيل أعمالنا وتقديم الخدمات لك.',
-          },
-          {
-            title: 'شركاء الأعمال',
-            description:
-              'مصنعي السيارات، ومزودي التأمين، وشركاء آخرين نتعاون معهم لتقديم الخدمات.',
-          },
-          {
-            title: 'السلطات القانونية',
-            description:
-              'عندما يكون ذلك مطلوبًا بموجب القانون أو أمر المحكمة أو اللوائح الحكومية.',
-          },
-          {
-            title: 'المعاملات التجارية',
-            description: 'فيما يتعلق بالاندماج أو الاستحواذ أو بيع الأصول.',
-          },
-        ],
-        footer:
-          'نحن لا نبيع معلوماتك الشخصية لأطراف ثالثة لأغراض التسويق الخاصة بهم دون موافقتك الصريحة.',
-      },
-      cookies: {
-        title: 'ملفات تعريف الارتباط',
-        content: [
-          'نستخدم ملفات تعريف الارتباط وتقنيات التتبع المماثلة لجمع معلومات حول أنشطة التصفح الخاصة بك. تساعدنا هذه التقنيات في تحليل حركة مرور الموقع، وتخصيص المحتوى، وتوفير تجربة مستخدم أفضل.',
-          'يمكنك إدارة تفضيلات ملفات تعريف الارتباط من خلال إعدادات المتصفح الخاص بك. ومع ذلك، قد يؤدي تعطيل بعض ملفات تعريف الارتباط إلى الحد من قدرتك على استخدام بعض ميزات موقعنا.',
-        ],
-      },
-      dataSecurity: {
-        title: 'أمن البيانات',
-        content: [
-          'نقوم بتنفيذ تدابير تقنية وتنظيمية مناسبة لحماية معلوماتك الشخصية ضد الوصول غير المصرح به، أو التغيير، أو الكشف، أو التدمير. ومع ذلك، لا توجد طريقة آمنة بنسبة 100٪ للإرسال عبر الإنترنت أو التخزين الإلكتروني، لذلك لا يمكننا ضمان الأمان المطلق.',
-        ],
-      },
-      rights: {
-        title: 'حقوقك وخياراتك',
-        intro: 'اعتمادًا على موقعك، قد تتمتع بالحقوق التالية:',
-        items: [
-          'الوصول إلى نسخة من معلوماتك الشخصية والحصول عليها',
-          'تصحيح المعلومات غير الدقيقة أو غير المكتملة',
-          'طلب حذف معلوماتك الشخصية',
-          'الاعتراض على أنشطة المعالجة المعينة أو تقييدها',
-          'سحب الموافقة في أي وقت',
-          'قابلية نقل البيانات',
-        ],
-        footer:
-          'لممارسة هذه الحقوق، يرجى الاتصال بنا باستخدام المعلومات المقدمة في قسم "اتصل بنا" أدناه.',
-      },
-      additional: {
-        title: 'معلومات إضافية',
-        children: {
-          title: 'خصوصية الأطفال',
-          content:
-            'خدماتنا غير موجهة للأفراد دون سن 18 عامًا. نحن لا نجمع عن علم معلومات شخصية من الأطفال. إذا كنت تعتقد أننا قد جمعنا معلومات من طفل، فيرجى الاتصال بنا على الفور.',
-        },
-        changes: {
-          title: 'التغييرات في سياسة الخصوصية هذه',
-          content:
-            'قد نقوم بتحديث سياسة الخصوصية هذه من وقت لآخر لتعكس التغييرات في ممارساتنا أو المتطلبات القانونية. سنخطرك بأي تغييرات جوهرية من خلال نشر السياسة المحدثة على موقعنا وتحديث تاريخ "آخر تحديث".',
-        },
-      },
-      contact: {
-        title: "اتصل بنا",
-        intro: "إذا كانت لديك أي أسئلة أو مخاوف أو طلبات بخصوص سياسة الخصوصية هذه أو ممارسات الخصوصية لدينا، فيرجى الاتصال بنا على:",
-        company: "بسهولة",
-        email: "البريد الإلكتروني: bishola4h@gmail.com",
-        phone: "الهاتف: 009053489370863",
-      },
-      backToHome: 'العودة إلى الصفحة الرئيسية',
-    },
-  },
-};
+interface PrivacyPolicyPageProps {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<{ tab?: string }>;
+}
 
-export default function PrivacyPolicyPage() {
-  const locale = useLocale() || 'en';
-  const isArabic = locale === 'ar';
-  const t = translations[isArabic ? 'ar' : 'en'];
+export default async function PrivacyPolicyLegacyRedirectPage({
+  params,
+  searchParams,
+}: PrivacyPolicyPageProps) {
+  const { locale } = await params;
+  const { tab } = await searchParams;
+  const isRTL = locale === 'ar';
+  const t = await getTranslations('legal');
 
-  // Fetch dynamic settings containing privacy policy content
-  const { data: settingsResponse, isLoading } = usePublicSettings();
-  const content = settingsResponse?.data?.[locale]?.general?.content;
-  const privacyHtml = content?.privacy_html;
-  const aboutHtml = content?.about_html;
+  // Handle redirects for document tabs
+  if (tab === 'terms') {
+    redirect({ href: '/legal/terms-of-service', locale });
+  }
 
-  const [activeTab, setActiveTab] = useState<'privacy' | 'about'>('privacy');
+  if (tab === 'cookies') {
+    redirect({ href: '/legal/cookie-policy', locale });
+  }
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      const tab = params.get('tab');
-      if (tab === 'about' || tab === 'privacy') {
-        setActiveTab(tab);
-      }
-    }
-  }, []);
+  if (tab !== 'about') {
+    redirect({ href: '/legal/privacy-policy', locale });
+  }
 
-  const activeHtml = activeTab === 'privacy' ? privacyHtml : aboutHtml;
-
-  const pageTitle = activeTab === 'privacy' 
-    ? t.hero.title 
-    : (isArabic ? 'عن بسهولة' : 'About Us');
-
-  const pageSubtitle = activeTab === 'privacy' 
-    ? t.hero.subtitle 
-    : (isArabic 
-        ? 'سوق إلكتروني يجعل البيع والشراء والإيجار أمراً سهلاً' 
-        : 'An online marketplace making buying, selling, and renting easy');
+  // If tab === 'about', render the About page content
+  const settingsRes = await getPublicSettings();
+  const settingsData = settingsRes?.data?.[locale] || settingsRes?.data;
+  const aboutHtml = settingsData?.general?.content?.about_html;
+  const copyrightMessage =
+    settingsData?.general?.site_info?.copyright_message ||
+    (isRTL
+      ? '© 2026 بسهولة. جميع الحقوق محفوظة.'
+      : '© 2026 Bishola. All rights reserved.');
 
   return (
-    <div className={`w-full ${isArabic ? "rtl" : "ltr"}`} dir={isArabic ? "rtl" : "ltr"}>
-      {/* Animated Background */}
+    <div
+      className={`min-h-screen w-full bg-white dark:bg-zinc-950 text-gray-900 dark:text-zinc-100 ${
+        isRTL ? 'rtl' : 'ltr'
+      }`}
+      dir={isRTL ? 'rtl' : 'ltr'}
+    >
+      {/* Decorative Background */}
       <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-96 h-96 rounded-full opacity-5 animate-pulse"
-             style={{ backgroundColor: '#ABDE3B' }}></div>
-        <div className="absolute bottom-20 right-10 w-[500px] h-[500px] rounded-full opacity-5 animate-pulse"
-             style={{ backgroundColor: '#198341', animationDelay: '1s' }}></div>
-        <div className="absolute top-1/2 left-1/3 w-80 h-80 rounded-full opacity-5 animate-pulse"
-             style={{ backgroundColor: '#ABDE3B', animationDelay: '2s' }}></div>
+        <div
+          className="absolute top-20 start-10 w-96 h-96 rounded-full opacity-5 animate-pulse"
+          style={{ backgroundColor: '#ABDE3B' }}
+        />
+        <div
+          className="absolute bottom-20 end-10 w-[500px] h-[500px] rounded-full opacity-5 animate-pulse"
+          style={{ backgroundColor: '#198341', animationDelay: '1s' }}
+        />
       </div>
 
       {/* Hero Section */}
-      <div className="relative overflow-hidden"
-           style={{ background: 'linear-gradient(135deg, #2C3C39 0%, #198341 100%)' }}>
-        {/* Decorative Elements */}
-        <div className="absolute top-0 right-0 w-96 h-96 rounded-full opacity-10"
-             style={{ backgroundColor: '#ABDE3B', transform: 'translate(30%, -30%)' }}></div>
-        <div className="absolute bottom-0 left-0 w-80 h-80 rounded-full opacity-10"
-             style={{ backgroundColor: '#ABDE3B', transform: 'translate(-30%, 30%)' }}></div>
-
-        <div className="relative max-w-7xl mx-auto py-20 px-4 md:px-6">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div className="text-white space-y-6 animate-fadeIn">
-              {/* Badge */}
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-sm"
-                   style={{ backgroundColor: 'rgba(171, 222, 59, 0.2)' }}>
-                <Sparkles className="w-4 h-4" style={{ color: '#ABDE3B' }} />
-                <span className="text-sm font-medium" style={{ color: '#ABDE3B' }}>
-                  {activeTab === 'privacy' 
-                    ? (isArabic ? 'خصوصيتك تهمنا' : 'Your Privacy Matters') 
-                    : (isArabic ? 'من نحن' : 'Who We Are')}
-                </span>
-              </div>
-
-              <h1 className="text-5xl md:text-6xl font-bold leading-tight">
-                {pageTitle}
-              </h1>
-              <p className="text-xl text-white/90">
-                {pageSubtitle}
-              </p>
-              <div className="flex items-center gap-3 text-sm">
-                <div className="h-1 w-12 rounded-full" style={{ backgroundColor: '#ABDE3B' }}></div>
-                <span className="text-white/80">
-                  {activeTab === 'privacy' 
-                    ? t.hero.lastUpdated 
-                    : (isArabic ? 'منصة بسهولة للتجارة الإلكترونية' : 'Bishola E-commerce Platform')}
-                </span>
-              </div>
-            </div>
-
-            <div className="relative animate-fadeIn" style={{ animationDelay: '0.2s' }}>
-              <div className="absolute inset-0 rounded-3xl opacity-20 blur-3xl"
-                   style={{ backgroundColor: '#ABDE3B' }}></div>
-              <Image
-                src="/assets/images/3-car.png"
-                alt="logo"
-                width={500}
-                height={500}
-                className="relative transition-all duration-700 hover:scale-105 drop-shadow-2xl"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="relative bg-gradient-to-b from-gray-50 to-white dark:from-zinc-950 dark:to-zinc-900 py-20">
-        <div className="container max-w-6xl mx-auto px-4 md:px-6 space-y-8">
-          {/* Tab Switcher */}
-          {!isLoading && (privacyHtml || aboutHtml) && (
-            <div className="flex justify-center mb-8">
-              <div className="inline-flex p-1.5 rounded-2xl bg-gray-100/80 dark:bg-zinc-800/80 backdrop-blur-md border border-gray-200 dark:border-zinc-700 shadow-sm">
-                <button
-                  onClick={() => {
-                    setActiveTab('privacy');
-                    if (typeof window !== 'undefined') {
-                      const newUrl = new URL(window.location.href);
-                      newUrl.searchParams.set('tab', 'privacy');
-                      window.history.pushState({}, '', newUrl.toString());
-                    }
-                  }}
-                  className={`px-6 py-2.5 rounded-xl font-bold text-sm transition-all duration-300 ${
-                    activeTab === 'privacy'
-                      ? 'bg-white dark:bg-zinc-900 text-emerald-800 dark:text-[#ABDE3B] shadow-sm transform scale-102'
-                      : 'text-gray-600 dark:text-zinc-400 hover:text-emerald-700 dark:hover:text-[#ABDE3B]'
-                  }`}
-                >
-                  {isArabic ? 'سياسة الخصوصية' : 'Privacy Policy'}
-                </button>
-                <button
-                  onClick={() => {
-                    setActiveTab('about');
-                    if (typeof window !== 'undefined') {
-                      const newUrl = new URL(window.location.href);
-                      newUrl.searchParams.set('tab', 'about');
-                      window.history.pushState({}, '', newUrl.toString());
-                    }
-                  }}
-                  className={`px-6 py-2.5 rounded-xl font-bold text-sm transition-all duration-300 ${
-                    activeTab === 'about'
-                      ? 'bg-white dark:bg-zinc-900 text-emerald-800 dark:text-[#ABDE3B] shadow-sm transform scale-102'
-                      : 'text-gray-600 dark:text-zinc-400 hover:text-emerald-700 dark:hover:text-[#ABDE3B]'
-                  }`}
-                >
-                  {isArabic ? 'عن بسهولة' : 'About Us'}
-                </button>
-              </div>
-            </div>
-          )}
-
-          {isLoading ? (
-            <div className="space-y-6 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100 dark:border-zinc-800">
-              <div className="flex items-center gap-4 mb-8">
-                <Skeleton className="w-16 h-16 rounded-2xl bg-gray-200 dark:bg-zinc-800" />
-                <div className="space-y-2">
-                  <Skeleton className="h-8 w-48 bg-gray-200 dark:bg-zinc-800" />
-                  <Skeleton className="h-4 w-32 bg-gray-200 dark:bg-zinc-800" />
-                </div>
-              </div>
-              <div className="space-y-4">
-                <Skeleton className="h-4 w-full bg-gray-200 dark:bg-zinc-800 animate-pulse" />
-                <Skeleton className="h-4 w-5/6 bg-gray-200 dark:bg-zinc-800 animate-pulse" />
-                <Skeleton className="h-4 w-4/5 bg-gray-200 dark:bg-zinc-800 animate-pulse" />
-                <Skeleton className="h-4 w-full bg-gray-200 dark:bg-zinc-800 animate-pulse" />
-              </div>
-              <div className="space-y-4 pt-6">
-                <Skeleton className="h-6 w-36 bg-gray-200 dark:bg-zinc-800 animate-pulse" />
-                <Skeleton className="h-4 w-11/12 bg-gray-200 dark:bg-zinc-800 animate-pulse" />
-                <Skeleton className="h-4 w-9/12 bg-gray-200 dark:bg-zinc-800 animate-pulse" />
-              </div>
-            </div>
-          ) : activeHtml ? (
-            <div className="group animate-fadeIn ql-snow" key={activeTab}>
-              <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                   style={{ background: 'linear-gradient(135deg, #ABDE3B 0%, #198341 100%)', filter: 'blur(40px)' }}></div>
-              <div className="relative bg-white/80 dark:bg-zinc-900/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100 dark:border-zinc-800 hover:shadow-2xl transition-all duration-500">
-                <div className="rich-text-content ql-editor privacy-content" style={{ overflowY: 'visible' }} dangerouslySetInnerHTML={{ __html: activeHtml }} />
-              </div>
-            </div>
-          ) : activeTab === 'about' ? (
-            <div className="group animate-fadeIn">
-              <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                   style={{ background: 'linear-gradient(135deg, #ABDE3B 0%, #198341 100%)', filter: 'blur(40px)' }}></div>
-              <div className="relative bg-white/80 dark:bg-zinc-900/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100 dark:border-zinc-800 hover:shadow-2xl transition-all duration-500 text-center py-16 text-gray-500 dark:text-zinc-400">
-                {isArabic ? 'لا يوجد محتوى متوفر حالياً.' : 'No content available currently.'}
-              </div>
-            </div>
-          ) : (
-            <>
-              {/* Introduction */}
-              <div className="group animate-fadeIn" style={{ animationDelay: '0.1s' }}>
-                <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                     style={{ background: 'linear-gradient(135deg, #ABDE3B 0%, #198341 100%)', filter: 'blur(40px)' }}></div>
-                <div className="relative bg-white/80 dark:bg-zinc-900/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100 dark:border-zinc-800 hover:shadow-2xl transition-all duration-500">
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="p-4 rounded-2xl" style={{ background: 'linear-gradient(135deg, #198341 0%, #2C3C39 100%)' }}>
-                      <Shield size={32} className="text-white" />
-                    </div>
-                    <h2 className="text-3xl md:text-4xl font-bold text-[#2C3C39] dark:text-zinc-100">
-                      {t.sections.introduction.title}
-                    </h2>
-                  </div>
-                  <div className="space-y-4 text-gray-700 dark:text-zinc-300 text-lg leading-relaxed">
-                    {t.sections.introduction.content.map((paragraph, index) => (
-                      <p key={index}>{paragraph}</p>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Information We Collect */}
-              <div className="group animate-fadeIn" style={{ animationDelay: '0.2s' }}>
-                <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                     style={{ background: 'linear-gradient(135deg, #ABDE3B 0%, #198341 100%)', filter: 'blur(40px)' }}></div>
-                <div className="relative bg-white/80 dark:bg-zinc-900/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100 dark:border-zinc-800 hover:shadow-2xl transition-all duration-500">
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="p-4 rounded-2xl" style={{ background: 'linear-gradient(135deg, #198341 0%, #2C3C39 100%)' }}>
-                      <Eye size={32} className="text-white" />
-                    </div>
-                    <h2 className="text-3xl md:text-4xl font-bold text-[#2C3C39] dark:text-zinc-100">
-                      {t.sections.informationCollect.title}
-                    </h2>
-                  </div>
-                  <p className="text-gray-700 dark:text-zinc-300 text-lg mb-6">{t.sections.informationCollect.intro}</p>
-                  <div className="grid gap-4">
-                    {t.sections.informationCollect.items.map((item, index) => (
-                      <div key={index}
-                           className="group/item relative bg-gradient-to-br from-gray-50 to-white dark:from-zinc-900/50 dark:to-zinc-900/10 p-6 rounded-2xl border-2 border-transparent hover:border-opacity-50 transition-all duration-300 hover:shadow-lg"
-                           style={{ borderColor: '#ABDE3B' }}>
-                        <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-12 rounded-r-full transition-all duration-300 group-hover/item:h-16"
-                             style={{ backgroundColor: '#ABDE3B' }}></div>
-                        <h3 className="font-bold text-lg mb-2 ml-6 text-[#198341] dark:text-[#ABDE3B]">
-                          {item.title}
-                        </h3>
-                        <p className="text-gray-700 dark:text-zinc-300 ml-6">{item.description}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* How We Use Your Information */}
-              <div className="group animate-fadeIn" style={{ animationDelay: '0.3s' }}>
-                <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                     style={{ background: 'linear-gradient(135deg, #ABDE3B 0%, #198341 100%)', filter: 'blur(40px)' }}></div>
-                <div className="relative bg-white/80 dark:bg-zinc-900/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100 dark:border-zinc-800 hover:shadow-2xl transition-all duration-500">
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="p-4 rounded-2xl" style={{ background: 'linear-gradient(135deg, #198341 0%, #2C3C39 100%)' }}>
-                      <FileText size={32} className="text-white" />
-                    </div>
-                    <h2 className="text-3xl md:text-4xl font-bold text-[#2C3C39] dark:text-zinc-100">
-                      {t.sections.informationUse.title}
-                    </h2>
-                  </div>
-                  <p className="text-gray-700 dark:text-zinc-300 text-lg mb-6">{t.sections.informationUse.intro}</p>
-                  <div className="grid md:grid-cols-2 gap-4">
-                    {t.sections.informationUse.items.map((item, index) => (
-                      <div key={index}
-                           className="flex items-start gap-3 p-4 rounded-xl bg-gradient-to-br from-gray-50 to-white dark:from-zinc-900/50 dark:to-zinc-900/10 hover:shadow-md transition-all duration-300 group/item">
-                        <div className="flex-shrink-0 mt-1">
-                          <ChevronRight size={20} className="transition-transform duration-300 group-hover/item:translate-x-1"
-                                        style={{ color: '#ABDE3B' }} />
-                        </div>
-                        <p className="text-gray-700 dark:text-zinc-300">{item}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Information Sharing */}
-              <div className="group animate-fadeIn" style={{ animationDelay: '0.4s' }}>
-                <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                     style={{ background: 'linear-gradient(135deg, #ABDE3B 0%, #198341 100%)', filter: 'blur(40px)' }}></div>
-                <div className="relative bg-white/80 dark:bg-zinc-900/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100 dark:border-zinc-800 hover:shadow-2xl transition-all duration-500">
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="p-4 rounded-2xl" style={{ background: 'linear-gradient(135deg, #198341 0%, #2C3C39 100%)' }}>
-                      <Users size={32} className="text-white" />
-                    </div>
-                    <h2 className="text-3xl md:text-4xl font-bold text-[#2C3C39] dark:text-zinc-100">
-                      {t.sections.informationSharing.title}
-                    </h2>
-                  </div>
-                  <p className="text-gray-700 dark:text-zinc-300 text-lg mb-6">{t.sections.informationSharing.intro}</p>
-                  <div className="grid md:grid-cols-2 gap-6 mb-6">
-                    {t.sections.informationSharing.items.map((item, index) => (
-                      <div key={index}
-                           className="relative group/card bg-gradient-to-br from-gray-50 to-white dark:from-zinc-900/50 dark:to-zinc-900/10 p-6 rounded-2xl hover:shadow-xl transition-all duration-300 border-2 border-transparent hover:border-opacity-30"
-                           style={{ borderColor: '#198341' }}>
-                        <div className="absolute top-0 right-0 w-20 h-20 rounded-full opacity-5 group-hover/card:opacity-10 transition-opacity"
-                             style={{ backgroundColor: '#ABDE3B', transform: 'translate(30%, -30%)' }}></div>
-                        <h3 className="font-bold text-xl mb-3 text-[#198341] dark:text-[#ABDE3B]">
-                          {item.title}
-                        </h3>
-                        <p className="text-gray-700 dark:text-zinc-300">{item.description}</p>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="p-6 rounded-2xl border-2 border-dashed" style={{ borderColor: '#ABDE3B', backgroundColor: 'rgba(171, 222, 59, 0.05)' }}>
-                    <p className="text-gray-700 dark:text-zinc-300 text-center font-medium">{t.sections.informationSharing.footer}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Cookies & Data Security - Side by Side */}
-              <div className="grid md:grid-cols-2 gap-8">
-                <div className="group animate-fadeIn" style={{ animationDelay: '0.5s' }}>
-                  <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                       style={{ background: 'linear-gradient(135deg, #ABDE3B 0%, #198341 100%)', filter: 'blur(40px)' }}></div>
-                  <div className="relative h-full bg-white/80 dark:bg-zinc-900/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 border border-gray-100 dark:border-zinc-800 hover:shadow-2xl transition-all duration-500">
-                    <div className="flex items-center gap-4 mb-6">
-                      <div className="p-3 rounded-xl" style={{ background: 'linear-gradient(135deg, #198341 0%, #2C3C39 100%)' }}>
-                        <Bell size={24} className="text-white" />
-                      </div>
-                      <h2 className="text-2xl font-bold text-[#2C3C39] dark:text-zinc-100">
-                        {t.sections.cookies.title}
-                      </h2>
-                    </div>
-                    <div className="space-y-4 text-gray-700 dark:text-zinc-300">
-                      {t.sections.cookies.content.map((paragraph, index) => (
-                        <p key={index}>{paragraph}</p>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="group animate-fadeIn" style={{ animationDelay: '0.6s' }}>
-                  <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                       style={{ background: 'linear-gradient(135deg, #ABDE3B 0%, #198341 100%)', filter: 'blur(40px)' }}></div>
-                  <div className="relative h-full bg-white/80 dark:bg-zinc-900/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 border border-gray-100 dark:border-zinc-800 hover:shadow-2xl transition-all duration-500">
-                    <div className="flex items-center gap-4 mb-6">
-                      <div className="p-3 rounded-xl" style={{ background: 'linear-gradient(135deg, #198341 0%, #2C3C39 100%)' }}>
-                        <Lock size={24} className="text-white" />
-                      </div>
-                      <h2 className="text-2xl font-bold text-[#2C3C39] dark:text-zinc-100">
-                        {t.sections.dataSecurity.title}
-                      </h2>
-                    </div>
-                    <div className="space-y-4 text-gray-700 dark:text-zinc-300">
-                      {t.sections.dataSecurity.content.map((paragraph, index) => (
-                        <p key={index}>{paragraph}</p>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Your Rights */}
-              <div className="group animate-fadeIn" style={{ animationDelay: '0.7s' }}>
-                <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                     style={{ background: 'linear-gradient(135deg, #ABDE3B 0%, #198341 100%)', filter: 'blur(40px)' }}></div>
-                <div className="relative bg-white/80 dark:bg-zinc-900/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100 dark:border-zinc-800 hover:shadow-2xl transition-all duration-500">
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="p-4 rounded-2xl" style={{ background: 'linear-gradient(135deg, #198341 0%, #2C3C39 100%)' }}>
-                      <HelpCircle size={32} className="text-white" />
-                    </div>
-                    <h2 className="text-3xl md:text-4xl font-bold text-[#2C3C39] dark:text-zinc-100">
-                      {t.sections.rights.title}
-                    </h2>
-                  </div>
-                  <p className="text-gray-700 dark:text-zinc-300 text-lg mb-6">{t.sections.rights.intro}</p>
-                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-                    {t.sections.rights.items.map((item, index) => (
-                      <div key={index}
-                           className="group/right flex items-center gap-3 p-4 rounded-xl bg-gradient-to-br from-gray-50 to-white dark:from-zinc-900/50 dark:to-zinc-900/10 hover:shadow-lg transition-all duration-300 border border-transparent hover:border-opacity-50"
-                           style={{ borderColor: '#ABDE3B' }}>
-                        <div className="flex-shrink-0">
-                          <ChevronRight size={18} className="transition-transform duration-300 group-hover/right:translate-x-1"
-                                        style={{ color: '#ABDE3B' }} />
-                        </div>
-                        <p className="text-sm text-gray-700 dark:text-zinc-300">{item}</p>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="p-6 rounded-2xl border" style={{ backgroundColor: 'rgba(25, 131, 65, 0.05)', borderColor: 'rgba(25, 131, 65, 0.1)' }}>
-                    <p className="text-gray-700 dark:text-zinc-300">{t.sections.rights.footer}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Additional Information */}
-              <div className="group animate-fadeIn" style={{ animationDelay: '0.8s' }}>
-                <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                     style={{ background: 'linear-gradient(135deg, #ABDE3B 0%, #198341 100%)', filter: 'blur(40px)' }}></div>
-                <div className="relative bg-white/80 dark:bg-zinc-900/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100 dark:border-zinc-800 hover:shadow-2xl transition-all duration-500">
-                  <h2 className="text-3xl md:text-4xl font-bold mb-8 text-[#2C3C39] dark:text-zinc-100">
-                    {t.sections.additional.title}
-                  </h2>
-                  <div className="space-y-6">
-                    <div className="p-6 rounded-2xl bg-gradient-to-r from-gray-50 to-white dark:from-zinc-900/50 dark:to-zinc-900/10 border-l-4 hover:shadow-lg transition-all duration-300"
-                         style={{ borderColor: '#ABDE3B' }}>
-                      <h3 className="font-bold text-xl mb-3 text-[#198341] dark:text-[#ABDE3B]">
-                        {t.sections.additional.children.title}
-                      </h3>
-                      <p className="text-gray-700 dark:text-zinc-300">{t.sections.additional.children.content}</p>
-                    </div>
-
-                    <div className="p-6 rounded-2xl bg-gradient-to-r from-gray-50 to-white dark:from-zinc-900/50 dark:to-zinc-900/10 border-l-4 hover:shadow-lg transition-all duration-300"
-                         style={{ borderColor: '#ABDE3B' }}>
-                      <h3 className="font-bold text-xl mb-3 text-[#198341] dark:text-[#ABDE3B]">
-                        {t.sections.additional.changes.title}
-                      </h3>
-                      <p className="text-gray-700 dark:text-zinc-300">{t.sections.additional.changes.content}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Contact Section */}
-              <div className="group animate-fadeIn" style={{ animationDelay: '0.9s' }}>
-                <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                     style={{ background: 'linear-gradient(135deg, #ABDE3B 0%, #198341 100%)', filter: 'blur(40px)' }}></div>
-                <div className="relative overflow-hidden rounded-3xl shadow-2xl">
-                  <div className="absolute inset-0"
-                       style={{ background: 'linear-gradient(135deg, #2C3C39 0%, #198341 100%)' }}></div>
-                  <div className="absolute top-0 right-0 w-96 h-96 rounded-full opacity-10"
-                       style={{ backgroundColor: '#ABDE3B', transform: 'translate(30%, -30%)' }}></div>
-
-                  <div className="relative p-8 md:p-12 text-white">
-                    <h2 className="text-3xl md:text-4xl font-bold mb-6 text-[#ABDE3B] dark:text-[#ABDE3B]">
-                      {t.sections.contact.title}
-                    </h2>
-                    <p className="text-white/90 text-lg mb-8">{t.sections.contact.intro}</p>
-                    <div className="bg-white/10 dark:bg-zinc-950/30 backdrop-blur-lg p-8 rounded-2xl border border-white/20 dark:border-zinc-800/50">
-                      <p className="font-bold text-2xl mb-6 text-[#ABDE3B] dark:text-[#ABDE3B]">
-                        {t.sections.contact.company}
-                      </p>
-                      <div className="space-y-3 text-white/90">
-                        <p className="flex items-center gap-3">
-                          <span className="font-medium">{t.sections.contact.email}</span>
-                        </p>
-                        <p className="flex items-center gap-3">
-                          <span className="font-medium">{t.sections.contact.phone}</span>
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </>
-          )}
-
-          {/* Back to Home Button */}
-          <div className="flex justify-center pt-8 animate-fadeIn" style={{ animationDelay: '1s' }}>
-            <Link
-              href="/"
-              className="group inline-flex items-center gap-3 px-8 py-4 rounded-full font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
-              style={{ background: 'linear-gradient(135deg, #198341 0%, #2C3C39 100%)' }}
+      <div
+        className="relative overflow-hidden py-16 md:py-24"
+        style={{
+          background: 'linear-gradient(135deg, #2C3C39 0%, #198341 100%)',
+        }}
+      >
+        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 md:px-8 text-white">
+          <div className="space-y-4">
+            <div
+              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full backdrop-blur-sm"
+              style={{ backgroundColor: 'rgba(171, 222, 59, 0.2)' }}
             >
-              <span>{t.sections.backToHome}</span>
-              <ArrowRight size={20} className="transform group-hover:translate-x-1 transition-transform" />
-            </Link>
+              <Sparkles className="w-4 h-4" style={{ color: '#ABDE3B' }} />
+              <span
+                className="text-xs sm:text-sm font-semibold"
+                style={{ color: '#ABDE3B' }}
+              >
+                {t('pages.about.title')}
+              </span>
+            </div>
+
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight">
+              {isRTL ? 'عن منصة بسهولة' : 'About Bishola'}
+            </h1>
+            <p className="text-base sm:text-lg text-white/90 max-w-2xl leading-relaxed">
+              {isRTL
+                ? 'سوق إلكتروني متكامل يجعل البيع والشراء والإيجار أمراً سهلاً وموثوقاً.'
+                : 'A comprehensive marketplace making buying, selling, and renting seamless and reliable.'}
+            </p>
           </div>
         </div>
       </div>
 
-      {/* Animations */}
-      <style jsx>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
+      {/* Content Area */}
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 md:px-8 py-12 md:py-16">
+        {aboutHtml ? (
+          <div className="bg-white dark:bg-zinc-900/80 backdrop-blur-md rounded-3xl shadow-xl p-6 sm:p-10 md:p-14 border border-gray-100 dark:border-zinc-800">
+            <div
+              className={`rich-text-content ql-editor text-gray-800 dark:text-zinc-200 leading-relaxed space-y-6 ${
+                isRTL ? 'ql-direction-rtl text-right' : 'text-left'
+              }`}
+              dir={isRTL ? 'rtl' : 'ltr'}
+              style={{
+                overflowY: 'visible',
+                padding: 0,
+                direction: isRTL ? 'rtl' : 'ltr',
+                textAlign: isRTL ? 'right' : 'left',
+              }}
+              dangerouslySetInnerHTML={{ __html: aboutHtml }}
+            />
+            <style>{`
+              [dir="rtl"] .rich-text-content,
+              [dir="rtl"] .rich-text-content * {
+                direction: rtl !important;
+                text-align: right !important;
+              }
+              [dir="rtl"] .rich-text-content .ql-align-center {
+                text-align: center !important;
+              }
+            `}</style>
+          </div>
+        ) : (
+          <div className="bg-gray-50 dark:bg-zinc-900/50 border border-gray-200 dark:border-zinc-800 rounded-3xl p-10 md:p-16 text-center space-y-4 shadow-sm">
+            <div className="mx-auto w-16 h-16 rounded-2xl bg-emerald-100 dark:bg-emerald-950/40 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+              <Info className="w-8 h-8" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-zinc-100">
+              {isRTL ? 'عن بسهولة' : 'About Bishola'}
+            </h2>
+            <p className="text-gray-600 dark:text-zinc-400 max-w-md mx-auto text-sm leading-relaxed">
+              {isRTL
+                ? 'مرحباً بكم في منصة بسهولة. محتوى هذه الصفحة قيد التحديث.'
+                : 'Welcome to Bishola. Content is currently being updated.'}
+            </p>
+          </div>
+        )}
 
-        .animate-fadeIn {
-          animation: fadeIn 0.8s ease-out forwards;
-          opacity: 0;
-        }
-
-        @keyframes pulse {
-          0%, 100% {
-            transform: scale(1);
-            opacity: 0.05;
-          }
-          50% {
-            transform: scale(1.05);
-            opacity: 0.1;
-          }
-        }
-
-        .animate-pulse {
-          animation: pulse 6s ease-in-out infinite;
-        }
-
-        .rich-text-content.ql-editor {
-          border: none !important;
-          padding: 0 !important;
-          font-family: inherit !important;
-          color: #374151 !important;
-          font-size: 1.125rem !important;
-          line-height: 1.8 !important;
-        }
-
-        :global(.dark) .rich-text-content.ql-editor {
-          color: #E4E4E7 !important;
-        }
-
-        .rich-text-content :global(.ql-align-right) {
-          text-align: right;
-        }
-        
-        .rich-text-content :global(.ql-direction-rtl) {
-          direction: rtl;
-        }
-
-        .rich-text-content :global(.ql-direction-rtl) :global(ol),
-        .rich-text-content :global(.ql-direction-rtl) :global(ul) {
-          padding-left: 0;
-          padding-right: 2em;
-        }
-
-        :global(.rtl) .privacy-content :global(ol),
-        :global(.rtl) .privacy-content :global(ul) {
-          padding-left: 0 !important;
-          padding-right: 0 !important;
-        }
-
-        :global(.rtl) .privacy-content :global(li) {
-          padding-left: 0 !important;
-          padding-right: 1.5em !important;
-        }
-
-        :global(.rtl) .privacy-content :global(li::before) {
-          margin-left: 0.3em !important;
-          margin-right: -1.5em !important;
-          direction: rtl !important;
-          text-align: right !important;
-        }
-
-        :global(.rtl) .privacy-content :global(li.ql-indent-1) {
-          padding-left: 0 !important;
-          padding-right: 3em !important;
-        }
-        :global(.rtl) .privacy-content :global(li.ql-indent-1::before) {
-          margin-right: -3em !important;
-          margin-left: 0.3em !important;
-        }
-        :global(.rtl) .privacy-content :global(li.ql-indent-2) {
-          padding-left: 0 !important;
-          padding-right: 4.5em !important;
-        }
-        :global(.rtl) .privacy-content :global(li.ql-indent-2::before) {
-          margin-right: -4.5em !important;
-          margin-left: 0.3em !important;
-        }
-        :global(.rtl) .privacy-content :global(li.ql-indent-3) {
-          padding-left: 0 !important;
-          padding-right: 6em !important;
-        }
-        :global(.rtl) .privacy-content :global(li.ql-indent-3::before) {
-          margin-right: -6em !important;
-          margin-left: 0.3em !important;
-        }
-        :global(.rtl) .privacy-content :global(li.ql-indent-4) {
-          padding-left: 0 !important;
-          padding-right: 7.5em !important;
-        }
-        :global(.rtl) .privacy-content :global(li.ql-indent-4::before) {
-          margin-right: -7.5em !important;
-          margin-left: 0.3em !important;
-        }
-        :global(.rtl) .privacy-content :global(li.ql-indent-5) {
-          padding-left: 0 !important;
-          padding-right: 9em !important;
-        }
-        :global(.rtl) .privacy-content :global(li.ql-indent-5::before) {
-          margin-right: -9em !important;
-          margin-left: 0.3em !important;
-        }
-        :global(.rtl) .privacy-content :global(li.ql-indent-6) {
-          padding-left: 0 !important;
-          padding-right: 10.5em !important;
-        }
-        :global(.rtl) .privacy-content :global(li.ql-indent-6::before) {
-          margin-right: -10.5em !important;
-          margin-left: 0.3em !important;
-        }
-        :global(.rtl) .privacy-content :global(li.ql-indent-7) {
-          padding-left: 0 !important;
-          padding-right: 12em !important;
-        }
-        :global(.rtl) .privacy-content :global(li.ql-indent-7::before) {
-          margin-right: -12em !important;
-          margin-left: 0.3em !important;
-        }
-        :global(.rtl) .privacy-content :global(li.ql-indent-8) {
-          padding-left: 0 !important;
-          padding-right: 13.5em !important;
-        }
-        :global(.rtl) .privacy-content :global(li.ql-indent-8::before) {
-          margin-right: -13.5em !important;
-          margin-left: 0.3em !important;
-        }
-
-        :global(.rtl) .privacy-content,
-        :global(.rtl) .privacy-content :global(p),
-        :global(.rtl) .privacy-content :global(h1),
-        :global(.rtl) .privacy-content :global(h2),
-        :global(.rtl) .privacy-content :global(h3),
-        :global(.rtl) .privacy-content :global(h4),
-        :global(.rtl) .privacy-content :global(h5),
-        :global(.rtl) .privacy-content :global(h6),
-        :global(.rtl) .privacy-content :global(ol),
-        :global(.rtl) .privacy-content :global(ul),
-        :global(.rtl) .privacy-content :global(li),
-        :global(.rtl) .privacy-content :global(span),
-        :global(.rtl) .privacy-content :global(div),
-        :global(.rtl) .privacy-content :global(strong) {
-          direction: rtl !important;
-          text-align: right !important;
-        }
-
-        /* Override Quill inline background-colors */
-        .privacy-content :global(*) {
-          background-color: transparent !important;
-        }
-
-        /* Override Quill inline colors in dark mode to prevent black text on dark background */
-        :global(.dark) .privacy-content :global(span),
-        :global(.dark) .privacy-content :global(p),
-        :global(.dark) .privacy-content :global(li),
-        :global(.dark) .privacy-content :global(strong),
-        :global(.dark) .privacy-content :global(td),
-        :global(.dark) .privacy-content :global(th) {
-          color: inherit !important;
-        }
-        
-        .privacy-content :global(pre),
-        .privacy-content :global(pre) :global(*) {
-          background-color: #F3F4F6 !important;
-        }
-
-        :global(.dark) .privacy-content :global(pre),
-        :global(.dark) .privacy-content :global(pre) :global(*) {
-          background-color: #18181B !important;
-          color: #E4E4E7 !important;
-        }
-
-        .privacy-content :global(table) {
-          border-collapse: collapse !important;
-          width: 100% !important;
-          margin: 1.5rem 0 !important;
-        }
-
-        .privacy-content :global(table td),
-        .privacy-content :global(table th) {
-          border: 1px solid #E5E7EB !important;
-          padding: 0.75rem !important;
-        }
-
-        :global(.dark) .privacy-content :global(table td),
-        :global(.dark) .privacy-content :global(table th) {
-          border-color: #27272A !important;
-        }
-
-        .privacy-content :global(table th) {
-          background-color: #F9FAFB !important;
-          font-weight: 700 !important;
-        }
-
-        :global(.dark) .privacy-content :global(table th) {
-          background-color: #18181B !important;
-        }
-
-        .privacy-content :global(h1) {
-          font-size: 2.25rem !important;
-          font-weight: 800 !important;
-          color: #2C3C39 !important;
-          margin-top: 0 !important;
-          margin-bottom: 1.5rem !important;
-          border-bottom: 2px solid rgba(171, 222, 59, 0.3) !important;
-          padding-bottom: 0.5rem !important;
-        }
-
-        :global(.dark) .privacy-content :global(h1) {
-          color: #F4F4F5 !important;
-          border-bottom-color: rgba(171, 222, 59, 0.5) !important;
-        }
-
-        .privacy-content :global(h2) {
-          font-size: 1.75rem !important;
-          font-weight: 700 !important;
-          color: #2C3C39 !important;
-          margin-top: 2.5rem !important;
-          margin-bottom: 1rem !important;
-        }
-
-        :global(.dark) .privacy-content :global(h2) {
-          color: #F4F4F5 !important;
-        }
-
-        .privacy-content :global(h3) {
-          font-size: 1.35rem !important;
-          font-weight: 700 !important;
-          color: #198341 !important;
-          margin-top: 2rem !important;
-          margin-bottom: 0.75rem !important;
-        }
-
-        :global(.dark) .privacy-content :global(h3) {
-          color: #ABDE3B !important;
-        }
-
-        .privacy-content :global(h4),
-        .privacy-content :global(h5),
-        .privacy-content :global(h6) {
-          font-size: 1.15rem !important;
-          font-weight: 700 !important;
-          color: #198341 !important;
-          margin-top: 1.5rem !important;
-          margin-bottom: 0.5rem !important;
-        }
-
-        :global(.dark) .privacy-content :global(h4),
-        :global(.dark) .privacy-content :global(h5),
-        :global(.dark) .privacy-content :global(h6) {
-          color: #ABDE3B !important;
-        }
-
-        .privacy-content :global(p) {
-          margin-bottom: 1.25rem !important;
-        }
-
-        .privacy-content :global(strong) {
-          font-weight: 700 !important;
-        }
-
-        .privacy-content :global(a) {
-          color: #198341 !important;
-          text-decoration: underline !important;
-          transition: color 0.2s ease;
-        }
-
-        :global(.dark) .privacy-content :global(a) {
-          color: #ABDE3B !important;
-        }
-
-        .privacy-content :global(a:hover) {
-          color: #2C3C39 !important;
-        }
-
-        :global(.dark) .privacy-content :global(a:hover) {
-          color: #F4F4F5 !important;
-        }
-
-        .privacy-content :global(blockquote) {
-          border-inline-start: 4px solid #ABDE3B;
-          padding-inline-start: 1rem;
-          color: #6B7280;
-          font-style: italic;
-          margin: 1.5rem 0;
-        }
-
-        :global(.dark) .privacy-content :global(blockquote) {
-          color: #A1A1AA !important;
-        }
-
-        .privacy-content :global(pre) {
-          background-color: #F3F4F6;
-          padding: 1rem;
-          border-radius: 0.5rem;
-          overflow-x: auto;
-          margin: 1.5rem 0;
-        }
-
-        :global(.dark) .privacy-content :global(pre) {
-          background-color: #18181B !important;
-          color: #E4E4E7 !important;
-        }
-      `}</style>
+        {/* Brand Footer */}
+        <div className="mt-16 pt-8 border-t border-gray-200 dark:border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <Logo width={120} height={26} />
+          {copyrightMessage && (
+            <p className="text-xs text-gray-500 dark:text-zinc-400 text-center sm:text-end">
+              {copyrightMessage}
+            </p>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

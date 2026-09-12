@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Box from '@/components/ui/box';
 import { useTranslations } from 'next-intl';
-import { getListingById } from '@/core/infrastructure-adapters/actions/visitors/listing.visitor.actions';
+import { getBatchListingsAction } from '@/core/infrastructure-adapters/actions/visitors/listing.visitor.actions';
 import ProductSkeleton from '../design/ProductSkeletonItem';
 import { useSession } from '@/hooks/auth/use-session';
 import SectionHeader from '@/components/shared/SectionHeader';
@@ -54,12 +54,10 @@ const RecentlyViewed = () => {
       setIsLoading(true);
       try {
         const params = session.user?.id ? { userId: session.user.id } : undefined;
-        const promises = recentlyViewed.map(item => getListingById(item.id, params));
-        const responses = await Promise.all(promises);
+        const ids = recentlyViewed.map(item => item.id);
+        const response = await getBatchListingsAction(ids, params);
         
-        const fetched = responses
-          .map(res => res.success && res.data ? res.data : null)
-          .filter(Boolean);
+        const fetched = response.success && Array.isArray(response.data) ? response.data : [];
           
         const normalized = recentlyViewed
           .map(item => {

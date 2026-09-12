@@ -31,6 +31,10 @@ import { useSettings } from '@/providers/settings.provider';
 import GoogleButton from '@/components/auth/google-button';
 import FacebookButton from '@/components/auth/facebook-button';
 import AppleButton from '@/components/auth/apple-button';
+import {
+  RegisterLegalConsent,
+  OAuthLegalNotice,
+} from '@/components/auth/register-legal-consent';
 
 const RegisterPage = () => {
   const { getAuthenticationSettings } = useSettings();
@@ -279,44 +283,11 @@ const RegisterPage = () => {
                 icon={<Lock className="h-5 w-5 text-gray-400 dark:text-zinc-400" />}
               />
 
-              {/* Terms and Privacy Notice - More compact */}
-              <div className="text-xs text-gray-500 dark:text-white text-center leading-relaxed px-1">
-                {isRTL ? (
-                  <>
-                    بإنشاء حساب، فإنك توافق على{' '}
-                    <Link
-                      href="#"
-                      className="text-emerald-600 hover:text-emerald-700 dark:text-[#ABDE3B] dark:hover:text-[#ABDE3B]/90 font-medium"
-                    >
-                      شروط الخدمة
-                    </Link>{' '}
-                    و{' '}
-                    <Link
-                      href="#"
-                      className="text-emerald-600 hover:text-emerald-700 dark:text-[#ABDE3B] dark:hover:text-[#ABDE3B]/90 font-medium"
-                    >
-                      سياسة الخصوصية
-                    </Link>
-                  </>
-                ) : (
-                  <>
-                    By creating an account, you agree to our{' '}
-                    <Link
-                      href="#"
-                      className="text-emerald-600 hover:text-emerald-700 dark:text-[#ABDE3B] dark:hover:text-[#ABDE3B]/90 font-medium"
-                    >
-                      Terms of Service
-                    </Link>{' '}
-                    and{' '}
-                    <Link
-                      href="#"
-                      className="text-emerald-600 hover:text-emerald-700 dark:text-[#ABDE3B] dark:hover:text-[#ABDE3B]/90 font-medium"
-                    >
-                      Privacy Policy
-                    </Link>
-                  </>
-                )}
-              </div>
+              {/* Terms and Privacy Consent Checkbox */}
+              <RegisterLegalConsent
+                error={state.errors?.acceptedLegal}
+                defaultChecked={state.data?.acceptedLegal}
+              />
 
               {/* Submit Button - More compact */}
               <div className="pt-1">
@@ -354,6 +325,13 @@ const RegisterPage = () => {
               )}
               {authSettings?.auth_providers?.enable_apple_oauth && (
                 <AppleButton mode="signup" />
+              )}
+
+              {/* Passive OAuth Legal Notice */}
+              {(authSettings?.auth_providers?.enable_facebook_oauth ||
+                authSettings?.auth_providers?.enable_google_oauth ||
+                authSettings?.auth_providers?.enable_apple_oauth) && (
+                <OAuthLegalNotice />
               )}
             </form>
           </CardContent>

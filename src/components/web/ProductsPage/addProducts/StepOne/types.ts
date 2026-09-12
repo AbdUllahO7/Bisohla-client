@@ -26,18 +26,33 @@ export interface SelectedOptions {
 export interface Option {
     value: string;
     label: string;
-    logoUrl?: string;
+    logoUrl?: string | null;
 }
 
 // Props for SelectableList component
 export interface SelectableListProps {
     title: string;
     type: string;
-    options: Option[];
+    options?: Option[];
     selectedValue: string;
     direction: string;
-    onSelect: (type: string, value: string) => void;
+    onSelect: (type: any, value: string) => void;
     required?: boolean;
+    pendingProposalName?: string | null;
+    onClearProposal?: () => void;
+    onProposeClick?: (currentSearch: string) => void;
+    proposeCtaLabel?: string;
+    emptyDescription?: string;
+    fetchOptions?: (params: {
+        searchTerm?: string;
+        page: number;
+        pageSize?: number;
+    }) => Promise<{
+        options: Option[];
+        hasMore: boolean;
+        total?: number;
+    }>;
+    dependencyKey?: any;
 }
 
 // Storage key for localStorage

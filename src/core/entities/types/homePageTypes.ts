@@ -16,6 +16,8 @@ export interface CarCardItemProps {
   slug?: string;
   type?: string;
   saveStatus?: SaveStatus;
+  installmentsAvailable?: boolean;
+  minMonthlyInstallment?: number | null;
 }
 export interface CarCardItemPropsProfile {
   title: string;
@@ -32,6 +34,8 @@ export interface CarCardItemPropsProfile {
   isFavorites: boolean;
   type?: string;
   onFavoriteToggle?: (productId: number, isFavorite: boolean) => void;
+  installmentsAvailable?: boolean;
+  minMonthlyInstallment?: number | null;
 }
 export interface CitiesDataType {
   title: string;

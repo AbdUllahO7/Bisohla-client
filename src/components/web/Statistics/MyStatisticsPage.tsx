@@ -167,7 +167,7 @@ export function MyStatisticsPage() {
     const direction: 'up' | 'down' | 'flat' = v > 0 ? 'up' : v < 0 ? 'down' : 'flat';
     return {
       direction,
-      label: `${Math.abs(v).toFixed(1)}% vs prev period`,
+      label: `${Math.abs(v).toFixed(1)}% `,
     };
   }, [viewsTrends?.data?.summary]);
 
@@ -193,7 +193,6 @@ export function MyStatisticsPage() {
             className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-xs font-semibold text-gray-600 dark:text-zinc-300 hover:text-[#198341] hover:border-[#198341] transition-all shadow-sm disabled:opacity-40"
           >
             <RefreshCw size={14} className={isStatsFetching ? 'animate-spin' : ''} />
-            <span>Refresh</span>
           </button>
         </div>
 
@@ -202,13 +201,13 @@ export function MyStatisticsPage() {
           <div className="bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 rounded-2xl p-6 text-center space-y-3">
             <AlertCircle size={28} className="text-rose-500 mx-auto" />
             <h3 className="text-base font-bold text-rose-800 dark:text-rose-200">
-              Failed to load statistics
+              {t('failed_to_load')}
             </h3>
             <button
               onClick={handleRefresh}
               className="px-4 py-2 bg-rose-600 text-white rounded-xl text-xs font-semibold shadow hover:bg-rose-700 transition-all"
             >
-              Try again
+              {t('try_again')}
             </button>
           </div>
         )}
@@ -273,7 +272,7 @@ export function MyStatisticsPage() {
           <div className="flex items-center gap-2">
             <div className="h-6 w-1 bg-gradient-to-b from-[#198341] to-[#ABDE3B] rounded-full" />
             <h2 className="text-xl font-bold text-[#2C3C39] dark:text-zinc-100">
-              Trends & Analytics
+              {t('trends_section')}
             </h2>
           </div>
 

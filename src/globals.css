@@ -202,7 +202,7 @@ body.menu-open {
 }
 
 [data-radix-popper-content-wrapper] {
-  z-index: 99999 !important;
+  z-index: 10000000 !important;
 }
 
 /* FOR PRODUCTS FILTERS PAGE */

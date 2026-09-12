@@ -100,7 +100,6 @@ const WebLayout = async ({
 
           {/* Footer */}
           <Footer />
-          <ChatbotWidget />
 
           {/* Bottom Navigation for Mobile */}
           <BottomNavigation />
@@ -111,9 +110,6 @@ const WebLayout = async ({
 
         {/* Global Guided Tour Overlay */}
         <TourOverlay />
-
-        {/* Toast Notifications */}
-        <Toaster />
       </div>
     </TourProvider>
   );

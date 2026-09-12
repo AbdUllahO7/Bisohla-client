@@ -72,20 +72,23 @@ export function SettingsPage() {
   const handleLogout = async () => {
     setIsLoggingOut(true);
     try {
+      session.invalidateSession();
       await logoutAction();
       toast({
         title: locale === 'ar' ? 'تم تسجيل الخروج' : 'Signed out successfully',
       });
-      router.push('/');
-    } catch {
-      toast({
-        title: locale === 'ar' ? 'خطأ' : 'Error',
-        description: locale === 'ar' ? 'فشل تسجيل الخروج' : 'Failed to sign out',
-        variant: 'destructive',
-      });
+    } catch (error: any) {
+      if (!error?.message?.includes('NEXT_REDIRECT') && !error?.digest?.includes('NEXT_REDIRECT')) {
+        toast({
+          title: locale === 'ar' ? 'خطأ' : 'Error',
+          description: locale === 'ar' ? 'فشل تسجيل الخروج' : 'Failed to sign out',
+          variant: 'destructive',
+        });
+      }
     } finally {
       setIsLoggingOut(false);
       setIsLogoutDialogOpen(false);
+      window.location.href = `/${locale}`;
     }
   };
 
@@ -294,7 +297,7 @@ export function SettingsPage() {
 
             {/* Privacy Policy */}
             <Link
-              href="/Privacypolicy"
+              href="/legal/privacy-policy"
               className="w-full flex items-center justify-between p-4 text-xs text-gray-600 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-800/40 transition-colors group"
             >
               <div className="flex items-center gap-3">

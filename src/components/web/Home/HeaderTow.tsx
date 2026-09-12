@@ -1,6 +1,5 @@
 // HeaderTwo.tsx - Improved centering and RTL support
 'use client';
-import { useSession } from '@/hooks/auth/use-session';
 import type { HeaderTowProps } from '@/core/entities/types/homePageTypes';
 import { MenuIcon, ChevronDown } from 'lucide-react';
 import { Link } from '@/i18n/routing';
@@ -9,14 +8,16 @@ import { useState } from 'react';
 import { useLocale } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { useSettings } from '@/providers/settings.provider';
+import { useSession } from '@/hooks/auth/use-session';
 
 const HeaderTwo: React.FC<HeaderTowProps> = ({ translations }) => {
   const [showMobileNav, setShowMobileNav] = useState(false);
-  const session = useSession();
   const locale = useLocale();
   const isRTL = locale === 'ar';
   const { isMapEnabled } = useSettings();
   const mapEnabled = isMapEnabled();
+  const { user } = useSession();
+  const isAuthenticated = !!user?.id;
 
   const navItems = [
     { href: '/', label: translations.home },
@@ -28,7 +29,7 @@ const HeaderTwo: React.FC<HeaderTowProps> = ({ translations }) => {
     { href: '/products', label: translations.BrowseAll },
     { href: '/news', label: translations.News },
     { href: '/ContactUs', label: translations.ContactUs },
-    { href: '/Privacypolicy', label: translations.Privacypolicy },
+    { href: '/legal/privacy-policy', label: translations.Privacypolicy },
   ];
 
   return (
@@ -115,7 +116,7 @@ const HeaderTwo: React.FC<HeaderTowProps> = ({ translations }) => {
                     <span className="relative z-10">{item.label}</span>
                   </Link>
                 ))}
-                {!session.user.id && (
+                {!isAuthenticated && (
                   <Link
                     href="/auth/sign-in"
                     className={`block px-4 py-3 text-white hover:bg-emerald-800 dark:hover:bg-zinc-800 transition-all duration-300 ease-in-out text-sm transform hover:shadow-md relative overflow-hidden group bg-emerald-600 dark:bg-emerald-700 ${

@@ -15,13 +15,23 @@ export class ListingTypesRepo implements IListingTypesRepo {
     const queryString = queryParams.toString();
     const url = `/listing-types${queryString ? `?${queryString}` : ''}`;
 
-    const res = await getReq({ url });
+    const res = await getReq({
+      url,
+      next: {
+        revalidate: 3600,
+        tags: ['listing-types'],
+      },
+    });
     return res as PaginatedResponse<ListingTypeDto>;
   }
 
   async getListingTypeBySlug(slug: string): Promise<ApiResponse<ListingTypeDto>> {
     const res = await getReq({
       url: `/listing-types/${encodeURIComponent(slug)}`,
+      next: {
+        revalidate: 3600,
+        tags: ['listing-types'],
+      },
     });
     return res as ApiResponse<ListingTypeDto>;
   }
@@ -29,6 +39,10 @@ export class ListingTypesRepo implements IListingTypesRepo {
   async getActiveSchema(id: number): Promise<ApiResponse<ListingTypeSchemaDto>> {
     const res = await getReq({
       url: `/listing-types/${id}/schema`,
+      next: {
+        revalidate: 3600,
+        tags: ['listing-types-schema'],
+      },
     });
     return res as ApiResponse<ListingTypeSchemaDto>;
   }
@@ -36,6 +50,10 @@ export class ListingTypesRepo implements IListingTypesRepo {
   async getFormSchema(id: number): Promise<ApiResponse<ListingTypeFormSchemaDto>> {
     const res = await getReq({
       url: `/listing-types/${id}/form-schema`,
+      next: {
+        revalidate: 3600,
+        tags: ['listing-types-schema'],
+      },
     });
     return res as ApiResponse<ListingTypeFormSchemaDto>;
   }
@@ -43,6 +61,10 @@ export class ListingTypesRepo implements IListingTypesRepo {
   async getFilterSchema(id: number): Promise<ApiResponse<ListingTypeFilterSchemaDto>> {
     const res = await getReq({
       url: `/listing-types/${id}/filter-schema`,
+      next: {
+        revalidate: 3600,
+        tags: ['listing-types-schema'],
+      },
     });
     return res as ApiResponse<ListingTypeFilterSchemaDto>;
   }
@@ -50,6 +72,10 @@ export class ListingTypesRepo implements IListingTypesRepo {
   async getAlertFormSchema(id: number): Promise<ApiResponse<ListingTypeAlertFormSchemaDto>> {
     const res = await getReq({
       url: `/listing-types/${id}/alert-form-schema`,
+      next: {
+        revalidate: 3600,
+        tags: ['listing-types-schema'],
+      },
     });
     return res as ApiResponse<ListingTypeAlertFormSchemaDto>;
   }

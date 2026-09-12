@@ -55,6 +55,8 @@ export const ProductCardItem: React.FC<ExtendedCarCardItemPropsProfile> = ({
   isAuthenticated: isAuthenticatedProp,
   onDelete,
   profile,
+  installmentsAvailable,
+  minMonthlyInstallment,
 }) => {
   // Use the auth prop if provided, otherwise start with undefined and check later
   const [isAuthenticated, setIsAuthenticated] = useState(
@@ -323,13 +325,22 @@ export const ProductCardItem: React.FC<ExtendedCarCardItemPropsProfile> = ({
               profile ? '?profile=true' : ''
             }`}
           >
-            <CardFooter className="bg-[#E4E4E4] dark:bg-zinc-950 flex justify-between p-4 rounded-b-lg group-hover:bg-primary-light duration-500">
-              <Text className="text-primary group-hover:text-white duration-500">
-                {priceWord}
-              </Text>
-              <Text className="text-primary-light font-bold group-hover:text-white duration-500">
-                {price.toString()}
-              </Text>
+            <CardFooter className="bg-[#E4E4E4] dark:bg-zinc-950 flex flex-col items-stretch p-4 rounded-b-lg group-hover:bg-primary-light duration-500">
+              <div className="flex justify-between w-full">
+                <Text className="text-primary group-hover:text-white duration-500">
+                  {priceWord}
+                </Text>
+                <Text className="text-primary-light font-bold group-hover:text-white duration-500">
+                  {price.toString()}
+                </Text>
+              </div>
+              {installmentsAvailable && minMonthlyInstallment && (
+                <div className="text-xs text-gray-500 group-hover:text-white/80 duration-500 text-right rtl:text-left mt-1 font-medium">
+                  {locale === 'ar'
+                    ? `ابتداءً من ${minMonthlyInstallment.toLocaleString()} / شهرياً`
+                    : `from ${minMonthlyInstallment.toLocaleString()}/mo`}
+                </div>
+              )}
             </CardFooter>
           </Link>
         ) : (

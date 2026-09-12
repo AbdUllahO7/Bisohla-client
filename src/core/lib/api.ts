@@ -34,6 +34,11 @@ interface RequestConfig<
     delay: number;
   };
   skipAuth?: boolean;
+  next?: {
+    revalidate?: number | false;
+    tags?: string[];
+  };
+  cache?: RequestCache;
 }
 
 interface FetchError extends Error {
@@ -220,6 +225,8 @@ export async function makeRequest<
   timeout = DEFAULT_TIMEOUT,
   retry = DEFAULT_RETRY,
   skipAuth = false,
+  next,
+  cache,
 }: RequestConfig<T, R>): Promise<ApiResponse<R>> {
   try {
     let validatedBody = body;
@@ -263,7 +270,7 @@ export async function makeRequest<
      * Never add static `revalidate` or `cache: 'force-cache'` to requests carrying per-user
      * Authorization headers, as this will cache personalized responses and leak user data across visitors.
      */
-    const fetchOptions: RequestInit = {
+    const fetchOptions: RequestInit & { next?: { revalidate?: number | false; tags?: string[] } } = {
       method,
       headers: {
         ...(!(validatedBody instanceof FormData) && {
@@ -286,6 +293,8 @@ export async function makeRequest<
           : validatedBody
           ? JSON.stringify(validatedBody)
           : undefined,
+      ...(!authHeaderAttached && next && { next }),
+      ...(!authHeaderAttached && cache && { cache }),
     };
 
     const fullUrl = buildUrl(BACKEND_URL + url, params);

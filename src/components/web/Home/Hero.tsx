@@ -53,6 +53,7 @@ const Hero = async () => {
             width={800}
             height={400}
             className="w-[350px] sm:w-[400px] md:w-[500px] lg:w-[650px] xl:w-[700px] h-auto"
+            priority
           />
         </div>
       </Box>

@@ -1,7 +1,6 @@
-// components/dashboard/DashboardSidebarImproved.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Heart,
   Home,
@@ -12,7 +11,13 @@ import {
   BellRing,
   LogOut,
   BarChart3,
+  MapPin,
+  Loader2,
+  X,
+  Plus,
+  Search,
 } from 'lucide-react';
+import { useSettings } from '@/providers/settings.provider';
 import {
   Sidebar,
   SidebarContent,
@@ -25,35 +30,58 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Link } from '@/i18n/routing';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Link, useRouter } from '@/i18n/routing';
 import { usePathname } from 'next/navigation';
 import { useSession } from '@/hooks/auth/use-session';
 import { useDirection } from '@/hooks/use-direction';
 import { useProfileContext } from '@/providers/profile.provider';
 import Image from 'next/image';
 import { logoutAction } from '@/app/[locale]/auth/actions';
+import ThemeToggle from '@/components/shared/ThemeToggle';
+import LocaleSwitcher from '@/components/locale/LocaleSwitcher';
 
 export function DashboardSidebar() {
   const pathname = usePathname();
   const [isClient, setIsClient] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [mobileSearchQuery, setMobileSearchQuery] = useState('');
+  const router = useRouter();
   const session = useSession();
   const direction = useDirection();
   const { profile } = useProfileContext();
-  const { state } = useSidebar();
+  const { state, isMobile, setOpenMobile } = useSidebar();
 
-  const isCollapsed = state === 'collapsed';
+  // On mobile, the sidebar is NEVER in collapsed icon mode — it is always a full drawer
+  const isCollapsed = !isMobile && state === 'collapsed';
 
   // Initialize client-side state
   useEffect(() => {
     setIsClient(true);
   }, []);
 
+  const handleMobileSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (mobileSearchQuery.trim()) {
+      setOpenMobile(false);
+      router.push(`/products?search=${encodeURIComponent(mobileSearchQuery.trim())}`);
+    }
+  };
+
   const handleLogout = async () => {
+    if (isLoggingOut) return;
+    setIsLoggingOut(true);
     try {
-      window.dispatchEvent(new CustomEvent('logout-success'));
+      session.invalidateSession();
       await logoutAction();
-    } catch (error) {
+    } catch (error: any) {
+      if (error?.message?.includes('NEXT_REDIRECT') || error?.digest?.includes('NEXT_REDIRECT')) {
+        return;
+      }
       console.error('Logout error:', error);
+    } finally {
+      window.location.href = `/${direction === 'ltr' ? 'en' : 'ar'}`;
     }
   };
 
@@ -94,6 +122,9 @@ export function DashboardSidebar() {
     if (href === '/userProfile/Notification') {
       return path.startsWith('/userProfile/Notification') || path.startsWith('/notifications');
     }
+    if (href === '/userProfile/SavedAddresses') {
+      return path.startsWith('/userProfile/SavedAddresses');
+    }
     if (href === '/userProfile/UserInfo') {
       return (
         path.startsWith('/userProfile/UserInfo') ||
@@ -103,6 +134,10 @@ export function DashboardSidebar() {
     }
     return path === href;
   };
+
+  const { getListingsSettings } = useSettings();
+  const isSavedAddressesEnabled =
+    getListingsSettings()?.location?.saved_addresses_enabled ?? true;
 
   // Navigation items
   const navItems = [
@@ -136,6 +171,15 @@ export function DashboardSidebar() {
       icon: Bell,
       label: direction === 'ltr' ? 'Notifications' : 'الإشعارات',
     },
+    ...(isSavedAddressesEnabled
+      ? [
+          {
+            href: '/userProfile/SavedAddresses',
+            icon: MapPin,
+            label: direction === 'ltr' ? 'Saved Addresses' : 'العناوين المحفوظة',
+          },
+        ]
+      : []),
     {
       href: '/userProfile/UserInfo',
       icon: Settings,
@@ -159,17 +203,42 @@ export function DashboardSidebar() {
       collapsible="icon"
     >
       {/* Header */}
-      <SidebarHeader className="border-b border-sidebar-border p-2">
-        <div className="flex items-center gap-2">
-          {!isCollapsed ? (
-            <>
-              <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary-light flex-shrink-0">
+      <SidebarHeader className="border-b border-sidebar-border p-3">
+        <div className="flex items-center justify-between gap-2 w-full">
+          <div className="flex items-center gap-2.5 overflow-hidden">
+            {!isCollapsed ? (
+              <>
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-light flex-shrink-0 shadow-xs">
+                  <Image
+                    src="/assets/images/logo/bisholaLogo2.jpg"
+                    alt="Logo"
+                    width={24}
+                    height={24}
+                    className="h-5 w-auto rounded"
+                    priority
+                    onError={(e) => {
+                      console.error('Failed to load logo image');
+                      e.currentTarget.style.display = 'none';
+                    }}
+                  />
+                </div>
+                <div className="flex flex-col overflow-hidden">
+                  <span className="text-base font-bold text-sidebar-foreground truncate">
+                    {direction === 'ltr' ? 'Bishola' : 'بسهولة'}
+                  </span>
+                  <span className="text-[11px] text-sidebar-foreground/70 truncate">
+                    {direction === 'ltr' ? 'Dashboard' : 'لوحة التحكم'}
+                  </span>
+                </div>
+              </>
+            ) : (
+              <div className="relative mx-auto">
                 <Image
                   src="/assets/images/logo/bisholaLogo2.jpg"
                   alt="Logo"
-                  width={24}
-                  height={24}
-                  className="h-5 w-auto sm:h-6"
+                  width={36}
+                  height={36}
+                  className="rounded-md transition-transform duration-300 hover:scale-105"
                   priority
                   onError={(e) => {
                     console.error('Failed to load logo image');
@@ -177,39 +246,60 @@ export function DashboardSidebar() {
                   }}
                 />
               </div>
-              <div className="flex flex-col overflow-hidden">
-                <span className="text-lg font-bold text-sidebar-foreground truncate">
-                  {direction === 'ltr' ? 'Bishola' : 'بسهولة'}
-                </span>
-                <span className="text-xs text-sidebar-foreground/70 truncate">
-                  {direction === 'ltr' ? 'Dashboard' : 'لوحة التحكم'}
-                </span>
-              </div>
-            </>
-          ) : (
-            // Option 3: Full width button-like design
-            <div className="relative">
-              <Image
-                src="/assets/images/logo/bisholaLogo2.jpg"
-                alt="Logo"
-                width={48}
-                height={48}
-                className=" rounded-md transition-transform duration-300 group-hover:scale-110"
-                priority
-                onError={(e) => {
-                  console.error('Failed to load logo image');
-                  e.currentTarget.style.display = 'none';
-                }}
-              />
-              {/* Optional: Add a subtle glow effect */}
-              <div className="absolute inset-0 rounded-xl bg-primary-foreground/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            </div>
+            )}
+          </div>
+
+          {/* Close button for mobile drawer */}
+          {isMobile && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 rounded-lg text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground flex-shrink-0"
+              onClick={() => setOpenMobile(false)}
+              aria-label="Close sidebar"
+            >
+              <X className="h-4 w-4" />
+            </Button>
           )}
         </div>
       </SidebarHeader>
 
       {/* Content */}
-      <SidebarContent className="px-2 py-4 overflow-y-auto">
+      <SidebarContent className="px-2 py-3 overflow-y-auto">
+        {/* Mobile Quick Actions (Add Listing + Search) */}
+        {isMobile && (
+          <div className="p-2 mb-2 space-y-2 border-b border-sidebar-border">
+            {/* Add Listing Button */}
+            <Link
+              href="/products/AddProducts"
+              onClick={() => setOpenMobile(false)}
+              className="block w-full"
+            >
+              <Button className="w-full bg-primary hover:bg-primary-light text-white font-semibold h-11 rounded-xl flex items-center justify-center gap-2 shadow-sm">
+                <Plus className="h-4 w-4" />
+                <span>{direction === 'ltr' ? 'Add Listing' : 'إضافة إعلان'}</span>
+              </Button>
+            </Link>
+
+            {/* Quick Search */}
+            <form onSubmit={handleMobileSearch} className="relative w-full">
+              <Input
+                placeholder={direction === 'ltr' ? 'Search cars...' : 'البحث عن السيارات...'}
+                value={mobileSearchQuery}
+                onChange={(e) => setMobileSearchQuery(e.target.value)}
+                className="w-full pl-9 rtl:pl-3 rtl:pr-9 bg-sidebar-accent/50 dark:bg-zinc-850/50 text-sm h-10 rounded-xl border border-sidebar-border"
+              />
+              <button
+                type="submit"
+                className="absolute right-3 rtl:right-auto rtl:left-3 top-1/2 -translate-y-1/2 text-sidebar-foreground/60 hover:text-sidebar-foreground p-1"
+                aria-label="Search"
+              >
+                <Search className="h-4 w-4" />
+              </button>
+            </form>
+          </div>
+        )}
+
         <div className="space-y-2">
           {!isCollapsed && (
             <div className="px-3 py-2">
@@ -218,18 +308,24 @@ export function DashboardSidebar() {
               </h2>
             </div>
           )}
-          <SidebarMenu className=''>
+          <SidebarMenu className="">
             {navItems.map(({ href, icon: Icon, label }) => (
               <SidebarMenuItem key={href}>
                 <SidebarMenuButton
                   asChild
-                  className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 ${isActiveRoute(href)
-                    ? 'bg-primary-light text-black shadow-sm '
-                    : 'text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
-                    }`}
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
+                    isActiveRoute(href)
+                      ? 'bg-primary-light text-black shadow-sm font-semibold'
+                      : 'text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                  }`}
                   tooltip={isCollapsed ? label : undefined}
                 >
-                  <Link href={href}>
+                  <Link
+                    href={href}
+                    onClick={() => {
+                      if (isMobile) setOpenMobile(false);
+                    }}
+                  >
                     <Icon className="h-4 w-4 flex-shrink-0" />
                     {!isCollapsed && (
                       <span className="font-medium truncate">{label}</span>
@@ -242,7 +338,7 @@ export function DashboardSidebar() {
         </div>
 
         {/* Secondary Navigation */}
-        <div className="space-y-2 mt-8">
+        <div className="space-y-2 mt-6">
           {!isCollapsed && (
             <div className="px-3 py-2">
               <h2 className="text-xs font-semibold text-sidebar-foreground/40 uppercase tracking-wider">
@@ -255,10 +351,15 @@ export function DashboardSidebar() {
               <SidebarMenuItem key={href}>
                 <SidebarMenuButton
                   asChild
-                  className="flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                   tooltip={isCollapsed ? label : undefined}
                 >
-                  <Link href={href}>
+                  <Link
+                    href={href}
+                    onClick={() => {
+                      if (isMobile) setOpenMobile(false);
+                    }}
+                  >
                     <Icon className="h-4 w-4 flex-shrink-0" />
                     {!isCollapsed && (
                       <span className="font-medium truncate">{label}</span>
@@ -272,10 +373,15 @@ export function DashboardSidebar() {
             <SidebarMenuItem>
               <SidebarMenuButton
                 onClick={handleLogout}
-                className="flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 text-destructive hover:bg-destructive/10 hover:text-destructive cursor-pointer"
+                disabled={isLoggingOut}
+                className="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-destructive hover:bg-destructive/10 hover:text-destructive cursor-pointer disabled:opacity-60"
                 tooltip={isCollapsed ? (direction === 'ltr' ? 'Sign Out' : 'تسجيل الخروج') : undefined}
               >
-                <LogOut className="h-4 w-4 flex-shrink-0" />
+                {isLoggingOut ? (
+                  <Loader2 className="h-4 w-4 flex-shrink-0 animate-spin" />
+                ) : (
+                  <LogOut className="h-4 w-4 flex-shrink-0" />
+                )}
                 {!isCollapsed && (
                   <span className="font-medium truncate">
                     {direction === 'ltr' ? 'Sign Out' : 'تسجيل الخروج'}
@@ -288,47 +394,59 @@ export function DashboardSidebar() {
       </SidebarContent>
 
       {/* Footer */}
-      <SidebarFooter className="border-t border-sidebar-border p-4 bg-transparent">
+      <SidebarFooter className="border-t border-sidebar-border p-3 bg-sidebar mt-auto space-y-2">
+        {/* Language & Theme Controls on Mobile */}
+        {isMobile && (
+          <div className="flex items-center justify-between gap-2 pb-2 border-b border-sidebar-border/60">
+            <span className="text-xs font-medium text-sidebar-foreground/70">
+              {direction === 'ltr' ? 'Appearance & Language' : 'المظهر واللغة'}
+            </span>
+            <div className="flex items-center gap-2">
+              <ThemeToggle />
+              <LocaleSwitcher />
+            </div>
+          </div>
+        )}
+
         {isClient && (
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 w-full">
             {!isCollapsed ? (
               <>
-                <Avatar className="h-10 w-10 border-2 border-primary-foreground/20 flex-shrink-0">
+                <Avatar className="h-9 w-9 border-2 border-primary-foreground/20 flex-shrink-0">
                   {profile?.profileUrl ? (
                     <AvatarImage src={profile.profileUrl} alt="Profile" />
                   ) : (
                     <AvatarImage
-                      src="/placeholder.svg?height=40&width=40"
+                      src="/placeholder.svg?height=36&width=36"
                       alt="Profile"
                     />
                   )}
-                  <AvatarFallback className="bg-primary-light text-white text-sm font-medium">
-                    {getInitials(profile?.name || session.user.name || '')}
+                  <AvatarFallback className="bg-primary-light text-white text-xs font-semibold">
+                    {getInitials(profile?.name || session.user?.name || '')}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-sidebar-foreground truncate">
-                    {profile?.name || session.user.name || 'User'}
+                  <p className="text-sm font-semibold text-sidebar-foreground truncate">
+                    {profile?.name || session.user?.name || 'User'}
                   </p>
-                  <p className="text-xs text-sidebar-foreground/70 truncate">
+                  <p className="text-xs text-sidebar-foreground/60 truncate">
                     {profile?.email || ''}
                   </p>
                 </div>
               </>
             ) : (
-              // Fixed: Centered avatar with proper container
               <div className="w-full flex justify-center">
-                <Avatar className="h-10 w-10 border-2 border-primary-foreground/20 hover:border-primary-foreground/40 transition-all duration-300 hover:scale-105">
+                <Avatar className="h-8 w-8 border-2 border-primary-foreground/20 hover:border-primary-foreground/40 transition-all duration-300 hover:scale-105">
                   {profile?.profileUrl ? (
                     <AvatarImage src={profile.profileUrl} alt="Profile" />
                   ) : (
                     <AvatarImage
-                      src="/placeholder.svg?height=40&width=40"
+                      src="/placeholder.svg?height=32&width=32"
                       alt="Profile"
                     />
                   )}
-                  <AvatarFallback className="bg-primary-light text-white text-sm font-medium">
-                    {getInitials(profile?.name || session.user.name || '')}
+                  <AvatarFallback className="bg-primary-light text-white text-xs font-semibold">
+                    {getInitials(profile?.name || session.user?.name || '')}
                   </AvatarFallback>
                 </Avatar>
               </div>

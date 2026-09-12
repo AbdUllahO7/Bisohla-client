@@ -7,48 +7,68 @@ import { useSettings } from '@/providers/settings.provider';
 
 const FALLBACK_LOGO = '/assets/images/logo/bishola.png';
 
+const getOptimizedLogoSrc = (url: string | undefined | null) => {
+  if (!url) return FALLBACK_LOGO;
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return `/api/logo?url=${encodeURIComponent(url)}`;
+  }
+  return url;
+};
+
 const Logo = ({
   className,
+  imageClassName,
   width,
   height,
 }: {
   className?: string;
+  imageClassName?: string;
   width?: number;
   height?: number;
 }) => {
   const router = useRouter();
   const { getLogo, isLoading } = useSettings();
   const logoUrl = getLogo();
-  const [imgSrc, setImgSrc] = useState<string>(logoUrl || FALLBACK_LOGO);
+  const [imgSrc, setImgSrc] = useState<string>(() => getOptimizedLogoSrc(logoUrl));
 
   useEffect(() => {
     if (logoUrl) {
-      setImgSrc(logoUrl);
+      setImgSrc(getOptimizedLogoSrc(logoUrl));
     }
   }, [logoUrl]);
 
   if (isLoading) {
     return (
-      <div className="flex items-center">
-        <div className="h-6 w-28 bg-gray-200 dark:bg-zinc-800 rounded animate-pulse"></div>
+      <div className={cn('flex items-center flex-shrink-0', className)}>
+        <div className="h-6 sm:h-7 md:h-8 w-20 sm:w-24 md:w-28 bg-gray-200 dark:bg-zinc-800 rounded animate-pulse"></div>
       </div>
     );
   }
 
+  const isCustomSize = width !== undefined || height !== undefined;
+  const defaultWidth = width || 135;
+  const defaultHeight = height || 32;
+
   return (
     <div
-      className={cn('flex cursor-pointer items-center', className)}
+      className={cn('flex cursor-pointer items-center flex-shrink-0', className)}
       onClick={() => router.push('/')}
     >
       <Image
         src={imgSrc || FALLBACK_LOGO}
         alt="Bishola Logo"
-        width={width || 120}
-        height={height || 30}
+        width={defaultWidth}
+        height={defaultHeight}
         priority
-        className="h-auto w-auto max-h-8 sm:max-h-9 object-contain"
+        className={cn(
+          'object-contain transition-all duration-200',
+          !isCustomSize && 'h-6 sm:h-7 md:h-8 w-auto max-w-[85px] sm:max-w-[105px] md:max-w-[130px]',
+          imageClassName
+        )}
         onError={() => {
-          if (imgSrc !== FALLBACK_LOGO) {
+          if (imgSrc.startsWith('/api/logo') && logoUrl) {
+            setImgSrc(logoUrl);
+          } else if (imgSrc !== FALLBACK_LOGO) {
             setImgSrc(FALLBACK_LOGO);
           }
         }}

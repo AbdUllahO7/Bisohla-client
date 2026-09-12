@@ -41,10 +41,10 @@ export const InteractiveMapContainer: React.FC<InteractiveMapContainerProps> = (
 }) => {
   const isRtl = locale === 'ar';
   const { toast } = useToast();
-  const { isMapEnabled, getMapSettings, getGoogleMapsApiKey, isLoading: isSettingsLoading } = useSettings();
+  const { isMapEnabled, getMapSettings, getGoogleMapsApiKey, getGoogleGeocodingApiKey, isLoading: isSettingsLoading } = useSettings();
   const mapEnabled = isMapEnabled();
   const mapSettings = getMapSettings();
-  const mapApiKey = getGoogleMapsApiKey();
+  const mapApiKey = getGoogleGeocodingApiKey() || getGoogleMapsApiKey();
 
   const [availableTypes, setAvailableTypes] = useState<{ id: number; name: string }[]>(
     initialListingTypes,

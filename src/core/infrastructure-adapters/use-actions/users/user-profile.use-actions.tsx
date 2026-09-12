@@ -20,15 +20,17 @@ import { useLocaleQuery } from '../common/use-locale-query';
 import { useToast } from '@/hooks/use-toast';
 import { useTranslations } from 'next-intl';
 
-export const useGetMyProfile = () => {
+export const useGetMyProfile = (options?: { enabled?: boolean }) => {
   const session = useSession();
   const { user } = session;
+  const isAuth = Boolean(user?.id && user.id > 0);
 
   return useLocaleQuery<ApiResponse<GetUserProfile>>({
     queryKey: ['auth-profile', user.id],
     queryFn: async () => await getMyProfile(),
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
+    enabled: isAuth && (options?.enabled ?? true),
   });
 };
 

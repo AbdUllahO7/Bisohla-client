@@ -43,6 +43,11 @@ const SignInPage = () => {
       // Invalidate auth-related queries
       queryClient.invalidateQueries({ queryKey: ['session'] });
       queryClient.invalidateQueries({ queryKey: ['check-auth-user'] });
+      queryClient.invalidateQueries({ queryKey: ['legal-pending'] });
+      queryClient.invalidateQueries({ queryKey: ['profile'] });
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('login-success'));
+      }
     }
   }, [state.success, queryClient]);
 

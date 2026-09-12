@@ -16,27 +16,24 @@ interface ProductDetailsBox {
   gradientTo: string;
 }
 
-// Define the type for your actual damage data structure
+/** One stored `damages` row — keyed by child slug exactly as the wizard writes it. */
 interface CarDamage {
-  id: number;
-  carListingId: number;
-  damageType?: string;
   damage_type?: string;
-  damageZone?: string;
   damage_zone?: string;
-  description: string | null;
-  createdAt: string;
-  updatedAt: string;
+  damageType?: string;
+  damageZone?: string;
+  description?: string | null;
 }
 
 interface AccordionProductDetailsProps {
   damages?: CarDamage[];
-  listingTypeId?: number;
+  /** Which silhouette to draw; `null` shows the type cards only. */
+  blueprint?: 'car' | 'motorcycle' | null;
 }
 
 const AccordionProductDetails: React.FC<AccordionProductDetailsProps> = ({
   damages = [],
-  listingTypeId,
+  blueprint = null,
 }) => {
   const t = useTranslations('product');
 
@@ -111,7 +108,7 @@ const AccordionProductDetails: React.FC<AccordionProductDetailsProps> = ({
   return (
     <div className="w-full flex flex-col lg:flex-row gap-8 items-start">
       {/* Visual Blueprint Summary Card */}
-      {(Number(listingTypeId) === 1 || Number(listingTypeId) === 2) && (
+      {blueprint != null && (
         <div className="w-full lg:w-[340px] bg-gradient-to-b from-white to-slate-50 dark:from-zinc-900 dark:to-zinc-950 rounded-3xl p-5 border-2 border-slate-200 dark:border-zinc-700 shadow-xl flex flex-col items-center shrink-0">
           {/* Header with count badge */}
           <div className="w-full flex items-center justify-between mb-4">
@@ -134,7 +131,7 @@ const AccordionProductDetails: React.FC<AccordionProductDetailsProps> = ({
 
           {/* Blueprint */}
           <div className="w-full max-w-[280px] rounded-2xl bg-slate-100/60 dark:bg-zinc-800/40 p-3 border border-slate-200 dark:border-zinc-700">
-            {Number(listingTypeId) === 2 ? (
+            {blueprint === 'motorcycle' ? (
               <MotorcycleBlueprint damages={damages} isInteractive={false} />
             ) : (
               <CarBlueprint damages={damages} isInteractive={false} />

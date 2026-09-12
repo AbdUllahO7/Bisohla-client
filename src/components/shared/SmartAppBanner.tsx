@@ -7,11 +7,13 @@ import { useSettings } from '@/providers/settings.provider';
 import Image from 'next/image';
 import { mapWebUrlToDeepLink } from '@/lib/utils/link-to-deep-link';
 
+const FALLBACK_APP_LOGO = '/assets/images/logo/bisholaLogo2.jpg';
+
 export default function SmartAppBanner() {
   const t = useTranslations('smartAppBanner');
   const locale = useLocale();
   const direction = locale === 'ar' ? 'rtl' : 'ltr';
-  const { getAppSettings, getFavicon, isLoading } = useSettings();
+  const { getAppSettings, getAppLogo, isLoading } = useSettings();
 
   const [showBanner, setShowBanner] = useState(false);
   const [platform, setPlatform] = useState<'ios' | 'android' | null>(null);
@@ -19,7 +21,14 @@ export default function SmartAppBanner() {
 
   const appStoreUrl = getAppSettings()?.app_info?.app_store_url;
   const playStoreUrl = getAppSettings()?.app_info?.play_store_url;
-  const logo = getFavicon();
+  const logo = getAppLogo();
+  const [imgSrc, setImgSrc] = useState<string>(logo || FALLBACK_APP_LOGO);
+
+  useEffect(() => {
+    if (logo) {
+      setImgSrc(logo);
+    }
+  }, [logo]);
 
   useEffect(() => {
     const userAgent = navigator.userAgent;
@@ -106,12 +115,17 @@ export default function SmartAppBanner() {
     >
       <div className="flex items-center gap-3 p-4 max-w-screen-xl mx-auto">
         {/* App Icon */}
-        <div className="relative w-16 h-16 rounded-xl shadow-md overflow-hidden flex-shrink-0">
+        <div className="relative w-16 h-16 rounded-xl shadow-md overflow-hidden flex-shrink-0 bg-white dark:bg-zinc-800">
           <Image
-            src={logo}
+            src={imgSrc || FALLBACK_APP_LOGO}
             alt="Bishola App"
             fill
             className="object-contain p-1"
+            onError={() => {
+              if (imgSrc !== FALLBACK_APP_LOGO) {
+                setImgSrc(FALLBACK_APP_LOGO);
+              }
+            }}
           />
         </div>
 

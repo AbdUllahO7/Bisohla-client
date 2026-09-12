@@ -1,4 +1,4 @@
-// NestedCarFilter.tsx - Fixed Multi-Brand Support
+// NestedCarFilter.tsx - Fixed Multi-Brand Support with Pagination and Safe Image Handling
 'use client';
 
 import React, {
@@ -30,6 +30,34 @@ import {
   SelectCarModelDto,
   SelectCarTrimDto,
 } from '@/core/entities/models/cars/cars.dto';
+
+// =============================================================================
+// UTILITIES
+// =============================================================================
+
+/**
+ * Validates whether a URL string is safe to be passed to Next.js <Image />.
+ * Avoids runtime crash `Failed to construct 'URL': Invalid URL`.
+ */
+export const isValidImageUrl = (url?: string | null): boolean => {
+  if (!url || typeof url !== 'string') return false;
+  const trimmed = url.trim();
+  if (
+    !trimmed ||
+    trimmed === 'null' ||
+    trimmed === 'undefined' ||
+    trimmed === '[object Object]' ||
+    trimmed === 'NaN'
+  ) {
+    return false;
+  }
+  return (
+    trimmed.startsWith('http://') ||
+    trimmed.startsWith('https://') ||
+    trimmed.startsWith('/') ||
+    trimmed.startsWith('data:image/')
+  );
+};
 
 // =============================================================================
 // TYPES & INTERFACES
@@ -97,12 +125,7 @@ interface SimplifiedNestedCarFilterProps {
 }
 
 // =============================================================================
-// MAIN COMPONENT
-// =============================================================================
-
-
-// =============================================================================
-// SUB-COMPONENTS & TYPES
+// SUB-COMPONENTS
 // =============================================================================
 
 interface TrimItemProps {
@@ -113,15 +136,17 @@ interface TrimItemProps {
 
 const TrimItem: React.FC<TrimItemProps> = React.memo(({ trim, isRTL, onTrimSelect }) => (
   <div
-    className={`rounded border transition-all duration-200 ${trim.isSelected
+    className={`rounded border transition-all duration-200 ${
+      trim.isSelected
         ? 'bg-white dark:bg-zinc-900 border-primary/30 dark:border-[#ABDE3B]/30 shadow-sm'
         : 'bg-white/50 dark:bg-zinc-900/50 border-slate-200 dark:border-zinc-800 hover:bg-white dark:hover:bg-zinc-900'
-      }`}
+    }`}
   >
     <div className="p-2">
       <div
-        className={`flex items-center w-full ${isRTL ? 'text-right' : 'text-left'
-          }`}
+        className={`flex items-center w-full ${
+          isRTL ? 'text-right' : 'text-left'
+        }`}
       >
         <Checkbox
           id={`trim-${trim.value}`}
@@ -131,16 +156,24 @@ const TrimItem: React.FC<TrimItemProps> = React.memo(({ trim, isRTL, onTrimSelec
         />
         <Label
           htmlFor={`trim-${trim.value}`}
-          className={`text-sm cursor-pointer flex items-center ${trim.isSelected ? 'text-primary dark:text-[#ABDE3B] font-medium' : 'text-slate-500 dark:text-zinc-400'
-            } ${isRTL ? 'pr-2' : 'pl-2'}`}
+          className={`text-sm cursor-pointer flex items-center ${
+            trim.isSelected
+              ? 'text-primary dark:text-[#ABDE3B] font-medium'
+              : 'text-slate-500 dark:text-zinc-400'
+          } ${isRTL ? 'pr-2' : 'pl-2'}`}
         >
           {trim.isSelected && (
             <Star
-              className={`w-3 h-3 text-primary dark:text-[#ABDE3B] fill-current ${isRTL ? 'ml-1' : 'mr-1'
-                }`}
+              className={`w-3 h-3 text-primary dark:text-[#ABDE3B] fill-current ${
+                isRTL ? 'ml-1' : 'mr-1'
+              }`}
             />
           )}
-          <span className="truncate">{trim.label}</span>
+          <span className="truncate">
+            {trim.label || (
+              <span className="inline-block h-4 w-16 bg-slate-200 dark:bg-zinc-700 animate-pulse rounded align-middle" />
+            )}
+          </span>
         </Label>
       </div>
     </div>
@@ -179,6 +212,10 @@ const ModelItem: React.FC<ModelItemProps> = React.memo(({
   onModelSelect,
 }) => {
   const isExpanded = expandedModels.has(model.value);
+  const trimsObserverRef = useRef<HTMLDivElement>(null);
+  const knownTrimsRef = useRef<Map<string, { label: string; modelId: string }>>(new Map());
+
+  // Paginated Trims Query
   const trimsQuery = useInfiniteQuery({
     queryKey: [...carTrimsConfig.queryKey, model.value, locale],
     queryFn: async ({ pageParam = 1 }) => {
@@ -195,9 +232,9 @@ const ModelItem: React.FC<ModelItemProps> = React.memo(({
       return response;
     },
     getNextPageParam: (lastPage) => {
-      if (!lastPage.data) return undefined;
+      if (!lastPage?.data) return undefined;
       return lastPage.data.hasNextPage
-        ? Number(lastPage.data.currentPage) + 1
+        ? Number(lastPage.data.currentPage || 1) + 1
         : undefined;
     },
     initialPageParam: 1,
@@ -206,43 +243,132 @@ const ModelItem: React.FC<ModelItemProps> = React.memo(({
     refetchOnWindowFocus: false,
   });
 
-  const trims = useMemo(() => {
-    if (!trimsQuery.data?.pages) return [];
+  const {
+    fetchNextPage: fetchNextTrimsPage,
+    hasNextPage: hasNextTrimsPage,
+    isFetchingNextPage: isFetchingNextTrimsPage,
+  } = trimsQuery;
 
-    return trimsQuery.data.pages
-      .flatMap((page) => page.data?.data || [])
-      .map((item: any) => ({
-        value: String(item[carTrimsConfig.valueField]),
-        label: String(item[carTrimsConfig.labelField]),
-        modelId: String(item.modelId),
-        isSelected: selectedTrim === String(item[carTrimsConfig.valueField]),
-      }))
-      .sort((a, b) => {
-        if (a.isSelected && !b.isSelected) return -1;
-        if (!a.isSelected && b.isSelected) return 1;
-        return a.label.localeCompare(b.label, locale, {
-          numeric: true,
-          sensitivity: 'base',
+  // Track known trims in ref to persist label info
+  useEffect(() => {
+    if (trimsQuery.data?.pages) {
+      trimsQuery.data.pages.forEach((page) => {
+        page.data?.data?.forEach((item: any) => {
+          const trimValue = String(item[carTrimsConfig.valueField]);
+          const label = String(item[carTrimsConfig.labelField]);
+          const modelId = String(item.modelId || model.value);
+          knownTrimsRef.current.set(trimValue, { label, modelId });
         });
       });
-  }, [trimsQuery.data?.pages, carTrimsConfig, selectedTrim, locale]);
+    }
+  }, [trimsQuery.data?.pages, carTrimsConfig, model.value]);
+
+  // Auto-paginate until selectedTrim is found
+  useEffect(() => {
+    if (selectedTrim && isExpanded && hasNextTrimsPage && !isFetchingNextTrimsPage) {
+      const isTrimFound = trimsQuery.data?.pages?.some((page) =>
+        page.data?.data?.some(
+          (item: any) => String(item[carTrimsConfig.valueField]) === selectedTrim,
+        ),
+      );
+      if (!isTrimFound) {
+        fetchNextTrimsPage();
+      }
+    }
+  }, [
+    selectedTrim,
+    isExpanded,
+    hasNextTrimsPage,
+    isFetchingNextTrimsPage,
+    trimsQuery.data,
+    carTrimsConfig.valueField,
+    fetchNextTrimsPage,
+  ]);
+
+  // Infinite scroll observer for trims
+  useEffect(() => {
+    if (!trimsObserverRef.current || !isExpanded) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (
+          entry.isIntersecting &&
+          hasNextTrimsPage &&
+          !isFetchingNextTrimsPage
+        ) {
+          fetchNextTrimsPage();
+        }
+      },
+      { threshold: 0.1, rootMargin: '40px' },
+    );
+
+    observer.observe(trimsObserverRef.current);
+    return () => observer.disconnect();
+  }, [hasNextTrimsPage, isFetchingNextTrimsPage, fetchNextTrimsPage, isExpanded]);
+
+  const trims = useMemo(() => {
+    const allTrimsMap = new Map<string, CarTrim>();
+
+    // 1. Maintain selected trim if present
+    if (selectedTrim) {
+      const cached = knownTrimsRef.current.get(selectedTrim);
+      allTrimsMap.set(selectedTrim, {
+        value: selectedTrim,
+        label: cached?.label || '',
+        modelId: model.value,
+        isSelected: true,
+      });
+    }
+
+    // 2. Populate from paginated data
+    if (trimsQuery.data?.pages) {
+      trimsQuery.data.pages
+        .flatMap((page) => page.data?.data || [])
+        .forEach((item: any) => {
+          const trimValue = String(item[carTrimsConfig.valueField]);
+          const label = String(item[carTrimsConfig.labelField]);
+          const modelId = String(item.modelId || model.value);
+          const isSelected = selectedTrim === trimValue;
+
+          allTrimsMap.set(trimValue, {
+            value: trimValue,
+            label,
+            modelId,
+            isSelected,
+          });
+        });
+    }
+
+    return Array.from(allTrimsMap.values()).sort((a, b) => {
+      if (a.isSelected && !b.isSelected) return -1;
+      if (!a.isSelected && b.isSelected) return 1;
+      return (a.label || '').localeCompare(b.label || '', locale, {
+        numeric: true,
+        sensitivity: 'base',
+      });
+    });
+  }, [trimsQuery.data?.pages, carTrimsConfig, selectedTrim, model.value, locale]);
 
   return (
     <div className="mb-1">
       <div
-        className={`rounded-md border transition-all duration-200 ${model.isSelected
+        className={`rounded-md border transition-all duration-200 ${
+          model.isSelected
             ? 'bg-white dark:bg-zinc-900 border-primary/30 dark:border-[#ABDE3B]/30 shadow-sm'
             : 'bg-white/70 dark:bg-zinc-900/70 border-slate-200 dark:border-zinc-800 hover:bg-white dark:hover:bg-zinc-900'
-          }`}
+        }`}
       >
         <div className="p-2">
           <div
-            className={`flex items-center w-full ${isRTL ? 'text-right' : 'text-left'
-              }`}
+            className={`flex items-center w-full ${
+              isRTL ? 'text-right' : 'text-left'
+            }`}
           >
             <div
-              className={`flex items-center flex-1 ${isRTL ? 'flex-row' : 'justify-start'
-                }`}
+              className={`flex items-center flex-1 ${
+                isRTL ? 'flex-row' : 'justify-start'
+              }`}
             >
               <Checkbox
                 id={`model-${model.value}`}
@@ -252,18 +378,24 @@ const ModelItem: React.FC<ModelItemProps> = React.memo(({
               />
               <Label
                 htmlFor={`model-${model.value}`}
-                className={`text-sm cursor-pointer flex items-center ${model.isSelected
+                className={`text-sm cursor-pointer flex items-center ${
+                  model.isSelected
                     ? 'text-primary dark:text-[#ABDE3B] font-medium'
                     : 'text-slate-600 dark:text-zinc-350'
-                  } ${isRTL ? 'pr-2' : 'pl-2'}`}
+                } ${isRTL ? 'pr-2' : 'pl-2'}`}
               >
                 {model.isSelected && (
                   <Star
-                    className={`w-3 h-3 text-primary dark:text-[#ABDE3B] fill-current ${isRTL ? 'ml-1' : 'mr-1'
-                      }`}
+                    className={`w-3 h-3 text-primary dark:text-[#ABDE3B] fill-current ${
+                      isRTL ? 'ml-1' : 'mr-1'
+                    }`}
                   />
                 )}
-                <span className="truncate">{model.label}</span>
+                <span className="truncate">
+                  {model.label || (
+                    <span className="inline-block h-4 w-20 bg-slate-200 dark:bg-zinc-700 animate-pulse rounded align-middle" />
+                  )}
+                </span>
               </Label>
             </div>
 
@@ -288,8 +420,9 @@ const ModelItem: React.FC<ModelItemProps> = React.memo(({
                   <ChevronDown className="w-3 h-3 text-primary dark:text-[#ABDE3B]" />
                 ) : (
                   <ChevronRight
-                    className={`w-3 h-3 text-primary dark:text-[#ABDE3B] ${isRTL ? 'rotate-180' : ''
-                      }`}
+                    className={`w-3 h-3 text-primary dark:text-[#ABDE3B] ${
+                      isRTL ? 'rotate-180' : ''
+                    }`}
                   />
                 )}
               </button>
@@ -302,20 +435,40 @@ const ModelItem: React.FC<ModelItemProps> = React.memo(({
             {trimsQuery.isLoading ? (
               <div className="flex items-center p-2 text-sm text-slate-500 dark:text-zinc-400">
                 <Loader2
-                  className={`w-4 h-4 animate-spin ${isRTL ? 'ml-2' : 'mr-2'
-                    }`}
+                  className={`w-4 h-4 animate-spin ${
+                    isRTL ? 'ml-2' : 'mr-2'
+                  }`}
                 />
                 {isRTL ? 'التحميل...' : 'Loading trims...'}
               </div>
+            ) : trims.length === 0 ? (
+              <div className="p-2 text-xs text-slate-500 dark:text-zinc-400">
+                {isRTL ? 'لم يتم العثور على فئات' : 'No trims found'}
+              </div>
             ) : (
-              trims.map((trim) => (
-                <TrimItem
-                  key={trim.value}
-                  trim={trim}
-                  isRTL={isRTL}
-                  onTrimSelect={onTrimSelect}
-                />
-              ))
+              <>
+                {trims.map((trim) => (
+                  <TrimItem
+                    key={trim.value}
+                    trim={trim}
+                    isRTL={isRTL}
+                    onTrimSelect={onTrimSelect}
+                  />
+                ))}
+
+                {isFetchingNextTrimsPage && (
+                  <div className="flex justify-center items-center p-2">
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-primary dark:text-[#ABDE3B] mr-1.5" />
+                    <span className="text-xs text-slate-500 dark:text-zinc-400">
+                      {isRTL ? 'جارٍ تحميل المزيد...' : 'Loading more...'}
+                    </span>
+                  </div>
+                )}
+
+                {hasNextTrimsPage && (
+                  <div ref={trimsObserverRef} className="h-2 w-full" />
+                )}
+              </>
             )}
           </div>
         )}
@@ -374,6 +527,11 @@ const BrandItem: React.FC<BrandItemProps> = React.memo(({
   handleBrandToggle,
 }) => {
   const isExpanded = expandedBrands.has(brand.value);
+  const [imageError, setImageError] = useState(false);
+  const modelsObserverRef = useRef<HTMLDivElement>(null);
+  const knownModelsRef = useRef<Map<string, { label: string; makeId: string }>>(new Map());
+
+  // Paginated Models Query
   const modelsQuery = useInfiniteQuery({
     queryKey: [...carModelsConfig.queryKey, brand.value, locale],
     queryFn: async ({ pageParam = 1 }) => {
@@ -390,9 +548,9 @@ const BrandItem: React.FC<BrandItemProps> = React.memo(({
       return response;
     },
     getNextPageParam: (lastPage) => {
-      if (!lastPage.data) return undefined;
+      if (!lastPage?.data) return undefined;
       return lastPage.data.hasNextPage
-        ? Number(lastPage.data.currentPage) + 1
+        ? Number(lastPage.data.currentPage || 1) + 1
         : undefined;
     },
     initialPageParam: 1,
@@ -401,44 +559,132 @@ const BrandItem: React.FC<BrandItemProps> = React.memo(({
     refetchOnWindowFocus: false,
   });
 
-  const models = useMemo(() => {
-    if (!modelsQuery.data?.pages) return [];
+  const {
+    fetchNextPage: fetchNextModelsPage,
+    hasNextPage: hasNextModelsPage,
+    isFetchingNextPage: isFetchingNextModelsPage,
+  } = modelsQuery;
 
-    return modelsQuery.data.pages
-      .flatMap((page) => page.data?.data || [])
-      .map((item: any) => ({
-        value: String(item[carModelsConfig.valueField]),
-        label: String(item[carModelsConfig.labelField]),
-        makeId: String(item.makeId),
-        isSelected:
-          selectedModel === String(item[carModelsConfig.valueField]),
-      }))
-      .sort((a, b) => {
-        if (a.isSelected && !b.isSelected) return -1;
-        if (!a.isSelected && b.isSelected) return 1;
-        return a.label.localeCompare(b.label, locale, {
-          numeric: true,
-          sensitivity: 'base',
+  // Track known models in ref to persist label info
+  useEffect(() => {
+    if (modelsQuery.data?.pages) {
+      modelsQuery.data.pages.forEach((page) => {
+        page.data?.data?.forEach((item: any) => {
+          const modelValue = String(item[carModelsConfig.valueField]);
+          const label = String(item[carModelsConfig.labelField]);
+          const makeId = String(item.makeId || brand.value);
+          knownModelsRef.current.set(modelValue, { label, makeId });
         });
       });
-  }, [modelsQuery.data?.pages, carModelsConfig, selectedModel, locale]);
+    }
+  }, [modelsQuery.data?.pages, carModelsConfig, brand.value]);
+
+  // Auto-paginate until selectedModel is found
+  useEffect(() => {
+    if (selectedModel && isExpanded && hasNextModelsPage && !isFetchingNextModelsPage) {
+      const isModelFound = modelsQuery.data?.pages?.some((page) =>
+        page.data?.data?.some(
+          (item: any) => String(item[carModelsConfig.valueField]) === selectedModel,
+        ),
+      );
+      if (!isModelFound) {
+        fetchNextModelsPage();
+      }
+    }
+  }, [
+    selectedModel,
+    isExpanded,
+    hasNextModelsPage,
+    isFetchingNextModelsPage,
+    modelsQuery.data,
+    carModelsConfig.valueField,
+    fetchNextModelsPage,
+  ]);
+
+  // Infinite scroll observer for models
+  useEffect(() => {
+    if (!modelsObserverRef.current || !isExpanded) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (
+          entry.isIntersecting &&
+          hasNextModelsPage &&
+          !isFetchingNextModelsPage
+        ) {
+          fetchNextModelsPage();
+        }
+      },
+      { threshold: 0.1, rootMargin: '40px' },
+    );
+
+    observer.observe(modelsObserverRef.current);
+    return () => observer.disconnect();
+  }, [hasNextModelsPage, isFetchingNextModelsPage, fetchNextModelsPage, isExpanded]);
+
+  const models = useMemo(() => {
+    const allModelsMap = new Map<string, CarModel>();
+
+    // 1. Maintain selected model if present
+    if (selectedModel) {
+      const cached = knownModelsRef.current.get(selectedModel);
+      allModelsMap.set(selectedModel, {
+        value: selectedModel,
+        label: cached?.label || '',
+        makeId: brand.value,
+        isSelected: true,
+      });
+    }
+
+    // 2. Populate from paginated data
+    if (modelsQuery.data?.pages) {
+      modelsQuery.data.pages
+        .flatMap((page) => page.data?.data || [])
+        .forEach((item: any) => {
+          const modelValue = String(item[carModelsConfig.valueField]);
+          const label = String(item[carModelsConfig.labelField]);
+          const makeId = String(item.makeId || brand.value);
+          const isSelected = selectedModel === modelValue;
+
+          allModelsMap.set(modelValue, {
+            value: modelValue,
+            label,
+            makeId,
+            isSelected,
+          });
+        });
+    }
+
+    return Array.from(allModelsMap.values()).sort((a, b) => {
+      if (a.isSelected && !b.isSelected) return -1;
+      if (!a.isSelected && b.isSelected) return 1;
+      return (a.label || '').localeCompare(b.label || '', locale, {
+        numeric: true,
+        sensitivity: 'base',
+      });
+    });
+  }, [modelsQuery.data?.pages, carModelsConfig, selectedModel, brand.value, locale]);
 
   return (
     <div className="mb-2">
       <div
-        className={`rounded-lg border transition-all duration-200 ${brand.isSelected
+        className={`rounded-lg border transition-all duration-200 ${
+          brand.isSelected
             ? 'bg-primary/10 dark:bg-[#ABDE3B]/10 border-primary/30 dark:border-[#ABDE3B]/30 shadow-sm'
             : 'bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 hover:border-slate-300 dark:hover:border-zinc-700'
-          }`}
+        }`}
       >
         <div className="p-3">
           <div
-            className={`flex items-center w-full ${isRTL ? 'text-right' : 'text-left'
-              }`}
+            className={`flex items-center w-full ${
+              isRTL ? 'text-right' : 'text-left'
+            }`}
           >
             <div
-              className={`flex items-center flex-1 ${isRTL ? 'flex-row' : 'justify-start'
-                }`}
+              className={`flex items-center flex-1 ${
+                isRTL ? 'flex-row' : 'justify-start'
+              }`}
             >
               <Checkbox
                 id={`brand-${brand.value}`}
@@ -448,30 +694,40 @@ const BrandItem: React.FC<BrandItemProps> = React.memo(({
               />
               <Label
                 htmlFor={`brand-${brand.value}`}
-                className={`text-sm font-medium cursor-pointer flex items-center ${brand.isSelected ? 'text-primary dark:text-[#ABDE3B]' : 'text-slate-700 dark:text-zinc-300'
-                  } ${isRTL ? 'pr-3' : 'pl-3'}`}
+                className={`text-sm font-medium cursor-pointer flex items-center ${
+                  brand.isSelected
+                    ? 'text-primary dark:text-[#ABDE3B]'
+                    : 'text-slate-700 dark:text-zinc-300'
+                } ${isRTL ? 'pr-3' : 'pl-3'}`}
               >
                 {brand.isSelected && (
                   <Star
-                    className={`w-3 h-3 text-primary dark:text-[#ABDE3B] fill-current ${isRTL ? 'ml-2' : 'mr-2'
-                      }`}
+                    className={`w-3 h-3 text-primary dark:text-[#ABDE3B] fill-current ${
+                      isRTL ? 'ml-2' : 'mr-2'
+                    }`}
                   />
                 )}
-                {brand.logoUrl && (
+                {brand.logoUrl && isValidImageUrl(brand.logoUrl) && !imageError && (
                   <div
-                    className={`relative w-6 h-6 flex-shrink-0 ${isRTL ? 'ml-2' : 'mr-2'
-                      }`}
+                    className={`relative w-6 h-6 flex-shrink-0 ${
+                      isRTL ? 'ml-2' : 'mr-2'
+                    }`}
                   >
                     <Image
                       src={brand.logoUrl}
-                      alt={brand.label}
+                      alt={brand.label || 'Brand'}
                       fill
                       className="object-contain rounded"
                       sizes="24px"
+                      onError={() => setImageError(true)}
                     />
                   </div>
                 )}
-                <span className="truncate">{brand.label}</span>
+                <span className="truncate">
+                  {brand.label || (
+                    <span className="inline-block h-4 w-24 bg-slate-200 dark:bg-zinc-700 animate-pulse rounded align-middle" />
+                  )}
+                </span>
               </Label>
             </div>
 
@@ -496,8 +752,9 @@ const BrandItem: React.FC<BrandItemProps> = React.memo(({
                   <ChevronDown className="w-4 h-4 text-primary dark:text-[#ABDE3B]" />
                 ) : (
                   <ChevronRight
-                    className={`w-4 h-4 text-primary dark:text-[#ABDE3B] ${isRTL ? 'rotate-180' : ''
-                      }`}
+                    className={`w-4 h-4 text-primary dark:text-[#ABDE3B] ${
+                      isRTL ? 'rotate-180' : ''
+                    }`}
                   />
                 )}
               </button>
@@ -510,8 +767,9 @@ const BrandItem: React.FC<BrandItemProps> = React.memo(({
             {modelsQuery.isLoading ? (
               <div className="flex items-center p-2 text-sm text-slate-500 dark:text-zinc-400">
                 <Loader2
-                  className={`w-4 h-4 animate-spin ${isRTL ? 'ml-2' : 'mr-2'
-                    }`}
+                  className={`w-4 h-4 animate-spin ${
+                    isRTL ? 'ml-2' : 'mr-2'
+                  }`}
                 />
                 {isRTL ? 'التحميل...' : 'Loading models...'}
               </div>
@@ -520,21 +778,36 @@ const BrandItem: React.FC<BrandItemProps> = React.memo(({
                 {isRTL ? 'لم يتم العثور على موديلات' : 'No models found'}
               </div>
             ) : (
-              models.map((model) => (
-                <ModelItem
-                  key={model.value}
-                  model={model}
-                  isCarTrimRequired={brand.isCarTrimRequired}
-                  locale={locale}
-                  isRTL={isRTL}
-                  expandedModels={expandedModels}
-                  setExpandedModels={setExpandedModels}
-                  carTrimsConfig={carTrimsConfig}
-                  selectedTrim={selectedTrim}
-                  onTrimSelect={onTrimSelect}
-                  onModelSelect={onModelSelect}
-                />
-              ))
+              <>
+                {models.map((model) => (
+                  <ModelItem
+                    key={model.value}
+                    model={model}
+                    isCarTrimRequired={brand.isCarTrimRequired}
+                    locale={locale}
+                    isRTL={isRTL}
+                    expandedModels={expandedModels}
+                    setExpandedModels={setExpandedModels}
+                    carTrimsConfig={carTrimsConfig}
+                    selectedTrim={selectedTrim}
+                    onTrimSelect={onTrimSelect}
+                    onModelSelect={onModelSelect}
+                  />
+                ))}
+
+                {isFetchingNextModelsPage && (
+                  <div className="flex justify-center items-center p-2">
+                    <Loader2 className="w-4 h-4 animate-spin text-primary dark:text-[#ABDE3B] mr-2" />
+                    <span className="text-xs text-slate-500 dark:text-zinc-400">
+                      {isRTL ? 'جارٍ تحميل المزيد من الموديلات...' : 'Loading more models...'}
+                    </span>
+                  </div>
+                )}
+
+                {hasNextModelsPage && (
+                  <div ref={modelsObserverRef} className="h-3 w-full" />
+                )}
+              </>
             )}
           </div>
         )}
@@ -543,6 +816,10 @@ const BrandItem: React.FC<BrandItemProps> = React.memo(({
   );
 });
 BrandItem.displayName = 'BrandItem';
+
+// =============================================================================
+// MAIN COMPONENT
+// =============================================================================
 
 const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
   carMakesConfig,
@@ -557,7 +834,7 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
   searchPlaceholder = 'Search brands...',
   noOptionsMessage = 'No options found',
   className = '',
-  pageSize = 20,
+  pageSize = 100,
   maxHeight = '30rem',
 }) => {
   // =============================================================================
@@ -574,14 +851,14 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
 
   const listRef = useRef<HTMLDivElement>(null);
   const observerRef = useRef<HTMLDivElement>(null);
+  const knownMakesRef = useRef<Map<string, { label: string; logoUrl?: string; isCarTrimRequired?: boolean }>>(new Map());
 
   const debouncedSearch = useDebounce(searchTerm, 300);
 
   // =============================================================================
-  // DATA FETCHING
+  // DATA FETCHING (BRANDS / MAKES)
   // =============================================================================
 
-  // Query params for makes
   const makesQueryParams = useMemo(
     (): QueryParams => ({
       page: 1,
@@ -616,9 +893,9 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
       return response;
     },
     getNextPageParam: (lastPage) => {
-      if (!lastPage.data) return undefined;
+      if (!lastPage?.data) return undefined;
       return lastPage.data.hasNextPage
-        ? Number(lastPage.data.currentPage) + 1
+        ? Number(lastPage.data.currentPage || 1) + 1
         : undefined;
     },
     initialPageParam: 1,
@@ -626,37 +903,86 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
     refetchOnWindowFocus: false,
   });
 
+  // Track known makes in ref to persist label info across searches
+  useEffect(() => {
+    if (makesData?.pages) {
+      makesData.pages.forEach((page) => {
+        page.data?.data?.forEach((item) => {
+          const makeValue = String(item[carMakesConfig.valueField]);
+          const label = String(item[carMakesConfig.labelField]);
+          const rawLogo = carMakesConfig.logoField
+            ? item[carMakesConfig.logoField]
+            : undefined;
+          const logoUrl =
+            typeof rawLogo === 'string' && isValidImageUrl(rawLogo)
+              ? rawLogo.trim()
+              : undefined;
+          const isCarTrimRequired = !!item.isCarTrimRequired;
+
+          knownMakesRef.current.set(makeValue, {
+            label,
+            logoUrl,
+            isCarTrimRequired,
+          });
+        });
+      });
+    }
+  }, [makesData?.pages, carMakesConfig]);
+
+  // Auto-paginate until all selectedBrands are found in loaded pages
+  useEffect(() => {
+    if (selectedBrands.length > 0 && hasNextMakesPage && !isFetchingNextMakesPage) {
+      const loadedMakeIds = new Set(
+        makesData?.pages?.flatMap((page) => page.data?.data || []).map((item) =>
+          String(item[carMakesConfig.valueField]),
+        ) || [],
+      );
+      const hasMissingBrand = selectedBrands.some((id) => !loadedMakeIds.has(id));
+      if (hasMissingBrand) {
+        fetchNextMakesPage();
+      }
+    }
+  }, [
+    selectedBrands,
+    hasNextMakesPage,
+    isFetchingNextMakesPage,
+    makesData,
+    carMakesConfig.valueField,
+    fetchNextMakesPage,
+  ]);
 
   // =============================================================================
   // DATA TRANSFORMATION
   // =============================================================================
 
-  // FIXED: Transform and sort makes data with proper multi-brand support
   const makes = useMemo(() => {
     const allMakes = new Map<string, CarMake>();
 
-    // 1. First, ensure selected brands are in the list even if not in current page
-    // Note: We might miss isCarTrimRequired for these if they are not in makesData
+    // 1. Maintain selected brands in list even before page loaded
     selectedBrands.forEach((brandId) => {
-      if (!allMakes.has(brandId)) {
-        allMakes.set(brandId, {
-          value: brandId,
-          label: `Brand ${brandId}`, // Fallback label
-          isSelected: true,
-          isCarTrimRequired: true, // Default to true to be safe, will be updated if found in data
-        });
-      }
+      const cached = knownMakesRef.current.get(brandId);
+      allMakes.set(brandId, {
+        value: brandId,
+        label: cached?.label || '',
+        logoUrl: cached?.logoUrl,
+        isSelected: true,
+        isCarTrimRequired: cached?.isCarTrimRequired ?? true,
+      });
     });
 
-    // 2. Then, add/update makes from search results
+    // 2. Populate and update from paginated results
     if (makesData?.pages) {
       makesData.pages.forEach((page) => {
-        page.data?.data.forEach((item) => {
+        page.data?.data?.forEach((item) => {
           const makeValue = String(item[carMakesConfig.valueField]);
           const label = String(item[carMakesConfig.labelField]);
-          const logoUrl = carMakesConfig.logoField
-            ? String(item[carMakesConfig.logoField])
+          const rawLogo = carMakesConfig.logoField
+            ? item[carMakesConfig.logoField]
             : undefined;
+          const logoUrl =
+            typeof rawLogo === 'string' && isValidImageUrl(rawLogo)
+              ? rawLogo.trim()
+              : undefined;
           const isSelected = selectedBrands.includes(makeValue);
           const isCarTrimRequired = !!item.isCarTrimRequired;
 
@@ -671,26 +997,23 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
       });
     }
 
-    // 3. Convert to array and sort: selected first, then alphabetically
+    // 3. Sort: Selected items first, then alphabetically
     return Array.from(allMakes.values()).sort((a, b) => {
-      // Selected items always come first
       if (a.isSelected && !b.isSelected) return -1;
       if (!a.isSelected && b.isSelected) return 1;
 
-      // Within same selection status, sort alphabetically
-      return a.label.localeCompare(b.label, locale, {
+      return (a.label || '').localeCompare(b.label || '', locale, {
         numeric: true,
         sensitivity: 'base',
       });
     });
   }, [makesData?.pages, selectedBrands, carMakesConfig, locale]);
 
-
   // =============================================================================
   // EFFECTS
   // =============================================================================
 
-  // FIXED: Auto-expand selected items properly
+  // Auto-expand selected items properly
   useEffect(() => {
     setExpandedBrands(new Set(selectedBrands));
     if (selectedModel) {
@@ -698,7 +1021,7 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
     }
   }, [selectedBrands, selectedModel]);
 
-  // Infinite scroll observer
+  // Infinite scroll observer for makes
   useEffect(() => {
     if (!observerRef.current || !listRef.current) return;
 
@@ -713,7 +1036,7 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
           fetchNextMakesPage();
         }
       },
-      { root: listRef.current, threshold: 0.1, rootMargin: '20px' },
+      { root: listRef.current, threshold: 0.1, rootMargin: '40px' },
     );
 
     observer.observe(observerRef.current);
@@ -724,18 +1047,14 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
   // EVENT HANDLERS
   // =============================================================================
 
-  // FIXED: Brand toggle handler with proper expansion logic
   const handleBrandToggle = useCallback(
     (brandId: string) => {
       onBrandToggle(brandId);
 
-      // Only auto-expand when selecting a brand, not when deselecting
       const willBeSelected = !selectedBrands.includes(brandId);
-
       if (willBeSelected) {
         setExpandedBrands((prev) => new Set([...prev, brandId]));
       } else {
-        // Optionally collapse when deselecting
         setExpandedBrands((prev) => {
           const newSet = new Set(prev);
           newSet.delete(brandId);
@@ -756,8 +1075,6 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
     [onModelSelect],
   );
 
-  // Render components moved outside to resolve Rules of Hooks violations
-
   // =============================================================================
   // MAIN RENDER
   // =============================================================================
@@ -768,9 +1085,13 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
       <div className="relative">
         <div className="relative group">
           <Search
-            className={`absolute ${isRTL ? 'right-3' : 'left-3'
-              } top-1/2 transform -translate-y-1/2 h-4 w-4 ${isFocused || searchTerm ? 'text-primary dark:text-[#ABDE3B]' : 'text-slate-400 dark:text-zinc-500'
-              }`}
+            className={`absolute ${
+              isRTL ? 'right-3' : 'left-3'
+            } top-1/2 transform -translate-y-1/2 h-4 w-4 ${
+              isFocused || searchTerm
+                ? 'text-primary dark:text-[#ABDE3B]'
+                : 'text-slate-400 dark:text-zinc-500'
+            }`}
           />
           <input
             type="text"
@@ -780,16 +1101,19 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
             onBlur={() => setIsFocused(false)}
             onKeyDown={(e) => e.key === 'Escape' && setSearchTerm('')}
             placeholder={searchPlaceholder}
-            className={`w-full border border-slate-200 dark:border-zinc-800 bg-[#EFEFEF] dark:bg-zinc-950 text-slate-800 dark:text-zinc-100 transition-all duration-200 ${isRTL ? 'pr-9 pl-8 text-right' : 'pl-9 pr-8 text-left'
-              } h-10 rounded-lg text-sm focus:outline-none focus:border-primary dark:focus:border-[#ABDE3B] focus:ring-1 focus:ring-primary/30 dark:focus:ring-[#ABDE3B]/30 hover:border-slate-300 dark:hover:border-zinc-700 ${isFocused ? 'bg-white dark:bg-zinc-900 shadow-sm' : ''
-              }`}
+            className={`w-full border border-slate-200 dark:border-zinc-800 bg-[#EFEFEF] dark:bg-zinc-950 text-slate-800 dark:text-zinc-100 transition-all duration-200 ${
+              isRTL ? 'pr-9 pl-8 text-right' : 'pl-9 pr-8 text-left'
+            } h-10 rounded-lg text-sm focus:outline-none focus:border-primary dark:focus:border-[#ABDE3B] focus:ring-1 focus:ring-primary/30 dark:focus:ring-[#ABDE3B]/30 hover:border-slate-300 dark:hover:border-zinc-700 ${
+              isFocused ? 'bg-white dark:bg-zinc-900 shadow-sm' : ''
+            }`}
           />
           {searchTerm && (
             <button
               type="button"
               onClick={() => setSearchTerm('')}
-              className={`absolute ${isRTL ? 'left-2' : 'right-2'
-                } top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-zinc-350`}
+              className={`absolute ${
+                isRTL ? 'left-2' : 'right-2'
+              } top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-zinc-350`}
             >
               <X className="h-4 w-4" />
             </button>
@@ -813,7 +1137,9 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
           ) : makes.length === 0 && !isLoadingMakes ? (
             <div className="p-4 text-center">
               <Search className="h-8 w-8 mx-auto opacity-50 mb-2 dark:text-zinc-400" />
-              <div className="text-sm text-slate-500 dark:text-zinc-400">{noOptionsMessage}</div>
+              <div className="text-sm text-slate-500 dark:text-zinc-400">
+                {noOptionsMessage}
+              </div>
             </div>
           ) : (
             <>
@@ -858,12 +1184,13 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
         </div>
       </div>
 
-      {/* FIXED: Selection Status with proper multi-brand display */}
+      {/* Selection Status with multi-brand display */}
       {(selectedBrands.length > 0 || selectedModel || selectedTrim) && (
         <div className="p-3 bg-primary/5 dark:bg-[#ABDE3B]/5 border border-primary/20 dark:border-[#ABDE3B]/20 rounded-lg">
           <div
-            className={`flex items-center justify-between text-xs ${isRTL ? 'flex-row-reverse' : ''
-              }`}
+            className={`flex items-center justify-between text-xs ${
+              isRTL ? 'flex-row-reverse' : ''
+            }`}
           >
             <div className={isRTL ? 'text-right' : 'text-left'}>
               <span className="font-medium">
@@ -891,7 +1218,6 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
               variant="ghost"
               size="sm"
               onClick={() => {
-                // FIXED: Clear all selected brands properly
                 selectedBrands.forEach((brandId) => onBrandToggle(brandId));
                 if (selectedModel) onModelSelect('');
                 if (selectedTrim) onTrimSelect('');

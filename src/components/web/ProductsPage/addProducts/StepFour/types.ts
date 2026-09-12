@@ -20,7 +20,6 @@ export interface AdInfoState {
 export interface AddProductStepFourProps {
     onValidationChange: (isValid: boolean) => void;
     isEditMode?: boolean;
-    initialData?: any;
 }
 
 export interface FormFieldProps {
@@ -46,20 +45,3 @@ export interface PublicationDateProps {
     showError: boolean;
     initialDate?: string | null;
 }
-
-// Constants
-export const STORAGE_KEY = "addProduct_stepFour_data";
-
-export const defaultState: AdInfoState = {
-    title: "",
-    price: "",
-    description: "",
-    adStatus: "publish",
-    contactNumber: "",
-    listingType: "",
-    rentType: "",
-    publicationDate: new Date().toISOString().split('T')[0],
-    saveStatus: "",
-    currency: Currency.USD,
-    countryCode: CountryCode.US // Default country code
-};

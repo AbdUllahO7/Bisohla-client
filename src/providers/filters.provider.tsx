@@ -37,6 +37,8 @@ export interface FilterState {
   listingTypeId: number; // ADDED: Category ID (e.g. 1 for Cars)
   selectedBrands: string[]; // This is the main source of truth for brands
   attributes: Record<string, any>; // Dynamic attributes from schema
+  installmentsAvailable?: boolean;
+  userId?: number | null;
 }
 
 // Search state interface
@@ -65,6 +67,8 @@ const initialFilterState: FilterState = {
   listingTypeId: 0,
   selectedBrands: [],
   attributes: {},
+  installmentsAvailable: false,
+  userId: null,
 };
 
 const initialSearchState: SearchState = {
@@ -76,6 +80,7 @@ interface FilterContextValue {
   // State
   filters: FilterState;
   searchState: SearchState;
+  committedSearchText: string; // Debounced search term for API and match strips
   queryParams: QueryParams; // Debounced query params for API calls
   immediateQueryParams: QueryParams; // Immediate query params for UI
   // Schema & Reference Data
@@ -84,7 +89,7 @@ interface FilterContextValue {
   dynamicOptions: Record<string, any[]>;
 
   // Filter actions
-  updateFilter: (key: keyof FilterState, value: string | string[] | number) => void;
+  updateFilter: (key: keyof FilterState, value: string | string[] | number | boolean | null) => void;
   updateFilters: (updates: Partial<FilterState>) => void;
   resetFilters: () => void;
   toggleBrand: (brandId: string) => void;
@@ -365,12 +370,37 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
         });
       }
 
+      // Installments available filter
+      if (currentFilters.installmentsAvailable) {
+        filterGroups.push({
+          operator: 'and',
+          filters: [
+            {
+              field: 'installmentsAvailable',
+              operator: 'eq',
+              value: true,
+            },
+          ],
+        });
+      }
+
+      // Seller filter (listings column filter: where=[{"field":"userId","operator":"eq","value":id}])
+      const where: Filter[] = [];
+      if (currentFilters.userId) {
+        where.push({
+          field: 'userId',
+          operator: 'eq',
+          value: currentFilters.userId,
+        });
+      }
+
       const query: QueryParams = {
         page: 1,
         pageSize: 12,
         sortBy: 'createdAt',
         sortDirection: 'desc',
         filterGroups: filterGroups.length > 0 ? filterGroups : undefined,
+        where: where.length > 0 ? where : undefined,
         searchTerm,
       };
 
@@ -435,7 +465,10 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
 
   // Filter actions with optimizations
   const updateFilter = useCallback(
-    (key: keyof FilterState, value: string | string[] | number) => {
+    (
+      key: keyof FilterState,
+      value: string | string[] | number | boolean | null,
+    ) => {
       userInitiatedChange.current = true;
 
       setFilters((prev) => {
@@ -645,6 +678,8 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
       bodyType: getDecodedParam('bodyType'),
       listingType: getDecodedParam('listingOfferType') || getDecodedParam('listingType'),
       listingTypeId: getDecodedParam('listingTypeId'),
+      installmentsAvailable: searchParams.get('installmentsAvailable') === 'true',
+      userId: searchParams.get('userId') ? parseInt(searchParams.get('userId')!, 10) : null,
     };
 
     // Build new state based on URL params
@@ -685,6 +720,7 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
     newFilters.fuelType = urlParams.fuelType || '';
     newFilters.bodyType = urlParams.bodyType || '';
     newFilters.listingType = urlParams.listingType || '';
+    newFilters.userId = urlParams.userId || null;
     if (urlParams.listingTypeId) {
       newFilters.listingTypeId = parseInt(urlParams.listingTypeId, 10);
     } else if (initialListingTypeId !== undefined) {
@@ -710,7 +746,8 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
       'search', 'make', 'makes', 'model', 'trim', 'minYear', 'maxYear', 
       'minPrice', 'maxPrice', 'minMileage', 'maxMileage', 'currency', 
       'governorate', 'city', 'transmission', 'fuelType', 'bodyType', 
-      'listingOfferType', 'listingType', 'listingTypeId', 'page', 'pageSize', 'sortBy', 'sortDirection'
+      'listingOfferType', 'listingType', 'listingTypeId', 'installmentsAvailable', 'userId',
+      'page', 'pageSize', 'sortBy', 'sortDirection'
     ];
     
     const attributes: Record<string, any> = {};
@@ -721,9 +758,27 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
     });
     newFilters.attributes = attributes;
 
-    // Update state
-    setFilters((prev) => ({ ...prev, ...newFilters }));
-    setSearchState((prev) => ({ ...prev, ...newSearchState }));
+    // Update state only if values actually changed
+    setFilters((prev) => {
+      let hasChanges = false;
+      for (const key in newFilters) {
+        if ((newFilters as any)[key] !== (prev as any)[key]) {
+          hasChanges = true;
+          break;
+        }
+      }
+      return hasChanges ? { ...prev, ...newFilters } : prev;
+    });
+
+    setSearchState((prev) => {
+      if (
+        newSearchState.searchText !== undefined &&
+        prev.searchText !== newSearchState.searchText
+      ) {
+        return { ...prev, ...newSearchState };
+      }
+      return prev;
+    });
 
     // Reset the flag after a short delay
     setTimeout(() => {
@@ -783,6 +838,8 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
           bodyType: debouncedFiltersForUrl.bodyType,
           listingOfferType: debouncedFiltersForUrl.listingType,
           listingTypeId: String(debouncedFiltersForUrl.listingTypeId),
+          installmentsAvailable: debouncedFiltersForUrl.installmentsAvailable ? 'true' : '',
+          userId: debouncedFiltersForUrl.userId ? String(debouncedFiltersForUrl.userId) : '',
         };
 
         Object.entries(paramMap).forEach(([key, value]) => {
@@ -842,8 +899,20 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
     }
   }, [debouncedFiltersForUrl, debouncedSearchForUrl, updateUrl]);
 
+  // Stable dependency key for reference group fetching
+  const referenceDepsKey = useMemo(() => {
+    const primaryBrand = filters.selectedBrands[0] || '';
+    const relevantAttributes = Object.entries(filters.attributes || {})
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([k, v]) => `${k}:${v}`)
+      .join('|');
+    return `${filters.listingTypeId}_${primaryBrand}_${relevantAttributes}`;
+  }, [filters.listingTypeId, filters.selectedBrands, filters.attributes]);
+
   // Fetch filter schema when listingTypeId changes OR if it's missing
   useEffect(() => {
+    let isCancelled = false;
+
     const fetchSchemaAndOptions = async () => {
       if (!filters.listingTypeId) return;
       
@@ -856,78 +925,95 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
         let currentSchema = filterSchema;
         if (!currentSchema || currentSchema.listingTypeId !== filters.listingTypeId) {
           const res = await listingTypesController.getFilterSchema(filters.listingTypeId);
-          if (res.success && res.data) {
+          if (res.success && res.data && !isCancelled) {
             currentSchema = { ...res.data, listingTypeId: filters.listingTypeId };
             setFilterSchema(currentSchema);
-            // Reset options when schema changes to avoid showing stale options
             setDynamicOptions({});
           }
         }
 
-        // 2. Fetch Reference Options based on current schema
-        if (currentSchema) {
+        // 2. Fetch Reference Options in parallel based on current schema
+        if (currentSchema && !isCancelled) {
           const allAttributes = currentSchema.sections.flatMap((s: any) => s.attributes);
           const referenceAttrs = allAttributes.filter((a: any) => a.type === 'reference' && a.referenceGroupId);
           
           if (referenceAttrs.length > 0) {
-            const newOptions: Record<string, any[]> = { ...dynamicOptions };
-            let hasChanges = false;
-
-            for (const attr of referenceAttrs) {
-              let parentItemId: number | undefined = undefined;
-              
-              if (attr.dependsOnAttributeId) {
-                const parentAttr = allAttributes.find((a: any) => a.id === attr.dependsOnAttributeId);
-                if (parentAttr) {
-                  const parentValue = filters.attributes[parentAttr.slug] || 
-                                     (parentAttr.slug === 'make' ? filters.selectedBrands[0] : undefined) ||
-                                     (parentAttr.slug === 'marka' ? filters.selectedBrands[0] : undefined);
-                  
-                  if (parentValue) {
-                    parentItemId = Number(parentValue);
-                  } else {
-                    // Skip fetching if parent is required but not selected
-                    if (newOptions[attr.slug]?.length !== 0) {
-                      newOptions[attr.slug] = [];
-                      hasChanges = true;
+            const results = await Promise.all(
+              referenceAttrs.map(async (attr: any) => {
+                let parentItemId: number | undefined = undefined;
+                
+                if (attr.dependsOnAttributeId) {
+                  const parentAttr = allAttributes.find((a: any) => a.id === attr.dependsOnAttributeId);
+                  if (parentAttr) {
+                    const parentValue = filters.attributes[parentAttr.slug] || 
+                                       (parentAttr.slug === 'make' ? filters.selectedBrands[0] : undefined) ||
+                                       (parentAttr.slug === 'marka' ? filters.selectedBrands[0] : undefined);
+                    
+                    if (parentValue) {
+                      parentItemId = Number(parentValue);
+                    } else {
+                      // Skip fetching if parent is required but not selected
+                      return { slug: attr.slug, formatted: [] as any[] };
                     }
-                    continue;
                   }
                 }
-              }
 
-              // Only fetch if we don't have these options yet or parent changed
-              // (Simplification: we fetch if it's a dependent field or if options are empty)
-              const res = await refsController.getItemsByGroupId(attr.referenceGroupId, parentItemId, 100);
-              
-              if (res.success && res.data) {
-                const items = Array.isArray(res.data) ? res.data : (res.data.data || []);
-                const formatted = items.map((item: any) => ({
-                  value: String(item.id),
-                  label: (typeof item.name === 'object' 
-                    ? (item.name['ar'] || item.name['en'] || item.id) // Default to Arabic/English for labels in provider
-                    : (item.name || item.id))
-                }));
-                
-                newOptions[attr.slug] = formatted;
-                hasChanges = true;
-              }
-            }
+                try {
+                  const res = await refsController.getItemsByGroupId(attr.referenceGroupId, parentItemId, 100);
+                  if (res.success && res.data) {
+                    const items = Array.isArray(res.data) ? res.data : (res.data.data || []);
+                    const formatted = items.map((item: any) => ({
+                      value: String(item.id),
+                      label: (typeof item.name === 'object' 
+                        ? (item.name['ar'] || item.name['en'] || item.id)
+                        : (item.name || item.id))
+                    }));
+                    return { slug: attr.slug, formatted };
+                  }
+                } catch (e) {
+                  console.warn(`Failed to fetch reference group ${attr.referenceGroupId}:`, e);
+                }
+                return { slug: attr.slug, formatted: null };
+              })
+            );
 
-            if (hasChanges) {
-              setDynamicOptions(newOptions);
+            if (!isCancelled) {
+              setDynamicOptions((prev) => {
+                const updated = { ...prev };
+                let hasChanges = false;
+                for (const { slug, formatted } of results) {
+                  if (formatted !== null) {
+                    const prevOptions = prev[slug];
+                    if (
+                      !prevOptions ||
+                      prevOptions.length !== formatted.length ||
+                      JSON.stringify(prevOptions) !== JSON.stringify(formatted)
+                    ) {
+                      updated[slug] = formatted;
+                      hasChanges = true;
+                    }
+                  }
+                }
+                return hasChanges ? updated : prev;
+              });
             }
           }
         }
       } catch (error) {
         console.error('Failed in fetchSchemaAndOptions:', error);
       } finally {
-        setIsLoading(false);
+        if (!isCancelled) {
+          setIsLoading(false);
+        }
       }
     };
 
     fetchSchemaAndOptions();
-  }, [filters.listingTypeId, filters.selectedBrands, filters.attributes, filterSchema?.listingTypeId]);
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [filters.listingTypeId, referenceDepsKey, filterSchema?.listingTypeId]);
 
   // Fetch all listing types (categories)
   useEffect(() => {
@@ -966,6 +1052,7 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
     () => ({
       filters,
       searchState,
+      committedSearchText: debouncedSearchText,
       queryParams: apiQueryParams, // Debounced for API calls
       immediateQueryParams, // Immediate for UI
       isLoading,
@@ -985,6 +1072,7 @@ export const FilterProvider: React.FC<FilterProviderProps> = ({
     [
       filters,
       searchState,
+      debouncedSearchText,
       apiQueryParams,
       immediateQueryParams,
       isLoading,

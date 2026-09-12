@@ -130,8 +130,6 @@ interface TopSellersSectionProps {
 const TopSellersSection: React.FC<TopSellersSectionProps> = ({ sellers }) => {
   const t = useTranslations('homePage.topSellers');
 
-  if (!sellers || sellers.length === 0) return null;
-
   const containerVariants = {
     hidden: {},
     visible: { transition: { staggerChildren: 0.08 } },
@@ -161,19 +159,30 @@ const TopSellersSection: React.FC<TopSellersSectionProps> = ({ sellers }) => {
 
       <Box variant="container" className="relative z-10">
         <Box variant="column" className="w-full">
-          <SectionHeader title={t('title')} icon={Users} />
+          <SectionHeader
+            title={t('title')}
+            icon={Users}
+            showMoreLink="/sellers"
+            showMoreText={t('see_all', { defaultValue: 'See all' })}
+          />
 
-          <motion.div
-            className="flex flex-wrap justify-center md:justify-start gap-8 md:gap-12 w-full"
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: '-60px' }}
-          >
-            {sellers.map((seller, idx) => (
-              <SellerCard key={seller.id} seller={seller} index={idx} />
-            ))}
-          </motion.div>
+          {sellers && sellers.length > 0 ? (
+            <motion.div
+              className="flex flex-wrap justify-center md:justify-start gap-8 md:gap-12 w-full"
+              variants={containerVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: '-60px' }}
+            >
+              {sellers.map((seller, idx) => (
+                <SellerCard key={seller.id} seller={seller} index={idx} />
+              ))}
+            </motion.div>
+          ) : (
+            <div className="py-8 text-center text-xs text-slate-400 dark:text-zinc-500">
+              {t('empty_title', { defaultValue: 'No sellers yet' })}
+            </div>
+          )}
         </Box>
       </Box>
 
