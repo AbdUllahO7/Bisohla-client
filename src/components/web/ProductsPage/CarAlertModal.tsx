@@ -10,13 +10,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+
 import { Bell, Loader2, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { createCarAlert } from '@/core/infrastructure-adapters/actions/users/car-alert.user.actions';
@@ -31,6 +25,8 @@ import {
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { extractIsTrimRequired, isTrimAttribute, isMakeAttribute, isModelAttribute } from '@/utils/trim-helpers';
 import SelectableList, { Option } from '@/components/web/ProductsPage/addProducts/StepOne/SelectableList';
+import SelectFieldWithSearch from '@/components/web/design/SelectFieldWithSearch';
+import { getColorOptions } from '@/core/entities/enums/cars.enums';
 import { searchFuzzyReferenceItems } from '@/core/infrastructure-adapters/actions/visitors/reference-proposal.actions';
 
 interface CarAlertModalProps {
@@ -524,21 +520,17 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
       return (
         <div key={attr.id} className="space-y-1">
           {labelElement}
-          <Select
+          <SelectFieldWithSearch
+            name={attr.slug}
+            options={yearOptions}
             value={formData[attr.slug]?.toString() || ''}
-            onValueChange={(val) => handleChange(attr.slug, val)}
-          >
-            <SelectTrigger className="h-10 border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-slate-800 dark:text-zinc-100 focus:ring-primary/20 dark:focus:ring-[#ABDE3B]/20 rounded-lg">
-              <SelectValue placeholder={isArabic ? `اختر ${label}` : `Select ${label}`} />
-            </SelectTrigger>
-            <SelectContent className="bg-white dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800 text-slate-800 dark:text-zinc-100">
-              {yearOptions.map((opt) => (
-                <SelectItem key={opt.value} value={opt.value}>
-                  {opt.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            onChange={(name, val) => handleChange(name, val)}
+            placeholder={hint || (isArabic ? `اختر ${label}` : `Select ${label}`)}
+            searchPlaceholder={isArabic ? `بحث في ${label}...` : `Search ${label}...`}
+            emptyMessage={isArabic ? 'لا توجد نتائج' : 'No results found'}
+            isRtl={isArabic}
+            SelectTriggerStyle="h-10 border-slate-200  dark:border-zinc-800 bg-white dark:bg-zinc-900 text-slate-800 dark:text-zinc-100 rounded-lg text-sm"
+          />
         </div>
       );
     }
@@ -568,26 +560,93 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
       );
     }
 
-    if (type === 'select' || type === 'dropdown' || type === 'color_selection' || type === 'color_multi_selection') {
-      const options = Array.isArray(attr.options) ? attr.options : [];
+    const slugLower = (attr.slug || '').toLowerCase();
+    const isColorField = slugLower.includes('color') || slugLower.includes('لون') || slugLower.includes('colour');
+
+    if ((isColorField && type !== 'color_picker') || type === 'select' || type === 'dropdown' || type === 'color_selection' || type === 'color_multi_selection') {
+      const fixedOptions = Array.isArray(attr.options) ? attr.options : [];
+      let combinedOptions: any[] = [];
+
+      if (isColorField && fixedOptions.length === 0) {
+        combinedOptions = getColorOptions(t).map((opt) => ({
+          value: opt.value,
+          label: opt.label,
+        }));
+      } else if (isColorField && type !== 'color_selection' && type !== 'color_multi_selection') {
+        combinedOptions = getColorOptions(t).map((opt) => ({
+          value: opt.value,
+          label: opt.label,
+        }));
+      } else {
+        combinedOptions = fixedOptions.map((opt: any, idx: number) => {
+          const optVal =
+            opt.id !== undefined && opt.id !== null
+              ? String(opt.id)
+              : opt.value !== undefined && opt.value !== null
+              ? String(opt.value)
+              : typeof opt === 'string'
+              ? opt
+              : String(idx);
+          return {
+            value: optVal,
+            label: getTranslation(opt.label || opt.name || opt),
+          };
+        }).filter((o) => Boolean(o.value));
+      }
+
+      const isMulti = type === 'color_multi_selection';
+
       return (
         <div key={attr.id} className="space-y-1">
           {labelElement}
-          <Select
-            value={formData[attr.slug]?.toString() || ''}
-            onValueChange={(val) => handleChange(attr.slug, val)}
-          >
-            <SelectTrigger className="h-10 border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-slate-800 dark:text-zinc-100 focus:ring-primary/20 dark:focus:ring-[#ABDE3B]/20 rounded-lg">
-              <SelectValue placeholder={isArabic ? `اختر ${label}` : `Select ${label}`} />
-            </SelectTrigger>
-            <SelectContent className="bg-white dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800 text-slate-800 dark:text-zinc-100">
-              {options.map((opt: any) => (
-                <SelectItem key={opt.id || opt.value || opt} value={(opt.id || opt.value || opt).toString()}>
-                  {getTranslation(opt.label || opt.name || opt)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <SelectFieldWithSearch
+            name={attr.slug}
+            options={combinedOptions}
+            value={
+              isMulti
+                ? Array.isArray(formData[attr.slug])
+                  ? formData[attr.slug]
+                  : formData[attr.slug]
+                  ? [formData[attr.slug].toString()]
+                  : []
+                : formData[attr.slug]?.toString() || ''
+            }
+            onChange={(name, val) => handleChange(name, val)}
+            placeholder={getTranslation(attr.hint || attr.name)}
+            searchPlaceholder={isArabic ? `بحث في ${getTranslation(attr.name)}...` : `Search ${getTranslation(attr.name)}...`}
+            emptyMessage={isArabic ? 'لا توجد نتائج' : 'No results found'}
+            isRtl={isArabic}
+            isMulti={isMulti}
+            SelectTriggerStyle="h-10 border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-slate-800 dark:text-zinc-100 rounded-lg text-sm"
+            fetchOptions={
+              attr.referenceGroupId
+                ? async (params) => {
+                    const controller = getInjection('IListingTypeRefsRepoController');
+                    const res = await controller.getItemsByGroupId(
+                      attr.referenceGroupId!,
+                      undefined,
+                      params.pageSize || 30,
+                      params.searchTerm?.trim() || undefined,
+                      params.page || 1
+                    );
+                    if (res.success && res.data) {
+                      const rawItems = res.data.data || [];
+                      registerRefItems(rawItems);
+                      return {
+                        options: rawItems.map((item: any) => ({
+                          value: item.id.toString(),
+                          label: getTranslation(item.translations) || getTranslation(item.name) || item.name || '',
+                        })),
+                        hasMore: !!res.data.hasNextPage,
+                        total: res.data.totalItems,
+                      };
+                    }
+                    return { options: [], hasMore: false, total: 0 };
+                  }
+                : undefined
+            }
+            dependencyKey={attr.referenceGroupId}
+          />
         </div>
       );
     }
@@ -687,55 +746,43 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
                       <Label className="text-sm font-semibold text-slate-700 dark:text-zinc-300">
                         {isArabic ? 'المحافظة' : 'Governorate'}
                       </Label>
-                      <Select
-                        value={formData.governorate}
-                        onValueChange={(val) => handleChange('governorate', val)}
-                      >
-                        <SelectTrigger className="h-10 border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-slate-800 dark:text-zinc-100 focus:ring-primary/20 dark:focus:ring-[#ABDE3B]/20 rounded-lg">
-                          <SelectValue
-                            placeholder={isArabic ? 'اختر محافظة' : 'Select Governorate'}
-                          />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800 text-slate-800 dark:text-zinc-100">
-                          {governorateOptions.map((opt) => (
-                            <SelectItem key={opt.value} value={opt.value}>
-                              {opt.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <SelectFieldWithSearch
+                        name="governorate"
+                        options={governorateOptions}
+                        value={formData.governorate || ''}
+                        onChange={(_name, val) => handleChange('governorate', val)}
+                        placeholder={isArabic ? 'اختر محافظة' : 'Select Governorate'}
+                        searchPlaceholder={isArabic ? 'بحث في المحافظات...' : 'Search governorates...'}
+                        emptyMessage={isArabic ? 'لا توجد نتائج' : 'No results found'}
+                        isRtl={isArabic}
+                        SelectTriggerStyle="h-10 border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-slate-800 dark:text-zinc-100 rounded-lg text-sm"
+                      />
                     </div>
 
                     <div className="space-y-2">
                       <Label className="text-sm font-semibold text-slate-700 dark:text-zinc-300">
                         {isArabic ? 'المدينة' : 'City'}
                       </Label>
-                      <Select
-                        value={formData.city}
-                        onValueChange={(val) => handleChange('city', val)}
+                      <SelectFieldWithSearch
+                        name="city"
+                        options={cityOptions}
+                        value={formData.city || ''}
+                        onChange={(_name, val) => handleChange('city', val)}
                         disabled={!formData.governorate}
-                      >
-                        <SelectTrigger className="h-10 border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-slate-800 dark:text-zinc-100 focus:ring-primary/20 dark:focus:ring-[#ABDE3B]/20 rounded-lg">
-                          <SelectValue
-                            placeholder={
-                              !formData.governorate
-                                ? isArabic
-                                  ? 'اختر المحافظة أولاً'
-                                  : 'Select Governorate first'
-                                : isArabic
-                                  ? 'اختر مدينة'
-                                  : 'Select City'
-                            }
-                          />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800 text-slate-800 dark:text-zinc-100">
-                          {cityOptions.map((opt) => (
-                            <SelectItem key={opt.value} value={opt.value}>
-                              {opt.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        placeholder={
+                          !formData.governorate
+                            ? isArabic
+                              ? 'اختر المحافظة أولاً'
+                              : 'Select Governorate first'
+                            : isArabic
+                              ? 'اختر مدينة'
+                              : 'Select City'
+                        }
+                        searchPlaceholder={isArabic ? 'بحث في المدن...' : 'Search cities...'}
+                        emptyMessage={isArabic ? 'لا توجد نتائج' : 'No results found'}
+                        isRtl={isArabic}
+                        SelectTriggerStyle="h-10 border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-slate-800 dark:text-zinc-100 rounded-lg text-sm"
+                      />
                     </div>
                   </div>
                 </div>

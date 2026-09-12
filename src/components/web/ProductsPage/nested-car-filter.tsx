@@ -169,7 +169,11 @@ const TrimItem: React.FC<TrimItemProps> = React.memo(({ trim, isRTL, onTrimSelec
               }`}
             />
           )}
-          <span className="truncate">{trim.label}</span>
+          <span className="truncate">
+            {trim.label || (
+              <span className="inline-block h-4 w-16 bg-slate-200 dark:bg-zinc-700 animate-pulse rounded align-middle" />
+            )}
+          </span>
         </Label>
       </div>
     </div>
@@ -209,6 +213,7 @@ const ModelItem: React.FC<ModelItemProps> = React.memo(({
 }) => {
   const isExpanded = expandedModels.has(model.value);
   const trimsObserverRef = useRef<HTMLDivElement>(null);
+  const knownTrimsRef = useRef<Map<string, { label: string; modelId: string }>>(new Map());
 
   // Paginated Trims Query
   const trimsQuery = useInfiniteQuery({
@@ -216,7 +221,7 @@ const ModelItem: React.FC<ModelItemProps> = React.memo(({
     queryFn: async ({ pageParam = 1 }) => {
       const response = await carTrimsConfig.fetchFn({
         page: Number(pageParam),
-        pageSize: 30,
+        pageSize: 100,
         where: [{ field: 'modelId', operator: 'eq', value: model.value }],
       });
 
@@ -244,6 +249,42 @@ const ModelItem: React.FC<ModelItemProps> = React.memo(({
     isFetchingNextPage: isFetchingNextTrimsPage,
   } = trimsQuery;
 
+  // Track known trims in ref to persist label info
+  useEffect(() => {
+    if (trimsQuery.data?.pages) {
+      trimsQuery.data.pages.forEach((page) => {
+        page.data?.data?.forEach((item: any) => {
+          const trimValue = String(item[carTrimsConfig.valueField]);
+          const label = String(item[carTrimsConfig.labelField]);
+          const modelId = String(item.modelId || model.value);
+          knownTrimsRef.current.set(trimValue, { label, modelId });
+        });
+      });
+    }
+  }, [trimsQuery.data?.pages, carTrimsConfig, model.value]);
+
+  // Auto-paginate until selectedTrim is found
+  useEffect(() => {
+    if (selectedTrim && isExpanded && hasNextTrimsPage && !isFetchingNextTrimsPage) {
+      const isTrimFound = trimsQuery.data?.pages?.some((page) =>
+        page.data?.data?.some(
+          (item: any) => String(item[carTrimsConfig.valueField]) === selectedTrim,
+        ),
+      );
+      if (!isTrimFound) {
+        fetchNextTrimsPage();
+      }
+    }
+  }, [
+    selectedTrim,
+    isExpanded,
+    hasNextTrimsPage,
+    isFetchingNextTrimsPage,
+    trimsQuery.data,
+    carTrimsConfig.valueField,
+    fetchNextTrimsPage,
+  ]);
+
   // Infinite scroll observer for trims
   useEffect(() => {
     if (!trimsObserverRef.current || !isExpanded) return;
@@ -267,41 +308,42 @@ const ModelItem: React.FC<ModelItemProps> = React.memo(({
   }, [hasNextTrimsPage, isFetchingNextTrimsPage, fetchNextTrimsPage, isExpanded]);
 
   const trims = useMemo(() => {
-    if (!trimsQuery.data?.pages) return [];
-
     const allTrimsMap = new Map<string, CarTrim>();
 
     // 1. Maintain selected trim if present
     if (selectedTrim) {
+      const cached = knownTrimsRef.current.get(selectedTrim);
       allTrimsMap.set(selectedTrim, {
         value: selectedTrim,
-        label: `Trim ${selectedTrim}`,
+        label: cached?.label || '',
         modelId: model.value,
         isSelected: true,
       });
     }
 
     // 2. Populate from paginated data
-    trimsQuery.data.pages
-      .flatMap((page) => page.data?.data || [])
-      .forEach((item: any) => {
-        const trimValue = String(item[carTrimsConfig.valueField]);
-        const label = String(item[carTrimsConfig.labelField]);
-        const modelId = String(item.modelId || model.value);
-        const isSelected = selectedTrim === trimValue;
+    if (trimsQuery.data?.pages) {
+      trimsQuery.data.pages
+        .flatMap((page) => page.data?.data || [])
+        .forEach((item: any) => {
+          const trimValue = String(item[carTrimsConfig.valueField]);
+          const label = String(item[carTrimsConfig.labelField]);
+          const modelId = String(item.modelId || model.value);
+          const isSelected = selectedTrim === trimValue;
 
-        allTrimsMap.set(trimValue, {
-          value: trimValue,
-          label,
-          modelId,
-          isSelected,
+          allTrimsMap.set(trimValue, {
+            value: trimValue,
+            label,
+            modelId,
+            isSelected,
+          });
         });
-      });
+    }
 
     return Array.from(allTrimsMap.values()).sort((a, b) => {
       if (a.isSelected && !b.isSelected) return -1;
       if (!a.isSelected && b.isSelected) return 1;
-      return a.label.localeCompare(b.label, locale, {
+      return (a.label || '').localeCompare(b.label || '', locale, {
         numeric: true,
         sensitivity: 'base',
       });
@@ -349,7 +391,11 @@ const ModelItem: React.FC<ModelItemProps> = React.memo(({
                     }`}
                   />
                 )}
-                <span className="truncate">{model.label}</span>
+                <span className="truncate">
+                  {model.label || (
+                    <span className="inline-block h-4 w-20 bg-slate-200 dark:bg-zinc-700 animate-pulse rounded align-middle" />
+                  )}
+                </span>
               </Label>
             </div>
 
@@ -483,6 +529,7 @@ const BrandItem: React.FC<BrandItemProps> = React.memo(({
   const isExpanded = expandedBrands.has(brand.value);
   const [imageError, setImageError] = useState(false);
   const modelsObserverRef = useRef<HTMLDivElement>(null);
+  const knownModelsRef = useRef<Map<string, { label: string; makeId: string }>>(new Map());
 
   // Paginated Models Query
   const modelsQuery = useInfiniteQuery({
@@ -490,7 +537,7 @@ const BrandItem: React.FC<BrandItemProps> = React.memo(({
     queryFn: async ({ pageParam = 1 }) => {
       const response = await carModelsConfig.fetchFn({
         page: Number(pageParam),
-        pageSize: 30,
+        pageSize: 100,
         where: [{ field: 'makeId', operator: 'eq', value: brand.value }],
       });
 
@@ -518,6 +565,42 @@ const BrandItem: React.FC<BrandItemProps> = React.memo(({
     isFetchingNextPage: isFetchingNextModelsPage,
   } = modelsQuery;
 
+  // Track known models in ref to persist label info
+  useEffect(() => {
+    if (modelsQuery.data?.pages) {
+      modelsQuery.data.pages.forEach((page) => {
+        page.data?.data?.forEach((item: any) => {
+          const modelValue = String(item[carModelsConfig.valueField]);
+          const label = String(item[carModelsConfig.labelField]);
+          const makeId = String(item.makeId || brand.value);
+          knownModelsRef.current.set(modelValue, { label, makeId });
+        });
+      });
+    }
+  }, [modelsQuery.data?.pages, carModelsConfig, brand.value]);
+
+  // Auto-paginate until selectedModel is found
+  useEffect(() => {
+    if (selectedModel && isExpanded && hasNextModelsPage && !isFetchingNextModelsPage) {
+      const isModelFound = modelsQuery.data?.pages?.some((page) =>
+        page.data?.data?.some(
+          (item: any) => String(item[carModelsConfig.valueField]) === selectedModel,
+        ),
+      );
+      if (!isModelFound) {
+        fetchNextModelsPage();
+      }
+    }
+  }, [
+    selectedModel,
+    isExpanded,
+    hasNextModelsPage,
+    isFetchingNextModelsPage,
+    modelsQuery.data,
+    carModelsConfig.valueField,
+    fetchNextModelsPage,
+  ]);
+
   // Infinite scroll observer for models
   useEffect(() => {
     if (!modelsObserverRef.current || !isExpanded) return;
@@ -541,41 +624,42 @@ const BrandItem: React.FC<BrandItemProps> = React.memo(({
   }, [hasNextModelsPage, isFetchingNextModelsPage, fetchNextModelsPage, isExpanded]);
 
   const models = useMemo(() => {
-    if (!modelsQuery.data?.pages) return [];
-
     const allModelsMap = new Map<string, CarModel>();
 
     // 1. Maintain selected model if present
     if (selectedModel) {
+      const cached = knownModelsRef.current.get(selectedModel);
       allModelsMap.set(selectedModel, {
         value: selectedModel,
-        label: `Model ${selectedModel}`,
+        label: cached?.label || '',
         makeId: brand.value,
         isSelected: true,
       });
     }
 
     // 2. Populate from paginated data
-    modelsQuery.data.pages
-      .flatMap((page) => page.data?.data || [])
-      .forEach((item: any) => {
-        const modelValue = String(item[carModelsConfig.valueField]);
-        const label = String(item[carModelsConfig.labelField]);
-        const makeId = String(item.makeId || brand.value);
-        const isSelected = selectedModel === modelValue;
+    if (modelsQuery.data?.pages) {
+      modelsQuery.data.pages
+        .flatMap((page) => page.data?.data || [])
+        .forEach((item: any) => {
+          const modelValue = String(item[carModelsConfig.valueField]);
+          const label = String(item[carModelsConfig.labelField]);
+          const makeId = String(item.makeId || brand.value);
+          const isSelected = selectedModel === modelValue;
 
-        allModelsMap.set(modelValue, {
-          value: modelValue,
-          label,
-          makeId,
-          isSelected,
+          allModelsMap.set(modelValue, {
+            value: modelValue,
+            label,
+            makeId,
+            isSelected,
+          });
         });
-      });
+    }
 
     return Array.from(allModelsMap.values()).sort((a, b) => {
       if (a.isSelected && !b.isSelected) return -1;
       if (!a.isSelected && b.isSelected) return 1;
-      return a.label.localeCompare(b.label, locale, {
+      return (a.label || '').localeCompare(b.label || '', locale, {
         numeric: true,
         sensitivity: 'base',
       });
@@ -631,7 +715,7 @@ const BrandItem: React.FC<BrandItemProps> = React.memo(({
                   >
                     <Image
                       src={brand.logoUrl}
-                      alt={brand.label}
+                      alt={brand.label || 'Brand'}
                       fill
                       className="object-contain rounded"
                       sizes="24px"
@@ -639,7 +723,11 @@ const BrandItem: React.FC<BrandItemProps> = React.memo(({
                     />
                   </div>
                 )}
-                <span className="truncate">{brand.label}</span>
+                <span className="truncate">
+                  {brand.label || (
+                    <span className="inline-block h-4 w-24 bg-slate-200 dark:bg-zinc-700 animate-pulse rounded align-middle" />
+                  )}
+                </span>
               </Label>
             </div>
 
@@ -746,7 +834,7 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
   searchPlaceholder = 'Search brands...',
   noOptionsMessage = 'No options found',
   className = '',
-  pageSize = 30,
+  pageSize = 100,
   maxHeight = '30rem',
 }) => {
   // =============================================================================
@@ -763,6 +851,7 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
 
   const listRef = useRef<HTMLDivElement>(null);
   const observerRef = useRef<HTMLDivElement>(null);
+  const knownMakesRef = useRef<Map<string, { label: string; logoUrl?: string; isCarTrimRequired?: boolean }>>(new Map());
 
   const debouncedSearch = useDebounce(searchTerm, 300);
 
@@ -814,6 +903,54 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
     refetchOnWindowFocus: false,
   });
 
+  // Track known makes in ref to persist label info across searches
+  useEffect(() => {
+    if (makesData?.pages) {
+      makesData.pages.forEach((page) => {
+        page.data?.data?.forEach((item) => {
+          const makeValue = String(item[carMakesConfig.valueField]);
+          const label = String(item[carMakesConfig.labelField]);
+          const rawLogo = carMakesConfig.logoField
+            ? item[carMakesConfig.logoField]
+            : undefined;
+          const logoUrl =
+            typeof rawLogo === 'string' && isValidImageUrl(rawLogo)
+              ? rawLogo.trim()
+              : undefined;
+          const isCarTrimRequired = !!item.isCarTrimRequired;
+
+          knownMakesRef.current.set(makeValue, {
+            label,
+            logoUrl,
+            isCarTrimRequired,
+          });
+        });
+      });
+    }
+  }, [makesData?.pages, carMakesConfig]);
+
+  // Auto-paginate until all selectedBrands are found in loaded pages
+  useEffect(() => {
+    if (selectedBrands.length > 0 && hasNextMakesPage && !isFetchingNextMakesPage) {
+      const loadedMakeIds = new Set(
+        makesData?.pages?.flatMap((page) => page.data?.data || []).map((item) =>
+          String(item[carMakesConfig.valueField]),
+        ) || [],
+      );
+      const hasMissingBrand = selectedBrands.some((id) => !loadedMakeIds.has(id));
+      if (hasMissingBrand) {
+        fetchNextMakesPage();
+      }
+    }
+  }, [
+    selectedBrands,
+    hasNextMakesPage,
+    isFetchingNextMakesPage,
+    makesData,
+    carMakesConfig.valueField,
+    fetchNextMakesPage,
+  ]);
+
   // =============================================================================
   // DATA TRANSFORMATION
   // =============================================================================
@@ -823,20 +960,20 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
 
     // 1. Maintain selected brands in list even before page loaded
     selectedBrands.forEach((brandId) => {
-      if (!allMakes.has(brandId)) {
-        allMakes.set(brandId, {
-          value: brandId,
-          label: `Brand ${brandId}`,
-          isSelected: true,
-          isCarTrimRequired: true,
-        });
-      }
+      const cached = knownMakesRef.current.get(brandId);
+      allMakes.set(brandId, {
+        value: brandId,
+        label: cached?.label || '',
+        logoUrl: cached?.logoUrl,
+        isSelected: true,
+        isCarTrimRequired: cached?.isCarTrimRequired ?? true,
+      });
     });
 
     // 2. Populate and update from paginated results
     if (makesData?.pages) {
       makesData.pages.forEach((page) => {
-        page.data?.data.forEach((item) => {
+        page.data?.data?.forEach((item) => {
           const makeValue = String(item[carMakesConfig.valueField]);
           const label = String(item[carMakesConfig.labelField]);
           const rawLogo = carMakesConfig.logoField
@@ -865,7 +1002,7 @@ const NestedCarFilter: React.FC<SimplifiedNestedCarFilterProps> = ({
       if (a.isSelected && !b.isSelected) return -1;
       if (!a.isSelected && b.isSelected) return 1;
 
-      return a.label.localeCompare(b.label, locale, {
+      return (a.label || '').localeCompare(b.label || '', locale, {
         numeric: true,
         sensitivity: 'base',
       });

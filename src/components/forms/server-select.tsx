@@ -293,7 +293,7 @@ export function ServerSelect<T extends Record<string, any>, K extends keyof T>({
 
   return (
     <Box variant="column" className="w-full space-y-2">
-      <Popover open={open} onOpenChange={setOpen} modal={true}>
+      <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
@@ -379,7 +379,7 @@ export function ServerSelect<T extends Record<string, any>, K extends keyof T>({
           </Button>
         </PopoverTrigger>
         <PopoverContent
-          className="w-[var(--radix-popover-trigger-width)] min-w-[240px] p-0 shadow-xl border-gray-200 dark:border-zinc-800 rounded-2xl overflow-hidden bg-white dark:bg-zinc-900"
+          className="w-[var(--radix-popover-trigger-width)] min-w-[240px] p-0 shadow-xl border-gray-200 dark:border-zinc-800 rounded-2xl overflow-hidden bg-white dark:bg-zinc-900 pointer-events-auto"
           align="start"
         >
           <Command shouldFilter={false} className="bg-transparent">

@@ -1854,6 +1854,7 @@
     "noAlerts": "No Alerts Yet",
     "noAlertsDesc": "Create an alert to get notified when new listings matching your criteria appear.",
     "anyVehicle": "Any Item",
+    "anyListing": "Any Item",
     "allTrims": "All Trims",
     "anyPrice": "Any Price",
     "anyLocation": "Any Location",

@@ -1,7 +1,9 @@
 'use client';
 
-import React, { createContext, useContext, useState, useMemo, useEffect, useTransition } from 'react';
+import React, { createContext, useContext, useState, useMemo, useEffect, useTransition, useCallback } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
+import { usePathname } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import { useProfile } from './profile.provider';
 import { useSession } from '@/hooks/auth/use-session';
 import {
@@ -41,18 +43,23 @@ export const LegalGateProvider: React.FC<{ children: React.ReactNode }> = ({
   const locale = useLocale();
   const isRTL = locale === 'ar';
   const t = useTranslations('legal');
+  const pathname = usePathname();
+  const queryClient = useQueryClient();
   const { user } = useSession();
   const { profile } = useProfile();
-  const isAuthenticated = Boolean(
-    (user && user.id && user.id > 0) || (profile && profile.id && profile.id > 0)
-  );
+
+  const currentUserId = (user && user.id && user.id > 0) ? user.id : (profile && profile.id && profile.id > 0) ? profile.id : 0;
+  const isAuthenticated = Boolean(currentUserId > 0);
 
   // Always fetch public legal documents
   const { data: allDocsRes, isLoading: isAllDocsLoading } = useLegalDocuments();
 
-  // Fetch pending legal documents unconditionally (auth header attached automatically if session exists)
-  const { data: pendingRes, isLoading: isPendingLoading } =
-    usePendingLegalDocuments(true);
+  // Fetch pending legal documents conditionally for authenticated user (polls every 30s)
+  const {
+    data: pendingRes,
+    isLoading: isPendingLoading,
+    refetch: refetchPending,
+  } = usePendingLegalDocuments(currentUserId, isAuthenticated);
 
   const pendingItems: PendingLegalItemDto[] = Array.isArray(pendingRes?.data)
     ? pendingRes.data
@@ -68,11 +75,12 @@ export const LegalGateProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Filter for items requiring acceptance (requiresAcceptance === true or when returned from pending query)
   const requiredPendingItems: PendingLegalItemDto[] = useMemo(() => {
+    if (!isAuthenticated) return [];
     return pendingItems.filter((item: PendingLegalItemDto) => {
       if (item.requiresAcceptance === false) return false;
       return true;
     });
-  }, [pendingItems]);
+  }, [isAuthenticated, pendingItems]);
 
   const [activeView, setActiveView] = useState<'list' | 'detail'>('list');
   const [selectedDoc, setSelectedDoc] = useState<PendingLegalItemDto | null>(
@@ -83,7 +91,7 @@ export const LegalGateProvider: React.FC<{ children: React.ReactNode }> = ({
   const acceptMutation = useAcceptLegalMutation();
   const [isLoggingOut, startLogoutTransition] = useTransition();
 
-  const isOpen = !isPendingLoading && requiredPendingItems.length > 0;
+  const isOpen = isAuthenticated && !isPendingLoading && requiredPendingItems.length > 0;
 
   // Detail view document body query
   const { data: detailDocRes, isLoading: isDetailLoading } = useLegalDocument(
@@ -91,6 +99,55 @@ export const LegalGateProvider: React.FC<{ children: React.ReactNode }> = ({
   );
   const detailDoc = detailDocRes?.data;
 
+  // Reset view state when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      setActiveView('list');
+      setSelectedDoc(null);
+      setErrorMessage(null);
+    }
+  }, [isOpen]);
+
+  // Refetch pending documents on client route transitions if authenticated
+  useEffect(() => {
+    if (isAuthenticated && currentUserId > 0) {
+      refetchPending();
+    }
+  }, [pathname, isAuthenticated, currentUserId, refetchPending]);
+
+  // Listen to login/logout/session update events
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const handleAuthChange = () => {
+      queryClient.invalidateQueries({ queryKey: ['legal-pending'] });
+      if (isAuthenticated && currentUserId > 0) {
+        refetchPending();
+      }
+    };
+
+    const handleLogout = () => {
+      queryClient.removeQueries({ queryKey: ['legal-pending'] });
+      queryClient.setQueryData(['legal-pending'], null);
+      setActiveView('list');
+      setSelectedDoc(null);
+      setErrorMessage(null);
+    };
+
+    window.addEventListener('login-success', handleAuthChange);
+    window.addEventListener('session-updated', handleAuthChange);
+    window.addEventListener('auth-changed', handleAuthChange);
+    window.addEventListener('logout-success', handleLogout);
+    window.addEventListener('session-invalidated', handleLogout);
+
+    return () => {
+      window.removeEventListener('login-success', handleAuthChange);
+      window.removeEventListener('session-updated', handleAuthChange);
+      window.removeEventListener('auth-changed', handleAuthChange);
+      window.removeEventListener('logout-success', handleLogout);
+      window.removeEventListener('session-invalidated', handleLogout);
+    };
+  }, [queryClient, isAuthenticated, currentUserId, refetchPending]);
 
   useEffect(() => {
     if (detailDocRes !== undefined) {
@@ -122,6 +179,11 @@ export const LegalGateProvider: React.FC<{ children: React.ReactNode }> = ({
         return;
       }
 
+      // Invalidate pending queries
+      queryClient.invalidateQueries({ queryKey: ['legal-pending'] });
+      setActiveView('list');
+      setSelectedDoc(null);
+
       // If pending list still contains items, stay open; otherwise React Query refetch auto-closes
       if (res.data?.pending && res.data.pending.length > 0) {
         setErrorMessage(t('gate.error'));
@@ -133,6 +195,8 @@ export const LegalGateProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const handleSignOut = () => {
     startLogoutTransition(async () => {
+      queryClient.removeQueries({ queryKey: ['legal-pending'] });
+      queryClient.setQueryData(['legal-pending'], null);
       await logoutAction();
     });
   };

@@ -25,8 +25,8 @@ export const useLegalDocument = (kind: string) =>
     queryKey: ['legal-document', kind],
     queryFn: async () => await getLegalDocumentByKind(kind),
     enabled: !!kind,
-    staleTime: 60 * 60 * 1000,
-    refetchOnWindowFocus: false,
+    staleTime: 60 * 1000,
+    refetchOnWindowFocus: true,
   });
 
 export const useLegalDocumentVersion = (kind: string, version: number) =>
@@ -38,14 +38,16 @@ export const useLegalDocumentVersion = (kind: string, version: number) =>
     refetchOnWindowFocus: false,
   });
 
-export const usePendingLegalDocuments = (enabled = true) =>
+export const usePendingLegalDocuments = (userId?: number, enabled = true) =>
   useLocaleQuery({
-    queryKey: ['legal-pending'],
+    queryKey: ['legal-pending', userId ?? 0],
     queryFn: async () => await getPendingLegalDocuments(),
-    enabled,
+    enabled: enabled && Boolean(userId && userId > 0),
     staleTime: 0,
     refetchOnWindowFocus: true,
     refetchOnMount: 'always',
+    refetchInterval: 30 * 1000,
+    refetchIntervalInBackground: false,
   });
 
 export const useAcceptLegalMutation = () => {

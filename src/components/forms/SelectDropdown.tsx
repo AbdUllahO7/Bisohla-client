@@ -38,7 +38,7 @@ const SelectDropdown: React.FC<SelectDropdownProps> = ({
         </label>
       )}
       <Select
-        value={value}
+        value={value || undefined}
         disabled={disabled} 
         onValueChange={handleValueChange}
         required={required}
@@ -50,12 +50,12 @@ const SelectDropdown: React.FC<SelectDropdownProps> = ({
         }}
       >
       <SelectTrigger
-          className={`w-50 ${error ? "border-red-500 focus:ring-red-500" : ""} ${SelectTriggerStyle} p-1`}
+          className={`w-full ${error ? "border-red-500 focus:ring-red-500" : ""} ${SelectTriggerStyle} p-1`}
           dir={`${t("lang") === "ar" ? "rtl" : "ltr"}`}
         >
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
-        <SelectContent className="bg-white dark:bg-zinc-900 shadow-2xl text-slate-800 dark:text-zinc-100 border border-slate-100 dark:border-zinc-800 absolute z-[99]" dir={`${t("lang") === "ar" ? "rtl" : "ltr"}`}>
+        <SelectContent className="bg-white dark:bg-zinc-900 shadow-2xl text-slate-800 dark:text-zinc-100 border border-slate-100 dark:border-zinc-800" dir={`${t("lang") === "ar" ? "rtl" : "ltr"}`}>
           {options.map((option) => (
             <SelectItem
               className="focus:bg-primary-light dark:focus:bg-[#ABDE3B]/10 focus:text-white dark:focus:text-[#ABDE3B] transition-all duration-200 font-cairo font-[700]"
