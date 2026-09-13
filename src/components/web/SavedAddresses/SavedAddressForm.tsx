@@ -272,6 +272,18 @@ export const SavedAddressForm: React.FC<SavedAddressFormProps> = ({ addressId })
 
   const BackIcon = direction === 'rtl' ? ArrowRight : ArrowLeft;
 
+  // Loading State in Edit Mode
+  if (isEdit && !hasInitializedRef.current && isLoadingList) {
+    return (
+      <div className="max-w-2xl mx-auto p-12 text-center flex flex-col items-center justify-center min-h-[400px] space-y-4">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <p className="text-sm text-slate-500 dark:text-zinc-400">
+          {locale === 'ar' ? 'جاري تحميل العنوان...' : 'Loading address...'}
+        </p>
+      </div>
+    );
+  }
+
   // Not Found State
   if (isEdit && notFound) {
     return (
@@ -362,6 +374,7 @@ export const SavedAddressForm: React.FC<SavedAddressFormProps> = ({ addressId })
 
             {/* Google Maps / Leaflet picker */}
             <GoogleMapPicker
+              key={isEdit ? `edit-${addressId}-${mapInitLat}` : 'new-address'}
               apiKey={googleMapsApiKey}
               initialLat={mapInitLat}
               initialLng={mapInitLng}

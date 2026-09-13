@@ -52,11 +52,12 @@ const SYRIA_CENTER = { lat: 34.8021, lng: 38.9968 };
 const ZOOM_DEFAULT = 6; // Show whole country
 const ZOOM_STREET = 14; // Street level when we have a known point
 
-// ─── Region-change tracker (Google Maps) ─────────────────────────────────────
+// ─── Region-change tracker & Pan Controller (Google Maps) ─────────────────────
 
-const MapCentreTracker: React.FC<{
+const GoogleMapController: React.FC<{
+  targetLocation?: { lat: number; lng: number; zoom?: number; key: number } | null;
   onCentreChange: (lat: number, lng: number) => void;
-}> = ({ onCentreChange }) => {
+}> = ({ targetLocation, onCentreChange }) => {
   const map = useMap();
   useEffect(() => {
     if (!map) return;
@@ -79,6 +80,17 @@ const MapCentreTracker: React.FC<{
       }
     };
   }, [map, onCentreChange]);
+
+  useEffect(() => {
+    if (!map || !targetLocation) return;
+    map.panTo({ lat: targetLocation.lat, lng: targetLocation.lng });
+    const targetZoom = targetLocation.zoom ?? ZOOM_STREET;
+    const currentZoom = map.getZoom() ?? ZOOM_DEFAULT;
+    if (currentZoom < targetZoom) {
+      map.setZoom(targetZoom);
+    }
+  }, [map, targetLocation]);
+
   return null;
 };
 
@@ -88,10 +100,19 @@ const LeafletMap: React.FC<{
   initialLat: number;
   initialLng: number;
   zoom: number;
+  targetLocation?: { lat: number; lng: number; zoom?: number; key: number } | null;
   onCentreChange: (lat: number, lng: number) => void;
-}> = ({ initialLat, initialLng, zoom, onCentreChange }) => {
+}> = ({ initialLat, initialLng, zoom, targetLocation, onCentreChange }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<any>(null);
+  const [mapInstance, setMapInstance] = useState<any>(null);
+
+  // Keep latest targetLocation and initialLat/Lng in refs so async init always has current values
+  const targetRef = useRef(targetLocation);
+  targetRef.current = targetLocation;
+
+  const latLngRef = useRef({ lat: initialLat, lng: initialLng, zoom });
+  latLngRef.current = { lat: initialLat, lng: initialLng, zoom };
 
   useEffect(() => {
     let mounted = true;
@@ -108,9 +129,15 @@ const LeafletMap: React.FC<{
         document.head.appendChild(link);
       }
 
+      // Read the freshest location (targetLocation if set, else latLngRef)
+      const currentTarget = targetRef.current;
+      const effectiveLat = currentTarget ? currentTarget.lat : latLngRef.current.lat;
+      const effectiveLng = currentTarget ? currentTarget.lng : latLngRef.current.lng;
+      const effectiveZoom = currentTarget ? (currentTarget.zoom ?? ZOOM_STREET) : latLngRef.current.zoom;
+
       const map = L.map(containerRef.current, {
-        center: [initialLat, initialLng],
-        zoom,
+        center: [effectiveLat, effectiveLng],
+        zoom: effectiveZoom,
         zoomControl: true,
       });
 
@@ -119,6 +146,7 @@ const LeafletMap: React.FC<{
       }).addTo(map);
 
       mapRef.current = map;
+      setMapInstance(map);
 
       map.on('move', () => {
         const c = map.getCenter();
@@ -129,6 +157,12 @@ const LeafletMap: React.FC<{
         map.panTo(e.latlng, { animate: true });
         onCentreChange(e.latlng.lat, e.latlng.lng);
       });
+
+      setTimeout(() => {
+        if (mounted && mapRef.current) {
+          mapRef.current.invalidateSize();
+        }
+      }, 200);
     };
 
     init();
@@ -138,19 +172,29 @@ const LeafletMap: React.FC<{
       if (mapRef.current) {
         mapRef.current.remove();
         mapRef.current = null;
+        setMapInstance(null);
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    if (mapRef.current && initialLat != null && initialLng != null) {
-      const center = mapRef.current.getCenter();
-      if (Math.abs(center.lat - initialLat) > 0.0001 || Math.abs(center.lng - initialLng) > 0.0001) {
-        mapRef.current.setView([initialLat, initialLng], mapRef.current.getZoom(), { animate: true });
+    if (mapInstance && targetLocation) {
+      const currentZoom = mapInstance.getZoom();
+      const targetZoom = targetLocation.zoom ?? (currentZoom < ZOOM_STREET ? ZOOM_STREET : currentZoom);
+      const currentCenter = mapInstance.getCenter();
+      if (
+        Math.abs(currentCenter.lat - targetLocation.lat) > 0.00005 ||
+        Math.abs(currentCenter.lng - targetLocation.lng) > 0.00005 ||
+        currentZoom !== targetZoom
+      ) {
+        mapInstance.flyTo([targetLocation.lat, targetLocation.lng], targetZoom, {
+          animate: true,
+          duration: 1.2,
+        });
       }
     }
-  }, [initialLat, initialLng]);
+  }, [mapInstance, targetLocation]);
 
   return <div ref={containerRef} className="w-full h-full" />;
 };
@@ -262,6 +306,7 @@ const MapBody: React.FC<{
   initialLat: number;
   initialLng: number;
   initialZoom: number;
+  targetLocation?: { lat: number; lng: number; zoom?: number; key: number } | null;
   onCentreChange: (lat: number, lng: number) => void;
   onConfirmLocation: () => void;
   onUseMyLocation: () => void;
@@ -274,6 +319,7 @@ const MapBody: React.FC<{
   initialLat,
   initialLng,
   initialZoom,
+  targetLocation,
   onCentreChange,
   onConfirmLocation,
   onUseMyLocation,
@@ -309,7 +355,10 @@ const MapBody: React.FC<{
               gestureHandling="greedy"
               disableDefaultUI={false}
             >
-              <MapCentreTracker onCentreChange={onCentreChange} />
+              <GoogleMapController
+                targetLocation={targetLocation}
+                onCentreChange={onCentreChange}
+              />
             </Map>
           </APIProvider>
         ) : (
@@ -317,6 +366,7 @@ const MapBody: React.FC<{
             initialLat={initialLat}
             initialLng={initialLng}
             zoom={initialZoom}
+            targetLocation={targetLocation}
             onCentreChange={onCentreChange}
           />
         )}
@@ -398,7 +448,16 @@ export const GoogleMapPicker: React.FC<GoogleMapPickerProps> = ({
 
   // Current map centre — updates as the map pans
   const centreRef = useRef({ lat: startLat, lng: startLng });
-  const [, forceUpdate] = useState(0);
+  const [targetLocation, setTargetLocation] = useState<{
+    lat: number;
+    lng: number;
+    zoom?: number;
+    key: number;
+  } | null>(
+    hasInitialPoint
+      ? { lat: initialLat!, lng: initialLng!, zoom: ZOOM_STREET, key: 1 }
+      : null
+  );
 
   // Step: 'map' | 'confirm' — mirrors mobile step state
   const [step, setStep] = useState<'map' | 'confirm'>('map');
@@ -412,6 +471,7 @@ export const GoogleMapPicker: React.FC<GoogleMapPickerProps> = ({
   useEffect(() => {
     if (initialLat != null && initialLng != null) {
       centreRef.current = { lat: initialLat, lng: initialLng };
+      setTargetLocation({ lat: initialLat, lng: initialLng, zoom: ZOOM_STREET, key: Date.now() });
     }
   }, [initialLat, initialLng]);
 
@@ -461,12 +521,15 @@ export const GoogleMapPicker: React.FC<GoogleMapPickerProps> = ({
       setPermissionDenied(true);
       return;
     }
+    setPermissionDenied(false);
     setIsLocating(true);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         setIsLocating(false);
-        centreRef.current = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-        forceUpdate((n) => n + 1); // trigger re-render so map re-centres
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        centreRef.current = { lat, lng };
+        setTargetLocation({ lat, lng, zoom: ZOOM_STREET, key: Date.now() });
       },
       () => {
         setIsLocating(false);
@@ -481,28 +544,30 @@ export const GoogleMapPicker: React.FC<GoogleMapPickerProps> = ({
       className="rounded-2xl overflow-hidden border border-slate-200 dark:border-zinc-800 shadow-sm bg-white dark:bg-zinc-900 relative isolate z-0"
       style={{ height }}
     >
-      {step === 'confirm' && pendingResult ? (
-        <ConfirmPanel
-          result={pendingResult}
-          geocodingFailed={geocodingFailed}
-          onChangeLocation={handleChangeLocation}
-          onFinalConfirm={handleFinalConfirm}
-          locale={locale}
-        />
-      ) : (
-        <MapBody
-          apiKey={apiKey}
-          initialLat={startLat}
-          initialLng={startLng}
-          initialZoom={startZoom}
-          onCentreChange={handleCentreChange}
-          onConfirmLocation={handleConfirmLocation}
-          onUseMyLocation={handleUseMyLocation}
-          isConfirming={isConfirming}
-          isLocating={isLocating}
-          permissionDenied={permissionDenied}
-          locale={locale}
-        />
+      <MapBody
+        apiKey={apiKey}
+        initialLat={startLat}
+        initialLng={startLng}
+        initialZoom={startZoom}
+        targetLocation={targetLocation}
+        onCentreChange={handleCentreChange}
+        onConfirmLocation={handleConfirmLocation}
+        onUseMyLocation={handleUseMyLocation}
+        isConfirming={isConfirming}
+        isLocating={isLocating}
+        permissionDenied={permissionDenied}
+        locale={locale}
+      />
+      {step === 'confirm' && pendingResult && (
+        <div className="absolute inset-0 z-20 bg-white dark:bg-zinc-900 flex flex-col">
+          <ConfirmPanel
+            result={pendingResult}
+            geocodingFailed={geocodingFailed}
+            onChangeLocation={handleChangeLocation}
+            onFinalConfirm={handleFinalConfirm}
+            locale={locale}
+          />
+        </div>
       )}
     </div>
   );
