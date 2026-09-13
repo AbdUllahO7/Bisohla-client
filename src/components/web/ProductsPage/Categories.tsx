@@ -44,22 +44,53 @@ const Categories = () => {
       return [];
     }
 
-    // The new API returns an array of attributes. Find the one for 'body_type'
-    const bodyTypeData = bodyTypeCategoryCounts.data.find(
-      (attr: any) => attr.attributeSlug === 'body_type'
-    );
-
-    // Create a map from backend data for quick lookup
     const countsMap = new Map<string, number>();
-    if (bodyTypeData?.counts) {
-      bodyTypeData.counts.forEach((item: any) => {
-        countsMap.set(item.value, item.count);
+    const rawData = bodyTypeCategoryCounts.data;
+
+    if (Array.isArray(rawData)) {
+      // 1. Look for attribute object with attributeSlug === 'body_type'
+      const bodyTypeData = rawData.find(
+        (attr: any) =>
+          attr?.attributeSlug === 'body_type' ||
+          attr?.slug === 'body_type' ||
+          attr?.attributeId === 10,
+      );
+
+      if (bodyTypeData?.counts && Array.isArray(bodyTypeData.counts)) {
+        bodyTypeData.counts.forEach((item: any) => {
+          const val = String(item?.value ?? item?.id ?? item?.slug ?? '').toLowerCase();
+          if (val) {
+            countsMap.set(val, Number(item?.count) || 0);
+          }
+        });
+      }
+
+      // 2. Direct array items (FacetCount or BodyTypeCategoryCount format)
+      rawData.forEach((item: any) => {
+        if (item?.bodyType) {
+          countsMap.set(String(item.bodyType).toLowerCase(), Number(item.count) || 0);
+        } else if (
+          item?.field === 'details.bodyType' ||
+          item?.field === 'bodyType' ||
+          item?.field === 'attrs.body_type'
+        ) {
+          countsMap.set(String(item.value).toLowerCase(), Number(item.count) || 0);
+        }
+      });
+    } else if (typeof rawData === 'object' && rawData !== null) {
+      Object.entries(rawData).forEach(([key, count]) => {
+        countsMap.set(key.toLowerCase(), Number(count) || 0);
       });
     }
 
     // Map body type options with their counts
     return bodyTypeOptions.map((option: SelectOption) => {
-      const count = countsMap.get(option.value) || 0;
+      const optVal = String(option.value).toLowerCase();
+      const count =
+        countsMap.get(optVal) ??
+        (optVal === 'wagon' ? countsMap.get('station_wagon') : undefined) ??
+        (optVal === 'station_wagon' ? countsMap.get('wagon') : undefined) ??
+        0;
 
       return {
         title: option.label,
@@ -81,13 +112,16 @@ const Categories = () => {
       sedan: '/assets/icons/001-car.png',
       suv: '/assets/icons/015-suv.png',
       coupe: '/assets/icons/004-van.png',
+      grand_coupe: '/assets/icons/004-van.png',
       hatchback: '/assets/icons/019-MVP.png',
       pickup: '/assets/icons/004-van.png',
       van: '/assets/icons/001-car.png',
       convertible: '/assets/icons/019-MVP.png',
       wagon: '/assets/icons/004-van.png',
+      station_wagon: '/assets/icons/004-van.png',
       truck: '/assets/icons/025-bus.png',
       minivan: '/assets/icons/001-car.png',
+      cross_over: '/assets/icons/015-suv.png',
       other: '/assets/icons/025-bus.png',
     };
 
