@@ -690,7 +690,7 @@ const CarAlertModal: React.FC<CarAlertModalProps> = ({
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col">
-          <div className="px-6 sm:px-8 py-6 max-h-[68vh] overflow-y-auto space-y-8 scrollbar-hide" dir={isArabic ? 'rtl' : 'ltr'}>
+          <div className="px-6 sm:px-8 py-6 max-h-[68vh] overflow-y-auto space-y-8 scrollbar-hide overscroll-contain" dir={isArabic ? 'rtl' : 'ltr'}>
             {isLoadingSchema ? (
               <div className="flex flex-col items-center justify-center py-20 space-y-4">
                 <Loader2 className="h-10 w-10 text-primary dark:text-[#ABDE3B] animate-spin" />

@@ -689,8 +689,10 @@ const SelectableList: React.FC<SelectableListProps> = ({
         <ScrollArea
           className={`${
             isPinnedVisible && selectedOption ? "h-[210px]" : "h-[280px]"
-          } w-full overflow-y-auto scrollbar-thin scrollbar-thumb-[#198341]/60 scrollbar-track-gray-100 dark:scrollbar-track-zinc-800 scrollbar-thumb-rounded-full scrollbar-track-rounded-full`}
+          } w-full scrollbar-thin scrollbar-thumb-[#198341]/60 scrollbar-track-gray-100 dark:scrollbar-track-zinc-800 scrollbar-thumb-rounded-full scrollbar-track-rounded-full overscroll-contain`}
           dir={safeDirection}
+          onWheel={(e) => e.stopPropagation()}
+          onTouchMove={(e) => e.stopPropagation()}
         >
           <Box variant="column" className="w-full p-2">
             {isLoading && scrollableOptions.length === 0 && !selectedOption ? (

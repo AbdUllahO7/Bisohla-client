@@ -394,10 +394,12 @@ const SelectFieldWithSearch: React.FC<SelectFieldWithSearchProps> = ({
             </Button>
           </PopoverTrigger>
           <PopoverContent
-            className="bg-white dark:bg-zinc-900 shadow-2xl border border-slate-100 dark:border-zinc-800 p-0 overflow-hidden !z-[10000000] pointer-events-auto rounded-2xl ring-1 ring-black/5 dark:ring-white/10 min-w-[220px]"
+            className="bg-white dark:bg-zinc-900 shadow-2xl border border-slate-100 dark:border-zinc-800 p-0 overflow-hidden !z-[10000000] pointer-events-auto rounded-2xl ring-1 ring-black/5 dark:ring-white/10 min-w-[220px] overscroll-contain"
             align="start"
             style={{ width: "var(--radix-popover-trigger-width, 100%)" }}
             dir={isRtl ? "rtl" : "ltr"}
+            onWheel={(e) => e.stopPropagation()}
+            onTouchMove={(e) => e.stopPropagation()}
           >
             <div className="p-3 bg-gradient-to-r from-gray-50 to-white dark:from-zinc-900 dark:to-zinc-950 border-b border-gray-100 dark:border-zinc-800">
               <div className="relative w-full">
@@ -434,9 +436,11 @@ const SelectFieldWithSearch: React.FC<SelectFieldWithSearchProps> = ({
             <Command shouldFilter={false} className="bg-transparent border-none">
               <CommandList
                 className={cn(
-                  "max-h-[280px] overflow-auto bg-transparent p-2",
+                  "max-h-[280px] overflow-y-auto overflow-x-hidden bg-transparent p-2 overscroll-contain",
                   "custom-scrollbar-rtl"
                 )}
+                onWheel={(e) => e.stopPropagation()}
+                onTouchMove={(e) => e.stopPropagation()}
               >
                 {isLoading && displayOptions.length === 0 ? (
                   <div className="space-y-1.5 p-2">
