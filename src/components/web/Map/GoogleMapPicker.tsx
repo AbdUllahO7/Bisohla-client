@@ -105,6 +105,14 @@ const LeafletMap: React.FC<{
 }> = ({ initialLat, initialLng, zoom, targetLocation, onCentreChange }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<any>(null);
+  const [mapInstance, setMapInstance] = useState<any>(null);
+
+  // Keep latest targetLocation and initialLat/Lng in refs so async init always has current values
+  const targetRef = useRef(targetLocation);
+  targetRef.current = targetLocation;
+
+  const latLngRef = useRef({ lat: initialLat, lng: initialLng, zoom });
+  latLngRef.current = { lat: initialLat, lng: initialLng, zoom };
 
   useEffect(() => {
     let mounted = true;
@@ -121,9 +129,15 @@ const LeafletMap: React.FC<{
         document.head.appendChild(link);
       }
 
+      // Read the freshest location (targetLocation if set, else latLngRef)
+      const currentTarget = targetRef.current;
+      const effectiveLat = currentTarget ? currentTarget.lat : latLngRef.current.lat;
+      const effectiveLng = currentTarget ? currentTarget.lng : latLngRef.current.lng;
+      const effectiveZoom = currentTarget ? (currentTarget.zoom ?? ZOOM_STREET) : latLngRef.current.zoom;
+
       const map = L.map(containerRef.current, {
-        center: [initialLat, initialLng],
-        zoom,
+        center: [effectiveLat, effectiveLng],
+        zoom: effectiveZoom,
         zoomControl: true,
       });
 
@@ -132,6 +146,7 @@ const LeafletMap: React.FC<{
       }).addTo(map);
 
       mapRef.current = map;
+      setMapInstance(map);
 
       map.on('move', () => {
         const c = map.getCenter();
@@ -142,11 +157,6 @@ const LeafletMap: React.FC<{
         map.panTo(e.latlng, { animate: true });
         onCentreChange(e.latlng.lat, e.latlng.lng);
       });
-
-      if (targetLocation) {
-        const targetZoom = targetLocation.zoom ?? (zoom < ZOOM_STREET ? ZOOM_STREET : zoom);
-        map.setView([targetLocation.lat, targetLocation.lng], targetZoom);
-      }
 
       setTimeout(() => {
         if (mounted && mapRef.current) {
@@ -162,21 +172,29 @@ const LeafletMap: React.FC<{
       if (mapRef.current) {
         mapRef.current.remove();
         mapRef.current = null;
+        setMapInstance(null);
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    if (mapRef.current && targetLocation) {
-      const currentZoom = mapRef.current.getZoom();
+    if (mapInstance && targetLocation) {
+      const currentZoom = mapInstance.getZoom();
       const targetZoom = targetLocation.zoom ?? (currentZoom < ZOOM_STREET ? ZOOM_STREET : currentZoom);
-      mapRef.current.flyTo([targetLocation.lat, targetLocation.lng], targetZoom, {
-        animate: true,
-        duration: 1.2,
-      });
+      const currentCenter = mapInstance.getCenter();
+      if (
+        Math.abs(currentCenter.lat - targetLocation.lat) > 0.00005 ||
+        Math.abs(currentCenter.lng - targetLocation.lng) > 0.00005 ||
+        currentZoom !== targetZoom
+      ) {
+        mapInstance.flyTo([targetLocation.lat, targetLocation.lng], targetZoom, {
+          animate: true,
+          duration: 1.2,
+        });
+      }
     }
-  }, [targetLocation]);
+  }, [mapInstance, targetLocation]);
 
   return <div ref={containerRef} className="w-full h-full" />;
 };
@@ -435,7 +453,11 @@ export const GoogleMapPicker: React.FC<GoogleMapPickerProps> = ({
     lng: number;
     zoom?: number;
     key: number;
-  } | null>(null);
+  } | null>(
+    hasInitialPoint
+      ? { lat: initialLat!, lng: initialLng!, zoom: ZOOM_STREET, key: 1 }
+      : null
+  );
 
   // Step: 'map' | 'confirm' — mirrors mobile step state
   const [step, setStep] = useState<'map' | 'confirm'>('map');
