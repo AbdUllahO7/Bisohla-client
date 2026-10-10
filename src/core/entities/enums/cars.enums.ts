@@ -391,11 +391,11 @@ export const getVehicleConditionOptions = (t: any): SelectOption[] => {
     {
       value: VehicleCondition.CERTIFIED_PRE_OWNED,
       label: t('vehicleCondition.certified_pre_owned', {
-        defaultValue: 'Certified Pre-Owned',
+        defaultValue: 'Used – Like New',
       }),
     },
   ];
-  return options; // Keep specific order: New, Used, Certified Pre-Owned
+  return options; // Keep specific order: New, Used, Used – Like New
 };
 
 /**
