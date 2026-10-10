@@ -842,7 +842,7 @@
         "label": "Vehicle Condition",
         "new": "New",
         "used": "Used",
-        "certified_pre_owned": "Certified Pre-Owned"
+        "certified_pre_owned": "Used – Like New"
       },
       "plateNumber": "plate Number",
       "mileage": "mile Age",
@@ -1100,7 +1100,7 @@
         "vehicleCondition": {
           "new": "New",
           "used": "Used",
-          "certified_pre_owned": "Certified Pre-Owned"
+          "certified_pre_owned": "Used – Like New"
         },
         "transmission": {
           "automatic": "Automatic",
@@ -1274,7 +1274,7 @@
         "condition_options": {
           "new": "New",
           "used": "Used",
-          "certified_pre_owned": "Certified pre-owned"
+          "certified_pre_owned": "Used – Like New"
         }
       }
     },
