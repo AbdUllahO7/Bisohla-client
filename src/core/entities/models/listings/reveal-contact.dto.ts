@@ -3,7 +3,7 @@ export interface RevealContactDto {
   listingId: number;
   /** The number set on the listing itself. */
   contactNumber: string | null;
-  /** The owner account's phone — the fallback when the listing has none. */
-  phone: string | null;
-  sellerName: string | null;
+  /** @deprecated The backend no longer returns phone, read contactNumber only. */
+  phone?: string | null;
+  sellerName?: string | null;
 }

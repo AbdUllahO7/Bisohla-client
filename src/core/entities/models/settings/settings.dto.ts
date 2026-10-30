@@ -223,6 +223,13 @@ export interface ListingsSettings {
   reference_proposals?: ReferenceProposalsSettings;
 }
 
+export interface ContentProtectionSettings {
+  contact_reveal?: {
+    require_sign_in?: boolean;
+    require_turnstile_for_web_guests?: boolean;
+  };
+}
+
 // Main settings structure combining all sections
 export interface SettingsData {
   general?: GeneralSettings;
@@ -231,6 +238,7 @@ export interface SettingsData {
   app_settings?: AppSettings;
   third_party_integrations?: ThirdPartyIntegrations;
   listings_settings?: ListingsSettings;
+  content_protection?: ContentProtectionSettings;
 }
 
 export interface Settings {

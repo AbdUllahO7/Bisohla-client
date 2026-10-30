@@ -18,6 +18,7 @@ import { collectParentLookups } from '@/lib/listing-attributes/attribute-hydrati
 import { flattenActiveAttributes } from '@/lib/listing-attributes/attribute-validator/attribute-validator';
 import type { AttributeValueMap, ReferenceMetadataMap } from '@/lib/listing-attributes/types/attribute-form.types';
 import ProductDetailSwitcher from './product-detail-switcher';
+import ListingUnavailableDeadEnd from '@/components/web/ProductsPage/product/ListingUnavailableDeadEnd';
 import { APP_URL } from '@/core/lib/web/constants';
 import SimilarAds from '@/components/web/ProductsPage/product/SimilarAds';
 import SimilarCarAlertBanner from '@/components/web/ProductsPage/product/SimilarCarAlertBanner';
@@ -180,7 +181,7 @@ const ProductPage = async ({ params, searchParams }: ProductPageProps) => {
 
     const { carResponse, rawListing } = await fetchListing(id, isProfileView, locale, session?.user?.id);
     if (!carResponse.success || !carResponse.data || !rawListing) {
-      notFound();
+      return <ListingUnavailableDeadEnd />;
     }
     const attributeSections = await buildSections(rawListing, locale);
 

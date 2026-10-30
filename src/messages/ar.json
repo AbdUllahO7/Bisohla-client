@@ -638,6 +638,17 @@
       "carCount": "إعلان متاح"
     }
   },
+  "listingDeadEnd": {
+    "unavailableTitle": "هذا الإعلان لم يعد متاحاً",
+    "unavailableDescription": "ربما أزاله البائع أو لم يعد منشوراً.",
+    "browseListings": "تصفح الإعلانات",
+    "back": "رجوع",
+    "removedTitle": "هذا الإعلان لم يعد موجوداً",
+    "removedDescription": "ربما تم حذفه.",
+    "forbiddenTitle": "هذا الإعلان ليس ضمن حسابك",
+    "forbiddenDescription": "ربما يعود إلى حساب آخر. سجّل الدخول بالحساب الذي يملكه.",
+    "goToMyListings": "الانتقال إلى إعلاناتي"
+  },
   "product": {
     "infoTitle": "معلومات المنتج",
     "whatsapp": "واتساب",
@@ -645,6 +656,8 @@
     "authRequired": "مطلوب تسجيل الدخول",
     "pleaseSignIn": "يرجى تسجيل الدخول لإضافة المفضلة",
     "signIn": "تسجيل الدخول",
+    "signInToContactTitle": "سجّل دخولك للتواصل",
+    "signInToContactDescription": "تحتاج إلى حساب للتواصل مع البائعين",
     "error": "خطأ",
     "favoriteError": "فشل في تحديث المفضلة. يرجى المحاولة مرة أخرى.",
     "sellerInfo": {
@@ -883,8 +896,7 @@
       "doors": "الأبواب",
       "colorExterior": "اللون الخارجي",
       "colorInterior": "اللون الداخلي",
-      "vin": "VIN",
-      "contactViaButtons": "استخدم زر الاتصال أو واتساب في الأعلى"
+      "vin": "VIN"
     },
     "contactUnavailable": "تعذّر الحصول على الرقم",
     "contactUnavailableHint": "تعذّر تحميل رقم البائع الآن. يرجى المحاولة بعد قليل.",

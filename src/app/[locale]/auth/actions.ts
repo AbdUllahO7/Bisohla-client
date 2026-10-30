@@ -15,9 +15,11 @@ import { SendVerificationEmailDto } from '@/core/entities/models/auth/send-verif
 
 import { getInjection } from '@/di/container';
 import { redirect } from '@/i18n/routing';
+import { redirect as nextRedirect } from 'next/navigation';
 import { getLocale } from 'next-intl/server';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { createSession, deleteSession } from '@/core/lib/web/session';
+import { getSafeRedirect } from '@/utils/safe-redirect';
 
 export const signInAction = async (
   state: ApiResponse<LoginResponse>,
@@ -41,6 +43,11 @@ export const signInAction = async (
 
     // Add a small delay to ensure cache invalidation completes
     await new Promise((resolve) => setTimeout(resolve, 100));
+
+    const redirectTarget = getSafeRedirect(formData.get('redirect'));
+    if (redirectTarget) {
+      nextRedirect(redirectTarget);
+    }
 
     const locale = await getLocale();
 
@@ -74,6 +81,11 @@ export const RegisterAction = async (
 
     // Add a small delay to ensure cache invalidation completes
     await new Promise((resolve) => setTimeout(resolve, 100));
+
+    const redirectTarget = getSafeRedirect(formData.get('redirect'));
+    if (redirectTarget) {
+      nextRedirect(redirectTarget);
+    }
 
     const locale = await getLocale();
 

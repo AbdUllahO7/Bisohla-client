@@ -5,6 +5,20 @@ import { RevealContactDto } from '@/core/entities/models/listings/reveal-contact
 import { useMutation } from '@tanstack/react-query';
 import { revealListingContact } from '../../actions/visitors/listing.visitor.actions';
 
+export class RevealContactError extends Error {
+  status?: number;
+  code?: string;
+  errors?: any;
+
+  constructor(message: string, status?: number, errors?: any) {
+    super(message);
+    this.name = 'RevealContactError';
+    this.status = status;
+    this.code = errors?.code;
+    this.errors = errors;
+  }
+}
+
 /**
  * Fetches a seller's number on demand.
  *
@@ -13,11 +27,11 @@ import { revealListingContact } from '../../actions/visitors/listing.visitor.act
  * (which React Query would refetch on mount, focus or reconnect) would drain it.
  */
 export const useRevealContact = () => {
-  return useMutation<ApiResponse<RevealContactDto>, Error, { listingId: number }>({
+  return useMutation<ApiResponse<RevealContactDto>, RevealContactError, { listingId: number }>({
     mutationFn: async ({ listingId }) => {
       const res = await revealListingContact(listingId);
       if (!res.success) {
-        throw new Error(res.message);
+        throw new RevealContactError(res.message, res.status, res.errors);
       }
       return res;
     },

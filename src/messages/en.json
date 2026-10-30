@@ -630,6 +630,17 @@
       "carCount": "listings available"
     }
   },
+  "listingDeadEnd": {
+    "unavailableTitle": "This listing is no longer available",
+    "unavailableDescription": "It may have been removed by the seller or is no longer published.",
+    "browseListings": "Browse listings",
+    "back": "Back",
+    "removedTitle": "This listing no longer exists",
+    "removedDescription": "It may have been deleted.",
+    "forbiddenTitle": "This listing isn't on your account",
+    "forbiddenDescription": "It may belong to another account. Sign in with the account that owns it.",
+    "goToMyListings": "Go to my listings"
+  },
   "product": {
     "infoTitle": "Product Info",
     "whatsapp": "WhatsApp",
@@ -637,6 +648,8 @@
     "authRequired": "Authentication Required",
     "pleaseSignIn": "Please sign in to add favorites",
     "signIn": "Sign In",
+    "signInToContactTitle": "Sign in to contact",
+    "signInToContactDescription": "You need an account to contact sellers",
     "error": "Error",
     "favoriteError": "Failed to update favorite. Please try again.",
     "sellerInfo": {
@@ -849,8 +862,7 @@
       "doors": "Doors",
       "colorExterior": "Exterior Color",
       "colorInterior": "Interior Color",
-      "vin": "vin",
-      "contactViaButtons": "Use the Call or WhatsApp button above"
+      "vin": "vin"
     },
     "contactUnavailable": "Couldn't get the number",
     "contactUnavailableHint": "The seller's number couldn't be loaded just now. Please try again in a moment.",

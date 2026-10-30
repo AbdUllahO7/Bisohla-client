@@ -32,6 +32,7 @@ export const BaseNotificationSchema = z.object({
     .nullable(),
   isForAdmins: z.boolean().default(false).optional().nullable(),
   data: z.record(z.any()).optional().nullable(), // Additional data for rendering or actions
+  deeplink: z.string().nullable().optional(),
 });
 
 // ============= Create DTOs =============

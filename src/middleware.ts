@@ -146,12 +146,15 @@ async function middleware(req: NextRequest) {
           (session?.user?.roles?.includes('admin') ?? false));
 
       if (!isUser) {
-        return NextResponse.redirect(
-          new URL(
-            `${allRoutes.auth.children.signIn.path}`,
-            req.nextUrl.origin,
-          ),
+        const signInUrl = new URL(
+          `${allRoutes.auth.children.signIn.path}`,
+          req.nextUrl.origin,
         );
+        const currentPath = req.nextUrl.pathname + req.nextUrl.search;
+        if (currentPath && currentPath !== '/') {
+          signInUrl.searchParams.set('redirect', currentPath);
+        }
+        return NextResponse.redirect(signInUrl);
       }
 
       return response;
