@@ -11,7 +11,8 @@ import {
 import { formatDistanceToNow } from 'date-fns';
 import { arSA, enUS } from 'date-fns/locale';
 import { notificationTypeEnum } from '@/core/entities/enums/notifications.enum';
-import { Link } from '@/i18n/routing';
+import { Link, useRouter } from '@/i18n/routing';
+import { parseNotificationDeeplink } from '@/utils/notification-deeplink';
 
 // Define translations for English and Arabic
 const translations = {
@@ -48,6 +49,7 @@ const translations = {
 };
 
 const NotificationDropdown = () => {
+  const router = useRouter();
   const locale = useLocale();
   const t = translations[locale === 'ar' ? 'ar' : 'en'];
   const dateLocale = locale === 'ar' ? arSA : enUS;
@@ -190,6 +192,34 @@ const NotificationDropdown = () => {
     }
   };
 
+  const handleItemClick = (notification: any) => {
+    setIsOpen(false);
+    if (!notification.isRead) {
+      markAsReadMutation.mutate(
+        {
+          notificationId: notification.id,
+          isRead: true,
+        },
+        {
+          onSuccess: () => refetch(),
+        },
+      );
+    }
+
+    const rawLink = notification.deeplink ?? notification.data?.deeplink;
+    const parsed = parseNotificationDeeplink(rawLink);
+
+    if (parsed) {
+      if (parsed.isInternal) {
+        router.push(parsed.internalPath);
+      } else {
+        window.open(parsed.fullUrl, '_blank', 'noopener,noreferrer');
+      }
+    } else {
+      router.push('/userProfile/Notification');
+    }
+  };
+
   // Calculate unread count from notification data
   const unreadCount = notificationsResponse?.data?.data?.length || 0;
 
@@ -271,11 +301,18 @@ const NotificationDropdown = () => {
             <>
               <div className="divide-y divide-gray-100 dark:divide-zinc-800">
                 {notificationsResponse?.data?.data?.map((notification) => (
-                  <Link
+                  <div
                     key={notification.id}
-                    href="/userProfile/Notification"
+                    role="button"
+                    tabIndex={0}
                     className="block p-3 sm:p-4 hover:bg-gray-50 dark:hover:bg-zinc-900 cursor-pointer transition-colors"
-                    onClick={() => setIsOpen(false)}
+                    onClick={() => handleItemClick(notification)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleItemClick(notification);
+                      }
+                    }}
                   >
                     <div className="flex gap-2 sm:gap-3">
                       {/* Icon */}
@@ -324,7 +361,7 @@ const NotificationDropdown = () => {
                         </div>
                       </div>
                     </div>
-                  </Link>
+                  </div>
                 ))}
               </div>
 

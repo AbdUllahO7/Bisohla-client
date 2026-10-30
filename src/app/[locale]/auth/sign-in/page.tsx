@@ -21,9 +21,14 @@ import { useSettings } from '@/providers/settings.provider';
 import GoogleButton from '@/components/auth/google-button';
 import FacebookButton from '@/components/auth/facebook-button';
 import AppleButton from '@/components/auth/apple-button';
+import { useSearchParams } from 'next/navigation';
+import { getSafeRedirect } from '@/utils/safe-redirect';
 
 const SignInPage = () => {
   const { getAuthenticationSettings } = useSettings();
+  const searchParams = useSearchParams();
+  const rawRedirect = searchParams.get('redirect');
+  const safeRedirect = getSafeRedirect(rawRedirect);
 
   const authSettings = getAuthenticationSettings();
 
@@ -94,6 +99,9 @@ const SignInPage = () => {
               className={`space-y-5 ${isRTL ? 'rtl' : 'ltr'}`}
               dir={isRTL ? 'rtl' : 'ltr'}
             >
+              {safeRedirect && (
+                <input type="hidden" name="redirect" value={safeRedirect} />
+              )}
               {/* Email Input */}
               <DetailedInput
                 placeholder={
@@ -142,13 +150,13 @@ const SignInPage = () => {
 
               {/* Google OAuth Button */}
               {authSettings?.auth_providers?.enable_google_oauth && (
-                <GoogleButton mode="login" />
+                <GoogleButton mode="login" redirect={safeRedirect || undefined} />
               )}
               {authSettings?.auth_providers?.enable_facebook_oauth && (
-                <FacebookButton mode="login" />
+                <FacebookButton mode="login" redirect={safeRedirect || undefined} />
               )}
               {authSettings?.auth_providers?.enable_apple_oauth && (
-                <AppleButton mode="login" />
+                <AppleButton mode="login" redirect={safeRedirect || undefined} />
               )}
             </form>
           </CardContent>
@@ -159,7 +167,11 @@ const SignInPage = () => {
           <div className="text-sm text-gray-600 dark:text-white">
             {isRTL ? 'جديد في Bishola؟' : 'New to Bishola?'}{' '}
             <Link
-              href={allRoutes.auth.children.register.path}
+              href={
+                safeRedirect
+                  ? `${allRoutes.auth.children.register.path}?redirect=${encodeURIComponent(safeRedirect)}`
+                  : allRoutes.auth.children.register.path
+              }
               className="font-semibold text-emerald-600 dark:text-[#ABDE3B] hover:text-emerald-700 dark:hover:text-[#ABDE3B]/90 transition-colors"
             >
               {isRTL ? 'سجل الآن' : 'Create Account'}

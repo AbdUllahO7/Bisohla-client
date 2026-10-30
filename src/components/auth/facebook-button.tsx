@@ -1,14 +1,17 @@
 import { BACKEND_URL } from '@/core/lib/web/constants';
 import { useDirection } from '@/hooks/use-direction';
+import { getSafeRedirect } from '@/utils/safe-redirect';
 import React from 'react';
 
 interface FacebookButtonProps {
   mode?: 'login' | 'signup';
+  redirect?: string;
 }
 
-const FacebookButton = ({ mode = 'signup' }: FacebookButtonProps) => {
+const FacebookButton = ({ mode = 'signup', redirect }: FacebookButtonProps) => {
   const dir = useDirection();
   const isRTL = dir === 'rtl';
+  const safeRedirect = getSafeRedirect(redirect);
 
   const getButtonText = () => {
     if (mode === 'login') {
@@ -17,10 +20,23 @@ const FacebookButton = ({ mode = 'signup' }: FacebookButtonProps) => {
     return isRTL ? 'التسجيل باستخدام فيسبوك' : 'Sign up with Facebook';
   };
 
+  const handleClick = () => {
+    if (safeRedirect && typeof window !== 'undefined') {
+      try {
+        sessionStorage.setItem('auth_redirect', safeRedirect);
+      } catch {}
+    }
+  };
+
+  const href = safeRedirect
+    ? `${BACKEND_URL}/oauth/facebook?redirect=${encodeURIComponent(safeRedirect)}`
+    : `${BACKEND_URL}/oauth/facebook`;
+
   return (
     <div className="pt-1">
       <a
-        href={`${BACKEND_URL}/oauth/facebook`}
+        href={href}
+        onClick={handleClick}
         className="w-full flex items-center justify-center gap-3 bg-white hover:bg-gray-50 text-gray-700 font-semibold py-2.5 px-4 rounded-xl transition-all duration-200 transform hover:scale-[1.02] shadow-md border border-gray-200 hover:border-gray-300"
       >
         <svg

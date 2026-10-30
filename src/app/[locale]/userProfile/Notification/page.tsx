@@ -15,7 +15,9 @@ import {
   notificationTypeEnum,
 } from '@/core/entities/enums/notifications.enum';
 import { useLocale } from 'next-intl';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { useRouter } from '@/i18n/routing';
+import { ChevronDown, ChevronUp, ExternalLink } from 'lucide-react';
+import { parseNotificationDeeplink } from '@/utils/notification-deeplink';
 import 'quill/dist/quill.snow.css';
 import './notification-content.css';
 
@@ -62,6 +64,7 @@ const translations = {
 };
 
 export default function NotificationsPage() {
+  const router = useRouter();
   const locale = useLocale();
   const isRtl = locale === 'ar';
 
@@ -120,6 +123,21 @@ export default function NotificationsPage() {
       refetch();
     } catch (error) {
       console.error('Failed to update notification read status:', error);
+    }
+  };
+
+  const handleOpenLink = (notification: Notification) => {
+    if (!notification.isRead) {
+      handleMarkAsRead(notification.id);
+    }
+    const rawLink = notification.deeplink ?? notification.data?.deeplink;
+    const parsed = parseNotificationDeeplink(rawLink);
+    if (parsed) {
+      if (parsed.isInternal) {
+        router.push(parsed.internalPath);
+      } else {
+        window.open(parsed.fullUrl, '_blank', 'noopener,noreferrer');
+      }
     }
   };
 
@@ -381,9 +399,25 @@ export default function NotificationsPage() {
                     <div className="flex-1">
                       <div className="flex flex-col md:flex-row md:items-start justify-between gap-2">
                         <div className="flex-1">
-                          <h3 className="font-bold text-base text-[#2C3C39] dark:text-white mb-1">
-                            {notification.title}
-                          </h3>
+                          {(() => {
+                            const rawLink = notification.deeplink ?? notification.data?.deeplink;
+                            const parsed = parseNotificationDeeplink(rawLink);
+                            return (
+                              <h3
+                                onClick={() => {
+                                  if (parsed) handleOpenLink(notification);
+                                }}
+                                className={`font-bold text-base mb-1 ${
+                                  parsed
+                                    ? 'cursor-pointer hover:text-[#198341] dark:hover:text-[#ABDE3B] transition-colors inline-flex items-center gap-1.5'
+                                    : ''
+                                } text-[#2C3C39] dark:text-white`}
+                              >
+                                {notification.title}
+                                {parsed && <ExternalLink className="w-3.5 h-3.5 opacity-60 flex-shrink-0" />}
+                              </h3>
+                            );
+                          })()}
 
                           {/* Content with animation */}
                           {needsExpansion(notification.content) ? (

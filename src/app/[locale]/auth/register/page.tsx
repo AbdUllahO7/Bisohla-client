@@ -35,9 +35,14 @@ import {
   RegisterLegalConsent,
   OAuthLegalNotice,
 } from '@/components/auth/register-legal-consent';
+import { useSearchParams } from 'next/navigation';
+import { getSafeRedirect } from '@/utils/safe-redirect';
 
 const RegisterPage = () => {
   const { getAuthenticationSettings } = useSettings();
+  const searchParams = useSearchParams();
+  const rawRedirect = searchParams.get('redirect');
+  const safeRedirect = getSafeRedirect(rawRedirect);
 
   const authSettings = getAuthenticationSettings();
 
@@ -233,6 +238,9 @@ const RegisterPage = () => {
               className={`space-y-4 ${isRTL ? 'rtl' : 'ltr'}`}
               dir={isRTL ? 'rtl' : 'ltr'}
             >
+              {safeRedirect && (
+                <input type="hidden" name="redirect" value={safeRedirect} />
+              )}
               {/* Email Input - Preserved on error */}
               <DetailedInput
                 name="email"
@@ -318,13 +326,13 @@ const RegisterPage = () => {
 
               {/* Google OAuth Button */}
               {authSettings?.auth_providers?.enable_google_oauth && (
-                <GoogleButton mode="signup" />
+                <GoogleButton mode="signup" redirect={safeRedirect || undefined} />
               )}
               {authSettings?.auth_providers?.enable_facebook_oauth && (
-                <FacebookButton mode="signup" />
+                <FacebookButton mode="signup" redirect={safeRedirect || undefined} />
               )}
               {authSettings?.auth_providers?.enable_apple_oauth && (
-                <AppleButton mode="signup" />
+                <AppleButton mode="signup" redirect={safeRedirect || undefined} />
               )}
 
               {/* Passive OAuth Legal Notice */}
@@ -342,7 +350,11 @@ const RegisterPage = () => {
           <div className="text-sm text-gray-600 dark:text-white">
             {isRTL ? 'لديك حساب بالفعل؟' : 'Already have an account?'}{' '}
             <Link
-              href={allRoutes.auth.children.signIn.path}
+              href={
+                safeRedirect
+                  ? `${allRoutes.auth.children.signIn.path}?redirect=${encodeURIComponent(safeRedirect)}`
+                  : allRoutes.auth.children.signIn.path
+              }
               className="font-semibold text-emerald-600 hover:text-emerald-700 dark:text-[#ABDE3B] dark:hover:text-[#ABDE3B]/90 transition-colors"
             >
               {isRTL ? 'تسجيل الدخول الآن' : 'Sign in here'}

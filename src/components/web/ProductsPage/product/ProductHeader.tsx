@@ -88,7 +88,14 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
           action: (
             <button
               onClick={() => {
-                route.push('/auth/sign-in'); // Redirect to sign-in page
+                const currentPath =
+                  typeof window !== 'undefined'
+                    ? window.location.pathname + window.location.search
+                    : '';
+                const signInUrl = `/auth/sign-in${
+                  currentPath ? `?redirect=${encodeURIComponent(currentPath)}` : ''
+                }`;
+                route.push(signInUrl); // Redirect to sign-in page
               }}
               className="px-3 py-1 bg-primary text-primary-foreground rounded text-sm"
             >
@@ -344,6 +351,8 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
                 contactAvailable={contactAvailable}
                 productName={productName}
                 onContactClick={onContactClick}
+                isAuthenticated={isAuthenticated}
+                isSold={isSold}
               />
             </Box>
           )}
@@ -442,6 +451,8 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
                 contactAvailable={contactAvailable}
                 productName={productName}
                 onContactClick={onContactClick}
+                isAuthenticated={isAuthenticated}
+                isSold={isSold}
               />
             )}
           </Box>

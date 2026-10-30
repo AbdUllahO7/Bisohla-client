@@ -3,8 +3,10 @@
 import { useState } from 'react';
 import { MessageCircle, PhoneCall, Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
 import { useRevealContact } from '@/core/infrastructure-adapters/use-actions/visitors/reveal-contact.use-actions';
 import { useToast } from '@/hooks/use-toast';
+import { useSettings } from '@/providers/settings.provider';
 
 /**
  * Call + WhatsApp buttons that fetch the seller's number on click.
@@ -36,13 +38,17 @@ interface ContactRevealButtonsProps {
   listingId?: number;
   /** Present when protection is off, or the seller's number is already public. */
   contactNumber?: string | null;
-  /** Whether a number exists at all. False → the seller never entered one. */
+  /** Deprecated: whether a number exists at all. Kept for backwards compatibility. */
   contactAvailable?: boolean;
   productName?: string;
   /** Fired only on a SUCCESSFUL reveal, so failures don't inflate contact stats. */
   onContactClick?: () => void;
   /** Both layouts render the same logic with different classes. */
   variant: 'mobile' | 'desktop';
+  /** Whether the current visitor is authenticated. */
+  isAuthenticated?: boolean;
+  /** Whether the listing is sold. */
+  isSold?: boolean;
 }
 
 const formatPhoneForWhatsApp = (phone: string) => phone.replace(/\D/g, '');
@@ -54,35 +60,83 @@ export default function ContactRevealButtons({
   productName = '',
   onContactClick,
   variant,
+  isAuthenticated = false,
+  isSold = false,
 }: ContactRevealButtonsProps) {
   const t = useTranslations('product');
+  const router = useRouter();
   const { toast } = useToast();
+  const { isContactRevealSignInRequired } = useSettings();
   const revealContact = useRevealContact();
   const [revealed, setRevealed] = useState<string | null>(
     listingId != null ? (revealedNumbers.get(listingId) ?? null) : null,
   );
 
   const effectiveNumber = contactNumber || revealed;
-  // Enabled when we already have a number, or when one exists and can be fetched.
-  const canContact = Boolean(
-    effectiveNumber || (contactAvailable && listingId != null),
-  );
+  // Buttons are enabled on any listing that is not sold
+  const canContact = !isSold && listingId != null;
   const isBusy = revealContact.isPending;
+
+  const handleSignInRedirect = () => {
+    const currentPath =
+      typeof window !== 'undefined'
+        ? window.location.pathname + window.location.search
+        : '';
+    const signInUrl = `/auth/sign-in${
+      currentPath ? `?redirect=${encodeURIComponent(currentPath)}` : ''
+    }`;
+
+    toast({
+      title: t('signInToContactTitle', { defaultValue: 'Sign in to contact' }),
+      description: t('signInToContactDescription', {
+        defaultValue: 'You need an account to contact sellers',
+      }),
+      action: (
+        <button
+          onClick={() => {
+            router.push(signInUrl);
+          }}
+          className="px-3 py-1 bg-primary text-primary-foreground rounded text-sm font-medium"
+        >
+          {t('signIn', { defaultValue: 'Sign In' })}
+        </button>
+      ),
+    });
+
+    setTimeout(() => {
+      router.push(signInUrl);
+    }, 1200);
+  };
 
   /** Returns the number to act on, fetching it first if it is hidden. */
   const resolveNumber = async (): Promise<string | null> => {
     if (effectiveNumber) return effectiveNumber;
-    if (!contactAvailable || listingId == null) return null;
+    if (listingId == null) return null;
+
+    // Check require_sign_in setting before calling reveal
+    if (isContactRevealSignInRequired() && !isAuthenticated) {
+      handleSignInRedirect();
+      return null;
+    }
 
     try {
       const res = await revealContact.mutateAsync({ listingId });
-      const number = res.data?.contactNumber || res.data?.phone || null;
+      const number = res.data?.contactNumber || null;
       if (number) {
         revealedNumbers.set(listingId, number);
         setRevealed(number);
       }
       return number;
-    } catch {
+    } catch (err: any) {
+      // 401 CONTACT_REVEAL_SIGN_IN_REQUIRED → go to sign-in (§3.2)
+      if (
+        err?.status === 401 ||
+        err?.code === 'CONTACT_REVEAL_SIGN_IN_REQUIRED'
+      ) {
+        handleSignInRedirect();
+        return null;
+      }
+
       toast({
         title: t('contactUnavailable'),
         description: t('contactUnavailableHint'),

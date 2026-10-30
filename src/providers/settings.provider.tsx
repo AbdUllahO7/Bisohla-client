@@ -17,6 +17,7 @@ import {
   ListingsSettings,
   ReferenceProposalsSettings,
   MapSettings,
+  ContentProtectionSettings,
 } from '@/core/entities/models/settings/settings.dto';
 
 interface SettingsContextType {
@@ -44,6 +45,8 @@ interface SettingsContextType {
   getThirdPartyIntegrations: () => ThirdPartyIntegrations | undefined;
   getListingsSettings: () => ListingsSettings | undefined;
   getReferenceProposalsSettings: () => ReferenceProposalsSettings | undefined;
+  getContentProtectionSettings: () => ContentProtectionSettings | undefined;
+  isContactRevealSignInRequired: () => boolean;
 
   // Specific commonly-used settings
   getLogo: () => string;
@@ -141,6 +144,24 @@ export function SettingsProvider({ children, initialSettings }: SettingsProvider
   const getThirdPartyIntegrations = () => settings.third_party_integrations;
   const getListingsSettings = () => settings.listings_settings;
   const getReferenceProposalsSettings = () => settings.listings_settings?.reference_proposals;
+  const getContentProtectionSettings = () => settings.content_protection;
+  const isContactRevealSignInRequired = (): boolean => {
+    if (settings.content_protection?.contact_reveal?.require_sign_in != null) {
+      return Boolean(settings.content_protection.contact_reveal.require_sign_in);
+    }
+    const rawData = settingsResponse?.data as Record<string, unknown> | undefined;
+    if (rawData) {
+      const directCp = (rawData.content_protection as any)?.contact_reveal?.require_sign_in;
+      if (directCp != null) return Boolean(directCp);
+      const locCp = ((rawData[locale] as any)?.content_protection as any)?.contact_reveal?.require_sign_in;
+      if (locCp != null) return Boolean(locCp);
+      const arCp = ((rawData.ar as any)?.content_protection as any)?.contact_reveal?.require_sign_in;
+      if (arCp != null) return Boolean(arCp);
+      const enCp = ((rawData.en as any)?.content_protection as any)?.contact_reveal?.require_sign_in;
+      if (enCp != null) return Boolean(enCp);
+    }
+    return false;
+  };
 
   // Specific getters
   const getSocialLinks = () => settings.general?.social_links;
@@ -433,6 +454,8 @@ export function SettingsProvider({ children, initialSettings }: SettingsProvider
     getThirdPartyIntegrations,
     getListingsSettings,
     getReferenceProposalsSettings,
+    getContentProtectionSettings,
+    isContactRevealSignInRequired,
     getLogo,
     getAppLogo,
     getCopyrightMessage,

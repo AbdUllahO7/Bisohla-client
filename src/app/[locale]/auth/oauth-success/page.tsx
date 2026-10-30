@@ -9,6 +9,7 @@ import Image from "next/image"
 import { allRoutes } from "@/constants/routes.constant"
 import { useQueryClient } from "@tanstack/react-query"
 import { oauthCallbackAction } from "../actions"
+import { getSafeRedirect } from "@/utils/safe-redirect"
 
 const OAuthSuccessPage = () => {
   const router = useRouter()
@@ -68,9 +69,24 @@ const OAuthSuccessPage = () => {
         queryClient.invalidateQueries({ queryKey: ['session'] })
         queryClient.invalidateQueries({ queryKey: ['check-auth-user'] })
 
-        // Redirect to user home page after 1.5 seconds
+        // Check for redirect param in URL or saved in sessionStorage
+        let redirectTarget: string | null = null;
+        try {
+          const fromParam = searchParams.get("redirect");
+          const fromStorage = typeof window !== 'undefined' ? sessionStorage.getItem('auth_redirect') : null;
+          if (typeof window !== 'undefined') {
+            sessionStorage.removeItem('auth_redirect');
+          }
+          redirectTarget = getSafeRedirect(fromParam) || getSafeRedirect(fromStorage);
+        } catch {}
+
+        // Redirect to target or user home page after 1.5 seconds
         setTimeout(() => {
-          router.push(allRoutes.user.children.homePage.path)
+          if (redirectTarget) {
+            router.push(redirectTarget);
+          } else {
+            router.push(allRoutes.user.children.homePage.path);
+          }
         }, 1500)
       } catch (error) {
         console.error("OAuth callback error:", error)

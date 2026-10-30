@@ -12,10 +12,12 @@ import {
   User,
 } from 'lucide-react';
 import { useState } from 'react';
+import { useRouter } from '@/i18n/routing';
 import { notificationTypeEnum } from '@/core/entities/enums/notifications.enum';
 import { Notification } from '@/core/entities/models/notifications/notifications.domain';
 import { useUpdateNotificationReadStatus } from '@/core/infrastructure-adapters/use-actions/users/notification.user.use-actions';
 import { formatRelativeTime } from '@/utils/format-relative-time';
+import { parseNotificationDeeplink } from '@/utils/notification-deeplink';
 
 // ── Icon map — mirrors the app's TYPE_ICON record (client enum subset) ────────
 
@@ -57,6 +59,8 @@ export function NotificationCard({ notification }: NotificationCardProps) {
   const displayContent = stripHtml(String(notification.content ?? ''));
   const relativeTime = formatRelativeTime(String(notification.createdAt));
 
+  const router = useRouter();
+
   function handlePress() {
     if (!effectiveIsRead) {
       setOptimisticIsRead(true); // instant UI flip
@@ -66,6 +70,17 @@ export function NotificationCard({ notification }: NotificationCardProps) {
           onError: () => setOptimisticIsRead(null), // rollback on failure
         },
       );
+    }
+
+    const rawLink = notification.deeplink ?? notification.data?.deeplink;
+    const parsed = parseNotificationDeeplink(rawLink);
+
+    if (parsed) {
+      if (parsed.isInternal) {
+        router.push(parsed.internalPath);
+      } else {
+        window.open(parsed.fullUrl, '_blank', 'noopener,noreferrer');
+      }
     }
   }
 

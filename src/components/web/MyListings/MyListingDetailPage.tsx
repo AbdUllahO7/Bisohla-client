@@ -19,6 +19,8 @@ import {
   Map,
   ChevronLeft,
   ChevronRight,
+  ArrowLeft,
+  ArrowRight,
   ExternalLink,
   Loader2,
 } from 'lucide-react';
@@ -67,7 +69,7 @@ export function MyListingDetailPage({ listingId }: MyListingDetailPageProps) {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
-  const { data: listingRes, isLoading, isError } = useGetListingById(listingId);
+  const { data: listingRes, isLoading, isError, error } = useGetListingById(listingId);
   const changeStatusMutation = useChangePublicationStatus();
   const changeMapVisibilityMutation = useChangeMapVisibility();
   const deleteListingMutation = useDeleteListing();
@@ -200,24 +202,44 @@ export function MyListingDetailPage({ listingId }: MyListingDetailPageProps) {
   }
 
   if (isError || !listing) {
+    const isForbidden =
+      (listingRes as any)?.status === 401 ||
+      (error as any)?.status === 401;
+
     return (
-      <div className="bg-background min-h-screen pb-20 flex items-center justify-center">
-        <div className="text-center p-8 max-w-md">
-          <AlertCircle size={48} className="text-red-500 mx-auto mb-4" />
+      <div className="bg-background min-h-[60vh] pb-20 flex items-center justify-center px-4">
+        <div className="text-center p-8 max-w-md w-full bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-3xl shadow-sm">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-50 dark:bg-red-950/40 text-red-500 flex items-center justify-center">
+            <AlertCircle size={32} />
+          </div>
           <h2 className="text-xl font-bold text-gray-800 dark:text-zinc-100 mb-2">
-            {isArabic ? 'لم يتم العثور على الإعلان' : 'Listing Not Found'}
+            {isForbidden
+              ? (isArabic ? 'هذا الإعلان ليس ضمن حسابك' : "This listing isn't on your account")
+              : (isArabic ? 'هذا الإعلان لم يعد موجوداً' : 'This listing no longer exists')}
           </h2>
-          <p className="text-sm text-gray-500 mb-6">
-            {isArabic
-              ? 'قد يكون تم حذف الإعلان أو أنك لا تملك صلاحية الوصول إليه'
-              : 'The listing may have been deleted or you do not have permission to view it.'}
+          <p className="text-sm text-gray-500 dark:text-zinc-400 mb-6 leading-relaxed">
+            {isForbidden
+              ? (isArabic
+                  ? 'ربما يعود إلى حساب آخر. سجّل الدخول بالحساب الذي يملكه.'
+                  : 'It may belong to another account. Sign in with the account that owns it.')
+              : (isArabic ? 'ربما تم حذفه.' : 'It may have been deleted.')}
           </p>
-          <Link
-            href={backHref}
-            className="px-6 py-2.5 rounded-xl bg-[#198341] text-white font-bold text-xs"
-          >
-            {isArabic ? 'العودة إلى إعلاناتي' : 'Back to My Listings'}
-          </Link>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Link
+              href={backHref}
+              className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-[#198341] hover:bg-[#198341]/90 text-white font-bold text-sm transition-colors text-center"
+            >
+              {isArabic ? 'الانتقال إلى إعلاناتي' : 'Go to my listings'}
+            </Link>
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="w-full sm:w-auto px-6 py-2.5 rounded-xl border border-gray-200 dark:border-zinc-700 text-[#2C3C39] dark:text-zinc-200 font-semibold text-sm hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors inline-flex items-center justify-center gap-1.5"
+            >
+              {isArabic ? <ArrowRight size={16} /> : <ArrowLeft size={16} />}
+              {isArabic ? 'رجوع' : 'Back'}
+            </button>
+          </div>
         </div>
       </div>
     );

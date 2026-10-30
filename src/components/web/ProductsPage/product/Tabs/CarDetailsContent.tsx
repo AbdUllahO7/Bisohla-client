@@ -3,7 +3,6 @@
 import React, { JSX, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import {
-  Phone,
   Info,
   MessageSquare,
   MapPin,
@@ -46,20 +45,8 @@ const CarDetailsContent: React.FC<CarDetailsContentProps> = ({
     key?: string;
   };
 
-  // Contact and location information
+  // Location information
   const contactDetails: DetailItem[] = [
-    {
-      label: t('contactNumber'),
-      // Never print the digits here. This row is plain server-rendered text, so
-      // a number in it is the single easiest thing on the page for a scraper to
-      // take — and it would defeat the reveal flow the Call/WhatsApp buttons
-      // use. When the backend has hidden the number, point the user at those
-      // buttons instead.
-      value:
-        data?.contactNumber ||
-        (data?.contactAvailable ? t('contactViaButtons') : '-'),
-      icon: <Phone className="w-4 h-4" />,
-    },
     {
       label: t('city'),
       value: data?.city || '-',
