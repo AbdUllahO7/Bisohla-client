@@ -1,6 +1,6 @@
 'use client';
 
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { ApiResponse, PaginatedResponse, SuccessResponseWithNoContent } from '@/core/entities/api/success.response';
 import { QueryParams } from '@/core/entities/api/api';
 import { useLocaleQuery } from '../common/use-locale-query';
@@ -29,6 +29,7 @@ export const useMyListings = (params: QueryParams) =>
     queryKey: ['my-listings', params],
     queryFn: async () => await getMyListings(params),
     staleTime: 5 * 60 * 1000,
+    placeholderData: keepPreviousData,
     refetchOnWindowFocus: false,
   });
 

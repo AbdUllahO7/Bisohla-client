@@ -71,12 +71,18 @@ const Pagination: React.FC<PaginationProps> = ({
 
     // First
     if (startPage > 1) {
+      const isFirstCurrent = currentPage === 1;
       buttons.push(
         <button
           key="first"
           onClick={() => onPageChange(1)}
+          aria-current={isFirstCurrent ? 'page' : undefined}
           aria-label="Go to page 1"
-          className="w-11 h-11 flex items-center justify-center rounded-full border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-gray-700 dark:text-zinc-200 shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-primary transition"
+          className={`w-11 h-11 flex items-center justify-center rounded-full text-sm transition font-bold ${
+            isFirstCurrent
+              ? 'bg-[#198341] text-white shadow-md border-2 border-[#198341]'
+              : 'border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-gray-700 dark:text-zinc-200 shadow-sm hover:shadow-md hover:border-gray-300 dark:hover:border-zinc-700'
+          }`}
         >
           1
         </button>,
@@ -102,12 +108,11 @@ const Pagination: React.FC<PaginationProps> = ({
           onClick={() => onPageChange(i)}
           aria-current={isCurrent ? 'page' : undefined}
           aria-label={isCurrent ? `Current page, page ${i}` : `Go to page ${i}`}
-          className={`w-11 h-11 flex items-center justify-center rounded-full text-sm transition font-bold
-            ${
-              isCurrent
-                ? 'bg-primary-foreground text-white shadow'
-                : 'bg-white dark:bg-zinc-900 text-gray-700 dark:text-zinc-300 hover:shadow-md border border-gray-100 dark:border-zinc-800'
-            }`}
+          className={`w-11 h-11 flex items-center justify-center rounded-full text-sm transition font-bold ${
+            isCurrent
+              ? 'bg-[#198341] text-white shadow-md border-2 border-[#198341]'
+              : 'bg-white dark:bg-zinc-900 text-gray-700 dark:text-zinc-300 hover:shadow-md border border-gray-100 dark:border-zinc-800 hover:border-gray-300 dark:hover:border-zinc-700'
+          }`}
         >
           {i}
         </button>,
@@ -126,12 +131,18 @@ const Pagination: React.FC<PaginationProps> = ({
         );
       }
 
+      const isLastCurrent = currentPage === totalPages;
       buttons.push(
         <button
           key="last"
           onClick={() => onPageChange(totalPages)}
+          aria-current={isLastCurrent ? 'page' : undefined}
           aria-label={`Go to page ${totalPages}`}
-          className="w-11 h-11 flex items-center justify-center rounded-full border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-gray-700 dark:text-zinc-200 shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-primary transition"
+          className={`w-11 h-11 flex items-center justify-center rounded-full text-sm transition font-bold ${
+            isLastCurrent
+              ? 'bg-[#198341] text-white shadow-md border-2 border-[#198341]'
+              : 'border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-gray-700 dark:text-zinc-200 shadow-sm hover:shadow-md hover:border-gray-300 dark:hover:border-zinc-700'
+          }`}
         >
           {totalPages}
         </button>,
@@ -143,12 +154,15 @@ const Pagination: React.FC<PaginationProps> = ({
 
   if (totalPages <= 1) return null;
 
-  // handlers with safety
+  // Handlers with safe fallbacks
+  const canGoPrev = hasPreviousPage || currentPage > 1;
+  const canGoNext = hasNextPage || currentPage < totalPages;
+
   const goPrev = () => {
-    if (hasPreviousPage) onPageChange(Math.max(1, currentPage - 1));
+    if (canGoPrev) onPageChange(Math.max(1, currentPage - 1));
   };
   const goNext = () => {
-    if (hasNextPage) onPageChange(Math.min(totalPages, currentPage + 1));
+    if (canGoNext) onPageChange(Math.min(totalPages, currentPage + 1));
   };
 
   return (
@@ -162,7 +176,7 @@ const Pagination: React.FC<PaginationProps> = ({
         {/* Prev chevron button (circular) */}
         <button
           onClick={goPrev}
-          disabled={!hasPreviousPage}
+          disabled={!canGoPrev}
           aria-label={
             isRTL
               ? locale === 'ar'
@@ -173,9 +187,9 @@ const Pagination: React.FC<PaginationProps> = ({
               : 'Previous'
           }
           className={`w-11 h-11 flex items-center justify-center rounded-full transition ${
-            !hasPreviousPage
+            !canGoPrev
               ? 'bg-gray-100 dark:bg-zinc-800 text-gray-400 dark:text-zinc-550 cursor-not-allowed border border-gray-100 dark:border-zinc-800'
-              : 'bg-white dark:bg-zinc-900 text-gray-600 dark:text-zinc-300 hover:shadow-md border border-gray-100 dark:border-zinc-800'
+              : 'bg-white dark:bg-zinc-900 text-gray-600 dark:text-zinc-300 hover:shadow-md border border-gray-100 dark:border-zinc-800 hover:border-gray-300 dark:hover:border-zinc-700 cursor-pointer'
           }`}
         >
           {/* flip chevron depending on locale so direction looks correct in RTL */}
@@ -190,7 +204,7 @@ const Pagination: React.FC<PaginationProps> = ({
         {/* Next chevron button (circular) */}
         <button
           onClick={goNext}
-          disabled={!hasNextPage}
+          disabled={!canGoNext}
           aria-label={
             isRTL
               ? locale === 'ar'
@@ -201,9 +215,9 @@ const Pagination: React.FC<PaginationProps> = ({
               : 'Next'
           }
           className={`w-11 h-11 flex items-center justify-center rounded-full transition ${
-            !hasNextPage
+            !canGoNext
               ? 'bg-gray-100 dark:bg-zinc-800 text-gray-400 dark:text-zinc-550 cursor-not-allowed border border-gray-100 dark:border-zinc-800'
-              : 'bg-white dark:bg-zinc-900 text-gray-600 dark:text-zinc-300 hover:shadow-md border border-gray-100 dark:border-zinc-800'
+              : 'bg-white dark:bg-zinc-900 text-gray-600 dark:text-zinc-300 hover:shadow-md border border-gray-100 dark:border-zinc-800 hover:border-gray-300 dark:hover:border-zinc-700 cursor-pointer'
           }`}
         >
           {isRTL ? <ChevronLeft /> : <ChevronRight />}

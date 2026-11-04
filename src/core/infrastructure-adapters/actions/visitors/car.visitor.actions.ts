@@ -34,8 +34,9 @@ export const getBodyTypeCategoryCounts = async (
   listingTypeId: number = 1,
 ): Promise<ApiResponse<any>> => {
   try {
+    const numericListingTypeId = Number(listingTypeId) || 1;
     const res = await getReq({
-      url: `/listings-visitor/${listingTypeId}/category-counts`,
+      url: `/listings-visitor/${numericListingTypeId}/category-counts`,
       next: {
         revalidate: 180,
       },
@@ -55,7 +56,7 @@ export const getBodyTypeCategoryCounts = async (
     }
 
     // Fallback: For Cars (listingTypeId 1), fetch counts from public filter facets
-    if (listingTypeId === 1) {
+    if (numericListingTypeId === 1) {
       const facetsRes = await getPublicFilterFacets({});
       if (facetsRes?.data && Array.isArray(facetsRes.data) && facetsRes.data.length > 0) {
         const bodyTypeFacets = facetsRes.data

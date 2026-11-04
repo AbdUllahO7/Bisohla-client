@@ -18,21 +18,32 @@ const Categories = () => {
 
 
   // Fetch body type category counts from backend
+  const listingTypeId = Number(filters.listingTypeId) || 1;
   const { data: bodyTypeCategoryCounts, isLoading } =
-    useGetBodyTypeCategoryCounts(filters.listingTypeId ?? 1);
+    useGetBodyTypeCategoryCounts(listingTypeId);
 
   // Get body type options with translations from schema or fallback to enums
   const bodyTypeOptions = useMemo(() => {
-    if (filterSchema) {
+    if (filterSchema?.sections) {
       const attribute = filterSchema.sections
-        .flatMap(s => s.attributes)
-        .find(a => a.slug === 'body_type');
+        .flatMap((s: any) => s.attributes || [])
+        .find((a: any) => a.slug === 'body_type');
         
-      if (attribute && attribute.options) {
-        return attribute.options.map((opt: any) => ({
-          value: opt.id,
-          label: opt.label[locale] || opt.label['en'] || opt.id
-        }));
+      if (attribute && Array.isArray(attribute.options) && attribute.options.length > 0) {
+        return attribute.options.map((opt: any) => {
+          if (typeof opt === 'string') {
+            return { value: opt.toLowerCase(), label: opt };
+          }
+          const label =
+            (opt.label && (opt.label[locale] || opt.label['en'] || opt.label['ar'])) ||
+            opt.name ||
+            opt.id ||
+            '';
+          return {
+            value: String(opt.id || opt.value || ''),
+            label: String(label || opt.id || opt.value || ''),
+          };
+        });
       }
     }
     return getBodyTypeOptions(t);
@@ -40,12 +51,8 @@ const Categories = () => {
 
   // Process the backend data to match the frontend format
   const categoriesWithCounts = useMemo(() => {
-    if (!bodyTypeCategoryCounts?.data) {
-      return [];
-    }
-
     const countsMap = new Map<string, number>();
-    const rawData = bodyTypeCategoryCounts.data;
+    const rawData = bodyTypeCategoryCounts?.data;
 
     if (Array.isArray(rawData)) {
       // 1. Look for attribute object with attributeSlug === 'body_type'
@@ -85,12 +92,14 @@ const Categories = () => {
 
     // Map body type options with their counts
     return bodyTypeOptions.map((option: SelectOption) => {
-      const optVal = String(option.value).toLowerCase();
+      const optVal = String(option.value || '').toLowerCase();
       const count =
         countsMap.get(optVal) ??
         (optVal === 'wagon' ? countsMap.get('station_wagon') : undefined) ??
         (optVal === 'station_wagon' ? countsMap.get('wagon') : undefined) ??
         0;
+
+      const isSelected = String(filters.bodyType || '').toLowerCase() === optVal;
 
       return {
         title: option.label,
@@ -100,11 +109,11 @@ const Categories = () => {
         value: option.value,
         // Add click handler to filter by body type
         onClick: () => {
-          updateFilter('bodyType', option.value);
+          updateFilter('bodyType', isSelected ? '' : option.value);
         },
       };
-    }); // Only show categories with cars
-  }, [bodyTypeCategoryCounts, bodyTypeOptions, updateFilter]);
+    });
+  }, [bodyTypeCategoryCounts?.data, bodyTypeOptions, updateFilter, filters.bodyType]);
 
   // Helper function to map body types to appropriate images
   function getImageForBodyType(bodyType: string): string {
@@ -130,7 +139,11 @@ const Categories = () => {
   }
 
   // Only show for Cars (listingTypeId 1)
-  if (filters.listingTypeId !== 1) {
+  const isCars =
+    Number(filters.listingTypeId) === 1 ||
+    !filters.listingTypeId;
+
+  if (!isCars) {
     return null;
   }
 
@@ -140,6 +153,11 @@ const Categories = () => {
         data={categoriesWithCounts}
         direction={direction}
         isLoading={isLoading}
+        activeValue={filters.bodyType}
+        onSelect={(val) => {
+          const isSelected = String(filters.bodyType || '').toLowerCase() === String(val).toLowerCase();
+          updateFilter('bodyType', isSelected ? '' : val);
+        }}
       />
     </Box>
   );

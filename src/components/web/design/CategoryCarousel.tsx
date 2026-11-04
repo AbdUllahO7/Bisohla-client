@@ -11,7 +11,6 @@ import {
 } from '@/components/ui/carousel';
 import Image from 'next/image';
 import Text from '@/components/ui/text';
-import { Link } from '@/i18n/routing';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useSearchParams } from 'next/navigation';
 import {
@@ -27,24 +26,27 @@ import {
   Sparkles,
 } from 'lucide-react';
 
-// Update the props interface to include the loading state
+// Update the props interface to include the loading state and click handler
 interface CategoryItem {
   title: string;
   carCount: string;
   image: string;
   value: string;
+  onClick?: () => void;
 }
 
 interface CarouselComponentProps {
   data: CategoryItem[];
   direction: string;
   isLoading?: boolean;
+  activeValue?: string;
+  onSelect?: (value: string) => void;
 }
 
 // Icon mapping for different car categories
-const getCategoryIcon = (value: string, title: string) => {
-  const lowerValue = value.toLowerCase();
-  const lowerTitle = title.toLowerCase();
+const getCategoryIcon = (value?: string, title?: string) => {
+  const lowerValue = String(value || '').toLowerCase();
+  const lowerTitle = String(title || '').toLowerCase();
 
   if (
     lowerValue.includes('suv') ||
@@ -109,10 +111,12 @@ const CategoryCarousel: React.FC<CarouselComponentProps> = ({
   data,
   direction,
   isLoading = false,
+  activeValue,
+  onSelect,
 }) => {
-  // Get current URL parameters to detect active category
+  // Get current active category (from prop or URL parameters)
   const searchParams = useSearchParams();
-  const activeBodyType = searchParams.get('bodyType');
+  const activeBodyType = (activeValue ?? searchParams?.get('bodyType') ?? '').toLowerCase();
 
   // Determine if RTL based on direction prop
   const isRTL = direction === 'rtl';
@@ -154,18 +158,36 @@ const CategoryCarousel: React.FC<CarouselComponentProps> = ({
                 ))
             : // Enhanced category cards
               data.map((item, index) => {
-                const isActive = activeBodyType === item.value;
-                const categoryIcon = getCategoryIcon(item.value, item.title);
-                const categoryColor = getCategoryColor(item.value, item.title);
+                const isActive = activeBodyType === String(item?.value || '').toLowerCase();
+                const categoryIcon = getCategoryIcon(item?.value, item?.title);
+                const categoryColor = getCategoryColor(item?.value, item?.title);
+
+                const handleClick = () => {
+                  if (item.onClick) {
+                    item.onClick();
+                  } else if (onSelect) {
+                    onSelect(item.value);
+                  }
+                };
 
                 return (
                   <CarouselItem
                     key={index}
-                    className="pl-2 md:pl-4  xs:basis-1/2 md:basis-1/4 lg:basis-1/6"
+                    className="pl-2 md:pl-4 xs:basis-1/2 md:basis-1/4 lg:basis-1/6"
                   >
-                    <Link
-                      href={`/products?bodyType=${item.value}`}
-                      className="block group"
+                    <div
+                      role="button"
+                      tabIndex={0}
+                      onClick={handleClick}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          handleClick();
+                        }
+                      }}
+                      className="block group w-full text-left rtl:text-right select-none cursor-pointer focus:outline-none"
+                      aria-pressed={isActive}
+                      aria-label={item.title}
                     >
                       <Card
                         className={`
@@ -246,7 +268,7 @@ const CategoryCarousel: React.FC<CarouselComponentProps> = ({
                           )}
                         </CardContent>
                       </Card>
-                    </Link>
+                    </div>
                   </CarouselItem>
                 );
               })}
